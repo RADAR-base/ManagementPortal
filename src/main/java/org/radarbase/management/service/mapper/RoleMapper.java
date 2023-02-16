@@ -20,11 +20,14 @@ public interface RoleMapper {
     @Mapping(source = "authority.name", target = "authorityName")
     @Mapping(source = "project.id", target = "projectId")
     @Mapping(source = "project.projectName", target = "projectName")
+    @Mapping(source = "organization.id", target = "organizationId")
+    @Mapping(source = "organization.name", target = "organizationName")
     RoleDTO roleToRoleDTO(Role role);
 
     @Mapping(target = "authority", ignore = true)
     @Mapping(source = "projectId", target = "project.id")
     @Mapping(target = "users", ignore = true)
+    @Mapping(source = "organizationId", target = "organization.id")
     Role roleDTOToRole(RoleDTO roleDtp);
 
     Set<Role> roleDTOsToRoles(Set<RoleDTO> roleDtos);

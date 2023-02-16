@@ -2,22 +2,14 @@ import { login } from '../util/login';
 import * as navBarPage from '../util/nav-bar';
 
 describe('SourceData e2e test', () => {
-    before(() => {
-        login();
-        cy.visit('./');
-    });
-
     beforeEach(() => {
-        cy.wait(100);
-        Cypress.Cookies.preserveOnce('oAtkn');
+        login();
+        navBarPage.clickOnEntityMenu();
+        navBarPage.clickOnEntity('source-data');
     });
 
     it('should load SourceData', () => {
-        navBarPage.clickOnEntityMenu();
-        cy.get('[routerLink="source-data"]').first().click();
-
-        const pageTitle = cy.get('h2 span').first();
-        pageTitle.should('have.text', 'Source Data');
+        cy.get('h2 span').first().should('have.text', 'Source Data');
     });
 
     it('should load create SourceData dialog', () => {
@@ -31,29 +23,24 @@ describe('SourceData e2e test', () => {
 
     it('should be able to create SourceData', () => {
         cy.get('button.create-source-data').click();
-        cy.wait(3000);
-
-        cy.get('#field_sourceDataType').type('TEST-TYPE');
-        cy.get('#field_sourceDataName').type('TEST-SENSOR');
-        cy.wait(3000);
-        cy.get('jhi-source-data-dialog').contains('Save').click();
-
+        cy.get('#field_sourceDataType').type('TEST_TYPE');
+        cy.get('#field_sourceDataName').type('TEST_SENSOR');
+        cy.contains('jhi-source-data-dialog button', 'Save').click();
+        cy.get('.alert-success').first()
+            .should('contain', 'A new Source Data is created with identifier TEST_SENSOR');
     });
 
     it('should be able to edit SourceData', () => {
-        cy.wait(3000);
-        cy.get('td').contains('TEST-SENSOR').parents('tr')
-            .find('button').contains('Edit').click();
+        cy.contains('tr', 'TEST_SENSOR')
+            .contains('button', 'Edit').click();
 
-        cy.wait(3000);
-        cy.get('button.btn-primary').contains('Save').click();
+        cy.contains('button.btn-primary', 'Save').click();
     });
 
     it('should be able to delete SourceData', () => {
-        cy.get('td').contains('TEST-SENSOR').parents('tr')
-            .find('button').contains('Delete').click();
+        cy.contains('tr', 'TEST_SENSOR')
+            .contains('button', 'Delete').click();
 
-        cy.get('jhi-source-data-delete-dialog button.btn-danger')
-            .contains('Delete').click();
+        cy.contains('jhi-source-data-delete-dialog button.btn-danger', 'Delete').click();
     });
 });

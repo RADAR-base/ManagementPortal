@@ -1,7 +1,6 @@
 import { Component, OnDestroy } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
-
 import { AlertService } from '../util/alert.service';
 import { EventManager } from '../util/event-manager.service';
 
@@ -57,7 +56,7 @@ export class JhiAlertErrorComponent implements OnDestroy {
                         for (i = 0; i < fieldErrors.length; i++) {
                             const fieldError = fieldErrors[i];
                             // convert 'something[14].other[4].id' to 'something[].other[].id' so translations can be written to it
-                            const convertedField = fieldError.field.replace(/\[\d*\]/g, '[]');
+                            const convertedField = fieldError.field.replace(/\[\d*]/g, '[]');
                             const fieldName = translateService.instant('managementPortalApp.' +
                                     fieldError.objectName + '.' + convertedField);
                             this.addErrorAlert(
@@ -92,7 +91,7 @@ export class JhiAlertErrorComponent implements OnDestroy {
     }
 
     addErrorAlert(message, key?, data?) {
-        key = key && key !== null ? key : message;
+        key = key ? key : message;
         this.alerts.push(
                 this.alertService.addAlert(
                         {

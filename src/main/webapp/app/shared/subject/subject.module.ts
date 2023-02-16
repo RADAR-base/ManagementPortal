@@ -1,9 +1,11 @@
 import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { QRCodeModule } from 'angularx-qrcode';
+import { QrCodeModule } from 'ng-qrcode';
 
 import { ManagementPortalSharedModule } from '../../shared';
 import {
+    FilterBadgeComponent,
+    LoadMoreComponent, NgbDatePipe,
     SubjectComponent,
     SubjectDeleteDialogComponent,
     SubjectDeletePopupComponent,
@@ -18,6 +20,9 @@ import {
     subjectRoute,
 } from './';
 import {
+    AddSubjectsToGroupDialogComponent
+} from "./add-subjects-to-group-dialog.component";
+import {
     SubjectSourceAssignerDialogComponent,
     SubjectSourceAssignerPopupComponent,
 } from './source-assigner/source-assigner.component';
@@ -31,9 +36,13 @@ const ENTITY_STATES = [
     imports: [
         ManagementPortalSharedModule,
         RouterModule.forRoot(ENTITY_STATES, {useHash: true}),
-        QRCodeModule,
+        QrCodeModule,
     ],
     declarations: [
+        AddSubjectsToGroupDialogComponent,
+        FilterBadgeComponent,
+        LoadMoreComponent,
+        NgbDatePipe,
         SubjectComponent,
         SubjectDetailComponent,
         SubjectRevisionComponent,
@@ -61,6 +70,7 @@ const ENTITY_STATES = [
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
     exports: [
         SubjectComponent,
+        LoadMoreComponent,
     ],
 })
 export class ManagementPortalSharedSubjectModule {

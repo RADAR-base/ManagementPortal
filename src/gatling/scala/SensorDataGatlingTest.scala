@@ -50,7 +50,7 @@ class SensorDataGatlingTest extends ManagementPortalSimulation {
             .get("/api/source-data")
             .headers(headers_http_authenticated)
             .check(status.is(200)))
-            .pause(5 seconds, 10 seconds)
+            .pause(5.seconds, 10.seconds)
             .feed(randomString)
             .exec(http("Create new sourceData")
               .post("/api/source-data")

@@ -11,15 +11,30 @@
             "updated": "A Subject is updated with identifier {{ param }}",
             "deleted": "A Subject is deleted with identifier {{ param }}",
             "delete": {
-                "question": "Are you sure you want to delete Subject {{ id }}?"
+                "question": "Are you sure you want to delete Subject {{ id }}? This operation cannot be undone."
             },
             "detail": {
                 "title": "Subject"
+            },
+            "filter": {
+                "title": "Filter",
+                "filters": "Filters",
+                "applyButton": "Apply filter",
+                "clearButton": "Clear filters",
+                "advancedFilter": "Advanced Filter",
+                "from": "From",
+                "to": "To",
+                "error": {
+                    "invalidDate": "The date is not valid.",
+                    "invalidRange": "The date range is invalid: From date is after To date."
+                }
             },
             "login": "Login",
             "email": "Email",
             "externalLink": "External Link",
             "externalId": "External Id",
+            "humanReadableId": "Human Readable ID",
+            "enrolmentDate": "Enrolment Date",
             "removed": "Removed",
             "activated": "Activated",
             "langKey": "Language",
@@ -27,8 +42,14 @@
             "sources": "Sources",
             "createdBy": "Created By",
             "createdDate": "Created Date",
+            "dateOfBirth": "Date of Birth",
+            "enrollmentDate": "Enrollment Date",
+            "enrollmentDateFrom": "Enrollment Date From",
+            "enrollmentDateTo": "Enrollment Date To",
             "lastModifiedBy": "Last Modified By",
             "lastModifiedDate": "Last Modified Date",
+            "noSubjects": "No results found",
+            "personName": "Name",
             "pairing": "Pairing",
             "actions": "Actions",
             "pairApp": "Pair App",
@@ -58,9 +79,19 @@
             "discontinue" : {
                 "operation" : "Discontinue",
                 "title" : "Confirm discontinue operation",
-                "question" : "Are you sure you want to discontinue Subject {{ id }}?"
+                "question" : "Are you sure you want to discontinue Subject {{ id }}? This operation cannot be undone."
             },
             "discontinued": "A Subject is discontinued with identifier {{ param }}",
+            "sorting": {
+                "sortByLabel": "Sort by",
+                "sortOrderLabel": "Order",
+                "id": "Id",
+                "login": "Subject Id",
+                "externalId": "External Id",
+                "authority": "Status",
+                "asc": "Ascending",
+                "desc": "Descending"
+            },
             "subjectId" : "Subject Id",
             "baseUrl" : "Base Url",
             "tokenName" : "Token Name",
@@ -70,6 +101,13 @@
             "tokenTimeoutMinutes": "{{minutes}} minutes",
             "validUntil": "Valid until",
             "validity": "Validity",
+            "selectAll": "Select all",
+            "clearSelectedItems": "Clear selected items",
+            "addSelectedToGroup": "Add to group",
+            "group": "Group",
+            "loadMore": "Load more ({{shown}}/{{total}} shown)",
+            "loadMorePartial": "Load more ({{shown}} shown)",
+            "allLoaded": "All {{total}} results loaded",
             "generateToken": "Generate QR code",
             "generatePersistentToken": "Generate persistent QR code"
         }

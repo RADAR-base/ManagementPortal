@@ -26,7 +26,6 @@ public abstract class RoleMapperDecorator implements RoleMapper {
      */
     @Override
     public Role roleDTOToRole(RoleDTO roleDto) {
-
         if (roleDto == null) {
             return null;
         }
@@ -34,7 +33,7 @@ public abstract class RoleMapperDecorator implements RoleMapper {
         Role role = delegate.roleDTOToRole(roleDto);
 
         if (role.getAuthority() == null) {
-            role.setAuthority(authorityRepository.getOne(roleDto.getAuthorityName()));
+            role.setAuthority(authorityRepository.getById(roleDto.getAuthorityName()));
         }
 
         return role;

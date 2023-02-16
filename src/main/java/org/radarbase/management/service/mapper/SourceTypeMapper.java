@@ -5,6 +5,7 @@ import java.util.Set;
 import org.mapstruct.IterableMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.Named;
 import org.radarbase.management.domain.SourceData;
 import org.radarbase.management.domain.SourceType;
 import org.radarbase.management.service.dto.MinimalSourceTypeDTO;
@@ -16,9 +17,17 @@ import org.radarbase.management.service.dto.SourceTypeDTO;
  */
 @Mapper(componentModel = "spring", uses = {SourceDataMapper.class,})
 public interface SourceTypeMapper {
-
+    @Named("sourceTypeToSourceTypeDTO")
     SourceTypeDTO sourceTypeToSourceTypeDTO(SourceType sourceType);
 
+    @Named("sourceTypeToSourceTypeDTOReduced")
+    @Mapping(target = "sourceData", ignore = true)
+    @Mapping(target = "assessmentType", ignore = true)
+    @Mapping(target = "appProvider", ignore = true)
+    @Mapping(target = "description", ignore = true)
+    SourceTypeDTO sourceTypeToSourceTypeDTOReduced(SourceType sourceType);
+
+    @IterableMapping(qualifiedByName = "sourceTypeToSourceTypeDTOReduced")
     List<SourceTypeDTO> sourceTypesToSourceTypeDTOs(List<SourceType> sourceTypes);
 
     @Mapping(target = "projects", ignore = true)

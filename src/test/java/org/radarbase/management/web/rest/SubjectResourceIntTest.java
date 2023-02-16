@@ -32,16 +32,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockitoAnnotations;
+import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.ManagementPortalTestApp;
 import org.radarbase.management.domain.Subject;
 import org.radarbase.management.repository.ProjectRepository;
 import org.radarbase.management.repository.SubjectRepository;
 import org.radarbase.management.security.JwtAuthenticationFilter;
+import org.radarbase.management.service.OrganizationService;
 import org.radarbase.management.service.SourceService;
 import org.radarbase.management.service.SourceTypeService;
 import org.radarbase.management.service.SubjectService;
@@ -105,9 +107,12 @@ class SubjectResourceIntTest {
     private ProjectRepository projectRepository;
 
     @Autowired
-    private HttpServletRequest servletRequest;
+    private RadarToken radarToken;
 
     private MockMvc restSubjectMockMvc;
+
+    @Autowired
+    private OrganizationService organizationService;
 
     @BeforeEach
     public void setUp() throws ServletException {
@@ -118,8 +123,9 @@ class SubjectResourceIntTest {
         ReflectionTestUtils.setField(subjectResource, "subjectMapper", subjectMapper);
         ReflectionTestUtils.setField(subjectResource, "projectRepository", projectRepository);
         ReflectionTestUtils.setField(subjectResource, "sourceTypeService", sourceTypeService);
-        ReflectionTestUtils.setField(subjectResource, "servletRequest", servletRequest);
+        ReflectionTestUtils.setField(subjectResource, "token", radarToken);
         ReflectionTestUtils.setField(subjectResource, "sourceService", sourceService);
+        ReflectionTestUtils.setField(subjectResource, "organizationService", organizationService);
 
         JwtAuthenticationFilter filter = OAuthHelper.createAuthenticationFilter();
         filter.init(new MockFilterConfig());
@@ -132,7 +138,6 @@ class SubjectResourceIntTest {
                 // add the oauth token by default to all requests for this mockMvc
                 .defaultRequest(get("/").with(OAuthHelper.bearerToken())).build();
     }
-
 
     @Test
     @Transactional
@@ -252,7 +257,6 @@ class SubjectResourceIntTest {
 
         // Update the subject
         Subject updatedSubject = subjectRepository.findById(subjectDto.getId()).get();
-
 
         updatedSubject
                 .externalLink(UPDATED_EXTERNAL_LINK)
@@ -537,11 +541,10 @@ class SubjectResourceIntTest {
 
     private SourceDTO createSource() {
         SourceDTO sourceDto = new SourceDTO();
-        sourceDto.setId(1L);
         sourceDto.setAssigned(false);
         sourceDto.setSourceId(UUID.randomUUID());
         sourceDto.setSourceType(sourceTypeService.findAll().get(0));
-        sourceDto.setSourceName("something");
+        sourceDto.setSourceName("something" + UUID.randomUUID());
         return sourceDto;
     }
 

@@ -33,5 +33,14 @@
     <include file="classpath:config/liquibase/changelog/20180824131400_add_client_id_to_meta_token.xml" relativeToChangelogFile="false"/>
     <include file="classpath:config/liquibase/changelog/20180824131400_add_meta_token_mod_to_subject.xml" relativeToChangelogFile="false"/>
     <include file="classpath:config/liquibase/changelog/20200504145200_add_meta_token_persistence.xml" relativeToChangelogFile="false"/>
+    <include file="classpath:config/liquibase/changelog/20210920101000_add_groups.xml" relativeToChangelogFile="false"/>
+    <include file="classpath:config/liquibase/changelog/20210929120000_add_date_of_birth.xml" relativeToChangelogFile="false"/>
+    <include file="classpath:config/liquibase/changelog/20211006150000_add_person_name.xml" relativeToChangelogFile="false"/>
+    <include file="classpath:config/liquibase/changelog/20211006160000_add_source_deleted_flag.xml" relativeToChangelogFile="false"/>
+    <include file="classpath:config/liquibase/changelog/20211006170000_add_enrollment_date.xml" relativeToChangelogFile="false"/>
+    <include file="classpath:config/liquibase/changelog/20211018210000_add_indexes_for_subject.xml" relativeToChangelogFile="false"/>
+    <include file="classpath:config/liquibase/changelog/20211026000000_extra_demo_data.xml" relativeToChangelogFile="false"/>
+    <include file="classpath:config/liquibase/changelog/20211110160000_add_organization.xml" relativeToChangelogFile="false"/>
+    <include file="classpath:config/liquibase/changelog/20211202145000_add_organization_demo_data.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-constraints-changelog - JHipster will add liquibase constraints changelogs here -->
 </databaseChangeLog>

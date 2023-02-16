@@ -33,6 +33,67 @@
                 [(ngModel)]="subject.externalId"
              />
         </div>
+        <div class="form-group" *ngIf="!isInProject">
+            <label class="form-control-label"
+                   for="field_project"
+                   [translate]="'managementPortalApp.subject.project'">
+            </label>
+            <select class="form-control"
+                    id="field_project"
+                    name="project"
+                    [(ngModel)]="projectName"
+                    (ngModelChange)="onProjectChange($event)"
+                    required
+            >
+                <option [ngValue]="null">-</option>
+                <option *ngFor="let p of projects" [ngValue]="p.projectName">
+                    {{p.projectName}}
+                </option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label class="form-control-label"
+                for="field_group"
+                [translate]="'managementPortalApp.subject.group'">
+            </label>
+            <select class="form-control"
+                id="field_group"
+                name="group"
+                [(ngModel)]="groupName"
+            >
+                <option [ngValue]="null">-</option>
+                <option *ngFor="let g of project?.groups" [ngValue]="g.name">
+                    {{g.name}}
+                </option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label class="form-control-label"
+                   [translate]="'managementPortalApp.subject.personName'"
+                   for="field_person_name">
+            </label>
+            <input type="text" class="form-control" name="personName" id="field_person_name" [(ngModel)]="subject.personName"/>
+        </div>
+
+        <div class="form-group">
+            <label class="form-control-label"
+                   [translate]="'managementPortalApp.subject.dateOfBirth'"
+                   for="field_date_of_birth">
+            </label>
+            <div class="input-group">
+                <input [(ngModel)]="dateOfBirth"
+                       id="field_date_of_birth"
+                       class="form-control"
+                       name="dateOfBirth"
+                       placeholder="yyyy-mm-dd"
+                       ngbDatepicker
+                       #dateOfBirthDatePicker="ngbDatepicker">
+                <div class="input-group-append">
+                    <button class="btn btn-outline-secondary calendar" (click)="dateOfBirthDatePicker.toggle()" type="button"></button>
+                </div>
+            </div>
+        </div>
 
         <jhi-dictionary-mapper [attributes]='subject.attributes' [options]="options" [eventPrefix]='attributeComponentEventPrefix'></jhi-dictionary-mapper>
     </div>

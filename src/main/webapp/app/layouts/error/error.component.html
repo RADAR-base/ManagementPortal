@@ -1,14 +1,13 @@
 <div>
     <div class="row justify-content-md-center">
         <div>
-            <h1 [translate]="'error.title'"></h1>
+            <h1 [translate]="error403 ? 'error.403title' : 'error.title'"></h1>
 
-            <div [hidden]="!errorMessage">
-                <div class="alert alert-danger">{{errorMessage}}
-                </div>
-
+            <div *ngIf="errorMessage">
+                <div class="alert alert-danger">{{errorMessage}}</div>
             </div>
-            <div [hidden]="!error403">
+
+            <div *ngIf="error403">
                 <div class="alert alert-danger" [translate]="'error.403'">
                 </div>
                 <span [translate]="'error.loginLink.prefix'"></span>

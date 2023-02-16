@@ -11,13 +11,13 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import org.radarbase.auth.authorization.Permission;
@@ -80,18 +80,14 @@ public class ManagementPortalSecurityConfigLoader {
         ManagementPortalProperties.Frontend frontend = managementPortalProperties.getFrontend();
         BaseClientDetails details = new BaseClientDetails();
         details.setClientId(frontend.getClientId());
-        details.setClientSecret(frontend.getClientSecret());
+        details.setClientSecret(null);
         details.setAccessTokenValiditySeconds(frontend.getAccessTokenValiditySeconds());
         details.setRefreshTokenValiditySeconds(frontend.getRefreshTokenValiditySeconds());
         details.setResourceIds(Collections.singletonList("res_ManagementPortal"));
         details.setAuthorizedGrantTypes(Arrays.asList("password", "refresh_token",
                 "authorization_code"));
         details.setAdditionalInformation(Collections.singletonMap("protected", Boolean.TRUE));
-        List<String> allScopes = Arrays.stream(Permission.Entity.values())
-                .map(Permission.Entity::name)
-                .flatMap(e -> Arrays.stream(Permission.Operation.values())
-                        .map(o -> String.join(".", e, o.name())))
-                .collect(Collectors.toList());
+        List<String> allScopes = Arrays.asList(Permission.scopes());
         details.setScope(allScopes);
         details.setAutoApproveScopes(allScopes);
         loadOAuthClient(details);
@@ -109,20 +105,25 @@ public class ManagementPortalSecurityConfigLoader {
             return;
         }
         Path file = Paths.get(path);
-        try (InputStream inputStream = Files.newInputStream(file)) {
+        // CsvSchema uses the @JsonPropertyOrder to define column order, it does not
+        // read the header. Let's read the header ourselves and provide that as
+        // column order
+        String[] columnOrder = getCsvFileColumnOrder(file);
+        if (columnOrder == null) {
+            return;
+        }
+        CsvMapper mapper = new CsvMapper();
+        CsvSchema schema = mapper.schemaFor(CustomBaseClientDetails.class)
+                .withColumnReordering(true)
+                .sortedBy(columnOrder)
+                .withColumnSeparator(SEPARATOR)
+                .withHeader();
+        ObjectReader reader = mapper
+                .readerFor(CustomBaseClientDetails.class)
+                .with(schema);
+        try (InputStream inputStream = Files.newInputStream(file);
+                MappingIterator<BaseClientDetails> iterator = reader.readValues(inputStream)) {
             logger.info("Loading OAuth clients from {}", file.toAbsolutePath());
-            CsvMapper mapper = new CsvMapper();
-            CsvSchema schema = mapper.schemaFor(CustomBaseClientDetails.class)
-                    // CsvSchema uses the @JsonPropertyOrder to define column order, it does not
-                    // read the header. Let's read the header ourselves and provide that as
-                    // column order
-                    .withColumnReordering(true)
-                    .sortedBy(getCsvFileColumnOrder(file))
-                    .withColumnSeparator(SEPARATOR)
-                    .withHeader();
-            MappingIterator<BaseClientDetails> iterator = mapper
-                    .readerFor(CustomBaseClientDetails.class)
-                    .with(schema).readValues(inputStream);
             while (iterator.hasNext()) {
                 loadOAuthClient(iterator.nextValue());
             }

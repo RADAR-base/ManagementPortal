@@ -1,7 +1,7 @@
 package org.radarbase.management.web.rest;
 
-import com.codahale.metrics.annotation.Timed;
-import org.radarbase.auth.authorization.AuthoritiesConstants;
+import io.micrometer.core.annotation.Timed;
+import org.radarbase.auth.authorization.RoleAuthority;
 import org.radarbase.management.service.RevisionService;
 import org.radarbase.management.service.dto.RevisionInfoDTO;
 import org.radarbase.management.web.rest.util.PaginationUtil;
@@ -38,7 +38,7 @@ public class RevisionResource {
      */
     @GetMapping("/revisions")
     @Timed
-    @Secured({AuthoritiesConstants.SYS_ADMIN})
+    @Secured({RoleAuthority.SYS_ADMIN_AUTHORITY})
     public ResponseEntity<List<RevisionInfoDTO>> getRevisions(
             @PageableDefault(page = 0, size = Integer.MAX_VALUE) Pageable pageable) {
         log.debug("REST request to get page of revisions");
@@ -55,7 +55,7 @@ public class RevisionResource {
      */
     @GetMapping("/revisions/{id}")
     @Timed
-    @Secured({AuthoritiesConstants.SYS_ADMIN})
+    @Secured({RoleAuthority.SYS_ADMIN_AUTHORITY})
     public ResponseEntity<RevisionInfoDTO> getRevision(@PathVariable("id") Integer id) {
         log.debug("REST request to get single revision: {}", id.toString());
         return ResponseEntity.ok(revisionService.getRevision(id));

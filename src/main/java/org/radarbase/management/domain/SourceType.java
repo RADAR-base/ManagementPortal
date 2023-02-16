@@ -44,7 +44,8 @@ public class SourceType extends AbstractEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
-    @SequenceGenerator(name = "sequenceGenerator", initialValue = 1000)
+    @SequenceGenerator(name = "sequenceGenerator", initialValue = 1000,
+            sequenceName = "hibernate_sequence")
     private Long id;
 
     @NotNull
@@ -159,30 +160,6 @@ public class SourceType extends AbstractEntity implements Serializable {
 
     public SourceType sourceData(Set<SourceData> sourceData) {
         this.sourceData = sourceData;
-        return this;
-    }
-
-    /**
-     * Add source data to this source type.
-     *
-     * @param sourceData the source data to add
-     * @return this source type
-     */
-    public SourceType addSourceData(SourceData sourceData) {
-        this.sourceData.add(sourceData);
-        sourceData.setSourceType(this);
-        return this;
-    }
-
-    /**
-     * Remove source data from this source type.
-     *
-     * @param sourceData the source data to remove
-     * @return this source type
-     */
-    public SourceType removeSourceData(SourceData sourceData) {
-        this.sourceData.remove(sourceData);
-        sourceData.setSourceType(null);
         return this;
     }
 

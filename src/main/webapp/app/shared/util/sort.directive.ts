@@ -34,7 +34,9 @@ export class JhiSortDirective {
         this.predicate = field;
         this.predicateChange.emit(field);
         this.ascendingChange.emit(this.ascending);
-        this.callback();
+        if (this.callback) {
+            this.callback();
+        }
     }
 
     private resetClasses() {

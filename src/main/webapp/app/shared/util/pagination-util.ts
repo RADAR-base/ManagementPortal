@@ -1,19 +1,16 @@
 // Extracted from JHipster PaginationUtil
 
-export function parseAscending(sort: string): boolean {
+export function parseSort(sort: string): {predicate: string, ascending: boolean} {
     let sortArray = sort.split(',');
-    sortArray = sortArray.length > 1 ? sortArray : sort.split('%2C');
-    if (sortArray.length > 1) {
-        return sortArray.slice(-1)[0] === 'asc';
+    if (sortArray.length === 1) {
+        sortArray = sort.split('%2C');
     }
-    // default to true if no sort is defined
-    return true;
+    return {
+        predicate: sortArray[0],
+        ascending: sortArray.length === 1 || sortArray.slice(-1)[0] === 'asc',
+    };
 }
 
 export function parsePage(page: string): number {
     return parseInt(page, 10);
-}
-
-export function parsePredicate(sort: string): string {
-    return sort.split(',')[0].split('%2C')[0];
 }

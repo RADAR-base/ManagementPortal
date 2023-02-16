@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.6.xsd"
+>
+    <changeSet id="Add organization authorities" author="joris@thehyve.nl">
+        <insert tableName="radar_authority">
+            <column name="name">ROLE_ORGANIZATION_ADMIN</column>
+        </insert>
+        <insert tableName="radar_authority_aud">
+            <column name="rev">1</column>
+            <column name="revtype">0</column>
+            <column name="name">ROLE_ORGANIZATION_ADMIN</column>
+        </insert>
+        <loadData
+            file="config/liquibase/organization_roles.csv"
+            separator=";"
+            tableName="radar_role"
+        />
+        <sql>insert into radar_role_aud(id, rev, revtype, authority_name, authority_mod, project_id, project_mod, organization_id, organization_mod, users_mod) select id, 1, 0, authority_name, true, project_id, true, organization_id, true, true from radar_role WHERE id = 6</sql>
+    </changeSet>
+
+    <changeSet id="Add organization admin user" author="joris@thehyve.nl" context="dev,test">
+        <loadData
+            file="config/liquibase/organization_user.csv"
+            separator=";"
+            tableName="radar_user"
+        />
+        <sql>insert into radar_user_aud(id, rev, revtype, activated, activated_mod, activation_key, activation_key_mod, email, email_mod, first_name, first_name_mod, lang_key, lang_key_mod, last_name, last_name_mod, login, login_mod, password_hash, password_mod, reset_date, reset_date_mod, reset_key, reset_key_mod, roles_mod) select id, 1, 0, activated, true, activation_key, true, email, true, first_name, true, lang_key, true, last_name, true, login, true, password_hash, true, reset_date, true, reset_key, true, true from radar_user where id = 55</sql>
+
+        <loadData
+            file="config/liquibase/organization_role_users.csv"
+            separator=";"
+            tableName="role_users"
+        />
+        <sql>insert into role_users_aud(rev, revtype, users_id, roles_id) select 1, 0, users_id, roles_id from role_users where users_id = 55</sql>
+    </changeSet>
+</databaseChangeLog>

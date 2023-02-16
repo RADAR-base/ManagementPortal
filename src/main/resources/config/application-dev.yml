@@ -14,9 +14,6 @@
 # ===================================================================
 
 spring:
-    profiles:
-        active: dev
-        include: swagger
     devtools:
         restart:
             enabled: true
@@ -26,23 +23,15 @@ spring:
     jackson:
         serialization.indent_output: true
     datasource:
-        type: com.zaxxer.hikari.HikariDataSource
-        url: jdbc:h2:mem:managementportal;DB_CLOSE_DELAY=-1
+        url: jdbc:hsqldb:mem:managementportal;DB_CLOSE_DELAY=-1
         username: ManagementPortal
         password:
-#        driverClassName: org.postgresql.Driver
-#        url: jdbc:postgresql://localhost:5432/managementportal
-#        username: radarbase
-#        password: radarbase
     h2:
         console:
-            enabled: true
-            path: /h2-console
+            enabled: false
     jpa:
-        database-platform: org.hibernate.dialect.H2Dialect
-        database: H2
-#        database-platform: org.hibernate.dialect.PostgreSQLDialect
-#        database: POSTGRESQL
+        database-platform: org.hibernate.dialect.HSQLDialect
+        database: HSQL
         show-sql: true
         properties:
             hibernate.id.new_generator_mappings: true
@@ -60,14 +49,10 @@ spring:
         username: user@example.com
         password: XXXXXXXX
         protocol: smtp
-        tls: true
         properties.mail.smtp:
             auth: true
             starttls.enable: true
             ssl.trust:  # for hotmail
-        debug: true
-    messages:
-        cache-seconds: 1
     thymeleaf:
         cache: false
     liquibase:
@@ -92,6 +77,8 @@ spring:
 # ===================================================================
 server:
     port: 8080
+    servlet:
+        session.cookie.secure: false
 
 
 # ===================================================================
@@ -128,25 +115,10 @@ managementportal:
 # ===================================================================
 
 jhipster:
-    http:
-        version: V_1_1 # To use HTTP/2 you will need SSL support (see above the "server.ssl" configuration)
     cache: # Cache configuration
         hazelcast: # Hazelcast distributed cache
             time-to-live-seconds: 3600
             backup-count: 1
-    metrics: # DropWizard Metrics configuration, used by MetricsConfiguration
-        jmx.enabled: true
-        graphite: # Use the "graphite" Maven profile to have the Graphite dependencies
-            enabled: false
-            host: localhost
-            port: 2003
-            prefix: ManagementPortal
-        prometheus: # Use the "prometheus" Maven profile to have the Prometheus dependencies
-            enabled: false
-            endpoint: /prometheusMetrics
-        logs: # Reports Dropwizard metrics in the logs
-            enabled: false
-            report-frequency: 60 # in seconds
     logging:
         logstash: # Forward logs to logstash over a socket, used by LoggingConfiguration
             enabled: false
@@ -162,5 +134,6 @@ jhipster:
 # More documentation is available at:
 # https://jhipster.github.io/common-application-properties/
 # ===================================================================
+
 
 application:

@@ -1,6 +1,7 @@
 {
     "managementPortalApp": {
         "ProjectStatus" : {
+            "undefined": "",
             "null": "",
             "PLANNING": "PLANNING",
             "ONGOING": "ONGOING",

@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Params } from '@angular/router';
 
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { JhiLanguageHelper, User, UserService } from '../../shared';
@@ -7,36 +7,40 @@ import { EventManager } from '../../shared/util/event-manager.service';
 import { Role } from './role.model';
 
 import { UserModalService } from './user-modal.service';
+import { Observable, Subscription } from 'rxjs';
+import { ObservablePopupComponent } from '../../shared/util/observable-popup.component';
+import { switchMap } from 'rxjs/operators';
 
 @Component({
     selector: 'jhi-user-mgmt-dialog',
     templateUrl: './user-management-dialog.component.html',
 })
-export class UserMgmtDialogComponent implements OnInit {
+export class UserMgmtDialogComponent implements OnInit, OnDestroy {
     user: User;
     isAdmin: boolean;
-    languages: any[];
     roles: Role[];
     isSaving: Boolean;
+    private subscriptions: Subscription = new Subscription();
 
     constructor(
-            public activeModal: NgbActiveModal,
-            private languageHelper: JhiLanguageHelper,
-            private userService: UserService,
-            private eventManager: EventManager,
+      public activeModal: NgbActiveModal,
+      public languageHelper: JhiLanguageHelper,
+      private userService: UserService,
+      private eventManager: EventManager,
     ) {
     }
 
     ngOnInit() {
         this.isSaving = false;
-        this.languageHelper.getAll().then((languages) => {
-            this.languages = languages;
-        });
-        this.registerChangeInRoles();
+        this.subscriptions.add(this.registerChangeInRoles());
     }
 
-    registerChangeInRoles() {
-        this.eventManager.subscribe('roleListModification', (response) => {
+    ngOnDestroy() {
+        this.subscriptions.unsubscribe();
+    }
+
+    registerChangeInRoles(): Subscription {
+        return this.eventManager.subscribe('roleListModification', (response) => {
             this.user.roles = response.content;
         });
     }
@@ -47,21 +51,17 @@ export class UserMgmtDialogComponent implements OnInit {
 
     save() {
         this.isSaving = true;
-        if (this.user.id !== null) {
-            this.userService.update(this.user)
-            .subscribe((response) => this.onSaveSuccess(response), () => this.onSaveError());
+        if (this.user.id) {
+            this.userService.update(this.user).subscribe(
+              (response) => this.onSaveSuccess(response),
+              () => this.onSaveError()
+            );
         } else {
-            this.userService.create(this.user)
-            .subscribe((response) => this.onSaveSuccess(response), () => this.onSaveError());
+            this.userService.create(this.user).subscribe(
+              (response) => this.onSaveSuccess(response),
+              () => this.onSaveError()
+            );
         }
-    }
-
-    getSelected(selectedVals: Array<any>, option: any) {
-        if (!selectedVals) {
-            return option;
-        }
-        const idx = selectedVals.indexOf(option);
-        return idx === -1 ? option : selectedVals[idx];
     }
 
     private onSaveSuccess(result) {
@@ -79,30 +79,24 @@ export class UserMgmtDialogComponent implements OnInit {
     selector: 'jhi-user-dialog',
     template: '',
 })
-export class UserDialogComponent implements OnInit, OnDestroy {
-
-    modalRef: NgbModalRef;
-    routeSub: any;
+export class UserDialogComponent extends ObservablePopupComponent {
 
     constructor(
             private route: ActivatedRoute,
             private userModalService: UserModalService,
     ) {
+        super(route);
     }
 
-    ngOnInit() {
-        this.routeSub = this.route.params.subscribe((params) => {
-            this.route.url.subscribe(url => {
-                if ('user-management-new-admin' === (url[0].path)) {
-                    this.modalRef = this.userModalService.open(UserMgmtDialogComponent, null, true);
-                }
-                return;
-            });
-            this.modalRef = this.userModalService.open(UserMgmtDialogComponent, params['login'], false);
-        });
-    }
-
-    ngOnDestroy() {
-        this.routeSub.unsubscribe();
+    createModalRef(params: Params): Observable<NgbModalRef> {
+        return this.route.url.pipe(
+          switchMap(url => {
+            if ('user-management-new-admin' === (url[0].path)) {
+                return this.userModalService.open(UserMgmtDialogComponent, null, true);
+            } else {
+                return this.userModalService.open(UserMgmtDialogComponent, params['login'], false);
+            }
+          })
+        );
     }
 }

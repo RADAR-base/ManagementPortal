@@ -1,6 +1,6 @@
 
 <div *ngIf="sourceData">
-    <h2><span [translate]="'managementPortalApp.sourceData.detail.title'"></span> {{sourceData.sourceDataName}}</h2>
+    <h2><span [translate]="'managementPortalApp.sourceData.detail.title'"></span>: {{sourceData.sourceDataName}}</h2>
     <hr>
     <jhi-alert-error></jhi-alert-error>
     <dl class="row-md jh-entity-details">
@@ -50,10 +50,4 @@
         <span class="fa fa-arrow-left"></span>&nbsp;<span [translate]="'entity.action.back'"></span>
     </button>
 
-    <button type="button"
-            [routerLink]="['/', { outlets: { popup: ['source-data', sourceData.sourceDataName, 'edit']} }]"
-            replaceUrl="true"
-            class="btn btn-primary">
-        <span class="fa fa-pencil"></span>&nbsp;<span [translate]="'entity.action.edit'"></span>
-    </button>
 </div>

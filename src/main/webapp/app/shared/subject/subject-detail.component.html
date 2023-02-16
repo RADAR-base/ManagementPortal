@@ -1,6 +1,6 @@
 
 <div *ngIf="subject">
-    <h2><span [translate]="'managementPortalApp.subject.detail.title'"></span> {{subject.id}}</h2>
+    <h2><span [translate]="'managementPortalApp.subject.detail.title'"></span>: {{subject.id}}</h2>
     <hr>
     <jhi-alert-error></jhi-alert-error>
     <dl class="row-md jh-entity-details">
@@ -22,6 +22,10 @@
                   <a [routerLink]="['/project', subject.project?.projectName ]" >{{subject.project?.projectName}}</a>
             </span>
         </dd>
+        <dt><span [translate]="'managementPortalApp.subject.group'"></span></dt>
+        <dd>
+            <span>{{subject.group || '-'}}</span>
+        </dd>
         <dt><span [translate]="'managementPortalApp.subject.sources'"></span></dt>
         <dd>
             <span *ngFor="let sources of subject.sources; let last = last">
@@ -36,25 +40,56 @@
             </div>
         </dd>
 
+        <dt><span [translate]="'managementPortalApp.subject.personName'"></span></dt>
+        <dd>{{subject.personName}}</dd>
+        <dt><span [translate]="'managementPortalApp.subject.dateOfBirth'"></span></dt>
+        <dd>{{subject.dateOfBirth | date:'yyyy-MM-dd' }}</dd>
+        <dt><span [translate]="'managementPortalApp.subject.enrollmentDate'"></span></dt>
+        <dd>{{subject.enrollmentDate | date:'yyyy-MM-dd HH:mm' }}</dd>
         <dt><span [translate]="'managementPortalApp.subject.createdBy'"></span></dt>
         <dd>{{subject.createdBy}}</dd>
         <dt><span [translate]="'managementPortalApp.subject.createdDate'"></span></dt>
-        <dd>{{subject.createdDate | date:'dd/MM/yy HH:mm' }}</dd>
+        <dd>{{subject.createdDate | date:'yyyy-MM-dd HH:mm' }}</dd>
         <dt><span [translate]="'managementPortalApp.subject.lastModifiedBy'"></span></dt>
         <dd>{{subject.lastModifiedBy}}</dd>
         <dt><span [translate]="'managementPortalApp.subject.lastModifiedDate'"></span></dt>
-        <dd>{{subject.lastModifiedDate | date:'dd/MM/yy HH:mm'}}</dd>
+        <dd>{{subject.lastModifiedDate | date:'yyyy-MM-dd HH:mm'}}</dd>
 
     </dl>
 
-    <button type="submit"
-            (click)="previousState()"
-            class="btn btn-info">
-        <span class="fa fa-arrow-left"></span>&nbsp;<span [translate]="'entity.action.back'"></span>
-    </button>
-    <button *jhiHasAnyAuthority="['ROLE_SYS_ADMIN', 'ROLE_PROJECT_ADMIN']"
-        class="btn btn-dark"
-        [routerLink]="['/subject', subject.login, 'revisions']">
-        <span class="fa fa-history"></span>&nbsp;<span [translate]="'revisions.title'"></span>
-    </button>
+    <div class="subject-detail__actions">
+        <button type="submit"
+                (click)="previousState()"
+                class="btn btn-info">
+            <span class="fa fa-arrow-left"></span>
+            <span [translate]="'entity.action.back'"></span>
+        </button>
+        <button *jhiHasAnyAuthority="['ROLE_SYS_ADMIN', 'ROLE_PROJECT_ADMIN']"
+            class="btn btn-dark"
+            [routerLink]="['/subject', subject.login, 'revisions']">
+            <span class="fa fa-history"></span>
+            <span [translate]="'revisions.title'"></span>
+        </button>
+        <button
+            type="button"
+            class="btn btn-warning"
+            [disabled]="subject.status != 'ACTIVATED'"
+            [routerLink]="['/', { outlets: { popup: 'subject/'+ subject.login + '/discontinue'} }]"
+            replaceUrl="true"
+        >
+            <span class="fa fa-stop"></span>
+            <span class="hidden-md-down"
+                [translate]="'managementPortalApp.subject.discontinue.operation'">
+            </span>
+        </button>
+        <button *jhiHasAnyAuthority="['ROLE_SYS_ADMIN' ]"
+            class="btn btn-danger"
+            type="button"
+            [routerLink]="['/', { outlets: { popup: 'subject/'+ subject.login + '/delete'} }]"
+            replaceUrl="true"
+        >
+            <span class="fa fa-remove"></span>
+            <span class="hidden-md-down" [translate]="'entity.action.delete'"></span>
+        </button>
+    </div>
 </div>

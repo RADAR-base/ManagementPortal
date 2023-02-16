@@ -1,20 +1,17 @@
 package org.radarbase.management.config;
 
 
-import javax.annotation.PostConstruct;
-import javax.servlet.Filter;
-
-import io.github.jhipster.security.AjaxLogoutSuccessHandler;
-import io.github.jhipster.security.Http401UnauthorizedEntryPoint;
-import org.radarbase.management.security.JwtAuthenticationFilter;
-import org.radarbase.management.security.jwt.ManagementPortalOauthKeyStoreHandler;
+import org.radarbase.auth.token.RadarToken;
+import org.radarbase.management.security.Http401UnauthorizedEntryPoint;
+import org.radarbase.management.security.RadarAuthenticationProvider;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -25,34 +22,49 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.data.repository.query.SecurityEvaluationContextExtension;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
+import tech.jhipster.security.AjaxLogoutSuccessHandler;
+
+import javax.annotation.PostConstruct;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import static org.radarbase.management.security.JwtAuthenticationFilter.TOKEN_ATTRIBUTE;
+import static org.springframework.context.annotation.ScopedProxyMode.TARGET_CLASS;
 
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+    private final AuthenticationManagerBuilder authenticationManagerBuilder;
 
-    @Autowired
-    private AuthenticationManagerBuilder authenticationManagerBuilder;
+    private final UserDetailsService userDetailsService;
 
-    @Autowired
-    private UserDetailsService userDetailsService;
+    private final ApplicationEventPublisher applicationEventPublisher;
+    private final PasswordEncoder passwordEncoder;
 
+    /** Security configuration constructor. */
     @Autowired
-    private ApplicationEventPublisher applicationEventPublisher;
-
-    @Autowired
-    private ManagementPortalOauthKeyStoreHandler keyStoreHandler;
+    public SecurityConfiguration(AuthenticationManagerBuilder authenticationManagerBuilder,
+            UserDetailsService userDetailsService,
+            ApplicationEventPublisher applicationEventPublisher,
+            PasswordEncoder passwordEncoder) {
+        this.authenticationManagerBuilder = authenticationManagerBuilder;
+        this.userDetailsService = userDetailsService;
+        this.applicationEventPublisher = applicationEventPublisher;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     @PostConstruct
     public void init() {
         try {
             authenticationManagerBuilder
                     .userDetailsService(userDetailsService)
-                    .passwordEncoder(passwordEncoder())
+                    .passwordEncoder(passwordEncoder)
                     .and()
+                    .authenticationProvider(new RadarAuthenticationProvider())
                     .authenticationEventPublisher(
                             new DefaultAuthenticationEventPublisher(applicationEventPublisher));
         } catch (Exception e) {
@@ -61,7 +73,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public AjaxLogoutSuccessHandler ajaxLogoutSuccessHandler() {
+    public LogoutSuccessHandler logoutSuccessHandler() {
         return new AjaxLogoutSuccessHandler();
     }
 
@@ -70,26 +82,27 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         return new Http401UnauthorizedEntryPoint();
     }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
     @Override
-    public void configure(WebSecurity web) throws Exception {
+    public void configure(WebSecurity web) {
         web.ignoring()
+                .antMatchers("/")
+                .antMatchers("/*.{js,ico,css,html}")
                 .antMatchers(HttpMethod.OPTIONS, "/**")
                 .antMatchers("/app/**/*.{js,html}")
                 .antMatchers("/bower_components/**")
                 .antMatchers("/i18n/**")
                 .antMatchers("/content/**")
-                .antMatchers("/swagger-ui/index.html")
+                .antMatchers("/swagger-ui/**")
+                .antMatchers("/api-docs/**")
+                .antMatchers("/swagger-ui.html")
+                .antMatchers("/api-docs{,.json,.yml}")
                 .antMatchers("/api/register")
+                .antMatchers("/api/profile-info")
                 .antMatchers("/api/activate")
                 .antMatchers("/api/account/reset_password/init")
                 .antMatchers("/api/account/reset_password/finish")
                 .antMatchers("/test/**")
-                .antMatchers("/h2-console/**")
+                .antMatchers("/management/health")
                 .antMatchers(HttpMethod.GET, "/api/meta-token/**");
     }
 
@@ -99,7 +112,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .httpBasic().realmName("ManagementPortal")
                 .and()
                 .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED);
     }
 
     @Override
@@ -113,41 +126,26 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         return new SecurityEvaluationContextExtension();
     }
 
+    @Scope(value = "request", proxyMode = TARGET_CLASS)
     @Bean
-    public FilterRegistrationBean jwtAuthenticationFilterRegistration() {
-        FilterRegistrationBean registration = new FilterRegistrationBean();
-        registration.setFilter(jwtAuthenticationFilter());
-        // Servlet filters do not have an API to exclude URLs, we need to exclude
-        // /api/account/reset_password/*, so we need to list all other endpoints
-        registration.addUrlPatterns(
-                "/api/account",
-                "/api/account/change_password",
-                "/api/authenticate",
-                "/api/authorities/*",
-                "/api/source-types/*",
-                "/api/oauth-clients/*",
-                "/api/profile-info/*",
-                "/api/projects/*",
-                "/api/roles/*",
-                "/api/source-data/*",
-                "/api/sources/*",
-                "/api/subjects/*",
-                "/api/users/*",
-                "/api/meta-token/*",
-                "/management/*");
-        registration.setName("jwtAuthenticationFilter");
-        registration.setOrder(1);
-        return registration;
-    }
-
-    /**
-     * Create a {@link JwtAuthenticationFilter}.
-     *
-     * @return the JwtAuthenticationFilter
-     */
-    public Filter jwtAuthenticationFilter() {
-        return new JwtAuthenticationFilter(keyStoreHandler.getTokenValidator())
-                .skipUrlPattern(HttpMethod.GET, "/management/health")
-                .skipUrlPattern(HttpMethod.GET, "/api/meta-token/*");
+    public RadarToken radarToken(HttpServletRequest request) {
+        Object token = request.getAttribute(TOKEN_ATTRIBUTE);
+        if (token == null) {
+            HttpSession session = request.getSession(false);
+            if (session != null) {
+                token = session.getAttribute(TOKEN_ATTRIBUTE);
+            }
+        }
+        if (token == null) {
+            // should not happen, the JwtAuthenticationFilter would throw an exception first if it
+            // can not decode the authorization header into a valid JWT
+            throw new AccessDeniedException("No token was found in the request context.");
+        }
+        if (!(token instanceof RadarToken)) {
+            // should not happen, the JwtAuthenticationFilter will only set a DecodedJWT object
+            throw new AccessDeniedException("Expected token to be of type org.radarbase"
+                    + ".auth.token.RadarToken but was " + token.getClass().getName());
+        }
+        return (RadarToken) token;
     }
 }

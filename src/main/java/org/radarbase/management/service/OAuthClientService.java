@@ -1,40 +1,12 @@
 package org.radarbase.management.service;
 
-import static org.radarbase.management.web.rest.MetaTokenResource.DEFAULT_META_TOKEN_TIMEOUT;
-import static org.radarbase.management.web.rest.MetaTokenResource.DEFAULT_PERSISTENT_META_TOKEN_TIMEOUT;
-import static org.radarbase.management.web.rest.errors.EntityName.META_TOKEN;
-import static org.radarbase.management.web.rest.errors.EntityName.OAUTH_CLIENT;
-import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_PERSISTENT_TOKEN_DISABLED;
-import static org.springframework.security.oauth2.common.util.OAuth2Utils.GRANT_TYPE;
-
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.format.DateTimeParseException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.radarbase.auth.exception.NotAuthorizedException;
-import org.radarbase.management.config.ManagementPortalProperties;
-import org.radarbase.management.domain.MetaToken;
-import org.radarbase.management.domain.Project;
 import org.radarbase.management.domain.Subject;
 import org.radarbase.management.domain.User;
 import org.radarbase.management.service.dto.ClientDetailsDTO;
-import org.radarbase.management.service.dto.ClientPairInfoDTO;
 import org.radarbase.management.service.mapper.ClientDetailsMapper;
-import org.radarbase.management.web.rest.errors.BadRequestException;
 import org.radarbase.management.web.rest.errors.ConflictException;
 import org.radarbase.management.web.rest.errors.ErrorConstants;
 import org.radarbase.management.web.rest.errors.InvalidRequestException;
-import org.radarbase.management.web.rest.errors.InvalidStateException;
 import org.radarbase.management.web.rest.errors.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,6 +24,17 @@ import org.springframework.security.oauth2.provider.OAuth2Request;
 import org.springframework.security.oauth2.provider.client.JdbcClientDetailsService;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static org.radarbase.management.web.rest.errors.EntityName.OAUTH_CLIENT;
+import static org.springframework.security.oauth2.common.util.OAuth2Utils.GRANT_TYPE;
+
 /**
  * The service layer to handle OAuthClient and Token related functions.
  * Created by nivethika on 03/08/2018.
@@ -68,12 +51,6 @@ public class OAuthClientService {
 
     @Autowired
     private ClientDetailsMapper clientDetailsMapper;
-
-    @Autowired
-    private MetaTokenService metaTokenService;
-
-    @Autowired
-    private ManagementPortalProperties managementPortalProperties;
 
     @Autowired
     private AuthorizationServerEndpointsConfiguration authorizationServerEndpointsConfiguration;
@@ -174,77 +151,6 @@ public class OAuthClientService {
 
         return findOneByClientId(clientDetailsDto.getClientId());
 
-    }
-
-    /**
-     * Creates meta token for oauth-subject pair.
-     * @param subject to create token for
-     * @param clientId using which client id
-     * @param persistent whether to persist the token after it is has been fetched
-     * @return {@link ClientPairInfoDTO} to return.
-     * @throws URISyntaxException when token URI cannot be formed properly.
-     * @throws MalformedURLException when token URL cannot be formed properly.
-     */
-    public ClientPairInfoDTO createMetaToken(Subject subject, String clientId, boolean persistent)
-            throws URISyntaxException, MalformedURLException, NotAuthorizedException {
-        Duration timeout = getMetaTokenTimeout(persistent, subject.getActiveProject()
-                .orElseThrow(() -> new NotAuthorizedException(
-                        "Cannot calculate meta-token duration without configured project")));
-
-        // tokenName should be generated
-        MetaToken metaToken = metaTokenService
-                .saveUniqueToken(subject, clientId, false,
-                Instant.now().plus(timeout), persistent);
-
-        if (metaToken.getId() != null && metaToken.getTokenName() != null) {
-            // get base url from settings
-            String baseUrl = managementPortalProperties.getCommon().getManagementPortalBaseUrl();
-            // create complete uri string
-            String tokenUrl = baseUrl + ResourceUriService.getUri(metaToken).getPath();
-            // create response
-            return new ClientPairInfoDTO(new URL(baseUrl), metaToken.getTokenName(),
-                    new URL(tokenUrl), timeout);
-        } else {
-            throw new InvalidStateException("Could not create a valid token", OAUTH_CLIENT,
-                "error.couldNotCreateToken");
-        }
-    }
-
-    /**
-     * Gets the meta-token timeout from config file. If the config is not mentioned or in wrong
-     * format, it will return default value.
-     *
-     * @return meta-token timeout duration.
-     * @throws BadRequestException if a persistent token is requested but it is not configured.
-     */
-    public Duration getMetaTokenTimeout(boolean persistent, Project project) {
-        String timeoutConfig;
-        Duration defaultTimeout;
-
-        if (persistent) {
-            timeoutConfig = managementPortalProperties.getOauth().getPersistentMetaTokenTimeout();
-            if (timeoutConfig == null || timeoutConfig.isEmpty()) {
-                throw new BadRequestException(
-                        "Cannot create persistent token: not supported in configuration.",
-                        META_TOKEN, ERR_PERSISTENT_TOKEN_DISABLED);
-            }
-            defaultTimeout = DEFAULT_PERSISTENT_META_TOKEN_TIMEOUT;
-        } else {
-            timeoutConfig = managementPortalProperties.getOauth().getMetaTokenTimeout();
-            defaultTimeout = DEFAULT_META_TOKEN_TIMEOUT;
-            if (timeoutConfig == null || timeoutConfig.isEmpty()) {
-                return defaultTimeout;
-            }
-        }
-
-        try {
-            return Duration.parse(timeoutConfig);
-        } catch (DateTimeParseException e) {
-            // if the token timeout cannot be read, log the error and use the default value.
-            log.warn("Cannot parse meta-token timeout config. Using default value {}",
-                    defaultTimeout, e);
-            return defaultTimeout;
-        }
     }
 
     /**

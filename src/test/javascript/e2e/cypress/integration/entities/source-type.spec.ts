@@ -2,20 +2,13 @@ import { login } from '../util/login';
 import * as navBarPage from '../util/nav-bar';
 
 describe('SourceType e2e test', () => {
-    before(() => {
-        login();
-        cy.visit('./');
-    });
-
     beforeEach(() => {
-        cy.wait(100);
-        Cypress.Cookies.preserveOnce('oAtkn');
+        login();
+        navBarPage.clickOnEntityMenu();
+        navBarPage.clickOnEntity('source-type');
     });
 
     it('should load SourceTypes', () => {
-        navBarPage.clickOnEntityMenu();
-        navBarPage.clickOnEntity('source-type');
-
         cy.get('h2 span').first().should('have.text', 'Source Types');
     });
 
@@ -30,7 +23,6 @@ describe('SourceType e2e test', () => {
 
     it('should be able to create SourceType', () => {
         cy.get('button.create-source-type').click();
-        cy.wait(1000);
         cy.get('#field_producer').type('test-producer');
         cy.get('#field_model').type('test-model');
         cy.get('#field_catalogVersion').type('v1');
@@ -40,11 +32,9 @@ describe('SourceType e2e test', () => {
     });
 
     it('should be able to edit SourceType', () => {
-        cy.wait(1000);
-        cy.get('td').contains('test-producer').parents('tr')
-            .find('button').contains('Edit').click();
-        cy.wait(1000);
-        cy.get('button.btn-primary').contains('Save').click();
+        cy.contains('tr', 'test-producer')
+            .contains('button', 'Edit').click();
+        cy.contains('button.btn-primary', 'Save').click();
     });
 
     it('should be able to delete SourceType', () => {

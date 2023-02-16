@@ -6,3 +6,20 @@
 .dropdown-menu.show {
     display: block;
 }
+
+.project-dialog__existing-groups:not(:empty) {
+    padding: 8px;
+    margin-bottom: 8px;
+}
+.project-dialog__existing-groups > .badge {
+    margin: 2px;
+    cursor: pointer;
+}
+.project-dialog__new-group {
+    display: flex;
+    align-items: flex-end;
+}
+.project-dialog__new-group > *:first-child {
+    flex-grow: 1;
+    margin-right: 16px;
+}

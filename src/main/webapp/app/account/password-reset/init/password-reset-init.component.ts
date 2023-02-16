@@ -1,12 +1,13 @@
-import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 
 import { PasswordResetInit } from './password-reset-init.service';
+import { Subscription } from 'rxjs';
 
 @Component({
     selector: 'jhi-password-reset-init',
     templateUrl: './password-reset-init.component.html',
 })
-export class PasswordResetInitComponent implements OnInit, AfterViewInit {
+export class PasswordResetInitComponent implements OnInit, AfterViewInit, OnDestroy {
     @ViewChild('emailField') emailField: ElementRef;
 
     error: string;
@@ -14,8 +15,10 @@ export class PasswordResetInitComponent implements OnInit, AfterViewInit {
     resetAccount: any;
     success: string;
 
+    private subscriptions = new Subscription();
+
     constructor(
-            private passwordResetInit: PasswordResetInit,
+        private passwordResetInit: PasswordResetInit,
     ) {
     }
 
@@ -27,11 +30,15 @@ export class PasswordResetInitComponent implements OnInit, AfterViewInit {
         this.emailField.nativeElement.focus();
     }
 
+    ngOnDestroy() {
+        this.subscriptions.unsubscribe();
+    }
+
     requestReset() {
         this.error = null;
         this.errorEmailNotExists = null;
 
-        this.passwordResetInit.save(this.resetAccount.email).subscribe(() => {
+        this.subscriptions.add(this.passwordResetInit.save(this.resetAccount.email).subscribe(() => {
             this.success = 'OK';
         }, (response) => {
             this.success = null;
@@ -40,6 +47,6 @@ export class PasswordResetInitComponent implements OnInit, AfterViewInit {
             } else {
                 this.error = 'ERROR';
             }
-        });
+        }));
     }
 }

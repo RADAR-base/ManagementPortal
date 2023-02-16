@@ -1,7 +1,5 @@
 package org.radarbase.management.service;
 
-import javax.persistence.EntityManager;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.hibernate.envers.AuditReader;
 import org.hibernate.envers.AuditReaderFactory;
 import org.hibernate.envers.query.AuditEntity;
@@ -9,6 +7,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.radarbase.auth.config.Constants;
+import org.radarbase.auth.exception.NotAuthorizedException;
 import org.radarbase.management.ManagementPortalTestApp;
 import org.radarbase.management.domain.Authority;
 import org.radarbase.management.domain.Role;
@@ -19,7 +18,6 @@ import org.radarbase.management.repository.UserRepository;
 import org.radarbase.management.repository.filters.UserFilter;
 import org.radarbase.management.service.dto.UserDTO;
 import org.radarbase.management.service.mapper.UserMapper;
-import org.radarbase.management.service.util.RandomUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
@@ -28,6 +26,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import java.time.Period;
 import java.time.ZonedDateTime;
@@ -37,7 +36,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.radarbase.auth.authorization.AuthoritiesConstants.SYS_ADMIN;
+import static org.radarbase.auth.authorization.RoleAuthority.SYS_ADMIN;
 import static org.radarbase.management.web.rest.TestUtil.commitTransactionAndStartNew;
 
 /**
@@ -86,6 +85,9 @@ public class UserServiceIntTest {
     @Autowired
     private EntityManagerFactory entityManagerFactory;
 
+    @Autowired
+    private PasswordService passwordService;
+
     private EntityManager entityManager;
 
     private UserDTO userDto;
@@ -94,12 +96,15 @@ public class UserServiceIntTest {
     public void setUp() {
         entityManager = entityManagerFactory.createEntityManager(
                 entityManagerFactory.getProperties());
-        userDto = userMapper.userToUserDTO(createEntity());
+        userDto = userMapper.userToUserDTO(createEntity(passwordService));
         ReflectionTestUtils.setField(revisionService, "revisionEntityRepository",
                 revisionEntityRepository);
         ReflectionTestUtils.setField(revisionService, "entityManager", entityManager);
         ReflectionTestUtils.setField(userService, "userMapper", userMapper);
         ReflectionTestUtils.setField(userService, "userRepository", userRepository);
+
+        userRepository.findOneByLogin(userDto.getLogin())
+                .ifPresent(userRepository::delete);
     }
 
     /**
@@ -108,10 +113,10 @@ public class UserServiceIntTest {
      * <p>This is a static method, as tests for other entities might also need it,
      * if they test an entity which has a required relationship to the User entity.</p>
      */
-    public static User createEntity() {
+    public static User createEntity(PasswordService passwordService) {
         User user = new User();
         user.setLogin(DEFAULT_LOGIN);
-        user.setPassword(RandomStringUtils.random(60));
+        user.setPassword(passwordService.generateEncodedPassword());
         user.setActivated(true);
         user.setEmail(DEFAULT_EMAIL);
         user.setFirstName(DEFAULT_FIRSTNAME);
@@ -134,7 +139,7 @@ public class UserServiceIntTest {
     }
 
     @Test
-    void assertThatOnlyActivatedUserCanRequestPasswordReset() {
+    void assertThatOnlyActivatedUserCanRequestPasswordReset() throws NotAuthorizedException {
         User user = userService.createUser(userDto);
         Optional<User> maybeUser = userService.requestPasswordReset(userDto.getEmail());
         assertThat(maybeUser).isNotPresent();
@@ -142,11 +147,11 @@ public class UserServiceIntTest {
     }
 
     @Test
-    void assertThatResetKeyMustNotBeOlderThan24Hours() {
+    void assertThatResetKeyMustNotBeOlderThan24Hours() throws NotAuthorizedException {
         User user = userService.createUser(userDto);
 
         ZonedDateTime daysAgo = ZonedDateTime.now().minusHours(25);
-        String resetKey = RandomUtil.generateResetKey();
+        String resetKey = passwordService.generateResetKey();
         user.setActivated(true);
         user.setResetDate(daysAgo);
         user.setResetKey(resetKey);
@@ -162,7 +167,7 @@ public class UserServiceIntTest {
     }
 
     @Test
-    void assertThatResetKeyMustBeValid() {
+    void assertThatResetKeyMustBeValid() throws NotAuthorizedException {
         User user = userService.createUser(userDto);
         ZonedDateTime daysAgo = ZonedDateTime.now().minusHours(25);
         user.setActivated(true);
@@ -176,11 +181,11 @@ public class UserServiceIntTest {
     }
 
     @Test
-    void assertThatUserCanResetPassword() {
+    void assertThatUserCanResetPassword() throws NotAuthorizedException {
         User user = userService.createUser(userDto);
         final String oldPassword = user.getPassword();
         ZonedDateTime daysAgo = ZonedDateTime.now().minusHours(2);
-        String resetKey = RandomUtil.generateResetKey();
+        String resetKey = passwordService.generateResetKey();
         user.setActivated(true);
         user.setResetDate(daysAgo);
         user.setResetKey(resetKey);
@@ -238,7 +243,8 @@ public class UserServiceIntTest {
     @Test
     void assertThatAnonymousUserIsNotGet() {
         final PageRequest pageable = PageRequest.of(0, (int) userRepository.count());
-        final Page<UserDTO> allManagedUsers = userService.findUsers(new UserFilter(), pageable);
+        final Page<UserDTO> allManagedUsers = userService.findUsers(new UserFilter(), pageable,
+                false);
         assertThat(allManagedUsers.getContent().stream()
                 .noneMatch(user -> Constants.ANONYMOUS_USER.equals(user.getLogin())))
                 .isTrue();
@@ -249,7 +255,7 @@ public class UserServiceIntTest {
      * @param userRepository The UserRepository that will be used to save the object
      * @return the saved object
      */
-    public static User addExpiredUser(UserRepository userRepository) {
+    public User addExpiredUser(UserRepository userRepository) {
 
         Role adminRole = new Role();
         adminRole.setId(1L);
@@ -263,7 +269,7 @@ public class UserServiceIntTest {
         user.setLastName("pired");
         user.setRoles(Collections.singleton(adminRole));
         user.setActivated(false);
-        user.setPassword(RandomStringUtils.random(60));
+        user.setPassword(passwordService.generateEncodedPassword());
         return userRepository.save(user);
     }
 

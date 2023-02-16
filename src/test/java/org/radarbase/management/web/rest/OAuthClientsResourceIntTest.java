@@ -13,12 +13,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.List;
-import javax.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockitoAnnotations;
 import org.radarbase.auth.authentication.OAuthHelper;
+import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.ManagementPortalApp;
 import org.radarbase.management.security.JwtAuthenticationFilter;
 import org.radarbase.management.service.OAuthClientService;
@@ -76,7 +76,7 @@ class OAuthClientsResourceIntTest {
     private ExceptionTranslator exceptionTranslator;
 
     @Autowired
-    private HttpServletRequest servletRequest;
+    private RadarToken radarToken;
 
     private MockMvc restOauthClientMvc;
 
@@ -96,8 +96,8 @@ class OAuthClientsResourceIntTest {
                 subjectService);
         ReflectionTestUtils.setField(oauthClientsResource, "userService",
                 userService);
-        ReflectionTestUtils.setField(oauthClientsResource, "servletRequest",
-                servletRequest);
+        ReflectionTestUtils.setField(oauthClientsResource, "token",
+                radarToken);
         ReflectionTestUtils.setField(oauthClientsResource, "oAuthClientService",
                 oAuthClientService);
 

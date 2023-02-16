@@ -3,7 +3,7 @@ services:
     managementportal-app:
         image: managementportal
         environment:
-            - SPRING_PROFILES_ACTIVE=prod,swagger
+            - SPRING_PROFILES_ACTIVE=prod,api-docs
             - SPRING_DATASOURCE_URL=jdbc:postgresql://managementportal-postgresql:5432/managementportal
             - SPRING_DATASOURCE_USERNAME=radarbase
             - SPRING_DATASOURCE_PASSWORD=radarbase

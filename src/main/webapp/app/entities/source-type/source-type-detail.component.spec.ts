@@ -9,6 +9,7 @@ import { MockActivatedRoute } from '../../shared/util/test/mock-route.service';
 import { SourceTypeDetailComponent } from './source-type-detail.component';
 import { SourceTypeService } from './source-type.service';
 import { SourceType } from './source-type.model';
+import { first } from 'rxjs/operators';
 
 describe('Component Tests', () => {
 
@@ -41,18 +42,19 @@ describe('Component Tests', () => {
         });
 
         describe('OnInit', () => {
-            it('Should call load all on init', () => {
+            it('Should call load all on init', waitForAsync(async () => {
             // GIVEN
 
-            spyOn(service, 'find').and.returnValue(of(new SourceType(10)));
+            spyOn(service, 'find').and.returnValue(of({id: 10, organization: {name: 'test'}}));
 
             // WHEN
             comp.ngOnInit();
 
+            const sourceType = await comp.sourceType$.pipe(first()).toPromise();
             // THEN
+            expect(sourceType).toEqual(jasmine.objectContaining({id: 10, organization: {name: 'test'}}));
             expect(service.find).toHaveBeenCalledWith('testProducer', 'testModel', 'testVersion');
-            expect(comp.sourceType).toEqual(jasmine.objectContaining({id: 10}));
-            });
+            }));
         });
     });
 

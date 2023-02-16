@@ -1,8 +1,11 @@
 package org.radarbase.management.security;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.AuditorAware;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Nonnull;
 import java.util.Optional;
 
 /**
@@ -10,9 +13,13 @@ import java.util.Optional;
  */
 @Component
 public class SpringSecurityAuditorAware implements AuditorAware<String> {
+    @Autowired
+    private Optional<Authentication> authentication;
 
     @Override
+    @Nonnull
     public Optional<String> getCurrentAuditor() {
-        return Optional.ofNullable(SecurityUtils.getCurrentUserLogin());
+        return authentication.map(Authentication::getName)
+                .filter(n -> !n.isEmpty());
     }
 }

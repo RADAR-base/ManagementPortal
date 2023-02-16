@@ -4,24 +4,9 @@ import * as navBarPage from '../util/nav-bar';
 describe('Project View: Create, assign, unassign and delete source', () => {
     const sourceName = 'test-source-1';
 
-    before(() => {
-        login();
-        cy.visit('./');
-    });
-
     beforeEach(() => {
-        cy.wait(100);
-        Cypress.Cookies.preserveOnce('oAtkn');
-    });
-
-    it('should load project view', () => {
-        navBarPage.clickOnProjectMenu();
-        cy.get('a').contains('radar').first().click();
-
-        cy.get('.status-header').invoke('text').should('match', /RADAR/i);
-
-        // expect 3 subjects in this table
-        cy.get('jhi-subjects tbody tr').should('have.length', 3);
+        login();
+        navBarPage.loadProjectView()
     });
 
     // TODO:
