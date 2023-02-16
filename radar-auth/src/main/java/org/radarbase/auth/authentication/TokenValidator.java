@@ -6,7 +6,6 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -185,7 +184,6 @@ public class TokenValidator {
 
         return streamEmptyIfNull(config.getPublicKeyEndpoints())
                 .map(this::algorithmFromServerPublicKeyEndpoint)
-                .filter(Objects::nonNull)
                 .flatMap(List::stream)
                 .map(alg -> AlgorithmLoader.buildVerifier(alg, config.getResourceName()))
                 .collect(Collectors.toList());
@@ -207,9 +205,8 @@ public class TokenValidator {
                             publicKeyInfo.getKeys().size(), serverUri.toURL());
                     return algorithmLoader.loadAlgorithmsFromJavaWebKeys(publicKeyInfo);
                 } else {
-                    // Log and Continue Pulling next Endpoints, if any
-                    LOGGER.warn("Could not load newer public keys from {}", serverUri.toURL());
-                    return null;
+                    throw new TokenValidationException("Invalid token signature. Could not load "
+                            + "newer public keys");
                 }
             }
         } catch (Exception ex) {

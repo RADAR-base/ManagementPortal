@@ -25,14 +25,6 @@ Management Portal is an application which is used to manage clinical studies for
 - [Documentation](#documentation)
 - [Client libraries](#client-libraries)
 
-## Dependencies
-
-The following are the prerequisites to run ManagementPortal from source on your machine:
-
-- Java 11
-- Node.js (v15 or later is recommended)
-- Yarn (v1.19.0 or later is recommended)
-
 ## Quickstart
 
 Management Portal can be easily run either by running from source or by using the provided `docker-compose` file.
@@ -51,8 +43,7 @@ This will start a Postgres database and ManagementPortal. The default password f
 account is `admin`.
 
 ### Build from source
-
-You must install and configure the following dependencies on your machine to run from source.
+you must install and configure the following dependencies on your machine to run from source.
 1. [Node.js][]: We use Node to run a development web server and build the project.
    Depending on your system, you can install Node either from source or as a pre-packaged bundle.
 2. [Yarn][]: We use Yarn to manage Node dependencies.

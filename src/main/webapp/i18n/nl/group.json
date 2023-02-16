@@ -11,8 +11,7 @@
             "deleted": "De groep {{ param }} is verwijderd",
             "delete": {
                 "question": "Deze groep heeft subjecten. Weet u zeker dat u groep {{ id }} wilt verwijderen?",
-                "warning": "Deze groep heeft subjecten.",
-                "warningDescription": ""
+                "warning": "Deze groep heeft subjecten."
             },
             "detail": {
                 "title": "Groep"

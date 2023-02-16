@@ -70,21 +70,14 @@ public class OAuth2ServerConfiguration {
         @Autowired
         private AuthenticationManager authenticationManager;
 
-        @Autowired
-        private UserRepository userRepository;
-
-        @Autowired
-        private ManagementPortalOauthKeyStoreHandler keyStoreHandler;
-
         @Override
         protected void configure(HttpSecurity http) throws Exception {
             http
                     .formLogin().loginPage("/login").permitAll()
                     .and()
-                    .addFilterBefore(jwtAuthenticationFilter(),
-                            UsernamePasswordAuthenticationFilter.class)
-                    .requestMatchers()
-                        .antMatchers("/login", "/oauth/authorize", "/oauth/confirm_access")
+                    .requestMatchers().antMatchers("/login",
+                    "/oauth/authorize",
+                    "/oauth/confirm_access")
                     .and()
                     .authorizeRequests().anyRequest().authenticated();
         }
@@ -92,14 +85,6 @@ public class OAuth2ServerConfiguration {
         @Override
         protected void configure(AuthenticationManagerBuilder auth) throws Exception {
             auth.parentAuthenticationManager(authenticationManager);
-        }
-
-        public JwtAuthenticationFilter jwtAuthenticationFilter() {
-            return new JwtAuthenticationFilter(
-                    keyStoreHandler.getTokenValidator(),
-                    authenticationManager,
-                    userRepository,
-                    true);
         }
     }
 
@@ -136,11 +121,9 @@ public class OAuth2ServerConfiguration {
                     keyStoreHandler.getTokenValidator(), authenticationManager, userRepository
             )
                     .skipUrlPattern(HttpMethod.GET, "/management/health")
-                    .skipUrlPattern(HttpMethod.GET, "/api/meta-token/*")
-                    .skipUrlPattern(HttpMethod.GET, "/images/**")
-                    .skipUrlPattern(HttpMethod.GET, "/css/**")
-                    .skipUrlPattern(HttpMethod.GET, "/js/**")
-                    .skipUrlPattern(HttpMethod.GET, "/radar-baseRR.png");
+                    .skipUrlPattern(HttpMethod.GET, "/css/oauth.css")
+                    .skipUrlPattern(HttpMethod.GET, "/radar-baseRR.png")
+                    .skipUrlPattern(HttpMethod.GET, "/api/meta-token/*");
         }
 
         @Override
@@ -149,10 +132,9 @@ public class OAuth2ServerConfiguration {
                     .exceptionHandling()
                     .authenticationEntryPoint(http401UnauthorizedEntryPoint)
                     .and()
-                    .logout()
-                        .invalidateHttpSession(true)
-                        .logoutUrl("/api/logout")
-                        .logoutSuccessHandler(logoutSuccessHandler)
+                    .logout().invalidateHttpSession(true)
+                    .logoutUrl("/api/logout")
+                    .logoutSuccessHandler(logoutSuccessHandler)
                     .and()
                     .csrf()
                         .disable()

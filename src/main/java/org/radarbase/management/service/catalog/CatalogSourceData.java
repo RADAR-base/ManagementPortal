@@ -1,10 +1,8 @@
 package org.radarbase.management.service.catalog;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class CatalogSourceData {
     @JsonProperty("app_provider")
     private String appProvider;
@@ -105,7 +103,6 @@ public class CatalogSourceData {
         return appProvider;
     }
 
-    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class DataField {
         @JsonProperty
         private String name;

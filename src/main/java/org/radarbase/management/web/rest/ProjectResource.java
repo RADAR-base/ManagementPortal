@@ -159,6 +159,7 @@ public class ProjectResource {
         }
         // When clients want to transfer a project,
         // they must have permissions to modify both new & old organizations
+        var newOrgName = org.getName();
         var existingProject = projectService.findOne(projectDto.getId());
 
         if (!existingProject.getProjectName().equals(projectDto.getProjectName())) {
@@ -166,7 +167,6 @@ public class ProjectResource {
                     ERR_VALIDATION);
         }
 
-        var newOrgName = org.getName();
         checkPermissionOnOrganizationAndProject(token, PROJECT_UPDATE, newOrgName,
                 existingProject.getProjectName());
 
