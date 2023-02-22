@@ -31,7 +31,7 @@ class TokenValidatorTest {
     private TokenValidator validator;
 
     @BeforeAll
-    public static void loadToken() throws Exception {
+    public static void loadToken() {
         wireMockServer = new WireMockServer(new WireMockConfiguration()
                 .port(WIREMOCK_PORT));
         wireMockServer.start();
@@ -43,14 +43,15 @@ class TokenValidatorTest {
      */
     @BeforeEach
     public void setUp() {
-        wireMockServer.stubFor(get(urlEqualTo(TokenTestUtils.PUBLIC_KEY)).willReturn(aResponse()
-                .withStatus(200)
-                .withHeader("Content-type", TokenTestUtils.APPLICATION_JSON)
-                .withBody(TokenTestUtils.PUBLIC_KEY_BODY)));
+        wireMockServer.stubFor(get(urlEqualTo(TokenTestUtils.PUBLIC_KEY_PATH))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-type", TokenTestUtils.APPLICATION_JSON)
+                        .withBody(TokenTestUtils.PUBLIC_KEY_BODY)));
 
         var algorithmParser = new JwkAlgorithmParser(List.of(new RSAPEMCertificateParser()));
         var verifierLoader = new JwksTokenVerifierLoader(
-                "http://localhost:" + WIREMOCK_PORT + TokenTestUtils.PUBLIC_KEY,
+                "http://localhost:" + WIREMOCK_PORT + TokenTestUtils.PUBLIC_KEY_PATH,
                 "unit_test",
                 algorithmParser
         );
@@ -69,24 +70,24 @@ class TokenValidatorTest {
 
     @Test
     void testValidToken() {
-        validator.authenticateBlocking(TokenTestUtils.VALID_RSA_TOKEN);
+        validator.validateBlocking(TokenTestUtils.VALID_RSA_TOKEN);
     }
 
     @Test
     void testIncorrectAudienceToken() {
         assertThrows(TokenValidationException.class,
-                () -> validator.authenticateBlocking(TokenTestUtils.INCORRECT_AUDIENCE_TOKEN));
+                () -> validator.validateBlocking(TokenTestUtils.INCORRECT_AUDIENCE_TOKEN));
     }
 
     @Test
     void testExpiredToken() {
         assertThrows(TokenValidationException.class,
-                () -> validator.authenticateBlocking(TokenTestUtils.EXPIRED_TOKEN));
+                () -> validator.validateBlocking(TokenTestUtils.EXPIRED_TOKEN));
     }
 
     @Test
     void testIncorrectAlgorithmToken() {
         assertThrows(TokenValidationException.class,
-                () -> validator.authenticateBlocking(TokenTestUtils.INCORRECT_ALGORITHM_TOKEN));
+                () -> validator.validateBlocking(TokenTestUtils.INCORRECT_ALGORITHM_TOKEN));
     }
 }

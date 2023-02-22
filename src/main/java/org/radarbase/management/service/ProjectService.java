@@ -75,7 +75,7 @@ public class ProjectService {
             projects = projectRepository.findAllWithEagerRelationships(pageable);
         } else {
             projects = projectRepository.findAllWithEagerRelationshipsInOrganizationsOrProjects(
-                     pageable, referents.getOrganizations(), referents.getProjects());
+                     pageable, referents.getOrganizations(), referents.getAllProjects());
         }
 
         if (!fetchMinimal) {

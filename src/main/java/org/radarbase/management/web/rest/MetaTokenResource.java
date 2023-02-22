@@ -2,10 +2,10 @@ package org.radarbase.management.web.rest;
 
 
 import io.micrometer.core.annotation.Timed;
-import org.radarbase.management.security.Constants;
-import org.radarbase.auth.exception.NotAuthorizedException;
 import org.radarbase.management.domain.MetaToken;
 import org.radarbase.management.domain.Subject;
+import org.radarbase.management.security.Constants;
+import org.radarbase.management.security.NotAuthorizedException;
 import org.radarbase.management.service.AuthService;
 import org.radarbase.management.service.MetaTokenService;
 import org.radarbase.management.service.dto.ClientPairInfoDTO;

@@ -1,7 +1,7 @@
 package org.radarbase.management.web.rest;
 
 import io.swagger.v3.oas.annotations.Parameter;
-import org.radarbase.auth.exception.NotAuthorizedException;
+import org.radarbase.management.security.NotAuthorizedException;
 import org.radarbase.management.service.AuditEventService;
 import org.radarbase.management.service.AuthService;
 import org.radarbase.management.web.rest.util.PaginationUtil;

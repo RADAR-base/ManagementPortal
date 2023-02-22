@@ -1,7 +1,6 @@
 package org.radarbase.management.web.rest;
 
 import io.micrometer.core.annotation.Timed;
-import org.radarbase.auth.exception.NotAuthorizedException;
 import org.radarbase.management.config.ManagementPortalProperties;
 import org.radarbase.management.domain.Subject;
 import org.radarbase.management.domain.User;
@@ -9,6 +8,7 @@ import org.radarbase.management.repository.SubjectRepository;
 import org.radarbase.management.repository.UserRepository;
 import org.radarbase.management.repository.filters.UserFilter;
 import org.radarbase.management.security.Constants;
+import org.radarbase.management.security.NotAuthorizedException;
 import org.radarbase.management.service.AuthService;
 import org.radarbase.management.service.MailService;
 import org.radarbase.management.service.ResourceUriService;

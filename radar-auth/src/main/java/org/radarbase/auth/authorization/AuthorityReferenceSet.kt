@@ -1,5 +1,7 @@
 package org.radarbase.auth.authorization
 
+import org.radarbase.auth.util.plus
+
 data class AuthorityReferenceSet(
     /** Identity has global authority. */
     val global: Boolean = false,
@@ -7,6 +9,8 @@ data class AuthorityReferenceSet(
     val organizations: Set<String> = emptySet(),
     /** Identity has explicit authority over these projects. */
     val projects: Set<String> = emptySet(),
+    /** Identity has explicit personal authority over these projects. */
+    val personalProjects: Set<String> = emptySet(),
 ) {
     /** Identity does not have any authority. */
     fun isEmpty(): Boolean = !global && organizations.isEmpty() && projects.isEmpty()
@@ -14,9 +18,12 @@ data class AuthorityReferenceSet(
     /** Identity has authority over the given [organization]. */
     fun hasOrganization(organization: String): Boolean = organization in organizations
 
-    /** Identity has authority over the given [project]. */
-    fun hasProject(project: String) = project in projects
+    val allProjects: Set<String>
+        get() = projects + personalProjects
 
-    /** Whether identity has explicit authority over any projects. */
-    fun hasProjects() = projects.isNotEmpty()
+    /** Identity has authority over any project, personal or not. */
+    fun hasAnyProject(project: String) = project in projects || project in personalProjects
+
+    /** Identity has authority over any project. */
+    fun hasAnyProjects() = projects.isNotEmpty() || personalProjects.isNotEmpty()
 }

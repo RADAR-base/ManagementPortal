@@ -2,11 +2,10 @@ package org.radarbase.management.web.rest;
 
 import io.micrometer.core.annotation.Timed;
 import org.radarbase.auth.authorization.Permission;
-import org.radarbase.auth.exception.NotAuthorizedException;
 import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.config.ManagementPortalProperties;
 import org.radarbase.management.domain.User;
-import org.radarbase.management.security.SessionRadarToken;
+import org.radarbase.management.security.NotAuthorizedException;
 import org.radarbase.management.service.AuthService;
 import org.radarbase.management.service.MailService;
 import org.radarbase.management.service.PasswordService;
@@ -98,8 +97,7 @@ public class AccountResource {
             throw new NotAuthorizedException("Cannot login without credentials");
         }
         log.debug("Logging in user to session with principal {}", token.getUsername());
-        RadarToken sessionToken = new SessionRadarToken(token);
-        session.setAttribute(TOKEN_ATTRIBUTE, sessionToken);
+        session.setAttribute(TOKEN_ATTRIBUTE, token);
         return getAccount();
     }
 

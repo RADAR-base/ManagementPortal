@@ -73,9 +73,9 @@ public class OrganizationService {
         if (referents.getGlobal()) {
             organizationsOfUser = organizationRepository.findAll();
         } else {
-            Set<String> projectNames = referents.getProjects();
+            Set<String> projectNames = referents.getAllProjects();
 
-            Stream<Organization> organizationsOfProject = referents.hasProjects()
+            Stream<Organization> organizationsOfProject = !projectNames.isEmpty()
                     ? organizationRepository.findAllByProjectNames(projectNames).stream()
                     : Stream.of();
 
@@ -120,9 +120,9 @@ public class OrganizationService {
 
         if (referents.getGlobal() || referents.hasOrganization(organizationName)) {
             projectStream = projectRepository.findAllByOrganizationName(organizationName).stream();
-        } else if (referents.hasProjects()) {
+        } else if (referents.hasAnyProjects()) {
             projectStream = projectRepository.findAllByOrganizationName(organizationName).stream()
-                    .filter(project -> referents.hasProject(project.getProjectName()));
+                    .filter(project -> referents.hasAnyProject(project.getProjectName()));
         } else {
             return List.of();
         }

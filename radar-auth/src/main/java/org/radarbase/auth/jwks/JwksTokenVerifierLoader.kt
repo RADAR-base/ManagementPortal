@@ -2,6 +2,7 @@ package org.radarbase.auth.jwks
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
+import com.auth0.jwt.interfaces.Verification
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
@@ -17,8 +18,8 @@ import kotlinx.serialization.json.Json
 import org.radarbase.auth.authentication.TokenVerifier
 import org.radarbase.auth.authentication.TokenVerifierLoader
 import org.radarbase.auth.exception.TokenValidationException
-import org.radarbase.auth.jwt.JwtRadarToken
 import org.radarbase.auth.jwt.JwtTokenVerifier
+import org.radarbase.auth.jwt.JwtTokenVerifier.Companion.SCOPE_CLAIM
 import org.slf4j.LoggerFactory
 import java.time.Duration
 
@@ -81,10 +82,12 @@ class JwksTokenVerifierLoader(
 
     companion object {
         @JvmStatic
-        fun Algorithm.toTokenVerifier(resourceName: String): JwtTokenVerifier {
+        @JvmOverloads
+        fun Algorithm.toTokenVerifier(resourceName: String, builder: Verification.() -> Unit = {}): JwtTokenVerifier {
             val verifier = JWT.require(this).run {
-                withClaimPresence(JwtRadarToken.SCOPE_CLAIM)
+                withClaimPresence(SCOPE_CLAIM)
                 withAudience(resourceName)
+                builder()
                 build()
             }
             return JwtTokenVerifier(name, verifier)

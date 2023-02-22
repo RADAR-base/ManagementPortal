@@ -2,7 +2,6 @@ package org.radarbase.management.service;
 
 import org.hibernate.envers.query.AuditEntity;
 import org.radarbase.auth.authorization.RoleAuthority;
-import org.radarbase.auth.exception.NotAuthorizedException;
 import org.radarbase.management.config.ManagementPortalProperties;
 import org.radarbase.management.domain.Authority;
 import org.radarbase.management.domain.Group;
@@ -18,6 +17,7 @@ import org.radarbase.management.repository.RoleRepository;
 import org.radarbase.management.repository.SourceRepository;
 import org.radarbase.management.repository.SubjectRepository;
 import org.radarbase.management.repository.filters.SubjectSpecification;
+import org.radarbase.management.security.NotAuthorizedException;
 import org.radarbase.management.service.dto.MinimalSourceDetailsDTO;
 import org.radarbase.management.service.dto.SubjectDTO;
 import org.radarbase.management.service.dto.UserDTO;

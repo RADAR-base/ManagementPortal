@@ -1,13 +1,13 @@
 package org.radarbase.management.service;
 
 import org.radarbase.auth.authorization.RoleAuthority;
-import org.radarbase.auth.exception.NotAuthorizedException;
 import org.radarbase.management.config.ManagementPortalProperties;
 import org.radarbase.management.domain.Role;
 import org.radarbase.management.domain.User;
 import org.radarbase.management.repository.UserRepository;
 import org.radarbase.management.repository.filters.UserFilter;
 import org.radarbase.management.security.Constants;
+import org.radarbase.management.security.NotAuthorizedException;
 import org.radarbase.management.security.SecurityUtils;
 import org.radarbase.management.service.dto.RoleDTO;
 import org.radarbase.management.service.dto.UserDTO;

@@ -8,9 +8,10 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import org.radarbase.auth.exception.InvalidPublicKeyException
+import java.lang.IllegalArgumentException
 
 /**
- * Represents the JavaWebKey for token verification.
+ * Represents the OAuth 2.0 JsonWebKey for token verification.
  */
 @Serializable(with = JavaWebKeyPolymorphicSerializer::class)
 sealed interface JsonWebKey {
@@ -39,7 +40,7 @@ object JavaWebKeyPolymorphicSerializer : JsonContentPolymorphicSerializer<JsonWe
 
 @Serializable
 data class RSAJsonWebKey(
-    override val alg: String = KeySize.RS256.name,
+    override val alg: String = HashSize.RS256.name,
     override val kty: String,
     val kid: String? = null,
     val use: String = "sig",
@@ -52,9 +53,9 @@ data class RSAJsonWebKey(
     /** X.509 Certificate SHA-1 thumbprint. */
     override val x5t: String? = null,
 ) : JsonWebKey {
-    fun keySize(): KeySize = KeySize.valueOf(alg.uppercase())
+    fun keySize(): HashSize = HashSize.valueOf(alg.uppercase())
 
-    enum class KeySize {
+    enum class HashSize {
         RS256,
         RS384,
         RS512;
@@ -78,19 +79,19 @@ data class ECDSAJsonWebKey(
     /** X.509 Certificate SHA-1 thumbprint. */
     override val x5t: String? = null,
 ) : JsonWebKey {
-    fun keySize(): KeySize {
+    fun curve(): Curve {
         if (alg != null) {
-            return KeySize.valueOf(alg.uppercase())
+            return Curve.valueOf(alg.uppercase())
         }
         return when (crv) {
-            "P-256" -> KeySize.ES256
-            "P-384" -> KeySize.ES384
-            "P-521" -> KeySize.ES512
+            "P-256" -> Curve.ES256
+            "P-384" -> Curve.ES384
+            "P-521", "P-512" -> Curve.ES512
             else -> throw InvalidPublicKeyException("Unknown EC crv $crv")
         }
     }
 
-    enum class KeySize(val ecStdName: String) {
+    enum class Curve(val ecStdName: String) {
         ES256("secp256r1"),
         ES384("secp384r1"),
         ES512("secp521r1");

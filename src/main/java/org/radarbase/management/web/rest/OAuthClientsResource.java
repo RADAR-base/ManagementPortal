@@ -1,15 +1,14 @@
 package org.radarbase.management.web.rest;
 
 import io.micrometer.core.annotation.Timed;
-import org.radarbase.auth.exception.NotAuthorizedException;
 import org.radarbase.management.domain.Project;
 import org.radarbase.management.domain.Subject;
 import org.radarbase.management.domain.User;
 import org.radarbase.management.security.Constants;
+import org.radarbase.management.security.NotAuthorizedException;
 import org.radarbase.management.service.AuthService;
 import org.radarbase.management.service.MetaTokenService;
 import org.radarbase.management.service.OAuthClientService;
-import org.radarbase.management.service.OrganizationService;
 import org.radarbase.management.service.ResourceUriService;
 import org.radarbase.management.service.SubjectService;
 import org.radarbase.management.service.UserService;
@@ -76,9 +75,6 @@ public class OAuthClientsResource {
 
     @Autowired
     private UserService userService;
-
-    @Autowired
-    private OrganizationService organizationService;
 
     @Autowired
     private AuditEventRepository eventRepository;

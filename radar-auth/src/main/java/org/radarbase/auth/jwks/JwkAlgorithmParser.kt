@@ -40,50 +40,41 @@ class JwkAlgorithmParser(
                 ?.parseAlgorithm(key.value)
                 ?: throw TokenValidationException("Unsupported public key: $key")
             is RSAJsonWebKey -> try {
-                val kf: KeyFactory = KeyFactory.getInstance(ALGORITHM_RSA)
+                val keyFactory: KeyFactory = KeyFactory.getInstance(ALGORITHM_RSA)
                 val publicKeySpec = RSAPublicKeySpec(
                     BigInteger(1, Base64.getUrlDecoder().decode(key.n)),
                     BigInteger(1, Base64.getUrlDecoder().decode(key.e))
                 )
-                val publicKey = kf.generatePublic(publicKeySpec) as RSAPublicKey
-                when (key.keySize()) {
-                    RSAJsonWebKey.KeySize.RS256 -> Algorithm.RSA256(publicKey, null)
-                    RSAJsonWebKey.KeySize.RS384 -> Algorithm.RSA384(publicKey, null)
-                    RSAJsonWebKey.KeySize.RS512 -> Algorithm.RSA512(publicKey, null)
-                }
+                (keyFactory.generatePublic(publicKeySpec) as RSAPublicKey)
+                    .toAlgorithm(hashSize = key.keySize())
             } catch (e: GeneralSecurityException) {
                 throw InvalidPublicKeyException("Invalid public key", e)
             }
-            is ECDSAJsonWebKey ->
-                try {
-                    val keyFactory = KeyFactory.getInstance(ALGORITHM_EC)
-                    val keySize = key.keySize()
-                    val ecPublicKeySpec = ECPublicKeySpec(
-                        ECPoint(
-                            BigInteger(1, Base64.getUrlDecoder().decode(key.x)),
-                            BigInteger(1, Base64.getUrlDecoder().decode(key.y))
-                        ),
-                        AlgorithmParameters.getInstance(ALGORITHM_EC).run {
-                            init(ECGenParameterSpec(keySize.ecStdName))
-                            getParameterSpec(ECParameterSpec::class.java)
-                        }
-                    )
-                    val publicKey = keyFactory.generatePublic(ecPublicKeySpec) as ECPublicKey
-                    when (keySize) {
-                        ECDSAJsonWebKey.KeySize.ES256 -> Algorithm.ECDSA256(publicKey, null)
-                        ECDSAJsonWebKey.KeySize.ES384 -> Algorithm.ECDSA384(publicKey, null)
-                        ECDSAJsonWebKey.KeySize.ES512 -> Algorithm.ECDSA512(publicKey, null)
+            is ECDSAJsonWebKey -> try {
+                val keyFactory = KeyFactory.getInstance(ALGORITHM_EC)
+                val keySize = key.curve()
+                val ecPublicKeySpec = ECPublicKeySpec(
+                    ECPoint(
+                        BigInteger(1, Base64.getUrlDecoder().decode(key.x)),
+                        BigInteger(1, Base64.getUrlDecoder().decode(key.y))
+                    ),
+                    AlgorithmParameters.getInstance(ALGORITHM_EC).run {
+                        init(ECGenParameterSpec(keySize.ecStdName))
+                        getParameterSpec(ECParameterSpec::class.java)
                     }
-                } catch (e: NoSuchAlgorithmException) {
-                    throw InvalidPublicKeyException("Invalid algorithm to generate key", e)
-                } catch (e: GeneralSecurityException) {
-                    throw InvalidPublicKeyException("Invalid public key", e)
-                }
+                )
+                (keyFactory.generatePublic(ecPublicKeySpec) as ECPublicKey)
+                    .toAlgorithm(keySize = key.curve())
+            } catch (e: NoSuchAlgorithmException) {
+                throw InvalidPublicKeyException("Invalid algorithm to generate key", e)
+            } catch (e: GeneralSecurityException) {
+                throw InvalidPublicKeyException("Invalid public key", e)
+            }
         }
     }
 
     override fun toString(): String = buildString(50) {
-        append("StringAlgorithmKeyLoader<algorithms=")
+        append("JwkAlgorithmParser<algorithms=")
         supportedAlgorithmsForWebKeySets.joinTo(buffer = this, separator = ", ") {
             it.keyFactoryType
         }

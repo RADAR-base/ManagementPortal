@@ -1,11 +1,11 @@
 package org.radarbase.management.service;
 
 
-import org.radarbase.auth.exception.NotAuthorizedException;
 import org.radarbase.management.domain.Source;
 import org.radarbase.management.domain.SourceType;
 import org.radarbase.management.repository.ProjectRepository;
 import org.radarbase.management.repository.SourceRepository;
+import org.radarbase.management.security.NotAuthorizedException;
 import org.radarbase.management.service.dto.MinimalSourceDetailsDTO;
 import org.radarbase.management.service.dto.SourceDTO;
 import org.radarbase.management.service.mapper.SourceMapper;

@@ -1,4 +1,4 @@
-package org.radarbase.auth.exception
+package org.radarbase.management.security
 
 import java.security.GeneralSecurityException
 

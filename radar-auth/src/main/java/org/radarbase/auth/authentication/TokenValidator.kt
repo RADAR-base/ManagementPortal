@@ -1,11 +1,7 @@
 package org.radarbase.auth.authentication
 
 import com.auth0.jwt.exceptions.AlgorithmMismatchException
-import com.auth0.jwt.interfaces.DecodedJWT
 import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.SendChannel
-import kotlinx.coroutines.channels.consume
 import org.radarbase.auth.exception.TokenValidationException
 import org.radarbase.auth.token.RadarToken
 import org.radarbase.auth.util.CachedValue
@@ -35,8 +31,9 @@ constructor(
 ) {
     private val algorithmLoaders: List<TokenVerifierCache> = verifierLoaders.map { loader ->
         CachedValue(
-            minAge = fetchTimeout,
-            maxAge = maxAge,
+            retryDuration = fetchTimeout,
+            refreshDuration = maxAge,
+            maxSimultaneousCompute = 2,
         ) {
             loader.fetch()
         }
@@ -45,49 +42,53 @@ constructor(
     /**
      * Validates an access token and returns the token as a [RadarToken] object.
      *
-     * If we have not yet fetched the JWT public key, this method will fetch it. If a signature can
-     * not be verified, this method will fetch the JWT public key again, as it might have been
-     * changed, and re-check the token. However, this fetching of the public key will only be
-     * performed at most once every `fetchTimeout` seconds, to prevent (malicious)
-     * clients from making us call the token endpoint too frequently.
+     * This will load all the verifiers. If a token cannot be verified, this method will fetch
+     * the verifiers again, as the source may have changed. It will then and re-check the token.
+     * However, the public key will not be fetched more than once every `fetchTimeout`,
+     * to prevent (malicious) clients from loading external token verifiers too frequently.
+     *
+     * This implementation calls [runBlocking]. If calling from Kotlin, prefer to use [validate]
+     * with coroutines instead.
      *
      * @param token The access token
      * @return The decoded access token
      * @throws TokenValidationException If the token can not be validated.
      */
     @Throws(TokenValidationException::class)
-    fun authenticateBlocking(token: String): RadarToken = runBlocking {
-        authenticate(token)
+    fun validateBlocking(token: String): RadarToken = runBlocking {
+        validate(token)
     }
 
     /**
-     * Validates an access token and returns the decoded JWT as a [DecodedJWT] object.
+     * Validates an access token and returns the token as a [RadarToken] object.
      *
-     * If we have not yet fetched the JWT public key, this method will fetch it. If a signature can
-     * not be verified, this method will fetch the JWT public key again, as it might have been
-     * changed, and re-check the token. However, this fetching of the public key will only be
-     * performed at most once every `fetchTimeout` seconds, to prevent (malicious)
-     * clients from making us call the token endpoint too frequently.
+     * This will load all the verifiers. If a token cannot be verified, this method will fetch
+     * the verifiers again, as the source may have changed. It will then and re-check the token.
+     * However, the public key will not be fetched more than once every `fetchTimeout`,
+     * to prevent (malicious) clients from loading external token verifiers too frequently.
      *
      * @param token The access token
      * @return The decoded access token
      * @throws TokenValidationException If the token can not be validated.
      */
     @Throws(TokenValidationException::class)
-    suspend fun authenticate(token: String): RadarToken {
-        val result: Result<RadarToken> = consumeFirst { channel ->
+    suspend fun validate(token: String): RadarToken {
+        val result: Result<RadarToken> = consumeFirst { emit ->
             val errors = algorithmLoaders
                 .forkJoin { cache ->
                     val result = cache.verify(token)
                     // short-circuit to return the first successful result
-                    if (result.isSuccess) channel.send(result)
+                    if (result.isSuccess) emit(result)
                     result
                 }
-                .mapNotNull { it.exceptionOrNull() }
-                .flatMap { it.suppressedExceptions }
+                .flatMap {
+                    it.exceptionOrNull()
+                        ?.suppressedExceptions
+                        ?: emptyList()
+                }
 
             val suppressedMessage = errors.joinToString { it.message ?: it.javaClass.simpleName }
-            channel.send(
+            emit(
                 TokenValidationException("No registered validator in could authenticate this token: $suppressedMessage")
                     .toFailure(errors)
             )
@@ -101,35 +102,60 @@ constructor(
         algorithmLoaders.forEach { it.clear() }
     }
 
-    /**
-     * Verify the token using the TokenVerifier lists from cache.
-     * If verification fails and the TokenVerifier list was retrieved from cache
-     * try to reload the TokenVerifier list and verify again.
-     * If none of the verifications succeed, return a result of TokenValidationException
-     * with suppressed exceptions all the exceptions returned from a TokenVerifier.
-     */
-    private suspend fun TokenVerifierCache.verify(token: String): Result<RadarToken> {
-        val verifiers = getOrEmpty(false)
-
-        var results = verifiers.value.map { it.runCatching { verify(token) } }
-        results.find { it.isSuccess }?.let { return it }
-
-        // already fetched a new value, no need to fetch it again
-        if (verifiers is CachedValue.CacheMiss) return results.toValidationExceptionResult()
-
-        val refreshedVerifiers = getOrEmpty(true)
-        if (refreshedVerifiers == verifiers) return results.toValidationExceptionResult()
-
-        results = refreshedVerifiers.value.map { it.runCatching { verify(token) } }
-        results.find { it.isSuccess }?.let { return it }
-        return results.toValidationExceptionResult()
-    }
-
     companion object {
         private val logger = LoggerFactory.getLogger(TokenValidator::class.java)
 
+        /**
+         * Verify the token using the TokenVerifier lists from cache.
+         * If verification fails and the TokenVerifier list was retrieved from cache
+         * try to reload the TokenVerifier list and verify again.
+         * If none of the verifications succeed, return a result of TokenValidationException
+         * with suppressed exceptions all the exceptions returned from a TokenVerifier.
+         */
+        private suspend fun TokenVerifierCache.verify(token: String): Result<RadarToken> {
+            val verifiers = getOrEmpty { false }
+
+            val firstResult = verifiers.value.anyVerify(token)
+            if (
+                firstResult.isSuccess ||
+                // already fetched new verifiers, no need to fetch it again
+                verifiers is CachedValue.CacheMiss
+            ) {
+                return firstResult
+            }
+
+            val refreshedVerifiers = getOrEmpty { true }
+            return if (refreshedVerifiers != verifiers) {
+                refreshedVerifiers.value.anyVerify(token)
+            } else {
+                // The verifiers didn't change, so the result won't change
+                firstResult
+            }
+        }
+
+        private fun List<TokenVerifier>.anyVerify(token: String): Result<RadarToken> {
+            var exceptions: MutableList<Throwable>? = null
+
+            forEach { verifier ->
+                try {
+                    val radarToken = verifier.verify(token)
+                    return Result.success(radarToken)
+                } catch (ex: Throwable) {
+                    if (ex !is AlgorithmMismatchException) {
+                        if (exceptions == null) {
+                            exceptions = mutableListOf()
+                        }
+                        exceptions!!.add(ex)
+                    }
+                }
+            }
+
+            return TokenValidationException("Failed to validate token")
+                .toFailure(exceptions ?: emptyList())
+        }
+
         private suspend fun TokenVerifierCache.getOrEmpty(
-            refresh: Boolean
+            refresh: (List<TokenVerifier>) -> Boolean
         ): CachedValue.CacheResult<List<TokenVerifier>> =
             try {
                 get(refresh)
@@ -137,16 +163,6 @@ constructor(
                 logger.warn("Failed to load authentication algorithm keys: {}", ex.message)
                 CachedValue.CacheMiss(emptyList())
             }
-
-        private fun List<Result<RadarToken>>.toValidationExceptionResult(): Result<RadarToken> {
-            val exceptions = mapNotNull { result ->
-                result.exceptionOrNull()
-                    ?.takeIf { it !is AlgorithmMismatchException }
-            }
-
-            return TokenValidationException("Failed to validate token")
-                .toFailure(exceptions)
-        }
 
         private fun <T> Throwable.toFailure(causes: Iterable<Throwable> = emptyList()): Result<T> {
             causes.forEach { addSuppressed(it) }

@@ -1,13 +1,12 @@
 package org.radarbase.management.service
 
 import org.radarbase.auth.authorization.*
-import org.radarbase.auth.exception.NotAuthorizedException
 import org.radarbase.auth.token.RadarToken
+import org.radarbase.management.security.NotAuthorizedException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import java.util.*
 import java.util.function.Consumer
-import kotlin.jvm.Throws
 
 @Service
 open class AuthService {
@@ -17,7 +16,7 @@ open class AuthService {
     @Autowired(required = false)
     private var token: RadarToken? = null
 
-    private val oracle: AuthorizationOracle = AuthorizationOracle(
+    private val oracle: AuthorizationOracle = MPAuthorizationOracle(
         object : EntityRelationService {
             override fun findOrganizationOfProject(project: String): String {
                 return projectService.findOneByName(project).organization.name
@@ -25,12 +24,28 @@ open class AuthService {
         }
     )
 
+    /**
+     * Check whether given [token] would have the [permission] scope in any of its roles. This doesn't
+     * check whether [token] has access to a specific entity or global access.
+     * @throws NotAuthorizedException if identity does not have scope
+     */
     @Throws(NotAuthorizedException::class)
     open fun checkScope(permission: Permission) {
         val token = token ?: throw NotAuthorizedException("User without authentication does not have permission.")
-        oracle.checkScope(token, permission)
+
+        if (!oracle.hasScope(token, permission)) {
+            throw NotAuthorizedException(
+                "User ${token.username} with client ${token.clientId} does not have permission $permission"
+            )
+        }
     }
 
+    /**
+     * Check whether [token] has permission [permission], regarding given entity from [builder].
+     * The permission is checked both for its
+     * own entity scope and for the [EntityDetails.minimumEntityOrNull] entity scope.
+     * @throws NotAuthorizedException if identity does not have permission
+     */
     @JvmOverloads
     @Throws(NotAuthorizedException::class)
     open fun checkPermission(
@@ -39,47 +54,22 @@ open class AuthService {
         scope: Permission.Entity = permission.entity,
     ) {
         val token = token ?: throw NotAuthorizedException("User without authentication does not have permission.")
-        oracle.checkPermission(token, permission, if (builder != null) entityDetailsBuilder(builder) else EntityDetails.global, scope)
-    }
 
-    @JvmOverloads
-    open fun hasPermission(
-        permission: Permission,
-        builder: Consumer<EntityDetails>? = null,
-        scope: Permission.Entity = permission.entity,
-    ): Boolean {
-        val token = token ?: return false
-        return oracle.hasPermission(
-            token,
-            permission,
-            if (builder != null) entityDetailsBuilder(builder) else EntityDetails.global,
-            scope
-        )
-    }
-
-    @JvmOverloads
-    open fun hasPermission(
-        permission: Permission,
-        entityDetails: EntityDetails,
-        scope: Permission.Entity = permission.entity,
-    ): Boolean {
-        val token = token ?: return false
-        return oracle.hasPermission(token, permission, entityDetails, scope)
-    }
-
-    @JvmOverloads
-    @Throws(NotAuthorizedException::class)
-    open fun checkPermission(
-        permission: Permission,
-        entityDetails: EntityDetails,
-        scope: Permission.Entity = permission.entity,
-    ) {
-        val token = token ?: throw NotAuthorizedException("User without authentication does not have permission.")
-        oracle.checkPermission(token, permission, entityDetails, scope)
+        val entity = if (builder != null) entityDetailsBuilder(builder) else EntityDetails.global
+        if (!oracle.hasPermission(token, permission, entity, scope)) {
+            throw NotAuthorizedException(
+                "User ${token.username} with client ${token.clientId} does not have permission $permission to scope " +
+                        "$token of $entity"
+            )
+        }
     }
 
     open fun referentsByScope(permission: Permission): AuthorityReferenceSet {
         val token = token ?: return AuthorityReferenceSet()
         return oracle.referentsByScope(token, permission)
+    }
+
+    fun mayBeGranted(role: RoleAuthority, permission: Permission): Boolean = with(oracle) {
+        role.mayBeGranted(permission)
     }
 }

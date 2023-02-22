@@ -6,7 +6,7 @@ import org.hibernate.envers.query.AuditEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.radarbase.auth.exception.NotAuthorizedException;
+import org.radarbase.management.security.NotAuthorizedException;
 import org.radarbase.management.ManagementPortalTestApp;
 import org.radarbase.management.domain.Authority;
 import org.radarbase.management.domain.Role;

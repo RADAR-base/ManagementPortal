@@ -1,9 +1,6 @@
 package org.radarbase.auth.authorization
 
 import java.io.Serializable
-import java.util.*
-import java.util.stream.Collector
-import java.util.stream.Collectors
 
 /**
  * Constants for Spring Security authorities.
@@ -27,13 +24,6 @@ enum class RoleAuthority(
         GLOBAL, ORGANIZATION, PROJECT
     }
 
-    /**
-     * Check if this role has may have given permission associated with it.
-     * @param permission the permission to check
-     * @return true if this role has given permission associated with it, false otherwise
-     */
-    fun mayBeGranted(permission: Permission) = this in AuthorizationOracle.allowedRoles(permission)
-
     companion object {
         const val SYS_ADMIN_AUTHORITY = "ROLE_SYS_ADMIN"
 
@@ -45,11 +35,11 @@ enum class RoleAuthority(
          * @throws NullPointerException if given authority is null.
          */
         @JvmStatic
-        fun valueOfAuthority(authority: String): RoleAuthority {
-            val upperAuthority = authority.uppercase()
-            require(upperAuthority.startsWith("ROLE_")) { "Cannot map role without 'ROLE_' prefix" }
-            return valueOf(upperAuthority.substring(5))
-        }
+        fun valueOfAuthority(authority: String): RoleAuthority = valueOf(
+            authority
+                .uppercase()
+                .removePrefix("ROLE_")
+        )
 
         /**
          * Find role authority based on authority name.

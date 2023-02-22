@@ -2,9 +2,9 @@ package org.radarbase.management.web.rest;
 
 import io.micrometer.core.annotation.Timed;
 import io.swagger.v3.oas.annotations.Parameter;
-import org.radarbase.auth.exception.NotAuthorizedException;
 import org.radarbase.management.repository.ProjectRepository;
 import org.radarbase.management.security.Constants;
+import org.radarbase.management.security.NotAuthorizedException;
 import org.radarbase.management.service.AuthService;
 import org.radarbase.management.service.ProjectService;
 import org.radarbase.management.service.ResourceUriService;

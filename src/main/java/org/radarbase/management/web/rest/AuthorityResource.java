@@ -2,7 +2,7 @@ package org.radarbase.management.web.rest;
 
 import io.micrometer.core.annotation.Timed;
 import org.radarbase.auth.authorization.RoleAuthority;
-import org.radarbase.auth.exception.NotAuthorizedException;
+import org.radarbase.management.security.NotAuthorizedException;
 import org.radarbase.management.service.AuthService;
 import org.radarbase.management.service.dto.AuthorityDTO;
 import org.slf4j.Logger;

@@ -6,12 +6,15 @@
  *
  * See the file LICENSE in the root of this repository.
  */
-package org.radarbase.auth.token
+package org.radarbase.auth.authorization
 
-import org.radarbase.auth.authorization.RoleAuthority
 import org.radarbase.auth.authorization.RoleAuthority.Companion.valueOfAuthority
 import java.io.Serializable
 
+/**
+ * An authority referenced to a specific entity. Only roles with global scope do not need a
+ * referent.
+ */
 data class AuthorityReference(
     val role: RoleAuthority,
     val authority: String,
