@@ -32,7 +32,7 @@ jobs:
         run: >
           snyk test
           --all-projects
-          --configuration-matching="^runtimeClasspath$"
+          --configuration-matching="^compileClasspath|runtimeClasspath$"
           --fail-on=upgradable
           --org=radar-base
           --policy-path=.snyk
