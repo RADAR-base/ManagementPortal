@@ -1,28 +1,51 @@
 name: Snyk test
 
 on:
-  pull_request:
-    branches:
-      - master
+ - pull_request
 
 jobs:
   security:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@v3
+      - uses: snyk/actions/setup@master
+        with:
+          snyk-version: v1.996.0
 
-      - name: Run Snyk to check for Kotlin vulnerabilities
-        uses: snyk/actions/gradle-jdk11@master
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '15'
+          cache: npm
+
+      - uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 11
+
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+
+      - name: Run Snyk to check for vulnerabilities in compileClasspath
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          args: --severity-threshold=high --all-sub-projects --policy-path=.snyk
+        run: >
+          snyk test
+          --all-projects
+          --configuration-matching="^compileClasspath$"
+          --fail-on=upgradable
+          --org=radar-base
+          --policy-path=.snyk
+          --severity-threshold=high
 
-      - name: Run Snyk to check for Node vulnerabilities
-        uses: snyk/actions/node@master
+      - name: Run Snyk to check for vulnerabilities in runtimeClasspath
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          args: . --severity-threshold=high --policy-path=.snyk
-        if: ${{ !cancelled() }}
+        run: >
+          snyk test
+          --all-projects
+          --configuration-matching="^runtimeClasspath$"
+          --fail-on=upgradable
+          --org=radar-base
+          --policy-path=.snyk
+          --severity-threshold=high          

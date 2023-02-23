@@ -158,13 +158,13 @@ public class AccountResource {
     @PostMapping(path = "/account/reset-activation/init",
             produces = MediaType.TEXT_PLAIN_VALUE)
     @Timed
-    public ResponseEntity<String>  requestActivationReset(@RequestBody String login) {
+    public ResponseEntity<Object> requestActivationReset(@RequestBody String login) {
         return userService.requestActivationReset(login)
             .map(user -> {
                 // this will be the similar email with newly set reset-key
                 mailService.sendCreationEmail(user, managementPortalProperties.getCommon()
                         .getActivationKeyTimeoutInSeconds());
-                return new ResponseEntity<>("Activation email was sent", HttpStatus.OK);
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }).orElse(new ResponseEntity<>("Cannot find a deactivated user with login " + login,
                 HttpStatus.BAD_REQUEST));
     }

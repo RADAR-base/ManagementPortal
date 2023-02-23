@@ -9,37 +9,36 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@v3
+      - uses: snyk/actions/setup@master
+        with:
+          snyk-version: v1.996.0
 
-      - name: Run Snyk to check for Kotlin vulnerabilities
-        uses: snyk/actions/gradle-jdk11@master
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '15'
+          cache: npm
+
+      - uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 11
+
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+
+      - name: Run Snyk to check for vulnerabilities
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          command: test
-          json: true
-          args: --all-sub-projects --policy-path=.snyk
-        if: ${{ !cancelled() }}
+        run: >
+          snyk test
+          --all-projects
+          --configuration-matching="^compileClasspath$|^runtimeClasspath$"
+          --org=radar-base
+          --policy-path=.snyk
+          --json-file-output=snyk.json
 
-      - name: Report new Kotlin vulnerabilities
-        uses: thehyve/report-vulnerability@master
-        with:
-          report-file: snyk.json
-        env:
-          TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        if: ${{ failure() }}
-
-      - name: Run Snyk to check for Node vulnerabilities
-        uses: snyk/actions/node@master
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          command: test
-          args: . --policy-path=.snyk
-          json: true
-        if: ${{ !cancelled() }}
-
-      - name: Report new Node vulnerabilities
+      - name: Report new vulnerabilities
         uses: thehyve/report-vulnerability@master
         with:
           report-file: snyk.json
