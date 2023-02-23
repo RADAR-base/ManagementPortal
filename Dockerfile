@@ -1,5 +1,5 @@
 # Build stage
-FROM azul/zulu-openjdk:11 as builder
+FROM --platform=linux/amd64 eclipse-temurin:11-jdk as builder
 
 # Install cURL...
 RUN apt-get update && \
@@ -30,7 +30,7 @@ WORKDIR /app
 ENV GRADLE_OPTS="-Dorg.gradle.daemon=false -Dorg.gradle.project.prod=true"
 
 COPY package.json yarn.lock /app/
-RUN yarn install
+RUN yarn install --network-timeout 1000000
 
 COPY gradlew /app/
 COPY gradle/wrapper gradle/wrapper
@@ -55,13 +55,11 @@ COPY src src
 RUN ./gradlew -s bootWar
 
 # Run stage
-FROM azul/zulu-openjdk-alpine:11-jre-headless
+FROM eclipse-temurin:11-jre
 
 ENV SPRING_OUTPUT_ANSI_ENABLED=ALWAYS \
     JHIPSTER_SLEEP=0 \
     JAVA_OPTS=""
-
-RUN apk --no-cache add curl
 
 # Add the war and changelogs files from build stage
 COPY --from=builder /app/build/libs/*.war /app.war
