@@ -1,5 +1,6 @@
 package org.radarbase.auth.token
 
+import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
@@ -22,7 +23,7 @@ class AbstractRadarTokenTest {
     class MockEntityRelationService @JvmOverloads constructor(
         private val projectToOrganization: Map<String, String> = mapOf()
     ) : EntityRelationService {
-        override fun findOrganizationOfProject(project: String): String {
+        override suspend fun findOrganizationOfProject(project: String): String {
             return projectToOrganization[project] ?: "main"
         }
     }
@@ -74,7 +75,7 @@ class AbstractRadarTokenTest {
     }
 
     @Test
-    fun notHasPermissionOnProjectWithoutScope() {
+    fun notHasPermissionOnProjectWithoutScope() = runBlocking {
         assertFalse(
             oracle.hasPermission(
                 token,
@@ -85,7 +86,7 @@ class AbstractRadarTokenTest {
     }
 
     @Test
-    fun notHasPermissioOnProjectnWithoutAuthority() {
+    fun notHasPermissioOnProjectnWithoutAuthority() = runBlocking {
         token = token.copy(
             scopes = setOf(Permission.MEASUREMENT_CREATE.scope())
         )
@@ -99,7 +100,7 @@ class AbstractRadarTokenTest {
     }
 
     @Test
-    fun hasPermissionOnProjectAsAdmin() {
+    fun hasPermissionOnProjectAsAdmin() = runBlocking {
         token = token.copy(
             scopes = setOf(Permission.MEASUREMENT_CREATE.scope()),
             roles = setOf(AuthorityReference(RoleAuthority.SYS_ADMIN)),
@@ -114,7 +115,7 @@ class AbstractRadarTokenTest {
     }
 
     @Test
-    fun hasPermissionOnProjectAsUser() {
+    fun hasPermissionOnProjectAsUser() = runBlocking {
         token = token.copy(
             scopes = setOf(Permission.MEASUREMENT_CREATE.scope()),
             roles = setOf(AuthorityReference(RoleAuthority.PARTICIPANT, "project")),
@@ -135,7 +136,7 @@ class AbstractRadarTokenTest {
     }
 
     @Test
-    fun hasPermissionOnProjectAsClient() {
+    fun hasPermissionOnProjectAsClient() = runBlocking {
         token = token.copy(
             scopes = setOf(Permission.MEASUREMENT_CREATE.scope()),
             grantType = CLIENT_CREDENTIALS,
@@ -150,7 +151,7 @@ class AbstractRadarTokenTest {
     }
 
     @Test
-    fun notHasPermissionOnSubjectWithoutScope() {
+    fun notHasPermissionOnSubjectWithoutScope() = runBlocking {
         assertFalse(
             oracle.hasPermission(
                 token,
@@ -161,7 +162,7 @@ class AbstractRadarTokenTest {
     }
 
     @Test
-    fun notHasPermissioOnSubjectnWithoutAuthority() {
+    fun notHasPermissioOnSubjectnWithoutAuthority() = runBlocking {
         token = token.copy(scopes = setOf(Permission.MEASUREMENT_CREATE.scope()))
         assertFalse(
             oracle.hasPermission(
@@ -173,7 +174,7 @@ class AbstractRadarTokenTest {
     }
 
     @Test
-    fun hasPermissionOnSubjectAsAdmin() {
+    fun hasPermissionOnSubjectAsAdmin() = runBlocking {
         token = token.copy(
             scopes = setOf(Permission.MEASUREMENT_CREATE.scope()),
             roles = setOf(AuthorityReference(RoleAuthority.SYS_ADMIN)),
@@ -188,7 +189,7 @@ class AbstractRadarTokenTest {
     }
 
     @Test
-    fun hasPermissionOnSubjectAsUser() {
+    fun hasPermissionOnSubjectAsUser() = runBlocking {
         token = token.copy(
             scopes = setOf(Permission.MEASUREMENT_CREATE.scope()),
             roles = setOf(AuthorityReference(RoleAuthority.PARTICIPANT, "project")),
@@ -211,7 +212,7 @@ class AbstractRadarTokenTest {
     }
 
     @Test
-    fun hasPermissionOnSubjectAsClient() {
+    fun hasPermissionOnSubjectAsClient() = runBlocking {
         token = token.copy(
             scopes = setOf(Permission.MEASUREMENT_CREATE.scope()),
             grantType = CLIENT_CREDENTIALS

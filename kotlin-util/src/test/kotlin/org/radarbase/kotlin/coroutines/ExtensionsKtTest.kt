@@ -1,4 +1,4 @@
-package org.radarbase.auth.util
+package org.radarbase.kotlin.coroutines
 
 import kotlinx.coroutines.*
 import org.hamcrest.MatcherAssert.assertThat
@@ -76,5 +76,13 @@ class ExtensionsKtTest {
         }
         assertThat(inBlockingTime, lessThan(200.milliseconds))
         assertThat(inBlockingTime, greaterThan(50.milliseconds))
+    }
+
+    @Test
+    fun testConcurrentAny() {
+        runBlocking {
+            assertTrue(listOf(1, 2, 3, 4).forkAny { it > 3 })
+            assertFalse(listOf(1, 2, 3, 4).forkAny { it < 1 })
+        }
     }
 }

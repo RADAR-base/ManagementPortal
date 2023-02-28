@@ -1,7 +1,5 @@
 package org.radarbase.auth.authorization
 
-import org.radarbase.auth.util.plus
-
 data class AuthorityReferenceSet(
     /** Identity has global authority. */
     val global: Boolean = false,

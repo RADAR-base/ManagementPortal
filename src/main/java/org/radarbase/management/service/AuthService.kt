@@ -1,5 +1,8 @@
 package org.radarbase.management.service
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.radarbase.auth.authorization.*
 import org.radarbase.auth.token.RadarToken
 import org.radarbase.management.security.NotAuthorizedException
@@ -18,8 +21,8 @@ open class AuthService {
 
     private val oracle: AuthorizationOracle = MPAuthorizationOracle(
         object : EntityRelationService {
-            override fun findOrganizationOfProject(project: String): String {
-                return projectService.findOneByName(project).organization.name
+            override suspend fun findOrganizationOfProject(project: String): String = withContext(Dispatchers.IO) {
+                projectService.findOneByName(project).organization.name
             }
         }
     )
@@ -56,10 +59,14 @@ open class AuthService {
         val token = token ?: throw NotAuthorizedException("User without authentication does not have permission.")
 
         val entity = if (builder != null) entityDetailsBuilder(builder) else EntityDetails.global
-        if (!oracle.hasPermission(token, permission, entity, scope)) {
+
+        val hasPermission = runBlocking {
+            oracle.hasPermission(token, permission, entity, scope)
+        }
+        if (!hasPermission) {
             throw NotAuthorizedException(
                 "User ${token.username} with client ${token.clientId} does not have permission $permission to scope " +
-                        "$token of $entity"
+                        "$scope of $entity"
             )
         }
     }

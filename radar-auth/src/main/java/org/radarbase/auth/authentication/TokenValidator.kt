@@ -4,20 +4,19 @@ import com.auth0.jwt.exceptions.AlgorithmMismatchException
 import kotlinx.coroutines.*
 import org.radarbase.auth.exception.TokenValidationException
 import org.radarbase.auth.token.RadarToken
-import org.radarbase.auth.util.CachedValue
-import org.radarbase.auth.util.consumeFirst
-import org.radarbase.auth.util.forkJoin
+import org.radarbase.kotlin.coroutines.CacheConfig
+import org.radarbase.kotlin.coroutines.CachedValue
+import org.radarbase.kotlin.coroutines.consumeFirst
+import org.radarbase.kotlin.coroutines.forkJoin
 import org.slf4j.LoggerFactory
 import java.time.Duration
+import kotlin.time.toKotlinDuration
 
 private typealias TokenVerifierCache = CachedValue<List<TokenVerifier>>
 
 /**
- * Validates JWT token signed by the Management Portal. It may be used from multiple threads.
- * If the status of the public key should be checked immediately, call
- * [.refresh] directly after creating this validator. It currently does not check this, so
- * that the validator can be used even if a remote ManagementPortal is not reachable during
- * construction.
+ * Validates JWT token signed by the Management Portal. It may be used from multiple coroutine
+ * contexts.
  */
 class TokenValidator
 @JvmOverloads
@@ -29,13 +28,16 @@ constructor(
     /** Maximum time that the token verifier does not need to be fetched. */
     maxAge: Duration = Duration.ofDays(1),
 ) {
-    private val algorithmLoaders: List<TokenVerifierCache> = verifierLoaders.map { loader ->
-        CachedValue(
-            retryDuration = fetchTimeout,
-            refreshDuration = maxAge,
+    private val algorithmLoaders: List<TokenVerifierCache>
+
+    init {
+        val config = CacheConfig(
+            retryDuration = fetchTimeout.toKotlinDuration(),
+            refreshDuration = maxAge.toKotlinDuration(),
             maxSimultaneousCompute = 2,
-        ) {
-            loader.fetch()
+        )
+        algorithmLoaders = verifierLoaders.map { loader ->
+            CachedValue(config, supplier = loader::fetch)
         }
     }
 
@@ -74,7 +76,7 @@ constructor(
     @Throws(TokenValidationException::class)
     suspend fun validate(token: String): RadarToken {
         val result: Result<RadarToken> = consumeFirst { emit ->
-            val errors = algorithmLoaders
+            val causes = algorithmLoaders
                 .forkJoin { cache ->
                     val result = cache.verify(token)
                     // short-circuit to return the first successful result
@@ -87,11 +89,13 @@ constructor(
                         ?: emptyList()
                 }
 
-            val suppressedMessage = errors.joinToString { it.message ?: it.javaClass.simpleName }
-            emit(
-                TokenValidationException("No registered validator in could authenticate this token: $suppressedMessage")
-                    .toFailure(errors)
-            )
+            val message = if (causes.isEmpty()) {
+                "No registered validator in could authenticate this token"
+            } else {
+                val suppressedMessage = causes.joinToString { it.message ?: it.javaClass.simpleName }
+                "No registered validator in could authenticate this token: $suppressedMessage"
+            }
+            emit(TokenValidationException(message).toFailure(causes))
         }
 
         return result.getOrThrow()

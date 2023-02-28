@@ -6,26 +6,10 @@ import java.util.function.Consumer
 
 interface AuthorizationOracle {
     /**
-     * Whether [identity] has permission [permission], regarding given [entity]. An additional
-     * [entityScope] can be provided to check whether the permission is also valid regarding that
-     * scope. The permission is checked both for its
-     * own entity scope and for the [EntityDetails.minimumEntityOrNull] entity scope.
-     * @return true if identity has permission, false otheriwse
+     * Whether [identity] has permission [permission] on a global level.
+     * @return true if identity has permission, false otherwise
      */
-    fun hasPermission(
-        identity: RadarToken,
-        permission: Permission,
-        entityBuilder: Consumer<EntityDetails>,
-    ): Boolean = hasPermission(identity, permission, EntityDetails().apply(entityBuilder::accept))
-
-    /**
-     * Whether [identity] has permission [permission], regarding given [entity]. An additional
-     * [entityScope] can be provided to check whether the permission is also valid regarding that
-     * scope. The permission is checked both for its
-     * own entity scope and for the [EntityDetails.minimumEntityOrNull] entity scope.
-     * @return true if identity has permission, false otheriwse
-     */
-    fun hasGlobalPermission(
+    suspend fun hasGlobalPermission(
         identity: RadarToken,
         permission: Permission,
     ): Boolean = hasPermission(identity, permission)
@@ -35,9 +19,9 @@ interface AuthorizationOracle {
      * [entityScope] can be provided to check whether the permission is also valid regarding that
      * scope. The permission is checked both for its
      * own entity scope and for the [EntityDetails.minimumEntityOrNull] entity scope.
-     * @return true if identity has permission, false otheriwse
+     * @return true if identity has permission, false otherwise
      */
-    fun hasPermission(
+    suspend fun hasPermission(
         identity: RadarToken,
         permission: Permission,
         entity: EntityDetails = EntityDetails.global,

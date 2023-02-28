@@ -5,38 +5,28 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     id 'maven-publish'
     id 'org.jetbrains.kotlin.jvm'
-    id 'org.jetbrains.kotlin.plugin.serialization'
     id 'org.jetbrains.dokka'
 }
+
 
 sourceCompatibility = JavaVersion.VERSION_11
 targetCompatibility = JavaVersion.VERSION_11
 
-description = 'Library for authentication and authorization of JWT tokens issued by the RADAR platform'
+description = 'Library for Kotlin utility classes and functions'
+
 
 dependencies {
-    api group: 'com.auth0', name: 'java-jwt', version: oauth_jwt_version
+    implementation group: 'org.slf4j', name: 'slf4j-api', version: slf4j_version
     api(platform("org.jetbrains.kotlinx:kotlinx-coroutines-bom:$coroutines_version"))
     api("org.jetbrains.kotlinx:kotlinx-coroutines-core")
 
-    implementation(project(":kotlin-util"))
-
-    implementation(platform('io.ktor:ktor-bom:2.2.3'))
-    implementation("io.ktor:ktor-client-core")
-    implementation("io.ktor:ktor-client-cio")
-    implementation("io.ktor:ktor-client-content-negotiation")
-    implementation("io.ktor:ktor-serialization-kotlinx-json")
-
-    implementation group: 'org.slf4j', name: 'slf4j-api', version: slf4j_version
-
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: junit_version
-    testImplementation group: 'com.github.tomakehurst', name: 'wiremock', version: '2.27.2'
     testImplementation group: 'org.hamcrest', name: 'hamcrest', version: '2.2'
 
     testRuntimeOnly group: 'ch.qos.logback', name: 'logback-classic', version: logback_version
     testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: junit_version
-
 }
+
 
 tasks.withType(KotlinCompile).configureEach {
     compilerOptions {

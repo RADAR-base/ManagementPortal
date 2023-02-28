@@ -1,6 +1,7 @@
 package org.radarbase.auth.authorization
 
 import java.util.function.Consumer
+import kotlin.math.min
 
 /** Entity details to check with AuthorizationOracle. */
 data class EntityDetails(
@@ -27,6 +28,9 @@ data class EntityDetails(
         organization != null -> Permission.Entity.ORGANIZATION
         else -> null
     }
+
+    val isGlobal: Boolean
+        get() = minimumEntityOrNull() == null
 
     fun organization(organization: String?) = apply {
         this.organization = organization

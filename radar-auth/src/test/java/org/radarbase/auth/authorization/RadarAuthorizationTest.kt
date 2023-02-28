@@ -1,5 +1,6 @@
 package org.radarbase.auth.authorization
 
+import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
@@ -23,7 +24,7 @@ internal class RadarAuthorizationTest {
     }
 
     @Test
-    fun testCheckPermissionOnProject() {
+    fun testCheckPermissionOnProject() = runBlocking {
         val project = "PROJECT1"
         // let's get all permissions a project admin has
         val token: RadarToken = TokenTestUtils.PROJECT_ADMIN_TOKEN.toRadarToken()
@@ -48,7 +49,7 @@ internal class RadarAuthorizationTest {
     }
 
     @Test
-    fun testCheckPermissionOnOrganization() {
+    fun testCheckPermissionOnOrganization() = runBlocking {
         val token = TokenTestUtils.ORGANIZATION_ADMIN_TOKEN.toRadarToken()
         val entity = EntityDetails(organization = "main")
         assertFalse(
@@ -82,7 +83,7 @@ internal class RadarAuthorizationTest {
     }
 
     @Test
-    fun testCheckPermission() {
+    fun testCheckPermission() = runBlocking {
         val token: RadarToken = TokenTestUtils.SUPER_USER_TOKEN.toRadarToken()
         for (p in Permission.values()) {
             assertTrue(oracle.hasGlobalPermission(token, p))
@@ -90,7 +91,7 @@ internal class RadarAuthorizationTest {
     }
 
     @Test
-    fun testCheckPermissionOnSelf() {
+    fun testCheckPermissionOnSelf() = runBlocking {
         // this token is participant in PROJECT2
         val token: RadarToken = TokenTestUtils.PROJECT_ADMIN_TOKEN.toRadarToken()
         val entity = EntityDetails(project = "PROJECT2", subject = token.subject)
@@ -103,7 +104,7 @@ internal class RadarAuthorizationTest {
     }
 
     @Test
-    fun testCheckPermissionOnOtherSubject() {
+    fun testCheckPermissionOnOtherSubject() = runBlocking {
         // is only participant in project2, so should not have any permission on another subject
         val entity = EntityDetails(project = "PROJECT2", subject = "other-subject")
         // this token is participant in PROJECT2
@@ -117,7 +118,7 @@ internal class RadarAuthorizationTest {
     }
 
     @Test
-    fun testCheckPermissionOnSubject() {
+    fun testCheckPermissionOnSubject() = runBlocking {
         // project admin should have all permissions on subject in his project
         // this token is participant in PROJECT2
         val token: RadarToken = TokenTestUtils.PROJECT_ADMIN_TOKEN.toRadarToken()
@@ -131,7 +132,7 @@ internal class RadarAuthorizationTest {
     }
 
     @Test
-    fun testMultipleRolesInProjectToken() {
+    fun testMultipleRolesInProjectToken() = runBlocking {
         val token: RadarToken = TokenTestUtils.MULTIPLE_ROLES_IN_PROJECT_TOKEN.toRadarToken()
         val entity = EntityDetails(project = "PROJECT2", subject = "some-subject")
         Permission.values()
@@ -143,7 +144,7 @@ internal class RadarAuthorizationTest {
     }
 
     @Test
-    fun testCheckPermissionOnSource() {
+    fun testCheckPermissionOnSource() = runBlocking {
         // this token is participant in PROJECT2
         val token: RadarToken = TokenTestUtils.PROJECT_ADMIN_TOKEN.toRadarToken()
         val entity = EntityDetails(project = "PROJECT2", subject = "some-subject", source = "source-1")
@@ -157,7 +158,7 @@ internal class RadarAuthorizationTest {
     }
 
     @Test
-    fun testCheckPermissionOnOwnSource() {
+    fun testCheckPermissionOnOwnSource() = runBlocking {
         val token: RadarToken = TokenTestUtils.MULTIPLE_ROLES_IN_PROJECT_TOKEN.toRadarToken()
         val entity = EntityDetails(project = "PROJECT2", subject = token.subject, source = "source-1")
         Permission.values()
@@ -169,7 +170,7 @@ internal class RadarAuthorizationTest {
     }
 
     @Test
-    fun testScopeOnlyToken() {
+    fun testScopeOnlyToken() = runBlocking {
         val token: RadarToken = TokenTestUtils.SCOPE_TOKEN.toRadarToken()
         // test that we can do the things we have a scope for
         val entities = listOf(

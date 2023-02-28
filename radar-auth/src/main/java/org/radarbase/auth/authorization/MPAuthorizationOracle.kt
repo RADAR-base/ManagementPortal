@@ -1,6 +1,7 @@
 package org.radarbase.auth.authorization
 
 import org.radarbase.auth.token.RadarToken
+import org.radarbase.kotlin.coroutines.forkAny
 import java.util.*
 
 class MPAuthorizationOracle(
@@ -13,7 +14,7 @@ class MPAuthorizationOracle(
      * own entity scope and for the [EntityDetails.minimumEntityOrNull] entity scope.
      * @return true if identity has permission, false otheriwse
      */
-    override fun hasPermission(
+    override suspend fun hasPermission(
         identity: RadarToken,
         permission: Permission,
         entity: EntityDetails,
@@ -23,7 +24,7 @@ class MPAuthorizationOracle(
 
         if (identity.isClientCredentials) return true
 
-        return identity.roles.any {
+        return identity.roles.forkAny {
             it.hasPermission(identity, permission, entity, entityScope)
         }
     }
@@ -92,7 +93,7 @@ class MPAuthorizationOracle(
      * Whether the current role from [identity] has [permission] over given [entity] in
      * [entityScope] in any way.
      */
-    private fun AuthorityReference.hasPermission(
+    private suspend fun AuthorityReference.hasPermission(
         identity: RadarToken,
         permission: Permission,
         entity: EntityDetails,
@@ -112,7 +113,7 @@ class MPAuthorizationOracle(
      * Whether the current role from [identity] has a specific authority with [permission]
      * over given [entity] in [entityScope]
      */
-    private fun AuthorityReference.hasAuthority(
+    private suspend fun AuthorityReference.hasAuthority(
         identity: RadarToken,
         permission: Permission,
         entity: EntityDetails,
@@ -143,14 +144,14 @@ class MPAuthorizationOracle(
         else -> true
     }
 
-    private fun EntityDetails.findOrganization(): String? {
+    private suspend fun EntityDetails.findOrganization(): String? {
         organization?.let { return it }
         val p = project ?: return null
         return relationService.findOrganizationOfProject(p)
             .also { this.organization = it }
     }
 
-    private fun EntityDetails.organizationContainsProject(targetProject: String): Boolean {
+    private suspend fun EntityDetails.organizationContainsProject(targetProject: String): Boolean {
         val org = findOrganization() ?: return false
         return relationService.organizationContainsProject(org, targetProject)
     }
