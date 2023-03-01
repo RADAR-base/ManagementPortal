@@ -26,26 +26,14 @@ jobs:
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
 
-      - name: Run Snyk to check for vulnerabilities in compileClasspath
+      - name: Run Snyk to check for vulnerabilities
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         run: >
           snyk test
           --all-projects
-          --configuration-matching="^compileClasspath$"
+          --configuration-matching="^compileClasspath$|^runtimeClasspath$"
           --fail-on=upgradable
           --org=radar-base
           --policy-path=.snyk
           --severity-threshold=high
-
-      - name: Run Snyk to check for vulnerabilities in runtimeClasspath
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        run: >
-          snyk test
-          --all-projects
-          --configuration-matching="^runtimeClasspath$"
-          --fail-on=upgradable
-          --org=radar-base
-          --policy-path=.snyk
-          --severity-threshold=high  

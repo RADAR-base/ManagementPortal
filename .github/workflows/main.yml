@@ -4,7 +4,7 @@ name: Main
 # Run in master and dev branches and in all pull requests to those branches
 on:
   push:
-    branches: [ master, dev, "Mp2.0-rc" ]
+    branches: [ master, dev ]
   pull_request: {}
 
 env:
