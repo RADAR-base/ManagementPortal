@@ -1,11 +1,16 @@
+@file:Suppress("unused")
+
 package org.radarbase.kotlin.coroutines
 
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.consume
 import kotlinx.coroutines.sync.Semaphore
+import java.util.concurrent.Future
+import java.util.concurrent.TimeUnit
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
+import kotlin.time.Duration
 
 /**
  * Try to acquire a semaphore permit, and run [block] if successful.
@@ -18,6 +23,36 @@ suspend fun <T> Semaphore.tryWithPermitOrNull(block: suspend () -> T): T? {
         block()
     } finally {
         release()
+    }
+}
+
+/**
+ * Get a future value via coroutine suspension.
+ * The future is evaluated in context [Dispatchers.IO].
+ */
+suspend fun <T> Future<T>.suspendGet(
+    duration: Duration? = null,
+): T = coroutineScope {
+    val channel = Channel<Unit>()
+    launch {
+        try {
+            channel.receive()
+        } catch (ex: CancellationException) {
+            cancel(true)
+        }
+    }
+    try {
+        withContext(Dispatchers.IO) {
+            if (duration != null) {
+                get(duration.inWholeMilliseconds, TimeUnit.MILLISECONDS)
+            } else {
+                get()
+            }
+        }
+    } catch (ex: InterruptedException) {
+        throw CancellationException("Future was interrupted", ex)
+    } finally {
+        channel.send(Unit)
     }
 }
 
