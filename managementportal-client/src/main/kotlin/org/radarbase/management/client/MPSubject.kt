@@ -18,6 +18,8 @@ data class MPSubject(
     val externalLink: String? = null,
     /** User status in the project. */
     val status: String = "DEACTIVATED",
+    /** Group of the subject. */
+    val group: String? = null,
     /** Additional attributes of the user. */
     val attributes: Map<String, String> = emptyMap(),
 )
