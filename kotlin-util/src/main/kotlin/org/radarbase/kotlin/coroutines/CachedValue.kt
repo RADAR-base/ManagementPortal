@@ -56,10 +56,13 @@ open class CachedValue<T>(
     /**
      * Whether the contained value is stale.
      * If [duration] is provided, it is considered stale only if the value is older than [duration].
+     * If no value is cache, it is not considered stale.
      */
     suspend fun isStale(duration: Duration? = null): Boolean {
-        val currentDeferred = cache.get() ?: return true
-        if (!currentDeferred.isCompleted) return false
+        val currentDeferred = cache.get()
+        if (currentDeferred == null || !currentDeferred.isCompleted) {
+            return false
+        }
         val result = currentDeferred.await()
         return if (duration == null) {
             result.isExpired()
