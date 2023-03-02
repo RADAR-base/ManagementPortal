@@ -27,7 +27,6 @@ dependencies {
     testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: junit_version
 }
 
-
 tasks.withType(KotlinCompile).configureEach {
     compilerOptions {
         jvmTarget = JvmTarget.JVM_11
