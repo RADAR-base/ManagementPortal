@@ -3,7 +3,6 @@ package org.radarbase.kotlin.coroutines
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.sync.Semaphore
-import org.slf4j.LoggerFactory
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
@@ -31,12 +30,12 @@ open class CachedValue<T>(
 
     /**
      * Query the cached value by running [transform] and return its result if valid. If
-     * [evaluate] returns false on the result, the cache computation is reevaluated if
+     * [evaluateValid] returns false on the result, the cache computation is reevaluated if
      * [CacheConfig.retryDuration] has been reached.
      */
     suspend fun <R> query(
         transform: suspend (T) -> R,
-        evaluate: (R) -> Boolean = { true },
+        evaluateValid: (R) -> Boolean = { true },
     ): CacheResult<R> {
         val deferredResult = raceForDeferred()
         val deferred = deferredResult.value
@@ -49,15 +48,24 @@ open class CachedValue<T>(
             if (concurrentResult != null) {
                 CacheMiss(transform(concurrentResult))
             } else {
-                deferred.awaitCache(transform, evaluate)
+                deferred.awaitCache(transform, evaluateValid)
             }
         }
     }
 
-    suspend fun isStale(): Boolean {
+    /**
+     * Whether the contained value is stale.
+     * If [duration] is provided, it is considered stale only if the value is older than [duration].
+     */
+    suspend fun isStale(duration: Duration? = null): Boolean {
         val currentDeferred = cache.get() ?: return true
         if (!currentDeferred.isCompleted) return false
-        return currentDeferred.await().isExpired { true }
+        val result = currentDeferred.await()
+        return if (duration == null) {
+            result.isExpired()
+        } else {
+            result.isExpired(duration)
+        }
     }
 
     /**
@@ -72,12 +80,12 @@ open class CachedValue<T>(
     /**
      * Get cached value. If the cache is expired, fetch it again. The first coroutine context
      * that reaches this method will call [computeAndCache], others coroutine contexts will use the
-     * value computed by the first. If the value was retrieved from cache and [evaluate]
+     * value computed by the first. If the value was retrieved from cache and [evaluateValid]
      * returns false for that value, the result is recomputed. The result is not computed more
      * often than [CacheConfig.retryDuration]. If the result was an exception, the exception is
      * rethrown from cache. It is recomputed if the [CacheConfig.exceptionCacheDuration] has passed.
      */
-    suspend inline fun get(noinline evaluate: (T) -> Boolean): CacheResult<T> = query({ it }, evaluate)
+    suspend inline fun get(noinline evaluateValid: (T) -> Boolean): CacheResult<T> = query({ it }, evaluateValid)
 
     /**
      * Test the cached value by running [predicate] and return its result if true. If
@@ -114,10 +122,10 @@ open class CachedValue<T>(
 
     private suspend fun <R> DeferredCache<T>.awaitCache(
         transform: suspend (T) -> R,
-        evaluate: (R) -> Boolean,
+        evaluateValid: (R) -> Boolean,
     ): CacheResult<R> {
         val result = await().map(transform)
-        return if (result.isExpired(evaluate)) {
+        return if (result.isExpired(evaluateValid)) {
             // Either no new coroutine context had updated the cache value, then update it to
             // null. Otherwise, another suspend context is active and get() will await the
             // result from that context
@@ -151,43 +159,31 @@ open class CachedValue<T>(
         return result
     }
 
-    private inline fun <R> CacheContents<R>.isExpired(evaluate: (R) -> Boolean): Boolean = when {
-        this is CacheError -> exception is CancellationException ||
-                isExpired(config.exceptionCacheDuration)
-        this is CacheValue && !evaluate(value) -> isExpired(config.retryDuration)
-        else -> isExpired(config.refreshDuration)
+    private inline fun <R> CacheContents<R>.isExpired(
+        evaluateValid: (R) -> Boolean = { true }
+    ): Boolean = if (this is CacheError) {
+        isExpired(config.exceptionCacheDuration)
+    } else {
+        this as CacheValue
+        isExpired(config.refreshDuration) ||
+                (!evaluateValid(value) && isExpired(config.retryDuration))
     }
 
+    /**
+     * Remove value from cache. Note that this does not cancel existing computations for the
+     * value, but the computed value will then not be stored.
+     */
     fun clear() {
         cache.set(null)
     }
 
     @OptIn(ExperimentalTime::class)
     internal sealed class CacheContents<T>(
-        initialDuration: Duration? = null,
         time: TimeMark? = null,
     ) {
-        protected val time: TimeMark
+        protected val time: TimeMark = time ?: TimeSource.Monotonic.markNow()
 
-        init {
-            var now = time ?: TimeSource.Monotonic.markNow()
-            if (initialDuration != null) {
-                now -= initialDuration
-            }
-            this.time = now
-        }
-
-        @Volatile
-        private var isExpired = false
-
-        fun isExpired(age: Duration): Boolean = when {
-            isExpired -> true
-            (time + age).hasPassedNow() -> {
-                isExpired = true
-                true
-            }
-            else -> false
-        }
+        open fun isExpired(age: Duration): Boolean = (time + age).hasPassedNow()
 
         abstract fun getOrThrow(): T
 
@@ -199,6 +195,7 @@ open class CachedValue<T>(
     internal class CacheError<T>(
         val exception: Throwable,
     ) : CacheContents<T>() {
+        override fun isExpired(age: Duration): Boolean = exception is CancellationException || super.isExpired(age)
         override fun getOrThrow(): T = throw exception
         @Suppress("UNCHECKED_CAST")
         override suspend fun <R> map(transform: suspend (T) -> R): CacheContents<R> = this as CacheError<R>
@@ -207,9 +204,8 @@ open class CachedValue<T>(
     @OptIn(ExperimentalTime::class)
     internal class CacheValue<T>(
         val value: T,
-        initialDuration: Duration? = null,
         time: TimeMark? = null,
-    ) : CacheContents<T>(initialDuration, time) {
+    ) : CacheContents<T>(time) {
         override fun getOrThrow(): T = value
 
         override suspend fun <R> map(transform: suspend (T) -> R): CacheContents<R> = try {
@@ -219,14 +215,14 @@ open class CachedValue<T>(
         }
     }
 
+    /** Result from cache of type [T]. */
     sealed interface CacheResult<T> {
         val value: T
     }
 
+    /** Cache hit, meaning the value was computed by another coroutine. */
     data class CacheHit<T>(override val value: T) : CacheResult<T>
-    data class CacheMiss<T>(override val value: T) : CacheResult<T>
 
-    companion object {
-        private val logger = LoggerFactory.getLogger(CachedValue::class.java)
-    }
+    /** Cache miss, meaning the value was computed by the current coroutine. */
+    data class CacheMiss<T>(override val value: T) : CacheResult<T>
 }
