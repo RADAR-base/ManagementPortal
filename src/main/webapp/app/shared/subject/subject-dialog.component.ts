@@ -19,6 +19,7 @@ import {SubjectService} from './subject.service';
 import {Observable, Subscription} from 'rxjs';
 import {ObservablePopupComponent} from '../util/observable-popup.component';
 import {Project, ProjectService} from "../project";
+import {Group, GroupService} from "../group";
 
 @Component({
     selector: 'jhi-subject-dialog',
@@ -31,6 +32,7 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
     subject: Subject;
     isInProject: boolean;
     projects: Project[] = [];
+    groups$: Observable<Group[]>;
     project: Project;
 
     groupName: string;
@@ -46,6 +48,7 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
                 private alertService: AlertService,
                 private subjectService: SubjectService,
                 private projectService: ProjectService,
+                private groupService: GroupService,
                 private eventManager: EventManager,
                 private calendar: NgbCalendar,
                 private formatter: NgbDateParserFormatter) {
@@ -56,6 +59,7 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.project = this.subject?.project;
+        this.groups$ = this.groupService.list(this.project.projectName)
         this.groupName = this.subject.group || null;
 
         this.projectService.query().subscribe((projects) => {
