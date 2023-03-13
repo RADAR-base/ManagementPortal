@@ -366,7 +366,11 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
               if (subjects.every(s => checkedIds.has(s.id))) {
                   subjects.forEach(({id}) => nextValue.delete(id));
               } else {
-                  subjects.forEach(({id}) => nextValue.add(id));
+                  subjects.forEach(({id, status}) => {
+                      if(status.toString() === "ACTIVATED"){
+                        nextValue.add(id)
+                      }
+                  });
               }
               return nextValue;
           })
