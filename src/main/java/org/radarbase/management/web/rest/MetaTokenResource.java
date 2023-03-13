@@ -38,6 +38,9 @@ public class MetaTokenResource {
     @Autowired
     private MetaTokenService metaTokenService;
 
+    @Autowired(required = false)
+    private RadarToken radarToken;
+
     /**
      * GET /api/meta-token/:tokenName.
      *
@@ -64,8 +67,7 @@ public class MetaTokenResource {
      */
     @DeleteMapping("/meta-token/{tokenName:" + Constants.TOKEN_NAME_REGEX + "}")
     @Timed
-    public ResponseEntity<Void> deleteTokenByTokenName(
-            @PathVariable("tokenName") String tokenName, RadarToken token)
+    public ResponseEntity<Void> deleteTokenByTokenName(@PathVariable("tokenName") String tokenName)
             throws NotAuthorizedException {
         log.info("Requesting token with tokenName {}", tokenName);
         MetaToken metaToken = metaTokenService.getToken(tokenName);
@@ -76,7 +78,7 @@ public class MetaTokenResource {
                 ))
                 .getProjectName();
         String user = subject.getUser().getLogin();
-        checkPermissionOnSubject(token, SUBJECT_UPDATE, project, user);
+        checkPermissionOnSubject(radarToken, SUBJECT_UPDATE, project, user);
         metaTokenService.delete(metaToken);
         return ResponseEntity.noContent().build();
     }

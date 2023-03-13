@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 import { Subject } from '../../shared/subject';
@@ -24,7 +24,7 @@ export class OAuthClientPairInfoService {
         return this.http.get<PairInfo>(this.pairUrl, {params});
     }
 
-    delete(tokenName: string): Observable<any> {
-        return this.http.delete(this.resourceUrl + '/' + tokenName);
+    delete(tokenName: string): Observable<HttpResponse<any>> {
+        return this.http.delete(this.resourceUrl + '/' + tokenName, { observe: 'response' });
     }
 }
