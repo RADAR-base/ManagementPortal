@@ -151,7 +151,7 @@
         "invalidsubjectstate": "A discontinued subject can not be activated",
         "nameexists": "A {{ entityName }} with the given name already exists"
     },
-    "footer": "For more details, read the user guide <a target=\"_blank\" href=\"https://radar-base.atlassian.net/wiki/spaces/RAD/pages/1913978881/User+Guide+for+Management+Portal\">here.</a>",
+    "footer": "For more details, read the user guide <a target=\"_blank\" href=\"https://radar-base.atlassian.net/wiki/spaces/RAD/pages/2833055745/User+Guide+-+Management+Portal+2.0\">here.</a>",
     "common" : {
         "showMore": " More",
         "showLess": " Less"

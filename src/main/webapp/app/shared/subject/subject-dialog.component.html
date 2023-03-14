@@ -63,7 +63,7 @@
                 [(ngModel)]="groupName"
             >
                 <option [ngValue]="null">-</option>
-                <option *ngFor="let g of project?.groups" [ngValue]="g.name">
+                <option *ngFor="let g of groups$ | async" [ngValue]="g.name">
                     {{g.name}}
                 </option>
             </select>

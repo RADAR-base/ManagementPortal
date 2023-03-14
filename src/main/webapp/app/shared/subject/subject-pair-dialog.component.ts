@@ -115,7 +115,7 @@ export class SubjectPairDialogComponent implements OnInit, OnDestroy {
             (deleteRes) => {
                 if (!deleteRes.ok) {
                     console.log('Failed to delete stale MetaToken: '
-                      + JSON.stringify(deleteRes.json()));
+                      + JSON.stringify(deleteRes.body));
                 }
             },
         );

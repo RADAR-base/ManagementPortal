@@ -226,7 +226,7 @@
         <div *ngIf="subjects$ | async as subjects" class="subjects">
             <div *ngFor="let subject of subjects; trackBy: trackLogin" class="subject-row">
                 <div class="subject-row__select-row">
-                    <input type="checkbox" [ngModel]="subject.checked"
+                    <input type="checkbox" [ngModel]="subject.checked" [disabled]="subject.status.toString() !== 'ACTIVATED'"
                            (ngModelChange)="onItemChecked(subject.id, $event)">
                 </div>
                 <div class="subject-row__content">

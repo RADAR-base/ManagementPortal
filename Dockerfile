@@ -16,7 +16,7 @@ ENV GRADLE_OPTS="-Dorg.gradle.daemon=false -Dorg.gradle.project.prod=true -Dorg.
 
 COPY package.json yarn.lock .yarnrc.yml /code/
 COPY .yarn /code/.yarn
-RUN yarn install
+RUN yarn install --network-timeout 1000000
 
 COPY gradle gradle
 COPY gradlew build.gradle gradle.properties settings.gradle /code/
@@ -41,10 +41,6 @@ FROM eclipse-temurin:17-jre
 ENV SPRING_OUTPUT_ANSI_ENABLED=ALWAYS \
     JHIPSTER_SLEEP=0 \
     JAVA_OPTS=""
-
-RUN apt-get update && apt-get install -y \
-        curl \
-     && rm -rf /var/lib/apt/lists/*
 
 # Add the war and changelogs files from build stage
 COPY --from=builder /code/build/libs/*.war /app.war
