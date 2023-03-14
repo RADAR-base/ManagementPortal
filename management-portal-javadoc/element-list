@@ -18,8 +18,8 @@ org.radarbase.management.service.catalog
 org.radarbase.management.service.dto
 org.radarbase.management.service.mapper
 org.radarbase.management.service.mapper.decorator
-org.radarbase.management.service.util
 org.radarbase.management.web.rest
+org.radarbase.management.web.rest.criteria
 org.radarbase.management.web.rest.errors
 org.radarbase.management.web.rest.util
 org.radarbase.management.web.rest.vm
