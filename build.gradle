@@ -28,7 +28,7 @@ apply plugin: 'io.spring.dependency-management'
 
 allprojects {
     group 'org.radarbase'
-    version '2.0.0' // project version
+    version '2.0.1-SNAPSHOT' // project version
 
     // The comment on the previous line is only there to identify the project version line easily
     // with a sed command, to auto-update the version number with the prepare-release-branch.sh
