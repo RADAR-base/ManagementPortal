@@ -39,7 +39,7 @@ class ProjectGatlingTest extends ManagementPortalSimulation {
         .get("/api/projects")
         .headers(headers_http_authenticated)
         .check(status.is(200)))
-        .pause(5 seconds, 10 seconds)
+        .pause(5.seconds, 10.seconds)
         .feed(randomString)
         .exec(http("Create new project")
           .post("/api/projects")

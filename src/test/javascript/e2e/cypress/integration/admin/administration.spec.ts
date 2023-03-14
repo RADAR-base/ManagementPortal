@@ -3,14 +3,12 @@ import * as navBarPage from '../util/nav-bar';
 
 describe('administration', () => {
     before(() => {
-        login();
         cy.visit('./');
     });
 
     beforeEach(() => {
-        cy.wait(100);
+        login();
         navBarPage.clickOnAdminMenu();
-        Cypress.Cookies.preserveOnce('oAtkn');
     });
 
     it('should load user management', () => {

@@ -84,7 +84,7 @@
                         </small>
                     </div>
                 </div>
-                <div class="form-group" *ngIf="languages && languages.length > 0">
+                <div class="form-group" *ngIf="languageHelper.languages$ | async as languages">
                     <label for="langKey" [translate]="'settings.form.language'"></label>
                     <select class="form-control" id="langKey" name="langKey" [(ngModel)]="settingsAccount.langKey">
                         <option *ngFor="let language of languages" [value]="language">{{language | findLanguageFromKey}}</option>

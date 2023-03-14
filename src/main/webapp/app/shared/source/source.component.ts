@@ -33,7 +33,6 @@ export class SourceComponent implements OnInit, OnDestroy, OnChanges {
     set project(v: Project) { this.project$.next(v); }
     @Input() isProjectSpecific: boolean;
 
-    sources: Source[];
     eventSubscriber: Subscription;
     itemsPerPage: number;
     links: any;
@@ -45,13 +44,14 @@ export class SourceComponent implements OnInit, OnDestroy, OnChanges {
     routeData: any;
     previousPage: any;
 
+    _sources$: BehaviorSubject<Source[]> = new BehaviorSubject([]);
+
     constructor(
                 private sourceService: SourceService,
                 private alertService: AlertService,
                 private eventManager: EventManager,
                 private activatedRoute: ActivatedRoute,
                 private router: Router) {
-        this.sources = [];
         this.itemsPerPage = ITEMS_PER_PAGE;
         this.pagingParams$ = this.activatedRoute.data.pipe(map(data => {
             const fallback = { page: 1, predicate: 'id', ascending: true };
@@ -145,7 +145,7 @@ export class SourceComponent implements OnInit, OnDestroy, OnChanges {
         this.links = parseLinks(headers.get('link'));
         this.totalItems = headers.get('X-Total-Count');
         this.queryCount = this.totalItems;
-        this.sources = data;
+        this._sources$.next(data);
     }
 
     loadPage(page) {

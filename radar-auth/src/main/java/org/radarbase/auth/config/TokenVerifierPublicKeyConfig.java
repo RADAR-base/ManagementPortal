@@ -6,7 +6,6 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
@@ -27,12 +26,9 @@ public class TokenVerifierPublicKeyConfig implements TokenValidatorConfig {
 
     private static final String CONFIG_FILE_NAME = "radar-is.yml";
 
-    private List<URI> publicKeyEndpoints = new LinkedList<>();
+    private List<URI> publicKeyEndpoints = List.of();
 
     private String resourceName;
-
-    private List<String> publicKeys = new LinkedList<>();
-
 
     /**
      * Read the configuration from file. This method will first check if the environment variable
@@ -91,23 +87,8 @@ public class TokenVerifierPublicKeyConfig implements TokenValidatorConfig {
         return resourceName;
     }
 
-    @Override
-    public List<String> getPublicKeys() {
-        return publicKeys;
-    }
-
     public void setResourceName(String resourceName) {
         this.resourceName = resourceName;
-    }
-
-    /**
-     * Set the public keys. This method will detect the public key type (EC or RSA) and parse
-     * accordingly.
-     *
-     * @param publicKeys The public keys to parse
-     */
-    public void setPublicKeys(List<String> publicKeys) {
-        this.publicKeys = publicKeys;
     }
 
     @Override
@@ -120,12 +101,11 @@ public class TokenVerifierPublicKeyConfig implements TokenValidatorConfig {
         }
         TokenVerifierPublicKeyConfig that = (TokenVerifierPublicKeyConfig) o;
         return Objects.equals(publicKeyEndpoints, that.publicKeyEndpoints)
-                && Objects.equals(resourceName, that.resourceName)
-                && Objects.equals(publicKeys, that.publicKeys);
+                && Objects.equals(resourceName, that.resourceName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(publicKeyEndpoints, resourceName, publicKeys);
+        return Objects.hash(publicKeyEndpoints, resourceName);
     }
 }

@@ -1,41 +1,42 @@
 import { Injectable } from '@angular/core';
-import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot } from '@angular/router';
+import {
+    ActivatedRouteSnapshot,
+    CanActivate,
+    CanActivateChild,
+    Router,
+    RouterStateSnapshot
+} from '@angular/router';
 
 import { AuthService } from '../';
 import { StateStorageService } from './state-storage.service';
+import { Observable } from "rxjs";
 
 @Injectable({ providedIn: 'root' })
-export class UserRouteAccessService implements CanActivate {
+export class UserRouteAccessService implements CanActivate, CanActivateChild {
 
     constructor(private router: Router,
                 private auth: AuthService,
                 private stateStorageService: StateStorageService) {
     }
 
-    canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean | Promise<boolean> {
-
-        this.setStateStorage(route, state);
-        return this.auth.authorize(false).then(canActivate => {
-            return canActivate;
-        });
+    canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> {
+        this.setStateStorage(route);
+        return this.auth.authorize();
     }
 
-    canActivateChild(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean | Promise<boolean> {
+    canActivateChild(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> {
         return this.canActivate(route, state);
     }
 
-    setStateStorage(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
-        let params = {};
-        let destinationData = {};
-        let destinationName = '';
-        const destinationEvent = route;
-        if (destinationEvent !== undefined) {
-            params = destinationEvent.params;
-            destinationData = destinationEvent.data;
-            destinationName = state.url;
+    setStateStorage(route: ActivatedRouteSnapshot) {
+        if (route !== undefined) {
+            this.stateStorageService.storeDestinationState({
+                path: route.url,
+                queryParams: route.queryParams,
+                authorities: route.data?.authorities,
+            });
+        } else {
+            this.stateStorageService.resetDestinationState();
         }
-        const from = {name: this.router.url.slice(1)};
-        const destination = {name: destinationName, data: destinationData};
-        this.stateStorageService.storeDestinationState(destination, params, from);
     }
 }

@@ -6,7 +6,10 @@ import com.fasterxml.jackson.annotation.Nulls;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
+import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
 import org.radarbase.auth.config.Constants;
 import org.radarbase.management.domain.enumeration.ProjectStatus;
 import org.radarbase.management.domain.support.AbstractEntityListener;
@@ -25,8 +28,10 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
@@ -39,6 +44,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import static javax.persistence.CascadeType.DETACH;
+import static javax.persistence.CascadeType.REFRESH;
+import static javax.persistence.CascadeType.REMOVE;
+
 /**
  * A Project.
  */
@@ -47,13 +56,15 @@ import java.util.Set;
 @Table(name = "project")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @EntityListeners({AbstractEntityListener.class})
+@DynamicInsert
 public class Project extends AbstractEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
-    @SequenceGenerator(name = "sequenceGenerator", initialValue = 1000)
+    @SequenceGenerator(name = "sequenceGenerator", initialValue = 1000,
+            sequenceName = "hibernate_sequence")
     private Long id;
 
     @NotNull
@@ -66,7 +77,11 @@ public class Project extends AbstractEntity implements Serializable {
     private String description;
 
     @Column(name = "jhi_organization")
-    private String organization;
+    private String organizationName;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+    private Organization organization;
 
     @NotNull
     @Column(name = "location", nullable = false)
@@ -84,7 +99,7 @@ public class Project extends AbstractEntity implements Serializable {
 
     @JsonIgnore
     @OneToMany(mappedBy = "project", fetch = FetchType.LAZY)
-    @Cascade(org.hibernate.annotations.CascadeType.ALL)
+    @Cascade(CascadeType.ALL)
     private Set<Role> roles = new HashSet<>();
 
     @ManyToMany(fetch = FetchType.LAZY)
@@ -99,6 +114,12 @@ public class Project extends AbstractEntity implements Serializable {
     @Column(name = "attribute_value")
     @CollectionTable(name = "project_metadata", joinColumns = @JoinColumn(name = "id"))
     private Map<String, String> attributes = new HashMap<>();
+
+    @NotAudited
+    @OneToMany(mappedBy = "project", fetch = FetchType.LAZY, orphanRemoval = true,
+            cascade = {REMOVE, REFRESH, DETACH})
+    @OrderBy("name ASC")
+    private Set<Group> groups = new HashSet<>();
 
     @Override
     public Long getId() {
@@ -135,12 +156,12 @@ public class Project extends AbstractEntity implements Serializable {
         this.description = description;
     }
 
-    public String getOrganization() {
-        return organization;
+    public String getOrganizationName() {
+        return organizationName;
     }
 
-    public Project organization(String organization) {
-        this.organization = organization;
+    public Project organizationName(String organizationName) {
+        this.organizationName = organizationName;
         return this;
     }
 
@@ -153,7 +174,20 @@ public class Project extends AbstractEntity implements Serializable {
         this.roles = roles;
     }
 
-    public void setOrganization(String organization) {
+    public void setOrganizationName(String organizationName) {
+        this.organizationName = organizationName;
+    }
+
+    public Organization getOrganization() {
+        return organization;
+    }
+
+    public Project organization(Organization organization) {
+        this.organization = organization;
+        return this;
+    }
+
+    public void setOrganization(Organization organization) {
         this.organization = organization;
     }
 
@@ -218,30 +252,6 @@ public class Project extends AbstractEntity implements Serializable {
         return this;
     }
 
-    /**
-     * Add a source type to this project.
-     *
-     * @param sourceType the source type to add
-     * @return this project
-     */
-    public Project addSourceType(SourceType sourceType) {
-        this.sourceTypes.add(sourceType);
-        sourceType.getProjects().add(this);
-        return this;
-    }
-
-    /**
-     * Remove a source type from this project.
-     *
-     * @param sourceType the source type to remove
-     * @return this project
-     */
-    public Project removeSourceType(SourceType sourceType) {
-        this.sourceTypes.remove(sourceType);
-        sourceType.getProjects().remove(this);
-        return this;
-    }
-
     @JsonSetter(nulls = Nulls.AS_EMPTY)
     public void setSourceTypes(Set<SourceType> sourceTypes) {
         this.sourceTypes = sourceTypes;
@@ -254,6 +264,15 @@ public class Project extends AbstractEntity implements Serializable {
     @JsonSetter(nulls = Nulls.AS_EMPTY)
     public void setAttributes(Map<String, String> attributes) {
         this.attributes = attributes;
+    }
+
+    public Set<Group> getGroups() {
+        return groups;
+    }
+
+    @JsonSetter(nulls = Nulls.AS_EMPTY)
+    public void setGroups(Set<Group> groups) {
+        this.groups = groups;
     }
 
     @Override
@@ -282,7 +301,7 @@ public class Project extends AbstractEntity implements Serializable {
                 + "id=" + id
                 + ", projectName='" + projectName + "'"
                 + ", description='" + description + "'"
-                + ", organization='" + organization + "'"
+                + ", organization='" + organizationName + "'"
                 + ", location='" + location + "'"
                 + ", startDate='" + startDate + "'"
                 + ", projectStatus='" + projectStatus + "'"

@@ -1,0 +1,47 @@
+{
+    "managementPortalApp": {
+        "organization" : {
+            "home": {
+                "title": "Organisaties",
+                "createLabel": "Maak een nieuwe Organisatie",
+                "createOrEditLabel": "Maak of wijzig een Organisatie"
+            },
+            "created": "Een nieuw Organisatie aangemaakt met identifier {{ param }}",
+            "updated": "Een Organisatie wordt bijgewerkt met identifier X {{ param }}",
+            "deleted": "Een Organisatie wordt verwijderd met identifier {{ param }}",
+            "delete": {
+                "question": "Bent u zeker dat u Organisatie {{ id }} wilt verwijderen?"
+            },
+            "detail": {
+                "title": "Organisatie"
+            },
+            "organizationName": "Organisatie Id",
+            "organizationName.fieldWarning": "",
+            "organizationName.fieldDescription": "Unieke identificatie van organization",
+            "description": "Omschrijving",
+            "organization": "Organisatie",
+            "projects": "Projecten",
+            "permissions": "Rechten",
+            "location": "Plaats",
+            "startDate": "Startdatum",
+            "organizationStatus": "Organisatie Status",
+            "endDate": "Einddatum",
+            "organizationAdmin": "Organisatie Admin",
+            "sourceType": "Source Type",
+            "groups": "Groepen",
+            "newGroup": {
+                "label": "Nieuwe groep",
+                "button": "Groep toevogen"
+            },
+            "attributeDataKey" : "Tag",
+            "attributeDataValue" : "Waarde",
+            "prettyOrganizationName" : "Leesbare organizationnaam",
+            "prettyOrganizationName.fieldDescription" : "Voor mensen leesbare organizationnaam die niet het urlpatroon hoeft te volgen.",
+            "organizationIdAsPrettyName": "Wil je de organization-id gebruiken als de voor mensen leesbare naam?"
+        },
+        "error" : {
+            "organizationIdNotFound" : "Er werd geen organization gevonden met id {{ param0 }}",
+            "organizationNameNotFound" : "Er werd geen organization gevonden met de naam {{ param0 }}"
+        }
+    }
+}

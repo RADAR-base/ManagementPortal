@@ -7,12 +7,14 @@ import java.util.Objects;
 import java.util.Set;
 import javax.validation.constraints.NotNull;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
 
 /**
  * A DTO for the SourceType entity.
  */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class SourceTypeDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -42,6 +44,7 @@ public class SourceTypeDTO implements Serializable {
 
     private String appProvider;
 
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private Set<SourceDataDTO> sourceData = new HashSet<>();
 
     public Long getId() {

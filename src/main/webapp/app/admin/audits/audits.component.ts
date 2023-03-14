@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 
 import { ITEMS_PER_PAGE } from '../../shared';
 
@@ -7,22 +7,24 @@ import { Audit } from './audit.model';
 import { AuditsService } from './audits.service';
 import { HttpResponse } from '@angular/common/http';
 import { parseLinks } from '../../shared/util/parse-links-util';
+import { Subscription } from 'rxjs';
 
 @Component({
     selector: 'jhi-audit',
     templateUrl: './audits.component.html',
 })
-export class AuditsComponent implements OnInit {
+export class AuditsComponent implements OnInit, OnDestroy {
     audits: Audit[];
     fromDate: string;
     itemsPerPage: any;
-    links: any;
     page: number;
     orderProp: string;
     reverse: boolean;
     toDate: string;
     totalItems: number;
     datePipe: DatePipe;
+
+    private subscriptions: Subscription = new Subscription();
 
     constructor(
             private auditsService: AuditsService,
@@ -49,15 +51,20 @@ export class AuditsComponent implements OnInit {
         this.onChangeDate();
     }
 
+    ngOnDestroy() {
+        this.subscriptions.unsubscribe();
+    }
+
     onChangeDate() {
-        this.auditsService.query({
-            page: this.page - 1, size: this.itemsPerPage,
-            fromDate: this.fromDate, toDate: this.toDate,
+        this.subscriptions.add(this.auditsService.query({
+            page: this.page - 1,
+            size: this.itemsPerPage,
+            fromDate: this.fromDate,
+            toDate: this.toDate,
         }).subscribe((res: HttpResponse<any>) => {
             this.audits = res.body;
-            this.links = parseLinks(res.headers.get('link'));
             this.totalItems = +res.headers.get('X-Total-Count');
-        });
+        }));
     }
 
     previousMonth() {

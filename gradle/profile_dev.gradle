@@ -1,19 +1,20 @@
 apply plugin: 'org.springframework.boot'
-apply plugin: 'com.moowork.node'
+apply plugin: 'com.github.node-gradle.node'
 
-ext.logbackLoglevel = 'DEBUG'
+ext.logbackLoglevel = 'TRACE'
 
 dependencies {
     implementation "org.springframework.boot:spring-boot-devtools"
 }
 
-def profiles = 'dev'
+def profiles = 'dev,api-docs'
 if (project.hasProperty('no-liquibase')) {
     profiles += ',no-liquibase'
 }
 
 bootRun {
     args = []
+    systemProperty "spring.profiles.active", profiles
 }
 
 task webpackBuildDev(type: YarnTask) {
@@ -35,7 +36,7 @@ processResources {
             it.replace('#spring.profiles.active#', profiles)
         }
         filter {
-            it.replace('#project.version#', version)
+            it.replace('#project.version#', project.version)
         }
     }
 }

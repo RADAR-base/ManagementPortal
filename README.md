@@ -2,10 +2,8 @@
 
 [![Latest release](https://img.shields.io/github/v/release/RADAR-base/ManagementPortal)](https://github.com/RADAR-base/ManagementPortal/releases/latest)
 [![Build Status](https://github.com/RADAR-base/ManagementPortal/actions/workflows/main.yml/badge.svg?branch=master)](https://github.com/RADAR-base/ManagementPortal/actions/workflows/main.yml?query=branch%3Amaster)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/d6945ebd1eba4a3fbb55882cda33655e)](https://www.codacy.com/app/RADAR-base/ManagementPortal?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=RADAR-base/ManagementPortal&amp;utm_campaign=Badge_Grade)
-[![Codacy Badge](https://api.codacy.com/project/badge/Coverage/d6945ebd1eba4a3fbb55882cda33655e)](https://www.codacy.com/app/RADAR-base/ManagementPortal?utm_source=github.com&utm_medium=referral&utm_content=RADAR-base/ManagementPortal&utm_campaign=Badge_Coverage)
 
-ManagementPortal is an application which is used to manage pilot studies for [RADAR-base](http://www.radar-base.org/).
+Management Portal is an application which is used to manage clinical studies for [RADAR-base](https://www.radar-base.org/) platform.
 
 ## Table of contents
 
@@ -31,16 +29,17 @@ ManagementPortal is an application which is used to manage pilot studies for [RA
 
 The following are the prerequisites to run ManagementPortal from source on your machine:
 
-- Java 11
-- Node.js (v15 or later is recommended)
-- Yarn (v1.19.0 or later is recommended)
+- Java 17
+- Node.js (v16 or later is recommended)
+- Yarn (3.1.0 or later is recommended)
 
 ## Quickstart
 
-Management Portal can be easily run either by running from source or by using the provided `docker-compose` file.
+Management Portal can be easily run either by running from source or by using the provided `docker-compose` file.  For documentation on how to run ManagementPortal in production, please see [RADAR-Kubernetes][].
+
 ### Using Docker-Compose
 
-The quickest way to get ManagementPortal up and running in production mode is by using the included
+The quickest way to get Management Portal up and running in production mode is by using the included
 docker-compose files. 
 1. Make sure [Docker][] and [Docker-Compose][] are installed on your system.
 2. Generate a key pair for signing JWT tokens as follows:
@@ -66,11 +65,11 @@ You must install and configure the following dependencies on your machine to run
    **Make sure the key password and store password are the same!** This is a requirement for Spring Security.
 
 4. **Profile configurations :** ManagementPortal can be run with either `development` or `production` profile. The table below lists the
-main differences between the profiles are mentioned in the table below. Configure the application using the property file at `src/main/resources/config/application-<profile>.yml`.Read more about configurations [here](#configuration)
+main differences between the profiles. Configure the application using the property file at `src/main/resources/config/application-<profile>.yml`.Read more about configurations [here](#configuration)
     
 5. Run ManagementPortal by running `./gradlew bootRun -Pprod` or `./gradlew bootRun -Pdev`. Development mode will start an in
 memory database and ManagementPortal. 
-6. You can login to the application using `admin:admin`. Please don't forgot to change the password of `admin`, if you are using the application on production environment.
+6. You can log in to the application using `admin:admin`. Please don't forgot to change the password of `admin`, if you are using the application on production environment.
 
 
 |                                  | Development     | Production                        |
@@ -82,7 +81,7 @@ memory database and ManagementPortal.
 
 
 
-The docker image can be pulled by running `docker pull radarbase/management-portal`.
+The docker image can be pulled by running `docker pull radarbase/management-portal:latest`.
 
 ## Configuration
 
@@ -100,30 +99,30 @@ in the [application.yml](src/main/resources/config/application.yml) and
 [Spring external configuration](https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-external-config.html)
 for other options on overriding the default configuration.
 
-| Variable                                                   | Default value                                       | Description                                                                                            |
-|------------------------------------------------------------|-----------------------------------------------------|--------------------------------------------------------------------------------------------------------|
-| `SPRING_DATASOURCE_URL`                                    | `jdbc:postgresql://localhost:5432/managementportal` | URL for the database to be used                                                                        |
-| `SPRING_DATASOURCE_USERNAME`                               | `<username>`                                        | Username to access the database                                                                        |
-| `SPRING_DATASOURCE_PASSWORD`                               | `<password>`                                        | Password to access the database                                                                        |
-| `SPRING_APPLICATION_JSON`                                  | None                                                | Generic environment variable for overriding all types of application settings                          |
-| `MANAGEMENTPORTAL_MAIL_FROM`                               | None, you need to override this       |   Email address that will be set  in the From email header.    |
-| `MANAGEMENTPORTAL_FRONTEND_CLIENT_SECRET`                  | None, you need to override this                     | OAuth client secret for the frontend                                                                   |
-| `MANAGEMENTPORTAL_FRONTEND_ACCESS_TOKEN_VALIDITY_SECONDS`  | `14400`                                             | Frontend access token validity period in seconds                                                       |
-| `MANAGEMENTPORTAL_FRONTEND_REFRESH_TOKEN_VALIDITY_SECONDS` | `259200`                                            | Frontend refresh token validity period in seconds                                                      |
-| `MANAGEMENTPORTAL_OAUTH_CLIENTS_FILE`                      | `/mp-includes/config/oauth_client_details.csv`      | Location of the OAuth clients file                                                                     |
-| `MANAGEMENTPORTAL_OAUTH_KEY_STORE_PASSWORD`                | `radarbase`                                         | Password for the JWT keystore                                                                          |
-| `MANAGEMENTPORTAL_OAUTH_SIGNING_KEY_ALIAS`                 | `radarbase-managementportal-ec`                     | Alias in the keystore of the keypair to use for signing                                                |
-| `MANAGEMENTPORTAL_OAUTH_ENABLE_PUBLIC_KEY_VERIFIERS`       | `false`                                             | Whether to use additional verifiers using public-keys and deprecated verifier implementation. If you set this to `true`, also set `RADAR_IS_CONFIG_LOCATION` and provide yaml file with public keys. Read more at radar-auth documentation.         |
-| `MANAGEMENTPORTAL_CATALOGUE_SERVER_ENABLE_AUTO_IMPORT`     | `false`                                             | Whether to enable or disable auto import of sources from the catalogue server                          |
-| `MANAGEMENTPORTAL_CATALOGUE_SERVER_SERVER_URL`             | None                                                | URL to the catalogue server                                                                            |
-| `MANAGEMENTPORTAL_COMMON_BASE_URL`                         | None                                                | Resolvable baseUrl of the hosted platform                                                              |
-| `MANAGEMENTPORTAL_COMMON_MANAGEMENT_PORTAL_BASE_URL`       | None                                                | Resolvable baseUrl of this managementportal  instance                                                  |
-| `MANAGEMENTPORTAL_COMMON_PRIVACY_POLICY_URL`               | None                                                | Resolvable URL to the common privacy policy url                                                        |
-| `MANAGEMENTPORTAL_COMMON_ADMIN_PASSWORD`                   | None                                                | Admin password                                                                                         |
-| `MANAGEMENTPORTAL_COMMON_ACTIVATION_KEY_TIMEOUT_IN_SECONDS`                   | 86400                            | Account activation/reset timeout in seconds                                                                                      |
-| `RADAR_IS_CONFIG_LOCATION`                                 | `radar-is.yml` from class path                      | Location of additional public-key configuration file.                                                                                   |
-| `JHIPSTER_SLEEP`                                           | `10`                                                | Time in seconds that the application should wait at bootup. Used to allow the database to become ready |
-| `JAVA_OPTS`                                                | `-Xmx512m`                                          | Options to pass on the JVM                                                                             |
+| Variable                                                    | Default value                                       | Description                                                                                                                                                                                                                                 |
+|-------------------------------------------------------------|-----------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `SPRING_DATASOURCE_URL`                                     | `jdbc:postgresql://localhost:5432/managementportal` | URL for the database to be used                                                                                                                                                                                                             |
+| `SPRING_DATASOURCE_USERNAME`                                | `<username>`                                        | Username to access the database                                                                                                                                                                                                             |
+| `SPRING_DATASOURCE_PASSWORD`                                | `<password>`                                        | Password to access the database                                                                                                                                                                                                             |
+| `SPRING_APPLICATION_JSON`                                   | None                                                | Generic environment variable for overriding all types of application settings                                                                                                                                                               |
+| `MANAGEMENTPORTAL_MAIL_FROM`                                | None, you need to override this                     | Email address that will be set  in the From email header.                                                                                                                                                                                   |
+| `MANAGEMENTPORTAL_FRONTEND_CLIENT_SECRET`                   | None, you need to override this                     | OAuth client secret for the frontend                                                                                                                                                                                                        |
+| `MANAGEMENTPORTAL_FRONTEND_ACCESS_TOKEN_VALIDITY_SECONDS`   | `14400`                                             | Frontend access token validity period in seconds                                                                                                                                                                                            |
+| `MANAGEMENTPORTAL_FRONTEND_REFRESH_TOKEN_VALIDITY_SECONDS`  | `259200`                                            | Frontend refresh token validity period in seconds                                                                                                                                                                                           |
+| `MANAGEMENTPORTAL_OAUTH_CLIENTS_FILE`                       | `/mp-includes/config/oauth_client_details.csv`      | Location of the OAuth clients file                                                                                                                                                                                                          |
+| `MANAGEMENTPORTAL_OAUTH_KEY_STORE_PASSWORD`                 | `radarbase`                                         | Password for the JWT keystore                                                                                                                                                                                                               |
+| `MANAGEMENTPORTAL_OAUTH_SIGNING_KEY_ALIAS`                  | `radarbase-managementportal-ec`                     | Alias in the keystore of the keypair to use for signing                                                                                                                                                                                     |
+| `MANAGEMENTPORTAL_OAUTH_ENABLE_PUBLIC_KEY_VERIFIERS`        | `false`                                             | Whether to use additional verifiers using public-keys and deprecated verifier implementation. If you set this to `true`, also set `RADAR_IS_CONFIG_LOCATION` and provide yaml file with public keys. Read more at radar-auth documentation. |
+| `MANAGEMENTPORTAL_CATALOGUE_SERVER_ENABLE_AUTO_IMPORT`      | `false`                                             | Whether to enable or disable auto import of sources from the catalogue server                                                                                                                                                               |
+| `MANAGEMENTPORTAL_CATALOGUE_SERVER_SERVER_URL`              | None                                                | URL to the catalogue server                                                                                                                                                                                                                 |
+| `MANAGEMENTPORTAL_COMMON_BASE_URL`                          | None                                                | Resolvable baseUrl of the hosted platform                                                                                                                                                                                                   |
+| `MANAGEMENTPORTAL_COMMON_MANAGEMENT_PORTAL_BASE_URL`        | None                                                | Resolvable baseUrl of this managementportal  instance                                                                                                                                                                                       |
+| `MANAGEMENTPORTAL_COMMON_PRIVACY_POLICY_URL`                | None                                                | Resolvable URL to the common privacy policy url                                                                                                                                                                                             |
+| `MANAGEMENTPORTAL_COMMON_ADMIN_PASSWORD`                    | None                                                | Admin password                                                                                                                                                                                                                              |
+| `MANAGEMENTPORTAL_COMMON_ACTIVATION_KEY_TIMEOUT_IN_SECONDS` | 86400                                               | Account activation/reset timeout in seconds                                                                                                                                                                                                 |
+| `RADAR_IS_CONFIG_LOCATION`                                  | `radar-is.yml` from class path                      | Location of additional public-key configuration file.                                                                                                                                                                                       |
+| `JHIPSTER_SLEEP`                                            | `10`                                                | Time in seconds that the application should wait at bootup. Used to allow the database to become ready                                                                                                                                      |
+| `JAVA_OPTS`                                                 | `-Xmx512m`                                          | Options to pass on the JVM                                                                                                                                                                                                                  |
 
 Lists cannot directly be encoded by environment variables in this version of Spring. So for example the OAuth checking key aliases need to be encoded using the `SPRING_APPLICATION_JSON` variable. For setting two aliases, set it to `{"managementportal":{"oauth":{"checkingKeyAliases":["one","two"]}}}`, for example. If this list is not set, the signing key will also be used as the checking key.
 
@@ -189,7 +188,7 @@ username your OAuth client id, and leaving the password empty:
     ```json
     {
        "access_token": "...",
-       "refresh_token": "...",
+       "refresh_token": "..."
     }
     ```
     Now the app can use the refresh token flow as shown above.
@@ -226,39 +225,13 @@ auto-refreshes when files change on your hard drive.
     ./gradlew
     yarn start
 
-Then open <http://localhost:8080/> to start the interface and sign in with admin/admin.
+Then open <http://localhost:9000/> to start the interface and sign in with admin/admin.
 
 [Yarn][] is also used to manage CSS and JavaScript dependencies used in this application. You can upgrade dependencies by
 specifying a newer version in [package.json](package.json). You can also run `yarn update` and `yarn install` to manage dependencies.
 Add the `help` flag on any command to see how you can use it. For example, `yarn help update`.
 
-The `yarn run` command will list all of the scripts available to run for this project.
-
-### Managing dependencies
-
-For example, to add [Leaflet][] library as a runtime dependency of your application, you would run following command:
-
-    yarn add --exact leaflet
-
-To benefit from TypeScript type definitions from [DefinitelyTyped][] repository in development, you would run following command:
-
-    yarn add --dev --exact @types/leaflet
-
-Then you would import the JS and CSS files specified in library's installation instructions so that [Webpack][] knows about them:
-
-Edit [src/main/webapp/app/vendor.ts](src/main/webapp/app/vendor.ts) file:
-~~~
-import 'leaflet/dist/leaflet.js';
-~~~
-
-Edit [src/main/webapp/content/css/vendor.css](src/main/webapp/content/css/vendor.css) file:
-~~~
-@import '~leaflet/dist/leaflet.css';
-~~~
-
-Note: there are still few other things remaining to do for Leaflet that we won't detail here.
-
-For further instructions on how to develop with JHipster, have a look at [Using JHipster in development][].
+The `yarn run` command will list all the scripts available to run for this project.
 
 ### Using angular-cli
 
@@ -290,7 +263,6 @@ To ensure everything worked, run:
 
 Then navigate to [http://localhost:8080](http://localhost:8080) in your browser.
 
-Refer to [Using JHipster in production][] for more details.
 
 ## Testing
 
@@ -304,7 +276,7 @@ Unit tests are run by [Karma][] and written with [Jasmine][]. They're located in
 
     yarn test
 
-UI end-to-end tests are powered by [Protractor][], which is built on top of WebDriverJS. They're located in [src/test/javascript/e2e](src/test/javascript/e2e)
+UI end-to-end tests are powered by [Cypress][], which is built on top of WebDriverJS. They're located in [src/test/javascript/e2e](src/test/javascript/e2e)
 and can be run by starting Spring Boot in one terminal (`./gradlew bootRun`) and running the tests (`yarn run e2e`) in a second one.
 ### Other tests
 
@@ -341,13 +313,12 @@ Then run:
 For more information refer to [Using Docker and Docker-Compose][], this page also contains information on the docker-compose sub-generator (`yo jhipster:docker-compose`), which is able to generate docker configurations for one or several JHipster applications.
 ## Documentation
 
-Visit our [Github pages](https://radar-base.github.io/ManagementPortal) site to find links to the
-Javadoc and API docs.
+Please find the links for some of the documentation per category/component
 * [management-portal-javadoc](https://radar-base.github.io/ManagementPortal/management-portal-javadoc/)
 * [oauth-client-util-javadoc](https://radar-base.github.io/ManagementPortal/oauth-client-util-javadoc/)
 * [radar-auth-javadoc](https://radar-base.github.io/ManagementPortal/radar-auth-javadoc/)
 * [managementportal-client-javadoc](https://radar-base.github.io/ManagementPortal/managementportal-client-javadoc/)
-* [apidoc](https://radar-base.github.io/ManagementPortal/apidoc/swagger.json)
+* [Swagger 2.0 apidoc](https://radar-base.github.io/ManagementPortal/apidoc/swagger.json)
 
 The pages site is published from the `gh-pages` branch, which has its own history. If you want to
 contribute to the documentation, it is probably more convenient to clone a separate copy of this
@@ -363,31 +334,30 @@ This project provides a Gradle task to generate an [OpenAPI] specification from 
 ```
 ManagementPortal needs to be running and be accessible at `http://localhost:8080` for this task to work.
 
-The resulting file can be imported into the [Swagger editor], or used with [Swagger codegen] to generate client libraries.
+The resulting file can be imported into the [Swagger editor][], or used with [Swagger codegen][] to generate client libraries.
 
-[JHipster Homepage and latest documentation]: https://jhipster.github.io
-[JHipster 4.3.0 archive]: https://jhipster.github.io/documentation-archive/v4.3.0
+[JHipster Homepage and latest documentation]: https://www.jhipster.tech
 
-[Using JHipster in development]: https://jhipster.github.io/documentation-archive/v4.3.0/development/
-[Using Docker and Docker-Compose]: https://jhipster.github.io/documentation-archive/v4.3.0/docker-compose
-[Using JHipster in production]: https://jhipster.github.io/documentation-archive/v4.3.0/production/
-[Running tests page]: https://jhipster.github.io/documentation-archive/v4.3.0/running-tests/
-[Setting up Continuous Integration]: https://jhipster.github.io/documentation-archive/v4.3.0/setting-up-ci/
+[RADAR-Kubernetes]: https://github.com/RADAR-base/RADAR-Kubernetes
+[Using Docker and Docker-Compose]: https://www.jhipster.tech/docker-compose/
+[Running tests page]: https://www.jhipster.tech/running-tests/
+[Setting up Continuous Integration]: https://www.jhipster.tech/setting-up-ci/
 
-[Gatling]: http://gatling.io/
+[Gatling]: https://gatling.io/
 [Node.js]: https://nodejs.org/
 [Yarn]: https://yarnpkg.org/
 [Webpack]: https://webpack.github.io/
 [Angular CLI]: https://cli.angular.io/
 [BrowserSync]: http://www.browsersync.io/
-[Karma]: http://karma-runner.github.io/
-[Jasmine]: http://jasmine.github.io/2.0/introduction.html
+[Karma]: https://karma-runner.github.io/
+[Jasmine]: https://jasmine.github.io
+[Cypress]: https://www.cypress.io
 [Protractor]: https://angular.github.io/protractor/
 [Leaflet]: http://leafletjs.com/
 [DefinitelyTyped]: http://definitelytyped.org/
 [Docker]: https://docs.docker.com/
 [Docker-Compose]: https://docs.docker.com/compose/
 [OpenAPI]: https://www.openapis.org/
-[Swagger editor]: http://editor.swagger.io/
+[Swagger editor]: https://editor.swagger.io/
 [Swagger codegen]: https://swagger.io/swagger-codegen/
 [OAuth2 spec]: https://tools.ietf.org/html/rfc6749#section-9

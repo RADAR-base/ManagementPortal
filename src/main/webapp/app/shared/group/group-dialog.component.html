@@ -1,0 +1,41 @@
+<form name="editForm" role="form" novalidate (ngSubmit)="save()" #editForm="ngForm">
+    <div class="modal-header">
+        <h4 class="modal-title" id="myGroupLabel"
+            [translate]="'managementPortalApp.group.home.createOrEditLabel'">
+        </h4>
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
+                (click)="clear()">&times;</button>
+    </div>
+    <div class="modal-body">
+        <jhi-alert-error></jhi-alert-error>
+        <div class="form-group" [hidden]="!group.id">
+            <label for="id" [translate]="'global.field.id'"></label>
+            <input type="text" class="form-control" id="id" name="id"
+                   [(ngModel)]="group.id" readonly />
+        </div>
+
+        <div class="form-group">
+            <label class="form-control-label"
+                for="field_name"
+                [translate]="'managementPortalApp.group.name'">
+            </label>
+            <input type="text" class="form-control" name="name" id="field_name" required pattern="[_'.@A-Za-z0-9- ]*"
+                [(ngModel)]="group.name"
+             />
+        </div>
+
+        <div class="form-group" [hidden]="!group.projectName">
+            <label for="projectName" [translate]="'global.field.projectName'"></label>
+            <input type="text" class="form-control" id="projectName" name="projectName"
+                   [(ngModel)]="group.projectName" readonly />
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal" (click)="clear()">
+            <span class="fa fa-ban"></span>&nbsp;<span [translate]="'entity.action.cancel'"></span>
+        </button>
+        <button type="submit" [disabled]="editForm.form.invalid || isSaving" class="btn btn-primary">
+            <span class="fa fa-save"></span>&nbsp;<span [translate]="'entity.action.save'"></span>
+        </button>
+    </div>
+</form>

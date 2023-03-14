@@ -16,6 +16,7 @@
                 "title": "Project"
             },
             "projectName": "Project Id",
+            "projectName.fieldWarning": "",
             "projectName.fieldDescription": "Unieke identificatie van project",
             "description": "Omschrijving",
             "organization": "Organisatie",
@@ -25,11 +26,22 @@
             "endDate": "Einddatum",
             "projectAdmin": "Project Admin",
             "sourceType": "Source Type",
+            "groups": "Groepen",
+            "subjects": "Onderwerpen",
+            "permissions":  "Rechten",
+            "admins":  "Beheerders",
+            "analysts": "Analisten",
+            "newGroup": {
+                "label": "Nieuwe groep",
+                "button": "Groep toevogen"
+            },
+            "attributeData" : "Eigenschappen",
             "attributeDataKey" : "Tag",
             "attributeDataValue" : "Waarde",
             "prettyProjectName" : "Leesbare projectnaam",
             "prettyProjectName.fieldDescription" : "Voor mensen leesbare projectnaam die niet het urlpatroon hoeft te volgen.",
-            "projectIdAsPrettyName": "Wil je de project-id gebruiken als de voor mensen leesbare naam?"
+            "projectIdAsPrettyName": "Wil je de project-id gebruiken als de voor mensen leesbare naam?",
+            "sources": "Sources"
         },
         "error" : {
             "projectIdNotFound" : "Er werd geen project gevonden met id {{ param0 }}",

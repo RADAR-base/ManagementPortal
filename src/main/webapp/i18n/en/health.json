@@ -14,8 +14,7 @@
             "diskSpace": "Disk space",
             "mail": "Email",
             "db": "Database",
-            "refreshScope": "Refresh Scope",
-            "hystrix": "Hystrix"
+            "refreshScope": "Refresh Scope"
         },
         "table": {
             "service": "Service name",

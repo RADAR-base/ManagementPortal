@@ -6,28 +6,27 @@ import static org.radarbase.auth.authorization.Permission.OAUTHCLIENTS_READ;
 import static org.radarbase.auth.authorization.Permission.OAUTHCLIENTS_UPDATE;
 import static org.radarbase.auth.authorization.Permission.SUBJECT_UPDATE;
 import static org.radarbase.auth.authorization.RadarAuthorization.checkPermission;
-import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnSubject;
-import static org.radarbase.management.security.SecurityUtils.getJWT;
 import static org.radarbase.management.service.OAuthClientService.checkProtected;
 import static org.radarbase.management.web.rest.errors.EntityName.OAUTH_CLIENT;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.List;
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
-import com.codahale.metrics.annotation.Timed;
-import javax.ws.rs.DefaultValue;
+import io.micrometer.core.annotation.Timed;
 import org.radarbase.auth.config.Constants;
 import org.radarbase.auth.exception.NotAuthorizedException;
+import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.domain.Project;
 import org.radarbase.management.domain.Subject;
 import org.radarbase.management.domain.User;
-import org.radarbase.management.service.OAuthClientService;
-import org.radarbase.management.service.ResourceUriService;
+import org.radarbase.management.service.MetaTokenService;
 import org.radarbase.management.service.SubjectService;
 import org.radarbase.management.service.UserService;
+import org.radarbase.management.service.OAuthClientService;
+import org.radarbase.management.service.OrganizationService;
+import org.radarbase.management.service.ResourceUriService;
 import org.radarbase.management.service.dto.ClientDetailsDTO;
 import org.radarbase.management.service.dto.ClientPairInfoDTO;
 import org.radarbase.management.service.mapper.ClientDetailsMapper;
@@ -65,6 +64,9 @@ public class OAuthClientsResource {
     private OAuthClientService oAuthClientService;
 
     @Autowired
+    private MetaTokenService metaTokenService;
+
+    @Autowired
     private ClientDetailsMapper clientDetailsMapper;
 
     @Autowired
@@ -74,10 +76,13 @@ public class OAuthClientsResource {
     private UserService userService;
 
     @Autowired
-    private HttpServletRequest servletRequest;
+    private OrganizationService organizationService;
 
     @Autowired
     private AuditEventRepository eventRepository;
+
+    @Autowired
+    private RadarToken token;
 
     /**
      * GET /api/oauth-clients.
@@ -89,7 +94,7 @@ public class OAuthClientsResource {
     @GetMapping("/oauth-clients")
     @Timed
     public ResponseEntity<List<ClientDetailsDTO>> getOAuthClients() throws NotAuthorizedException {
-        checkPermission(getJWT(servletRequest), OAUTHCLIENTS_READ);
+        checkPermission(token, OAUTHCLIENTS_READ);
         return ResponseEntity.ok().body(clientDetailsMapper
                 .clientDetailsToClientDetailsDTO(oAuthClientService.findAllOAuthClients()));
     }
@@ -106,7 +111,7 @@ public class OAuthClientsResource {
     @Timed
     public ResponseEntity<ClientDetailsDTO> getOAuthClientById(@PathVariable("id") String id)
             throws NotAuthorizedException {
-        checkPermission(getJWT(servletRequest), OAUTHCLIENTS_READ);
+        checkPermission(token, OAUTHCLIENTS_READ);
         // getOAuthClient checks if the id exists
         return ResponseEntity.ok().body(clientDetailsMapper
                 .clientDetailsToClientDetailsDTO(oAuthClientService.findOneByClientId(id)));
@@ -124,7 +129,7 @@ public class OAuthClientsResource {
     @Timed
     public ResponseEntity<ClientDetailsDTO> updateOAuthClient(@Valid @RequestBody ClientDetailsDTO
             clientDetailsDto) throws NotAuthorizedException {
-        checkPermission(getJWT(servletRequest), OAUTHCLIENTS_UPDATE);
+        checkPermission(token, OAUTHCLIENTS_UPDATE);
         // getOAuthClient checks if the id exists
         checkProtected(oAuthClientService.findOneByClientId(clientDetailsDto.getClientId()));
 
@@ -147,7 +152,7 @@ public class OAuthClientsResource {
     @Timed
     public ResponseEntity<Void> deleteOAuthClient(@PathVariable String id)
             throws NotAuthorizedException {
-        checkPermission(getJWT(servletRequest), OAUTHCLIENTS_DELETE);
+        checkPermission(token, OAUTHCLIENTS_DELETE);
         // getOAuthClient checks if the id exists
         checkProtected(oAuthClientService.findOneByClientId(id));
         oAuthClientService.deleteClientDetails(id);
@@ -168,7 +173,7 @@ public class OAuthClientsResource {
     @Timed
     public ResponseEntity<ClientDetailsDTO> createOAuthClient(@Valid @RequestBody ClientDetailsDTO
             clientDetailsDto) throws URISyntaxException, NotAuthorizedException {
-        checkPermission(getJWT(servletRequest), OAUTHCLIENTS_CREATE);
+        checkPermission(token, OAUTHCLIENTS_CREATE);
         ClientDetails created = oAuthClientService.createClientDetail(clientDetailsDto);
         return ResponseEntity.created(ResourceUriService.getUri(clientDetailsDto))
                 .headers(HeaderUtil.createEntityCreationAlert(OAUTH_CLIENT, created.getClientId()))
@@ -190,7 +195,7 @@ public class OAuthClientsResource {
     @Timed
     public ResponseEntity<ClientPairInfoDTO> getRefreshToken(@RequestParam String login,
             @RequestParam(value = "clientId") String clientId,
-            @RequestParam(value = "persistent") @DefaultValue("false") Boolean persistent)
+            @RequestParam(value = "persistent", defaultValue = "false") Boolean persistent)
             throws NotAuthorizedException, URISyntaxException, MalformedURLException {
         User currentUser = userService.getUserWithAuthorities();
         if (currentUser == null) {
@@ -205,9 +210,9 @@ public class OAuthClientsResource {
                 .orElse(null);
 
         // Users who can update a subject can also generate a refresh token for that subject
-        checkPermissionOnSubject(getJWT(servletRequest), SUBJECT_UPDATE, project, login);
+        organizationService.checkPermissionBySubject(SUBJECT_UPDATE, project, login);
 
-        ClientPairInfoDTO cpi = oAuthClientService.createMetaToken(subject, clientId, persistent);
+        ClientPairInfoDTO cpi = metaTokenService.createMetaToken(subject, clientId, persistent);
         // generate audit event
         eventRepository.add(new AuditEvent(currentUser.getLogin(), "PAIR_CLIENT_REQUEST",
                 "client_id=" + clientId, "subject_login=" + login));

@@ -1,21 +1,14 @@
 import { login } from '../util/login';
-import * as navBarPage from '../util/nav-bar';
+import { clickOnAdminMenu, clickOnEntity } from "../util/nav-bar";
 
 describe('OAuth Clients e2e test', () => {
-    before(() => {
-        login();
-        cy.visit('./');
-    });
-
     beforeEach(() => {
-        cy.wait(100);
-        Cypress.Cookies.preserveOnce('oAtkn');
+        login();
+        clickOnAdminMenu();
+        clickOnEntity('oauth-client');
     });
 
     it('should load OAuth clients', () => {
-        navBarPage.clickOnAdminMenu();
-        cy.get('[routerLink="oauth-client"]').first().click();
-
         cy.get('h4 span').first().should('have.text', 'OAuth Clients');
     });
 
@@ -36,7 +29,6 @@ describe('OAuth Clients e2e test', () => {
 
     it('should be able to create OAuth Client', () => {
         cy.get('jhi-oauth-client h4 button.btn-primary').click();
-        cy.wait(1000);
         cy.get('#id').type('test-client');
         cy.get('button').contains('Random').click();
 
@@ -52,15 +44,13 @@ describe('OAuth Clients e2e test', () => {
         cy.get('#accessTokenValidity').type('3600');
         cy.get('#refreshTokenValidity').clear();
         cy.get('#refreshTokenValidity').type('7200');
-        cy.get('button.btn-primary').contains('Save').click();
+        cy.contains('button.btn-primary', 'Save').click();
     });
 
     it('should be able to edit OAuth Client', () => {
-        cy.wait(1000);
-        cy.get('td').contains('test-client').parents('tr')
-            .find('button').contains('Edit').click();
-        cy.wait(1000);
-        cy.get('button.btn-primary').contains('Save').click();
+        cy.contains('tr', 'test-client')
+            .contains('button', 'Edit').click();
+        cy.contains('button.btn-primary', 'Save').click();
     });
 
     it('should be able to delete OAuth Client', () => {

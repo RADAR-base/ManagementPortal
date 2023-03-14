@@ -6,42 +6,38 @@
         <h1 class="display-4" [translate]="'home.title'"></h1>
         <p class="lead" [translate]="'home.subtitle'"></p>
 
-        <div [ngSwitch]="isAuthenticated()">
-            <div class="alert alert-success" *ngSwitchCase="true">
-                <span *ngIf="account"
-                    [translate]="'home.logged.message'"
+        <div *ngIf="principal.account$ | async as account; else unauthenticated">
+            <div class="alert alert-success">
+                <span [translate]="'home.logged.message'"
                     [translateParams]="{username: account.login}">
                 </span>
             </div>
 
-            <div class="alert alert-warning" *ngSwitchCase="false">
+            <div class="card-columns ">
+                <div class="card mb-3" *ngFor="let organization of organizationService.organizations$ | async;" [routerLink]="['../organization', organization.name ]">
+                    <div class="card-body text-center">
+                        <h5 class="card-title" style="text-transform: uppercase"> {{organization.name}}</h5>
+                        <h6 class="card-subtitle text-center mb-2 text-muted">{{organization.location}} </h6>
+                        <p class="card-text"> {{organization.description}}
+                    </div>
+                    <footer class="card-footer  text-center">
+                        <button type="button"
+                                [routerLink]="['../organization', organization.name ]"
+                                [queryParams]="{page: 1}"
+                                class="btn btn-info btn-sm">
+                            <span class="fa fa-eye"></span>
+                            <span class="hidden-md-down" [translate]="'entity.action.view'"></span>
+                        </button>
+                    </footer>
+
+            </div>
+        </div>
+        </div>
+        <ng-template #unauthenticated>
+            <div class="alert alert-warning">
                 <span [translate]="'global.messages.info.authenticated.prefix'"></span>
                 <a class="alert-link" (click)="login()" [translate]="'global.messages.info.authenticated.link'"></a>
             </div>
-
-            <div *ngSwitchCase="true">
-                <div class="card-columns ">
-                    <div class="card mb-3" *ngFor="let project of projects;" [routerLink]="['../project', project.projectName ]">
-
-                        <div class="card-body text-center">
-                            <h5 class="card-title" style="text-transform: uppercase"> {{project.projectName}}</h5>
-                            <h6 class="card-subtitle text-center mb-2 text-muted">{{project.organization}} : {{project.location}} </h6>
-                            <p class="card-text"> {{project.description}}
-
-                        </div>
-
-                        <footer class="card-footer  text-center">
-                            <button type="button"
-                                    [routerLink]="['../project', project.projectName ]"
-                                    class="btn btn-info btn-sm">
-                                <span class="fa fa-eye"></span>
-                                <span class="hidden-md-down" [translate]="'entity.action.view'"></span>
-                            </button>
-                        </footer>
-
-                    </div>
-                </div>
-            </div>
-        </div>
+        </ng-template>
     </div>
 </div>

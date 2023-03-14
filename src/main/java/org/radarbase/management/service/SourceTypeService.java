@@ -124,9 +124,8 @@ public class SourceTypeService {
         log.debug("Request to get SourceType by producer: {}", producer);
         List<SourceType> sourceTypes = sourceTypeRepository
                 .findWithEagerRelationshipsByProducer(producer);
-        List<SourceTypeDTO> sourceTypeDtos = sourceTypeMapper.sourceTypesToSourceTypeDTOs(
+        return sourceTypeMapper.sourceTypesToSourceTypeDTOs(
                 sourceTypes);
-        return sourceTypeDtos;
     }
 
     /**
@@ -136,9 +135,8 @@ public class SourceTypeService {
         log.debug("Request to get SourceType by producer and model: {}, {}", producer, model);
         List<SourceType> sourceTypes = sourceTypeRepository
                 .findWithEagerRelationshipsByProducerAndModel(producer, model);
-        List<SourceTypeDTO> sourceTypeDtos = sourceTypeMapper.sourceTypesToSourceTypeDTOs(
+        return sourceTypeMapper.sourceTypesToSourceTypeDTOs(
                 sourceTypes);
-        return sourceTypeDtos;
     }
 
     /**

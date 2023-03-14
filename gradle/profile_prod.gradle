@@ -1,5 +1,5 @@
 apply plugin: 'org.springframework.boot'
-apply plugin: 'com.moowork.node'
+apply plugin: 'com.github.node-gradle.node'
 
 ext.logbackLoglevel = 'INFO'
 
@@ -9,12 +9,13 @@ if (project.hasProperty('no-liquibase')) {
     profiles += ',no-liquibase'
 }
 
-if (project.hasProperty('swagger')) {
-    profiles += ',swagger'
+if (project.hasProperty('api-docs')) {
+    profiles += ',api-docs'
 }
 
 bootRun {
     args = []
+    systemProperty "spring.profiles.active", profiles
 }
 
 task webpack(type: YarnTask, dependsOn: 'yarn_install') {

@@ -8,10 +8,7 @@ import org.radarbase.management.service.mapper.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-public class UserMapperDecorator implements UserMapper {
+public abstract class UserMapperDecorator implements UserMapper {
 
     @Autowired
     @Qualifier("delegate")
@@ -35,32 +32,5 @@ public class UserMapperDecorator implements UserMapper {
         dto.setLastModifiedBy(auditInfo.getLastModifiedBy());
 
         return dto;
-    }
-
-    @Override
-    public List<UserDTO> usersToUserDTOs(List<User> users) {
-        if (users == null) {
-            return null;
-        }
-
-        return users.stream().map(this::userToUserDTO).collect(Collectors.toList());
-    }
-
-    @Override
-    public User userDTOToUser(UserDTO userDto) {
-        if (userDto == null) {
-            return null;
-        }
-
-        return delegate.userDTOToUser(userDto);
-    }
-
-    @Override
-    public List<User> userDTOsToUsers(List<UserDTO> userDtos) {
-        if (userDtos == null) {
-            return null;
-        }
-
-        return userDtos.stream().map(this::userDTOToUser).collect(Collectors.toList());
     }
 }

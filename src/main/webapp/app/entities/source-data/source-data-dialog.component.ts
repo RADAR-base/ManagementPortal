@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
-import { ActivatedRoute } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
+import { ActivatedRoute, Params } from '@angular/router';
 
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 
@@ -11,35 +11,33 @@ import { SourceDataPopupService } from './source-data-popup.service';
 
 import { SourceData } from './source-data.model';
 import { SourceDataService } from './source-data.service';
+import { ObservablePopupComponent } from '../../shared/util/observable-popup.component';
+import { Observable, Subscription } from 'rxjs';
 
 @Component({
     selector: 'jhi-source-data-dialog',
     templateUrl: './source-data-dialog.component.html',
 })
-export class SourceDataDialogComponent implements OnInit {
-
+export class SourceDataDialogComponent implements OnInit, OnDestroy {
     sourceData: SourceData;
-    authorities: any[];
     isSaving: boolean;
-
-    sourceTypes: SourceType[];
+    private subscriptions: Subscription = new Subscription();
 
     constructor(
             public activeModal: NgbActiveModal,
             private alertService: AlertService,
             private sourceDataService: SourceDataService,
-            private sourceTypeService: SourceTypeService,
+            public sourceTypeService: SourceTypeService,
             private eventManager: EventManager,
     ) {
     }
 
     ngOnInit() {
         this.isSaving = false;
-        this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN', 'ROLE_PROJECT_ADMIN'];
-        this.sourceTypeService.query().subscribe(
-                (res: HttpResponse<SourceType[]>) => {
-                    this.sourceTypes = res.body;
-                }, (res: HttpErrorResponse) => this.onError(res));
+    }
+
+    ngOnDestroy() {
+        this.subscriptions.unsubscribe();
     }
 
     clear() {
@@ -49,13 +47,15 @@ export class SourceDataDialogComponent implements OnInit {
     save() {
         this.isSaving = true;
         if (this.sourceData.id !== undefined) {
-            this.sourceDataService.update(this.sourceData)
-            .subscribe((res: SourceData) =>
-                    this.onSaveSuccess(res), (res: HttpErrorResponse) => this.onSaveError(res));
+            this.subscriptions.add(this.sourceDataService.update(this.sourceData).subscribe(
+                (res: SourceData) => this.onSaveSuccess(res),
+                (res: HttpErrorResponse) => this.onSaveError(res),
+            ));
         } else {
-            this.sourceDataService.create(this.sourceData)
-            .subscribe((res: SourceData) =>
-                    this.onSaveSuccess(res), (res: HttpErrorResponse) => this.onSaveError(res));
+            this.subscriptions.add(this.sourceDataService.create(this.sourceData).subscribe(
+                (res: SourceData) => this.onSaveSuccess(res),
+                (res: HttpErrorResponse) => this.onSaveError(res),
+            ));
         }
     }
 
@@ -83,25 +83,15 @@ export class SourceDataDialogComponent implements OnInit {
     selector: 'jhi-source-data-popup',
     template: '',
 })
-export class SourceDataPopupComponent implements OnInit, OnDestroy {
-
-    modalRef: NgbModalRef;
-    routeSub: any;
-
+export class SourceDataPopupComponent extends ObservablePopupComponent {
     constructor(
-            private route: ActivatedRoute,
+            route: ActivatedRoute,
             private sourceDataPopupService: SourceDataPopupService,
     ) {
+        super(route);
     }
 
-    ngOnInit() {
-        this.routeSub = this.route.params.subscribe((params) => {
-            this.modalRef = this.sourceDataPopupService
-                    .open(SourceDataDialogComponent, params['sourceDataName']);
-        });
-    }
-
-    ngOnDestroy() {
-        this.routeSub.unsubscribe();
+    createModalRef(params: Params): Observable<NgbModalRef> {
+        return this.sourceDataPopupService.open(SourceDataDialogComponent, params['sourceDataName']);
     }
 }

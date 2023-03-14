@@ -46,7 +46,8 @@ public class Source extends AbstractEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
-    @SequenceGenerator(name = "sequenceGenerator", initialValue = 1000)
+    @SequenceGenerator(name = "sequenceGenerator", initialValue = 1000,
+            sequenceName = "hibernate_sequence")
     private Long id;
 
     @NotNull
@@ -64,6 +65,10 @@ public class Source extends AbstractEntity implements Serializable {
     @NotNull
     @Column(name = "assigned", nullable = false)
     private Boolean assigned;
+
+    @NotNull
+    @Column(name = "deleted", nullable = false)
+    private Boolean deleted = false;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "subject_id")
@@ -151,6 +156,19 @@ public class Source extends AbstractEntity implements Serializable {
 
     public void setAssigned(Boolean assigned) {
         this.assigned = assigned;
+    }
+
+    public Boolean isDeleted() {
+        return deleted;
+    }
+
+    public Source deleted(Boolean deleted) {
+        this.deleted = deleted;
+        return this;
+    }
+
+    public void setDeleted(Boolean deleted) {
+        this.deleted = deleted;
     }
 
     public void setSourceType(SourceType sourceType) {

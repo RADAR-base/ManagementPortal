@@ -14,6 +14,7 @@ import org.radarbase.management.domain.enumeration.ProjectStatus;
 /**
  * A DTO for the Project entity.
  */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ProjectDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -34,7 +35,9 @@ public class ProjectDTO implements Serializable {
     @NotNull
     private String description;
 
-    private String organization;
+    private OrganizationDTO organization;
+
+    private String organizationName;
 
     @NotNull
     private String location;
@@ -45,10 +48,13 @@ public class ProjectDTO implements Serializable {
 
     private ZonedDateTime endDate;
 
-    @JsonInclude(Include.NON_NULL)
+    @JsonInclude(Include.NON_EMPTY)
     private Set<SourceTypeDTO> sourceTypes;
 
     private Map<String, String> attributes;
+
+    @JsonInclude(Include.NON_EMPTY)
+    private Set<GroupDTO> groups;
 
     private Long persistentTokenTimeout;
 
@@ -76,12 +82,20 @@ public class ProjectDTO implements Serializable {
         this.description = description;
     }
 
-    public String getOrganization() {
+    public OrganizationDTO getOrganization() {
         return organization;
     }
 
-    public void setOrganization(String organization) {
+    public void setOrganization(OrganizationDTO organization) {
         this.organization = organization;
+    }
+
+    public String getOrganizationName() {
+        return organizationName;
+    }
+
+    public void setOrganizationName(String organizationName) {
+        this.organizationName = organizationName;
     }
 
     public String getLocation() {
@@ -132,6 +146,14 @@ public class ProjectDTO implements Serializable {
         this.attributes = attributes;
     }
 
+    public Set<GroupDTO> getGroups() {
+        return groups;
+    }
+
+    public void setGroups(Set<GroupDTO> groups) {
+        this.groups = groups;
+    }
+
     public String getHumanReadableProjectName() {
         return humanReadableProjectName;
     }
@@ -177,6 +199,7 @@ public class ProjectDTO implements Serializable {
                 + ", projectName='" + projectName + "'"
                 + ", description='" + description + "'"
                 + ", organization='" + organization + "'"
+                + ", organizationName='" + organizationName + "'"
                 + ", location='" + location + "'"
                 + ", startDate='" + startDate + "'"
                 + ", projectStatus='" + projectStatus + "'"

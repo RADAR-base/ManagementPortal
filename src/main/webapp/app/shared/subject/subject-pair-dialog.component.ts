@@ -1,31 +1,34 @@
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { DatePipe, DOCUMENT } from '@angular/common';
 import { HttpResponse } from '@angular/common/http';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Params } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { Observable } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 
-import { OAuthClient, OAuthClientService } from '../../entities/oauth-client';
+import { OAuthClient, OAuthClientService, PairInfo } from '../../entities/oauth-client';
 import { OAuthClientPairInfoService } from '../../entities/oauth-client/oauth-client-pair-info.service';
 
 import { SubjectPopupService } from './subject-popup.service';
 import { Subject } from './subject.model';
+import { ObservablePopupComponent } from '../util/observable-popup.component';
+import { map, switchMap, tap } from 'rxjs/operators';
 
 @Component({
     selector: 'jhi-subject-pair-dialog',
     templateUrl: './subject-pair-dialog.component.html',
     styleUrls: ['subject-pair-dialog.component.scss'],
 })
-export class SubjectPairDialogComponent implements OnInit {
+export class SubjectPairDialogComponent implements OnInit, OnDestroy {
     readonly authorities: string[];
 
     subject: Subject;
     oauthClients: OAuthClient[];
-    pairInfo: any = null;
+    pairInfo: PairInfo = null;
     selectedClient: OAuthClient = null;
     allowPersistentToken = false;
+    private subscriptions: Subscription = new Subscription();
 
     constructor(public activeModal: NgbActiveModal,
                 private translate: TranslateService,
@@ -41,14 +44,23 @@ export class SubjectPairDialogComponent implements OnInit {
             this.allowPersistentToken = true;
         }
         this.loadInconsolataFont();
-        this.oauthClientService.query().subscribe(
-                (res: HttpResponse<any>) => {
-                    // only keep clients that have the dynamic_registration key in additionalInformation
-                    // and have set it to true
-                    this.oauthClients = res.body
-                    .filter((c) => c.additionalInformation.dynamic_registration &&
-                            c.additionalInformation.dynamic_registration.toLowerCase() === 'true');
-                });
+        this.subscriptions.add(this.fetchOAuthClients());
+    }
+
+    ngOnDestroy() {
+        this.subscriptions.unsubscribe();
+    }
+
+    private fetchOAuthClients(): Subscription {
+        return this.oauthClientService.query().subscribe(
+            (res: HttpResponse<any>) => {
+                // only keep clients that have the dynamic_registration key in additionalInformation
+                // and have set it to true
+                this.oauthClients = res.body.filter(
+                  (c) => c.additionalInformation.dynamic_registration && c.additionalInformation.dynamic_registration.toLowerCase() === 'true'
+                );
+            }
+        );
     }
 
     private loadInconsolataFont() {
@@ -76,33 +88,37 @@ export class SubjectPairDialogComponent implements OnInit {
 
     generateQRCode(persistent: boolean) {
         if (this.selectedClient !== null) {
-            this.pairInfoService.get(this.selectedClient, this.subject, persistent)
-                    .subscribe((res: HttpResponse<any>) => {
-                        // delete old value
-                        if (this.pairInfo != null
-                                && this.pairInfo.tokenName != null) {
-                            this.pairInfoService.delete(this.pairInfo.tokenName)
-                                    .subscribe((deleteRes) => {
-                                        if (!deleteRes.ok) {
-                                            console.log('Failed to delete stale MetaToken: '
-                                                    + JSON.stringify(deleteRes.json()));
-                                        }
-                                    });
-                        }
-
-                        const result = res.body;
-
-                        result.timeOutDate = this.datePipe
-                                .transform(result.timesOutAt, 'medium');
-
-                        this.translateTimeout(result.timeout)
-                                .subscribe(t => result.timeoutString = t);
-
-                        this.pairInfo = result;
-                    });
+            this.subscriptions.add(this.pairInfoService.get(this.selectedClient, this.subject, persistent).pipe(
+                tap(() => {
+                    // delete old value
+                    if (this.pairInfo && this.pairInfo.tokenName) {
+                        this.subscriptions.add(this.deleteToken(this.pairInfo.tokenName));
+                    }
+                }),
+                switchMap(result => this.translateTimeout(result.timeout).pipe(
+                    map(t => ({
+                        ...result,
+                        timeOutDate: this.datePipe.transform(result.timesOutAt, 'medium'),
+                        timeoutString: t,
+                    })),
+                )),
+            ).subscribe(
+              (pairInfo) => this.pairInfo = pairInfo,
+            ));
         } else {
             this.pairInfo = null;
         }
+    }
+
+    private deleteToken(tokenName: string): Subscription {
+        return this.pairInfoService.delete(tokenName).subscribe(
+            (deleteRes) => {
+                if (!deleteRes.ok) {
+                    console.log('Failed to delete stale MetaToken: '
+                      + JSON.stringify(deleteRes.body));
+                }
+            },
+        );
     }
 
     private translateTimeout(timeout: number): Observable<string> {
@@ -134,23 +150,16 @@ export class SubjectPairDialogComponent implements OnInit {
     selector: 'jhi-subject-pair-popup',
     template: '',
 })
-export class SubjectPairPopupComponent implements OnInit, OnDestroy {
+export class SubjectPairPopupComponent extends ObservablePopupComponent {
 
-    modalRef: NgbModalRef;
-    routeSub: any;
-
-    constructor(private route: ActivatedRoute,
-                private subjectPopupService: SubjectPopupService) {
+    constructor(
+        route: ActivatedRoute,
+        private subjectPopupService: SubjectPopupService
+    ) {
+        super(route);
     }
 
-    ngOnInit() {
-        this.routeSub = this.route.params.subscribe((params) => {
-            this.modalRef = this.subjectPopupService
-                    .open(SubjectPairDialogComponent, params['login']);
-        });
-    }
-
-    ngOnDestroy() {
-        this.routeSub.unsubscribe();
+    createModalRef(params: Params): Observable<NgbModalRef> {
+        return this.subjectPopupService.open(SubjectPairDialogComponent, params['login']);
     }
 }

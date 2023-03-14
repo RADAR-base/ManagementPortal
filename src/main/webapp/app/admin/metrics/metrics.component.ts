@@ -1,72 +1,39 @@
-import { Component, OnInit } from '@angular/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { combineLatest } from 'rxjs';
 
-import { JhiMetricsMonitoringModalComponent } from './metrics-modal.component';
 import { JhiMetricsService } from './metrics.service';
-import { HttpResponse } from '@angular/common/http';
+import { Metrics, Thread } from './metrics.model';
 
 @Component({
     selector: 'jhi-metrics',
     templateUrl: './metrics.component.html',
 })
 export class JhiMetricsMonitoringComponent implements OnInit {
-    metrics: any = {};
-    cachesStats: any = {};
-    servicesStats: any = {};
+    metrics?: Metrics;
+    threads?: Thread[];
     updatingMetrics = true;
-    JCACHE_KEY: string;
 
-    constructor(
-            private modalService: NgbModal,
-            private metricsService: JhiMetricsService,
-    ) {
-        this.JCACHE_KEY = 'jcache.statistics';
-    }
+    constructor(private metricsService: JhiMetricsService, private changeDetector: ChangeDetectorRef) {}
 
-    ngOnInit() {
+    ngOnInit(): void {
         this.refresh();
     }
 
-    refresh() {
+    refresh(): void {
         this.updatingMetrics = true;
-        this.metricsService.getMetrics().subscribe((response: HttpResponse<any>) => {
-            this.metrics = response.body;
+        combineLatest([this.metricsService.getMetrics(), this.metricsService.threadDump()]).subscribe(([metrics, threadDump]) => {
+            this.metrics = metrics;
+            this.threads = threadDump.threads;
             this.updatingMetrics = false;
-            this.servicesStats = {};
-            this.cachesStats = {};
-            Object.keys(this.metrics.timers).forEach((key) => {
-                const value = this.metrics.timers[key];
-                if (key.indexOf('web.rest') !== -1 || key.indexOf('service') !== -1) {
-                    this.servicesStats[key] = value;
-                }
-            });
-            Object.keys(this.metrics.gauges).forEach((key) => {
-                if (key.indexOf('jcache.statistics') !== -1) {
-                    const value = this.metrics.gauges[key].value;
-                    // remove gets or puts
-                    const index = key.lastIndexOf('.');
-                    const newKey = key.substr(0, index);
-
-                    // Keep the name of the domain
-                    this.cachesStats[newKey] = {
-                        'name': this.JCACHE_KEY.length,
-                        'value': value,
-                    };
-                }
-            });
+            this.changeDetector.markForCheck();
         });
     }
 
-    refreshThreadDumpData() {
-        this.metricsService.threadDump().subscribe((data) => {
-            const modalRef = this.modalService.open(JhiMetricsMonitoringModalComponent, {size: 'lg'});
-            modalRef.componentInstance.threadDump = data;
-            modalRef.result.then((result) => {
-                // Left blank intentionally, nothing to do here
-            }, (reason) => {
-                // Left blank intentionally, nothing to do here
-            });
-        });
+    metricsKeyExists(key: keyof Metrics): boolean {
+        return Boolean(this.metrics?.[key]);
     }
 
+    metricsKeyExistsAndObjectNotEmpty(key: keyof Metrics): boolean {
+        return Boolean(this.metrics?.[key] && JSON.stringify(this.metrics[key]) !== '{}');
+    }
 }

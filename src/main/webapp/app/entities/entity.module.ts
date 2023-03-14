@@ -8,6 +8,7 @@ import { ManagementPortalSourceDataModule } from './source-data/source-data.modu
 import { ManagementPortalSourceTypeModule } from './source-type/source-type.module';
 import { ManagementPortalSourceModule } from './source/general-source.module';
 import { ManagementPortalSubjectModule } from './subject/general.subject.module';
+import {ManagementPortalOrganizationModule} from "./organization/organization.module";
 
 /* jhipster-needle-add-entity-module-import - JHipster will add entity modules imports here */
 
@@ -15,6 +16,7 @@ import { ManagementPortalSubjectModule } from './subject/general.subject.module'
     imports: [
         ManagementPortalSourceModule,
         ManagementPortalSourceTypeModule,
+        ManagementPortalOrganizationModule,
         ManagementPortalProjectModule,
         ManagementPortalSourceDataModule,
         ManagementPortalRoleModule,

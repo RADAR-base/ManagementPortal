@@ -1,0 +1,34 @@
+{
+    "managementPortalApp": {
+        "group" : {
+            "home": {
+                "title": "Groepen",
+                "createLabel": "Maak een nieuwe groep",
+                "createOrEditLabel": "Maak of wijzig een group"
+            },
+            "created": "De nieuwe group {{ param }} is aangemaakt",
+            "updated": "De groep {{ param }} is gewijzigd",
+            "deleted": "De groep {{ param }} is verwijderd",
+            "delete": {
+                "question": "Deze groep heeft subjecten. Weet u zeker dat u groep {{ id }} wilt verwijderen?",
+                "warning": "Deze groep heeft subjecten.",
+                "warningDescription": ""
+            },
+            "detail": {
+                "title": "Groep"
+            },
+            "id": "ID",
+            "name": "Naam",
+            "project": "Project",
+            "actions": "Acties",
+            "groupId" : "Groep-ID",
+            "group": "Groep",
+            "noGroup": "Geen groepen beschikbaar."
+        }
+    },
+    "error": {
+        "groupExists" : "Er bestaat al een groep met deze naam in dit project",
+        "validation": "Validatiefout, controleer de opgegeven waarden.",
+        "nameRequired": "Een groepsnaam is verplicht"
+    }
+}

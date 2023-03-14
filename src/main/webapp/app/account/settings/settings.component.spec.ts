@@ -1,12 +1,11 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { TranslateService } from '@ngx-translate/core';
-import { throwError } from 'rxjs';
+import { of, throwError } from 'rxjs';
 
-import { JhiLanguageHelper } from '../../shared';
+import { AccountService, JhiLanguageHelper, Principal } from '../../shared';
 import { MockAccountService } from '../../shared/util/test/mock-account.service';
 import { MockPrincipal } from '../../shared/util/test/mock-principal.service';
 import { ManagementPortalTestModule } from '../../shared/util/test/test.module';
-import { Principal, AccountService } from '../../shared';
 import { SettingsComponent } from './settings.component';
 
 describe('Component Tests', () => {
@@ -33,7 +32,9 @@ describe('Component Tests', () => {
                     },
                     {
                         provide: JhiLanguageHelper,
-                        useValue: null
+                        useValue: jasmine.createSpyObj('JhiLanguageHelper', {
+                            getAll: Promise.resolve(['en', 'nl']),
+                        }),
                     },
                     {
                         provide: TranslateService,
@@ -48,9 +49,10 @@ describe('Component Tests', () => {
             comp = fixture.componentInstance;
             mockAuth = fixture.debugElement.injector.get(AccountService);
             mockPrincipal = fixture.debugElement.injector.get(Principal);
+            fixture.detectChanges();
         });
 
-        it('should send the current identity upon save', function() {
+        it('should send the current identity upon save', waitForAsync(async function() {
             // GIVEN
             const accountValues = {
                 firstName: 'John',
@@ -61,44 +63,59 @@ describe('Component Tests', () => {
                 langKey: 'en',
                 login: 'john'
             };
+            mockAuth.save.and.returnValue(of(accountValues));
             mockPrincipal.setResponse(accountValues);
 
             // WHEN
             comp.settingsAccount = accountValues;
-            comp.save();
+            await comp.saveAccount().toPromise();
 
             // THEN
-            expect(mockPrincipal.identity).toHaveBeenCalled();
+            expect(mockPrincipal.account$Spy).toHaveBeenCalled();
+            expect(mockPrincipal.reset).toHaveBeenCalled();
             expect(mockAuth.save).toHaveBeenCalledWith(accountValues);
             expect(comp.settingsAccount).toEqual(accountValues);
-        });
+        }));
 
-        it('should notify of success upon successful save', function() {
+        it('should notify of success upon successful save', waitForAsync(async function() {
             // GIVEN
             const accountValues = {
                 firstName: 'John',
                 lastName: 'Doe'
             };
             mockPrincipal.setResponse(accountValues);
+            mockAuth.save.and.returnValue(of(accountValues));
 
             // WHEN
-            comp.save();
+            await comp.saveAccount().toPromise();
 
             // THEN
             expect(comp.error).toBeNull();
             expect(comp.success).toBe('OK');
-        });
+        }));
 
-        it('should notify of error upon failed save', function() {
+        it('should notify of error upon failed save', waitForAsync(async function() {
             // GIVEN
+            const accountValues = {
+                firstName: 'John',
+                lastName: 'Doe',
+
+                activated: true,
+                email: 'john.doe@mail.com',
+                langKey: 'en',
+                login: 'john'
+            };
             mockAuth.save.and.returnValue(throwError('ERROR'));
 
             // WHEN
-            comp.save();
-
-            // THEN
-            expect(comp.error).toEqual('ERROR');
-            expect(comp.success).toBeNull();
-        });
+            comp.settingsAccount = accountValues;
+            try {
+                await comp.saveAccount().toPromise();
+            } catch (e) {
+                // THEN
+                expect(comp.error).toEqual('ERROR');
+                expect(comp.success).toBeNull();
+            }
+        }));
     });
 });

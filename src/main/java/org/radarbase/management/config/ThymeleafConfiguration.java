@@ -1,10 +1,11 @@
 package org.radarbase.management.config;
 
-import org.apache.commons.lang3.CharEncoding;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Description;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
+
+import java.nio.charset.StandardCharsets;
 
 @Configuration
 public class ThymeleafConfiguration {
@@ -15,7 +16,7 @@ public class ThymeleafConfiguration {
         emailTemplateResolver.setPrefix("templates/");
         emailTemplateResolver.setSuffix(".html");
         emailTemplateResolver.setTemplateMode("HTML");
-        emailTemplateResolver.setCharacterEncoding(CharEncoding.UTF_8);
+        emailTemplateResolver.setCharacterEncoding(StandardCharsets.UTF_8.name());
         emailTemplateResolver.setOrder(1);
         return emailTemplateResolver;
     }
