@@ -3,8 +3,6 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-import java.util.concurrent.TimeUnit
-
 buildscript {
     repositories {
         mavenCentral()
@@ -101,7 +99,7 @@ springBoot {
 }
 
 if (OperatingSystem.current().isWindows()) {
-    task pathingJar(type: Jar) {
+    tasks.register('pathingJar', Jar) {
         dependsOn configurations.runtime
         archiveAppendix.set('pathing')
 
@@ -236,7 +234,7 @@ dependencies {
     testImplementation "org.hamcrest:hamcrest-library"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
 
-    annotationProcessor group: 'org.springframework.boot', name: 'spring-boot-configuration-processor'
+    annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 }
 
 dependencyManagement {
@@ -253,7 +251,7 @@ clean {
     delete "target"
 }
 
-task cleanResources(type: Delete) {
+tasks.register('cleanResources', Delete) {
     delete 'build/resources'
 }
 
@@ -261,15 +259,17 @@ wrapper {
     gradleVersion '8.0.2'
 }
 
-task stage(dependsOn: 'bootWar') {
+tasks.register('stage') {
+    dependsOn 'bootWar'
 }
 
-task ghPagesJavadoc(type: Copy, dependsOn: javadoc) {
+tasks.register('ghPagesJavadoc', Copy) {
     from javadoc.destinationDir
     into file("$rootDir/public/management-portal-javadoc")
+    dependsOn tasks.named('javadoc')
 }
 
-task ghPagesOpenApiSpec(type: Copy) {
+tasks.register('ghPagesOpenApiSpec', Copy) {
     from file("$buildDir/swagger-spec")
     into file("$rootDir/public/apidoc")
 }
@@ -278,7 +278,7 @@ compileJava.dependsOn processResources
 processResources.dependsOn cleanResources, bootBuildInfo
 bootBuildInfo.mustRunAfter cleanResources
 
-task downloadDependencies {
+tasks.register('downloadDependencies') {
     description "Pre-downloads dependencies"
     configurations.compileClasspath.files
     configurations.runtimeClasspath.files
@@ -294,45 +294,6 @@ nexusPublishing {
             password = project.hasProperty("ossrh.password") ? project.property("ossrh.password") : System.getenv("OSSRH_PASSWORD")
         }
     }
-}
-
-class TimingsListener implements TaskExecutionListener, BuildListener {
-    private long startTime
-    private timings = []
-
-    @Override
-    void beforeExecute(Task task) {
-        startTime = System.nanoTime()
-    }
-
-    @Override
-    void afterExecute(Task task, TaskState taskState) {
-        def ms = TimeUnit.MILLISECONDS.convert(System.nanoTime() - startTime, TimeUnit.NANOSECONDS);
-        timings.add([ms, task.path])
-        task.project.logger.warn "${task.path} took ${ms}ms"
-    }
-
-    @Override
-    void buildFinished(BuildResult result) {
-        println "Task timings:"
-        for (timing in timings) {
-            if (timing[0] >= 50) {
-                printf "%7sms  %s\n", timing
-            }
-        }
-    }
-
-    @Override
-    void projectsEvaluated(Gradle gradle) {}
-
-    @Override
-    void projectsLoaded(Gradle gradle) {}
-
-    @Override
-    void settingsEvaluated(Settings settings) {}
-}
-if (project.hasProperty('dev')) {
-    gradle.addListener new TimingsListener()
 }
 
 def isNonStable = { String version ->
