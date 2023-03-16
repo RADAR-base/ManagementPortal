@@ -1,15 +1,15 @@
 package org.radarbase.management.service;
 
-import java.time.LocalDateTime;
-import java.util.Optional;
 import org.radarbase.management.config.audit.AuditEventConverter;
 import org.radarbase.management.repository.PersistenceAuditEventRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.audit.AuditEvent;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.Optional;
 
 /**
  * Service for managing audit events. <p> This is the default implementation to support SpringBoot
@@ -23,7 +23,9 @@ public class AuditEventService {
 
     private final AuditEventConverter auditEventConverter;
 
-    public AuditEventService(PersistenceAuditEventRepository persistenceAuditEventRepository, AuditEventConverter auditEventConverter) {
+    public AuditEventService(
+            PersistenceAuditEventRepository persistenceAuditEventRepository,
+            AuditEventConverter auditEventConverter) {
         this.persistenceAuditEventRepository = persistenceAuditEventRepository;
         this.auditEventConverter = auditEventConverter;
     }

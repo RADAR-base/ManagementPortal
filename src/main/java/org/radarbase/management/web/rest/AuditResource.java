@@ -5,7 +5,6 @@ import org.radarbase.management.security.NotAuthorizedException;
 import org.radarbase.management.service.AuditEventService;
 import org.radarbase.management.service.AuthService;
 import org.radarbase.management.web.rest.util.PaginationUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.audit.AuditEvent;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
