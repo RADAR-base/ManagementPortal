@@ -24,7 +24,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
-import org.radarbase.management.auth.MPOAuth2AccessToken
+import org.radarbase.ktor.auth.OAuth2AccessToken
 import java.io.IOException
 import java.time.Duration
 import java.util.*
@@ -38,7 +38,7 @@ fun mpClient(config: MPClient.Config.() -> Unit): MPClient {
  */
 @Suppress("unused", "MemberVisibilityCanBePrivate")
 class MPClient(config: Config) {
-    lateinit var token: Flow<MPOAuth2AccessToken?>
+    lateinit var token: Flow<OAuth2AccessToken?>
 
     private val url: String = requireNotNull(config.url) {
         "Missing server URL"
@@ -46,7 +46,7 @@ class MPClient(config: Config) {
 
             /** HTTP client to make requests with. */
     private val originalHttpClient: HttpClient? = config.httpClient
-    private val auth: Auth.() -> Flow<MPOAuth2AccessToken?> = config.auth
+    private val auth: Auth.() -> Flow<OAuth2AccessToken?> = config.auth
 
     val httpClient = (originalHttpClient ?: HttpClient(CIO)).config {
         install(HttpTimeout) {
@@ -147,14 +147,14 @@ class MPClient(config: Config) {
     }
 
     class Config {
-        internal var auth: Auth.() -> Flow<MPOAuth2AccessToken?> = { MutableStateFlow(null) }
+        internal var auth: Auth.() -> Flow<OAuth2AccessToken?> = { MutableStateFlow(null) }
 
         /** HTTP client to make requests with. */
         var httpClient: HttpClient? = null
 
         var url: String? = null
 
-        fun auth(install: Auth.() -> Flow<MPOAuth2AccessToken?>) {
+        fun auth(install: Auth.() -> Flow<OAuth2AccessToken?>) {
             auth = install
         }
 

@@ -20,7 +20,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.mock.web.MockFilterConfig;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
@@ -76,13 +75,10 @@ class AuditResourceIntTest {
     @BeforeEach
     public void setUp() throws ServletException {
         MockitoAnnotations.initMocks(this);
-        AuditEventService auditEventService = new AuditEventService();
-        ReflectionTestUtils.setField(auditEventService, "persistenceAuditEventRepository",
-                auditEventRepository);
-        ReflectionTestUtils.setField(auditEventService, "auditEventConverter", auditEventConverter);
-        AuditResource auditResource = new AuditResource();
-        ReflectionTestUtils.setField(auditResource, "auditEventService", auditEventService);
-        ReflectionTestUtils.setField(auditResource, "authService", authService);
+        AuditEventService auditEventService = new AuditEventService(
+                auditEventRepository,
+                auditEventConverter);
+        AuditResource auditResource = new AuditResource(auditEventService, authService);
 
         JwtAuthenticationFilter filter = OAuthHelper.createAuthenticationFilter();
         filter.init(new MockFilterConfig());

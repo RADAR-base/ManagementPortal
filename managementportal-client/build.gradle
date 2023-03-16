@@ -24,10 +24,12 @@ description = "Kotlin ManagementPortal client"
 
 dependencies {
     api("org.jetbrains.kotlin:kotlin-stdlib:1.8.10")
-    api(platform('io.ktor:ktor-bom:2.2.3'))
     implementation("org.jetbrains.kotlin:kotlin-reflect:1.8.10")
+    implementation("org.radarbase:radar-commons-kotlin:0.16.0-SNAPSHOT")
 
     api(platform("org.jetbrains.kotlinx:kotlinx-coroutines-bom:$coroutines_version"))
+    api(platform('io.ktor:ktor-bom:2.2.3'))
+
     api("io.ktor:ktor-client-core")
     api("io.ktor:ktor-client-auth")
     implementation("io.ktor:ktor-client-cio")

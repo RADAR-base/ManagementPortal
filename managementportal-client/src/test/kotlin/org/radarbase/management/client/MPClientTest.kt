@@ -9,10 +9,8 @@
 
 package org.radarbase.management.client
 
-import com.fasterxml.jackson.databind.deser.DataFormatReaders.Match
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock.*
-import com.github.tomakehurst.wiremock.matching.ContentPattern
 import com.github.tomakehurst.wiremock.matching.EqualToPattern
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -27,9 +25,9 @@ import org.hamcrest.Matchers.hasSize
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.radarbase.management.auth.ClientCredentialsConfig
-import org.radarbase.management.auth.MPOAuth2AccessToken
-import org.radarbase.management.auth.clientCredentials
+import org.radarbase.ktor.auth.ClientCredentialsConfig
+import org.radarbase.ktor.auth.OAuth2AccessToken
+import org.radarbase.ktor.auth.clientCredentials
 import org.slf4j.LoggerFactory
 import java.net.HttpURLConnection.HTTP_OK
 import java.net.HttpURLConnection.HTTP_UNAUTHORIZED
@@ -157,12 +155,13 @@ class MPClientTest {
             coerceInputValues = true
         }
 
-        val token = json.decodeFromString<MPOAuth2AccessToken?>("""{"access_token":"access token","token_type":"bearer","expires_in":899,"scope":"PROJECT.READ","iss":"ManagementPortal","grant_type":"client_credentials","iat":1600000000,"jti":"some token"}""")
+        val token = json.decodeFromString<OAuth2AccessToken?>("""{"access_token":"access token","token_type":"bearer","expires_in":899,"scope":"PROJECT.READ","iss":"ManagementPortal","grant_type":"client_credentials","iat":1600000000,"jti":"some token"}""")
         assertThat(token, Matchers.equalTo(
-            MPOAuth2AccessToken(
+            OAuth2AccessToken(
                 accessToken = "access token",
                 expiresIn = 899,
                 tokenType = "bearer",
+                scope = "PROJECT.READ"
             )
         ))
     }

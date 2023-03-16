@@ -19,11 +19,14 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class AuditEventService {
 
-    @Autowired
-    private PersistenceAuditEventRepository persistenceAuditEventRepository;
+    private final PersistenceAuditEventRepository persistenceAuditEventRepository;
 
-    @Autowired
-    private AuditEventConverter auditEventConverter;
+    private final AuditEventConverter auditEventConverter;
+
+    public AuditEventService(PersistenceAuditEventRepository persistenceAuditEventRepository, AuditEventConverter auditEventConverter) {
+        this.persistenceAuditEventRepository = persistenceAuditEventRepository;
+        this.auditEventConverter = auditEventConverter;
+    }
 
     public Page<AuditEvent> findAll(Pageable pageable) {
         return persistenceAuditEventRepository.findAll(pageable)
@@ -46,7 +49,7 @@ public class AuditEventService {
     }
 
     public Optional<AuditEvent> find(Long id) {
-        return Optional.ofNullable(persistenceAuditEventRepository.findById(id).orElse(null))
+        return persistenceAuditEventRepository.findById(id)
                 .map(auditEventConverter::convertToAuditEvent);
     }
 }

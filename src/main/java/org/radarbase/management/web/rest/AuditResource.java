@@ -30,10 +30,13 @@ import static org.radarbase.auth.authorization.Permission.AUDIT_READ;
 @RestController
 @RequestMapping("/management/audits")
 public class AuditResource {
-    @Autowired
-    private AuditEventService auditEventService;
-    @Autowired
-    private AuthService authService;
+    private final AuditEventService auditEventService;
+    private final AuthService authService;
+
+    public AuditResource(AuditEventService auditEventService, AuthService authService) {
+        this.auditEventService = auditEventService;
+        this.authService = authService;
+    }
 
     /**
      * GET  /audits : get a page of AuditEvents.
