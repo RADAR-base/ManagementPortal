@@ -28,7 +28,7 @@ dependencies {
     implementation("org.radarbase:radar-commons-kotlin:0.16.0-SNAPSHOT")
 
     api(platform("org.jetbrains.kotlinx:kotlinx-coroutines-bom:$coroutines_version"))
-    api(platform('io.ktor:ktor-bom:2.2.3'))
+    api(platform("io.ktor:ktor-bom:$ktor_version"))
 
     api("io.ktor:ktor-client-core")
     api("io.ktor:ktor-client-auth")
