@@ -86,4 +86,21 @@ data class DataRadarToken(
     override val clientId: String? = null,
 ): RadarToken, Serializable {
     override fun copyWithRoles(roles: Set<AuthorityReference>): DataRadarToken = copy(roles = roles)
+
+    companion object {
+        fun RadarToken.copy(): DataRadarToken = DataRadarToken(
+            roles = roles,
+            scopes = scopes,
+            sources = sources,
+            grantType = grantType,
+            subject = subject,
+            username = username,
+            issuedAt = issuedAt,
+            expiresAt = expiresAt,
+            audience = audience,
+            token = token,
+            issuer = issuer,
+            type = type,
+        )
+    }
 }
