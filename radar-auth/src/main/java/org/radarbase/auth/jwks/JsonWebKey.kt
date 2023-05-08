@@ -29,7 +29,7 @@ sealed interface JsonWebKey {
 }
 
 object JavaWebKeyPolymorphicSerializer : JsonContentPolymorphicSerializer<JsonWebKey>(JsonWebKey::class) {
-    override fun selectDeserializer(element: JsonElement): DeserializationStrategy<out JsonWebKey> = if ("value" in element.jsonObject) {
+    override fun selectDeserializer(element: JsonElement): DeserializationStrategy<JsonWebKey> = if ("value" in element.jsonObject) {
         MPJsonWebKey.serializer()
     } else when (element.jsonObject["kty"]?.jsonPrimitive?.content) {
         "EC" -> ECDSAJsonWebKey.serializer()

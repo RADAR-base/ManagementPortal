@@ -19,7 +19,7 @@ dependencies {
     api(platform("org.jetbrains.kotlinx:kotlinx-coroutines-bom:$coroutines_version"))
     api("org.jetbrains.kotlinx:kotlinx-coroutines-core")
 
-    implementation("org.radarbase:radar-commons-kotlin:0.16.0-SNAPSHOT")
+    implementation("org.radarbase:radar-commons-kotlin:1.0.0")
 
     implementation(platform("io.ktor:ktor-bom:$ktor_version"))
     implementation("io.ktor:ktor-client-core")
