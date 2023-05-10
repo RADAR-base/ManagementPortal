@@ -76,7 +76,7 @@ open class AuthService {
         return oracle.referentsByScope(token, permission)
     }
 
-    fun mayBeGranted(role: RoleAuthority, permission: Permission): Boolean = with(oracle) {
+    open fun mayBeGranted(role: RoleAuthority, permission: Permission): Boolean = with(oracle) {
         role.mayBeGranted(permission)
     }
 }
