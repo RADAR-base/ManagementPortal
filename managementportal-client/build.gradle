@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 /*
@@ -9,8 +11,9 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
  * See the file LICENSE in the root of this repository.
  */
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version "1.7.20"
-    id 'org.jetbrains.dokka' version "1.7.20"
+    id 'org.jetbrains.kotlin.jvm'
+    id 'org.jetbrains.kotlin.plugin.serialization'
+    id 'org.jetbrains.dokka'
     id 'maven-publish'
 }
 
@@ -20,17 +23,20 @@ targetCompatibility = JavaVersion.VERSION_11
 description = "Kotlin ManagementPortal client"
 
 dependencies {
-    api("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.7.20")
-    implementation("org.jetbrains.kotlin:kotlin-reflect:1.7.20")
-    api(project(":oauth-client-util"))
+    api("org.jetbrains.kotlin:kotlin-stdlib:1.8.21")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:1.8.21")
+    implementation("org.radarbase:radar-commons-kotlin:1.0.0")
 
-    implementation group: 'com.squareup.okhttp3', name: 'okhttp', version: okhttp_version
+    api(platform("org.jetbrains.kotlinx:kotlinx-coroutines-bom:$coroutines_version"))
+    api(platform("io.ktor:ktor-bom:$ktor_version"))
 
-    implementation(platform("com.fasterxml.jackson:jackson-bom:$jackson_version"))
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
-    runtimeOnly("com.fasterxml.jackson.datatype:jackson-datatype-jdk8")
+    api("io.ktor:ktor-client-core")
+    api("io.ktor:ktor-client-auth")
+    implementation("io.ktor:ktor-client-cio")
+    implementation("io.ktor:ktor-client-content-negotiation")
+    implementation("io.ktor:ktor-serialization-kotlinx-json")
 
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test")
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: junit_version
     testImplementation group: 'com.github.tomakehurst', name: 'wiremock', version: '2.27.2'
     testImplementation group: 'org.mockito', name: 'mockito-core', version: mockito_version
@@ -38,20 +44,20 @@ dependencies {
 
     testRuntimeOnly group: 'org.slf4j', name: 'slf4j-simple', version: slf4j_version
     testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: junit_version
-    testImplementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 }
 
-tasks.withType(KotlinCompile) {
-    kotlinOptions {
-        jvmTarget = "11"
-        apiVersion = "1.6"
-        languageVersion = "1.6"
+tasks.withType(KotlinCompile).configureEach {
+    compilerOptions {
+        jvmTarget = JvmTarget.JVM_11
+        apiVersion = KotlinVersion.KOTLIN_1_7
+        languageVersion = KotlinVersion.KOTLIN_1_8
     }
 }
 
-task ghPagesJavadoc(type: Copy, dependsOn: dokkaJavadoc) {
+tasks.register('ghPagesJavadoc', Copy) {
     from file("$buildDir/dokka/javadoc")
     into file("$rootDir/public/managementportal-client-javadoc")
+    dependsOn(dokkaJavadoc)
 }
 
 test {

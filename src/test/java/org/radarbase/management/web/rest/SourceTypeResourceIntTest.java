@@ -1,39 +1,24 @@
 package org.radarbase.management.web.rest;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.hasItem;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import javax.persistence.EntityManager;
-import javax.servlet.ServletException;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.Assertions;
 import org.mockito.MockitoAnnotations;
-import org.radarbase.auth.token.RadarToken;
+import org.radarbase.auth.authentication.OAuthHelper;
 import org.radarbase.management.ManagementPortalTestApp;
 import org.radarbase.management.domain.SourceData;
 import org.radarbase.management.domain.SourceType;
 import org.radarbase.management.repository.SourceDataRepository;
 import org.radarbase.management.repository.SourceTypeRepository;
 import org.radarbase.management.security.JwtAuthenticationFilter;
+import org.radarbase.management.service.AuthService;
 import org.radarbase.management.service.SourceTypeService;
 import org.radarbase.management.service.dto.SourceDataDTO;
 import org.radarbase.management.service.dto.SourceTypeDTO;
 import org.radarbase.management.service.mapper.SourceDataMapper;
 import org.radarbase.management.service.mapper.SourceTypeMapper;
 import org.radarbase.management.web.rest.errors.ExceptionTranslator;
-import org.radarbase.auth.authentication.OAuthHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
@@ -47,6 +32,22 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.persistence.EntityManager;
+import javax.servlet.ServletException;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.hasItem;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
  * Test class for the SourceTypeResource REST controller.
@@ -97,12 +98,11 @@ class SourceTypeResourceIntTest {
     @Autowired
     private EntityManager em;
 
-    @Autowired
-    private RadarToken radarToken;
-
     private MockMvc restSourceTypeMockMvc;
 
     private SourceType sourceType;
+    @Autowired
+    private AuthService authService;
 
     @BeforeEach
     public void setUp() throws ServletException {
@@ -111,7 +111,7 @@ class SourceTypeResourceIntTest {
         ReflectionTestUtils.setField(sourceTypeResource, "sourceTypeService" , sourceTypeService);
         ReflectionTestUtils.setField(sourceTypeResource, "sourceTypeRepository" ,
                 sourceTypeRepository);
-        ReflectionTestUtils.setField(sourceTypeResource, "token", radarToken);
+        ReflectionTestUtils.setField(sourceTypeResource, "authService", authService);
 
         JwtAuthenticationFilter filter = OAuthHelper.createAuthenticationFilter();
         filter.init(new MockFilterConfig());

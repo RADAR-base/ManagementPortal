@@ -1,11 +1,13 @@
 package org.radarbase.management.client
 
-import com.fasterxml.jackson.annotation.JsonProperty
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 /** ManagementPortal Project DTO. */
+@Serializable
 data class MPOrganization(
     /** Organization id, a name that identifies it uniquely. */
-    @JsonProperty("name") val id: String,
+    @SerialName("name") val id: String,
     /** Where a project is organized. */
     val location: String? = null,
     /** Project description. */

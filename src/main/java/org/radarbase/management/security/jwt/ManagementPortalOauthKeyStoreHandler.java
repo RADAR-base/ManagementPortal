@@ -4,8 +4,9 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import org.radarbase.auth.authentication.TokenValidator;
-import org.radarbase.auth.config.TokenValidatorConfig;
-import org.radarbase.auth.security.jwk.JavaWebKeySet;
+import org.radarbase.auth.jwks.JsonWebKeySet;
+import org.radarbase.auth.jwks.JwkAlgorithmParser;
+import org.radarbase.auth.jwks.JwksTokenVerifierLoader;
 import org.radarbase.management.config.ManagementPortalProperties;
 import org.radarbase.management.security.jwt.algorithm.EcdsaJwtAlgorithm;
 import org.radarbase.management.security.jwt.algorithm.JwtAlgorithm;
@@ -22,8 +23,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.servlet.ServletContext;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.security.KeyPair;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -38,7 +37,6 @@ import java.security.interfaces.RSAPrivateKey;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -50,7 +48,7 @@ import static org.radarbase.management.security.jwt.ManagementPortalJwtAccessTok
 
 /**
  * Similar to Spring's
- * {@link org.springframework.security.oauth2.provider.token.store.KeyStoreKeyFactory}. However
+ * {@link org.springframework.security.oauth2.provider.token.store.KeyStoreKeyFactory}. However,
  * this class does not assume a specific key type, while the Spring factory assumes RSA keys.
  */
 @Component
@@ -178,8 +176,8 @@ public class ManagementPortalOauthKeyStoreHandler {
      * Returns configured public keys of token verifiers.
      * @return List of public keys for token verification.
      */
-    public JavaWebKeySet loadJwks() {
-        return new JavaWebKeySet(this.verifierPublicKeyAliasList.stream()
+    public JsonWebKeySet loadJwks() {
+        return new JsonWebKeySet(this.verifierPublicKeyAliasList.stream()
                 .map(this::getKeyPair)
                 .map(ManagementPortalOauthKeyStoreHandler::getJwtAlgorithm)
                 .filter(Objects::nonNull)
@@ -310,28 +308,14 @@ public class ManagementPortalOauthKeyStoreHandler {
         }
     }
 
+    /** Get the default token validator. */
     public TokenValidator getTokenValidator() {
-        return new TokenValidator(getKeystoreConfigsForVerifiers());
-    }
-
-    private TokenValidatorConfig getKeystoreConfigsForVerifiers() {
-        return new TokenValidatorConfig() {
-            @Override
-            public List<URI> getPublicKeyEndpoints() {
-                try {
-                    URI managementPortalUrl = new URI(managementPortalBaseUrl + "/oauth/token_key");
-                    return Collections.singletonList(managementPortalUrl);
-                } catch (URISyntaxException e) {
-                    logger.error("Could not create publicKey end point URI");
-                    return Collections.emptyList();
-                }
-            }
-
-            @Override
-            public String getResourceName() {
-                return RES_MANAGEMENT_PORTAL;
-            }
-        };
+        var jwksLoader = new JwksTokenVerifierLoader(
+                managementPortalBaseUrl + "/oauth/token_key",
+                "res_ManagementPortal",
+                new JwkAlgorithmParser()
+        );
+        return new TokenValidator(List.of(jwksLoader));
     }
 
     public List<JWTVerifier> getRefreshTokenVerifiers() {

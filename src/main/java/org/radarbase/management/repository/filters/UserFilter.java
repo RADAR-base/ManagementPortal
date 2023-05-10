@@ -52,13 +52,13 @@ public class UserFilter implements Specification<User> {
     private void filterRoles(PredicateBuilder predicates, Join<User, Role> roleJoin,
             CriteriaQuery<?> query) {
         Stream<RoleAuthority> authoritiesFiltered = Stream.of(RoleAuthority.values())
-                .filter(java.util.function.Predicate.not(RoleAuthority::isPersonal));
+                .filter(r -> !r.isPersonal);
         boolean allowNoRole = true;
 
         if (predicates.isValidValue(authority)) {
             String authorityUpper = authority.toUpperCase(Locale.ROOT);
             authoritiesFiltered = authoritiesFiltered
-                    .filter(r -> r != null && r.authority().contains(authorityUpper));
+                    .filter(r -> r != null && r.getAuthority().contains(authorityUpper));
             allowNoRole = false;
         }
         List<RoleAuthority> authoritiesAllowed = authoritiesFiltered.collect(Collectors.toList());
@@ -125,10 +125,10 @@ public class UserFilter implements Specification<User> {
 
         Stream<RoleAuthority> authorityStream = authorities.stream();
         if (scope != null) {
-            authorityStream = authorityStream.filter(r -> r.scope() == scope);
+            authorityStream = authorityStream.filter(r -> r.getScope() == scope);
         }
         List<String> authorityNames = authorityStream
-                .map(RoleAuthority::authority)
+                .map(RoleAuthority::getAuthority)
                 .collect(Collectors.toList());
 
         if (!authorityNames.isEmpty()) {

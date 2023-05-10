@@ -1,8 +1,6 @@
 package org.radarbase.management.web.rest.errors;
 
-import java.util.List;
-
-import org.radarbase.auth.exception.NotAuthorizedException;
+import org.radarbase.management.security.NotAuthorizedException;
 import org.radarbase.management.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +22,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
 
 /**
  * Controller advice to translate the server side exceptions to client-friendly json structures.

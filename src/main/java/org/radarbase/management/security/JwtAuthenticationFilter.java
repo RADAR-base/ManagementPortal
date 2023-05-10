@@ -2,7 +2,7 @@ package org.radarbase.management.security;
 
 import org.radarbase.auth.authentication.TokenValidator;
 import org.radarbase.auth.exception.TokenValidationException;
-import org.radarbase.auth.token.AuthorityReference;
+import org.radarbase.auth.authorization.AuthorityReference;
 import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.repository.UserRepository;
 import org.slf4j.Logger;
@@ -11,7 +11,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -35,6 +34,7 @@ import java.util.stream.Collectors;
  */
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
+    public static final String AUTHORIZATION_BEARER_HEADER = "Bearer";
     private final TokenValidator validator;
     private final AuthenticationManager authenticationManager;
     public static final String TOKEN_ATTRIBUTE = "jwt";
@@ -96,25 +96,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         HttpSession session = httpRequest.getSession(false);
-        SessionRadarToken token = null;
+        RadarToken token = null;
         if (session != null) {
-            token = SessionRadarToken.from((RadarToken) session.getAttribute(TOKEN_ATTRIBUTE));
+            token = (RadarToken) session.getAttribute(TOKEN_ATTRIBUTE);
         }
         if (token == null) {
             try {
-                token = SessionRadarToken.from(validator.validateAccessToken(getToken(httpRequest,
-                        httpResponse)));
+                token = validator.validateBlocking(getToken(httpRequest, httpResponse));
             } catch (TokenValidationException ex) {
                 if (isOptional) {
                     logger.debug("Skipping optional token: {}", ex.getMessage());
                 } else {
                     logger.error("Failed to validate token: {}", ex.getMessage());
                     httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                    httpResponse.setHeader(
-                            HttpHeaders.WWW_AUTHENTICATE, OAuth2AccessToken.BEARER_TYPE);
+                    httpResponse.setHeader(HttpHeaders.WWW_AUTHENTICATE,
+                            AUTHORIZATION_BEARER_HEADER);
                     httpResponse.getOutputStream().print(
                             "{\"error\": \"" + "Unauthorized" + ",\n"
-                                    + "\"status\": \"" + HttpServletResponse.SC_UNAUTHORIZED 
+                                    + "\"status\": \"" + HttpServletResponse.SC_UNAUTHORIZED
                                     + "\",\n"
                                     + "\"message\": \"" + ex.getMessage() + "\",\n"
                                     + "\"path\": \"" + httpRequest.getRequestURI() + "\n"
@@ -128,7 +127,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 var roles = user.get().getRoles().stream()
                         .map(role -> {
                             var auth = role.getRole();
-                            return switch (role.getRole().scope()) {
+                            return switch (role.getRole().getScope()) {
                                 case GLOBAL -> new AuthorityReference(auth);
                                 case ORGANIZATION -> new AuthorityReference(auth,
                                         role.getOrganization().getName());
@@ -137,11 +136,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                             };
                         })
                         .collect(Collectors.toSet());
-                token = token.withRoles(roles);
+                token = token.copyWithRoles(roles);
             } else {
                 session.removeAttribute(TOKEN_ATTRIBUTE);
                 httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                httpResponse.setHeader(HttpHeaders.WWW_AUTHENTICATE, OAuth2AccessToken.BEARER_TYPE);
+                httpResponse.setHeader(HttpHeaders.WWW_AUTHENTICATE, AUTHORIZATION_BEARER_HEADER);
                 httpResponse.getOutputStream().print(
                         "{\"error\": \"" + "Unauthorized" + ",\n"
                                 + "\"status\": \"" + HttpServletResponse.SC_UNAUTHORIZED + ",\n"
@@ -182,14 +181,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // Check if the HTTP Authorization header is present and formatted correctly
         if (authorizationHeader == null || !authorizationHeader
-                .startsWith(OAuth2AccessToken.BEARER_TYPE)) {
+                .startsWith(AUTHORIZATION_BEARER_HEADER)) {
             res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            res.setHeader(HttpHeaders.WWW_AUTHENTICATE, OAuth2AccessToken.BEARER_TYPE);
-            throw new TokenValidationException("No " + OAuth2AccessToken.BEARER_TYPE + " token "
-                    + "present in the request to " + req.getServletPath());
+            res.setHeader(HttpHeaders.WWW_AUTHENTICATE, AUTHORIZATION_BEARER_HEADER);
+            throw new TokenValidationException("No " + AUTHORIZATION_BEARER_HEADER
+                    + " Authorization token present in the request to " + req.getServletPath());
         }
 
         // Extract the token from the HTTP Authorization header
-        return authorizationHeader.substring(OAuth2AccessToken.BEARER_TYPE.length()).trim();
+        return authorizationHeader.substring(AUTHORIZATION_BEARER_HEADER.length()).trim();
     }
 }

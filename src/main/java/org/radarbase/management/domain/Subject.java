@@ -54,8 +54,8 @@ import static org.radarbase.auth.authorization.RoleAuthority.PARTICIPANT;
 public class Subject extends AbstractEntity implements Serializable {
     private static final long serialVersionUID = 1L;
     private static final Set<String> PARTICIPANT_TYPES = Set.of(
-            PARTICIPANT.authority(),
-            INACTIVE_PARTICIPANT.authority());
+            PARTICIPANT.getAuthority(),
+            INACTIVE_PARTICIPANT.getAuthority());
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
@@ -239,7 +239,7 @@ public class Subject extends AbstractEntity implements Serializable {
      */
     public Optional<Project> getActiveProject() {
         return this.getUser().getRoles().stream()
-                .filter(r -> r.getAuthority().getName().equals(PARTICIPANT.authority()))
+                .filter(r -> r.getAuthority().getName().equals(PARTICIPANT.getAuthority()))
                 .findFirst()
                 .map(Role::getProject);
     }

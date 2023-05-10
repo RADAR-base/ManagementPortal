@@ -9,207 +9,166 @@
 
 package org.radarbase.management.client
 
-import com.fasterxml.jackson.annotation.JsonInclude
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.ObjectReader
-import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.KotlinFeature
-import com.fasterxml.jackson.module.kotlin.jsonMapper
-import com.fasterxml.jackson.module.kotlin.kotlinModule
-import okhttp3.HttpUrl
-import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.Response
-import org.radarbase.oauth.OAuth2AccessTokenDetails
-import org.radarbase.oauth.OAuth2Client
+import io.ktor.client.*
+import io.ktor.client.call.*
+import io.ktor.client.engine.cio.*
+import io.ktor.client.plugins.*
+import io.ktor.client.plugins.auth.*
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
+import io.ktor.http.*
+import io.ktor.serialization.kotlinx.json.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.Json
+import org.radarbase.ktor.auth.OAuth2AccessToken
 import java.io.IOException
-import java.net.MalformedURLException
-import java.util.concurrent.TimeUnit
+import java.time.Duration
+import java.util.*
+
+fun mpClient(config: MPClient.Config.() -> Unit): MPClient {
+    return MPClient(MPClient.Config().apply(config))
+}
 
 /**
  * Client for the ManagementPortal REST API.
  */
-@Suppress("unused")
-class MPClient(
-    /** Server configuration of the ManagementPortal API. */
-    serverConfig: MPServerConfig,
-    /** ObjectMapper to use for all requests. */
-    objectMapper: ObjectMapper? = null,
-    /** HTTP client to make requests with. */
-    httpClient: OkHttpClient? = null,
-) {
-    private val clientId: String = serverConfig.clientId
-    private val clientSecret: String = serverConfig.clientSecret
-    val baseUrl: HttpUrl = serverConfig.httpUrl
+@Suppress("unused", "MemberVisibilityCanBePrivate")
+class MPClient(config: Config) {
+    lateinit var token: Flow<OAuth2AccessToken?>
 
-    private val objectMapper: ObjectMapper = objectMapper ?: jsonMapper {
-        serializationInclusion(JsonInclude.Include.NON_NULL)
-        addModule(JavaTimeModule())
-        addModule(kotlinModule {
-            enable(KotlinFeature.NullIsSameAsDefault)
-        })
-        configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
-        configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+    private val url: String = requireNotNull(config.url) {
+        "Missing server URL"
+    }.trimEnd('/') + '/'
+
+            /** HTTP client to make requests with. */
+    private val originalHttpClient: HttpClient? = config.httpClient
+    private val auth: Auth.() -> Flow<OAuth2AccessToken?> = config.auth
+
+    val httpClient = (originalHttpClient ?: HttpClient(CIO)).config {
+        install(HttpTimeout) {
+            connectTimeoutMillis = Duration.ofSeconds(10).toMillis()
+            socketTimeoutMillis = Duration.ofSeconds(10).toMillis()
+            requestTimeoutMillis = Duration.ofSeconds(30).toMillis()
+        }
+        install(ContentNegotiation) {
+            json(Json {
+                ignoreUnknownKeys = true
+                coerceInputValues = true
+            })
+        }
+        install(Auth) {
+            token = auth()
+        }
+        defaultRequest {
+            url(this@MPClient.url)
+        }
     }
 
-    /** HTTP client to make requests with. */
-    var httpClient: OkHttpClient = httpClient ?: OkHttpClient().newBuilder()
-        .connectTimeout(10, TimeUnit.SECONDS)
-        .writeTimeout(10, TimeUnit.SECONDS)
-        .readTimeout(30, TimeUnit.SECONDS)
-        .build()
-
-    private val organizationListReader: ObjectReader by lazy { this.objectMapper.readerForListOf(MPOrganization::class.java) }
-    private val projectListReader: ObjectReader by lazy { this.objectMapper.readerForListOf(MPProject::class.java) }
-    private val subjectListReader: ObjectReader by lazy { this.objectMapper.readerForListOf(MPSubject::class.java) }
-    private val clientListReader: ObjectReader by lazy { this.objectMapper.readerForListOf(MPOAuthClient::class.java) }
-
-    private val oauth2Client = OAuth2Client.Builder()
-        .httpClient(httpClient)
-        .credentials(clientId, clientSecret)
-        .endpoint(baseUrl.toUrl(), "oauth/token")
-        .build()
-
-    /**
-     * Valid access token for the ManagementPortal REST API.
-     * @throws org.radarbase.exception.TokenException if a new access token could not be fetched
-     */
-    val validToken: OAuth2AccessTokenDetails
-        get() = oauth2Client.validToken
-
     /** Request list of organizations from ManagementPortal */
-    fun requestOrganizations(
+    suspend fun requestOrganizations(
         page: Int = 0,
         size: Int = Int.MAX_VALUE,
-    ): List<MPOrganization> = request(
-        reader = organizationListReader,
-        urlBuilder = {
-            addPathSegments("api/organizations")
-            addQueryParameter("page", page.toString())
-            addQueryParameter("size", size.toString())
+    ): List<MPOrganization> = request {
+        url("api/organizations")
+        with(url.parameters) {
+            append("page", page.toString())
+            append("size", size.toString())
         }
-    )
+    }
 
     /** Request list of projects from ManagementPortal. */
-    fun requestProjects(
+    suspend fun requestProjects(
         page: Int = 0,
         size: Int = Int.MAX_VALUE,
-    ): List<MPProject> = request(
-        reader = projectListReader,
-        urlBuilder = {
-            addPathSegments("api/projects")
-            addQueryParameter("page", page.toString())
-            addQueryParameter("size", size.toString())
-        })
+    ): List<MPProject> = request {
+        url("api/projects")
+        with(url.parameters) {
+            append("page", page.toString())
+            append("size", size.toString())
+        }
+    }
 
     /**
      * Request list of subjects from ManagementPortal project. The [projectId] is the name that
      * the project is identified by.
      */
-    fun requestSubjects(
+    suspend fun requestSubjects(
         projectId: String,
         page: Int = 0,
         size: Int = Int.MAX_VALUE,
-    ): List<MPSubject> = request<List<MPSubject>>(
-        reader = subjectListReader,
-        urlBuilder = {
-            addPathSegments("api/projects/$projectId/subjects")
-            addQueryParameter("page", page.toString())
-            addQueryParameter("size", size.toString())
-        })
+    ): List<MPSubject> = request<List<MPSubject>> {
+        url("api/projects/$projectId/subjects")
+        with(url.parameters) {
+            append("page", page.toString())
+            append("size", size.toString())
+        }
+    }
         .map { it.copy(projectId = projectId) }
 
     /**
      * Request list of OAuth 2.0 clients from ManagementPortal.
      */
-    fun requestClients(
+    suspend fun requestClients(
         page: Int = 0,
         size: Int = Int.MAX_VALUE,
-    ): List<MPOAuthClient> = request(
-        reader = clientListReader,
-        urlBuilder = {
-            addPathSegments("api/oauth-clients")
-            addQueryParameter("page", page.toString())
-            addQueryParameter("size", size.toString())
-        })
-
-    /**
-     * Make a request and parse the result as JSON. The response body is parsed by [reader]. The
-     * url to query is constructed using [urlBuilder]. In [urlBuilder], use
-     * [HttpUrl.Builder.addPathSegments] over [HttpUrl.Builder.encodedPath] to preserve the correct
-     * base URL. The request can optionally be modified with [requestBuilder], for example to POST
-     * content or add headers.
-     * @throws IOException if the request fails, has a unsuccessful status code or if the response
-     *      cannot be read.
-     */
-    inline fun <T> request(
-        reader: ObjectReader,
-        urlBuilder: HttpUrl.Builder.() -> Unit,
-        requestBuilder: (Request.Builder.() -> Unit) = { }
-    ): T = request(urlBuilder, requestBuilder) { request, response ->
-        if (!response.isSuccessful) {
-            throw IOException("Request to ${request.url} failed (code ${response.code})")
+    ): List<MPOAuthClient> = request {
+        url("api/oauth-clients")
+        with(url.parameters) {
+            append("page", page.toString())
+            append("size", size.toString())
         }
-        val body = response.body ?: throw IOException("No response body to ${request.url}")
-        reader.readValue(body.byteStream())
     }
 
-    /**
-     * Make a request without any response processing. The
-     * url to query is constructed using [urlBuilder]. In [urlBuilder], use
-     * [HttpUrl.Builder.addPathSegments] over [HttpUrl.Builder.encodedPath] to preserve the correct
-     * base URL. The request can optionally be modified with [requestBuilder], for example to POST
-     * content or add headers.
-     * @throws IOException if the request fails or has a unsuccessful status code.
-     */
-    inline fun request(
-        urlBuilder: HttpUrl.Builder.() -> Unit,
-        requestBuilder: (Request.Builder.() -> Unit) = { },
-    ) {
-        request(urlBuilder, requestBuilder) { request, response ->
-            if (!response.isSuccessful) {
-                throw IOException("Request to ${request.url} failed (code ${response.code})")
+    suspend inline fun <reified T> request(
+        crossinline block: HttpRequestBuilder.() -> Unit,
+    ): T = withContext(Dispatchers.IO) {
+        with(httpClient.request(block)) {
+            if (!status.isSuccess()) {
+                throw IOException("Request to ${request.url} failed (code $status)")
             }
+            body()
         }
     }
 
-    /**
-     * Make a request without custom response processing. The
-     * url to query is constructed using [urlBuilder]. In [urlBuilder], use
-     * [HttpUrl.Builder.addPathSegments] over [HttpUrl.Builder.encodedPath] to preserve the correct
-     * base URL. The request can optionally be modified with [requestBuilder], for example to POST
-     * content or add headers. The response can be handled with [responseHandler], e.g., by
-     * evaluating the status code or the body with a custom body reader.
-     */
-    inline fun <T> request(
-        urlBuilder: HttpUrl.Builder.() -> Unit,
-        requestBuilder: Request.Builder.() -> Unit = { },
-        responseHandler: (Request, Response) -> T,
-    ): T {
-        val request = Request.Builder().apply {
-            url(baseUrl.newBuilder().apply {
-                urlBuilder()
-            }.build())
-            header("Authorization", "Bearer ${validToken.accessToken}")
-            requestBuilder()
-        }.build()
-
-        return httpClient.newCall(request).execute().use {
-            responseHandler(request, it)
-        }
+    fun config(config: Config.() -> Unit): MPClient {
+        val oldConfig = toConfig()
+        val newConfig = toConfig().apply(config)
+        return if (oldConfig != newConfig) MPClient(newConfig) else this
     }
 
-    data class MPServerConfig(
-        val url: String,
-        val clientId: String,
-        val clientSecret: String,
-    ) {
-        val httpUrl: HttpUrl
-            get() = (url.trimEnd('/') + '/')
-                .toHttpUrlOrNull()
-                ?: throw MalformedURLException("Cannot parse base URL $url as an URL")
+    private fun toConfig(): Config = Config().apply {
+        httpClient = this@MPClient.originalHttpClient
+        url = this@MPClient.url
+        auth = this@MPClient.auth
+    }
+
+    class Config {
+        internal var auth: Auth.() -> Flow<OAuth2AccessToken?> = { MutableStateFlow(null) }
+
+        /** HTTP client to make requests with. */
+        var httpClient: HttpClient? = null
+
+        var url: String? = null
+
+        fun auth(install: Auth.() -> Flow<OAuth2AccessToken?>) {
+            auth = install
+        }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+
+            other as Config
+
+            return httpClient == other.httpClient
+                    && url == other.url
+                    && auth == other.auth
+        }
+
+        override fun hashCode(): Int = Objects.hash(httpClient, url)
     }
 }

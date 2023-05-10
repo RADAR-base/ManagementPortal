@@ -13,7 +13,7 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.envers.Audited;
 import org.radarbase.auth.authorization.RoleAuthority;
-import org.radarbase.auth.config.Constants;
+import org.radarbase.management.security.Constants;
 
 /**
  * An authority (a security role) used by Spring Security.
@@ -42,7 +42,7 @@ public class Authority implements Serializable {
     }
 
     public Authority(RoleAuthority role) {
-        this(role.authority());
+        this(role.getAuthority());
     }
 
     public String getName() {

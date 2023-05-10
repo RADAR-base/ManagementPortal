@@ -9,6 +9,7 @@
 
 package org.radarbase.management.security;
 
+import org.radarbase.auth.authorization.AuthorityReference;
 import org.radarbase.auth.token.RadarToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -30,7 +31,9 @@ public class RadarAuthentication implements Authentication, Principal {
     public RadarAuthentication(@Nonnull RadarToken token) {
         this.token = token;
         isAuthenticated = true;
-        authorities = token.getAuthorities().stream()
+        authorities = token.getRoles().stream()
+                .map(AuthorityReference::getAuthority)
+                .distinct()
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
     }
