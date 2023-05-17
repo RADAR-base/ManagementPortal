@@ -78,14 +78,16 @@ public class RoleService {
      */
     @Transactional(readOnly = true)
     public List<RoleDTO> findAll() {
-        User currentUser = userService.getUserWithAuthorities();
-        if (currentUser == null) {
+        Optional<User> optUser = userService.getUserWithAuthorities();
+        if (optUser.isEmpty()) {
             // return an empty list if we do not have a current user (e.g. with client credentials
             // oauth2 grant)
             return Collections.emptyList();
         }
+        User currentUser = optUser.get();
         List<String> currentUserAuthorities = currentUser.getAuthorities().stream()
-                .map(Authority::getName).collect(Collectors.toList());
+                .map(Authority::getName)
+                .collect(Collectors.toList());
 
         if (currentUserAuthorities.contains(RoleAuthority.SYS_ADMIN.getAuthority())) {
             log.debug("Request to get all Roles");

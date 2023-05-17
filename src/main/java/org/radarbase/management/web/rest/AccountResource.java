@@ -33,7 +33,6 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
-import java.util.Optional;
 
 import static org.radarbase.management.security.JwtAuthenticationFilter.TOKEN_ATTRIBUTE;
 import static org.radarbase.management.web.rest.errors.EntityName.USER;
@@ -123,15 +122,18 @@ public class AccountResource {
      * GET  /account : get the current user.
      *
      * @return the ResponseEntity with status 200 (OK) and the current user in body, or status 500
-     *     (Internal Server Error) if the user couldn't be returned
+     * (Internal Server Error) if the user couldn't be returned
      */
     @GetMapping("/account")
     @Timed
-    public ResponseEntity<UserDTO> getAccount() {
-        return Optional.ofNullable(userService.getUserWithAuthorities())
-                .map(user -> new ResponseEntity<>(userMapper.userToUserDTO(user), HttpStatus.OK))
+    public UserDTO getAccount(RadarToken radarToken) {
+        User currentUser = userService.getUserWithAuthorities()
                 .orElseThrow(() -> new RadarWebApplicationException(HttpStatus.FORBIDDEN,
                         "Cannot get account without user", USER, ERR_ACCESS_DENIED));
+
+        UserDTO userDto = userMapper.userToUserDTO(currentUser);
+        userDto.setAccessToken(radarToken.getToken());
+        return userDto;
     }
 
     /**

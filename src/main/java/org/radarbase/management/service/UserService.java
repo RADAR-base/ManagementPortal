@@ -359,9 +359,8 @@ public class UserService {
      * @return the currently authenticated user, or null if no user is currently authenticated
      */
     @Transactional(readOnly = true)
-    public User getUserWithAuthorities() {
-        return userRepository.findOneWithRolesByLogin(SecurityUtils.getCurrentUserLogin())
-                .orElse(null);
+    public Optional<User> getUserWithAuthorities() {
+        return userRepository.findOneWithRolesByLogin(SecurityUtils.getCurrentUserLogin());
     }
 
 

@@ -196,11 +196,9 @@ public class OAuthClientsResource {
             @RequestParam(value = "persistent", defaultValue = "false") Boolean persistent)
             throws NotAuthorizedException, URISyntaxException, MalformedURLException {
         authService.checkScope(SUBJECT_UPDATE);
-        User currentUser = userService.getUserWithAuthorities();
-        if (currentUser == null) {
-            // We only allow this for actual logged in users for now, not for client_credentials
-            throw new AccessDeniedException("You must be a logged in user to access this resource");
-        }
+        User currentUser = userService.getUserWithAuthorities()
+                // We only allow this for actual logged in users for now, not for client_credentials
+                .orElseThrow(() -> new AccessDeniedException("You must be a logged in user to access this resource"));
 
         // lookup the subject
         Subject subject = subjectService.findOneByLogin(login);

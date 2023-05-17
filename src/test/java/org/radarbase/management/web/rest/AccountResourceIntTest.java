@@ -131,7 +131,7 @@ class AccountResourceIntTest {
         user.setEmail("john.doe@jhipster.com");
         user.setLangKey("en");
         user.setRoles(roles);
-        when(mockUserService.getUserWithAuthorities()).thenReturn(user);
+        when(mockUserService.getUserWithAuthorities()).thenReturn(Optional.of(user));
 
         restUserMockMvc.perform(post("/api/login")
                 .with(request -> {
@@ -167,7 +167,7 @@ class AccountResourceIntTest {
         user.setEmail("john.doe@jhipster.com");
         user.setLangKey("en");
         user.setRoles(roles);
-        when(mockUserService.getUserWithAuthorities()).thenReturn(user);
+        when(mockUserService.getUserWithAuthorities()).thenReturn(Optional.of(user));
 
         restUserMockMvc.perform(get("/api/account")
                 .accept(MediaType.APPLICATION_JSON))
@@ -184,7 +184,7 @@ class AccountResourceIntTest {
 
     @Test
     void testGetUnknownAccount() throws Exception {
-        when(mockUserService.getUserWithAuthorities()).thenReturn(null);
+        when(mockUserService.getUserWithAuthorities()).thenReturn(Optional.empty());
 
         restUserMockMvc.perform(get("/api/account")
                 .accept(MediaType.APPLICATION_JSON))
