@@ -92,7 +92,7 @@ public class AccountResource {
      */
     @PostMapping("/login")
     @Timed
-    public ResponseEntity<UserDTO> login(HttpSession session) throws NotAuthorizedException {
+    public UserDTO login(HttpSession session) throws NotAuthorizedException {
         if (token == null) {
             throw new NotAuthorizedException("Cannot login without credentials");
         }
@@ -126,13 +126,13 @@ public class AccountResource {
      */
     @GetMapping("/account")
     @Timed
-    public UserDTO getAccount(RadarToken radarToken) {
+    public UserDTO getAccount() {
         User currentUser = userService.getUserWithAuthorities()
                 .orElseThrow(() -> new RadarWebApplicationException(HttpStatus.FORBIDDEN,
                         "Cannot get account without user", USER, ERR_ACCESS_DENIED));
 
         UserDTO userDto = userMapper.userToUserDTO(currentUser);
-        userDto.setAccessToken(radarToken.getToken());
+        userDto.setAccessToken(token.getToken());
         return userDto;
     }
 

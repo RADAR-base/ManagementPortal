@@ -1,6 +1,5 @@
 package org.radarbase.management.client
 
-import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

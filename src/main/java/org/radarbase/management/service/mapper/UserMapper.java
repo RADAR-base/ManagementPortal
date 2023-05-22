@@ -22,12 +22,14 @@ public interface UserMapper {
     @Mapping(target = "createdDate", ignore = true)
     @Mapping(target = "lastModifiedBy", ignore = true)
     @Mapping(target = "lastModifiedDate", ignore = true)
+    @Mapping(target = "accessToken", ignore = true)
     UserDTO userToUserDTO(User user);
 
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "createdDate", ignore = true)
     @Mapping(target = "lastModifiedBy", ignore = true)
     @Mapping(target = "lastModifiedDate", ignore = true)
+    @Mapping(target = "accessToken", ignore = true)
     UserDTO userToUserDTONoProvenance(User user);
 
     @Mapping(target = "activationKey", ignore = true)
