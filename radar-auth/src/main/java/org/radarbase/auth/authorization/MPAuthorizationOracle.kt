@@ -53,6 +53,9 @@ class MPAuthorizationOracle(
         identity: RadarToken,
         permission: Permission
     ): AuthorityReferenceSet {
+        if (identity.isClientCredentials) {
+            return AuthorityReferenceSet(global = true)
+        }
         var global = false
         val organizations = mutableSetOf<String>()
         val projects = mutableSetOf<String>()
