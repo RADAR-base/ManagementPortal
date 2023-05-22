@@ -210,7 +210,8 @@ public class SubjectResource {
 
         // In principle this is already captured by the PostUpdate event listener, adding this
         // event just makes it more clear a subject was discontinued.
-        eventRepository.add(new AuditEvent(SecurityUtils.getCurrentUserLogin(),
+        eventRepository.add(new AuditEvent(
+                SecurityUtils.getCurrentUserLogin().orElse(null),
                 "SUBJECT_DISCONTINUE", "subject_login=" + subjectDto.getLogin()));
         SubjectDTO result = subjectService.discontinueSubject(subjectDto);
         return ResponseEntity.ok()

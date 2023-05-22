@@ -13,13 +13,16 @@ import org.radarbase.management.service.dto.RoleDTO;
 import org.radarbase.management.service.dto.UserDTO;
 import org.radarbase.management.service.mapper.UserMapper;
 import org.radarbase.management.web.rest.errors.ConflictException;
+import org.radarbase.management.web.rest.errors.InvalidRequestException;
 import org.radarbase.management.web.rest.errors.NotFoundException;
+import org.radarbase.management.web.rest.errors.RadarWebApplicationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -315,7 +318,9 @@ public class UserService {
      * @param password the new password
      */
     public void changePassword(String password) {
-        changePassword(SecurityUtils.getCurrentUserLogin(), password);
+        String currentUser = SecurityUtils.getCurrentUserLogin()
+                        .orElseThrow(() -> new InvalidRequestException("Cannot change password of unknown user", null, ERR_ENTITY_NOT_FOUND));
+        changePassword(currentUser, password);
     }
 
     /**
@@ -360,7 +365,8 @@ public class UserService {
      */
     @Transactional(readOnly = true)
     public Optional<User> getUserWithAuthorities() {
-        return userRepository.findOneWithRolesByLogin(SecurityUtils.getCurrentUserLogin());
+        return SecurityUtils.getCurrentUserLogin()
+                .flatMap(currentUser -> userRepository.findOneWithRolesByLogin(currentUser));
     }
 
 

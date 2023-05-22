@@ -97,7 +97,7 @@ public class AccountResource {
             throw new NotAuthorizedException("Cannot login without credentials");
         }
         log.debug("Logging in user to session with principal {}", token.getUsername());
-        session.setAttribute(TOKEN_ATTRIBUTE, DataRadarToken.Companion.copy(token));
+        session.setAttribute(TOKEN_ATTRIBUTE, new DataRadarToken(token));
         return getAccount();
     }
 
@@ -121,14 +121,14 @@ public class AccountResource {
     /**
      * GET  /account : get the current user.
      *
-     * @return the ResponseEntity with status 200 (OK) and the current user in body, or status 500
+     * @return the ResponseEntity with status 200 (OK) and the current user in body, or status 401
      * (Internal Server Error) if the user couldn't be returned
      */
     @GetMapping("/account")
     @Timed
     public UserDTO getAccount() {
         User currentUser = userService.getUserWithAuthorities()
-                .orElseThrow(() -> new RadarWebApplicationException(HttpStatus.FORBIDDEN,
+                .orElseThrow(() -> new RadarWebApplicationException(HttpStatus.UNAUTHORIZED,
                         "Cannot get account without user", USER, ERR_ACCESS_DENIED));
 
         UserDTO userDto = userMapper.userToUserDTO(currentUser);
