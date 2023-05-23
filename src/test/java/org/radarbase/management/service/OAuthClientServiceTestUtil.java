@@ -2,13 +2,8 @@ package org.radarbase.management.service;
 
 import org.radarbase.management.service.dto.ClientDetailsDTO;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.LinkedHashMap;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Test class for the OAuthClientService class.
@@ -38,7 +33,9 @@ public final class OAuthClientServiceTestUtil {
         result.setAccessTokenValiditySeconds(3600L);
         result.setRefreshTokenValiditySeconds(7200L);
         result.setAuthorities(Set.of("AUTHORITY-1"));
-        result.setAdditionalInformation(Map.of("dynamic_registration", "true"));
+        var additionalInfo = new LinkedHashMap<String, String>();
+        additionalInfo.put("dynamic_registration", "true");
+        result.setAdditionalInformation(additionalInfo);
         return result;
     }
 }

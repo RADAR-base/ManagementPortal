@@ -198,7 +198,8 @@ public class OAuthClientsResource {
         authService.checkScope(SUBJECT_UPDATE);
         User currentUser = userService.getUserWithAuthorities()
                 // We only allow this for actual logged in users for now, not for client_credentials
-                .orElseThrow(() -> new AccessDeniedException("You must be a logged in user to access this resource"));
+                .orElseThrow(() -> new AccessDeniedException(
+                        "You must be a logged in user to access this resource"));
 
         // lookup the subject
         Subject subject = subjectService.findOneByLogin(login);

@@ -122,13 +122,13 @@ public class AccountResource {
      * GET  /account : get the current user.
      *
      * @return the ResponseEntity with status 200 (OK) and the current user in body, or status 401
-     * (Internal Server Error) if the user couldn't be returned
+     *     (Internal Server Error) if the user couldn't be returned
      */
     @GetMapping("/account")
     @Timed
     public UserDTO getAccount() {
         User currentUser = userService.getUserWithAuthorities()
-                .orElseThrow(() -> new RadarWebApplicationException(HttpStatus.UNAUTHORIZED,
+                .orElseThrow(() -> new RadarWebApplicationException(HttpStatus.FORBIDDEN,
                         "Cannot get account without user", USER, ERR_ACCESS_DENIED));
 
         UserDTO userDto = userMapper.userToUserDTO(currentUser);
