@@ -252,9 +252,7 @@ public class Subject extends AbstractEntity implements Serializable {
     public Optional<Project> getAssociatedProject() {
         return this.getUser().getRoles().stream()
                 .filter(r -> PARTICIPANT_TYPES.contains(r.getAuthority().getName()))
-                .sorted(Comparator.<Role, String>comparing(r -> r.getAuthority().getName())
-                        .reversed())
-                .findFirst()
+                .max(Comparator.comparing(r -> r.getAuthority().getName()))
                 .map(Role::getProject);
     }
 

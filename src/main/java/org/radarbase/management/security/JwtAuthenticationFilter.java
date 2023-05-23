@@ -1,9 +1,10 @@
 package org.radarbase.management.security;
 
 import org.radarbase.auth.authentication.TokenValidator;
-import org.radarbase.auth.exception.TokenValidationException;
 import org.radarbase.auth.authorization.AuthorityReference;
+import org.radarbase.auth.exception.TokenValidationException;
 import org.radarbase.auth.token.RadarToken;
+import org.radarbase.management.domain.User;
 import org.radarbase.management.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,8 +19,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import javax.annotation.Nonnull;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -27,6 +26,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -35,12 +35,34 @@ import java.util.stream.Collectors;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
     public static final String AUTHORIZATION_BEARER_HEADER = "Bearer";
+
     private final TokenValidator validator;
     private final AuthenticationManager authenticationManager;
     public static final String TOKEN_ATTRIBUTE = "jwt";
     private final List<AntPathRequestMatcher> ignoreUrls;
     private final UserRepository userRepository;
     private final boolean isOptional;
+
+    /**
+     * Authority references for given user. The user should have its roles mapped
+     * from the database.
+     * @param user user to get authority references from.
+     * @return set of authority references.
+     */
+    public static Set<AuthorityReference> userAuthorities(User user) {
+        return user.getRoles().stream()
+                .map(role -> {
+                    var auth = role.getRole();
+                    return switch (role.getRole().getScope()) {
+                        case GLOBAL -> new AuthorityReference(auth);
+                        case ORGANIZATION -> new AuthorityReference(auth,
+                                role.getOrganization().getName());
+                        case PROJECT -> new AuthorityReference(auth,
+                                role.getProject().getProjectName());
+                    };
+                })
+                .collect(Collectors.toSet());
+    }
 
     /**
      * Authentication filter using given validator. Authentication is mandatory.
@@ -96,68 +118,38 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         HttpSession session = httpRequest.getSession(false);
+
+        String stringToken = tokenFromHeader(httpRequest);
         RadarToken token = null;
-        if (session != null) {
-            token = (RadarToken) session.getAttribute(TOKEN_ATTRIBUTE);
-        }
-        if (token == null) {
+        String exMessage = "No token provided";
+        if (stringToken != null) {
             try {
-                token = validator.validateBlocking(getToken(httpRequest, httpResponse));
+                token = validator.validateBlocking(stringToken);
+                logger.debug("Using token from header");
             } catch (TokenValidationException ex) {
-                if (isOptional) {
-                    logger.debug("Skipping optional token: {}", ex.getMessage());
-                } else {
-                    logger.error("Failed to validate token: {}", ex.getMessage());
-                    httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                    httpResponse.setHeader(HttpHeaders.WWW_AUTHENTICATE,
-                            AUTHORIZATION_BEARER_HEADER);
-                    httpResponse.getOutputStream().print(
-                            "{\"error\": \"" + "Unauthorized" + ",\n"
-                                    + "\"status\": \"" + HttpServletResponse.SC_UNAUTHORIZED
-                                    + "\",\n"
-                                    + "\"message\": \"" + ex.getMessage() + "\",\n"
-                                    + "\"path\": \"" + httpRequest.getRequestURI() + "\n"
-                                    + "\"}");
-                    return;
-                }
-            }
-        } else if (!token.isClientCredentials()) {
-            var user = userRepository.findOneByLogin(token.getUsername());
-            if (user.isPresent()) {
-                var roles = user.get().getRoles().stream()
-                        .map(role -> {
-                            var auth = role.getRole();
-                            return switch (role.getRole().getScope()) {
-                                case GLOBAL -> new AuthorityReference(auth);
-                                case ORGANIZATION -> new AuthorityReference(auth,
-                                        role.getOrganization().getName());
-                                case PROJECT -> new AuthorityReference(auth,
-                                        role.getProject().getProjectName());
-                            };
-                        })
-                        .collect(Collectors.toSet());
-                token = token.copyWithRoles(roles);
-            } else {
-                session.removeAttribute(TOKEN_ATTRIBUTE);
-                httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                httpResponse.setHeader(HttpHeaders.WWW_AUTHENTICATE, AUTHORIZATION_BEARER_HEADER);
-                httpResponse.getOutputStream().print(
-                        "{\"error\": \"" + "Unauthorized" + ",\n"
-                                + "\"status\": \"" + HttpServletResponse.SC_UNAUTHORIZED + ",\n"
-                                + "\"message\": \"User not found\",\n"
-                                + "\"path\": \"" + httpRequest.getRequestURI() + "\n"
-                                + "\"}");
-                return;
+                exMessage = ex.getMessage();
+                logger.info("Failed to validate token from session: {}", exMessage);
             }
         }
 
-        if (token != null) {
-            httpRequest.setAttribute(TOKEN_ATTRIBUTE, token);
-            RadarAuthentication authentication = new RadarAuthentication(token);
-            authenticationManager.authenticate(authentication);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+        if (token == null) {
+            token = tokenFromSession(session);
+            if (token != null) {
+                logger.debug("Using token from session");
+            }
         }
-        chain.doFilter(httpRequest, httpResponse);
+
+        if (validateToken(token, httpRequest, httpResponse, session, exMessage)) {
+            chain.doFilter(httpRequest, httpResponse);
+        }
+    }
+
+    private RadarToken tokenFromSession(HttpSession session) {
+        if (session != null) {
+            return (RadarToken) session.getAttribute(TOKEN_ATTRIBUTE);
+        } else {
+            return null;
+        }
     }
 
     @Override
@@ -174,21 +166,73 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         return false;
     }
 
-    private String getToken(ServletRequest request, ServletResponse response) {
-        HttpServletRequest req = (HttpServletRequest) request;
-        HttpServletResponse res = (HttpServletResponse) response;
-        String authorizationHeader = req.getHeader(HttpHeaders.AUTHORIZATION);
-
-        // Check if the HTTP Authorization header is present and formatted correctly
-        if (authorizationHeader == null || !authorizationHeader
+    private String tokenFromHeader(HttpServletRequest httpRequest) {
+        String authorizationHeader = httpRequest.getHeader(HttpHeaders.AUTHORIZATION);
+        if (authorizationHeader != null && authorizationHeader
                 .startsWith(AUTHORIZATION_BEARER_HEADER)) {
-            res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            res.setHeader(HttpHeaders.WWW_AUTHENTICATE, AUTHORIZATION_BEARER_HEADER);
-            throw new TokenValidationException("No " + AUTHORIZATION_BEARER_HEADER
-                    + " Authorization token present in the request to " + req.getServletPath());
+            return authorizationHeader.substring(AUTHORIZATION_BEARER_HEADER.length()).trim();
+        } else {
+            return null;
+        }
+    }
+
+    private boolean validateToken(RadarToken token, HttpServletRequest httpRequest,
+            HttpServletResponse httpResponse, HttpSession session, String exMessage)
+            throws IOException {
+        if (token == null) {
+            if (isOptional) {
+                logger.debug("Skipping optional token");
+                return true;
+            } else {
+                logger.error("Unauthorized - no valid token provided");
+                httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                httpResponse.setHeader(HttpHeaders.WWW_AUTHENTICATE,
+                        AUTHORIZATION_BEARER_HEADER);
+                httpResponse.getOutputStream().print(
+                        "{\"error\": \"" + "Unauthorized" + ",\n"
+                                + "\"status\": \"" + HttpServletResponse.SC_UNAUTHORIZED
+                                + "\",\n"
+                                + "\"message\": \"" + exMessage + "\",\n"
+                                + "\"path\": \"" + httpRequest.getRequestURI() + "\n"
+                                + "\"}");
+                return false;
+            }
         }
 
-        // Extract the token from the HTTP Authorization header
-        return authorizationHeader.substring(AUTHORIZATION_BEARER_HEADER.length()).trim();
+        RadarToken updatedToken = checkUser(token, httpRequest, httpResponse, session);
+        if (updatedToken == null) {
+            return false;
+        }
+
+        httpRequest.setAttribute(TOKEN_ATTRIBUTE, updatedToken);
+        RadarAuthentication authentication = new RadarAuthentication(updatedToken);
+        authenticationManager.authenticate(authentication);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        return true;
+    }
+
+    private RadarToken checkUser(RadarToken token, HttpServletRequest httpRequest,
+            HttpServletResponse httpResponse, HttpSession session) throws IOException {
+        String userName = token.getUsername();
+        if (userName == null) {
+            return token;
+        }
+        var user = userRepository.findOneByLogin(userName);
+        if (user.isPresent()) {
+            return token.copyWithRoles(userAuthorities(user.get()));
+        } else {
+            if (session != null) {
+                session.removeAttribute(TOKEN_ATTRIBUTE);
+            }
+            httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            httpResponse.setHeader(HttpHeaders.WWW_AUTHENTICATE, AUTHORIZATION_BEARER_HEADER);
+            httpResponse.getOutputStream().print(
+                    "{\"error\": \"" + "Unauthorized" + ",\n"
+                            + "\"status\": \"" + HttpServletResponse.SC_UNAUTHORIZED + ",\n"
+                            + "\"message\": \"User not found\",\n"
+                            + "\"path\": \"" + httpRequest.getRequestURI() + "\n"
+                            + "\"}");
+            return null;
+        }
     }
 }
