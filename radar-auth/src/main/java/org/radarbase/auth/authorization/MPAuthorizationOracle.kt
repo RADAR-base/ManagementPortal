@@ -85,12 +85,12 @@ class MPAuthorizationOracle(
         )
     }
 
-    /**
-     * Check if this role has may have given permission associated with it.
-     * @param permission the permission to check
-     * @return true if this role has given permission associated with it, false otherwise
-     */
     override fun RoleAuthority.mayBeGranted(permission: Permission) = this in allowedRoles(permission)
+
+    override fun Collection<RoleAuthority>.mayBeGranted(permission: Permission): Boolean {
+        val allowedRoles = allowedRoles(permission)
+        return any { it in allowedRoles }
+    }
 
     /**
      * Whether the current role from [identity] has [permission] over given [entity] in
