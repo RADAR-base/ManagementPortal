@@ -1,14 +1,5 @@
 package org.radarbase.management.service;
 
-import static org.radarbase.management.web.rest.errors.EntityName.SOURCE_TYPE;
-import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_SOURCE_TYPE_NOT_FOUND;
-
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.stream.Collectors;
-import javax.validation.constraints.NotNull;
-
 import org.radarbase.management.domain.SourceData;
 import org.radarbase.management.domain.SourceType;
 import org.radarbase.management.repository.SourceDataRepository;
@@ -29,6 +20,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.validation.constraints.NotNull;
+import java.util.Collections;
+import java.util.List;
+
+import static org.radarbase.management.web.rest.errors.EntityName.SOURCE_TYPE;
+import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_SOURCE_TYPE_NOT_FOUND;
 
 /**
  * Service Implementation for managing SourceType.
@@ -84,8 +82,9 @@ public class SourceTypeService {
     public List<SourceTypeDTO> findAll() {
         log.debug("Request to get all SourceTypes");
         List<SourceType> result = sourceTypeRepository.findAllWithEagerRelationships();
-        return result.stream().map(sourceTypeMapper::sourceTypeToSourceTypeDTO)
-                .collect(Collectors.toCollection(LinkedList::new));
+        return result.stream()
+                .map(sourceTypeMapper::sourceTypeToSourceTypeDTO)
+                .toList();
 
     }
 

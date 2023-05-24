@@ -58,7 +58,6 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.radarbase.auth.authorization.Permission.SUBJECT_CREATE;
@@ -239,7 +238,7 @@ public class SubjectResource {
         List<String> authoritiesToInclude = subjectCriteria.getAuthority().stream()
                 .filter(Objects::nonNull)
                 .map(Enum::name)
-                .collect(Collectors.toList());
+                .toList();
 
         if (projectName != null && externalId != null) {
             Optional<List<SubjectDTO>> subject = subjectRepository

@@ -1,12 +1,5 @@
 package org.radarbase.management.service;
 
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import org.radarbase.auth.authorization.RoleAuthority;
 import org.radarbase.management.domain.Authority;
 import org.radarbase.management.domain.Role;
@@ -25,6 +18,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Consumer;
 
 import static org.radarbase.management.web.rest.errors.EntityName.USER;
 
@@ -87,13 +86,13 @@ public class RoleService {
         User currentUser = optUser.get();
         List<String> currentUserAuthorities = currentUser.getAuthorities().stream()
                 .map(Authority::getName)
-                .collect(Collectors.toList());
+                .toList();
 
         if (currentUserAuthorities.contains(RoleAuthority.SYS_ADMIN.getAuthority())) {
             log.debug("Request to get all Roles");
             return roleRepository.findAll().stream()
                     .map(roleMapper::roleToRoleDTO)
-                    .collect(Collectors.toList());
+                    .toList();
         } else if (currentUserAuthorities.contains(RoleAuthority.PROJECT_ADMIN.getAuthority())) {
             log.debug("Request to get project admin's project Projects");
             return currentUser.getRoles().stream()
@@ -103,7 +102,7 @@ public class RoleService {
                     .distinct()
                     .flatMap(name -> roleRepository.findAllRolesByProjectName(name).stream())
                     .map(roleMapper::roleToRoleDTO)
-                    .collect(Collectors.toList());
+                    .toList();
         } else {
             return Collections.emptyList();
         }
@@ -121,7 +120,7 @@ public class RoleService {
         return roleRepository
                 .findRolesByAuthorityName(RoleAuthority.SYS_ADMIN.getAuthority()).stream()
                 .map(roleMapper::roleToRoleDTO)
-                .collect(Collectors.toCollection(LinkedList::new));
+                .toList();
     }
 
     /**
@@ -242,7 +241,7 @@ public class RoleService {
 
         return roleRepository.findAllRolesByProjectName(projectName).stream()
                 .map(roleMapper::roleToRoleDTO)
-                .collect(Collectors.toCollection(LinkedList::new));
+                .toList();
     }
 
     private Authority getAuthority(RoleAuthority role) {

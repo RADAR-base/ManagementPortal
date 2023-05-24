@@ -1,11 +1,12 @@
 package org.radarbase.management.security;
 
+import org.radarbase.auth.authorization.AuthorizationOracle;
 import org.radarbase.auth.authorization.Permission;
+import org.radarbase.auth.authorization.RoleAuthority;
 import org.radarbase.management.domain.Role;
 import org.radarbase.management.domain.Source;
 import org.radarbase.management.repository.SubjectRepository;
 import org.radarbase.management.repository.UserRepository;
-import org.radarbase.management.service.AuthService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -22,6 +23,7 @@ import org.springframework.security.oauth2.provider.token.TokenEnhancer;
 
 import java.security.Principal;
 import java.time.Instant;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,7 +48,7 @@ public class ClaimsTokenEnhancer implements TokenEnhancer, InitializingBean {
     private AuditEventRepository auditEventRepository;
 
     @Autowired
-    private AuthService authService;
+    private AuthorizationOracle authorizationOracle;
 
     @Value("${spring.application.name}")
     private String appName;
@@ -80,7 +82,7 @@ public class ClaimsTokenEnhancer implements TokenEnhancer, InitializingBean {
                                                 + ":" + auth;
                                     };
                                 })
-                                .collect(Collectors.toList());
+                                .toList();
                         additionalInfo.put(ROLES_CLAIM, roles);
 
                         // Do not grant scopes that cannot be given to a user.
@@ -88,9 +90,12 @@ public class ClaimsTokenEnhancer implements TokenEnhancer, InitializingBean {
                         Set<String> newScopes = currentScopes.stream()
                                 .filter(scope -> {
                                     Permission permission = Permission.ofScope(scope);
-                                    return user.getRoles().stream()
+                                    var roleAuthorities = user.getRoles().stream()
                                             .map(Role::getRole)
-                                            .anyMatch(r -> authService.mayBeGranted(r, permission));
+                                            .collect(Collectors.toCollection(() ->
+                                                    EnumSet.noneOf(RoleAuthority.class)));
+                                    return authorizationOracle.mayBeGranted(roleAuthorities,
+                                            permission);
                                 })
                                 .collect(Collectors.toCollection(TreeSet::new));
 
@@ -103,7 +108,7 @@ public class ClaimsTokenEnhancer implements TokenEnhancer, InitializingBean {
 
             List<String> sourceIds = assignedSources.stream()
                     .map(s -> s.getSourceId().toString())
-                    .collect(Collectors.toList());
+                    .toList();
             additionalInfo.put(SOURCES_CLAIM, sourceIds);
         }
         // add iat and iss optional JWT claims

@@ -3,6 +3,7 @@ package org.radarbase.management.service.mapper;
 import org.mapstruct.DecoratedWith;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingConstants;
 import org.radarbase.management.domain.Authority;
 import org.radarbase.management.domain.User;
 import org.radarbase.management.service.dto.UserDTO;
@@ -14,7 +15,8 @@ import java.util.stream.Collectors;
 /**
  * Mapper for the entity User and its DTO UserDTO.
  */
-@Mapper(componentModel = "spring", uses = {ProjectMapper.class, RoleMapper.class})
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING,
+        uses = {ProjectMapper.class, RoleMapper.class})
 @DecoratedWith(UserMapperDecorator.class)
 public interface UserMapper {
 

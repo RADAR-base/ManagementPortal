@@ -21,7 +21,6 @@ import javax.persistence.criteria.Subquery;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.BiConsumer;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class UserFilter implements Specification<User> {
@@ -61,7 +60,7 @@ public class UserFilter implements Specification<User> {
                     .filter(r -> r != null && r.getAuthority().contains(authorityUpper));
             allowNoRole = false;
         }
-        List<RoleAuthority> authoritiesAllowed = authoritiesFiltered.collect(Collectors.toList());
+        List<RoleAuthority> authoritiesAllowed = authoritiesFiltered.toList();
         if (authoritiesAllowed.isEmpty()) {
             CriteriaBuilder builder = predicates.getCriteriaBuilder();
             // never match
@@ -129,7 +128,7 @@ public class UserFilter implements Specification<User> {
         }
         List<String> authorityNames = authorityStream
                 .map(RoleAuthority::getAuthority)
-                .collect(Collectors.toList());
+                .toList();
 
         if (!authorityNames.isEmpty()) {
             predicates.in(roleJoin.get("authority").get("name"), authorityNames);

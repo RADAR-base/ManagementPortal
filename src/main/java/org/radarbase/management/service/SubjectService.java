@@ -428,7 +428,7 @@ public class SubjectService {
                 .filter(distinctByKey(Source::getSourceId))
                 .collect(Collectors.toSet());
         return sources.stream().map(p -> sourceMapper.sourceToMinimalSourceDetailsDTO(p))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     /**
