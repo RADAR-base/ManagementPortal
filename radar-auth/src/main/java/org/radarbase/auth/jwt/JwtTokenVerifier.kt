@@ -37,13 +37,13 @@ class JwtTokenVerifier(
     companion object {
         private val logger = LoggerFactory.getLogger(JwtTokenVerifier::class.java)
 
-        private const val AUTHORITIES_CLAIM = "authorities"
+        const val AUTHORITIES_CLAIM = "authorities"
         const val ROLES_CLAIM = "roles"
         const val SCOPE_CLAIM = "scope"
         const val SOURCES_CLAIM = "sources"
         const val GRANT_TYPE_CLAIM = "grant_type"
-        private const val CLIENT_ID_CLAIM = "client_id"
-        private const val USER_NAME_CLAIM = "user_name"
+        const val CLIENT_ID_CLAIM = "client_id"
+        const val USER_NAME_CLAIM = "user_name"
 
         fun DecodedJWT.toRadarToken(): RadarToken {
             val claims = claims

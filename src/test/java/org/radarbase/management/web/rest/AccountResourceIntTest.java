@@ -38,7 +38,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.radarbase.management.security.JwtAuthenticationFilter.TOKEN_ATTRIBUTE;
+import static org.radarbase.management.security.JwtAuthenticationFilter.setRadarToken;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -135,7 +135,7 @@ class AccountResourceIntTest {
 
         restUserMockMvc.perform(post("/api/login")
                 .with(request -> {
-                    request.setAttribute(TOKEN_ATTRIBUTE, token);
+                    setRadarToken(request, token);
                     request.setRemoteUser("test");
                     return request;
                 })

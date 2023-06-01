@@ -78,11 +78,14 @@ public class ManagementPortalApp {
         if (env.getProperty("server.ssl.key-store") != null) {
             protocol = "https";
         }
-        log.info("\n-----------------------------------------------------\n\t"
-                        + "Application '{}' is running! Access URLs:\n\t"
-                        + "Local: \t\t{}://localhost:{}\n\t"
-                        + "External: \t{}://{}:{}\n\t"
-                        + "Profile(s): \t{}\n-----------------------------------------------------",
+        log.info("""
+
+                        -----------------------------------------------------
+                        \tApplication '{}' is running! Access URLs:
+                        \tLocal: \t\t{}://localhost:{}
+                        \tExternal: \t{}://{}:{}
+                        \tProfile(s): \t{}
+                        -----------------------------------------------------""",
                 env.getProperty("spring.application.name"),
                 protocol,
                 env.getProperty("server.port"),

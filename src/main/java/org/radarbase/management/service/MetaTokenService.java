@@ -84,7 +84,7 @@ public class MetaTokenService {
         // process the response if the token is not fetched or not expired
         if (metaToken.isValid()) {
             String refreshToken = oAuthClientService.createAccessToken(
-                    metaToken.getSubject(),
+                    metaToken.getSubject().getUser(),
                     metaToken.getClientId())
                     .getRefreshToken()
                     .getValue();

@@ -34,7 +34,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
-import static org.radarbase.management.security.JwtAuthenticationFilter.TOKEN_ATTRIBUTE;
+import static org.radarbase.management.security.JwtAuthenticationFilter.setRadarToken;
 import static org.radarbase.management.web.rest.errors.EntityName.USER;
 import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_ACCESS_DENIED;
 import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_EMAIL_NOT_REGISTERED;
@@ -97,7 +97,7 @@ public class AccountResource {
             throw new NotAuthorizedException("Cannot login without credentials");
         }
         log.debug("Logging in user to session with principal {}", token.getUsername());
-        session.setAttribute(TOKEN_ATTRIBUTE, new DataRadarToken(token));
+        setRadarToken(session, new DataRadarToken(token));
         return getAccount();
     }
 
