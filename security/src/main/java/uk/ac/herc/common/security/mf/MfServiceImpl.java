@@ -1,10 +1,18 @@
 package uk.ac.herc.common.security.mf;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Period;
+import java.time.ZonedDateTime;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -13,6 +21,9 @@ import static uk.ac.herc.common.security.mf.MfAuthenticationExceptionReason.*;
 @Service
 @Transactional
 public class MfServiceImpl implements MfService {
+
+    private static final Logger log = LoggerFactory.getLogger(MfServiceImpl.class);
+
 
     public static final int OTP_LENGTH = 6;
     //consider config the value
@@ -85,6 +96,17 @@ public class MfServiceImpl implements MfService {
 
     protected boolean skipValidate(String pin) {
         return false;
+    }
+
+
+    @Override
+    public void unlockUser(String userName) {
+        Optional<MfAuthenticationEntity> mfEntityNameOptional = mfAuthenticationRepository.findOneByUserName(userName);
+
+        if(mfEntityNameOptional.isPresent()) {
+            MfAuthenticationEntity mfEntityName = mfEntityNameOptional.get();
+            mfAuthenticationRepository.delete(mfEntityName);
+        }
     }
 
     private String generateOTP() {

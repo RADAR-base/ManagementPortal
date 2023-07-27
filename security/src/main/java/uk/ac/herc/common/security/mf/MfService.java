@@ -4,4 +4,6 @@ public interface MfService {
     String generateOTP(String userName);
 
     MfValidateResultDTO validateOTP(String userName, String pin);
+
+    void unlockUser(String username);
 }

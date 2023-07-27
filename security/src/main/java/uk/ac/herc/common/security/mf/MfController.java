@@ -1,5 +1,7 @@
 package uk.ac.herc.common.security.mf;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -22,10 +24,11 @@ import static uk.ac.herc.common.security.Constants.AUTHORIZATION_HEADER;
 import static uk.ac.herc.common.security.mf.MfAuthenticationExceptionReason.MFOTPSENDER_NOT_CONFIGURED;
 
 
+
 @Controller
 @RequestMapping("/api")
 public class MfController {
-
+    private static final Logger log = LoggerFactory.getLogger(MfController.class);
     @Autowired
     private MfProperties properties;
 
@@ -58,25 +61,16 @@ public class MfController {
         );
         AuthenticationManagerBuilder authenticationManagerBuilder = ApplicationContextHolder.getBean(AuthenticationManagerBuilder.class);
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+
         MfValidateResultDTO validateOTPResult = mfService.validateOTP(loginVM.getUserName(), loginVM.getCode());
         if (!validateOTPResult.getSuccess()) {
             throw new MfAuthenticationException(validateOTPResult.getFailReason(), validateOTPResult.getFailedAttempts());
         }
-
-        //Either provide JWT Authentication
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        Object jwtTokenProvider = ApplicationContextHolder.getBeanIfExist("tokenProvider");
-        if (null == jwtTokenProvider)
-            throw new MfAuthenticationException(MfAuthenticationExceptionReason.JWTTOKENPROVIDER_NOT_CONFIGURED);
-        Method createTokenMethod = jwtTokenProvider.getClass().getMethod("createToken", Authentication.class, boolean.class);
-        String jwt = (String) createTokenMethod.invoke(jwtTokenProvider, authentication, loginVM.isRememberMe());
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.add(AUTHORIZATION_HEADER, "Bearer " + jwt);
-
-        //OR Call the application's default authentication api
-
-        return new ResponseEntity(jwt, httpHeaders, HttpStatus.OK);
+        return new ResponseEntity(HttpStatus.OK);
     }
+
+
+
 
     public MfProperties getProperties() {
         return properties;

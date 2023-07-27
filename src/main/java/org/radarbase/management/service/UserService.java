@@ -439,4 +439,15 @@ public class UserService {
         managedRoles.addAll(getUserRoles(roleDtos, oldRoles));
         userRepository.save(user);
     }
+
+
+    public String getUserEmail(String login) {
+        var user = userRepository.findOneByLogin(login)
+                .orElseThrow(() -> new NotFoundException(
+                        "User with login " + login + " not found", USER,
+                        ERR_ENTITY_NOT_FOUND, Map.of("user", login)));
+
+
+        return user.getEmail();
+    }
 }

@@ -16,7 +16,7 @@ public class MfProperties {
 
     private Integer maxAttemptTimes = 5;
 
-    private Boolean authBeforeGenerateOtp = false;
+    private Boolean authBeforeGenerateOtp = true;
 
     private Boolean sendOtp = true;
 
