@@ -94,6 +94,18 @@ springBoot {
 }
 
 if (OperatingSystem.current().isWindows()) {
+
+    task copyToLib(type: Copy) {
+        into "$buildDir/output/lib"
+        from configurations.runtime
+    }
+
+    task copyToLib(type: Copy) {
+        into "$buildDir/output/lib"
+        from configurations.runtimeOnly
+    }
+
+
     task pathingJar(type: Jar) {
         dependsOn configurations.runtime
         archiveAppendix.set('pathing')
