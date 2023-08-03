@@ -95,14 +95,13 @@ springBoot {
 
 if (OperatingSystem.current().isWindows()) {
 
-    task copyToLib(type: Copy) {
-        into "$buildDir/output/lib"
-        from configurations.runtime
+    configurations {
+        runtime.extendsFrom(compileClasspath, runtimeOnly)
     }
 
     task copyToLib(type: Copy) {
         into "$buildDir/output/lib"
-        from configurations.runtimeOnly
+        from configurations.runtime
     }
 
 
