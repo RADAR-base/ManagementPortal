@@ -71,6 +71,12 @@
                             <span class="fa fa-eye"></span>
                             <span class="hidden-md-down" [translate]="'entity.action.view'"></span>
                         </button>
+                        <button type="submit"
+                                (click)="unlockUser(user)"
+                                class="btn btn-success btn-sm">
+                            <span class="fa fa-unlock"></span>
+                            <span class="hidden-md-down" [translate]="'entity.action.unlock'"></span>
+                        </button>
                         <button type="submit" [replaceUrl]="true"
                                 [routerLink]="['/', { outlets: { popup: 'user-management/'+ user.login + '/send-activation'} }]"
                                 [disabled]="user.activated"
@@ -96,6 +102,7 @@
                             <span class="fa fa-remove"></span>
                             <span class="hidden-md-down" [translate]="'entity.action.delete'"></span>
                         </button>
+
                     </div>
                 </td>
             </tr>

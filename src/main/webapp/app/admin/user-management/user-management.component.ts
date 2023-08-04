@@ -137,4 +137,8 @@ export class UserMgmtComponent implements OnInit, OnDestroy {
     private onError(error) {
         this.alertService.error(error.message, null, null);
     }
+
+    unlockUser(user) {
+        return this.userService.unlockUser(user.login).subscribe((res: any) => {});;
+    }
 }

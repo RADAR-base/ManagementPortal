@@ -5,17 +5,21 @@
 </div>
 <div class="modal-body">
     <div class="row">
-        <div class="col-md-4 offset-md-4">
-            <h1 [translate]="'login.title'"></h1>
+        <div class="col-md-8 offset-md-4"  *ngIf="shouldShowOTPForm() == false">
+            <h1  *ngIf="shouldShowOTPForm() == false" [translate]="'login.title'"></h1>
+        </div>
+
+        <div class="col-md-8 offset-md-2"  *ngIf="shouldShowOTPForm() == true">
+            <h1  *ngIf="shouldShowOTPForm() == true" [translate]="'login.opt-title'"></h1>
         </div>
         <div class="col-md-8 offset-md-2">
             <div *ngIf="authenticationError"
                 class="alert alert-danger"
-                [innerHTML]="'login.messages.error.authentication' | translate">
+                [innerHTML]="errorMessage">
             </div>
         </div>
-        <div class="col-md-8 offset-md-2">
-            <form class="form" role="form" (ngSubmit)="login()">
+        <div class="col-md-8 offset-md-2" *ngIf="shouldShowOTPForm() == false">
+            <form class="form" role="form" (ngSubmit)="getOTPCode()" >
                 <div class="form-group">
                     <label for="username" [translate]="'global.form.username'"></label>
                     <input type="text" class="form-control"
@@ -40,6 +44,23 @@
             <div class="alert alert-warning">
                 <a class="alert-link" (click)="requestResetPassword()" [translate]="'login.password.forgot'"></a>
             </div>
+        </div>
+
+
+        <div class="col-md-8 offset-md-2" *ngIf="shouldShowOTPForm() == true">
+            <form class="form" role="form" (ngSubmit)="submitOPTCode()" >
+                <div class="form-group">
+                    <label for="optCode" [translate]="'global.form.opt'"></label>
+                    <input type="text" class="form-control"
+                           name="optCode" id="optCode"
+                           placeholder="{{'global.form.opt.placeholder' | translate}}"
+                           [(ngModel)]="optCode" #usernameField>
+                </div>
+
+
+                <button type="submit" class="btn btn-primary" [translate]="'login.form.opt.button'"></button>
+            </form>
+
         </div>
     </div>
 </div>

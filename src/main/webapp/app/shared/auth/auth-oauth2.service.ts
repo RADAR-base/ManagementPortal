@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-
+import { first, tap } from 'rxjs/operators';
 import { map, switchMap } from "rxjs/operators";
 
 @Injectable({ providedIn: 'root' })
@@ -32,6 +32,17 @@ export class AuthServerProvider {
                 });
               }),
             );
+    }
+
+    requestOtpCode(credentials) :Observable<any> {
+        const headers = new HttpHeaders().append('Accept', 'application/json');
+        return this.http.post('api/mf-authenticate/code',credentials, {headers, observe: 'body'})
+    }
+
+    submitOPTCode(credentials) {
+        const body = new HttpParams().append('userName', 'admin');
+        const headers = new HttpHeaders().append('Accept', 'application/json');
+        return this.http.post('api/mf-authenticate', credentials, {headers, observe: 'body'});
     }
 
     logout(): Observable<void> {
