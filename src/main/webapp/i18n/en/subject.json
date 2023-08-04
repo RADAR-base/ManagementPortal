@@ -32,7 +32,7 @@
             "login": "Login",
             "email": "Email",
             "externalLink": "External Link",
-            "externalId": "External Id",
+            "externalId": "Participant Id",
             "humanReadableId": "Human Readable ID",
             "enrolmentDate": "Enrolment Date",
             "removed": "Removed",

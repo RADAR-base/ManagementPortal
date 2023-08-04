@@ -28,6 +28,20 @@ import {Group, GroupService} from "../group";
 export class SubjectDialogComponent implements OnInit, OnDestroy {
     readonly authorities: string[];
     readonly options: string[];
+    delusions: any = [
+             {key:"delusion_1", label:"I have felt like I could read other people's thoughts"},
+             {key:"delusion_2", label:"I have felt like other people were reading my thoughts"},
+             {key:"delusion_3", label:"I have felt that my thoughts were being controlled or influenced"},
+             {key:"delusion_4", label:"I have felt like my thoughts were alien to me in some way"},
+             {key:"delusion_5", label:"I have felt like the world is not real"},
+             {key:"delusion_6", label:"I have felt like I am not real"},
+             {key:"delusion_7", label:"I have felt like people were not what they seemed"},
+             {key:"delusion_8", label:"I have felt like things on the TV, in books or magazines had a special meaning for me"},
+             {key:"delusion_9", label:"I have felt like there was a conspiracy against me"},
+             {key:"delusion_10", label:"I have been jealous"},
+             {key:"delusion_11", label:"I have felt like something bad was about to happen"},
+             {key:"delusion_11", label:"I have felt distinctly concerned about my physical health"},
+ ];
 
     subject: Subject;
     isInProject: boolean;
@@ -37,7 +51,11 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
 
     groupName: string;
 
+    delusion1$: string;
+    delusion2$: string;
+
     isSaving: boolean;
+    creationError: boolean = false;
 
     attributeComponentEventPrefix: 'subjectAttributes';
 
@@ -54,7 +72,8 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
                 private formatter: NgbDateParserFormatter) {
         this.isSaving = false;
         this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN'];
-        this.options = ['Human-readable-identifier', 'participant_group'];
+
+
     }
 
     ngOnInit() {
@@ -68,7 +87,11 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
         if(this.subject.dateOfBirth) {
             this.dateOfBirth = this.formatter.parse(this.subject.dateOfBirth.toString());
         }
-        this.subscriptions.add(this.registerEventChanges());
+
+       this.delusion1$ = this.subject.attributes?.delusion_1 ?? null;
+       this.delusion2$ = this.subject.attributes?.delusion_2 ?? null;
+
+      this.subscriptions.add(this.registerEventChanges());
     }
 
     ngOnDestroy() {
@@ -86,23 +109,41 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
     }
 
     save() {
-        this.isSaving = true;
-        if (this.dateOfBirth && this.calendar.isValid(NgbDate.from(this.dateOfBirth))) {
-            this.subject.dateOfBirth = new Date(this.formatter.format(this.dateOfBirth));
-        }
-        this.subject.project = this.project;
 
-        this.subject.group = this.groupName; //this.project.groups.find(group => group.name === this.groupName)
+        if(this.subject.externalId != null) {
+                this.creationError = false;
+                this.isSaving = true;
+                if (this.dateOfBirth && this.calendar.isValid(NgbDate.from(this.dateOfBirth))) {
+                    this.subject.dateOfBirth = new Date(this.formatter.format(this.dateOfBirth));
+                }
+                this.subject.attributes = {}
+                if(this.delusion1$ != null) {
+                     this.subject.attributes.delusion_1 = this.delusion1$;
+                }
 
-        if (this.subject.id) {
-            this.subjectService.update(this.subject)
-            .subscribe((res: Subject) =>
-                    this.onSaveSuccess('UPDATE', res), (res: any) => this.onSaveError(res));
+                if(this.delusion2$ != null) {
+                    this.subject.attributes.delusion_2 = this.delusion2$;
+                }
+
+                this.subject.project = this.project;
+
+                this.subject.group = this.groupName; //this.project.groups.find(group => group.name === this.groupName)
+
+
+                if (this.subject.id) {
+                    this.subjectService.update(this.subject)
+                    .subscribe((res: Subject) =>
+                            this.onSaveSuccess('UPDATE', res), (res: any) => this.onSaveError(res));
+                } else {
+                    this.subjectService.create(this.subject)
+                    .subscribe((res: Subject) =>
+                            this.onSaveSuccess('CREATE', res), (res: any) => this.onSaveError(res));
+                }
         } else {
-            this.subjectService.create(this.subject)
-            .subscribe((res: Subject) =>
-                    this.onSaveSuccess('CREATE', res), (res: any) => this.onSaveError(res));
+            this.creationError = true;
         }
+
+
     }
 
     private onSaveSuccess(op: string, result: Subject) {
@@ -122,6 +163,14 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
 
     onProjectChange($event: any) {
         this.project = this.projects.find((p) => p.projectName === $event);
+    }
+
+    getDelusionsChoice1() {
+       return this.delusions.filter(o => o.key != this.delusion2$);
+    }
+
+    getDelusionsChoice2() {
+       return this.delusions.filter(o => o.key != this.delusion1$);
     }
 }
 
