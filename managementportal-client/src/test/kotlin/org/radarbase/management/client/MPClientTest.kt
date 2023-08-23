@@ -28,11 +28,9 @@ import org.junit.jupiter.api.Test
 import org.radarbase.ktor.auth.ClientCredentialsConfig
 import org.radarbase.ktor.auth.OAuth2AccessToken
 import org.radarbase.ktor.auth.clientCredentials
-import org.slf4j.LoggerFactory
 import java.net.HttpURLConnection.HTTP_OK
 import java.net.HttpURLConnection.HTTP_UNAUTHORIZED
 
-@OptIn(ExperimentalCoroutinesApi::class)
 class MPClientTest {
     private lateinit var authStub: StubMapping
     private lateinit var wireMockServer: WireMockServer
@@ -243,7 +241,75 @@ class MPClientTest {
         wireMockServer.verify(2, getRequestedFor(urlPathEqualTo("/api/projects")))
     }
 
-    companion object {
-        private val logger = LoggerFactory.getLogger(MPClientTest::class.java)
+    @Test
+    fun testMp1Projects() = runTest {
+        val body = """
+            [{
+                "id": 1,
+                "projectName": "A",
+                "humanReadableProjectName": null,
+                "description": "d",
+                "organization": "some",
+                "location": "l",
+                "startDate": "2020-01-01T00:00:00Z",
+                "projectStatus": "ONGOING",
+                "endDate": "2030-01-01T00:00:00Z",
+                "attributes": {},
+                "persistentTokenTimeout": null
+            }, {
+                "id": 2,
+                "projectName": "a",
+                "humanReadableProjectName": "p",
+                "description": "D",
+                "organization": null,
+                "location": "L",
+                "startDate": "2020-01-01T00:00:00Z",
+                "projectStatus": "ONGOING",
+                "endDate": "2030-01-01T00:00:00Z",
+                "attributes": {},
+                "persistentTokenTimeout": null
+            }]
+        """.trimIndent()
+
+        wireMockServer.stubFor(
+            get(urlPathEqualTo("/api/projects"))
+                .withHeader("Authorization", equalTo("Bearer abcdef"))
+                .willReturn(aResponse()
+                    .withStatus(HTTP_OK)
+                    .withHeader("content-type", ContentType.APPLICATION_JSON.toString())
+                    .withBody(body)))
+
+
+        val projects = client.requestProjects()
+        assertThat(projects, hasSize(2))
+        assertThat(projects, Matchers.equalTo(listOf(
+            MPProject(
+                id = "A",
+                name = null,
+                description = "d",
+                organization = null,
+                organizationName = "some",
+                location = "l",
+                startDate = "2020-01-01T00:00:00Z",
+                projectStatus = "ONGOING",
+                endDate = "2030-01-01T00:00:00Z",
+                attributes = emptyMap(),
+            ),
+            MPProject(
+                id = "a",
+                name = "p",
+                description = "D",
+                organization = null,
+                organizationName = null,
+                location = "L",
+                startDate = "2020-01-01T00:00:00Z",
+                projectStatus = "ONGOING",
+                endDate = "2030-01-01T00:00:00Z",
+                attributes = emptyMap(),
+            ),
+        )))
+
+        wireMockServer.verify(1, postRequestedFor(urlEqualTo("/oauth/token")))
+        wireMockServer.verify(2, getRequestedFor(urlPathEqualTo("/api/projects")))
     }
 }

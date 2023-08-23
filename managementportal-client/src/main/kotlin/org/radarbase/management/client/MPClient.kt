@@ -23,11 +23,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.contextual
 import org.radarbase.ktor.auth.OAuth2AccessToken
-import java.io.IOException
-import java.time.Duration
 import java.util.*
+import kotlin.time.Duration.Companion.seconds
 
 fun mpClient(config: MPClient.Config.() -> Unit): MPClient {
     return MPClient(MPClient.Config().apply(config))
@@ -50,15 +52,12 @@ class MPClient(config: Config) {
 
     val httpClient = (originalHttpClient ?: HttpClient(CIO)).config {
         install(HttpTimeout) {
-            connectTimeoutMillis = Duration.ofSeconds(10).toMillis()
-            socketTimeoutMillis = Duration.ofSeconds(10).toMillis()
-            requestTimeoutMillis = Duration.ofSeconds(30).toMillis()
+            connectTimeoutMillis = 10.seconds.inWholeMilliseconds
+            socketTimeoutMillis = 10.seconds.inWholeMilliseconds
+            requestTimeoutMillis = 30.seconds.inWholeMilliseconds
         }
         install(ContentNegotiation) {
-            json(Json {
-                ignoreUnknownKeys = true
-                coerceInputValues = true
-            })
+            json(json)
         }
         install(Auth) {
             token = auth()
@@ -84,12 +83,15 @@ class MPClient(config: Config) {
     suspend fun requestProjects(
         page: Int = 0,
         size: Int = Int.MAX_VALUE,
-    ): List<MPProject> = request {
-        url("api/projects")
-        with(url.parameters) {
-            append("page", page.toString())
-            append("size", size.toString())
+    ): List<MPProject> {
+        val body = requestText {
+            url("api/projects")
+            with(url.parameters) {
+                append("page", page.toString())
+                append("size", size.toString())
+            }
         }
+        return json.decodeFromString(ListSerializer(MPProjectSerializer), body)
     }
 
     /**
@@ -134,6 +136,17 @@ class MPClient(config: Config) {
         }
     }
 
+    suspend inline fun requestText(
+        crossinline block: HttpRequestBuilder.() -> Unit,
+    ): String = withContext(Dispatchers.IO) {
+        with(httpClient.request(block)) {
+            if (!status.isSuccess()) {
+                throw HttpStatusException(status, "Request to ${request.url} failed (code $status)")
+            }
+            bodyAsText()
+        }
+    }
+
     fun config(config: Config.() -> Unit): MPClient {
         val oldConfig = toConfig()
         val newConfig = toConfig().apply(config)
@@ -170,5 +183,12 @@ class MPClient(config: Config) {
         }
 
         override fun hashCode(): Int = Objects.hash(httpClient, url)
+    }
+
+    companion object {
+        private val json = Json {
+            ignoreUnknownKeys = true
+            coerceInputValues = true
+        }
     }
 }
