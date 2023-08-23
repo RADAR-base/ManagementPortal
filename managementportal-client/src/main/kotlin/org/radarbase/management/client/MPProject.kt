@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /** ManagementPortal Project DTO. */
-@Serializable
+@Serializable(with = MPProjectSerializer::class)
 data class MPProject(
     /** Project id, a name that identifies it uniquely. */
     @SerialName("projectName") val id: String,
@@ -14,6 +14,8 @@ data class MPProject(
     val location: String? = null,
     /** Organization that organizes the project. */
     val organization: MPOrganization? = null,
+    /** Free-text name of the organization. */
+    val organizationName: String? = null,
     /** Project description. */
     val description: String? = null,
     /** Any other attributes. */

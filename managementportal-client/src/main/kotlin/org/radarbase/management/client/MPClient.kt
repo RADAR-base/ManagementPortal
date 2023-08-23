@@ -128,7 +128,7 @@ class MPClient(config: Config) {
     ): T = withContext(Dispatchers.IO) {
         with(httpClient.request(block)) {
             if (!status.isSuccess()) {
-                throw IOException("Request to ${request.url} failed (code $status)")
+                throw HttpStatusException(status, "Request to ${request.url} failed (code $status)")
             }
             body()
         }
