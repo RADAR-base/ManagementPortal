@@ -20,6 +20,8 @@ public class ManagementPortalProperties {
 
     private final CatalogueServer catalogueServer = new CatalogueServer();
 
+    private final Account account = new Account();
+
     public ManagementPortalProperties.Frontend getFrontend() {
         return frontend;
     }
@@ -42,6 +44,22 @@ public class ManagementPortalProperties {
 
     public Common getCommon() {
         return common;
+    }
+
+    public Account getAccount() {
+        return account;
+    }
+
+    public static class Account {
+        private boolean enableExposeToken = false;
+
+        public boolean getEnableExposeToken() {
+            return enableExposeToken;
+        }
+
+        public void setEnableExposeToken(boolean enableExposeToken) {
+            this.enableExposeToken = enableExposeToken;
+        }
     }
 
     public static class Common {

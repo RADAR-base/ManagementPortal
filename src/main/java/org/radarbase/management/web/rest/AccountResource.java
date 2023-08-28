@@ -132,7 +132,9 @@ public class AccountResource {
                         "Cannot get account without user", USER, ERR_ACCESS_DENIED));
 
         UserDTO userDto = userMapper.userToUserDTO(currentUser);
-        userDto.setAccessToken(token.getToken());
+        if (managementPortalProperties.getAccount().getEnableExposeToken()) {
+            userDto.setAccessToken(token.getToken());
+        }
         return userDto;
     }
 
