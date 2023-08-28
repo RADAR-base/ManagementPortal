@@ -25,10 +25,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.radarbase.management.web.rest.errors.EntityName.GROUP;
 import static org.radarbase.management.web.rest.errors.EntityName.PROJECT;
@@ -163,13 +161,15 @@ public class GroupService {
 
         if (!entitiesToAdd.isEmpty()) {
             List<Long> idsToAdd = entitiesToAdd.stream()
-                    .map(Subject::getId).collect(Collectors.toList());
+                    .map(Subject::getId)
+                    .toList();
             subjectRepository.setGroupIdByIds(group.getId(), idsToAdd);
         }
 
         if (!entitiesToRemove.isEmpty()) {
             List<Long> idsToRemove = entitiesToRemove.stream()
-                    .map(Subject::getId).collect(Collectors.toList());
+                    .map(Subject::getId)
+                    .toList();
             subjectRepository.unsetGroupIdByIds(idsToRemove);
         }
     }

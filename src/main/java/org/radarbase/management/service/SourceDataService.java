@@ -1,9 +1,5 @@
 package org.radarbase.management.service;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import org.radarbase.management.domain.SourceData;
 import org.radarbase.management.repository.SourceDataRepository;
 import org.radarbase.management.service.dto.SourceDataDTO;
@@ -16,6 +12,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Optional;
 
 import static org.radarbase.management.web.rest.errors.EntityName.SOURCE_DATA;
 
@@ -66,7 +65,7 @@ public class SourceDataService {
 
         return sourceDataRepository.findAll().stream()
                 .map(sourceDataMapper::sourceDataToSourceDataDTO)
-                .collect(Collectors.toCollection(LinkedList::new));
+                .toList();
     }
 
     /**

@@ -66,7 +66,7 @@ public class SubjectSpecification implements Specification<Subject> {
         if (last != null) {
             this.sortLastValues = this.sort.stream()
                     .map(o -> getLastValue(o.getSortBy()))
-                    .collect(Collectors.toList());
+                    .toList();
         } else {
             this.sortLastValues = null;
         }
@@ -198,6 +198,6 @@ public class SubjectSpecification implements Specification<Subject> {
                         return builder.desc(path);
                     }
                 })
-                .collect(Collectors.toList());
+                .toList();
     }
 }

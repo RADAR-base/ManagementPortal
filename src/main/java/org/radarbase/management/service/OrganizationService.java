@@ -18,7 +18,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.radarbase.auth.authorization.Permission.ORGANIZATION_READ;
@@ -43,6 +42,7 @@ public class OrganizationService {
 
     @Autowired
     private ProjectMapper projectMapper;
+
     @Autowired
     private AuthService authService;
 
@@ -85,7 +85,7 @@ public class OrganizationService {
 
             organizationsOfUser = Stream.concat(organizationsOfRole, organizationsOfProject)
                     .distinct()
-                    .collect(Collectors.toList());
+                    .toList();
         }
 
         return organizationMapper.organizationsToOrganizationDTOs(organizationsOfUser);
@@ -129,6 +129,6 @@ public class OrganizationService {
 
         return projectStream
                 .map(projectMapper::projectToProjectDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 }

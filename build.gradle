@@ -181,8 +181,8 @@ dependencies {
     implementation group: 'com.google.code.findbugs', name: 'jsr305', version: findbugAnnotationVersion
     implementation("org.liquibase:liquibase-core:${liquibase_version}")
     runtimeOnly "com.mattbertolini:liquibase-slf4j:${liquibase_slf4j_version}"
-    implementation "org.springframework.boot:spring-boot-starter-actuator"
-    implementation "org.springframework.boot:spring-boot-autoconfigure"
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("org.springframework.boot:spring-boot-autoconfigure")
     implementation "org.springframework.boot:spring-boot-starter-mail"
     runtimeOnly "org.springframework.boot:spring-boot-starter-logging"
     runtimeOnly ("org.springframework.boot:spring-boot-starter-data-jpa") {
@@ -212,7 +212,7 @@ dependencies {
     implementation("org.springframework.session:spring-session-hazelcast")
 
     implementation('org.springframework.security.oauth:spring-security-oauth2:2.5.2.RELEASE')
-    implementation('org.springframework.security:spring-security-web:5.7.5')
+    implementation('org.springframework.security:spring-security-web:5.7.8')
     implementation "org.springdoc:springdoc-openapi-ui:${springdoc_version}"
     runtimeOnly("javax.inject:javax.inject:1")
     implementation project(':radar-auth')

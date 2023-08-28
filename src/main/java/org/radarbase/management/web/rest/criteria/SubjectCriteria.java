@@ -19,7 +19,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static org.radarbase.management.web.rest.errors.EntityName.SUBJECT;
 import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_VALIDATION;
@@ -156,26 +155,26 @@ public class SubjectCriteria {
             List<String> flatSort = sort != null
                     ? sort.stream()
                             .flatMap(s -> Arrays.stream(s.split(",")))
-                            .collect(Collectors.toList())
+                            .toList()
                     : List.of();
 
             List<SubjectSortOrder> parsedSort = new ArrayList<>(flatSort.size());
 
             boolean hasDirection = true;
+            SubjectSortOrder previous = null;
             for (String part : flatSort) {
                 if (!hasDirection) {
-                    Optional<Sort.Direction> direction = Sort.Direction.fromOptionalString(
-                            part);
+                    Optional<Sort.Direction> direction = Sort.Direction.fromOptionalString(part);
                     if (direction.isPresent()) {
-                        SubjectSortOrder previous = parsedSort.get(parsedSort.size() - 1);
                         previous.setDirection(direction.get());
                         hasDirection = true;
                         continue;
                     }
+                } else {
+                    hasDirection = false;
                 }
-                SubjectSortOrder order = new SubjectSortOrder(getSubjectSortBy(part));
-                parsedSort.add(order);
-                hasDirection = false;
+                previous = new SubjectSortOrder(getSubjectSortBy(part));
+                parsedSort.add(previous);
             }
 
             optimizeSortList(parsedSort);
@@ -185,7 +184,7 @@ public class SubjectCriteria {
     }
 
     /**
-     * Remove duplication and redundancy from sort list.
+     * Remove duplication and redundancy from sort list and make the result order consistent.
      * @param sort modifiable ordered sort collection.
      */
     private static void optimizeSortList(Collection<SubjectSortOrder> sort) {

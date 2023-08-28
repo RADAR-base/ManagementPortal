@@ -1,7 +1,6 @@
 package org.radarbase.management.config;
 
 
-import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.security.Http401UnauthorizedEntryPoint;
 import org.radarbase.management.security.RadarAuthenticationProvider;
 import org.springframework.beans.factory.BeanInitializationException;
@@ -9,9 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -28,11 +25,6 @@ import org.springframework.security.web.authentication.logout.LogoutSuccessHandl
 import tech.jhipster.security.AjaxLogoutSuccessHandler;
 
 import javax.annotation.PostConstruct;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
-import static org.radarbase.management.security.JwtAuthenticationFilter.TOKEN_ATTRIBUTE;
-import static org.springframework.context.annotation.ScopedProxyMode.TARGET_CLASS;
 
 @Configuration
 @EnableWebSecurity
@@ -124,28 +116,5 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Bean
     public SecurityEvaluationContextExtension securityEvaluationContextExtension() {
         return new SecurityEvaluationContextExtension();
-    }
-
-    @Scope(value = "request", proxyMode = TARGET_CLASS)
-    @Bean
-    public RadarToken radarToken(HttpServletRequest request) {
-        Object token = request.getAttribute(TOKEN_ATTRIBUTE);
-        if (token == null) {
-            HttpSession session = request.getSession(false);
-            if (session != null) {
-                token = session.getAttribute(TOKEN_ATTRIBUTE);
-            }
-        }
-        if (token == null) {
-            // should not happen, the JwtAuthenticationFilter would throw an exception first if it
-            // can not decode the authorization header into a valid JWT
-            throw new AccessDeniedException("No token was found in the request context.");
-        }
-        if (!(token instanceof RadarToken)) {
-            // should not happen, the JwtAuthenticationFilter will only set a DecodedJWT object
-            throw new AccessDeniedException("Expected token to be of type org.radarbase"
-                    + ".auth.token.RadarToken but was " + token.getClass().getName());
-        }
-        return (RadarToken) token;
     }
 }

@@ -11,6 +11,7 @@ data class MPSubject(
     /** Project id that the subject belongs to. */
     @kotlinx.serialization.Transient val projectId: String? = null,
     /** Full project details that a subject belongs to. */
+    @Serializable(with = MPProjectSerializer::class)
     val project: MPProject? = null,
     /** ID in an external system for the user. */
     val externalId: String? = null,

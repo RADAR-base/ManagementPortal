@@ -22,11 +22,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.hibernate.id.IdentifierGenerator.ENTITY_NAME;
 import static org.radarbase.auth.authorization.Permission.SOURCE_UPDATE;
@@ -79,7 +77,7 @@ public class SourceService {
                 .findAll()
                 .stream()
                 .map(sourceMapper::sourceToSourceDTO)
-                .collect(Collectors.toCollection(LinkedList::new));
+                .toList();
     }
 
     /**
@@ -130,8 +128,10 @@ public class SourceService {
     public void delete(Long id) {
         log.info("Request to delete Source : {}", id);
         Revisions<Integer, Source> sourceHistory = sourceRepository.findRevisions(id);
-        List<Source> sources = sourceHistory.getContent().stream().map(Revision::getEntity)
-                .filter(Source::isAssigned).collect(Collectors.toList());
+        List<Source> sources = sourceHistory.getContent().stream()
+                .map(Revision::getEntity)
+                .filter(Source::isAssigned)
+                .toList();
         if (sources.isEmpty()) {
             sourceRepository.deleteById(id);
         } else {
@@ -181,7 +181,7 @@ public class SourceService {
                 .findAllSourcesByProjectIdAndAssigned(projectId, assigned)
                 .stream()
                 .map(sourceMapper::sourceToMinimalSourceDetailsDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     /**

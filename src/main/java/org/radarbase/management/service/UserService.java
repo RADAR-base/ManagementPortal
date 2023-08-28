@@ -13,6 +13,7 @@ import org.radarbase.management.service.dto.RoleDTO;
 import org.radarbase.management.service.dto.UserDTO;
 import org.radarbase.management.service.mapper.UserMapper;
 import org.radarbase.management.web.rest.errors.ConflictException;
+import org.radarbase.management.web.rest.errors.InvalidRequestException;
 import org.radarbase.management.web.rest.errors.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -315,7 +316,11 @@ public class UserService {
      * @param password the new password
      */
     public void changePassword(String password) {
-        changePassword(SecurityUtils.getCurrentUserLogin(), password);
+        String currentUser = SecurityUtils.getCurrentUserLogin()
+                        .orElseThrow(() -> new InvalidRequestException(
+                                "Cannot change password of unknown user", null,
+                                ERR_ENTITY_NOT_FOUND));
+        changePassword(currentUser, password);
     }
 
     /**
@@ -359,9 +364,9 @@ public class UserService {
      * @return the currently authenticated user, or null if no user is currently authenticated
      */
     @Transactional(readOnly = true)
-    public User getUserWithAuthorities() {
-        return userRepository.findOneWithRolesByLogin(SecurityUtils.getCurrentUserLogin())
-                .orElse(null);
+    public Optional<User> getUserWithAuthorities() {
+        return SecurityUtils.getCurrentUserLogin()
+                .flatMap(currentUser -> userRepository.findOneWithRolesByLogin(currentUser));
     }
 
 

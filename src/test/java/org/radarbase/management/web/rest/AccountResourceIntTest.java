@@ -38,7 +38,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.radarbase.management.security.JwtAuthenticationFilter.TOKEN_ATTRIBUTE;
+import static org.radarbase.management.security.JwtAuthenticationFilter.setRadarToken;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -131,11 +131,11 @@ class AccountResourceIntTest {
         user.setEmail("john.doe@jhipster.com");
         user.setLangKey("en");
         user.setRoles(roles);
-        when(mockUserService.getUserWithAuthorities()).thenReturn(user);
+        when(mockUserService.getUserWithAuthorities()).thenReturn(Optional.of(user));
 
         restUserMockMvc.perform(post("/api/login")
                 .with(request -> {
-                    request.setAttribute(TOKEN_ATTRIBUTE, token);
+                    setRadarToken(request, token);
                     request.setRemoteUser("test");
                     return request;
                 })
@@ -167,7 +167,7 @@ class AccountResourceIntTest {
         user.setEmail("john.doe@jhipster.com");
         user.setLangKey("en");
         user.setRoles(roles);
-        when(mockUserService.getUserWithAuthorities()).thenReturn(user);
+        when(mockUserService.getUserWithAuthorities()).thenReturn(Optional.of(user));
 
         restUserMockMvc.perform(get("/api/account")
                 .accept(MediaType.APPLICATION_JSON))
@@ -184,7 +184,7 @@ class AccountResourceIntTest {
 
     @Test
     void testGetUnknownAccount() throws Exception {
-        when(mockUserService.getUserWithAuthorities()).thenReturn(null);
+        when(mockUserService.getUserWithAuthorities()).thenReturn(Optional.empty());
 
         restUserMockMvc.perform(get("/api/account")
                 .accept(MediaType.APPLICATION_JSON))

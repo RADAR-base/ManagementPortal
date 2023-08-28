@@ -83,7 +83,8 @@ public class ManagementPortalSecurityConfigLoader {
         details.setClientSecret(null);
         details.setAccessTokenValiditySeconds(frontend.getAccessTokenValiditySeconds());
         details.setRefreshTokenValiditySeconds(frontend.getRefreshTokenValiditySeconds());
-        details.setResourceIds(Collections.singletonList("res_ManagementPortal"));
+        details.setResourceIds(List.of("res_ManagementPortal", "res_appconfig", "res_upload",
+                "res_restAuthorizer"));
         details.setAuthorizedGrantTypes(Arrays.asList("password", "refresh_token",
                 "authorization_code"));
         details.setAdditionalInformation(Collections.singletonMap("protected", Boolean.TRUE));

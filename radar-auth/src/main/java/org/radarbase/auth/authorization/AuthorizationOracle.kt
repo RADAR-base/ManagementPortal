@@ -47,6 +47,9 @@ interface AuthorizationOracle {
         permission: Permission
     ): AuthorityReferenceSet
 
+    fun Collection<RoleAuthority>.mayBeGranted(permission: Permission): Boolean =
+        any { it.mayBeGranted(permission) }
+
     fun RoleAuthority.mayBeGranted(permission: Permission): Boolean
 }
 

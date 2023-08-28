@@ -33,9 +33,8 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
-import java.util.Optional;
 
-import static org.radarbase.management.security.JwtAuthenticationFilter.TOKEN_ATTRIBUTE;
+import static org.radarbase.management.security.JwtAuthenticationFilter.setRadarToken;
 import static org.radarbase.management.web.rest.errors.EntityName.USER;
 import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_ACCESS_DENIED;
 import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_EMAIL_NOT_REGISTERED;
@@ -93,12 +92,12 @@ public class AccountResource {
      */
     @PostMapping("/login")
     @Timed
-    public ResponseEntity<UserDTO> login(HttpSession session) throws NotAuthorizedException {
+    public UserDTO login(HttpSession session) throws NotAuthorizedException {
         if (token == null) {
             throw new NotAuthorizedException("Cannot login without credentials");
         }
         log.debug("Logging in user to session with principal {}", token.getUsername());
-        session.setAttribute(TOKEN_ATTRIBUTE, DataRadarToken.Companion.copy(token));
+        setRadarToken(session, new DataRadarToken(token));
         return getAccount();
     }
 
@@ -122,16 +121,21 @@ public class AccountResource {
     /**
      * GET  /account : get the current user.
      *
-     * @return the ResponseEntity with status 200 (OK) and the current user in body, or status 500
+     * @return the ResponseEntity with status 200 (OK) and the current user in body, or status 401
      *     (Internal Server Error) if the user couldn't be returned
      */
     @GetMapping("/account")
     @Timed
-    public ResponseEntity<UserDTO> getAccount() {
-        return Optional.ofNullable(userService.getUserWithAuthorities())
-                .map(user -> new ResponseEntity<>(userMapper.userToUserDTO(user), HttpStatus.OK))
+    public UserDTO getAccount() {
+        User currentUser = userService.getUserWithAuthorities()
                 .orElseThrow(() -> new RadarWebApplicationException(HttpStatus.FORBIDDEN,
                         "Cannot get account without user", USER, ERR_ACCESS_DENIED));
+
+        UserDTO userDto = userMapper.userToUserDTO(currentUser);
+        if (managementPortalProperties.getAccount().getEnableExposeToken()) {
+            userDto.setAccessToken(token.getToken());
+        }
+        return userDto;
     }
 
     /**

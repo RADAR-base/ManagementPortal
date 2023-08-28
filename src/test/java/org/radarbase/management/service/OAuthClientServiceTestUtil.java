@@ -2,9 +2,8 @@ package org.radarbase.management.service;
 
 import org.radarbase.management.service.dto.ClientDetailsDTO;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.stream.Collectors;
+import java.util.LinkedHashMap;
+import java.util.Set;
 
 /**
  * Test class for the OAuthClientService class.
@@ -26,16 +25,17 @@ public final class OAuthClientServiceTestUtil {
         ClientDetailsDTO result = new ClientDetailsDTO();
         result.setClientId("TEST_CLIENT");
         result.setClientSecret("TEST_SECRET");
-        result.setScope(Arrays.asList("scope-1", "scope-2").stream().collect(Collectors.toSet()));
-        result.setResourceIds(Arrays.asList("res-1", "res-2").stream().collect(Collectors.toSet()));
-        result.setAutoApproveScopes(Arrays.asList("scope-1").stream().collect(Collectors.toSet()));
-        result.setAuthorizedGrantTypes(Arrays.asList("password", "refresh_token",
-                "authorization_code").stream().collect(Collectors.toSet()));
+        result.setScope(Set.of("scope-1", "scope-2"));
+        result.setResourceIds(Set.of("res-1", "res-2"));
+        result.setAutoApproveScopes(Set.of("scope-1"));
+        result.setAuthorizedGrantTypes(Set.of("password", "refresh_token",
+                "authorization_code"));
         result.setAccessTokenValiditySeconds(3600L);
         result.setRefreshTokenValiditySeconds(7200L);
-        result.setAuthorities(Arrays.asList("AUTHORITY-1").stream().collect(Collectors.toSet()));
-        result.setAdditionalInformation(new HashMap<>());
-        result.getAdditionalInformation().put("dynamic_registration", "true");
+        result.setAuthorities(Set.of("AUTHORITY-1"));
+        var additionalInfo = new LinkedHashMap<String, String>();
+        additionalInfo.put("dynamic_registration", "true");
+        result.setAdditionalInformation(additionalInfo);
         return result;
     }
 }

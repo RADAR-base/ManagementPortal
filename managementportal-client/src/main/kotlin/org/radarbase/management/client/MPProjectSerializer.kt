@@ -5,7 +5,7 @@ import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonTransformingSerializer
 
-class MPProjectSerializer : JsonTransformingSerializer<MPProject>(MPProject.serializer()) {
+object MPProjectSerializer : JsonTransformingSerializer<MPProject>(MPProject.serializer()) {
     override fun transformDeserialize(element: JsonElement): JsonElement {
         if (element !is JsonObject) return element
         val organization = element["organization"]
