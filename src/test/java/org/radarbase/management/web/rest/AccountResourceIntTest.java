@@ -9,6 +9,7 @@ import org.mockito.MockitoAnnotations;
 import org.radarbase.auth.authorization.RoleAuthority;
 import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.ManagementPortalTestApp;
+import org.radarbase.management.config.ManagementPortalProperties;
 import org.radarbase.management.domain.Authority;
 import org.radarbase.management.domain.User;
 import org.radarbase.management.repository.UserRepository;
@@ -77,6 +78,9 @@ class AccountResourceIntTest {
     @Autowired
     private AuthService authService;
 
+    @Autowired
+    private ManagementPortalProperties managementPortalProperties;
+
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.initMocks(this);
@@ -90,6 +94,8 @@ class AccountResourceIntTest {
         ReflectionTestUtils.setField(accountResource, "mailService", mockMailService);
         ReflectionTestUtils.setField(accountResource, "authService", authService);
         ReflectionTestUtils.setField(accountResource, "token", radarToken);
+        ReflectionTestUtils.setField(accountResource, "managementPortalProperties",
+                managementPortalProperties);
 
         AccountResource accountUserMockResource = new AccountResource();
         ReflectionTestUtils.setField(accountUserMockResource, "userService", mockUserService);
@@ -97,6 +103,8 @@ class AccountResourceIntTest {
         ReflectionTestUtils.setField(accountUserMockResource, "mailService", mockMailService);
         ReflectionTestUtils.setField(accountUserMockResource, "authService", authService);
         ReflectionTestUtils.setField(accountUserMockResource, "token", radarToken);
+        ReflectionTestUtils.setField(accountUserMockResource, "managementPortalProperties",
+                managementPortalProperties);
 
         this.restUserMockMvc = MockMvcBuilders.standaloneSetup(accountUserMockResource).build();
     }
