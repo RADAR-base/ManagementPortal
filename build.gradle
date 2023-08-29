@@ -17,13 +17,13 @@ plugins {
     id 'application'
     id 'org.springframework.boot' version "${spring_boot_version}"
     id "com.github.node-gradle.node" version "3.6.0"
-    id "io.spring.dependency-management" version "1.1.0"
-    id 'de.undercouch.download' version '5.4.0' apply false
+    id "io.spring.dependency-management" version "1.1.3"
+    id 'de.undercouch.download' version '5.5.0' apply false
     id "io.github.gradle-nexus.publish-plugin" version "1.3.0"
-    id("com.github.ben-manes.versions") version "0.46.0"
-    id 'org.jetbrains.kotlin.jvm' version "1.8.21"
-    id 'org.jetbrains.kotlin.plugin.serialization' version '1.8.21' apply false
-    id 'org.jetbrains.dokka' version "1.8.10"
+    id("com.github.ben-manes.versions") version "0.47.0"
+    id 'org.jetbrains.kotlin.jvm' version "1.9.10"
+    id 'org.jetbrains.kotlin.plugin.serialization' version '1.9.10' apply false
+    id 'org.jetbrains.dokka' version "1.8.20"
 }
 
 apply plugin: 'org.springframework.boot'
@@ -45,12 +45,11 @@ allprojects {
 
     ext.githubRepoName = 'RADAR-base/ManagementPortal'
     ext.githubUrl = 'https://github.com/RADAR-base/ManagementPortal'
-    ext.issueUrl = "https://github.com/$githubRepoName/issues"
     ext.website = 'https://radar-base.org'
 
     repositories {
         mavenCentral()
-        maven { url = "https://oss.sonatype.org/content/repositories/snapshots" }
+//        maven { url = "https://oss.sonatype.org/content/repositories/snapshots" }
     }
 
     idea {
@@ -261,7 +260,7 @@ tasks.register('cleanResources', Delete) {
 }
 
 wrapper {
-    gradleVersion '8.1.1'
+    gradleVersion '8.3'
 }
 
 tasks.register('stage') {
