@@ -25,7 +25,8 @@ import javax.sql.DataSource;
         repositoryFactoryBeanClass = EnversRevisionRepositoryFactoryBean.class)
 @EnableJpaAuditing(auditorAwareRef = "springSecurityAuditorAware")
 @EnableTransactionManagement
-
+@EntityScan(basePackages = {"org.radarbase.management.*", "uk.ac.herc.common.security.mf"})
+@ComponentScan(basePackages = { "org.radarbase.management.*", "uk.ac.herc.common.security.mf"})
 
 public class DatabaseConfiguration {
 
