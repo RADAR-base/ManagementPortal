@@ -7,10 +7,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.radarbase.auth.config.Constants;
 import org.radarbase.auth.exception.NotAuthorizedException;
 import org.radarbase.auth.token.RadarToken;
-import org.radarbase.management.domain.Project;
-import org.radarbase.management.domain.Source;
-import org.radarbase.management.domain.SourceType;
-import org.radarbase.management.domain.Subject;
+import org.radarbase.management.domain.*;
+import org.radarbase.management.domain.enumeration.DataGroupingType;
+import org.radarbase.management.repository.ConnectDataLogRepository;
 import org.radarbase.management.repository.ProjectRepository;
 import org.radarbase.management.repository.SubjectRepository;
 import org.radarbase.management.security.SecurityUtils;
@@ -20,6 +19,7 @@ import org.radarbase.management.service.RevisionService;
 import org.radarbase.management.service.SourceService;
 import org.radarbase.management.service.SourceTypeService;
 import org.radarbase.management.service.SubjectService;
+import org.radarbase.management.service.dto.DataLogDTO;
 import org.radarbase.management.service.dto.MinimalSourceDetailsDTO;
 import org.radarbase.management.service.dto.RevisionDTO;
 import org.radarbase.management.service.dto.SubjectDTO;
@@ -52,13 +52,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.net.URISyntaxException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -114,6 +108,9 @@ public class SubjectResource {
     private SourceService sourceService;
     @Autowired
     private OrganizationService organizationService;
+
+    @Autowired
+    private ConnectDataLogRepository connectDataLogRepository;
 
     /**
      * POST  /subjects : Create a new subject.
@@ -537,5 +534,30 @@ public class SubjectResource {
 
         // there should be only one source under a source-name.
         return ResponseEntity.ok(sourceService.safeUpdateOfAttributes(source, attributes));
+    }
+
+
+
+    @GetMapping("/subjects/{login:" + Constants.ENTITY_ID_REGEX + "}/datalogs")
+    @Timed
+    public ResponseEntity<List<DataLogDTO>> getSubjectDataLog(
+            @PathVariable String login) throws NotAuthorizedException {
+
+        checkPermission(token, SUBJECT_READ);
+        List<DataLogDTO> dataLogDTOList = new ArrayList<DataLogDTO>();
+
+        for(DataGroupingType groupingType :  DataGroupingType.values()) {
+            ConnectDataLog connectDataLog = connectDataLogRepository.findFirstByUserIdAndDataGroupingTypeOrderByTimeDesc(login, groupingType).orElse(null);
+
+            if(connectDataLog != null) {
+                DataLogDTO dataLogDTO = new DataLogDTO();
+                dataLogDTO.setTime(connectDataLog.getTime());
+                dataLogDTO.setGroupingType(connectDataLog.getDataGroupingType());
+
+                dataLogDTOList.add(dataLogDTO);
+            }
+        }
+        return ResponseEntity.ok((dataLogDTOList));
+
     }
 }

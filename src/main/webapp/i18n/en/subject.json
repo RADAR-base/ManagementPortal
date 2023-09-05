@@ -66,6 +66,9 @@
                 "sourceName": "Source Name",
                 "expectedSourceName": "Physical ID"
             },
+            "dataViewer":  {
+                "title": "Data Viewer"
+            },
             "clientApp": "Client app",
             "resource": "Protected resource",
             "attributeData" : "Attributes",
