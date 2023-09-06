@@ -21,7 +21,7 @@
     -->
     <changeSet id="20210929120000-1" author="alexey@thehyve.nl">
         <addColumn tableName="subject">
-            <column name="date_of_birth" type="date"/>
+            <column name="date_of_birth" type="date" defaultValueDate="1999-01-01"/>
         </addColumn>
     </changeSet>
     <changeSet id="20210929120000-2" author="alexey@thehyve.nl">
