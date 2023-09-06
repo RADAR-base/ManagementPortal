@@ -21,12 +21,12 @@
     -->
     <changeSet id="20211006150000-1" author="alexey@thehyve.nl">
         <addColumn tableName="subject">
-            <column name="person_name" type="varchar(255)"/>
+            <column name="person_name" type="varchar(255)" defaultValue="John Doe"/>
         </addColumn>
     </changeSet>
     <changeSet id="20211006150000-2" author="alexey@thehyve.nl">
         <addColumn tableName="subject_aud">
-            <column name="person_name" type="varchar(255)"/>
+            <column name="person_name" type="varchar(255)" defaultValue="John Doe"/>
             <column name="person_name_mod" type="BOOLEAN"/>
         </addColumn>
     </changeSet>
