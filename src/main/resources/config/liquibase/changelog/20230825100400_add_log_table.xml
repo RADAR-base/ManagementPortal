@@ -11,4 +11,21 @@
 
         </createTable>
     </changeSet>
+
+
+    <changeSet id="Add demo data for logs" author="Jindrich Gorner" context="dev,test">
+        <loadData
+                file="config/liquibase/datalogs.csv"
+                separator=";"
+                tableName="connect_data_log"
+                usePreparedStatements="true"
+
+        >
+            <column name="time" type="date"/>
+            <column name="data_grouping_type" type="string"/>
+            <column name="user_id" type="string"/>
+        </loadData>
+
+
+    </changeSet>
 </databaseChangeLog>
