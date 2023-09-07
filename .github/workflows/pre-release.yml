@@ -2,11 +2,10 @@
 name: Pre-release
 
 # Run in master and dev branches and in all pull requests to those branches
-#on:
-#  push:
-#    branches: [ "release-*" ]
-#  release:
-#    types: [ published ]
+on:
+  push:
+    branches:
+      - master
 
 jobs:
   # Build and test the code
