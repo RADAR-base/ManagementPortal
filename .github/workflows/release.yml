@@ -1,9 +1,9 @@
 # Create release files
 name: Release
 
-on:
-  release:
-    types: [published]
+#on:
+#  release:
+#    types: [published]
 
 env:
   DOCKER_IMAGE: radarbase/management-portal
