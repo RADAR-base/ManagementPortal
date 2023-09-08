@@ -10,7 +10,7 @@ import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
-import org.radarbase.auth.config.Constants;
+import org.radarbase.management.security.Constants;
 import org.radarbase.management.domain.enumeration.ProjectStatus;
 import org.radarbase.management.domain.support.AbstractEntityListener;
 

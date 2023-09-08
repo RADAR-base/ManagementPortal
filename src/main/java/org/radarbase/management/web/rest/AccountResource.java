@@ -1,10 +1,13 @@
 package org.radarbase.management.web.rest;
 
 import io.micrometer.core.annotation.Timed;
+import org.radarbase.auth.authorization.Permission;
+import org.radarbase.auth.token.DataRadarToken;
 import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.config.ManagementPortalProperties;
 import org.radarbase.management.domain.User;
-import org.radarbase.management.security.SessionRadarToken;
+import org.radarbase.management.security.NotAuthorizedException;
+import org.radarbase.management.service.AuthService;
 import org.radarbase.management.service.MailService;
 import org.radarbase.management.service.PasswordService;
 import org.radarbase.management.service.UserService;
@@ -30,9 +33,8 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
-import java.util.Optional;
 
-import static org.radarbase.management.security.JwtAuthenticationFilter.TOKEN_ATTRIBUTE;
+import static org.radarbase.management.security.JwtAuthenticationFilter.setRadarToken;
 import static org.radarbase.management.web.rest.errors.EntityName.USER;
 import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_ACCESS_DENIED;
 import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_EMAIL_NOT_REGISTERED;
@@ -58,11 +60,14 @@ public class AccountResource {
     @Autowired
     private ManagementPortalProperties managementPortalProperties;
 
-    @Autowired(required = false)
-    private RadarToken token;
+    @Autowired
+    private AuthService authService;
 
     @Autowired
     private PasswordService passwordService;
+
+    @Autowired(required = false)
+    private RadarToken token;
 
     /**
      * GET  /activate : activate the registered user.
@@ -87,10 +92,12 @@ public class AccountResource {
      */
     @PostMapping("/login")
     @Timed
-    public ResponseEntity<UserDTO> login(HttpSession session) {
+    public UserDTO login(HttpSession session) throws NotAuthorizedException {
+        if (token == null) {
+            throw new NotAuthorizedException("Cannot login without credentials");
+        }
         log.debug("Logging in user to session with principal {}", token.getUsername());
-        RadarToken sessionToken = new SessionRadarToken(token);
-        session.setAttribute(TOKEN_ATTRIBUTE, sessionToken);
+        setRadarToken(session, new DataRadarToken(token));
         return getAccount();
     }
 
@@ -114,16 +121,21 @@ public class AccountResource {
     /**
      * GET  /account : get the current user.
      *
-     * @return the ResponseEntity with status 200 (OK) and the current user in body, or status 500
+     * @return the ResponseEntity with status 200 (OK) and the current user in body, or status 401
      *     (Internal Server Error) if the user couldn't be returned
      */
     @GetMapping("/account")
     @Timed
-    public ResponseEntity<UserDTO> getAccount() {
-        return Optional.ofNullable(userService.getUserWithAuthorities())
-                .map(user -> new ResponseEntity<>(userMapper.userToUserDTO(user), HttpStatus.OK))
+    public UserDTO getAccount() {
+        User currentUser = userService.getUserWithAuthorities()
                 .orElseThrow(() -> new RadarWebApplicationException(HttpStatus.FORBIDDEN,
                         "Cannot get account without user", USER, ERR_ACCESS_DENIED));
+
+        UserDTO userDto = userMapper.userToUserDTO(currentUser);
+        if (managementPortalProperties.getAccount().getEnableExposeToken()) {
+            userDto.setAccessToken(token.getToken());
+        }
+        return userDto;
     }
 
     /**
@@ -136,12 +148,8 @@ public class AccountResource {
     @PostMapping("/account")
     @Timed
     public ResponseEntity<Void> saveAccount(@Valid @RequestBody UserDTO userDto,
-            Authentication authentication) {
-        if (authentication.getPrincipal() == null) {
-            throw new RadarWebApplicationException(HttpStatus.FORBIDDEN,
-                    "Cannot update account without user", USER, ERR_ACCESS_DENIED);
-        }
-
+            Authentication authentication) throws NotAuthorizedException {
+        authService.checkPermission(Permission.USER_UPDATE, e -> e.user(userDto.getLogin()));
         userService.updateUser(authentication.getName(), userDto.getFirstName(),
                 userDto.getLastName(), userDto.getEmail(), userDto.getLangKey());
 
@@ -166,8 +174,8 @@ public class AccountResource {
 
 
     /**
-     * POST   /account/reset-activation/init : Send an email to resend the password activation
-     * for the the user.
+     * POST  /account/reset-activation/init : Resend the password activation email
+     * to the user.
      *
      * @param login the login of the user
      * @return the ResponseEntity with status 200 (OK) if the email was sent, or status 400 (Bad
@@ -187,7 +195,7 @@ public class AccountResource {
     }
 
     /**
-     * POST   /account/reset_password/init : Send an email to reset the password of the user.
+     * POST   /account/reset_password/init : Email the user a password reset link.
      *
      * @param mail the mail of the user
      * @return the ResponseEntity with status 200 (OK) if the email was sent, or status 400 (Bad

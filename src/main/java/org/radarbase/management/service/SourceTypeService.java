@@ -1,20 +1,15 @@
 package org.radarbase.management.service;
 
-import static org.radarbase.management.web.rest.errors.EntityName.SOURCE_TYPE;
-import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_SOURCE_TYPE_NOT_FOUND;
-
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.stream.Collectors;
-import javax.validation.constraints.NotNull;
-
 import org.radarbase.management.domain.SourceData;
 import org.radarbase.management.domain.SourceType;
 import org.radarbase.management.repository.SourceDataRepository;
 import org.radarbase.management.repository.SourceTypeRepository;
+import org.radarbase.management.service.catalog.CatalogSourceData;
+import org.radarbase.management.service.catalog.CatalogSourceType;
 import org.radarbase.management.service.dto.ProjectDTO;
 import org.radarbase.management.service.dto.SourceTypeDTO;
+import org.radarbase.management.service.mapper.CatalogSourceDataMapper;
+import org.radarbase.management.service.mapper.CatalogSourceTypeMapper;
 import org.radarbase.management.service.mapper.ProjectMapper;
 import org.radarbase.management.service.mapper.SourceTypeMapper;
 import org.radarbase.management.web.rest.errors.NotFoundException;
@@ -25,6 +20,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.validation.constraints.NotNull;
+import java.util.Collections;
+import java.util.List;
+
+import static org.radarbase.management.web.rest.errors.EntityName.SOURCE_TYPE;
+import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_SOURCE_TYPE_NOT_FOUND;
 
 /**
  * Service Implementation for managing SourceType.
@@ -43,6 +45,12 @@ public class SourceTypeService {
 
     @Autowired
     private SourceDataRepository sourceDataRepository;
+
+    @Autowired
+    private CatalogSourceTypeMapper catalogSourceTypeMapper;
+
+    @Autowired
+    private CatalogSourceDataMapper catalogSourceDataMapper;
 
     @Autowired
     private ProjectMapper projectMapper;
@@ -74,8 +82,9 @@ public class SourceTypeService {
     public List<SourceTypeDTO> findAll() {
         log.debug("Request to get all SourceTypes");
         List<SourceType> result = sourceTypeRepository.findAllWithEagerRelationships();
-        return result.stream().map(sourceTypeMapper::sourceTypeToSourceTypeDTO)
-                .collect(Collectors.toCollection(LinkedList::new));
+        return result.stream()
+                .map(sourceTypeMapper::sourceTypeToSourceTypeDTO)
+                .toList();
 
     }
 
@@ -151,5 +160,83 @@ public class SourceTypeService {
             version) {
         return projectMapper.projectsToProjectDTOs(sourceTypeRepository
                 .findProjectsBySourceType(producer, model, version));
+    }
+
+    /**
+     * Converts given {@link CatalogSourceType} to {@link SourceType} and saves it to the databse
+     * after validations.
+     * @param catalogSourceTypes list of source-type from catalogue-server.
+     */
+    @Transactional
+    public void saveSourceTypesFromCatalogServer(List<CatalogSourceType> catalogSourceTypes) {
+        for (CatalogSourceType catalogSourceType : catalogSourceTypes) {
+            SourceType sourceType = catalogSourceTypeMapper
+                    .catalogSourceTypeToSourceType(catalogSourceType);
+
+            if (!isSourceTypeValid(sourceType)) {
+                continue;
+            }
+
+            // check whether a source-type is already available with given config
+            if (sourceTypeRepository.hasOneByProducerAndModelAndVersion(
+                    sourceType.getProducer(), sourceType.getModel(),
+                    sourceType.getCatalogVersion())) {
+                // skip for existing source-types
+                log.info("Source-type {} is already available ", sourceType.getProducer()
+                        + "_" + sourceType.getModel()
+                        + "_" + sourceType.getCatalogVersion());
+            } else {
+                try {
+                    // create new source-type
+                    sourceType = sourceTypeRepository.save(sourceType);
+
+                    // create source-data for the new source-type
+                    for (CatalogSourceData catalogSourceData : catalogSourceType.getData()) {
+                        saveSourceData(sourceType, catalogSourceData);
+                    }
+                } catch (RuntimeException ex) {
+                    log.error("Failed to import source type {}", sourceType, ex);
+                }
+            }
+        }
+        log.info("Completed source-type import from catalog-server");
+    }
+
+    private void saveSourceData(SourceType sourceType, CatalogSourceData catalogSourceData) {
+        try {
+            SourceData sourceData = catalogSourceDataMapper
+                    .catalogSourceDataToSourceData(catalogSourceData);
+            // sourceDataName should be unique
+            // generated by combining sourceDataType and source-type configs
+            sourceData.sourceDataName(sourceType.getProducer()
+                    + "_" + sourceType.getModel()
+                    + "_" + sourceType.getCatalogVersion()
+                    + "_" + sourceData.getSourceDataType());
+            sourceData.sourceType(sourceType);
+            sourceDataRepository.save(sourceData);
+        } catch (RuntimeException ex) {
+            log.error("Failed to import source data {}", catalogSourceData, ex);
+        }
+    }
+
+    private static boolean isSourceTypeValid(SourceType sourceType) {
+        if (sourceType.getProducer() == null) {
+            log.warn("Catalog source-type {} does not have a vendor. "
+                    + "Skipping importing this type", sourceType.getName());
+            return false;
+        }
+
+        if (sourceType.getModel() == null) {
+            log.warn("Catalog source-type {} does not have a model. "
+                    + "Skipping importing this type", sourceType.getName());
+            return false;
+        }
+
+        if (sourceType.getCatalogVersion() == null) {
+            log.warn("Catalog source-type {} does not have a version. "
+                    + "Skipping importing this type", sourceType.getName());
+            return false;
+        }
+        return true;
     }
 }

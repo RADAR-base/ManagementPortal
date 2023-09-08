@@ -4,7 +4,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
-import org.radarbase.auth.config.Constants;
+import org.radarbase.management.security.Constants;
 import org.radarbase.management.config.audit.AuditEventConverter;
 import org.radarbase.management.domain.PersistentAuditEvent;
 import org.springframework.beans.factory.annotation.Autowired;

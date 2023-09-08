@@ -10,6 +10,7 @@ import org.springframework.data.repository.RepositoryDefinition;
 import org.springframework.data.repository.history.RevisionRepository;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,8 +35,8 @@ public interface ProjectRepository extends JpaRepository<Project, Long>,
                     + "OR project.organization.name in (:organizationNames)")
     Page<Project> findAllWithEagerRelationshipsInOrganizationsOrProjects(
             Pageable pageable,
-            @Param("organizationNames") List<String> organizationNames,
-            @Param("projectNames") List<String> projectNames);
+            @Param("organizationNames") Collection<String> organizationNames,
+            @Param("projectNames") Collection<String> projectNames);
 
     @Query("select project from Project project "
             + "WHERE project.organization.name = :organization_name")
@@ -45,6 +46,7 @@ public interface ProjectRepository extends JpaRepository<Project, Long>,
     @Query("select project from Project project "
             + "left join fetch project.sourceTypes s "
             + "left join fetch project.groups "
+            + "left join fetch project.organization "
             + "where project.id = :id")
     Optional<Project> findOneWithEagerRelationships(@Param("id") Long id);
 
@@ -56,6 +58,7 @@ public interface ProjectRepository extends JpaRepository<Project, Long>,
     @Query("select project from Project project "
             + "left join fetch project.sourceTypes "
             + "left join fetch project.groups "
+            + "left join fetch project.organization "
             + "where project.projectName = :name")
     Optional<Project> findOneWithEagerRelationshipsByName(@Param("name") String name);
 

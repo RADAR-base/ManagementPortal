@@ -1,9 +1,11 @@
 package org.radarbase.management.client
 
-import com.fasterxml.jackson.annotation.JsonProperty
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class MPOAuthClient(
-    @JsonProperty("clientId") val id: String,
+    @SerialName("clientId") val id: String,
     var clientSecret: String? = null,
     val scope: List<String> = listOf(),
     val resourceIds: List<String> = listOf(),

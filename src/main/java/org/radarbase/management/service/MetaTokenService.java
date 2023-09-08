@@ -1,11 +1,11 @@
 package org.radarbase.management.service;
 
-import org.radarbase.auth.exception.NotAuthorizedException;
 import org.radarbase.management.config.ManagementPortalProperties;
 import org.radarbase.management.domain.MetaToken;
 import org.radarbase.management.domain.Project;
 import org.radarbase.management.domain.Subject;
 import org.radarbase.management.repository.MetaTokenRepository;
+import org.radarbase.management.security.NotAuthorizedException;
 import org.radarbase.management.service.dto.ClientPairInfoDTO;
 import org.radarbase.management.service.dto.TokenDTO;
 import org.radarbase.management.web.rest.errors.BadRequestException;
@@ -84,7 +84,7 @@ public class MetaTokenService {
         // process the response if the token is not fetched or not expired
         if (metaToken.isValid()) {
             String refreshToken = oAuthClientService.createAccessToken(
-                    metaToken.getSubject(),
+                    metaToken.getSubject().getUser(),
                     metaToken.getClientId())
                     .getRefreshToken()
                     .getValue();

@@ -21,7 +21,6 @@ RUN yarn install --network-timeout 1000000
 COPY gradle gradle
 COPY gradlew build.gradle gradle.properties settings.gradle /code/
 COPY radar-auth/build.gradle radar-auth/
-COPY oauth-client-util/build.gradle oauth-client-util/
 
 RUN ./gradlew downloadDependencies
 

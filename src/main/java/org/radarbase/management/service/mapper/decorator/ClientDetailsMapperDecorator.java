@@ -1,14 +1,15 @@
 package org.radarbase.management.service.mapper.decorator;
 
 
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 import org.radarbase.management.service.dto.ClientDetailsDTO;
 import org.radarbase.management.service.mapper.ClientDetailsMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.oauth2.provider.ClientDetails;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * Decorator for ClientDetailsMapper. The ClientDetails interface does not expose a method to get
@@ -38,6 +39,6 @@ public abstract class ClientDetailsMapperDecorator implements ClientDetailsMappe
         }
         return details.stream()
                 .map(this::clientDetailsToClientDetailsDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 }

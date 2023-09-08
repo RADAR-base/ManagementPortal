@@ -1,11 +1,11 @@
 package org.radarbase.management.web.rest;
 
 import io.micrometer.core.annotation.Timed;
-import org.radarbase.auth.config.Constants;
-import org.radarbase.auth.exception.NotAuthorizedException;
-import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.domain.SourceType;
 import org.radarbase.management.repository.SourceTypeRepository;
+import org.radarbase.management.security.Constants;
+import org.radarbase.management.security.NotAuthorizedException;
+import org.radarbase.management.service.AuthService;
 import org.radarbase.management.service.ResourceUriService;
 import org.radarbase.management.service.SourceTypeService;
 import org.radarbase.management.service.dto.ProjectDTO;
@@ -48,7 +48,6 @@ import static org.radarbase.auth.authorization.Permission.SOURCETYPE_CREATE;
 import static org.radarbase.auth.authorization.Permission.SOURCETYPE_DELETE;
 import static org.radarbase.auth.authorization.Permission.SOURCETYPE_READ;
 import static org.radarbase.auth.authorization.Permission.SOURCETYPE_UPDATE;
-import static org.radarbase.auth.authorization.RadarAuthorization.checkPermission;
 import static org.radarbase.management.web.rest.errors.EntityName.SOURCE_TYPE;
 
 /**
@@ -60,13 +59,12 @@ public class SourceTypeResource {
     private static final Logger log = LoggerFactory.getLogger(SourceTypeResource.class);
 
     @Autowired
-    private RadarToken token;
-
-    @Autowired
     private SourceTypeService sourceTypeService;
 
     @Autowired
     private SourceTypeRepository sourceTypeRepository;
+    @Autowired
+    private AuthService authService;
 
     /**
      * POST  /source-types : Create a new sourceType.
@@ -81,7 +79,7 @@ public class SourceTypeResource {
     public ResponseEntity<SourceTypeDTO> createSourceType(@Valid @RequestBody
             SourceTypeDTO sourceTypeDto) throws URISyntaxException, NotAuthorizedException {
         log.debug("REST request to save SourceType : {}", sourceTypeDto);
-        checkPermission(token, SOURCETYPE_CREATE);
+        authService.checkPermission(SOURCETYPE_CREATE);
         if (sourceTypeDto.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(SOURCE_TYPE,
                     "idexists", "A new sourceType cannot already have an ID")).build();
@@ -125,7 +123,7 @@ public class SourceTypeResource {
         if (sourceTypeDto.getId() == null) {
             return createSourceType(sourceTypeDto);
         }
-        checkPermission(token, SOURCETYPE_UPDATE);
+        authService.checkPermission(SOURCETYPE_UPDATE);
         SourceTypeDTO result = sourceTypeService.save(sourceTypeDto);
         return ResponseEntity.ok()
                 .headers(
@@ -144,7 +142,7 @@ public class SourceTypeResource {
     public ResponseEntity<List<SourceTypeDTO>> getAllSourceTypes(
             @PageableDefault(page = 0, size = Integer.MAX_VALUE) Pageable pageable)
             throws NotAuthorizedException {
-        checkPermission(token, SOURCETYPE_READ);
+        authService.checkPermission(SOURCETYPE_READ);
         Page<SourceTypeDTO> page = sourceTypeService.findAll(pageable);
         HttpHeaders headers = PaginationUtil
                 .generatePaginationHttpHeaders(page, "/api/source-types");
@@ -161,7 +159,7 @@ public class SourceTypeResource {
     @Timed
     public ResponseEntity<List<SourceTypeDTO>> getSourceTypes(@PathVariable String producer)
             throws NotAuthorizedException {
-        checkPermission(token, SOURCETYPE_READ);
+        authService.checkPermission(SOURCETYPE_READ);
         return ResponseEntity.ok(sourceTypeService.findByProducer(producer));
     }
 
@@ -178,7 +176,7 @@ public class SourceTypeResource {
     @Timed
     public ResponseEntity<List<SourceTypeDTO>> getSourceTypes(@PathVariable String producer,
             @PathVariable String model) throws NotAuthorizedException {
-        checkPermission(token, SOURCETYPE_READ);
+        authService.checkPermission(SOURCETYPE_READ);
         return ResponseEntity.ok(sourceTypeService.findByProducerAndModel(producer, model));
     }
 
@@ -196,7 +194,7 @@ public class SourceTypeResource {
     public ResponseEntity<SourceTypeDTO> getSourceTypes(@PathVariable String producer,
             @PathVariable String model, @PathVariable String version)
             throws NotAuthorizedException {
-        checkPermission(token, SOURCETYPE_READ);
+        authService.checkPermission(SOURCETYPE_READ);
         return ResponseUtil.wrapOrNotFound(Optional.ofNullable(
                 sourceTypeService.findByProducerAndModelAndVersion(producer, model, version)));
     }
@@ -216,7 +214,7 @@ public class SourceTypeResource {
     public ResponseEntity<Void> deleteSourceType(@PathVariable String producer,
             @PathVariable String model, @PathVariable String version)
             throws NotAuthorizedException {
-        checkPermission(token, SOURCETYPE_DELETE);
+        authService.checkPermission(SOURCETYPE_DELETE);
         SourceTypeDTO sourceTypeDto = sourceTypeService
                 .findByProducerAndModelAndVersion(producer, model, version);
         if (Objects.isNull(sourceTypeDto)) {

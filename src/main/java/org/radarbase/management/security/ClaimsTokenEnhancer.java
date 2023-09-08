@@ -1,7 +1,8 @@
 package org.radarbase.management.security;
 
+import org.radarbase.auth.authorization.AuthorizationOracle;
 import org.radarbase.auth.authorization.Permission;
-import org.radarbase.auth.token.JwtRadarToken;
+import org.radarbase.auth.authorization.RoleAuthority;
 import org.radarbase.management.domain.Role;
 import org.radarbase.management.domain.Source;
 import org.radarbase.management.repository.SubjectRepository;
@@ -22,12 +23,17 @@ import org.springframework.security.oauth2.provider.token.TokenEnhancer;
 
 import java.security.Principal;
 import java.time.Instant;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
+
+import static org.radarbase.auth.jwt.JwtTokenVerifier.GRANT_TYPE_CLAIM;
+import static org.radarbase.auth.jwt.JwtTokenVerifier.ROLES_CLAIM;
+import static org.radarbase.auth.jwt.JwtTokenVerifier.SOURCES_CLAIM;
 
 public class ClaimsTokenEnhancer implements TokenEnhancer, InitializingBean {
     private static final Logger logger = LoggerFactory.getLogger(ClaimsTokenEnhancer.class);
@@ -40,6 +46,9 @@ public class ClaimsTokenEnhancer implements TokenEnhancer, InitializingBean {
 
     @Autowired
     private AuditEventRepository auditEventRepository;
+
+    @Autowired
+    private AuthorizationOracle authorizationOracle;
 
     @Value("${spring.application.name}")
     private String appName;
@@ -65,7 +74,7 @@ public class ClaimsTokenEnhancer implements TokenEnhancer, InitializingBean {
                         var roles = user.getRoles().stream()
                                 .map(role -> {
                                     var auth = role.getAuthority().getName();
-                                    return switch (role.getRole().scope()) {
+                                    return switch (role.getRole().getScope()) {
                                         case GLOBAL -> auth;
                                         case ORGANIZATION -> role.getOrganization().getName()
                                                 + ":" + auth;
@@ -73,17 +82,20 @@ public class ClaimsTokenEnhancer implements TokenEnhancer, InitializingBean {
                                                 + ":" + auth;
                                     };
                                 })
-                                .collect(Collectors.toList());
-                        additionalInfo.put(JwtRadarToken.ROLES_CLAIM, roles);
+                                .toList();
+                        additionalInfo.put(ROLES_CLAIM, roles);
 
                         // Do not grant scopes that cannot be given to a user.
                         Set<String> currentScopes = accessToken.getScope();
                         Set<String> newScopes = currentScopes.stream()
                                 .filter(scope -> {
                                     Permission permission = Permission.ofScope(scope);
-                                    return user.getRoles().stream()
+                                    var roleAuthorities = user.getRoles().stream()
                                             .map(Role::getRole)
-                                            .anyMatch(permission::isRoleAllowed);
+                                            .collect(Collectors.toCollection(() ->
+                                                    EnumSet.noneOf(RoleAuthority.class)));
+                                    return authorizationOracle.mayBeGranted(roleAuthorities,
+                                            permission);
                                 })
                                 .collect(Collectors.toCollection(TreeSet::new));
 
@@ -96,13 +108,13 @@ public class ClaimsTokenEnhancer implements TokenEnhancer, InitializingBean {
 
             List<String> sourceIds = assignedSources.stream()
                     .map(s -> s.getSourceId().toString())
-                    .collect(Collectors.toList());
-            additionalInfo.put(JwtRadarToken.SOURCES_CLAIM, sourceIds);
+                    .toList();
+            additionalInfo.put(SOURCES_CLAIM, sourceIds);
         }
         // add iat and iss optional JWT claims
         additionalInfo.put("iat", Instant.now().getEpochSecond());
         additionalInfo.put("iss", appName);
-        additionalInfo.put(JwtRadarToken.GRANT_TYPE_CLAIM,
+        additionalInfo.put(GRANT_TYPE_CLAIM,
                 authentication.getOAuth2Request().getGrantType());
         ((DefaultOAuth2AccessToken) accessToken)
                 .setAdditionalInformation(additionalInfo);

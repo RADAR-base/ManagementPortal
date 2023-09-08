@@ -315,7 +315,6 @@ For more information refer to [Using Docker and Docker-Compose][], this page als
 
 Please find the links for some of the documentation per category/component
 * [management-portal-javadoc](https://radar-base.github.io/ManagementPortal/management-portal-javadoc/)
-* [oauth-client-util-javadoc](https://radar-base.github.io/ManagementPortal/oauth-client-util-javadoc/)
 * [radar-auth-javadoc](https://radar-base.github.io/ManagementPortal/radar-auth-javadoc/)
 * [managementportal-client-javadoc](https://radar-base.github.io/ManagementPortal/managementportal-client-javadoc/)
 * [Swagger 2.0 apidoc](https://radar-base.github.io/ManagementPortal/apidoc/swagger.json)

@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.RepositoryDefinition;
 import org.springframework.data.repository.history.RevisionRepository;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,6 +19,7 @@ import java.util.Optional;
  * Spring Data JPA repository for the User entity.
  */
 @RepositoryDefinition(domainClass = User.class, idClass = Long.class)
+@Component
 public interface UserRepository extends JpaRepository<User, Long>,
         RevisionRepository<User, Long, Integer>, JpaSpecificationExecutor<User> {
 

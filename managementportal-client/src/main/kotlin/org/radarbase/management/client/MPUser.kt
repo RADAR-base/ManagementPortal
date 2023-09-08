@@ -9,11 +9,12 @@
 
 package org.radarbase.management.client
 
-import com.fasterxml.jackson.annotation.JsonProperty
-import java.time.ZonedDateTime
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class MPUser(
-    @JsonProperty("login")
+    @SerialName("login")
     val id: String,
 
     val firstName: String? = null,
@@ -24,9 +25,11 @@ data class MPUser(
     val langKey: String? = null,
     val createdBy: String? = null,
 
-    val createdDate: ZonedDateTime? = null,
+    /** ZonedDateTime. */
+    val createdDate: String? = null,
     val lastModifiedBy: String? = null,
-    val lastModifiedDate: ZonedDateTime? = null,
+    /** ZonedDateTime. */
+    val lastModifiedDate: String? = null,
     val roles: List<MPRole> = listOf(),
     val authorities: List<String> = listOf(),
 )

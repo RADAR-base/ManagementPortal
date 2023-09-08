@@ -5,8 +5,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockitoAnnotations;
+import org.radarbase.auth.authentication.OAuthHelper;
 import org.radarbase.auth.authorization.RoleAuthority;
-import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.ManagementPortalTestApp;
 import org.radarbase.management.config.ManagementPortalProperties;
 import org.radarbase.management.domain.Authority;
@@ -17,13 +17,13 @@ import org.radarbase.management.repository.RoleRepository;
 import org.radarbase.management.repository.SubjectRepository;
 import org.radarbase.management.repository.UserRepository;
 import org.radarbase.management.security.JwtAuthenticationFilter;
+import org.radarbase.management.service.AuthService;
 import org.radarbase.management.service.MailService;
 import org.radarbase.management.service.PasswordService;
 import org.radarbase.management.service.UserService;
 import org.radarbase.management.service.dto.RoleDTO;
 import org.radarbase.management.web.rest.errors.ExceptionTranslator;
 import org.radarbase.management.web.rest.vm.ManagedUserVM;
-import org.radarbase.auth.authentication.OAuthHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
@@ -38,14 +38,15 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.ServletException;
-import java.util.HashSet;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
+import static org.radarbase.auth.authorization.RoleAuthority.SYS_ADMIN;
 import static org.radarbase.auth.authorization.RoleAuthority.SYS_ADMIN_AUTHORITY;
 import static org.radarbase.management.service.UserServiceIntTest.DEFAULT_EMAIL;
 import static org.radarbase.management.service.UserServiceIntTest.DEFAULT_FIRSTNAME;
@@ -59,7 +60,6 @@ import static org.radarbase.management.service.UserServiceIntTest.UPDATED_LANGKE
 import static org.radarbase.management.service.UserServiceIntTest.UPDATED_LASTNAME;
 import static org.radarbase.management.service.UserServiceIntTest.UPDATED_LOGIN;
 import static org.radarbase.management.service.UserServiceIntTest.UPDATED_PASSWORD;
-import static org.radarbase.auth.authorization.RoleAuthority.SYS_ADMIN;
 import static org.radarbase.management.service.UserServiceIntTest.createEntity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -107,7 +107,7 @@ class UserResourceIntTest {
     private SubjectRepository subjectRepository;
 
     @Autowired
-    private RadarToken radarToken;
+    private AuthService authService;
 
     @Autowired
     private PasswordService passwordService;
@@ -129,7 +129,7 @@ class UserResourceIntTest {
         ReflectionTestUtils.setField(userResource, "mailService", mailService);
         ReflectionTestUtils.setField(userResource, "userRepository", userRepository);
         ReflectionTestUtils.setField(userResource, "subjectRepository", subjectRepository);
-        ReflectionTestUtils.setField(userResource, "token", radarToken);
+        ReflectionTestUtils.setField(userResource, "authService", authService);
         ReflectionTestUtils.setField(userResource,
                 "managementPortalProperties", managementPortalProperties);
 
@@ -160,7 +160,7 @@ class UserResourceIntTest {
         userRepository.findOneByLogin(UPDATED_LOGIN)
                 .ifPresent(userRepository::delete);
         var roles = roleRepository
-                .findRolesByAuthorityName(RoleAuthority.PARTICIPANT.authority())
+                .findRolesByAuthorityName(RoleAuthority.PARTICIPANT.getAuthority())
                 .stream().filter(r -> r.getProject() == null)
                 .collect(Collectors.toList());
         roleRepository.deleteAll(roles);
@@ -202,7 +202,7 @@ class UserResourceIntTest {
 
         Set<RoleDTO> roles = new HashSet<>();
         RoleDTO role = new RoleDTO();
-        role.setAuthorityName(RoleAuthority.PARTICIPANT.authority());
+        role.setAuthorityName(RoleAuthority.PARTICIPANT.getAuthority());
         roles.add(role);
 
         ManagedUserVM managedUserVm = createDefaultUser(roles);
@@ -228,7 +228,7 @@ class UserResourceIntTest {
 
         Set<RoleDTO> roles = new HashSet<>();
         RoleDTO role = new RoleDTO();
-        role.setAuthorityName(RoleAuthority.PARTICIPANT.authority());
+        role.setAuthorityName(RoleAuthority.PARTICIPANT.getAuthority());
         roles.add(role);
         ManagedUserVM managedUserVm = createDefaultUser(roles);
         managedUserVm.setEmail("anothermail@localhost");
@@ -253,7 +253,7 @@ class UserResourceIntTest {
 
         Set<RoleDTO> roles = new HashSet<>();
         RoleDTO role = new RoleDTO();
-        role.setAuthorityName(RoleAuthority.PARTICIPANT.authority());
+        role.setAuthorityName(RoleAuthority.PARTICIPANT.getAuthority());
         roles.add(role);
         ManagedUserVM managedUserVm = createDefaultUser(roles);
         managedUserVm.setLogin("anotherlogin");
@@ -350,7 +350,7 @@ class UserResourceIntTest {
 
         RoleDTO role = new RoleDTO();
         role.setProjectId(project.getId());
-        role.setAuthorityName(RoleAuthority.PARTICIPANT.authority());
+        role.setAuthorityName(RoleAuthority.PARTICIPANT.getAuthority());
         managedUserVm.setRoles(Set.of(role));
 
         restUserMockMvc.perform(put("/api/users")
@@ -394,7 +394,7 @@ class UserResourceIntTest {
 
         RoleDTO role = new RoleDTO();
         role.setProjectId(project.getId());
-        role.setAuthorityName(RoleAuthority.PARTICIPANT.authority());
+        role.setAuthorityName(RoleAuthority.PARTICIPANT.getAuthority());
         managedUserVm.setRoles(Set.of(role));
 
         restUserMockMvc.perform(put("/api/users")
@@ -406,7 +406,7 @@ class UserResourceIntTest {
         List<User> userList = userRepository.findAll();
         assertThat(userList).hasSize(databaseSizeBeforeUpdate);
         User testUser = userList.get(userList.size() - 1);
-        assertThat(testUser.getLogin()).isEqualTo(UPDATED_LOGIN);
+        assertThat(testUser.getLogin()).isEqualTo(DEFAULT_LOGIN);
         assertThat(testUser.getFirstName()).isEqualTo(UPDATED_FIRSTNAME);
         assertThat(testUser.getLastName()).isEqualTo(UPDATED_LASTNAME);
         assertThat(testUser.getEmail()).isEqualTo(UPDATED_EMAIL);
@@ -447,7 +447,7 @@ class UserResourceIntTest {
 
         RoleDTO role = new RoleDTO();
         role.setProjectId(project.getId());
-        role.setAuthorityName(RoleAuthority.PARTICIPANT.authority());
+        role.setAuthorityName(RoleAuthority.PARTICIPANT.getAuthority());
         managedUserVm.setRoles(Set.of(role));
 
         restUserMockMvc.perform(put("/api/users")
@@ -490,7 +490,7 @@ class UserResourceIntTest {
 
         RoleDTO role = new RoleDTO();
         role.setProjectId(project.getId());
-        role.setAuthorityName(RoleAuthority.PARTICIPANT.authority());
+        role.setAuthorityName(RoleAuthority.PARTICIPANT.getAuthority());
         managedUserVm.setRoles(Set.of(role));
 
         restUserMockMvc.perform(put("/api/users")

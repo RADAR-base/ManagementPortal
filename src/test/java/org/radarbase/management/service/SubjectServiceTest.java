@@ -1,13 +1,5 @@
 package org.radarbase.management.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.radarbase.management.service.dto.ProjectDTO.PRIVACY_POLICY_URL;
-import static org.radarbase.management.service.dto.SubjectDTO.SubjectStatus.ACTIVATED;
-
-import java.net.URL;
-import java.util.Collections;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.radarbase.management.ManagementPortalTestApp;
@@ -18,6 +10,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.net.URL;
+import java.util.Collections;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.radarbase.management.service.dto.ProjectDTO.PRIVACY_POLICY_URL;
+import static org.radarbase.management.service.dto.SubjectDTO.SubjectStatus.ACTIVATED;
 
 /**
  * Test class for the SubjectService class.

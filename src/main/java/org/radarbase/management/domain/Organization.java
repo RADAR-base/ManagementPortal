@@ -3,7 +3,7 @@ package org.radarbase.management.domain;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.envers.Audited;
-import org.radarbase.auth.config.Constants;
+import org.radarbase.management.security.Constants;
 import org.radarbase.management.domain.support.AbstractEntityListener;
 
 import javax.persistence.Column;

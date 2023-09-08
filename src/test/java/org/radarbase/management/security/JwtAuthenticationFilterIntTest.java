@@ -1,13 +1,13 @@
 package org.radarbase.management.security;
 
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockitoAnnotations;
-import org.radarbase.auth.token.RadarToken;
-import org.radarbase.management.ManagementPortalTestApp;
-import org.radarbase.management.service.ProjectService;
 import org.radarbase.auth.authentication.OAuthHelper;
+import org.radarbase.management.ManagementPortalTestApp;
+import org.radarbase.management.service.AuthService;
+import org.radarbase.management.service.ProjectService;
 import org.radarbase.management.web.rest.ProjectResource;
 import org.radarbase.management.web.rest.errors.ExceptionTranslator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,9 +37,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class JwtAuthenticationFilterIntTest {
 
     @Autowired
-    private RadarToken radarToken;
-
-    @Autowired
     private ProjectService projectService;
 
     @Autowired
@@ -54,13 +51,15 @@ class JwtAuthenticationFilterIntTest {
     private MockMvc rsaRestProjectMockMvc;
 
     private MockMvc ecRestProjectMockMvc;
+    @Autowired
+    private AuthService authService;
 
     @BeforeEach
     public void setUp() throws ServletException {
         MockitoAnnotations.initMocks(this);
         ProjectResource projectResource = new ProjectResource();
         ReflectionTestUtils.setField(projectResource, "projectService", projectService);
-        ReflectionTestUtils.setField(projectResource, "token", radarToken);
+        ReflectionTestUtils.setField(projectResource, "authService", authService);
 
         JwtAuthenticationFilter filter = OAuthHelper.createAuthenticationFilter();
         filter.init(new MockFilterConfig());
@@ -70,14 +69,18 @@ class JwtAuthenticationFilterIntTest {
                 .setControllerAdvice(exceptionTranslator)
                 .setMessageConverters(jacksonMessageConverter)
                 .addFilter(filter)
-                .defaultRequest(get("/").with(OAuthHelper.rsaBearerToken())).build();
+                .defaultRequest(get("/")
+                        .with(OAuthHelper.rsaBearerToken()))
+                .build();
 
         this.ecRestProjectMockMvc = MockMvcBuilders.standaloneSetup(projectResource)
                 .setCustomArgumentResolvers(pageableArgumentResolver)
                 .setControllerAdvice(exceptionTranslator)
                 .setMessageConverters(jacksonMessageConverter)
                 .addFilter(filter)
-                .defaultRequest(get("/").with(OAuthHelper.bearerToken())).build();
+                .defaultRequest(get("/")
+                        .with(OAuthHelper.bearerToken()))
+                .build();
     }
 
     @Test
