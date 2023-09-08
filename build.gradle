@@ -49,7 +49,6 @@ allprojects {
 
     repositories {
         mavenCentral()
-//        maven { url = "https://oss.sonatype.org/content/repositories/snapshots" }
     }
 
     idea {
@@ -97,31 +96,9 @@ springBoot {
     buildInfo()
 }
 
-if (OperatingSystem.current().isWindows()) {
-    tasks.register('pathingJar', Jar) {
-        dependsOn configurations.runtime
-        archiveAppendix.set('pathing')
 
-        doFirst {
-            manifest {
-                attributes 'Class-Path': configurations.runtime.files.collect {
-                    it.toURI().toURL().toString().replaceFirst(/file:\/+/, '/').replaceAll(' ', '%20')
-                }.join(' ')
-            }
-        }
-    }
-
-    bootRun {
-        sourceResources sourceSets.main
-        dependsOn pathingJar
-        doFirst {
-            classpath = files("$buildDir/classes/java/main", "$buildDir/resources/main", pathingJar.archivePath)
-        }
-    }
-} else {
-    bootRun {
-        sourceResources sourceSets.main
-    }
+bootRun {
+    sourceResources sourceSets.main
 }
 
 tasks.withType(KotlinCompile).configureEach {
