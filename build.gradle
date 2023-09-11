@@ -6,10 +6,6 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 buildscript {
     repositories {
         mavenCentral()
-
-        // This repo is used temporarily when we use an internal SNAPSHOT library version.
-        // When we publish the library, we comment out the repository again to speed up dependency resolution.
-//        maven { url = "https://oss.sonatype.org/content/repositories/snapshots" }
     }
 
     dependencies {
@@ -53,6 +49,10 @@ allprojects {
 
     repositories {
         mavenCentral()
+
+        // This repo is used temporarily when we use an internal SNAPSHOT library version.
+        // When we publish the library, we comment out the repository again to speed up dependency resolution.
+//        maven { url = "https://oss.sonatype.org/content/repositories/snapshots" }
     }
 
     idea {
