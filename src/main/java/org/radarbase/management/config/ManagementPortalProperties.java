@@ -22,6 +22,8 @@ public class ManagementPortalProperties {
 
     private final Account account = new Account();
 
+    private final SiteProperties siteProperties = new SiteProperties();
+
     public ManagementPortalProperties.Frontend getFrontend() {
         return frontend;
     }
@@ -48,6 +50,10 @@ public class ManagementPortalProperties {
 
     public Account getAccount() {
         return account;
+    }
+
+    public SiteProperties getSiteProperties() {
+        return siteProperties;
     }
 
     public static class Account {
@@ -276,5 +282,14 @@ public class ManagementPortalProperties {
         public void setEnableAutoImport(boolean enableAutoImport) {
             this.enableAutoImport = enableAutoImport;
         }
+    }
+
+    public static class SiteProperties {
+
+        private String[] disabledSubjectProperties;
+
+        public void setDisabledSubjectProperties(String[] disabledSubjectProperties) { this.disabledSubjectProperties = disabledSubjectProperties; }
+
+        public String[] getDisabledSubjectProperties() {return disabledSubjectProperties; }
     }
 }
