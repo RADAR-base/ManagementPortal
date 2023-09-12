@@ -22,7 +22,7 @@ public class ManagementPortalProperties {
 
     private final Account account = new Account();
 
-    private final SiteProperties siteProperties = new SiteProperties();
+    private final SiteSettings siteSettings = new SiteSettings();
 
     public ManagementPortalProperties.Frontend getFrontend() {
         return frontend;
@@ -52,8 +52,8 @@ public class ManagementPortalProperties {
         return account;
     }
 
-    public SiteProperties getSiteProperties() {
-        return siteProperties;
+    public SiteSettings getSiteSettings() {
+        return siteSettings;
     }
 
     public static class Account {
@@ -284,12 +284,12 @@ public class ManagementPortalProperties {
         }
     }
 
-    public static class SiteProperties {
+    public static class SiteSettings {
 
-        private String[] disabledSubjectProperties;
+        private List<String> hiddenSubjectFields;
 
-        public void setDisabledSubjectProperties(String[] disabledSubjectProperties) { this.disabledSubjectProperties = disabledSubjectProperties; }
+        public void setHiddenSubjectFields(List<String> hiddenSubjectFields) { this.hiddenSubjectFields = hiddenSubjectFields; }
 
-        public String[] getDisabledSubjectProperties() {return disabledSubjectProperties; }
+        public List<String> getHiddenSubjectFields() {return hiddenSubjectFields; }
     }
 }
