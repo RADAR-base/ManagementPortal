@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.6.xsd"
+>
+    <changeSet id="update person_name 20230908" author="bastiaan@thehyve.nl" context="dev, test">
+        <update tableName="subject">
+            <column name="person_name" value="John Doe" />
+            <where>ID in (1, 2, 3, 4, 5, 6, 7, 8)</where>
+        </update>
+    </changeSet>
+
+    <changeSet id="update date_of_birth 20230908" author="bastiaan@thehyve.nl" context="dev, test">
+        <update tableName="subject">
+            <column name="date_of_birth" value="1999-01-01" />
+            <where>ID in (1, 2, 3, 4, 9, 10, 11, 12)</where>
+        </update>
+    </changeSet>
+
+</databaseChangeLog>
