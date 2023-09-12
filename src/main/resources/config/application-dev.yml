@@ -107,8 +107,8 @@ managementportal:
     catalogueServer:
         enableAutoImport: false
         serverUrl:
-    siteProperties:
-        disabledSubjectProperties: [person_name, date_of_birth, group]
+    siteSettings:
+        hiddenSubjectFields: [person_name, date_of_birth, group]
 
 # ===================================================================
 # JHipster specific properties
