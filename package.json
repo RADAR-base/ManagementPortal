@@ -62,7 +62,7 @@
     "lint": "ng lint",
     "lint:fix": "ng lint --fix=true",
     "cleanup": "rimraf build/",
-    "start": "ng serve",
+    "start": "NODE_OPTIONS=--openssl-legacy-provider ng serve",
     "build:prod": "ng build --base-href /managementportal/ --configuration production",
     "build:dev": "ng build --configuration development",
     "test": "ng test --no-watch --no-progress --browsers=ChromeHeadlessCI",
