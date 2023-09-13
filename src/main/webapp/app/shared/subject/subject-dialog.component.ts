@@ -14,12 +14,13 @@ import {AlertService} from '../util/alert.service';
 import {EventManager} from '../util/event-manager.service';
 import {SubjectPopupService} from './subject-popup.service';
 
-import {Subject} from './subject.model';
+import {SiteSettings, Subject} from './subject.model';
 import {SubjectService} from './subject.service';
 import {Observable, Subscription} from 'rxjs';
 import {ObservablePopupComponent} from '../util/observable-popup.component';
 import {Project, ProjectService} from "../project";
 import {Group, GroupService} from "../group";
+import {SiteSettingsService} from "./sitesettings.service";
 
 @Component({
     selector: 'jhi-subject-dialog',
@@ -33,6 +34,7 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
     isInProject: boolean;
     projects: Project[] = [];
     groups$: Observable<Group[]>;
+    public siteSettings$: Observable<SiteSettings>;
     project: Project;
 
     groupName: string;
@@ -49,6 +51,7 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
                 private subjectService: SubjectService,
                 private projectService: ProjectService,
                 private groupService: GroupService,
+                private siteSettingsService: SiteSettingsService,
                 private eventManager: EventManager,
                 private calendar: NgbCalendar,
                 private formatter: NgbDateParserFormatter) {
@@ -68,6 +71,8 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
         if(this.subject.dateOfBirth) {
             this.dateOfBirth = this.formatter.parse(this.subject.dateOfBirth.toString());
         }
+        this.siteSettings$ = this.siteSettingsService.getSiteSettings();
+
         this.subscriptions.add(this.registerEventChanges());
     }
 
