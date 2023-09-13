@@ -2,9 +2,7 @@ package org.radarbase.management.service;
 
 import org.radarbase.management.config.ManagementPortalProperties.SiteSettings;
 import org.radarbase.management.config.ManagementPortalProperties;
-import org.radarbase.management.service.dto.SiteSettingsDTO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.radarbase.management.service.dto.SiteSettingsDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,39 +14,37 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class SiteSettingsService {
 
-    private static final Logger log = LoggerFactory.getLogger(SiteSettingsService.class);
-
     @Autowired
     private ManagementPortalProperties managementPortalProperties;
 
     /**
-     * Convert a {@link SiteSettings} to a {@link SiteSettingsDTO} object.
+     * Convert a {@link SiteSettings} to a {@link SiteSettingsDto} object.
      * @param siteSettings The object to convert
      * @return the newly created DTO object
      */
-    public SiteSettingsDTO createSiteSettingsDTO(SiteSettings siteSettings) {
+    public SiteSettingsDto createSiteSettingsDto(SiteSettings siteSettings) {
 
-        SiteSettingsDTO siteSettingsDTO;
-        siteSettingsDTO = new SiteSettingsDTO();
+        SiteSettingsDto siteSettingsDto;
+        siteSettingsDto = new SiteSettingsDto();
 
-        siteSettingsDTO.setHiddenSubjectFields(siteSettings.getHiddenSubjectFields());
-        return siteSettingsDTO;
+        siteSettingsDto.setHiddenSubjectFields(siteSettings.getHiddenSubjectFields());
+        return siteSettingsDto;
     }
 
     /**
-     * Convert a {@link SiteSettingsDTO} to a {@link SiteSettings} object.
+     * Convert a {@link SiteSettingsDto} to a {@link SiteSettings} object.
      *
-     * @param siteSettingsDTO The DTO object to convert
+     * @param siteSettingsDto The DTO object to convert
      * @return the newly created object
      */
-    public SiteSettings createSiteSettings(SiteSettingsDTO siteSettingsDTO) {
+    public SiteSettings createSiteSettings(SiteSettingsDto siteSettingsDto) {
         SiteSettings siteSettings = new SiteSettings();
-        siteSettings.setHiddenSubjectFields(siteSettingsDTO.getHiddenSubjectFields());
+        siteSettings.setHiddenSubjectFields(siteSettingsDto.getHiddenSubjectFields());
         return siteSettings;
     }
 
     // NAMING!
-    public SiteSettingsDTO getSiteSettingsDTO() {
-        return createSiteSettingsDTO(managementPortalProperties.getSiteSettings());
+    public SiteSettingsDto getSiteSettingsDto() {
+        return createSiteSettingsDto(managementPortalProperties.getSiteSettings());
     }
 }

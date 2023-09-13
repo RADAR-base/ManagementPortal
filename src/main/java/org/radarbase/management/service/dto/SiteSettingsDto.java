@@ -10,7 +10,7 @@ import java.util.Objects;
 /**
  * A DTO for the {@link ManagementPortalProperties.SiteSettings} entity.
  */
-public class SiteSettingsDTO implements Serializable {
+public class SiteSettingsDto implements Serializable {
 
     private List<String> hiddenSubjectFields = List.of();
 
@@ -31,7 +31,7 @@ public class SiteSettingsDTO implements Serializable {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        SiteSettingsDTO that = (SiteSettingsDTO) o;
+        SiteSettingsDto that = (SiteSettingsDto) o;
         return Objects.equals(hiddenSubjectFields, that.hiddenSubjectFields);
     }
 
