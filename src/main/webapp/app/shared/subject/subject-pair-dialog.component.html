@@ -26,7 +26,7 @@
                        [(ngModel)]="subject.externalId" [disabled]="subject.id" >
             </div>
 
-            <div *ngIf="subject.personName" >
+            <div *ngIf="!(siteSettings$ | async).hiddenSubjectFields.includes('person_name') && subject.personName" >
                 <label for="name" class="form-control-label"
                        [translate]="'managementPortalApp.subject.personName'">
                 </label>
@@ -34,7 +34,7 @@
                        [(ngModel)]="subject.personName" [disabled]="subject.id">
             </div>
 
-            <div *ngIf="subject.dateOfBirth" >
+            <div *ngIf="!(siteSettings$ | async).hiddenSubjectFields.includes('date_of_birth') && subject.dateOfBirth" >
                 <label for="dateOfBirth" class="form-control-label"
                        [translate]="'managementPortalApp.subject.dateOfBirth'">
                 </label>

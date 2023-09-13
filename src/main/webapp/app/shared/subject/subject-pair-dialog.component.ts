@@ -11,10 +11,11 @@ import { OAuthClient, OAuthClientService, PairInfo } from '../../entities/oauth-
 import { OAuthClientPairInfoService } from '../../entities/oauth-client/oauth-client-pair-info.service';
 
 import { SubjectPopupService } from './subject-popup.service';
-import { Subject } from './subject.model';
+import {SiteSettings, Subject} from './subject.model';
 import { ObservablePopupComponent } from '../util/observable-popup.component';
 import { map, switchMap, tap } from 'rxjs/operators';
 import { PrintService } from '../util/print.service';
+import {SiteSettingsService} from "./sitesettings.service";
 
 @Component({
     selector: 'jhi-subject-pair-dialog',
@@ -29,12 +30,14 @@ export class SubjectPairDialogComponent implements OnInit, OnDestroy {
     pairInfo: PairInfo = null;
     selectedClient: OAuthClient = null;
     allowPersistentToken = false;
+    public siteSettings$: Observable<SiteSettings>;
     private subscriptions: Subscription = new Subscription();
 
     constructor(public activeModal: NgbActiveModal,
                 private translate: TranslateService,
                 private oauthClientService: OAuthClientService,
                 private pairInfoService: OAuthClientPairInfoService,
+                private siteSettingsService: SiteSettingsService,
                 private datePipe: DatePipe,
                 private printService: PrintService,
                 @Inject(DOCUMENT) private doc) {
@@ -54,6 +57,7 @@ export class SubjectPairDialogComponent implements OnInit, OnDestroy {
 
         // Add print-lock to exclude the background from being included in print commands
         this.printService.setPrintLockTo(true);
+        this.siteSettings$ = this.siteSettingsService.getSiteSettings();
     }
 
     ngOnDestroy() {
