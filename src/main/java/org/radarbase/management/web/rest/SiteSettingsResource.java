@@ -2,7 +2,7 @@ package org.radarbase.management.web.rest;
 
 import io.micrometer.core.annotation.Timed;
 import org.radarbase.management.service.SiteSettingsService;
-import org.radarbase.management.service.dto.SiteSettingsDTO;
+import org.radarbase.management.service.dto.SiteSettingsDto;
 import org.radarbase.management.config.ManagementPortalProperties.SiteSettings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,15 +35,15 @@ public class SiteSettingsResource {
     /**
      * GET  /SiteSettings  : Gets the current SiteSettings as a DTO.
      *
-     * @return the ResponseEntity with status 200 (Ok) and with body {@link SiteSettingsDTO}.
+     * @return the ResponseEntity with status 200 (Ok) and with body {@link SiteSettingsDto}.
      */
     @GetMapping("/sitesettings")
     @Timed
-    public ResponseEntity<SiteSettingsDTO> getDisabledSubjectFields() {
+    public ResponseEntity<SiteSettingsDto> getDisabledSubjectFields() {
         log.debug("REST request to get sitesettings");
 
         return ResponseEntity
                 .ok()
-                .body(siteSettingsService.getSiteSettingsDTO());
+                .body(siteSettingsService.getSiteSettingsDto());
     }
 }
