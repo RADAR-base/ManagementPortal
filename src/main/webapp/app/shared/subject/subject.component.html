@@ -209,14 +209,14 @@
         </div>
 
         <jhi-alert></jhi-alert>
-        <div class="subject-list-actions">
+        <div *ngIf="!(siteSettings$ | async).hiddenSubjectFields.includes('group')" class="subject-list-actions">
             <button type="button"
                     class="btn btn-light"
                     [translate]="(allChecked$ | async) ? 'managementPortalApp.subject.clearSelectedItems' : 'managementPortalApp.subject.selectAll'"
                     (click)="toggleSelectAll()"
             ></button>
             <button type="button"
-                    *ngIf='isProjectSpecific'
+                    *ngIf="isProjectSpecific"
                     class="btn btn-light"
                     [disabled]="!(anyChecked$ | async)"
                     [translate]="'managementPortalApp.subject.addSelectedToGroup'"
@@ -226,7 +226,7 @@
         <div *ngIf="subjects$ | async as subjects" class="subjects">
             <div *ngFor="let subject of subjects; trackBy: trackLogin" class="subject-row">
                 <div class="subject-row__select-row">
-                    <input type="checkbox" [ngModel]="subject.checked" [disabled]="subject.status.toString() !== 'ACTIVATED'"
+                    <input *ngIf="!(siteSettings$ | async).hiddenSubjectFields.includes('group')" type="checkbox" [ngModel]="subject.checked" [disabled]="subject.status.toString() !== 'ACTIVATED'"
                            (ngModelChange)="onItemChecked(subject.id, $event)">
                 </div>
                 <div class="subject-row__content">
@@ -301,7 +301,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="subject-row__group">
+                    <div *ngIf="!(siteSettings$ | async).hiddenSubjectFields.includes('group')" class="subject-row__group">
                         <span class="subject-row__field-label"
                               [translate]="'managementPortalApp.subject.group'">
                         </span>

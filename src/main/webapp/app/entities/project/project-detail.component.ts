@@ -5,6 +5,7 @@ import { BehaviorSubject, combineLatest, Observable, Subscription } from 'rxjs';
 import { Account, Principal, Project, ProjectService } from '../../shared';
 import { EventManager } from '../../shared/util/event-manager.service';
 import { distinctUntilChanged, filter, map, pluck, shareReplay, startWith, switchMap } from 'rxjs/operators';
+import {SiteSettings, SiteSettingsService} from "../../shared/subject";
 
 interface TabOptions {
     active: string | null;
@@ -21,6 +22,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
     private subscription = new Subscription();
     project$: Observable<Project>
     tab$: Observable<TabOptions>;
+    public siteSettings$: Observable<SiteSettings>;
 
     private _activeTab$ = new BehaviorSubject('subjects');
 
@@ -28,6 +30,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
             private eventManager: EventManager,
             private projectService: ProjectService,
             private activatedRoute: ActivatedRoute,
+            private siteSettingsService: SiteSettingsService,
             private router: Router,
             public principal: Principal,
     ) {
@@ -42,6 +45,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
         ).subscribe(tab => this.updateActiveTab(tab)));
 
         this.subscription.add(this.registerTabChange());
+        this.siteSettings$ = this.siteSettingsService.getSiteSettings();
     }
 
     ngOnDestroy() {

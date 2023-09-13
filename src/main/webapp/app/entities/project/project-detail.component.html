@@ -67,7 +67,9 @@
                           [translate]="'managementPortalApp.project.sources'">
                     </span>
             </li>
-            <li class="nav-item" (click)="updateActiveTab('groups')" *ngIf="tab.available.includes('groups')">
+            <li class="nav-item" (click)="updateActiveTab('groups')"
+                *ngIf="!(siteSettings$ | async).hiddenSubjectFields.includes('group') &&
+                tab.available.includes('groups')">
                     <span class="nav-link" [ngClass]="{active: tab.active === 'groups'}"
                           [translate]="'managementPortalApp.project.groups'">
                     </span>
