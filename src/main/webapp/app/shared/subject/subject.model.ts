@@ -45,3 +45,7 @@ export const enum SubjectStatus {
     'DISCONTINUED',
     'INVALID'
 }
+
+export interface SiteSettings {
+    hiddenSubjectFields: string[]
+}

@@ -12,3 +12,4 @@ export * from './subject-revision-list.component';
 export * from './subject-pair-dialog.component';
 export * from './subject.component';
 export * from './subject.route';
+export {SiteSettingsService} from "./sitesettings.service";
