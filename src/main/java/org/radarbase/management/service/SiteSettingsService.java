@@ -22,12 +22,15 @@ public class SiteSettingsService {
     private ManagementPortalProperties managementPortalProperties;
 
     /**
-     * Convert a {@link SiteSettings} to a {@link SiteSettingsDTO} object
+     * Convert a {@link SiteSettings} to a {@link SiteSettingsDTO} object.
      * @param siteSettings The object to convert
      * @return the newly created DTO object
      */
     public SiteSettingsDTO createSiteSettingsDTO(SiteSettings siteSettings) {
-        SiteSettingsDTO siteSettingsDTO = new SiteSettingsDTO();
+
+        SiteSettingsDTO siteSettingsDTO;
+        siteSettingsDTO = new SiteSettingsDTO();
+
         siteSettingsDTO.setHiddenSubjectFields(siteSettings.getHiddenSubjectFields());
         return siteSettingsDTO;
     }
@@ -45,7 +48,7 @@ public class SiteSettingsService {
     }
 
     // NAMING!
-    public SiteSettingsDTO getSiteSettingsDTO(){
+    public SiteSettingsDTO getSiteSettingsDTO() {
         return createSiteSettingsDTO(managementPortalProperties.getSiteSettings());
     }
 }
