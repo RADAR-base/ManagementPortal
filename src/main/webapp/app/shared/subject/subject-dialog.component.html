@@ -52,7 +52,7 @@
             </select>
         </div>
 
-        <div class="form-group">
+        <div *ngIf="!(siteSettings$ | async).hiddenSubjectFields.includes('group')" class="form-group">
             <label class="form-control-label"
                 for="field_group"
                 [translate]="'managementPortalApp.subject.group'">
@@ -68,7 +68,7 @@
                 </option>
             </select>
         </div>
-        <div class="form-group">
+        <div *ngIf="!(siteSettings$ | async).hiddenSubjectFields.includes('person_name')" class="form-group">
             <label class="form-control-label"
                    [translate]="'managementPortalApp.subject.personName'"
                    for="field_person_name">
@@ -76,7 +76,7 @@
             <input type="text" class="form-control" name="personName" id="field_person_name" [(ngModel)]="subject.personName"/>
         </div>
 
-        <div class="form-group">
+        <div *ngIf="!(siteSettings$ | async).hiddenSubjectFields.includes('date_of_birth')" class="form-group">
             <label class="form-control-label"
                    [translate]="'managementPortalApp.subject.dateOfBirth'"
                    for="field_date_of_birth">
