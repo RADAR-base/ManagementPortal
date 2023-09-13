@@ -1,10 +1,11 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Subscription } from 'rxjs';
+import {Observable, Subscription} from 'rxjs';
 
 import { EventManager } from '../util/event-manager.service';
-import { Subject } from './subject.model';
+import {SiteSettings, Subject} from './subject.model';
 import { SubjectService } from './subject.service';
+import {SiteSettingsService} from "./sitesettings.service";
 
 @Component({
     selector: 'jhi-subject-detail',
@@ -16,10 +17,12 @@ export class SubjectDetailComponent implements OnInit, OnDestroy {
     subject: Subject;
     private subscription: any;
     private eventSubscriber: Subscription;
+    public siteSettings$: Observable<SiteSettings>;
 
     constructor(
             private eventManager: EventManager,
             private subjectService: SubjectService,
+            private siteSettingsService: SiteSettingsService,
             private route: ActivatedRoute,
     ) {
     }
@@ -29,6 +32,7 @@ export class SubjectDetailComponent implements OnInit, OnDestroy {
             this.load(params['login']);
         });
         this.registerChangeInSubjects();
+        this.siteSettings$ = this.siteSettingsService.getSiteSettings();
     }
 
     load(id) {

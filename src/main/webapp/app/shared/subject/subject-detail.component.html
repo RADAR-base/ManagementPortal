@@ -22,10 +22,13 @@
                   <a [routerLink]="['/project', subject.project?.projectName ]" >{{subject.project?.projectName}}</a>
             </span>
         </dd>
-        <dt><span [translate]="'managementPortalApp.subject.group'"></span></dt>
-        <dd>
-            <span>{{subject.group || '-'}}</span>
-        </dd>
+
+        <div *ngIf="!(siteSettings$ | async).hiddenSubjectFields.includes('group')">
+            <dt><span [translate]="'managementPortalApp.subject.group'"></span></dt>
+            <dd>
+                <span>{{subject.group || '-'}}</span>
+            </dd>
+        </div>
         <dt><span [translate]="'managementPortalApp.subject.sources'"></span></dt>
         <dd>
             <span *ngFor="let sources of subject.sources; let last = last">
@@ -39,11 +42,14 @@
                 <span class="form-control-static">{{entry.key}}: {{entry.value}}</span>
             </div>
         </dd>
-
-        <dt><span [translate]="'managementPortalApp.subject.personName'"></span></dt>
-        <dd>{{subject.personName}}</dd>
-        <dt><span [translate]="'managementPortalApp.subject.dateOfBirth'"></span></dt>
-        <dd>{{subject.dateOfBirth | date:'yyyy-MM-dd' }}</dd>
+        <div *ngIf="!(siteSettings$ | async).hiddenSubjectFields.includes('person_name')">
+            <dt><span [translate]="'managementPortalApp.subject.personName'"></span></dt>
+            <dd>{{subject.personName}}"</dd>
+        </div>
+        <div *ngIf="!(siteSettings$ | async).hiddenSubjectFields.includes('date_of_birth')">
+            <dt><span [translate]="'managementPortalApp.subject.dateOfBirth'"></span></dt>
+            <dd>{{subject.dateOfBirth | date:'yyyy-MM-dd' }}</dd>
+        </div>
         <dt><span [translate]="'managementPortalApp.subject.enrollmentDate'"></span></dt>
         <dd>{{subject.enrollmentDate | date:'yyyy-MM-dd HH:mm' }}</dd>
         <dt><span [translate]="'managementPortalApp.subject.createdBy'"></span></dt>
