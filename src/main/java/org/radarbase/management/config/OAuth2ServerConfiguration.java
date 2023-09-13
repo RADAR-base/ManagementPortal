@@ -185,8 +185,8 @@ public class OAuth2ServerConfiguration {
                         .antMatchers("/api/profile-info").permitAll()
                         .antMatchers("/api/sitesettings").permitAll()
                         .antMatchers("/api/**").authenticated()
-                        // Allow management/health endpoint to all to allow kubernetes to be able to
-                        // detect the health of the service
+                    // Allow management/health endpoint to all to allow kubernetes to be able to
+                    // detect the health of the service
                     .antMatchers("/management/health").permitAll()
                         .antMatchers("/management/**")
                             .hasAnyAuthority(RoleAuthority.SYS_ADMIN_AUTHORITY)

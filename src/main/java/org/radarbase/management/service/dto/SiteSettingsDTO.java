@@ -4,7 +4,8 @@ package org.radarbase.management.service.dto;
 import org.radarbase.management.config.ManagementPortalProperties;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * A DTO for the {@link ManagementPortalProperties.SiteSettings} entity.
@@ -23,8 +24,13 @@ public class SiteSettingsDTO implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         SiteSettingsDTO that = (SiteSettingsDTO) o;
         return Objects.equals(hiddenSubjectFields, that.hiddenSubjectFields);
     }
@@ -36,8 +42,9 @@ public class SiteSettingsDTO implements Serializable {
 
     @Override
     public String toString() {
-        return "SiteSettingsDTO{" +
-                "hiddenSubjectProperties=" + hiddenSubjectFields +
-                '}';
+        return "SiteSettingsDTO{"
+                + "hiddenSubjectProperties="
+                + hiddenSubjectFields
+                + '}';
     }
 }

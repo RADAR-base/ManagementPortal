@@ -288,8 +288,12 @@ public class ManagementPortalProperties {
 
         private List<String> hiddenSubjectFields;
 
-        public void setHiddenSubjectFields(List<String> hiddenSubjectFields) { this.hiddenSubjectFields = hiddenSubjectFields; }
+        public void setHiddenSubjectFields(List<String> hiddenSubjectFields) {
+            this.hiddenSubjectFields = hiddenSubjectFields;
+        }
 
-        public List<String> getHiddenSubjectFields() {return hiddenSubjectFields; }
+        public List<String> getHiddenSubjectFields() {
+            return hiddenSubjectFields;
+        }
     }
 }
