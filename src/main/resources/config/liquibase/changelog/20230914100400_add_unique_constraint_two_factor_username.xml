@@ -1,0 +1,27 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.7.xsd">
+
+    <changeSet author="Jindrich Gorner" id="20230914090400">
+        <comment>Clear any existing legacy data in the table for two_factor as there were duplicates </comment>
+        <sql splitStatements="true">
+            TRUNCATE TABLE two_factor_authentication;
+        </sql>
+    </changeSet>
+
+
+    <changeSet author="Jindrich Gorner" id="20230914100400">
+        <addUniqueConstraint
+                columnNames="user_name"
+                constraintName="two_factor_user_name_unique"
+                tableName="two_factor_authentication"
+        />
+    </changeSet>
+
+
+
+
+
+</databaseChangeLog>
