@@ -1,6 +1,6 @@
 <form name="pairForm" role="form" novalidate #editForm="ngForm">
 
-    <div class="modal-header">
+    <div class="modal-header not-print">
         <h4 class="modal-title" id="mySubjectLabel"
             [translate]="'managementPortalApp.subject.home.pairAppLabel'">
         </h4>
@@ -8,7 +8,7 @@
                 (click)="clear()">&times;
         </button>
     </div>
-    <div class="modal-body">
+    <div class="modal-body print">
         <div class="form-group">
             <div>
                 <label for="login" class="form-control-label"
@@ -65,6 +65,9 @@
                     [disabled]="selectedClient === null">
                 <span class="fa fa-save"></span> <span
                     [translate]="'managementPortalApp.subject.generatePersistentToken'"></span>
+            </button>
+            <button type="button" class="btn btn-default" data-dismiss="modal" (click)="exportHtmlToPDF()">
+                <span class="fa fa-print"></span><span>Print</span>
             </button>
         </div>
 

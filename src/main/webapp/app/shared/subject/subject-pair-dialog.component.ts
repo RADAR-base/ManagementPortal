@@ -18,7 +18,7 @@ import { map, switchMap, tap } from 'rxjs/operators';
 @Component({
     selector: 'jhi-subject-pair-dialog',
     templateUrl: './subject-pair-dialog.component.html',
-    styleUrls: ['subject-pair-dialog.component.scss'],
+    styleUrls: ['subject-pair-dialog.component.scss', '../../../content/scss/_print.scss'],
 })
 export class SubjectPairDialogComponent implements OnInit, OnDestroy {
     readonly authorities: string[];
@@ -38,7 +38,9 @@ export class SubjectPairDialogComponent implements OnInit, OnDestroy {
                 @Inject(DOCUMENT) private doc) {
         this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN'];
     }
-
+    exportHtmlToPDF() {
+        window.print();
+    }
     ngOnInit() {
         if (this.subject.project && this.subject.project.persistentTokenTimeout) {
             this.allowPersistentToken = true;
