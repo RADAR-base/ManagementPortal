@@ -24,23 +24,10 @@ public class SiteSettingsService {
      */
     public SiteSettingsDto createSiteSettingsDto(SiteSettings siteSettings) {
 
-        SiteSettingsDto siteSettingsDto;
-        siteSettingsDto = new SiteSettingsDto();
+        SiteSettingsDto siteSettingsDto = new SiteSettingsDto();
 
         siteSettingsDto.setHiddenSubjectFields(siteSettings.getHiddenSubjectFields());
         return siteSettingsDto;
-    }
-
-    /**
-     * Convert a {@link SiteSettingsDto} to a {@link SiteSettings} object.
-     *
-     * @param siteSettingsDto The DTO object to convert
-     * @return the newly created object
-     */
-    public SiteSettings createSiteSettings(SiteSettingsDto siteSettingsDto) {
-        SiteSettings siteSettings = new SiteSettings();
-        siteSettings.setHiddenSubjectFields(siteSettingsDto.getHiddenSubjectFields());
-        return siteSettings;
     }
 
     // NAMING!
