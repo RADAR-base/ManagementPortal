@@ -3,7 +3,7 @@ import { DatePipe, DOCUMENT } from '@angular/common';
 import { HttpResponse } from '@angular/common/http';
 import { ActivatedRoute, Params } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { Observable, Subscription } from 'rxjs';
+import { Subscription } from 'rxjs';
 
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 
@@ -11,7 +11,7 @@ import { OAuthClient, OAuthClientService, PairInfo } from '../../entities/oauth-
 import { OAuthClientPairInfoService } from '../../entities/oauth-client/oauth-client-pair-info.service';
 
 import { SubjectPopupService } from './subject-popup.service';
-import {SiteSettings, Subject} from './subject.model';
+import { Subject} from './subject.model';
 import { ObservablePopupComponent } from '../util/observable-popup.component';
 import { map, switchMap, tap } from 'rxjs/operators';
 import { PrintService } from '../util/print.service';
@@ -30,7 +30,7 @@ export class SubjectPairDialogComponent implements OnInit, OnDestroy {
     pairInfo: PairInfo = null;
     selectedClient: OAuthClient = null;
     allowPersistentToken = false;
-    public siteSettings$: Observable<SiteSettings>;
+    siteSettings$ = this.siteSettingsService.getSiteSettings();
     private subscriptions: Subscription = new Subscription();
 
     constructor(public activeModal: NgbActiveModal,
