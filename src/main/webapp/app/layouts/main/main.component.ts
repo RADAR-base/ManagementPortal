@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRouteSnapshot, NavigationEnd, Router } from '@angular/router';
+import { Observable } from 'rxjs';
 
 import { JhiLanguageHelper } from '../../shared';
+import {PrintService} from "../../shared/util/print.service";
 
 @Component({
     selector: 'jhi-main',
@@ -12,9 +14,12 @@ export class JhiMainComponent implements OnInit {
 
     constructor(
             private jhiLanguageHelper: JhiLanguageHelper,
+            private printService: PrintService,
             private router: Router,
     ) {
     }
+
+    public isPrintLocked$: Observable<boolean>;
 
     ngOnInit() {
         this.router.events.subscribe((event) => {
@@ -22,5 +27,7 @@ export class JhiMainComponent implements OnInit {
                 this.jhiLanguageHelper.updateTitle();
             }
         });
+       this.isPrintLocked$ = this.printService.isPrintLocked$;
+       //this.isPrintLocked$.subscribe(setTo => console.log("now we updated main.html"));
     }
 }

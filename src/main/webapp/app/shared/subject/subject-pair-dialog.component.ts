@@ -14,11 +14,13 @@ import { SubjectPopupService } from './subject-popup.service';
 import { Subject } from './subject.model';
 import { ObservablePopupComponent } from '../util/observable-popup.component';
 import { map, switchMap, tap } from 'rxjs/operators';
+import { JhiMainComponent } from '../../layouts/main/main.component';
+import { PrintService } from '../util/print.service';
 
 @Component({
     selector: 'jhi-subject-pair-dialog',
     templateUrl: './subject-pair-dialog.component.html',
-    styleUrls: ['subject-pair-dialog.component.scss', '../../../content/scss/_print.scss'],
+    styleUrls: ['subject-pair-dialog.component.scss'],
 })
 export class SubjectPairDialogComponent implements OnInit, OnDestroy {
     readonly authorities: string[];
@@ -35,12 +37,24 @@ export class SubjectPairDialogComponent implements OnInit, OnDestroy {
                 private oauthClientService: OAuthClientService,
                 private pairInfoService: OAuthClientPairInfoService,
                 private datePipe: DatePipe,
+                private printService: PrintService,
                 @Inject(DOCUMENT) private doc) {
         this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN'];
     }
-    exportHtmlToPDF() {
-        window.print();
+    async exportHtmlToPDF() {
+        // let pp: PrintService = this.printService;
+        // window.onafterprint = function(){
+        //     console.log("Printing completed...");
+        //     //pp.togglePrintLock().then(_ => {})
+        // }
+
+        this.printService.setPrintLockTo(true);
+        await new Promise(r => setTimeout(r, 0.000000000000000000000000000000000000000000000000000001));
+        window.print()
+        this.printService.setPrintLockTo(false);
+
     }
+
     ngOnInit() {
         if (this.subject.project && this.subject.project.persistentTokenTimeout) {
             this.allowPersistentToken = true;
