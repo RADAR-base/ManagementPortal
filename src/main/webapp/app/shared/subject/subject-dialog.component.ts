@@ -34,7 +34,7 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
     isInProject: boolean;
     projects: Project[] = [];
     groups$: Observable<Group[]>;
-    public siteSettings$: Observable<SiteSettings>;
+    siteSettings$: Observable<SiteSettings>;
     project: Project;
 
     groupName: string;

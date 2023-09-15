@@ -13,6 +13,6 @@ export class SiteSettingsService {
     }
 
     getSiteSettings(): Observable<SiteSettings> {
-        return this.http.get<SiteSettings>(`${this.siteSettingsResourceUrl}`);
+        return this.http.get<SiteSettings>(this.siteSettingsResourceUrl);
     }
 }
