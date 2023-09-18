@@ -7,8 +7,6 @@ export class PrintService {
     isPrintLocked$:  BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
     setPrintLockTo(setTo: boolean) {
-        setTimeout(() => {
-            this.isPrintLocked$.next(setTo)
-        });
+        this.isPrintLocked$.next(setTo)
     }
 }
