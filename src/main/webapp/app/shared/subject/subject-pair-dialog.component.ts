@@ -1,4 +1,4 @@
-import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, Inject, OnDestroy, OnInit} from '@angular/core';
 import { DatePipe, DOCUMENT } from '@angular/common';
 import { HttpResponse } from '@angular/common/http';
 import { ActivatedRoute, Params } from '@angular/router';
@@ -14,6 +14,7 @@ import { SubjectPopupService } from './subject-popup.service';
 import { Subject } from './subject.model';
 import { ObservablePopupComponent } from '../util/observable-popup.component';
 import { map, switchMap, tap } from 'rxjs/operators';
+import { PrintService } from '../util/print.service';
 
 @Component({
     selector: 'jhi-subject-pair-dialog',
@@ -35,8 +36,13 @@ export class SubjectPairDialogComponent implements OnInit, OnDestroy {
                 private oauthClientService: OAuthClientService,
                 private pairInfoService: OAuthClientPairInfoService,
                 private datePipe: DatePipe,
+                private printService: PrintService,
                 @Inject(DOCUMENT) private doc) {
         this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN'];
+    }
+
+    exportHtmlToPDF() {
+        window.print();
     }
 
     ngOnInit() {
@@ -45,10 +51,14 @@ export class SubjectPairDialogComponent implements OnInit, OnDestroy {
         }
         this.loadInconsolataFont();
         this.subscriptions.add(this.fetchOAuthClients());
+
+        // Add print-lock to exclude the background from being included in print commands
+        this.printService.setPrintLockTo(true);
     }
 
     ngOnDestroy() {
         this.subscriptions.unsubscribe();
+        this.printService.setPrintLockTo(false);
     }
 
     private fetchOAuthClients(): Subscription {

@@ -1,0 +1,14 @@
+@media print {
+
+    * {
+        -webkit-print-color-adjust: exact;
+    }
+
+    .not-print {
+        display: none !important;
+    }
+
+    .modal-backdrop {
+        display: none !important;
+    }
+}

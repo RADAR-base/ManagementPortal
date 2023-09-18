@@ -66,6 +66,9 @@
                 <span class="fa fa-save"></span> <span
                     [translate]="'managementPortalApp.subject.generatePersistentToken'"></span>
             </button>
+            <button type="button" class="btn btn-default" data-dismiss="modal" (click)="exportHtmlToPDF()">
+                <span class="fa fa-print"></span><span>Print</span>
+            </button>
         </div>
 
         <div class="form-group" *ngIf="pairInfo !== null">
