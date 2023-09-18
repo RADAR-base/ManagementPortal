@@ -15,7 +15,7 @@ interface TabOptions {
     selector: 'jhi-project-detail',
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './project-detail.component.html',
-    styleUrls: ['project-detail.component.scss', '../../../content/scss/_print.scss'],
+    styleUrls: ['project-detail.component.scss'],
 })
 export class ProjectDetailComponent implements OnInit, OnDestroy {
     private subscription = new Subscription();

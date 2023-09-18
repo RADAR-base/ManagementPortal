@@ -18,7 +18,7 @@ import { regularSortOrder, SortOrder, SortOrderImpl } from '../util/sort-util';
     selector: 'jhi-subjects',
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './subject.component.html',
-    styleUrls: ['./subject.component.scss', '../../../content/scss/_print.scss'],
+    styleUrls: ['./subject.component.scss'],
 })
 export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     private subscriptions: Subscription = new Subscription();

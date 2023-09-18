@@ -8,9 +8,7 @@ export class PrintService {
 
     constructor(
     ) {
-        this.isPrintLocked$.subscribe(isPrintLocked => {
-            //console.log(`isPrintlocked: ${isPrintLocked}`)
-        })
+        this.isPrintLocked$.subscribe();
     }
 
     setPrintLockTo(setTo: boolean) {

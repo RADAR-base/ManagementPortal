@@ -14,7 +14,6 @@ import { SubjectPopupService } from './subject-popup.service';
 import { Subject } from './subject.model';
 import { ObservablePopupComponent } from '../util/observable-popup.component';
 import { map, switchMap, tap } from 'rxjs/operators';
-import { JhiMainComponent } from '../../layouts/main/main.component';
 import { PrintService } from '../util/print.service';
 
 @Component({
@@ -41,18 +40,9 @@ export class SubjectPairDialogComponent implements OnInit, OnDestroy {
                 @Inject(DOCUMENT) private doc) {
         this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN'];
     }
-    async exportHtmlToPDF() {
-        // let pp: PrintService = this.printService;
-        // window.onafterprint = function(){
-        //     console.log("Printing completed...");
-        //     //pp.togglePrintLock().then(_ => {})
-        // }
 
-        this.printService.setPrintLockTo(true);
-        await new Promise(r => setTimeout(r, 0.000000000000000000000000000000000000000000000000000001));
-        window.print()
-        this.printService.setPrintLockTo(false);
-
+    exportHtmlToPDF() {
+        window.print();
     }
 
     ngOnInit() {
@@ -61,10 +51,14 @@ export class SubjectPairDialogComponent implements OnInit, OnDestroy {
         }
         this.loadInconsolataFont();
         this.subscriptions.add(this.fetchOAuthClients());
+
+        // Add print-lock to exclude the background from being included in print commands
+        this.printService.setPrintLockTo(true);
     }
 
     ngOnDestroy() {
         this.subscriptions.unsubscribe();
+        this.printService.setPrintLockTo(false);
     }
 
     private fetchOAuthClients(): Subscription {

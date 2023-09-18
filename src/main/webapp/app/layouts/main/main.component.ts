@@ -28,6 +28,5 @@ export class JhiMainComponent implements OnInit {
             }
         });
        this.isPrintLocked$ = this.printService.isPrintLocked$;
-       //this.isPrintLocked$.subscribe(setTo => console.log("now we updated main.html"));
     }
 }
