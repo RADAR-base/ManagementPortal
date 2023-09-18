@@ -19,7 +19,7 @@
             </div>
         </div>
         <div class="col-md-8 offset-md-2" *ngIf="shouldShowOTPForm() == false">
-            <form class="form" role="form" (ngSubmit)="getOTPCode()" >
+            <form class="form" role="form" (ngSubmit)="login()" >
                 <div class="form-group">
                     <label for="username" [translate]="'global.form.username'"></label>
                     <input type="text" class="form-control"
