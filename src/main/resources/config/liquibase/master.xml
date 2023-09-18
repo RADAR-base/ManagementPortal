@@ -52,5 +52,6 @@
 
 
 
+    <include file="classpath:config/liquibase/changelog/20230914100400_add_unique_constraint_two_factor_username.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-constraints-changelog - JHipster will add liquibase constraints changelogs here -->
 </databaseChangeLog>
