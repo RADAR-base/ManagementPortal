@@ -115,7 +115,7 @@ managementportal:
         signingKeyAlias: radarbase-managementportal-ec
         enablePublicKeyVerifiers: false
     siteSettings:
-      hiddenSubjectFields: [person_name, date_of_birth, group]
+        hiddenSubjectFields: []
 
 # ===================================================================
 # JHipster specific properties
