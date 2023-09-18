@@ -1,6 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRouteSnapshot, NavigationEnd, Router } from '@angular/router';
-import { Observable } from 'rxjs';
+import { Component, OnInit} from '@angular/core';
+import { NavigationEnd, Router } from '@angular/router';
 
 import { JhiLanguageHelper } from '../../shared';
 import {PrintService} from "../../shared/util/print.service";
@@ -19,7 +18,7 @@ export class JhiMainComponent implements OnInit {
     ) {
     }
 
-    public isPrintLocked$: Observable<boolean>;
+    isPrintLocked$= this.printService.isPrintLocked$;
 
     ngOnInit() {
         this.router.events.subscribe((event) => {
@@ -27,6 +26,5 @@ export class JhiMainComponent implements OnInit {
                 this.jhiLanguageHelper.updateTitle();
             }
         });
-       this.isPrintLocked$ = this.printService.isPrintLocked$;
     }
 }
