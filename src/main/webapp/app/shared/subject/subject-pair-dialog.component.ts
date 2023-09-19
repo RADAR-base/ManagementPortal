@@ -3,7 +3,7 @@ import { DatePipe, DOCUMENT } from '@angular/common';
 import { HttpResponse } from '@angular/common/http';
 import { ActivatedRoute, Params } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { Subscription } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 
