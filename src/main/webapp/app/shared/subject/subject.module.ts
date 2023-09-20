@@ -27,6 +27,20 @@ import {
     SubjectSourceAssignerPopupComponent,
 } from './source-assigner/source-assigner.component';
 
+
+
+import {
+          SubjectDataViewerPopupComponent,
+            SubjectDataViewerDialogComponent
+} from './data-viewer/data-viewer.component';
+
+
+
+
+
+
+
+
 const ENTITY_STATES = [
     ...subjectRoute,
     ...subjectPopupRoute,
@@ -55,6 +69,10 @@ const ENTITY_STATES = [
         SubjectPairPopupComponent,
         SubjectSourceAssignerDialogComponent,
         SubjectSourceAssignerPopupComponent,
+
+        SubjectDataViewerPopupComponent,
+        SubjectDataViewerDialogComponent
+
     ],
     entryComponents: [
         SubjectComponent,
@@ -66,6 +84,9 @@ const ENTITY_STATES = [
         SubjectPairPopupComponent,
         SubjectSourceAssignerDialogComponent,
         SubjectSourceAssignerPopupComponent,
+
+              SubjectDataViewerPopupComponent,
+                SubjectDataViewerDialogComponent
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
     exports: [
