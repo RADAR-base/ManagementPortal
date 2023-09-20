@@ -1,0 +1,38 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+    <changeSet author="Jindrich Gorner" id="20230918100400" failOnError="true">
+
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="connect_data_log"/>
+            </not>
+        </preConditions>
+
+
+        <createTable tableName="connect_data_log">
+            <column name="timestamp" type="TIMESTAMP"><constraints nullable="true"/></column>
+            <column name="time" type="TIMESTAMP" defaultValueDate="${now}"><constraints nullable="true"/></column>
+            <column name="dataGroupingType" type="varchar(255)"><constraints nullable="true"/></column>
+            <column name="userId" type="varchar(255)"><constraints nullable="true"/></column>
+            <column name="projectId" type="varchar(255)"><constraints nullable="true"/></column>
+            <column name="sourceId" type="varchar(255)"><constraints nullable="true"/></column>
+        </createTable>
+    </changeSet>
+
+
+    <changeSet id="Add demo data for logs" author="Jindrich Gorner" context="dev,test">
+        <loadData
+                file="config/liquibase/datalogs.csv"
+                separator=";"
+                tableName="connect_data_log"
+                usePreparedStatements="true"
+
+        >
+            <column name="time" type="date"/>
+            <column name="dataGroupingType" type="string"/>
+            <column name="userId" type="string"/>
+        </loadData>
+
+
+    </changeSet>
+</databaseChangeLog>

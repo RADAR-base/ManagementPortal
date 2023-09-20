@@ -1,4 +1,4 @@
-time;data_grouping_type;user_id
+time;dataGroupingType;userId
 2022-09-03T04:17:49;PASSIVE_ANDROID_PHONE;sub-1
 2022-09-02T03:46:38;PASSIVE_ANDROID_PHONE;sub-1
 2022-09-01T13:24:34;PASSIVE_ANDROID_PHONE;sub-1
