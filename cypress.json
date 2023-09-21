@@ -1,4 +1,5 @@
 {
+  "retries": 3,
   "integrationFolder": "src/test/javascript/e2e/cypress/integration",
   "supportFile": false,
   "video": false,
