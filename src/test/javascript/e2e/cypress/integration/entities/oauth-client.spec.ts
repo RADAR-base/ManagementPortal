@@ -9,7 +9,7 @@ describe('OAuth Clients e2e test', () => {
     });
 
     it('should load OAuth clients', () => {
-        cy.get('h4 span').first().should('have.text', 'FAILTHISTEST<-OAuth Clients');
+        cy.get('h4 span').first().should('have.text', 'OAuth Clients');
     });
 
     it('should load create OAuth Client dialog', () => {
