@@ -75,6 +75,13 @@ jobs:
           yarn e2e
           ./gradlew --stop
 
+      - uses: actions/upload-artifact@v3
+        with:
+          name: cypress-screenshots-failed-tests
+          path: src/test/javascript/e2e/cypress/screenshots
+          if-no-files-found: ignore
+          retention-days: 5
+
       - name: Has SNAPSHOT version
         id: is-snapshot
         if: github.ref == 'refs/heads/dev'
