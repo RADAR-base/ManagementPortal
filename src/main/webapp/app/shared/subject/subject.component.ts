@@ -7,13 +7,13 @@ import { NgbCalendar, NgbDateParserFormatter, NgbModal } from '@ng-bootstrap/ng-
 
 import { Group, GroupService, ITEMS_PER_PAGE, Project } from '..';
 import { AddSubjectsToGroupDialogComponent } from './add-subjects-to-group-dialog.component';
-import {CheckedSubject, SiteSettings, Subject, SubjectFilterCriteria} from './subject.model';
+import {CheckedSubject, Subject, SubjectFilterCriteria} from './subject.model';
 import { SubjectFilterParams, SubjectPaginationParams, SubjectService, } from './subject.service';
 import { AlertService } from '../util/alert.service';
 import { EventManager } from '../util/event-manager.service';
 import { NgbDateRange, NgbDateReactiveFilter, ReactiveFilter, ReactiveFilterOptions } from '../util/reactive-filter';
 import { regularSortOrder, SortOrder, SortOrderImpl } from '../util/sort-util';
-import {SiteSettingsService} from "./sitesettings.service";
+import {HideableSubjectField, SiteSettings, SiteSettingsService} from "./sitesettings.service";
 
 @Component({
     selector: 'jhi-subjects',
@@ -125,7 +125,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
             map(subjects => subjects.some(s => s.checked)),
             distinctUntilChanged(),
         );
-        this.siteSettings$ = this.siteSettingsService.getSiteSettings();
+        this.siteSettings$ = this.siteSettingsService.siteSettings$;
 
 
         this.subscriptions.add(this.registerChangeInPagingParams());
@@ -486,4 +486,6 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
             }
         }));
     }
+
+    protected readonly HideableSubjectField = HideableSubjectField;
 }

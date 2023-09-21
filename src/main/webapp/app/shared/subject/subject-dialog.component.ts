@@ -14,13 +14,13 @@ import {AlertService} from '../util/alert.service';
 import {EventManager} from '../util/event-manager.service';
 import {SubjectPopupService} from './subject-popup.service';
 
-import {SiteSettings, Subject} from './subject.model';
+import {Subject} from './subject.model';
 import {SubjectService} from './subject.service';
 import {Observable, Subscription} from 'rxjs';
 import {ObservablePopupComponent} from '../util/observable-popup.component';
 import {Project, ProjectService} from "../project";
 import {Group, GroupService} from "../group";
-import {SiteSettingsService} from "./sitesettings.service";
+import {HideableSubjectField, SiteSettings, SiteSettingsService} from "./sitesettings.service";
 
 @Component({
     selector: 'jhi-subject-dialog',
@@ -71,7 +71,7 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
         if(this.subject.dateOfBirth) {
             this.dateOfBirth = this.formatter.parse(this.subject.dateOfBirth.toString());
         }
-        this.siteSettings$ = this.siteSettingsService.getSiteSettings();
+        this.siteSettings$ = this.siteSettingsService.siteSettings$;
 
         this.subscriptions.add(this.registerEventChanges());
     }
@@ -128,6 +128,9 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
     onProjectChange($event: any) {
         this.project = this.projects.find((p) => p.projectName === $event);
     }
+
+    protected readonly History = History;
+    protected readonly HideableSubjectField = HideableSubjectField;
 }
 
 @Component({

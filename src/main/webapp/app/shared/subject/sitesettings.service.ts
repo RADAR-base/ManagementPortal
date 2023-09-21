@@ -1,6 +1,5 @@
 import {Injectable} from "@angular/core";
 import {BehaviorSubject, Observable, of} from "rxjs";
-import {SiteSettings} from "./subject.model";
 import {HttpClient} from "@angular/common/http";
 import {map, share, switchMap, tap} from "rxjs/operators";
 
@@ -30,11 +29,38 @@ export class SiteSettingsService {
             typeof s == 'object' &&
             Array.isArray(s.hiddenSubjectFields)
         ){
+
             return s;
         }
         else
             return new class implements SiteSettings {
-                hiddenSubjectFields: string[];
+                hiddenSubjectFields: HideableSubjectField[];
             }
     }
+
+    ParseHideableSubjectFields(fields: string[]) : Set<HideableSubjectField> {
+        var parsed = new Set<HideableSubjectField>()
+
+        for (let field in fields)
+            if (this.isHideableSubjectField(field))
+                parsed.add(field);
+            else
+                console.log(`${field} was not recognized as a hideable subject field`)
+
+        return parsed;
+    }
+
+    isHideableSubjectField(value: string): value is HideableSubjectField {
+        return Object.values(HideableSubjectField).includes(value as HideableSubjectField);
+    }
+}
+
+export interface SiteSettings {
+    hiddenSubjectFields: HideableSubjectField[]
+}
+
+export enum HideableSubjectField {
+    NAME = "person_name",
+    DATEOFBIRTH = "date_of_birth",
+    GROUP = "group",
 }

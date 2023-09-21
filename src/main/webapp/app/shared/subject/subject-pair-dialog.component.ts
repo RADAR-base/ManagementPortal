@@ -3,7 +3,7 @@ import { DatePipe, DOCUMENT } from '@angular/common';
 import { HttpResponse } from '@angular/common/http';
 import { ActivatedRoute, Params } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { Subscription } from 'rxjs';
+import {Observable, Subscription} from 'rxjs';
 
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 
@@ -15,7 +15,7 @@ import { Subject} from './subject.model';
 import { ObservablePopupComponent } from '../util/observable-popup.component';
 import { map, switchMap, tap } from 'rxjs/operators';
 import { PrintService } from '../util/print.service';
-import {SiteSettingsService} from "./sitesettings.service";
+import {HideableSubjectField, SiteSettingsService} from "./sitesettings.service";
 
 @Component({
     selector: 'jhi-subject-pair-dialog',
@@ -30,7 +30,7 @@ export class SubjectPairDialogComponent implements OnInit, OnDestroy {
     pairInfo: PairInfo = null;
     selectedClient: OAuthClient = null;
     allowPersistentToken = false;
-    siteSettings$ = this.siteSettingsService.getSiteSettings();
+    siteSettings$ = this.siteSettingsService.siteSettings$;
     private subscriptions: Subscription = new Subscription();
 
     constructor(public activeModal: NgbActiveModal,
@@ -57,7 +57,6 @@ export class SubjectPairDialogComponent implements OnInit, OnDestroy {
 
         // Add print-lock to exclude the background from being included in print commands
         this.printService.setPrintLockTo(true);
-        this.siteSettings$ = this.siteSettingsService.getSiteSettings();
     }
 
     ngOnDestroy() {
@@ -158,6 +157,8 @@ export class SubjectPairDialogComponent implements OnInit, OnDestroy {
             }
         }
     }
+
+    protected readonly HideableSubjectField = HideableSubjectField;
 }
 
 @Component({

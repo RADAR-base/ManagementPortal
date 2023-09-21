@@ -5,7 +5,7 @@ import { Subscription } from 'rxjs';
 import { EventManager } from '../util/event-manager.service';
 import { Subject } from './subject.model';
 import { SubjectService } from './subject.service';
-import { SiteSettingsService } from "./sitesettings.service";
+import {HideableSubjectField, SiteSettingsService} from "./sitesettings.service";
 
 @Component({
     selector: 'jhi-subject-detail',
@@ -17,7 +17,7 @@ export class SubjectDetailComponent implements OnInit, OnDestroy {
     subject: Subject;
     private subscription: any;
     private eventSubscriber: Subscription;
-    public siteSettings$ =this.siteSettingsService.getSiteSettings();
+    public siteSettings$ =this.siteSettingsService.siteSettings$;
 
     constructor(
             private eventManager: EventManager,
@@ -56,4 +56,6 @@ export class SubjectDetailComponent implements OnInit, OnDestroy {
             }
         });
     }
+
+    protected readonly HideableSubjectField = HideableSubjectField;
 }

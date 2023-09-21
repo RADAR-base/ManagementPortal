@@ -5,7 +5,8 @@ import { BehaviorSubject, combineLatest, Observable, Subscription } from 'rxjs';
 import { Account, Principal, Project, ProjectService } from '../../shared';
 import { EventManager } from '../../shared/util/event-manager.service';
 import { distinctUntilChanged, filter, map, pluck, shareReplay, startWith, switchMap } from 'rxjs/operators';
-import {SiteSettings, SiteSettingsService} from "../../shared/subject";
+import { SiteSettingsService} from "../../shared/subject";
+import {HideableSubjectField, SiteSettings} from "../../shared/subject/sitesettings.service";
 
 interface TabOptions {
     active: string | null;
@@ -45,7 +46,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
         ).subscribe(tab => this.updateActiveTab(tab)));
 
         this.subscription.add(this.registerTabChange());
-        this.siteSettings$ = this.siteSettingsService.getSiteSettings();
+        this.siteSettings$ = this.siteSettingsService.siteSettings$;
     }
 
     ngOnDestroy() {
@@ -121,4 +122,6 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
     updateActiveTab(tab?: string) {
         this._activeTab$.next(tab);
     }
+
+    protected readonly HideableSubjectField = HideableSubjectField;
 }
