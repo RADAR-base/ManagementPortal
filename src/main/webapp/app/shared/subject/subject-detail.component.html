@@ -24,7 +24,7 @@
         </dd>
 
         <div *ngIf="(siteSettings$ | async).hiddenSubjectFields as hiddenFields">
-            <div *ngIf="!hiddenFields.includes(HideableSubjectField.GROUP)">
+            <div *ngIf="!hiddenFields.has(HideableSubjectField.GROUP)">
                 <dt><span [translate]="'managementPortalApp.subject.group'"></span></dt>
                 <dd>
                     <span>{{subject.group || '-'}}</span>
@@ -43,11 +43,11 @@
                     <span class="form-control-static">{{entry.key}}: {{entry.value}}</span>
                 </div>
             </dd>
-            <div *ngIf="!hiddenFields.includes(HideableSubjectField.NAME)">
+            <div *ngIf="!hiddenFields.has(HideableSubjectField.NAME)">
                 <dt><span [translate]="'managementPortalApp.subject.personName'"></span></dt>
                 <dd>{{subject.personName}}"</dd>
             </div>
-            <div *ngIf="!hiddenFields.includes(HideableSubjectField.DATEOFBIRTH)">
+            <div *ngIf="!hiddenFields.has(HideableSubjectField.DATEOFBIRTH)">
                 <dt><span [translate]="'managementPortalApp.subject.dateOfBirth'"></span></dt>
                 <dd>{{subject.dateOfBirth | date:'yyyy-MM-dd' }}</dd>
             </div>

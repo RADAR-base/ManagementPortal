@@ -1,19 +1,19 @@
 import {Injectable} from "@angular/core";
 import {BehaviorSubject, Observable, of} from "rxjs";
 import {HttpClient} from "@angular/common/http";
-import {map, share, switchMap, tap} from "rxjs/operators";
+import {map, mergeMap, shareReplay, tap} from "rxjs/operators";
 
 @Injectable({providedIn: 'root'})
 export class SiteSettingsService {
 
     private siteSettingsResourceUrl = 'api/sitesettings';
     private _siteSettings$ = new BehaviorSubject<SiteSettings>(null);
-    siteSettings$ = new Observable<SiteSettings>(null);
+    siteSettings$: Observable<SiteSettings>;
 
     constructor(private http: HttpClient) {
         this.siteSettings$ = this._siteSettings$.pipe(
-            switchMap(s => s ? of(s) : this.fetchSiteSettings()),
-            share(),
+            mergeMap(s => s ? of(s) : this.fetchSiteSettings()),
+            shareReplay(),
         );
     }
 
@@ -29,23 +29,23 @@ export class SiteSettingsService {
             typeof s == 'object' &&
             Array.isArray(s.hiddenSubjectFields)
         ){
-
+            s.hiddenSubjectFields = this.ParseHideableSubjectFields(s.hiddenSubjectFields);
             return s;
         }
-        else
-            return new class implements SiteSettings {
-                hiddenSubjectFields: HideableSubjectField[];
-            }
+
+        return {
+            hiddenSubjectFields: new Set<HideableSubjectField>()
+        }
     }
 
-    ParseHideableSubjectFields(fields: string[]) : Set<HideableSubjectField> {
+    ParseHideableSubjectFields(fields: Set<string>) : Set<HideableSubjectField> {
         var parsed = new Set<HideableSubjectField>()
 
-        for (let field in fields)
-            if (this.isHideableSubjectField(field))
-                parsed.add(field);
+        for (let fieldIndex in fields)
+            if (this.isHideableSubjectField(fields[fieldIndex]))
+                parsed.add(fields[fieldIndex]);
             else
-                console.log(`${field} was not recognized as a hideable subject field`)
+                console.log(`${fields[fieldIndex]} was not recognized as a hideable subject field`)
 
         return parsed;
     }
@@ -56,7 +56,7 @@ export class SiteSettingsService {
 }
 
 export interface SiteSettings {
-    hiddenSubjectFields: HideableSubjectField[]
+    hiddenSubjectFields: Set<HideableSubjectField>
 }
 
 export enum HideableSubjectField {

@@ -487,5 +487,5 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
         }));
     }
 
-    protected readonly HideableSubjectField = HideableSubjectField;
+    readonly HideableSubjectField = HideableSubjectField;
 }

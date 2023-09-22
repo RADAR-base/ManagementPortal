@@ -52,7 +52,7 @@
             </select>
         </div>
         <div *ngIf="(siteSettings$ | async).hiddenSubjectFields as hiddenFields">
-            <div *ngIf="!hiddenFields.includes(HideableSubjectField.GROUP)" class="form-group">
+            <div *ngIf="!hiddenFields.has(HideableSubjectField.GROUP)" class="form-group">
                 <label class="form-control-label"
                     for="field_group"
                     [translate]="'managementPortalApp.subject.group'">
@@ -68,7 +68,7 @@
                     </option>
                 </select>
             </div>
-            <div *ngIf="!hiddenFields.includes(HideableSubjectField.NAME)" class="form-group">
+            <div *ngIf="!hiddenFields.has(HideableSubjectField.NAME)" class="form-group">
                 <label class="form-control-label"
                        [translate]="'managementPortalApp.subject.personName'"
                        for="field_person_name">
@@ -76,7 +76,7 @@
                 <input type="text" class="form-control" name="personName" id="field_person_name" [(ngModel)]="subject.personName"/>
             </div>
 
-            <div *ngIf="!hiddenFields.includes(HideableSubjectField.DATEOFBIRTH)" class="form-group">
+            <div *ngIf="!hiddenFields.has(HideableSubjectField.DATEOFBIRTH)" class="form-group">
                 <label class="form-control-label"
                        [translate]="'managementPortalApp.subject.dateOfBirth'"
                        for="field_date_of_birth">

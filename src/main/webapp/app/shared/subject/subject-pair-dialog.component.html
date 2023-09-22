@@ -27,7 +27,7 @@
                            [(ngModel)]="subject.externalId" [disabled]="subject.id" >
                 </div>
 
-                <div *ngIf="hiddenFields.includes(HideableSubjectField.NAME) && subject.personName" >
+                <div *ngIf="!hiddenFields.has(HideableSubjectField.NAME) && subject.personName" >
                     <label for="name" class="form-control-label"
                            [translate]="'managementPortalApp.subject.personName'">
                     </label>
@@ -35,7 +35,7 @@
                            [(ngModel)]="subject.personName" [disabled]="subject.id">
                 </div>
 
-                <div *ngIf="hiddenFields.includes(HideableSubjectField.DATEOFBIRTH) && subject.dateOfBirth" >
+                <div *ngIf="!hiddenFields.has(HideableSubjectField.DATEOFBIRTH) && subject.dateOfBirth" >
                     <label for="dateOfBirth" class="form-control-label"
                            [translate]="'managementPortalApp.subject.dateOfBirth'">
                     </label>
