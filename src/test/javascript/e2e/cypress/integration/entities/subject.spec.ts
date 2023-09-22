@@ -137,7 +137,9 @@ describe('Subject e2e test', () => {
         cy.get('jhi-subjects #field-sort-by').click();
         cy.get('jhi-subjects #sort-by-login').click();
         cy.get('jhi-subjects #field-order-by').click();
+        cy.intercept("GET", "/api/projects/radar/subjects?size=20&sort=login,desc").as("sort")
         cy.get('jhi-subjects #order-by-desc').click();
+        cy.wait("@sort");
         cy.get('jhi-subjects .subject-row').first().should('contain.text', 'sub-9');
         cy.get('jhi-subjects #field-order-by').click();
         cy.get('jhi-subjects #order-by-asc').click();
