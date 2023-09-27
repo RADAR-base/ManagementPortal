@@ -225,7 +225,7 @@ auto-refreshes when files change on your hard drive.
     ./gradlew
     yarn start
 
-Then open <http://localhost:9000/> to start the interface and sign in with admin/admin.
+Then open <http://localhost:8081/> to start the interface and sign in with admin/admin.
 
 [Yarn][] is also used to manage CSS and JavaScript dependencies used in this application. You can upgrade dependencies by
 specifying a newer version in [package.json](package.json). You can also run `yarn update` and `yarn install` to manage dependencies.
