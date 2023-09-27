@@ -148,6 +148,7 @@ public class OAuth2ServerConfiguration {
             )
                     .skipUrlPattern(HttpMethod.GET, "/management/health")
                     .skipUrlPattern(HttpMethod.GET, "/api/meta-token/*")
+                    .skipUrlPattern(HttpMethod.GET, "/api/sitesettings")
                     .skipUrlPattern(HttpMethod.GET, "/images/**")
                     .skipUrlPattern(HttpMethod.GET, "/css/**")
                     .skipUrlPattern(HttpMethod.GET, "/js/**")
@@ -182,10 +183,11 @@ public class OAuth2ServerConfiguration {
                         .antMatchers("/api/register")
                             .hasAnyAuthority(RoleAuthority.SYS_ADMIN_AUTHORITY)
                         .antMatchers("/api/profile-info").permitAll()
+                        .antMatchers("/api/sitesettings").permitAll()
                         .antMatchers("/api/**").authenticated()
-                        // Allow management/health endpoint to all to allow kubernetes to be able to
-                        // detect the health of the service
-                        .antMatchers("/management/health").permitAll()
+                    // Allow management/health endpoint to all to allow kubernetes to be able to
+                    // detect the health of the service
+                    .antMatchers("/management/health").permitAll()
                         .antMatchers("/management/**")
                             .hasAnyAuthority(RoleAuthority.SYS_ADMIN_AUTHORITY)
                         .antMatchers("/v2/api-docs/**").permitAll()

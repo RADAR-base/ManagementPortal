@@ -114,6 +114,8 @@ managementportal:
         keyStorePassword: radarbase
         signingKeyAlias: radarbase-managementportal-ec
         enablePublicKeyVerifiers: false
+    siteSettings:
+        hiddenSubjectFields: []
 
 # ===================================================================
 # JHipster specific properties

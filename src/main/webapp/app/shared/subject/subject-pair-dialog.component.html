@@ -10,39 +10,39 @@
     </div>
     <div class="modal-body">
         <div class="form-group">
-            <div>
-                <label for="login" class="form-control-label"
-                       [translate]="'managementPortalApp.subject.login'">
-                </label>
-                <input id="login" type="text" class="form-control" name="login" #loginInput="ngModel"
-                       [(ngModel)]="subject.login" [disabled]="subject.id" >
+            <div *ngIf="(siteSettings$ | async).hiddenSubjectFields as hiddenFields">
+                <div>
+                    <label for="login" class="form-control-label"
+                           [translate]="'managementPortalApp.subject.login'">
+                    </label>
+                    <input id="login" type="text" class="form-control" name="login" #loginInput="ngModel"
+                           [(ngModel)]="subject.login" [disabled]="subject.id" >
+                </div>
+
+                <div *ngIf="subject.externalId" >
+                    <label for="externalId" class="form-control-label"
+                           [translate]="'managementPortalApp.subject.externalId'">
+                    </label>
+                    <input id="externalId" type="text" class="form-control" name="externalId" #loginInput="ngModel"
+                           [(ngModel)]="subject.externalId" [disabled]="subject.id" >
+                </div>
+
+                <div *ngIf="!hiddenFields.has(HideableSubjectField.NAME) && subject.personName" >
+                    <label for="name" class="form-control-label"
+                           [translate]="'managementPortalApp.subject.personName'">
+                    </label>
+                    <input id="name" type="text" class="form-control" name="name" #loginInput="ngModel"
+                           [(ngModel)]="subject.personName" [disabled]="subject.id">
+                </div>
+
+                <div *ngIf="!hiddenFields.has(HideableSubjectField.DATEOFBIRTH) && subject.dateOfBirth" >
+                    <label for="dateOfBirth" class="form-control-label"
+                           [translate]="'managementPortalApp.subject.dateOfBirth'">
+                    </label>
+                    <input id="dateOfBirth" type="text" class="form-control" name="dateOfBirth" #loginInput="ngModel"
+                           [(ngModel)]="subject.dateOfBirth" [disabled]="subject.id">
+                </div>
             </div>
-
-            <div *ngIf="subject.externalId" >
-                <label for="externalId" class="form-control-label"
-                       [translate]="'managementPortalApp.subject.externalId'">
-                </label>
-                <input id="externalId" type="text" class="form-control" name="externalId" #loginInput="ngModel"
-                       [(ngModel)]="subject.externalId" [disabled]="subject.id" >
-            </div>
-
-            <div *ngIf="subject.personName" >
-                <label for="name" class="form-control-label"
-                       [translate]="'managementPortalApp.subject.personName'">
-                </label>
-                <input id="name" type="text" class="form-control" name="name" #loginInput="ngModel"
-                       [(ngModel)]="subject.personName" [disabled]="subject.id">
-            </div>
-
-            <div *ngIf="subject.dateOfBirth" >
-                <label for="dateOfBirth" class="form-control-label"
-                       [translate]="'managementPortalApp.subject.dateOfBirth'">
-                </label>
-                <input id="dateOfBirth" type="text" class="form-control" name="dateOfBirth" #loginInput="ngModel"
-                       [(ngModel)]="subject.dateOfBirth" [disabled]="subject.id">
-            </div>
-
-
         </div>
 
         <div class="form-group">
