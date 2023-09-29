@@ -41,6 +41,7 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
              {key:"delusion_10", label:"I have been jealous"},
              {key:"delusion_11", label:"I have felt like something bad was about to happen"},
              {key:"delusion_11", label:"I have felt distinctly concerned about my physical health"},
+             {key:"none", label:"none"}
  ];
 
     subject: Subject;
