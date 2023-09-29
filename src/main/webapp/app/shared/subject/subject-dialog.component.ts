@@ -167,11 +167,11 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
     }
 
     getDelusionsChoice1() {
-       return this.delusions.filter(o => o.key != this.delusion2$);
+       return this.delusions.filter(o => o.key != this.delusion2$||o.key=="none");
     }
 
     getDelusionsChoice2() {
-       return this.delusions.filter(o => o.key != this.delusion1$);
+       return this.delusions.filter(o => o.key != this.delusion1$||o.key=="none");
     }
 }
 
