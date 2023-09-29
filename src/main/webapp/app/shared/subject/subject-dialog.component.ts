@@ -110,8 +110,8 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
     }
 
     save() {
-
-        if(this.subject.externalId != null) {
+        
+        if(this.subject.externalId != null&&this.IDPatternCheck(this.subject.externalId)) {
                 this.creationError = false;
                 this.isSaving = true;
                 if (this.dateOfBirth && this.calendar.isValid(NgbDate.from(this.dateOfBirth))) {
@@ -172,6 +172,12 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
 
     getDelusionsChoice2() {
        return this.delusions.filter(o => o.key != this.delusion1$||o.key=="none");
+    }
+
+    IDPatternCheck(ID:string){
+        var reg = /^WS2-(M|C|E|G|K|S)[A-Z]{2}[0-9]{3}$/;
+        console.log(reg.test(ID))
+        return (reg.test(ID))
     }
 }
 
