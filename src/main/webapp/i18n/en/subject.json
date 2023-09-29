@@ -32,7 +32,7 @@
             "login": "Login",
             "email": "Email",
             "externalLink": "External Link",
-            "externalId": "External Id",
+            "externalId": "Participant Id",
             "humanReadableId": "Human Readable ID",
             "enrolmentDate": "Enrolment Date",
             "removed": "Removed",
@@ -65,6 +65,9 @@
                 "sourceId": "Source ID",
                 "sourceName": "Source Name",
                 "expectedSourceName": "Physical ID"
+            },
+            "dataViewer":  {
+                "title": "Data Viewer"
             },
             "clientApp": "Client app",
             "resource": "Protected resource",

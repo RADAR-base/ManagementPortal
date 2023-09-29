@@ -231,6 +231,7 @@ dependencies {
     testImplementation "com.mattbertolini:liquibase-slf4j:${liquibase_slf4j_version}"
     testImplementation "org.hamcrest:hamcrest-library"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
+    implementation project(':security')
 
     annotationProcessor group: 'org.springframework.boot', name: 'spring-boot-configuration-processor'
 }

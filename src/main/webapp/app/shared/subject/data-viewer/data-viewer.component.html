@@ -1,0 +1,57 @@
+<div>
+
+    <div class="modal-header">
+
+        <h4 class="modal-title" id="mySubjectLabel"
+            [translate]="'managementPortalApp.subject.dataViewer.title'">
+        </h4>
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
+                (click)="clear()">&times;</button>
+    </div>
+
+    <div class="modal-body">
+        <jhi-alert-error></jhi-alert-error>
+        <div class="form-group" [hidden]="!subject.id">
+            <label for="id" [translate]="'global.field.id'"></label>
+            <input type="text" class="form-control" id="id" name="id"
+                   [(ngModel)]="subject.login" readonly />
+        </div>
+        <label class="form-control-label">
+            Data Streams
+        </label>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th><span>Android Phone</span></th>
+                    <th><span>Health Connect</span></th>
+                    <th><span>iOS Phone</span></th>
+                    <th><span>iOS Health Kit</span></th>
+                    <th><span>iOS Sensor Kit</span></th>
+                    <th><span>Fitbit</span></th>
+                    <th><span>Questionnaire</span></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td><span>{{dataLogs["PASSIVE_ANDROID_PHONE"] ? dataLogs["PASSIVE_ANDROID_PHONE"] : "-"}}</span></td>
+                    <td><span>{{dataLogs["PASSIVE_GOOGLE_CONNECT"] ? dataLogs["PASSIVE_GOOGLE_CONNECT"] : "-"}}</span></td>
+                    <td><span>{{dataLogs["PASSIVE_IOS_PHONE"] ? dataLogs["PASSIVE_IOS_PHONE"] : "-"}}</span></td>
+
+                    <td><span>{{dataLogs["PASSIVE_HEALTH_KIT"] ? dataLogs["PASSIVE_HEALTH_KIT"] : "-"}}</span></td>
+                    <td><span>{{dataLogs["PASSIVE_SENSOR_KIT"] ? dataLogs["PASSIVE_SENSOR_KIT"] : "-"}}</span></td>
+                    <td><span>{{dataLogs["PASSIVE_FITBIT"] ? dataLogs["PASSIVE_FITBIT"] : "-"}}</span></td>
+
+                    <td><span>{{dataLogs["ACTIVE_QUESTIONNAIRE"] ? dataLogs["ACTIVE_QUESTIONNAIRE"] : "-"}}</span></td>
+
+
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+    <div class="modal-footer">
+
+    </div>
+</div>

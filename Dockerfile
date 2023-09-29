@@ -22,6 +22,7 @@ COPY gradle gradle
 COPY gradlew build.gradle gradle.properties settings.gradle /code/
 COPY radar-auth/build.gradle radar-auth/
 COPY oauth-client-util/build.gradle oauth-client-util/
+COPY security/build.gradle security/
 
 RUN ./gradlew downloadDependencies
 
@@ -32,6 +33,7 @@ COPY angular.json proxy.conf.json tsconfig.app.json \
 COPY webpack webpack
 
 COPY radar-auth radar-auth
+COPY security security
 COPY src src
 RUN ./gradlew -s bootWar
 
