@@ -57,6 +57,7 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
 
     isSaving: boolean;
     creationError: boolean = false;
+    IDNameError: boolean = false;
 
     attributeComponentEventPrefix: 'subjectAttributes';
 
@@ -111,15 +112,18 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
 
     save() {
         
-        if(this.subject.externalId != null&&this.IDPatternCheck(this.subject.externalId)) {
-                this.creationError = false;
+        if(this.subject.externalId != null&&this.subject.externalId.trim()!="") {
+            this.creationError = false;
+
+            if(this.IDPatternCheck(this.subject.externalId)){
+                this.IDNameError = false;
                 this.isSaving = true;
                 if (this.dateOfBirth && this.calendar.isValid(NgbDate.from(this.dateOfBirth))) {
                     this.subject.dateOfBirth = new Date(this.formatter.format(this.dateOfBirth));
                 }
                 this.subject.attributes = {}
                 if(this.delusion1$ != null) {
-                     this.subject.attributes.delusion_1 = this.delusion1$;
+                        this.subject.attributes.delusion_1 = this.delusion1$;
                 }
 
                 if(this.delusion2$ != null) {
@@ -140,11 +144,12 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
                     .subscribe((res: Subject) =>
                             this.onSaveSuccess('CREATE', res), (res: any) => this.onSaveError(res));
                 }
+        }else {
+            this.IDNameError = true;
+        }
         } else {
             this.creationError = true;
         }
-
-
     }
 
     private onSaveSuccess(op: string, result: Subject) {
@@ -176,7 +181,6 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
 
     IDPatternCheck(ID:string){
         var reg = /^WS2-(M|C|E|G|K|S)[A-Z]{2}[0-9]{3}$/;
-        console.log(reg.test(ID))
         return (reg.test(ID))
     }
 }
