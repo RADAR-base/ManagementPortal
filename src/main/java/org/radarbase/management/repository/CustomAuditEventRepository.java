@@ -7,6 +7,8 @@ import java.util.List;
 import org.radarbase.management.security.Constants;
 import org.radarbase.management.config.audit.AuditEventConverter;
 import org.radarbase.management.domain.PersistentAuditEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.audit.AuditEvent;
 import org.springframework.boot.actuate.audit.AuditEventRepository;
@@ -19,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Repository
 public class CustomAuditEventRepository implements AuditEventRepository {
+    private static final Logger logger = LoggerFactory.getLogger(CustomAuditEventRepository.class);
 
     private static final String AUTHORIZATION_FAILURE = "AUTHORIZATION_FAILURE";
 
@@ -40,16 +43,19 @@ public class CustomAuditEventRepository implements AuditEventRepository {
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void add(AuditEvent event) {
-        if (!AUTHORIZATION_FAILURE.equals(event.getType())
+        var eventType = event.getType();
+        if (!AUTHORIZATION_FAILURE.equals(eventType)
                 && !Constants.ANONYMOUS_USER.equals(event.getPrincipal())) {
-
             PersistentAuditEvent persistentAuditEvent = new PersistentAuditEvent();
             persistentAuditEvent.setPrincipal(event.getPrincipal());
-            persistentAuditEvent.setAuditEventType(event.getType());
+            persistentAuditEvent.setAuditEventType(eventType);
             persistentAuditEvent.setAuditEventDate(LocalDateTime.ofInstant(event.getTimestamp(),
                     ZoneId.systemDefault()));
             persistentAuditEvent.setData(auditEventConverter.convertDataToStrings(event.getData()));
             persistenceAuditEventRepository.save(persistentAuditEvent);
+        }
+        if (eventType != null && eventType.endsWith("_FAILURE")) {
+            logger.warn("Login failure: {}", event);
         }
     }
 }
