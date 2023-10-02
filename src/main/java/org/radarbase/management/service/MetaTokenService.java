@@ -101,7 +101,7 @@ public class MetaTokenService {
             }
             return result;
         } else {
-            throw new RequestGoneException("Token already fetched or expired. ",
+            throw new RequestGoneException("Token " + tokenName + " already fetched or expired. ",
                 META_TOKEN, "error.TokenCannotBeSent");
         }
     }
