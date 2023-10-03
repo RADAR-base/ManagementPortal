@@ -3,7 +3,6 @@ import { Router } from '@angular/router';
 import { NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 
-import { DEBUG_INFO_ENABLED, VERSION } from '../../app.constants';
 import {
     JhiLanguageHelper,
     LoginModalService,
@@ -29,7 +28,6 @@ import { ProfileService } from '../profiles/profile.service';
 export class NavbarComponent {
     isNavbarCollapsed: boolean;
     modalRef: NgbModalRef;
-    version: string;
 
     projects: Project[];
     organizations: Organization[];
@@ -46,7 +44,6 @@ export class NavbarComponent {
         public projectService: ProjectService,
         public organizationService: OrganizationService,
     ) {
-        this.version = DEBUG_INFO_ENABLED ? 'v' + VERSION : '';
         this.isNavbarCollapsed = true;
     }
 

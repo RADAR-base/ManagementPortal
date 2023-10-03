@@ -2,7 +2,7 @@
     <router-outlet name="popup"></router-outlet>
 </div>
 <div [ngClass]="(this.isPrintLocked$ | async) ? 'not-print' : ''">
-<jhi-page-ribbon></jhi-page-ribbon>
+    <jhi-page-ribbon></jhi-page-ribbon>
     <div>
         <router-outlet name="navbar"></router-outlet>
     </div>
