@@ -4,6 +4,9 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
+
+import ch.qos.logback.classic.pattern.ClassicConverter;
+import ch.qos.logback.classic.pattern.TargetLengthBasedClassNameAbbreviator;
 import org.radarbase.management.security.Constants;
 import org.radarbase.management.config.audit.AuditEventConverter;
 import org.radarbase.management.domain.PersistentAuditEvent;
@@ -24,6 +27,9 @@ public class CustomAuditEventRepository implements AuditEventRepository {
     private static final Logger logger = LoggerFactory.getLogger(CustomAuditEventRepository.class);
 
     private static final String AUTHORIZATION_FAILURE = "AUTHORIZATION_FAILURE";
+
+    private static final TargetLengthBasedClassNameAbbreviator typeAbbreviator =
+            new TargetLengthBasedClassNameAbbreviator(15);
 
     @Autowired
     private PersistenceAuditEventRepository persistenceAuditEventRepository;
@@ -55,7 +61,19 @@ public class CustomAuditEventRepository implements AuditEventRepository {
             persistenceAuditEventRepository.save(persistentAuditEvent);
         }
         if (eventType != null && eventType.endsWith("_FAILURE")) {
-            logger.warn("Login failure: {}", event);
+            Object typeObj = event.getData().get("type");
+            String errorType;
+            if (typeObj instanceof String) {
+                errorType = typeAbbreviator.abbreviate((String) typeObj);
+            } else {
+                errorType = null;
+            }
+            logger.warn("{}: principal={}, error={}, message={}, details={}",
+                    eventType,
+                    event.getPrincipal(),
+                    errorType,
+                    event.getData().get("message"),
+                    event.getData().get("details"));
         }
     }
 }
