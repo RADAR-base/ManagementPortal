@@ -7,6 +7,6 @@ public class CaseSensitivePhysicalNamingStrategy extends SpringPhysicalNamingStr
 
     @Override
     protected boolean isCaseInsensitive(JdbcEnvironment jdbcEnvironment) {
-        return true;
+        return false;
     }
 }
