@@ -17,5 +17,8 @@ import java.util.Optional;
 public interface ConnectDataLogRepository extends JpaRepository<ConnectDataLog, String>,
         RevisionRepository<ConnectDataLog, String, Integer> {
 
-    Optional<ConnectDataLog> findFirstByUserIdAndDataGroupingTypeOrderByTimeDesc(String userId, DataGroupingType dataGroupingType);
+    @Query(
+            value = "SELECT * FROM connect_data_log u WHERE  \"userId\" is not null and \"userId\"=?1  and \"dataGroupingType\" is not null and \"dataGroupingType\"=?2 ORDER BY u.time DESC",
+            nativeQuery = true)
+    Optional<ConnectDataLog> findDataLogsByUserIdAndDataGroupingType( String userId, String dataGroupingType);
 }
