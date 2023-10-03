@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
 
-import ch.qos.logback.classic.pattern.ClassicConverter;
 import ch.qos.logback.classic.pattern.TargetLengthBasedClassNameAbbreviator;
 import org.radarbase.management.security.Constants;
 import org.radarbase.management.config.audit.AuditEventConverter;
@@ -28,7 +27,7 @@ public class CustomAuditEventRepository implements AuditEventRepository {
 
     private static final String AUTHORIZATION_FAILURE = "AUTHORIZATION_FAILURE";
 
-    private static final TargetLengthBasedClassNameAbbreviator typeAbbreviator =
+    private static final TargetLengthBasedClassNameAbbreviator TYPE_ABBREVIATOR =
             new TargetLengthBasedClassNameAbbreviator(15);
 
     @Autowired
@@ -62,12 +61,9 @@ public class CustomAuditEventRepository implements AuditEventRepository {
         }
         if (eventType != null && eventType.endsWith("_FAILURE")) {
             Object typeObj = event.getData().get("type");
-            String errorType;
-            if (typeObj instanceof String) {
-                errorType = typeAbbreviator.abbreviate((String) typeObj);
-            } else {
-                errorType = null;
-            }
+            String errorType = typeObj instanceof String
+                    ? TYPE_ABBREVIATOR.abbreviate((String) typeObj)
+                    : null;
             logger.warn("{}: principal={}, error={}, message=\"{}\", details={}",
                     eventType,
                     event.getPrincipal(),
