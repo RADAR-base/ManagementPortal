@@ -123,11 +123,11 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
                 }
                 this.subject.attributes = {}
                 if(this.delusion1$ != null) {
-                        this.subject.attributes.delusion_1 = this.delusion1$;
+                    this.subject.attributes.delusion_1 = this.delusions.find(d=>d.key==this.delusion1$).label
                 }
 
                 if(this.delusion2$ != null) {
-                    this.subject.attributes.delusion_2 = this.delusion2$;
+                    this.subject.attributes.delusion_2 = this.delusions.find(d=>d.key==this.delusion2$).label;
                 }
 
                 this.subject.project = this.project;
