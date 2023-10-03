@@ -68,7 +68,7 @@ public class CustomAuditEventRepository implements AuditEventRepository {
             } else {
                 errorType = null;
             }
-            logger.warn("{}: principal={}, error={}, message={}, details={}",
+            logger.warn("{}: principal={}, error={}, message=\"{}\", details={}",
                     eventType,
                     event.getPrincipal(),
                     errorType,
