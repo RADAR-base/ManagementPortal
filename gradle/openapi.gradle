@@ -2,7 +2,7 @@ apply plugin: 'de.undercouch.download'
 
 task generateOpenApiSpec(type: Download) {
     description = "Fetch the OpenAPI spec from the Swagger endpoint. The application needs to be running at http://localhost:8080/."
-    src 'http://localhost:8080/api-docs'
+    src 'http://localhost:8080/managementportal/api-docs'
     dest file('build/swagger-spec/swagger.json')
 }
 
