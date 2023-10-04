@@ -21,6 +21,8 @@ import {ObservablePopupComponent} from '../util/observable-popup.component';
 import {Project, ProjectService} from "../project";
 import {Group, GroupService} from "../group";
 
+import { Delusion } from '../model/delusion.model';
+
 @Component({
     selector: 'jhi-subject-dialog',
     templateUrl: './subject-dialog.component.html',
@@ -47,13 +49,13 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
     subject: Subject;
     isInProject: boolean;
     projects: Project[] = [];
-    groups$: Observable<Group[]>;
+    groups : Observable<Group[]>;
     project: Project;
 
     groupName: string;
 
-    delusion1$: string;
-    delusion2$: string;
+    delusion1 : Delusion;
+    delusion2 : Delusion;
 
     isSaving: boolean;
     creationError: boolean = false;
@@ -80,7 +82,7 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.project = this.subject?.project;
-        this.groups$ = this.groupService.list(this.project.projectName)
+        this.groups  = this.groupService.list(this.project.projectName)
         this.groupName = this.subject.group || null;
 
         this.projectService.query().subscribe((projects) => {
@@ -90,8 +92,8 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
             this.dateOfBirth = this.formatter.parse(this.subject.dateOfBirth.toString());
         }
 
-       this.delusion1$ = this.subject.attributes?.delusion_1 ?? null;
-       this.delusion2$ = this.subject.attributes?.delusion_2 ?? null;
+       this.delusion1  = this.subject.attributes?.delusion_1 ? this.delusions.find((d=>d.label=this.subject.attributes.delusion_1)):this.delusions[12];
+       this.delusion2  = this.subject.attributes?.delusion_2 ? this.delusions.find((d=>d.label=this.subject.attributes.delusion_2)):this.delusions[12];
 
       this.subscriptions.add(this.registerEventChanges());
     }
@@ -122,12 +124,12 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
                     this.subject.dateOfBirth = new Date(this.formatter.format(this.dateOfBirth));
                 }
                 this.subject.attributes = {}
-                if(this.delusion1$ != null) {
-                    this.subject.attributes.delusion_1 = this.delusions.find(d=>d.key==this.delusion1$).label
+                if(this.delusion1  != null) {
+                    this.subject.attributes.delusion_1 = this.delusion1.label;
                 }
 
-                if(this.delusion2$ != null) {
-                    this.subject.attributes.delusion_2 = this.delusions.find(d=>d.key==this.delusion2$).label;
+                if(this.delusion2  != null) {
+                    this.subject.attributes.delusion_2 = this.delusion2.label;
                 }
 
                 this.subject.project = this.project;
@@ -167,16 +169,25 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
         this.alertService.error(error.message, null, null);
     }
 
-    onProjectChange($event: any) {
-        this.project = this.projects.find((p) => p.projectName === $event);
+    onProjectChange( $event: any) {
+        this.project = this.projects.find((p) => p.projectName ===  $event);
+    }
+
+    onDelusion1Change( $event: any){
+        this.delusion1  = this.delusions.find((d => d.key ===  $event));
+        console.log( this.delusion1 )
+    }
+
+    onDelusion2Change( $event: any){
+        this.delusion2  = this.delusions.find((d => d.key ===  $event));
     }
 
     getDelusionsChoice1() {
-       return this.delusions.filter(o => o.key != this.delusion2$||o.key=="none");
+       return this.delusions.filter(o => o.key != this.delusion2.key ||o.key=="none");
     }
 
     getDelusionsChoice2() {
-       return this.delusions.filter(o => o.key != this.delusion1$||o.key=="none");
+       return this.delusions.filter(o => o.key != this.delusion1.key ||o.key=="none");
     }
 
     IDPatternCheck(ID:string){
