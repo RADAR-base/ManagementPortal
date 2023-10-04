@@ -6,10 +6,10 @@
             "/management",
             "/api-docs",
             "/swagger-ui.html",
-            "/swagger-ui"
+            "/swagger-ui",
+            "/managementportal"
         ],
         "target": "http://127.0.0.1:8080",
-        "secure": false,
-        "pathRewrite": {"^/managementportal" : ""}
+        "secure": false
     }
 ]
