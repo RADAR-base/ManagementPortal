@@ -72,5 +72,5 @@
     "wait-for-managementportal": "wait-port -t 240000 http://localhost:8080/management/health",
     "wait-for-managementportal-prod": "wait-port -t 240000 http://localhost:8080/managementportal/management/health"
   },
-  "packageManager": "yarn@3.1.0"
+  "packageManager": "yarn@3.6.4"
 }

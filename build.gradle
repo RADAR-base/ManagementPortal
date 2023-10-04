@@ -1,4 +1,3 @@
-import org.gradle.internal.os.OperatingSystem
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
@@ -68,9 +67,6 @@ allprojects {
     }
 }
 
-sourceCompatibility = JavaVersion.VERSION_17
-targetCompatibility = JavaVersion.VERSION_17
-
 description = 'MangementPortal application to manage studies and participants'
 
 defaultTasks 'bootRun'
@@ -103,6 +99,11 @@ springBoot {
 
 bootRun {
     sourceResources sourceSets.main
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 tasks.withType(KotlinCompile).configureEach {
@@ -156,7 +157,7 @@ dependencies {
     implementation "com.fasterxml.jackson.core:jackson-databind"
     implementation "com.hazelcast:hazelcast:${hazelcast_version}"
     implementation "com.hazelcast:hazelcast-spring:${hazelcast_version}"
-    runtimeOnly "com.hazelcast:hazelcast-hibernate53"
+    runtimeOnly "com.hazelcast:hazelcast-hibernate53:${hazelcast_hibernate_version}"
     runtimeOnly("com.zaxxer:HikariCP:${hikaricp_version}")
     implementation group: 'com.google.code.findbugs', name: 'jsr305', version: findbugAnnotationVersion
     implementation("org.liquibase:liquibase-core:${liquibase_version}")
@@ -181,13 +182,15 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web") {
         exclude module: 'spring-boot-starter-tomcat'
     }
-    implementation ("org.springframework.boot:spring-boot-starter-undertow") {
-        // Fix vulnerabilities
-        implementation("io.undertow:undertow-websockets-jsr:2.2.24.Final")
-        implementation("io.undertow:undertow-servlet:2.2.24.Final")
-        implementation("io.undertow:undertow-core:2.2.24.Final")
-    }
+    implementation ("org.springframework.boot:spring-boot-starter-undertow")
+    // Fix vulnerabilities
+    runtimeOnly("io.undertow:undertow-websockets-jsr:2.2.25.Final")
+    runtimeOnly("io.undertow:undertow-servlet:2.2.25.Final")
+    runtimeOnly("io.undertow:undertow-core:2.2.25.Final")
+
     implementation "org.springframework.boot:spring-boot-starter-thymeleaf"
+    runtimeOnly("org.thymeleaf:thymeleaf-spring5:${thymeleaf_version}")
+    runtimeOnly("org.thymeleaf:thymeleaf:${thymeleaf_version}")
     implementation("org.springframework:spring-context-support")
     implementation("org.springframework.session:spring-session-hazelcast")
 
@@ -255,7 +258,7 @@ tasks.register('ghPagesJavadoc', Copy) {
 }
 
 tasks.register('ghPagesOpenApiSpec', Copy) {
-    from file("$buildDir/swagger-spec")
+    from file(layout.buildDirectory.dir("swagger-spec"))
     into file("$rootDir/public/apidoc")
 }
 
