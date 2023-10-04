@@ -547,7 +547,7 @@ public class SubjectResource {
         List<DataLogDTO> dataLogDTOList = new ArrayList<DataLogDTO>();
 
         for(DataGroupingType groupingType :  DataGroupingType.values()) {
-            ConnectDataLog connectDataLog = connectDataLogRepository.findFirstByUserIdAndDataGroupingTypeOrderByTimeDesc(login, groupingType).orElse(null);
+            ConnectDataLog connectDataLog = connectDataLogRepository.findDataLogsByUserIdAndDataGroupingType(login, groupingType.toString()).orElse(null);
 
             if(connectDataLog != null) {
                 DataLogDTO dataLogDTO = new DataLogDTO();

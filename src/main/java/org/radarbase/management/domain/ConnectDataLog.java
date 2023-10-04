@@ -14,14 +14,14 @@ import java.time.Instant;
 
 @Entity
 @Audited
-@Table(name = "connect_data_log")
+@Table(name = "\"connect_data_log\"")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @EntityListeners({AbstractEntityListener.class})
 public class ConnectDataLog {
 
 
     @Id
-    @Column(name = "userid")
+    @Column(name = "`userid`")
     private String userId;
 
     @Column(name = "datagroupingtype")
