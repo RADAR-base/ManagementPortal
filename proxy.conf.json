@@ -9,7 +9,7 @@
             "/swagger-ui",
             "/managementportal"
         ],
-        "target": "http://127.0.0.1:8080/managementportal/",
+        "target": "http://127.0.0.1:8080/managementportal",
         "secure": false,
         "pathRewrite": {"^/managementportal" : ""}
     }
