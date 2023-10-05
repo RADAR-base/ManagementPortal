@@ -42,7 +42,7 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
              {key:"delusion_9", label:"I have felt like there was a conspiracy against me"},
              {key:"delusion_10", label:"I have been jealous"},
              {key:"delusion_11", label:"I have felt like something bad was about to happen"},
-             {key:"delusion_11", label:"I have felt distinctly concerned about my physical health"},
+             {key:"delusion_12", label:"I have felt distinctly concerned about my physical health"},
              {key:"none", label:"none"}
  ];
 
@@ -92,8 +92,9 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
             this.dateOfBirth = this.formatter.parse(this.subject.dateOfBirth.toString());
         }
 
-       this.delusion1  = this.subject.attributes?.delusion_1 ? this.delusions.find((d=>d.label=this.subject.attributes.delusion_1)):this.delusions[12];
-       this.delusion2  = this.subject.attributes?.delusion_2 ? this.delusions.find((d=>d.label=this.subject.attributes.delusion_2)):this.delusions[12];
+
+       this.delusion1  = this.subject.attributes?.delusion_1 ? {...this.delusions.find((d=>d.key==this.subject.attributes.delusion_1))}: {...this.delusions[12]};
+       this.delusion2  = this.subject.attributes?.delusion_2 ? {...this.delusions.find((d=>d.key==this.subject.attributes.delusion_2))} : {...this.delusions[12]};
 
       this.subscriptions.add(this.registerEventChanges());
     }
@@ -113,7 +114,7 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
     }
 
     save() {
-        
+
         if(this.subject.externalId != null&&this.subject.externalId.trim()!="") {
             this.creationError = false;
 
@@ -125,11 +126,11 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
                 }
                 this.subject.attributes = {}
                 if(this.delusion1  != null) {
-                    this.subject.attributes.delusion_1 = this.delusion1.label;
+                    this.subject.attributes.delusion_1 = this.delusion1.key;
                 }
 
                 if(this.delusion2  != null) {
-                    this.subject.attributes.delusion_2 = this.delusion2.label;
+                    this.subject.attributes.delusion_2 = this.delusion2.key;
                 }
 
                 this.subject.project = this.project;
@@ -174,12 +175,11 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
     }
 
     onDelusion1Change( $event: any){
-        this.delusion1  = this.delusions.find((d => d.key ===  $event));
-        console.log( this.delusion1 )
+        this.delusion1  = {...this.delusions.find((d => d.key ===  $event))};
     }
 
     onDelusion2Change( $event: any){
-        this.delusion2  = this.delusions.find((d => d.key ===  $event));
+        this.delusion2  = {...this.delusions.find((d => d.key ===  $event))};
     }
 
     getDelusionsChoice1() {
