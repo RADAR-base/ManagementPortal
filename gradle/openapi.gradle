@@ -5,9 +5,3 @@ task generateOpenApiSpec(type: Download) {
     src 'http://localhost:8080/managementportal/api-docs'
     dest file('build/swagger-spec/swagger.json')
 }
-
-task generateOpenApiSpecProd(type: Download) {
-    description = "Fetch the OpenAPI spec from the Swagger endpoint. The application needs to be running at http://localhost:8080/."
-    src 'http://localhost:8080/managementportal/api-docs'
-    dest file('build/swagger-spec/swagger.json')
-}

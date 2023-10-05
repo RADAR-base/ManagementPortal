@@ -68,9 +68,8 @@
     "test": "ng test --no-watch --no-progress --browsers=ChromeHeadlessCI",
     "test:watch": "ng test --watch --browsers=Chrome",
     "e2e": "yarn run wait-for-managementportal && ng e2e",
-    "e2e-prod": "yarn run wait-for-managementportal-prod && ng e2e --configuration production",
-    "wait-for-managementportal": "wait-port -t 240000 http://localhost:8080/managementportal/management/health",
-    "wait-for-managementportal-prod": "wait-port -t 240000 http://localhost:8080/managementportal/management/health"
+    "e2e-prod": "yarn run wait-for-managementportal && ng e2e --configuration production",
+    "wait-for-managementportal": "wait-port -t 240000 http://localhost:8080/managementportal/management/health"
   },
   "packageManager": "yarn@3.1.0"
 }
