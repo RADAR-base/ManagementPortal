@@ -92,9 +92,9 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
             this.dateOfBirth = this.formatter.parse(this.subject.dateOfBirth.toString());
         }
 
-
-       this.delusion1  = this.subject.attributes?.delusion_1 ? {...this.delusions.find((d=>d.key==this.subject.attributes.delusion_1))}: {...this.delusions[12]};
-       this.delusion2  = this.subject.attributes?.delusion_2 ? {...this.delusions.find((d=>d.key==this.subject.attributes.delusion_2))} : {...this.delusions[12]};
+        console.log( this.subject.attributes)
+       this.delusion1  = this.subject.attributes?.delusion_1 ? {...this.delusions.find((d=>d.label==this.subject.attributes.delusion_1))}: {...this.delusions[12]};
+       this.delusion2  = this.subject.attributes?.delusion_2 ? {...this.delusions.find((d=>d.label==this.subject.attributes.delusion_2))} : {...this.delusions[12]};
 
       this.subscriptions.add(this.registerEventChanges());
     }
