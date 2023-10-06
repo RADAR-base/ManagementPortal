@@ -64,7 +64,7 @@
     "cleanup": "rimraf build/",
     "start": "ng serve",
     "build:prod": "ng build --configuration production",
-    "build:dev": "ng build --configuration development",
+    "build:dev": "ng build --base-href /managementportal/ --configuration development",
     "test": "ng test --no-watch --no-progress --browsers=ChromeHeadlessCI",
     "test:watch": "ng test --watch --browsers=Chrome",
     "e2e": "yarn run wait-for-managementportal && ng e2e",

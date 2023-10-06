@@ -78,8 +78,9 @@ spring:
 server:
     port: 8080
     servlet:
-        session.cookie.secure: false
-        context-path: /managementportal
+      session.cookie.secure: false
+      context-path: /managementportal
+
 
 
 # ===================================================================
