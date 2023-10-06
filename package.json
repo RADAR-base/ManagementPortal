@@ -63,7 +63,7 @@
     "lint:fix": "ng lint --fix=true",
     "cleanup": "rimraf build/",
     "start": "ng serve",
-    "build:prod": "ng build --configuration production",
+    "build:prod": "ng build --base-href /managementportal/ --configuration production",
     "build:dev": "ng build --base-href /managementportal/ --configuration development",
     "test": "ng test --no-watch --no-progress --browsers=ChromeHeadlessCI",
     "test:watch": "ng test --watch --browsers=Chrome",
