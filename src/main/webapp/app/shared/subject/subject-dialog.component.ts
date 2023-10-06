@@ -126,11 +126,11 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
                 }
                 this.subject.attributes = {}
                 if(this.delusion1  != null) {
-                    this.subject.attributes.delusion_1 = this.delusion1.key;
+                    this.subject.attributes.delusion_1 =this.delusions.find(d=>d.key==this.delusion1.key).label;
                 }
 
                 if(this.delusion2  != null) {
-                    this.subject.attributes.delusion_2 = this.delusion2.key;
+                    this.subject.attributes.delusion_2 = this.delusions.find(d=>d.key==this.delusion2.key).label;
                 }
 
                 this.subject.project = this.project;
@@ -176,6 +176,7 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
 
     onDelusion1Change( $event: any){
         this.delusion1  = {...this.delusions.find((d => d.key ===  $event))};
+        console.log(this.delusion1.label)
     }
 
     onDelusion2Change( $event: any){
