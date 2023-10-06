@@ -22,6 +22,7 @@ import {Project, ProjectService} from "../project";
 import {Group, GroupService} from "../group";
 
 import { Delusion } from '../model/delusion.model';
+import { delusions } from 'content/jsons/delusions';
 
 @Component({
     selector: 'jhi-subject-dialog',
@@ -30,21 +31,7 @@ import { Delusion } from '../model/delusion.model';
 export class SubjectDialogComponent implements OnInit, OnDestroy {
     readonly authorities: string[];
     readonly options: string[];
-    delusions: any = [
-             {key:"delusion_1", label:"I have felt like I could read other people's thoughts"},
-             {key:"delusion_2", label:"I have felt like other people were reading my thoughts"},
-             {key:"delusion_3", label:"I have felt that my thoughts were being controlled or influenced"},
-             {key:"delusion_4", label:"I have felt like my thoughts were alien to me in some way"},
-             {key:"delusion_5", label:"I have felt like the world is not real"},
-             {key:"delusion_6", label:"I have felt like I am not real"},
-             {key:"delusion_7", label:"I have felt like people were not what they seemed"},
-             {key:"delusion_8", label:"I have felt like things on the TV, in books or magazines had a special meaning for me"},
-             {key:"delusion_9", label:"I have felt like there was a conspiracy against me"},
-             {key:"delusion_10", label:"I have been jealous"},
-             {key:"delusion_11", label:"I have felt like something bad was about to happen"},
-             {key:"delusion_12", label:"I have felt distinctly concerned about my physical health"},
-             {key:"none", label:"none"}
- ];
+    delusions: Delusion[] = delusions;
 
     subject: Subject;
     isInProject: boolean;
@@ -92,9 +79,8 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
             this.dateOfBirth = this.formatter.parse(this.subject.dateOfBirth.toString());
         }
 
-        console.log( this.subject.attributes)
-       this.delusion1  = this.subject.attributes?.delusion_1 ? {...this.delusions.find((d=>d.label==this.subject.attributes.delusion_1))}: {...this.delusions[12]};
-       this.delusion2  = this.subject.attributes?.delusion_2 ? {...this.delusions.find((d=>d.label==this.subject.attributes.delusion_2))} : {...this.delusions[12]};
+       this.delusion1  = this.subject.attributes?.delusion_1 ? {...this.delusions.find((d=>d.key==this.subject.attributes.delusion_1))}: {...this.delusions[12]};
+       this.delusion2  = this.subject.attributes?.delusion_2 ? {...this.delusions.find((d=>d.key==this.subject.attributes.delusion_2))} : {...this.delusions[12]};
 
       this.subscriptions.add(this.registerEventChanges());
     }
@@ -126,11 +112,11 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
                 }
                 this.subject.attributes = {}
                 if(this.delusion1  != null) {
-                    this.subject.attributes.delusion_1 =this.delusions.find(d=>d.key==this.delusion1.key).label;
+                    this.subject.attributes.delusion_1 =this.delusion1.key;
                 }
 
                 if(this.delusion2  != null) {
-                    this.subject.attributes.delusion_2 = this.delusions.find(d=>d.key==this.delusion2.key).label;
+                    this.subject.attributes.delusion_2 = this.delusion2.key;
                 }
 
                 this.subject.project = this.project;
@@ -176,7 +162,6 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
 
     onDelusion1Change( $event: any){
         this.delusion1  = {...this.delusions.find((d => d.key ===  $event))};
-        console.log(this.delusion1.label)
     }
 
     onDelusion2Change( $event: any){
@@ -194,6 +179,10 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
     IDPatternCheck(ID:string){
         var reg = /^WS2_(M|C|E|G|K|S)[A-Z]{2}[0-9]{3}$/;
         return (reg.test(ID))
+    }
+
+    IDUniqueCheck (ID:string){
+        
     }
 }
 
