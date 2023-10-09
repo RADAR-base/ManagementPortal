@@ -1,15 +1,9 @@
 package org.radarbase.management.repository;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.List;
-
-import ch.qos.logback.classic.pattern.ClassicConverter;
 import ch.qos.logback.classic.pattern.TargetLengthBasedClassNameAbbreviator;
-import org.radarbase.management.security.Constants;
 import org.radarbase.management.config.audit.AuditEventConverter;
 import org.radarbase.management.domain.PersistentAuditEvent;
+import org.radarbase.management.security.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +12,11 @@ import org.springframework.boot.actuate.audit.AuditEventRepository;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.List;
 
 /**
  * An implementation of Spring Boot's AuditEventRepository.
@@ -28,7 +27,7 @@ public class CustomAuditEventRepository implements AuditEventRepository {
 
     private static final String AUTHORIZATION_FAILURE = "AUTHORIZATION_FAILURE";
 
-    private static final TargetLengthBasedClassNameAbbreviator typeAbbreviator =
+    private static final TargetLengthBasedClassNameAbbreviator TYPE_ABBREVIATOR =
             new TargetLengthBasedClassNameAbbreviator(15);
 
     @Autowired
@@ -64,7 +63,7 @@ public class CustomAuditEventRepository implements AuditEventRepository {
             Object typeObj = event.getData().get("type");
             String errorType;
             if (typeObj instanceof String) {
-                errorType = typeAbbreviator.abbreviate((String) typeObj);
+                errorType = TYPE_ABBREVIATOR.abbreviate((String) typeObj);
             } else {
                 errorType = null;
             }
