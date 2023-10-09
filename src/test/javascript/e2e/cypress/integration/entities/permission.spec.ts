@@ -20,7 +20,7 @@ describe('Organization Permissions e2e test', () => {
     })
 
     it('should remove user with role organization admin', () => {
-        cy.get('jhi-permissions button.fa-remove').eq(1).click();
+        cy.get('jhi-permissions button.fa-remove').eq(1).click({force: true});
         cy.get('jhi-permissions tbody tr').should('have.length', 2);
     })
 

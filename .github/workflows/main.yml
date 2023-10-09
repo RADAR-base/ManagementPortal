@@ -82,7 +82,6 @@ jobs:
           sed -i "s|contexts: prod|contexts: dev|" src/main/resources/config/application-prod.yml
           ./gradlew -Pprod buildDocker -x test -x javadocJar
           git checkout src/main/resources/config/application-prod.yml
-          docker-compose -f src/main/docker/app.yml down
           docker-compose -f src/main/docker/app.yml up -d
           yarn run e2e-prod
           docker-compose -f src/main/docker/app.yml down -v
