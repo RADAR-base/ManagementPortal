@@ -6,9 +6,9 @@ import java.time.ZoneId;
 import java.util.List;
 
 import ch.qos.logback.classic.pattern.TargetLengthBasedClassNameAbbreviator;
-import org.radarbase.management.security.Constants;
 import org.radarbase.management.config.audit.AuditEventConverter;
 import org.radarbase.management.domain.PersistentAuditEvent;
+import org.radarbase.management.security.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -18,7 +18,7 @@ abstract class ManagementPortalSimulation extends Simulation {
     // Log failed HTTP requests
     //context.getLogger("io.gatling.http").setLevel(Level.valueOf("DEBUG"))
 
-    val baseUrl: String = Option(System.getProperty("baseUrl")) getOrElse """http://127.0.0.1:8080"""
+    val baseUrl: String = Option(System.getProperty("baseUrl")) getOrElse """http://127.0.0.1:8080/managementportal"""
 
     val httpConf: HttpProtocolBuilder = http.baseUrl(baseUrl)
             .inferHtmlResources()
