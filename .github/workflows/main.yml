@@ -75,6 +75,11 @@ jobs:
           yarn e2e
           ./gradlew --stop
 
+      - name: End to end tests (production)
+        id: e2e-prod
+        run: |
+          src/test/bash/run-prod-e2e.sh
+
       - name: Upload screenshots of failed e2e tests
         if: always()
         uses: actions/upload-artifact@v3
