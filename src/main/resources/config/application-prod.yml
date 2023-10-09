@@ -23,8 +23,8 @@ spring:
         driverClassName: org.postgresql.Driver
         url: jdbc:postgresql://localhost:5432/managementportal
 #        name: managementportal
-        username: <username>
-        password: <password>
+        username: radarbase
+        password: radarbase
 #        hikari:
 #            data-source-properties:
 #                cachePrepStmts: true
@@ -54,7 +54,7 @@ spring:
     thymeleaf:
         cache: true
     liquibase:
-        contexts: prod
+        contexts: dev
 
 # ===================================================================
 # To enable SSL, generate a certificate using:
