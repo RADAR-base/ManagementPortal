@@ -78,7 +78,13 @@ jobs:
       - name: End to end tests (production)
         id: e2e-prod
         run: |
-          src/test/bash/run-prod-e2e.sh
+          cp src/test/resources/config/keystore.p12 src/main/docker/etc/config
+          sed -i "s|contexts: prod|contexts: dev|" src/main/resources/config/application-prod.yml
+          ./gradlew -Pprod buildDocker -x test -x javadocJar
+          git checkout src/main/resources/config/application-prod.yml
+          docker-compose -f src/main/docker/app.yml up -d
+          yarn run e2e-prod
+          docker-compose -f src/main/docker/app.yml down -v
 
       - name: Upload screenshots of failed e2e tests
         if: always()
