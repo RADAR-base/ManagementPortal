@@ -75,7 +75,7 @@ jobs:
           yarn e2e
           ./gradlew --stop
 
-      - name: cypress-screenshots-failed-tests
+      - name: Upload screenshots of failed e2e tests
         if: always()
         uses: actions/upload-artifact@v3
         with:
