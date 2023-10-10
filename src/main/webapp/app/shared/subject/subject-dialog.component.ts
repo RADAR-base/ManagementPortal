@@ -15,7 +15,7 @@ import {EventManager} from '../util/event-manager.service';
 import {SubjectPopupService} from './subject-popup.service';
 
 import {Subject} from './subject.model';
-import {SubjectService} from './subject.service';
+import {SubjectService,SubjectFilterParams, SubjectPaginationParams} from './subject.service';
 import {Observable, Subscription} from 'rxjs';
 import {ObservablePopupComponent} from '../util/observable-popup.component';
 import {Project, ProjectService} from "../project";
@@ -23,6 +23,8 @@ import {Group, GroupService} from "../group";
 
 import { Delusion } from '../model/delusion.model';
 import { delusions } from 'content/jsons/delusions';
+import { HttpHeaders, HttpResponse } from '@angular/common/http';
+
 
 @Component({
     selector: 'jhi-subject-dialog',
@@ -53,6 +55,10 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
     dateOfBirth: NgbDateStruct;
     private subscriptions: Subscription = new Subscription();
 
+    subjects: Subject[]=[];
+    IDUniqueError:boolean = false;
+    
+
     constructor(public activeModal: NgbActiveModal,
                 private alertService: AlertService,
                 private subjectService: SubjectService,
@@ -60,11 +66,11 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
                 private groupService: GroupService,
                 private eventManager: EventManager,
                 private calendar: NgbCalendar,
-                private formatter: NgbDateParserFormatter) {
+                private formatter: NgbDateParserFormatter,
+                public route:ActivatedRoute) {
         this.isSaving = false;
         this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN'];
-
-
+        
     }
 
     ngOnInit() {
@@ -83,6 +89,9 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
        this.delusion2  = this.subject.attributes?.delusion_2 ? {...this.delusions.find((d=>d.key==this.subject.attributes.delusion_2))} : {...this.delusions[12]};
 
       this.subscriptions.add(this.registerEventChanges());
+
+      this.subjectService.query().subscribe(v=>this.subjects =v.body);
+
     }
 
     ngOnDestroy() {
@@ -100,39 +109,48 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
     }
 
     save() {
-
+        this.creationError =false;
+        this.IDNameError = false;
+        this.IDUniqueError =false;
         if(this.subject.externalId != null&&this.subject.externalId.trim()!="") {
             this.creationError = false;
 
             if(this.IDPatternCheck(this.subject.externalId)){
                 this.IDNameError = false;
-                this.isSaving = true;
-                if (this.dateOfBirth && this.calendar.isValid(NgbDate.from(this.dateOfBirth))) {
-                    this.subject.dateOfBirth = new Date(this.formatter.format(this.dateOfBirth));
+                if(this.IDUniqueCheck(this.subject.externalId)){
+                    this.IDUniqueError = false;
+                    this.isSaving = true;
+                    if (this.dateOfBirth && this.calendar.isValid(NgbDate.from(this.dateOfBirth))) {
+                        this.subject.dateOfBirth = new Date(this.formatter.format(this.dateOfBirth));
+                    }
+                    this.subject.attributes = {}
+                    if(this.delusion1  != null) {
+                        this.subject.attributes.delusion_1 =this.delusion1.key;
+                    }
+    
+                    if(this.delusion2  != null) {
+                        this.subject.attributes.delusion_2 = this.delusion2.key;
+                    }
+    
+                    this.subject.project = this.project;
+    
+                    this.subject.group = this.groupName; //this.project.groups.find(group => group.name === this.groupName)
+    
+    
+                    if (this.subject.id) {
+                        this.subjectService.update(this.subject)
+                        .subscribe((res: Subject) =>
+                                this.onSaveSuccess('UPDATE', res), (res: any) => this.onSaveError(res));
+                    } else {
+                        this.subjectService.create(this.subject)
+                        .subscribe((res: Subject) =>
+                                this.onSaveSuccess('CREATE', res), (res: any) => this.onSaveError(res));
+                    }
+
+                }else{
+                    this.IDUniqueError = true;
                 }
-                this.subject.attributes = {}
-                if(this.delusion1  != null) {
-                    this.subject.attributes.delusion_1 =this.delusion1.key;
-                }
-
-                if(this.delusion2  != null) {
-                    this.subject.attributes.delusion_2 = this.delusion2.key;
-                }
-
-                this.subject.project = this.project;
-
-                this.subject.group = this.groupName; //this.project.groups.find(group => group.name === this.groupName)
-
-
-                if (this.subject.id) {
-                    this.subjectService.update(this.subject)
-                    .subscribe((res: Subject) =>
-                            this.onSaveSuccess('UPDATE', res), (res: any) => this.onSaveError(res));
-                } else {
-                    this.subjectService.create(this.subject)
-                    .subscribe((res: Subject) =>
-                            this.onSaveSuccess('CREATE', res), (res: any) => this.onSaveError(res));
-                }
+               
         }else {
             this.IDNameError = true;
         }
@@ -182,7 +200,7 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
     }
 
     IDUniqueCheck (ID:string){
-        
+        return !this.subjects.some(function(el){ return el.externalId === ID})
     }
 }
 

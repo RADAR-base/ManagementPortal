@@ -101,6 +101,15 @@
             </div>
         </div>
 
+        <div class=" ">
+            <div *ngIf="IDUniqueError"
+                 class="alert alert-danger"
+                 id="ID-error-message"
+                >
+                <label>The ID has been existed, please try another one!</label>
+            </div>
+        </div>
+
     </div>
     <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal" (click)="clear()">

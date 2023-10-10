@@ -51,8 +51,8 @@ export class SubjectService {
 
 
     query(
-        filterParams: SubjectFilterParams,
-        paginationParams: SubjectPaginationParams,
+        filterParams?: SubjectFilterParams,
+        paginationParams?: SubjectPaginationParams,
     ): Observable<HttpResponse<any>> {
         return this.http.get(this.resourceUrl, {
             params: createRequestOption({ ...paginationParams, ...filterParams }),
