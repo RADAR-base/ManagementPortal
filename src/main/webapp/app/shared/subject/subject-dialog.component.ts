@@ -15,7 +15,7 @@ import {EventManager} from '../util/event-manager.service';
 import {SubjectPopupService} from './subject-popup.service';
 
 import {Subject} from './subject.model';
-import {SubjectService,SubjectFilterParams, SubjectPaginationParams} from './subject.service';
+import {SubjectService} from './subject.service';
 import {Observable, Subscription} from 'rxjs';
 import {ObservablePopupComponent} from '../util/observable-popup.component';
 import {Project, ProjectService} from "../project";
@@ -23,7 +23,6 @@ import {Group, GroupService} from "../group";
 
 import { Delusion } from '../model/delusion.model';
 import { delusions } from 'content/jsons/delusions';
-import { HttpHeaders, HttpResponse } from '@angular/common/http';
 
 
 @Component({
@@ -38,7 +37,7 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
     subject: Subject;
     isInProject: boolean;
     projects: Project[] = [];
-    groups : Observable<Group[]>;
+    groups$ : Observable<Group[]>;
     project: Project;
 
     groupName: string;
@@ -75,7 +74,7 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.project = this.subject?.project;
-        this.groups  = this.groupService.list(this.project.projectName)
+        this.groups$  = this.groupService.list(this.project.projectName)
         this.groupName = this.subject.group || null;
 
         this.projectService.query().subscribe((projects) => {
@@ -112,12 +111,13 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
         this.creationError =false;
         this.IDNameError = false;
         this.IDUniqueError =false;
-        if(this.subject.externalId != null&&this.subject.externalId.trim()!="") {
+        var subjectID = this.subject.externalId.trim();
+        if(subjectID != null&&subjectID!="") {
             this.creationError = false;
 
-            if(this.IDPatternCheck(this.subject.externalId)){
+            if(this.IDPatternCheck(subjectID)){
                 this.IDNameError = false;
-                if(this.IDUniqueCheck(this.subject.externalId)){
+                if(this.IDUniqueCheck(subjectID)){
                     this.IDUniqueError = false;
                     this.isSaving = true;
                     if (this.dateOfBirth && this.calendar.isValid(NgbDate.from(this.dateOfBirth))) {
@@ -134,7 +134,7 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
     
                     this.subject.project = this.project;
     
-                    this.subject.group = this.groupName; //this.project.groups.find(group => group.name === this.groupName)
+                    this.subject.group = this.groupName; //this.project.groups$.find(group => group.name === this.groupName)
     
     
                     if (this.subject.id) {
