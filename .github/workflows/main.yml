@@ -75,6 +75,14 @@ jobs:
           yarn e2e
           ./gradlew --stop
 
+      - name: End to end tests (production build)
+        id: e2e-prod
+        run: |
+          docker-compose -f src/main/docker/postgresql.yml up -d
+          ./gradlew bootRun &>mp.log </dev/null &
+          yarn run e2e-prod
+          docker-compose -f src/main/docker/postgresql.yml down -v
+
       - name: End to end tests (production)
         id: e2e-prod
         run: |

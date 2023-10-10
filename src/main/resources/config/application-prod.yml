@@ -19,12 +19,12 @@ spring:
         livereload:
             enabled: false
     datasource:
-        type: com.zaxxer.hikari.HikariDataSource
-        driverClassName: org.postgresql.Driver
-        url: jdbc:postgresql://localhost:5432/managementportal
-#        name: managementportal
-        username: radarbase
-        password: radarbase
+      type: com.zaxxer.hikari.HikariDataSource
+      driverClassName: org.postgresql.Driver
+      url: jdbc:postgresql://localhost:5432/managementportal
+  #        name: managementportal
+  #        username: radarbase
+  #        password: radarbase
 #        hikari:
 #            data-source-properties:
 #                cachePrepStmts: true
@@ -53,8 +53,6 @@ spring:
             starttls.enable: false
     thymeleaf:
         cache: true
-    liquibase:
-        contexts: dev
 
 # ===================================================================
 # To enable SSL, generate a certificate using:

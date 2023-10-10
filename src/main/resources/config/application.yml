@@ -80,6 +80,9 @@ spring:
         basename: i18n/messages
     thymeleaf:
         mode: HTML
+    liquibase:
+        contexts: prod
+
 
 springdoc:
     api-docs:
