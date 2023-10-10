@@ -84,7 +84,7 @@ jobs:
           docker-compose -f src/main/docker/postgresql.yml down -v
 
       - name: End to end tests (production)
-        id: e2e-prod
+        id: e2e-prod-docker
         run: |
           cp src/test/resources/config/keystore.p12 src/main/docker/etc/config
           ./gradlew -Pprod buildDocker -x test -x javadocJar
