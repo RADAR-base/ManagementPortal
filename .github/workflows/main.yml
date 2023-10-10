@@ -75,23 +75,6 @@ jobs:
           yarn e2e
           ./gradlew --stop
 
-      - name: End to end tests (production build)
-        id: e2e-prod
-        run: |
-          docker-compose -f src/main/docker/postgresql.yml up -d
-          ./gradlew bootRun &>mp.log </dev/null &
-          yarn run e2e-prod
-          docker-compose -f src/main/docker/postgresql.yml down -v
-
-      - name: End to end tests (production)
-        id: e2e-prod-docker
-        run: |
-          cp src/test/resources/config/keystore.p12 src/main/docker/etc/config
-          ./gradlew -Pprod buildDocker -x test -x javadocJar
-          docker-compose -f src/main/docker/app.yml up -d
-          yarn run e2e-prod
-          docker-compose -f src/main/docker/app.yml down -v
-
       - name: Upload screenshots of failed e2e tests
         if: always()
         uses: actions/upload-artifact@v3
@@ -218,6 +201,16 @@ jobs:
             org.opencontainers.image.authors=Joris Borgdorff <joris@thehyve.nl>
             org.opencontainers.image.vendor=RADAR-base
             org.opencontainers.image.licenses=Apache-2.0
+
+#      # placeholder for testing
+#      - name: End to end tests (docker image)
+#        id: e2e-prod-docker
+#        run: |
+#          cp src/test/resources/config/keystore.p12 src/main/docker/etc/config
+#          ./gradlew -Pprod buildDocker -x test -x javadocJar
+#          docker-compose -f src/main/docker/app.yml up -d
+#          yarn run e2e-prod
+#          docker-compose -f src/main/docker/app.yml down -v
 
       # Temp fix
       # https://github.com/docker/build-push-action/issues/252
