@@ -33,16 +33,18 @@ jobs:
           distribution: temurin
           java-version: 17
 
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+
       - name: Cache
         uses: actions/cache@v3
         with:
           path: |
             ${{ steps.yarn-cache-dir-path.outputs.dir }}
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-java-${{ hashFiles('**/build.gradle', '**/gradle.properties', '**/yarn.lock') }}
+          key: ${{ runner.os }}-rc-node-${{ hashFiles('**/build.gradle', '**/gradle.properties', '**/yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-java-
+            ${{ runner.os }}-rc-node-
+            ${{ runner.os }}-node-
 
       # Compile the code
       - name: Install dependencies
