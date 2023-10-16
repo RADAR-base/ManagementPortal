@@ -1,17 +1,5 @@
 package org.radarbase.management.config;
 
-import java.text.SimpleDateFormat;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
 import org.springframework.security.oauth2.common.util.OAuth2Utils;
@@ -23,6 +11,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.util.HtmlUtils;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.text.SimpleDateFormat;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Created by dverbeec on 6/07/2017.
@@ -96,10 +97,10 @@ public class OAuth2LoginUiWebConfig {
             errorParams.put("message", HtmlUtils.htmlEscape(oauthError.getMessage()));
             // transform the additionalInfo map to a comma seperated list of key: value pairs
             if (oauthError.getAdditionalInformation() != null) {
-                errorParams.put("additionalInfo", HtmlUtils.htmlEscape(String.join(", ",
+                errorParams.put("additionalInfo", HtmlUtils.htmlEscape(
                         oauthError.getAdditionalInformation().entrySet().stream()
                                 .map(entry -> entry.getKey() + ": " + entry.getValue())
-                                .collect(Collectors.toList()))));
+                                .collect(Collectors.joining(", "))));
             }
         }
         // Copy non-empty entries to the model. Empty entries will not be present in the model,

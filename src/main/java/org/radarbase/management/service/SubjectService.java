@@ -1,10 +1,7 @@
 package org.radarbase.management.service;
 
 import org.hibernate.envers.query.AuditEntity;
-import org.radarbase.auth.authorization.Permission;
 import org.radarbase.auth.authorization.RoleAuthority;
-import org.radarbase.auth.exception.NotAuthorizedException;
-import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.config.ManagementPortalProperties;
 import org.radarbase.management.domain.Authority;
 import org.radarbase.management.domain.Group;
@@ -16,11 +13,11 @@ import org.radarbase.management.domain.Subject;
 import org.radarbase.management.domain.User;
 import org.radarbase.management.repository.AuthorityRepository;
 import org.radarbase.management.repository.GroupRepository;
-import org.radarbase.management.repository.ProjectRepository;
 import org.radarbase.management.repository.RoleRepository;
 import org.radarbase.management.repository.SourceRepository;
 import org.radarbase.management.repository.SubjectRepository;
 import org.radarbase.management.repository.filters.SubjectSpecification;
+import org.radarbase.management.security.NotAuthorizedException;
 import org.radarbase.management.service.dto.MinimalSourceDetailsDTO;
 import org.radarbase.management.service.dto.SubjectDTO;
 import org.radarbase.management.service.dto.UserDTO;
@@ -58,9 +55,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.radarbase.auth.authorization.Permission.SUBJECT_READ;
-import static org.radarbase.auth.authorization.RadarAuthorization.checkGlobalPermission;
-import static org.radarbase.auth.authorization.RadarAuthorization.checkPermission;
-import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnOrganizationAndProject;
 import static org.radarbase.auth.authorization.RoleAuthority.INACTIVE_PARTICIPANT;
 import static org.radarbase.auth.authorization.RoleAuthority.PARTICIPANT;
 import static org.radarbase.management.service.dto.ProjectDTO.PRIVACY_POLICY_URL;
@@ -116,12 +110,7 @@ public class SubjectService {
     private AuthorityRepository authorityRepository;
 
     @Autowired
-    private ProjectRepository projectRepository;
-
-    @Autowired
-    private RadarToken token;
-    @Autowired
-    private OrganizationService organizationService;
+    private AuthService authService;
 
     /**
      * Create a new subject.
@@ -183,10 +172,11 @@ public class SubjectService {
      */
     private Role getProjectParticipantRole(Project project, RoleAuthority authority) {
         return roleRepository.findOneByProjectIdAndAuthorityName(project.getId(),
-                        authority.authority())
+                        authority.getAuthority())
                 .orElseGet(() -> {
                     Role subjectRole = new Role();
-                    Authority auth = authorityRepository.findByAuthorityName(authority.authority())
+                    Authority auth = authorityRepository.findByAuthorityName(
+                            authority.getAuthority())
                             .orElseGet(() -> authorityRepository.save(new Authority(authority)));
                     subjectRole.setAuthority(auth);
                     subjectRole.setProject(project);
@@ -232,7 +222,7 @@ public class SubjectService {
         Stream<Role> existingRoles = subject.getUser().getRoles().stream()
                 .map(role -> {
                     // make participant inactive in projects that do not match the new project
-                    if (role.getAuthority().getName().equals(PARTICIPANT.authority())
+                    if (role.getAuthority().getName().equals(PARTICIPANT.getAuthority())
                             && !role.getProject().getProjectName().equals(
                                     subjectDto.getProject().getProjectName())) {
                         return getProjectParticipantRole(role.getProject(), INACTIVE_PARTICIPANT);
@@ -438,7 +428,7 @@ public class SubjectService {
                 .filter(distinctByKey(Source::getSourceId))
                 .collect(Collectors.toSet());
         return sources.stream().map(p -> sourceMapper.sourceToMinimalSourceDetailsDTO(p))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     /**
@@ -452,12 +442,12 @@ public class SubjectService {
      */
     public SubjectDTO findRevision(String login, Integer revision)
             throws NotFoundException, NotAuthorizedException {
-        checkPermission(token, SUBJECT_READ);
         // first get latest known version of the subject, if it's deleted we can't load the entity
         // directly by e.g. findOneByLogin
         SubjectDTO latest = getLatestRevision(login);
-        organizationService.checkPermissionBySubject(SUBJECT_READ,
-                latest.getProject().getProjectName(), latest.getLogin());
+        authService.checkPermission(SUBJECT_READ, e -> e
+                .project(latest.getProject().getProjectName())
+                .subject(latest.getLogin()));
         SubjectDTO sub = revisionService
                 .findRevision(revision, latest.getId(), Subject.class,
                         subjectMapper::subjectToSubjectReducedProjectDTO);
@@ -552,36 +542,5 @@ public class SubjectService {
                     OAUTH_CLIENT, ERR_NO_VALID_PRIVACY_POLICY_URL_CONFIGURED,
                     params);
         }
-    }
-
-    /**
-     * Check that the current user is authorized for the given subject. This takes
-     * into account project and organization affiliation.
-     * @param permission permission to check
-     * @param subject subject to check
-     * @param active if true, only check active project, otherwise also inactive.
-     * @return the project associated to the subject, if any.
-     * @throws NotAuthorizedException if the current user is not authorized.
-     */
-    public Optional<Project> checkSubjectProject(Permission permission, Subject subject,
-            boolean active) throws NotAuthorizedException {
-        Optional<Project> project = (active ? subject.getActiveProject()
-                : subject.getAssociatedProject())
-                .flatMap(p -> projectRepository.findByIdWithOrganization(p.getId()));
-
-        if (project.isPresent()) {
-            Project p = project.get();
-            String projectName = p.getProjectName();
-            if (!token.hasPermissionOnSubject(permission, projectName,
-                    subject.getUser().getLogin())) {
-                String organizationName = p.getOrganization().getName();
-                checkPermissionOnOrganizationAndProject(token, permission, organizationName,
-                        projectName);
-            }
-        } else {
-            checkGlobalPermission(token, permission);
-        }
-
-        return project;
     }
 }

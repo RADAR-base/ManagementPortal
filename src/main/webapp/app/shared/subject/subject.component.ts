@@ -7,12 +7,13 @@ import { NgbCalendar, NgbDateParserFormatter, NgbModal } from '@ng-bootstrap/ng-
 
 import { Group, GroupService, ITEMS_PER_PAGE, Project } from '..';
 import { AddSubjectsToGroupDialogComponent } from './add-subjects-to-group-dialog.component';
-import { CheckedSubject, Subject, SubjectFilterCriteria } from './subject.model';
+import {CheckedSubject, Subject, SubjectFilterCriteria} from './subject.model';
 import { SubjectFilterParams, SubjectPaginationParams, SubjectService, } from './subject.service';
 import { AlertService } from '../util/alert.service';
 import { EventManager } from '../util/event-manager.service';
 import { NgbDateRange, NgbDateReactiveFilter, ReactiveFilter, ReactiveFilterOptions } from '../util/reactive-filter';
 import { regularSortOrder, SortOrder, SortOrderImpl } from '../util/sort-util';
+import {HideableSubjectField, SiteSettings, SiteSettingsService} from "./sitesettings.service";
 
 @Component({
     selector: 'jhi-subjects',
@@ -55,28 +56,30 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     filterResult$: Observable<SubjectFilterCriteria>;
     formattedFilterResult$: Observable<Record<string, string>>;
     isAdvancedFilterCollapsed = true;
+    public siteSettings$: Observable<SiteSettings>;
 
     setOfCheckedId$ = new BehaviorSubject<Set<number>>(new Set());
     allChecked$: Observable<boolean>;
     anyChecked$: Observable<boolean>;
 
     constructor(
-            private subjectService: SubjectService,
-            private groupService: GroupService,
-            private alertService: AlertService,
-            private eventManager: EventManager,
-            private modalService: NgbModal,
-            private activatedRoute: ActivatedRoute,
-            private router: Router,
-            calendar: NgbCalendar,
-            public dateFormatter: NgbDateParserFormatter
+        private subjectService: SubjectService,
+        private groupService: GroupService,
+        private alertService: AlertService,
+        private eventManager: EventManager,
+        private modalService: NgbModal,
+        private siteSettingsService: SiteSettingsService,
+        private activatedRoute: ActivatedRoute,
+        private router: Router,
+        calendar: NgbCalendar,
+        public dateFormatter: NgbDateParserFormatter
     ) {
         this.sortOrder$ = this._sortOrder$.pipe(regularSortOrder());
 
         const stringFilterOptions: ReactiveFilterOptions<string> = {
             mapResult: filter$ => filter$.pipe(
-              map(v => v ? v.trim() : ''),
-              distinctUntilChanged(),
+                map(v => v ? v.trim() : ''),
+                distinctUntilChanged(),
             ),
         }
         this.filters = {
@@ -122,6 +125,8 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
             map(subjects => subjects.some(s => s.checked)),
             distinctUntilChanged(),
         );
+        this.siteSettings$ = this.siteSettingsService.siteSettings$;
+
 
         this.subscriptions.add(this.registerChangeInPagingParams());
         this.subscriptions.add(this.registerChangeInParams());
@@ -481,4 +486,6 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
             }
         }));
     }
+
+    readonly HideableSubjectField = HideableSubjectField;
 }

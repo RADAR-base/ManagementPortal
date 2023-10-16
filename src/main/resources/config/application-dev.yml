@@ -78,7 +78,12 @@ spring:
 server:
     port: 8080
     servlet:
-        session.cookie.secure: false
+      session.cookie.secure: false
+      context-path: /managementportal
+      session:
+        cookie:
+          path: /
+
 
 
 # ===================================================================
@@ -87,8 +92,8 @@ server:
 # ===================================================================
 managementportal:
     common:
-        baseUrl: http://localhost:9000 # Modify according to your server's URL
-        managementPortalBaseUrl: http://localhost:8080/
+        baseUrl: http://localhost:8081 # Modify according to your server's URL
+        managementPortalBaseUrl: http://localhost:8080/managementportal
         privacyPolicyUrl: http://info.thehyve.nl/radar-cns-privacy-policy
         adminPassword: admin
         activationKeyTimeoutInSeconds: 86400 # 1 day
@@ -107,6 +112,9 @@ managementportal:
     catalogueServer:
         enableAutoImport: false
         serverUrl:
+    siteSettings:
+        # The line below can be uncommented to add some hidden fields for UI testing
+        #hiddenSubjectFields: [person_name, date_of_birth, group]
 
 # ===================================================================
 # JHipster specific properties

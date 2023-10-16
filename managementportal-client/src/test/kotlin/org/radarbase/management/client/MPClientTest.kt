@@ -11,6 +11,13 @@ package org.radarbase.management.client
 
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock.*
+import com.github.tomakehurst.wiremock.matching.EqualToPattern
+import com.github.tomakehurst.wiremock.stubbing.StubMapping
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import org.apache.http.entity.ContentType
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers
@@ -18,33 +25,47 @@ import org.hamcrest.Matchers.hasSize
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.radarbase.ktor.auth.ClientCredentialsConfig
+import org.radarbase.ktor.auth.OAuth2AccessToken
+import org.radarbase.ktor.auth.clientCredentials
 import java.net.HttpURLConnection.HTTP_OK
-import java.time.ZoneId
-import java.time.ZonedDateTime
+import java.net.HttpURLConnection.HTTP_UNAUTHORIZED
 
 class MPClientTest {
+    private lateinit var authStub: StubMapping
     private lateinit var wireMockServer: WireMockServer
     private lateinit var client: MPClient
 
     @BeforeEach
     fun setUp() {
-        wireMockServer = WireMockServer(9090);
+        wireMockServer = WireMockServer(9090)
         wireMockServer.start()
 
         wireMockServer.stubFor(
+            get(anyUrl())
+                .willReturn(aResponse()
+                    .withStatus(HTTP_UNAUTHORIZED)))
+
+        authStub = wireMockServer.stubFor(
             post(urlEqualTo("/oauth/token"))
                 .willReturn(aResponse()
                     .withStatus(HTTP_OK)
                     .withHeader("content-type", ContentType.APPLICATION_JSON.toString())
                     .withBody("{\"access_token\":\"abcdef\"}")))
 
-        client = MPClient(
-            MPClient.MPServerConfig(
-                "http://localhost:9090/",
-                "test",
-            "test",
-            ),
-        )
+        client = mpClient {
+            url = "http://localhost:9090/"
+            auth {
+                clientCredentials(
+                    authConfig = ClientCredentialsConfig(
+                        tokenUrl = "http://localhost:9090/oauth/token",
+                        clientId = "testId",
+                        clientSecret = "testSecret",
+                    ),
+                    targetHost = "localhost",
+                )
+            }
+        }
     }
 
     @AfterEach
@@ -53,7 +74,7 @@ class MPClientTest {
     }
 
     @Test
-    fun testClients() {
+    fun testClients() = runBlocking {
         val body =
             """
             [{
@@ -91,6 +112,7 @@ class MPClientTest {
                     .withBody(body)))
 
         val clients = client.requestClients()
+
         assertThat(clients, hasSize(2))
         assertThat(clients, Matchers.equalTo(listOf(
             MPOAuthClient(
@@ -119,12 +141,31 @@ class MPClientTest {
             )
         )))
 
-        wireMockServer.verify(1, postRequestedFor(urlEqualTo("/oauth/token")))
-        wireMockServer.verify(1, getRequestedFor(urlPathEqualTo("/api/oauth-clients")))
+        wireMockServer.verify(1, postRequestedFor(urlEqualTo("/oauth/token"))
+            .withRequestBody(EqualToPattern("grant_type=client_credentials&client_id=testId&client_secret=testSecret")))
+        wireMockServer.verify(2, getRequestedFor(urlPathEqualTo("/api/oauth-clients")))
     }
 
     @Test
-    fun testProjects() {
+    fun testParseToken() {
+        val json = Json {
+            ignoreUnknownKeys = true
+            coerceInputValues = true
+        }
+
+        val token = json.decodeFromString<OAuth2AccessToken?>("""{"access_token":"access token","token_type":"bearer","expires_in":899,"scope":"PROJECT.READ","iss":"ManagementPortal","grant_type":"client_credentials","iat":1600000000,"jti":"some token"}""")
+        assertThat(token, Matchers.equalTo(
+            OAuth2AccessToken(
+                accessToken = "access token",
+                expiresIn = 899,
+                tokenType = "bearer",
+                scope = "PROJECT.READ"
+            )
+        ))
+    }
+
+    @Test
+    fun testProjects() = runTest {
         val body =
             """
             [{
@@ -186,9 +227,9 @@ class MPClientTest {
                 description = "d2",
                 organization = MPOrganization(id = "Mixed"),
                 location = "here",
-                startDate = ZonedDateTime.of(2021, 6, 7, 2, 2, 0, 0, ZoneId.of("UTC")),
+                startDate = "2021-06-07T02:02:00Z",
                 projectStatus = "ONGOING",
-                endDate = ZonedDateTime.of(2022, 6, 7, 2, 2, 0, 0, ZoneId.of("UTC")),
+                endDate = "2022-06-07T02:02:00Z",
                 attributes = mapOf(
                     "External-project-id" to "p2a",
                     "Human-readable-project-name" to "P2",
@@ -197,6 +238,78 @@ class MPClientTest {
         )))
 
         wireMockServer.verify(1, postRequestedFor(urlEqualTo("/oauth/token")))
-        wireMockServer.verify(1, getRequestedFor(urlPathEqualTo("/api/projects")))
+        wireMockServer.verify(2, getRequestedFor(urlPathEqualTo("/api/projects")))
+    }
+
+    @Test
+    fun testMp1Projects() = runTest {
+        val body = """
+            [{
+                "id": 1,
+                "projectName": "A",
+                "humanReadableProjectName": null,
+                "description": "d",
+                "organization": "some",
+                "location": "l",
+                "startDate": "2020-01-01T00:00:00Z",
+                "projectStatus": "ONGOING",
+                "endDate": "2030-01-01T00:00:00Z",
+                "attributes": {},
+                "persistentTokenTimeout": null
+            }, {
+                "id": 2,
+                "projectName": "a",
+                "humanReadableProjectName": "p",
+                "description": "D",
+                "organization": null,
+                "location": "L",
+                "startDate": "2020-01-01T00:00:00Z",
+                "projectStatus": "ONGOING",
+                "endDate": "2030-01-01T00:00:00Z",
+                "attributes": {},
+                "persistentTokenTimeout": null
+            }]
+        """.trimIndent()
+
+        wireMockServer.stubFor(
+            get(urlPathEqualTo("/api/projects"))
+                .withHeader("Authorization", equalTo("Bearer abcdef"))
+                .willReturn(aResponse()
+                    .withStatus(HTTP_OK)
+                    .withHeader("content-type", ContentType.APPLICATION_JSON.toString())
+                    .withBody(body)))
+
+
+        val projects = client.requestProjects()
+        assertThat(projects, hasSize(2))
+        assertThat(projects, Matchers.equalTo(listOf(
+            MPProject(
+                id = "A",
+                name = null,
+                description = "d",
+                organization = null,
+                organizationName = "some",
+                location = "l",
+                startDate = "2020-01-01T00:00:00Z",
+                projectStatus = "ONGOING",
+                endDate = "2030-01-01T00:00:00Z",
+                attributes = emptyMap(),
+            ),
+            MPProject(
+                id = "a",
+                name = "p",
+                description = "D",
+                organization = null,
+                organizationName = null,
+                location = "L",
+                startDate = "2020-01-01T00:00:00Z",
+                projectStatus = "ONGOING",
+                endDate = "2030-01-01T00:00:00Z",
+                attributes = emptyMap(),
+            ),
+        )))
+
+        wireMockServer.verify(1, postRequestedFor(urlEqualTo("/oauth/token")))
+        wireMockServer.verify(2, getRequestedFor(urlPathEqualTo("/api/projects")))
     }
 }

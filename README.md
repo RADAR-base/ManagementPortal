@@ -170,28 +170,50 @@ The code grant flow for OAuth2 clients can be the following:
      ```
      GET /oauth/authorize?client_id=MyId&response_type=code&redirect_uri=https://my.example.com/oauth_redirect
      ```
-     where you replace `MyId` with your OAuth client id. This needs to be done from a interactive 
-     web view, either a browser or a web window. If the user approves, this will redirect to 
-     `https://my.example.com/oauth_redirect?code=abcdef`. In Android, with [https://appauth.io]
-     (AppAuth library), the URL could be `com.example.my://oauth_redirect` for the `com.example.my`
-      app.
-      You can add an optional parameter for `state`. If you add the state parameter, it will be returned with the `code`.
-3. Request a token for your app by doing a POST, again with HTTP basic authentication with as 
-username your OAuth client id, and leaving the password empty:
+   where you replace `MyId` with your OAuth client id. This needs to be done from a interactive
+   web view, either a browser or a web window. If the user approves, this will redirect to
+   `https://my.example.com/oauth_redirect?code=abcdef`. In Android, with [https://appauth.io]
+   (AppAuth library), the URL could be `com.example.my://oauth_redirect` for the `com.example.my`
+   app.
+   You can add an optional parameter for `state`. If you add the state parameter, it will be returned with the `code`.
+3. Request a token for your app by doing a POST, again with HTTP basic authentication with as
+   username your OAuth client id, and leaving the password empty:
     ```
     POST /oauth/token
     Content-Type: application/x-www-form-urlencoded
 
     grant_type=authorization_code&code=abcdef&redirect_uri=https://my.example.com/oauth_redirect
     ```
-    This will respond with the access token and refresh token:
+   This will respond with the access token and refresh token:
     ```json
     {
        "access_token": "...",
        "refresh_token": "..."
     }
     ```
-    Now the app can use the refresh token flow as shown above.
+   Now the app can use the refresh token flow as shown above.
+
+### Client credentials flow
+The code grant flow for OAuth2 clients can also be the following:
+1. Register an oauth-client with grant_type `client_credentials`
+2. Request a token for your app by doing a POST with HTTP basic authentication with as
+   username your OAuth client id and password your OAuth client secret:
+    ```
+    POST /oauth/token
+    Content-Type: application/x-www-form-urlencoded
+
+    grant_type=client_credentials
+    ```
+   This will respond with the access token:
+    ```json
+    {
+        "access_token": "...",
+        "token_type": "bearer",
+      
+        "...": "..."
+    }
+    ```
+   Now the app can use the access token flow.
 
 ### UI Customization
 
@@ -225,7 +247,7 @@ auto-refreshes when files change on your hard drive.
     ./gradlew
     yarn start
 
-Then open <http://localhost:9000/> to start the interface and sign in with admin/admin.
+Then open <http://localhost:8081/> to start the interface and sign in with admin/admin.
 
 [Yarn][] is also used to manage CSS and JavaScript dependencies used in this application. You can upgrade dependencies by
 specifying a newer version in [package.json](package.json). You can also run `yarn update` and `yarn install` to manage dependencies.
@@ -315,7 +337,6 @@ For more information refer to [Using Docker and Docker-Compose][], this page als
 
 Please find the links for some of the documentation per category/component
 * [management-portal-javadoc](https://radar-base.github.io/ManagementPortal/management-portal-javadoc/)
-* [oauth-client-util-javadoc](https://radar-base.github.io/ManagementPortal/oauth-client-util-javadoc/)
 * [radar-auth-javadoc](https://radar-base.github.io/ManagementPortal/radar-auth-javadoc/)
 * [managementportal-client-javadoc](https://radar-base.github.io/ManagementPortal/managementportal-client-javadoc/)
 * [Swagger 2.0 apidoc](https://radar-base.github.io/ManagementPortal/apidoc/swagger.json)

@@ -4,14 +4,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockitoAnnotations;
-import org.radarbase.auth.token.RadarToken;
+import org.radarbase.auth.authentication.OAuthHelper;
 import org.radarbase.management.ManagementPortalTestApp;
 import org.radarbase.management.config.audit.AuditEventConverter;
 import org.radarbase.management.domain.PersistentAuditEvent;
 import org.radarbase.management.repository.PersistenceAuditEventRepository;
 import org.radarbase.management.security.JwtAuthenticationFilter;
 import org.radarbase.management.service.AuditEventService;
-import org.radarbase.auth.authentication.OAuthHelper;
+import org.radarbase.management.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
@@ -20,7 +20,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.mock.web.MockFilterConfig;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
@@ -67,23 +66,19 @@ class AuditResourceIntTest {
     @Autowired
     private PageableHandlerMethodArgumentResolver pageableArgumentResolver;
 
-    @Autowired
-    private RadarToken radarToken;
-
     private PersistentAuditEvent auditEvent;
 
     private MockMvc restAuditMockMvc;
+    @Autowired
+    private AuthService authService;
 
     @BeforeEach
     public void setUp() throws ServletException {
         MockitoAnnotations.initMocks(this);
-        AuditEventService auditEventService = new AuditEventService();
-        ReflectionTestUtils.setField(auditEventService, "persistenceAuditEventRepository",
-                auditEventRepository);
-        ReflectionTestUtils.setField(auditEventService, "auditEventConverter", auditEventConverter);
-        AuditResource auditResource = new AuditResource();
-        ReflectionTestUtils.setField(auditResource, "auditEventService", auditEventService);
-        ReflectionTestUtils.setField(auditResource, "token", radarToken);
+        AuditEventService auditEventService = new AuditEventService(
+                auditEventRepository,
+                auditEventConverter);
+        AuditResource auditResource = new AuditResource(auditEventService, authService);
 
         JwtAuthenticationFilter filter = OAuthHelper.createAuthenticationFilter();
         filter.init(new MockFilterConfig());

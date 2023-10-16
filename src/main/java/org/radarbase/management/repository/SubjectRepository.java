@@ -41,7 +41,8 @@ public interface SubjectRepository extends JpaRepository<Subject, Long>,
             @Param("projectName") String projectName,
             @Param("authorities") List<String> authorities);
 
-    @Query("select subject from Subject subject left join fetch subject.sources "
+    @Query("select subject from Subject subject "
+            + "left join fetch subject.sources "
             + "WHERE subject.user.login = :login")
     Optional<Subject> findOneWithEagerBySubjectLogin(@Param("login") String login);
 

@@ -5,7 +5,7 @@ import java.util.Set;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import org.hibernate.validator.constraints.Email;
-import org.radarbase.auth.config.Constants;
+import org.radarbase.management.security.Constants;
 
 /**
  * A DTO representing a user, with his authorities.
@@ -44,6 +44,8 @@ public class UserDTO {
     private Set<RoleDTO> roles;
 
     private Set<String> authorities;
+
+    private String accessToken;
 
     public Long getId() {
         return id;
@@ -147,6 +149,14 @@ public class UserDTO {
 
     public void setRoles(Set<RoleDTO> roles) {
         this.roles = roles;
+    }
+
+    public String getAccessToken() {
+        return accessToken;
+    }
+
+    public void setAccessToken(String accessToken) {
+        this.accessToken = accessToken;
     }
 
     @Override

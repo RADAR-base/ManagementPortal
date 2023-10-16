@@ -1,22 +1,11 @@
 package org.radarbase.management.service;
 
 
-import static org.hibernate.id.IdentifierGenerator.ENTITY_NAME;
-import static org.radarbase.auth.authorization.Permission.SOURCE_UPDATE;
-import static org.radarbase.management.web.rest.errors.EntityName.SOURCE;
-
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import org.radarbase.auth.exception.NotAuthorizedException;
 import org.radarbase.management.domain.Source;
 import org.radarbase.management.domain.SourceType;
 import org.radarbase.management.repository.ProjectRepository;
 import org.radarbase.management.repository.SourceRepository;
+import org.radarbase.management.security.NotAuthorizedException;
 import org.radarbase.management.service.dto.MinimalSourceDetailsDTO;
 import org.radarbase.management.service.dto.SourceDTO;
 import org.radarbase.management.service.mapper.SourceMapper;
@@ -31,6 +20,15 @@ import org.springframework.data.history.Revision;
 import org.springframework.data.history.Revisions;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import static org.hibernate.id.IdentifierGenerator.ENTITY_NAME;
+import static org.radarbase.auth.authorization.Permission.SOURCE_UPDATE;
+import static org.radarbase.management.web.rest.errors.EntityName.SOURCE;
 
 /**
  * Service Implementation for managing Source.
@@ -52,9 +50,8 @@ public class SourceService {
 
     @Autowired
     private SourceTypeMapper sourceTypeMapper;
-
     @Autowired
-    private OrganizationService organizationService;
+    private AuthService authService;
 
     /**
      * Save a Source.
@@ -80,7 +77,7 @@ public class SourceService {
                 .findAll()
                 .stream()
                 .map(sourceMapper::sourceToSourceDTO)
-                .collect(Collectors.toCollection(LinkedList::new));
+                .toList();
     }
 
     /**
@@ -109,7 +106,6 @@ public class SourceService {
                 .map(sourceMapper::sourceToSourceDTO);
     }
 
-
     /**
      * Get one source by id.
      *
@@ -132,8 +128,10 @@ public class SourceService {
     public void delete(Long id) {
         log.info("Request to delete Source : {}", id);
         Revisions<Integer, Source> sourceHistory = sourceRepository.findRevisions(id);
-        List<Source> sources = sourceHistory.getContent().stream().map(Revision::getEntity)
-                .filter(Source::isAssigned).collect(Collectors.toList());
+        List<Source> sources = sourceHistory.getContent().stream()
+                .map(Revision::getEntity)
+                .filter(Source::isAssigned)
+                .toList();
         if (sources.isEmpty()) {
             sourceRepository.deleteById(id);
         } else {
@@ -183,7 +181,7 @@ public class SourceService {
                 .findAllSourcesByProjectIdAndAssigned(projectId, assigned)
                 .stream()
                 .map(sourceMapper::sourceToMinimalSourceDetailsDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     /**
@@ -223,16 +221,16 @@ public class SourceService {
             return Optional.empty();
         }
         Source existingSource = existingSourceOpt.get();
-        String project = existingSource.getProject() != null
-                ? existingSource.getProject().getProjectName()
-                : null;
-        String user = (existingSource.getSubject() != null
-                && existingSource.getSubject().getUser() != null)
-                ? existingSource.getSubject().getUser().getLogin()
-                : null;
-
-        organizationService.checkPermissionBySource(SOURCE_UPDATE, project, user,
-                existingSource.getSourceName());
+        authService.checkPermission(SOURCE_UPDATE, e -> {
+            e.source(existingSource.getSourceName());
+            if (existingSource.getProject() != null) {
+                e.project(existingSource.getProject().getProjectName());
+            }
+            if (existingSource.getSubject() != null
+                    && existingSource.getSubject().getUser() != null) {
+                e.subject(existingSource.getSubject().getUser().getLogin());
+            }
+        });
 
         // if the source is being transferred to another project.
         if (!existingSource.getProject().getId().equals(sourceDto.getProject().getId())) {

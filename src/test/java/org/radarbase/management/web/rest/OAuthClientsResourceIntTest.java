@@ -1,26 +1,13 @@
 package org.radarbase.management.web.rest;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.nullValue;
-import static org.radarbase.management.service.OAuthClientServiceTestUtil.createClient;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockitoAnnotations;
 import org.radarbase.auth.authentication.OAuthHelper;
-import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.ManagementPortalApp;
 import org.radarbase.management.security.JwtAuthenticationFilter;
+import org.radarbase.management.service.AuthService;
 import org.radarbase.management.service.OAuthClientService;
 import org.radarbase.management.service.SubjectService;
 import org.radarbase.management.service.UserService;
@@ -41,6 +28,20 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.nullValue;
+import static org.radarbase.management.service.OAuthClientServiceTestUtil.createClient;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
  * Test class for the ProjectResource REST controller.
@@ -75,9 +76,6 @@ class OAuthClientsResourceIntTest {
     @Autowired
     private ExceptionTranslator exceptionTranslator;
 
-    @Autowired
-    private RadarToken radarToken;
-
     private MockMvc restOauthClientMvc;
 
     private ClientDetailsDTO details;
@@ -85,6 +83,8 @@ class OAuthClientsResourceIntTest {
     private List<ClientDetails> clientDetailsList;
 
     private int databaseSizeBeforeCreate;
+    @Autowired
+    private AuthService authService;
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -96,8 +96,8 @@ class OAuthClientsResourceIntTest {
                 subjectService);
         ReflectionTestUtils.setField(oauthClientsResource, "userService",
                 userService);
-        ReflectionTestUtils.setField(oauthClientsResource, "token",
-                radarToken);
+        ReflectionTestUtils.setField(oauthClientsResource, "authService",
+                authService);
         ReflectionTestUtils.setField(oauthClientsResource, "oAuthClientService",
                 oAuthClientService);
 
@@ -138,21 +138,24 @@ class OAuthClientsResourceIntTest {
                         .getAccessTokenValiditySeconds().intValue())))
                 .andExpect(jsonPath("$.refreshTokenValiditySeconds").value(equalTo(details
                         .getRefreshTokenValiditySeconds().intValue())))
-                .andExpect(jsonPath("$.scope").value(contains(details.getScope().toArray())))
-                .andExpect(jsonPath("$.autoApproveScopes").value(contains(details
-                        .getAutoApproveScopes().toArray())))
-                .andExpect(jsonPath("$.authorizedGrantTypes").value(contains(details
-                        .getAuthorizedGrantTypes().toArray())))
+                .andExpect(jsonPath("$.scope").value(containsInAnyOrder(
+                        details.getScope().toArray())))
+                .andExpect(jsonPath("$.autoApproveScopes").value(containsInAnyOrder(
+                        details.getAutoApproveScopes().toArray())))
+                .andExpect(jsonPath("$.authorizedGrantTypes").value(containsInAnyOrder(
+                        details.getAuthorizedGrantTypes().toArray())))
                 .andExpect(jsonPath("$.authorities").value(
-                        contains(details.getAuthorities().toArray())));
+                        containsInAnyOrder(details.getAuthorities().toArray())));
 
-        ClientDetails testDetails = clientDetailsList.stream().filter(
-                d -> d.getClientId().equals(details.getClientId())).findFirst().get();
+        ClientDetails testDetails = clientDetailsList.stream()
+                .filter(d -> d.getClientId().equals(details.getClientId()))
+                .findFirst()
+                .orElseThrow();
         assertThat(testDetails.getClientSecret()).startsWith("$2a$10$");
-        assertThat(testDetails.getScope()).containsExactlyElementsOf(details.getScope());
-        assertThat(testDetails.getResourceIds()).containsExactlyElementsOf(
+        assertThat(testDetails.getScope()).containsExactlyInAnyOrderElementsOf(details.getScope());
+        assertThat(testDetails.getResourceIds()).containsExactlyInAnyOrderElementsOf(
                 details.getResourceIds());
-        assertThat(testDetails.getAuthorizedGrantTypes()).containsExactlyElementsOf(
+        assertThat(testDetails.getAuthorizedGrantTypes()).containsExactlyInAnyOrderElementsOf(
                 details.getAuthorizedGrantTypes());
         details.getAutoApproveScopes().forEach(scope ->
                 assertThat(testDetails.isAutoApprove(scope)).isTrue());
@@ -161,7 +164,7 @@ class OAuthClientsResourceIntTest {
         assertThat(testDetails.getRefreshTokenValiditySeconds()).isEqualTo(
                 details.getRefreshTokenValiditySeconds().intValue());
         assertThat(testDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority))
-                .containsExactlyElementsOf(details.getAuthorities());
+                .containsExactlyInAnyOrderElementsOf(details.getAuthorities());
         assertThat(testDetails.getAdditionalInformation()).containsAllEntriesOf(
                 details.getAdditionalInformation()
         );
@@ -189,8 +192,10 @@ class OAuthClientsResourceIntTest {
         // fetch the client
         clientDetailsList = clientDetailsService.listClientDetails();
         assertThat(clientDetailsList).hasSize(databaseSizeBeforeCreate + 1);
-        ClientDetails testDetails = clientDetailsList.stream().filter(
-                d -> d.getClientId().equals(details.getClientId())).findFirst().get();
+        ClientDetails testDetails = clientDetailsList.stream()
+                .filter(d -> d.getClientId().equals(details.getClientId()))
+                .findFirst()
+                .orElseThrow();
         assertThat(testDetails.getRefreshTokenValiditySeconds()).isEqualTo(20);
     }
 

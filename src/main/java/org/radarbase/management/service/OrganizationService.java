@@ -1,10 +1,7 @@
 package org.radarbase.management.service;
 
-import org.radarbase.auth.authorization.Permission;
-import org.radarbase.auth.authorization.RoleAuthority;
-import org.radarbase.auth.exception.NotAuthorizedException;
-import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.domain.Organization;
+import org.radarbase.management.domain.Project;
 import org.radarbase.management.repository.OrganizationRepository;
 import org.radarbase.management.repository.ProjectRepository;
 import org.radarbase.management.service.dto.OrganizationDTO;
@@ -17,10 +14,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import static org.radarbase.auth.authorization.Permission.ORGANIZATION_READ;
@@ -44,10 +41,10 @@ public class OrganizationService {
     private OrganizationMapper organizationMapper;
 
     @Autowired
-    private RadarToken token;
+    private ProjectMapper projectMapper;
 
     @Autowired
-    private ProjectMapper projectMapper;
+    private AuthService authService;
 
     /**
      * Save an organization.
@@ -71,25 +68,24 @@ public class OrganizationService {
     public List<OrganizationDTO> findAll() {
         List<Organization> organizationsOfUser;
 
-        if (token.hasGlobalPermission(ORGANIZATION_READ)) {
+        var referents = authService.referentsByScope(ORGANIZATION_READ);
+
+        if (referents.getGlobal()) {
             organizationsOfUser = organizationRepository.findAll();
         } else {
-            List<String> projectNames = token.getReferentsWithPermission(
-                    RoleAuthority.Scope.PROJECT, ORGANIZATION_READ)
-                    .collect(Collectors.toList());
+            Set<String> projectNames = referents.getAllProjects();
 
-            Stream<Organization> organizationsOfProject = projectNames.isEmpty()
-                    ? Stream.of()
-                    : organizationRepository.findAllByProjectNames(projectNames).stream();
+            Stream<Organization> organizationsOfProject = !projectNames.isEmpty()
+                    ? organizationRepository.findAllByProjectNames(projectNames).stream()
+                    : Stream.of();
 
-            Stream<Organization> organizationsOfRole = token.getReferentsWithPermission(
-                    RoleAuthority.Scope.ORGANIZATION, ORGANIZATION_READ)
-                    .flatMap(name -> organizationRepository.findOneByName(name).stream())
-                    .filter(Objects::nonNull);
+            Stream<Organization> organizationsOfRole = referents.getOrganizations()
+                    .stream()
+                    .flatMap(name -> organizationRepository.findOneByName(name).stream());
 
             organizationsOfUser = Stream.concat(organizationsOfRole, organizationsOfProject)
                     .distinct()
-                    .collect(Collectors.toList());
+                    .toList();
         }
 
         return organizationMapper.organizationsToOrganizationDTOs(organizationsOfUser);
@@ -115,73 +111,24 @@ public class OrganizationService {
      */
     @Transactional(readOnly = true)
     public List<ProjectDTO> findAllProjectsByOrganizationName(String organizationName) {
-        return projectRepository.findAllByOrganizationName(organizationName).stream()
-                .filter(project -> token.hasPermissionOnOrganizationAndProject(
-                        ORGANIZATION_READ, organizationName, project.getProjectName()))
+        var referents = authService.referentsByScope(ORGANIZATION_READ);
+        if (referents.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        Stream<Project> projectStream;
+
+        if (referents.getGlobal() || referents.hasOrganization(organizationName)) {
+            projectStream = projectRepository.findAllByOrganizationName(organizationName).stream();
+        } else if (referents.hasAnyProjects()) {
+            projectStream = projectRepository.findAllByOrganizationName(organizationName).stream()
+                    .filter(project -> referents.hasAnyProject(project.getProjectName()));
+        } else {
+            return List.of();
+        }
+
+        return projectStream
                 .map(projectMapper::projectToProjectDTO)
-                .collect(Collectors.toList());
-    }
-
-    /**
-     * Checks the permission of a project, also taking into
-     * account the organization that a project belongs to.
-     * @param permission permission to check
-     * @param projectName project name to check
-     * @throws NotAuthorizedException if the current user is not authorized.
-     */
-    public void checkPermissionByProject(Permission permission, String projectName)
-            throws NotAuthorizedException {
-        if (!token.hasPermissionOnProject(permission, projectName)
-                && !hasPermissionOnOrganization(permission, projectName)) {
-            throw new NotAuthorizedException(String.format("Client %s does not have "
-                            + "permission %s in project %s", token.getUsername(), permission,
-                    projectName));
-        }
-    }
-
-    /**
-     * Checks the permission of a subject, also taking into
-     * account the organization that a project belongs to.
-     * @param permission permission to check
-     * @param projectName project name to check
-     * @param subject subject login to check
-     * @throws NotAuthorizedException if the current user is not authorized.
-     */
-    public void checkPermissionBySubject(Permission permission, String projectName, String subject)
-            throws NotAuthorizedException {
-        if (!token.hasPermissionOnSubject(permission, projectName, subject)
-                && !hasPermissionOnOrganization(permission, projectName)) {
-            throw new NotAuthorizedException(String.format("Client %s does not have "
-                            + "permission %s on subject %s in project %s ", token.getUsername(),
-                    permission, subject, projectName));
-        }
-    }
-
-    /**
-     * Checks the permission of a source, also taking into
-     * account the organization that a project belongs to.
-     * @param permission permission to check
-     * @param projectName project name to check
-     * @param subject subject login to check
-     * @param sourceId sourceId to check
-     * @throws NotAuthorizedException if the current user is not authorized.
-     */
-    public void checkPermissionBySource(Permission permission, String projectName, String subject,
-                                        String sourceId)
-            throws NotAuthorizedException {
-        if (!token.hasPermissionOnSource(permission, projectName, subject, sourceId)
-                && !hasPermissionOnOrganization(permission, projectName)) {
-            throw new NotAuthorizedException(String.format("Client %s does not have "
-                            + "permission %s on subject %s and source %s in project %s ",
-                    token.getUsername(), permission, subject, sourceId, projectName));
-        }
-    }
-
-    private boolean hasPermissionOnOrganization(Permission permission, String projectName) {
-        if (projectName == null) {
-            return false;
-        }
-        return organizationRepository.findAllByProjectNames(List.of(projectName)).stream()
-                .anyMatch(o -> token.hasPermissionOnOrganization(permission, o.getName()));
+                .toList();
     }
 }

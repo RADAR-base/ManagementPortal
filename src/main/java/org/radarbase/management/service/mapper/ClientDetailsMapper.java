@@ -1,12 +1,5 @@
 package org.radarbase.management.service.mapper;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
 import org.mapstruct.DecoratedWith;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -16,6 +9,14 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.provider.ClientDetails;
 import org.springframework.security.oauth2.provider.client.BaseClientDetails;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Created by dverbeec on 7/09/2017.
@@ -43,7 +44,9 @@ public interface ClientDetailsMapper {
         if (Objects.isNull(authorities)) {
             return Collections.emptySet();
         }
-        return authorities.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
+        return authorities.stream()
+                .map(SimpleGrantedAuthority::new)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -55,7 +58,9 @@ public interface ClientDetailsMapper {
         if (Objects.isNull(authorities)) {
             return Collections.emptySet();
         }
-        return authorities.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toSet());
+        return authorities.stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toSet());
     }
 
     /**
@@ -69,7 +74,7 @@ public interface ClientDetailsMapper {
         if (Objects.isNull(additionalInformation)) {
             return Collections.emptyMap();
         }
-        return additionalInformation.entrySet().stream().collect(
-                Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
+        return additionalInformation.entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
     }
 }

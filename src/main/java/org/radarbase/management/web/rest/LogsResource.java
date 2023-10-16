@@ -3,8 +3,6 @@ package org.radarbase.management.web.rest;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
 import io.micrometer.core.annotation.Timed;
-import java.util.List;
-import java.util.stream.Collectors;
 import org.radarbase.auth.authorization.RoleAuthority;
 import org.radarbase.management.web.rest.vm.LoggerVM;
 import org.slf4j.LoggerFactory;
@@ -16,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 /**
  * Controller for view and managing Log Level at runtime.
@@ -36,7 +36,7 @@ public class LogsResource {
         return context.getLoggerList()
                 .stream()
                 .map(LoggerVM::new)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     /**
