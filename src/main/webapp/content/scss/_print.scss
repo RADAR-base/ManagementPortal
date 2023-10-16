@@ -8,7 +8,16 @@
         display: none !important;
     }
 
+    .print {
+        position: static;
+        height: 100%;
+    }
+
     .modal-backdrop {
         display: none !important;
+    }
+
+    html, body {
+        height:100%
     }
 }

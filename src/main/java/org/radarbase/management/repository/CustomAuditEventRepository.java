@@ -1,5 +1,10 @@
 package org.radarbase.management.repository;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.List;
+
 import ch.qos.logback.classic.pattern.TargetLengthBasedClassNameAbbreviator;
 import org.radarbase.management.config.audit.AuditEventConverter;
 import org.radarbase.management.domain.PersistentAuditEvent;
@@ -12,11 +17,6 @@ import org.springframework.boot.actuate.audit.AuditEventRepository;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.List;
 
 /**
  * An implementation of Spring Boot's AuditEventRepository.
@@ -61,12 +61,9 @@ public class CustomAuditEventRepository implements AuditEventRepository {
         }
         if (eventType != null && eventType.endsWith("_FAILURE")) {
             Object typeObj = event.getData().get("type");
-            String errorType;
-            if (typeObj instanceof String) {
-                errorType = TYPE_ABBREVIATOR.abbreviate((String) typeObj);
-            } else {
-                errorType = null;
-            }
+            String errorType = typeObj instanceof String
+                    ? TYPE_ABBREVIATOR.abbreviate((String) typeObj)
+                    : null;
             logger.warn("{}: principal={}, error={}, message=\"{}\", details={}",
                     eventType,
                     event.getPrincipal(),
