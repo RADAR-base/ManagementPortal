@@ -1,1 +1,1 @@
-moduleSearchIndex = [];updateSearchResults();
+var moduleSearchIndex = [{"l":"radar-auth","url":"index.html"}]
