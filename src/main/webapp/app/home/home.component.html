@@ -37,6 +37,8 @@
         <button (click)="redirect()">login</button>
         <button (click)="redirect_logout()">logout</button>
         <ng-template #unauthenticated>
+            <button (click)="redirect()">login</button>
+            <button (click)="redirect_logout()">logout</button>
             <div class="alert alert-warning">
                 <span [translate]="'global.messages.info.authenticated.prefix'"></span>
                 <a class="alert-link" (click)="login()" [translate]="'global.messages.info.authenticated.link'"></a>
