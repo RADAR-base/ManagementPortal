@@ -48,7 +48,12 @@ export class SubjectService {
         return this.http.get(`${this.resourceUrl}/${encodeURIComponent(login)}/datalogs`, {params, observe: 'response'});
     }
 
-
+    findAllExternalIds(
+    ): Observable<HttpResponse<any>> {
+        return this.http.get(this.resourceUrl + "/externalId", {
+            observe: 'response',
+        });
+    }
 
     query(
         filterParams?: SubjectFilterParams,

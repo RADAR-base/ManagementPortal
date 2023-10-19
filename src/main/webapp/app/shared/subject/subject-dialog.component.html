@@ -22,7 +22,7 @@
                    [translate]="'managementPortalApp.subject.externalId'">
             </label>
             <input type="text" class="form-control" name="externalId" id="field_externalId"
-                   [(ngModel)]="subject.externalId"
+                   [(ngModel)]="subject.externalId"    [disabled]="!!subject.id"
             />
         </div>
         <div class="form-group" *ngIf="!isInProject">

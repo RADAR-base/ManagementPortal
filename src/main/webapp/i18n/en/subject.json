@@ -2,9 +2,9 @@
     "managementPortalApp": {
         "subject" : {
             "home": {
-                "title": "Subjects",
-                "createLabel": "Create a new Subject",
-                "createOrEditLabel": "Create or edit a Subject",
+                "title": "Participants",
+                "createLabel": "Create a new Participant",
+                "createOrEditLabel": "Create or edit a Participant",
                 "pairAppLabel": "Pair an application"
             },
             "created": "A new Subject is created with identifier {{ param }}",

@@ -221,6 +221,37 @@ public class SubjectResource {
     }
 
 
+
+
+    @GetMapping("/subjects/externalId")
+    @Timed
+    public ResponseEntity<List<String>> getAllExternalIds(
+            @Valid SubjectCriteria subjectCriteria
+    ) throws NotAuthorizedException {
+        if (!token.isClientCredentials() && token.hasAuthority(PARTICIPANT)) {
+            throw new NotAuthorizedException("Cannot list subjects as a participant.");
+        }
+        String projectName = subjectCriteria.getProjectName();
+
+
+        String externalId = subjectCriteria.getExternalId();
+        log.debug("ProjectName {} and external {}", projectName, externalId);
+        // if not specified do not include inactive patients
+        List<String> authoritiesToInclude = subjectCriteria.getAuthority().stream()
+                .filter(Objects::nonNull)
+                .map(Enum::name)
+                .collect(Collectors.toList());
+
+
+       List<String> allExternalIds =  subjectRepository.findAllExternalIds();
+       return ResponseEntity.ok(allExternalIds);
+    }
+
+
+
+
+
+
     /**
      * GET  /subjects : get all the subjects.
      *

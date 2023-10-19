@@ -54,9 +54,9 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
     dateOfBirth: NgbDateStruct;
     private subscriptions: Subscription = new Subscription();
 
-    subjects: Subject[]=[];
+    subjects: String[]=[];
     IDUniqueError:boolean = false;
-    
+
 
     constructor(public activeModal: NgbActiveModal,
                 private alertService: AlertService,
@@ -69,7 +69,7 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
                 public route:ActivatedRoute) {
         this.isSaving = false;
         this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN'];
-        
+
     }
 
     ngOnInit() {
@@ -89,8 +89,10 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
 
       this.subscriptions.add(this.registerEventChanges());
 
-      this.subjectService.query().subscribe(v=>this.subjects =v.body);
 
+      this.subjectService.findAllExternalIds().subscribe(v => {
+            this.subjects = v.body
+      })
     }
 
     ngOnDestroy() {
@@ -127,16 +129,16 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
                     if(this.delusion1  != null) {
                         this.subject.attributes.delusion_1 =this.delusion1.key;
                     }
-    
+
                     if(this.delusion2  != null) {
                         this.subject.attributes.delusion_2 = this.delusion2.key;
                     }
-    
+
                     this.subject.project = this.project;
-    
+
                     this.subject.group = this.groupName; //this.project.groups$.find(group => group.name === this.groupName)
-    
-    
+
+
                     if (this.subject.id) {
                         this.subjectService.update(this.subject)
                         .subscribe((res: Subject) =>
@@ -150,7 +152,7 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
                 }else{
                     this.IDUniqueError = true;
                 }
-               
+
         }else {
             this.IDNameError = true;
         }
@@ -200,7 +202,7 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
     }
 
     IDUniqueCheck (ID:string){
-        return !this.subjects.some(function(el){ return el.externalId === ID})
+        return !this.subjects.some(function(el){ return el === ID})
     }
 }
 
