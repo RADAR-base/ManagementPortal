@@ -119,7 +119,7 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
 
             if(this.IDPatternCheck(subjectID)){
                 this.IDNameError = false;
-                if(this.IDUniqueCheck(subjectID)){
+                if(this.IDUniqueCheck(subjectID,this.subject.id)){
                     this.IDUniqueError = false;
                     this.isSaving = true;
                     if (this.dateOfBirth && this.calendar.isValid(NgbDate.from(this.dateOfBirth))) {
@@ -201,8 +201,11 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
         return (reg.test(ID))
     }
 
-    IDUniqueCheck (ID:string){
-        return !this.subjects.some(function(el){ return el === ID})
+    IDUniqueCheck (ID:string, subjectID:string){
+        if(subjectID!==undefined)
+            return true;
+        else
+            return !this.subjects.some(function(el){ return el === ID})
     }
 }
 
