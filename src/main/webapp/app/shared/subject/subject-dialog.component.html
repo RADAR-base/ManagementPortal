@@ -22,7 +22,7 @@
                    [translate]="'managementPortalApp.subject.externalId'">
             </label>
             <input type="text" class="form-control" name="externalId" id="field_externalId"
-                   [(ngModel)]="subject.externalId"
+                   [(ngModel)]="subject.externalId"    [disabled]="!!subject.id"
             />
         </div>
         <div class="form-group" *ngIf="!isInProject">
@@ -33,7 +33,7 @@
             <select class="form-control"
                     id="field_project"
                     name="project"
-                    [(ngModel)]="projectName"
+                    [(ngModel)]="project.projectName"
                     (ngModelChange)="onProjectChange($event)"
                     required
             >
@@ -53,7 +53,8 @@
             <select class="form-control"
                     id="field_group_1"
                     name="delusion1"
-                    [(ngModel)]="delusion1$"
+                    [(ngModel)]="delusion1.key"
+                    (ngModelChange)="onDelusion1Change($event)"
             >
 
                 <option *ngFor="let g of getDelusionsChoice1()" [ngValue]="g.key">
@@ -71,7 +72,8 @@
             <select class="form-control"
                     id="field_group_2"
                     name="delusion2"
-                    [(ngModel)]="delusion2$"
+                    [(ngModel)]="delusion2.key"
+                    (ngModelChange)="onDelusion2Change($event)"
             >
 
                 <option *ngFor="let g of getDelusionsChoice2()" [ngValue]="g.key">
@@ -87,6 +89,24 @@
                  id="creation-error-message"
                 >
                 <label>Please, provide a Participant Id</label>
+            </div>
+        </div>
+
+        <div class=" ">
+            <div *ngIf="IDNameError"
+                 class="alert alert-danger"
+                 id="ID-error-message"
+                >
+                <label>The ID format is not correct, please try again!</label>
+            </div>
+        </div>
+
+        <div class=" ">
+            <div *ngIf="IDUniqueError"
+                 class="alert alert-danger"
+                 id="ID-error-message"
+                >
+                <label>The ID already exists, please try another one!</label>
             </div>
         </div>
 
