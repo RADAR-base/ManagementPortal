@@ -39,7 +39,7 @@ class KratosTokenVerifier : TokenVerifier {
     val kratosBaseUrl = ("http://localhost:" + "4434")
 
     override fun verify(token: String): RadarToken = try {
-        val cookie = "ory_kratos_session=" + token.subSequence(7, token.length)
+        val cookie = "ory_kratos_session=" + token
 
         var kratosSession: KratosDTO? = null
 
@@ -51,10 +51,10 @@ class KratosTokenVerifier : TokenVerifier {
             }
 
             if (response.status.isSuccess()) {
-                kratosSession = response.body<KratosDTO>();
+                kratosSession = response.body<KratosDTO>()
             }
             else {
-                throw TokenValidationException("couldn't get kratos session");
+                throw TokenValidationException("couldn't get kratos session")
             }
         }
 
@@ -77,7 +77,7 @@ class KratosTokenVerifier : TokenVerifier {
             )
         }
         else {
-            throw TokenValidationException("couldn't get kratos session");
+            throw TokenValidationException("couldn't get kratos session")
         }
     } catch (ex: Throwable) {
         throw ex
