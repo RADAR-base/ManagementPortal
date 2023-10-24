@@ -74,16 +74,7 @@ class JwtAuthenticationFilter @JvmOverloads constructor(
             val stringToken = tokenFromHeader(httpRequest)
             var token: RadarToken? = null
             var exMessage = "No token provided"
-            if (stringToken != null && stringToken.startsWith("kratos_")) {
-                try {
-                    token = validator.validateBlocking(stringToken)
-                    Companion.logger.debug("Using kratos token from header")
-                } catch (ex: TokenValidationException) {
-                    ex.message?.let { exMessage = it }
-                    Companion.logger.info("Failed to validate kratos token from header: {}", exMessage)
-                }
-            }
-            else if (stringToken != null) {
+            if (stringToken != null) {
                 try {
                     token = validator.validateBlocking(stringToken)
                     Companion.logger.debug("Using token from header")
@@ -121,11 +112,8 @@ class JwtAuthenticationFilter @JvmOverloads constructor(
             ?.takeIf { it.startsWith(AUTHORIZATION_BEARER_HEADER) }
             ?.removePrefix(AUTHORIZATION_BEARER_HEADER)
             ?.trim { it <= ' ' }
-        if (
-            authHeader == null
-//            1 == 0
-            ) {
-            return "kratos_" + httpRequest.cookies.find { it.name == "ory_kratos_session" }
+        if (authHeader == null) {
+            return httpRequest.cookies.find { it.name == "ory_kratos_session" }
                 ?.value
         }
 
