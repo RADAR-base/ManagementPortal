@@ -137,7 +137,7 @@ constructor(
             }
         }
 
-        private fun List<TokenVerifier>.anyVerify(token: String): Result<RadarToken> {
+        private suspend fun List<TokenVerifier>.anyVerify(token: String): Result<RadarToken> {
             var exceptions: MutableList<Throwable>? = null
 
             forEach { verifier ->

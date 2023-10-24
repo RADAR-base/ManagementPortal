@@ -17,7 +17,7 @@ class JwtTokenVerifier(
     private val algorithm: String,
     private val verifier: JWTVerifier,
 ) : TokenVerifier {
-    override fun verify(token: String): RadarToken = try {
+    override suspend fun verify(token: String): RadarToken = try {
         val jwt = verifier.verify(token)
 
         // Do not print full token with signature to avoid exposing valid token in logs.
