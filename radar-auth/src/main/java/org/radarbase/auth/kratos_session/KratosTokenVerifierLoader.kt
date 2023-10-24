@@ -1,4 +1,5 @@
 package org.radarbase.auth.kratos_session
+import KratosTokenVerifier
 import org.radarbase.auth.authentication.TokenVerifier
 import org.radarbase.auth.authentication.TokenVerifierLoader
 import org.radarbase.auth.jwks.JwkParser
