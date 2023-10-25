@@ -1,99 +1,93 @@
-package org.radarbase.auth.authentication
+package org.radarbase.auth.authentication;
 
-import com.github.tomakehurst.wiremock.WireMockServer
-import com.github.tomakehurst.wiremock.client.WireMock
-import com.github.tomakehurst.wiremock.core.WireMockConfiguration
-import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
-import org.radarbase.auth.exception.TokenValidationException
-import org.radarbase.auth.jwks.JwkAlgorithmParser
-import org.radarbase.auth.jwks.JwksTokenVerifierLoader
-import org.radarbase.auth.jwks.RSAPEMCertificateParser
-import org.radarbase.auth.util.TokenTestUtils
-import org.radarbase.auth.util.TokenTestUtils.WIREMOCK_PORT
+import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.radarbase.auth.exception.TokenValidationException;
+import org.radarbase.auth.jwks.JwkAlgorithmParser;
+import org.radarbase.auth.jwks.JwksTokenVerifierLoader;
+import org.radarbase.auth.jwks.RSAPEMCertificateParser;
+import org.radarbase.auth.util.TokenTestUtils;
+
+import java.util.List;
+
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.radarbase.auth.util.TokenTestUtils.WIREMOCK_PORT;
 
 /**
  * Created by dverbeec on 24/04/2017.
  */
-internal class TokenValidatorTest {
-    private lateinit var validator: TokenValidator
+
+class TokenValidatorTest {
+
+    private static WireMockServer wireMockServer;
+    private TokenValidator validator;
+
+    @BeforeAll
+    public static void loadToken() {
+        wireMockServer = new WireMockServer(new WireMockConfiguration()
+                .port(WIREMOCK_PORT));
+        wireMockServer.start();
+    }
 
     /**
      * Set up a stub public key endpoint and initialize a TokenValidator object.
      *
      */
     @BeforeEach
-    fun setUp() {
-        wireMockServer.stubFor(
-            WireMock.get(WireMock.urlEqualTo(TokenTestUtils.PUBLIC_KEY_PATH))
-                .willReturn(
-                    WireMock.aResponse()
+    public void setUp() {
+        wireMockServer.stubFor(get(urlEqualTo(TokenTestUtils.PUBLIC_KEY_PATH))
+                .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-type", TokenTestUtils.APPLICATION_JSON)
-                        .withBody(TokenTestUtils.PUBLIC_KEY_BODY)
-                )
-        )
-        val algorithmParser = JwkAlgorithmParser(listOf(RSAPEMCertificateParser()))
-        val verifierLoader = JwksTokenVerifierLoader(
-            "http://localhost:" + WIREMOCK_PORT + TokenTestUtils.PUBLIC_KEY_PATH,
-            "unit_test",
-            algorithmParser
-        )
-        validator = TokenValidator(listOf(verifierLoader))
+                        .withBody(TokenTestUtils.PUBLIC_KEY_BODY)));
+
+        var algorithmParser = new JwkAlgorithmParser(List.of(new RSAPEMCertificateParser()));
+        var verifierLoader = new JwksTokenVerifierLoader(
+                "http://localhost:" + WIREMOCK_PORT + TokenTestUtils.PUBLIC_KEY_PATH,
+                "unit_test",
+                algorithmParser
+        );
+        validator = new TokenValidator(List.of(verifierLoader));
     }
 
     @AfterEach
-    fun reset() {
-        wireMockServer.resetAll()
+    public void reset() {
+        wireMockServer.resetAll();
+    }
+
+    @AfterAll
+    public static void tearDown() {
+        wireMockServer.stop();
     }
 
     @Test
-    fun testValidToken() {
-        validator.validateBlocking(TokenTestUtils.VALID_RSA_TOKEN)
+    void testValidToken() {
+        validator.validateBlocking(TokenTestUtils.VALID_RSA_TOKEN);
     }
 
     @Test
-    fun testIncorrectAudienceToken() {
-        Assertions.assertThrows(
-            TokenValidationException::class.java
-        ) { validator.validateBlocking(TokenTestUtils.INCORRECT_AUDIENCE_TOKEN) }
+    void testIncorrectAudienceToken() {
+        assertThrows(TokenValidationException.class,
+                () -> validator.validateBlocking(TokenTestUtils.INCORRECT_AUDIENCE_TOKEN));
     }
 
     @Test
-    fun testExpiredToken() {
-        Assertions.assertThrows(
-            TokenValidationException::class.java
-        ) { validator.validateBlocking(TokenTestUtils.EXPIRED_TOKEN) }
+    void testExpiredToken() {
+        assertThrows(TokenValidationException.class,
+                () -> validator.validateBlocking(TokenTestUtils.EXPIRED_TOKEN));
     }
 
     @Test
-    fun testIncorrectAlgorithmToken() {
-        Assertions.assertThrows(
-            TokenValidationException::class.java
-        ) { validator.validateBlocking(TokenTestUtils.INCORRECT_ALGORITHM_TOKEN) }
-    }
-
-    companion object {
-        private lateinit var wireMockServer: WireMockServer
-
-        @JvmStatic
-        @BeforeAll
-        fun loadToken() {
-            wireMockServer = WireMockServer(
-                WireMockConfiguration()
-                    .port(WIREMOCK_PORT)
-            )
-            wireMockServer.start()
-        }
-
-        @JvmStatic
-        @AfterAll
-        fun tearDown() {
-            wireMockServer.stop()
-        }
+    void testIncorrectAlgorithmToken() {
+        assertThrows(TokenValidationException.class,
+                () -> validator.validateBlocking(TokenTestUtils.INCORRECT_ALGORITHM_TOKEN));
     }
 }
