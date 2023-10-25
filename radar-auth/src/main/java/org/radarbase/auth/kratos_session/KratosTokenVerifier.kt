@@ -1,4 +1,4 @@
-import kotlinx.serialization.encoding.Decoder
+
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
@@ -7,7 +7,6 @@ import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
-import io.ktor.util.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -15,6 +14,7 @@ import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.json.Json
 import org.radarbase.auth.authentication.TokenVerifier
 import org.radarbase.auth.authorization.AuthorityReference
@@ -25,8 +25,6 @@ import org.radarbase.auth.token.RadarToken
 import org.slf4j.LoggerFactory
 import java.time.Duration
 import java.time.Instant
-import java.util.*
-import kotlin.collections.ArrayList
 
 class KratosTokenVerifier : TokenVerifier {
     private val httpClient = HttpClient(CIO).config {
@@ -50,18 +48,20 @@ class KratosTokenVerifier : TokenVerifier {
 
         val kratosSession: KratosDTO
 
-        withContext(Dispatchers.IO) {
-            val response = httpClient.get {
-                header("Cookie", cookie)
-                url("$kratosBaseUrl/sessions/whoami")
-                accept(ContentType.Application.Json)
-            }
+        runBlocking {
+            withContext(Dispatchers.IO) {
+                val response = httpClient.get {
+                    header("Cookie", cookie)
+                    url("$kratosBaseUrl/sessions/whoami")
+                    accept(ContentType.Application.Json)
+                }
 
-            if (response.status.isSuccess()) {
-                logger.debug(response.body())
-                kratosSession = response.body<KratosDTO>()
-            } else {
-                throw TokenValidationException("couldn't get kratos session")
+                if (response.status.isSuccess()) {
+                    logger.debug(response.body())
+                    kratosSession = response.body<KratosDTO>()
+                } else {
+                    throw TokenValidationException("couldn't get kratos session")
+                }
             }
         }
 
