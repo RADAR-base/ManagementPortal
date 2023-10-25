@@ -15,7 +15,6 @@ import org.radarbase.auth.jwks.JwksTokenVerifierLoader
 import org.radarbase.auth.jwks.RSAPEMCertificateParser
 import org.radarbase.auth.util.TokenTestUtils
 import org.radarbase.auth.util.TokenTestUtils.WIREMOCK_PORT
-import java.util.List
 
 /**
  * Created by dverbeec on 24/04/2017.
@@ -38,13 +37,13 @@ internal class TokenValidatorTest {
                         .withBody(TokenTestUtils.PUBLIC_KEY_BODY)
                 )
         )
-        val algorithmParser = JwkAlgorithmParser(List.of(RSAPEMCertificateParser()))
+        val algorithmParser = JwkAlgorithmParser(listOf(RSAPEMCertificateParser()))
         val verifierLoader = JwksTokenVerifierLoader(
             "http://localhost:" + WIREMOCK_PORT + TokenTestUtils.PUBLIC_KEY_PATH,
             "unit_test",
             algorithmParser
         )
-        validator = TokenValidator(List.of(verifierLoader))
+        validator = TokenValidator(listOf(verifierLoader))
     }
 
     @AfterEach
@@ -80,6 +79,8 @@ internal class TokenValidatorTest {
 
     companion object {
         private var wireMockServer: WireMockServer? = null
+
+        @JvmStatic
         @BeforeAll
         fun loadToken() {
             wireMockServer = WireMockServer(
@@ -89,6 +90,7 @@ internal class TokenValidatorTest {
             wireMockServer!!.start()
         }
 
+        @JvmStatic
         @AfterAll
         fun tearDown() {
             wireMockServer!!.stop()
