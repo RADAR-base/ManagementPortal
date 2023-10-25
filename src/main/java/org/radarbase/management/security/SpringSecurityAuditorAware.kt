@@ -1,25 +1,22 @@
-package org.radarbase.management.security;
+package org.radarbase.management.security
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.AuditorAware;
-import org.springframework.security.core.Authentication;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.Nonnull;
-import java.util.Optional;
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.domain.AuditorAware
+import org.springframework.security.core.Authentication
+import org.springframework.stereotype.Component
+import java.util.*
+import javax.annotation.Nonnull
 
 /**
  * Implementation of AuditorAware based on Spring Security.
  */
 @Component
-public class SpringSecurityAuditorAware implements AuditorAware<String> {
+class SpringSecurityAuditorAware : AuditorAware<String> {
     @Autowired
-    private Optional<Authentication> authentication;
-
-    @Override
+    private val authentication: Optional<Authentication>? = null
     @Nonnull
-    public Optional<String> getCurrentAuditor() {
-        return authentication.map(Authentication::getName)
-                .filter(n -> !n.isEmpty());
+    override fun getCurrentAuditor(): Optional<String> {
+        return authentication!!.map { obj: Authentication -> obj.name }
+            .filter { n: String -> n.isNotEmpty() }
     }
 }
