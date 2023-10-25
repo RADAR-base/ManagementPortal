@@ -1,120 +1,105 @@
-package org.radarbase.management.config;
+package org.radarbase.management.config
 
-
-import org.radarbase.management.security.Http401UnauthorizedEntryPoint;
-import org.radarbase.management.security.RadarAuthenticationProvider;
-import org.springframework.beans.factory.BeanInitializationException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.data.repository.query.SecurityEvaluationContextExtension;
-import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
-import tech.jhipster.security.AjaxLogoutSuccessHandler;
-
-import javax.annotation.PostConstruct;
+import org.radarbase.management.security.Http401UnauthorizedEntryPoint
+import org.radarbase.management.security.RadarAuthenticationProvider
+import org.springframework.beans.factory.BeanInitializationException
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.ApplicationEventPublisher
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
+import org.springframework.http.HttpMethod
+import org.springframework.security.authentication.AuthenticationManager
+import org.springframework.security.authentication.DefaultAuthenticationEventPublisher
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity
+import org.springframework.security.config.annotation.web.builders.HttpSecurity
+import org.springframework.security.config.annotation.web.builders.WebSecurity
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
+import org.springframework.security.config.http.SessionCreationPolicy
+import org.springframework.security.core.userdetails.UserDetailsService
+import org.springframework.security.crypto.password.PasswordEncoder
+import org.springframework.security.data.repository.query.SecurityEvaluationContextExtension
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler
+import tech.jhipster.security.AjaxLogoutSuccessHandler
+import javax.annotation.PostConstruct
 
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
-public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
-    private final AuthenticationManagerBuilder authenticationManagerBuilder;
-
-    private final UserDetailsService userDetailsService;
-
-    private final ApplicationEventPublisher applicationEventPublisher;
-    private final PasswordEncoder passwordEncoder;
-
-    /** Security configuration constructor. */
-    @Autowired
-    public SecurityConfiguration(AuthenticationManagerBuilder authenticationManagerBuilder,
-            UserDetailsService userDetailsService,
-            ApplicationEventPublisher applicationEventPublisher,
-            PasswordEncoder passwordEncoder) {
-        this.authenticationManagerBuilder = authenticationManagerBuilder;
-        this.userDetailsService = userDetailsService;
-        this.applicationEventPublisher = applicationEventPublisher;
-        this.passwordEncoder = passwordEncoder;
-    }
-
+open class SecurityConfiguration
+/** Security configuration constructor.  */ @Autowired constructor(
+    private val authenticationManagerBuilder: AuthenticationManagerBuilder,
+    private val userDetailsService: UserDetailsService,
+    private val applicationEventPublisher: ApplicationEventPublisher,
+    private val passwordEncoder: PasswordEncoder
+) : WebSecurityConfigurerAdapter() {
     @PostConstruct
-    public void init() {
+    fun init() {
         try {
             authenticationManagerBuilder
-                    .userDetailsService(userDetailsService)
-                    .passwordEncoder(passwordEncoder)
-                    .and()
-                    .authenticationProvider(new RadarAuthenticationProvider())
-                    .authenticationEventPublisher(
-                            new DefaultAuthenticationEventPublisher(applicationEventPublisher));
-        } catch (Exception e) {
-            throw new BeanInitializationException("Security configuration failed", e);
+                .userDetailsService(userDetailsService)
+                .passwordEncoder(passwordEncoder)
+                .and()
+                .authenticationProvider(RadarAuthenticationProvider())
+                .authenticationEventPublisher(
+                    DefaultAuthenticationEventPublisher(applicationEventPublisher)
+                )
+        } catch (e: Exception) {
+            throw BeanInitializationException("Security configuration failed", e)
         }
     }
 
     @Bean
-    public LogoutSuccessHandler logoutSuccessHandler() {
-        return new AjaxLogoutSuccessHandler();
+    open fun logoutSuccessHandler(): LogoutSuccessHandler {
+        return AjaxLogoutSuccessHandler()
     }
 
     @Bean
-    public Http401UnauthorizedEntryPoint http401UnauthorizedEntryPoint() {
-        return new Http401UnauthorizedEntryPoint();
+    open fun http401UnauthorizedEntryPoint(): Http401UnauthorizedEntryPoint {
+        return Http401UnauthorizedEntryPoint()
     }
 
-    @Override
-    public void configure(WebSecurity web) {
+    override fun configure(web: WebSecurity) {
         web.ignoring()
-                .antMatchers("/")
-                .antMatchers("/*.{js,ico,css,html}")
-                .antMatchers(HttpMethod.OPTIONS, "/**")
-                .antMatchers("/app/**/*.{js,html}")
-                .antMatchers("/bower_components/**")
-                .antMatchers("/i18n/**")
-                .antMatchers("/content/**")
-                .antMatchers("/swagger-ui/**")
-                .antMatchers("/api-docs/**")
-                .antMatchers("/swagger-ui.html")
-                .antMatchers("/api-docs{,.json,.yml}")
-                .antMatchers("/api/register")
-                .antMatchers("/api/profile-info")
-                .antMatchers("/api/activate")
-                .antMatchers("/api/account/reset_password/init")
-                .antMatchers("/api/account/reset_password/finish")
-                .antMatchers("/test/**")
-                .antMatchers("/management/health")
-                .antMatchers(HttpMethod.GET, "/api/meta-token/**");
+            .antMatchers("/")
+            .antMatchers("/*.{js,ico,css,html}")
+            .antMatchers(HttpMethod.OPTIONS, "/**")
+            .antMatchers("/app/**/*.{js,html}")
+            .antMatchers("/bower_components/**")
+            .antMatchers("/i18n/**")
+            .antMatchers("/content/**")
+            .antMatchers("/swagger-ui/**")
+            .antMatchers("/api-docs/**")
+            .antMatchers("/swagger-ui.html")
+            .antMatchers("/api-docs{,.json,.yml}")
+            .antMatchers("/api/register")
+            .antMatchers("/api/profile-info")
+            .antMatchers("/api/activate")
+            .antMatchers("/api/account/reset_password/init")
+            .antMatchers("/api/account/reset_password/finish")
+            .antMatchers("/test/**")
+            .antMatchers("/management/health")
+            .antMatchers(HttpMethod.GET, "/api/meta-token/**")
     }
 
-    @Override
-    public void configure(HttpSecurity http) throws Exception {
+    @Throws(Exception::class)
+    public override fun configure(http: HttpSecurity) {
         http
-                .httpBasic().realmName("ManagementPortal")
-                .and()
-                .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED);
-    }
-
-    @Override
-    @Bean
-    public AuthenticationManager authenticationManagerBean() throws Exception {
-        return super.authenticationManagerBean();
+            .httpBasic().realmName("ManagementPortal")
+            .and()
+            .sessionManagement()
+            .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
     }
 
     @Bean
-    public SecurityEvaluationContextExtension securityEvaluationContextExtension() {
-        return new SecurityEvaluationContextExtension();
+    @Throws(Exception::class)
+    override fun authenticationManagerBean(): AuthenticationManager {
+        return super.authenticationManagerBean()
+    }
+
+    @Bean
+    open fun securityEvaluationContextExtension(): SecurityEvaluationContextExtension {
+        return SecurityEvaluationContextExtension()
     }
 }
