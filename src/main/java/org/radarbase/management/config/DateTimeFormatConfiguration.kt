@@ -1,23 +1,29 @@
-package org.radarbase.management.config
+package org.radarbase.management.config;
 
-import org.springframework.context.annotation.Configuration
-import org.springframework.format.FormatterRegistry
-import org.springframework.format.datetime.standard.DateTimeFormatterRegistrar
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
-import java.time.format.DateTimeFormatterBuilder
-import java.time.format.ResolverStyle
-import java.time.temporal.ChronoField
-import javax.annotation.Nonnull
+import org.springframework.context.annotation.Configuration;
+import org.springframework.format.FormatterRegistry;
+import org.springframework.format.datetime.standard.DateTimeFormatterRegistrar;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import javax.annotation.Nonnull;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.format.ResolverStyle;
+
+import static java.time.temporal.ChronoField.HOUR_OF_DAY;
+import static java.time.temporal.ChronoField.MINUTE_OF_HOUR;
+import static java.time.temporal.ChronoField.NANO_OF_SECOND;
+import static java.time.temporal.ChronoField.SECOND_OF_MINUTE;
 
 @Configuration
-class DateTimeFormatConfiguration : WebMvcConfigurer {
-    override fun addFormatters(@Nonnull registry: FormatterRegistry) {
-        val registrar = DateTimeFormatterRegistrar()
-        registrar.setUseIsoFormat(true)
-        registrar.setDateTimeFormatter(
-            DateTimeFormatterBuilder()
+public class DateTimeFormatConfiguration implements WebMvcConfigurer {
+
+    @Override
+    public void addFormatters(@Nonnull FormatterRegistry registry) {
+        DateTimeFormatterRegistrar registrar = new DateTimeFormatterRegistrar();
+        registrar.setUseIsoFormat(true);
+        registrar.setDateTimeFormatter(new DateTimeFormatterBuilder()
                 .parseCaseInsensitive()
                 .append(DateTimeFormatter.ISO_LOCAL_DATE)
                 .optionalStart()
@@ -35,14 +41,13 @@ class DateTimeFormatConfiguration : WebMvcConfigurer {
                 .appendLiteral(']')
                 .optionalEnd()
                 .optionalEnd()
-                .parseDefaulting(ChronoField.HOUR_OF_DAY, ChronoField.HOUR_OF_DAY.range().minimum)
-                .parseDefaulting(ChronoField.MINUTE_OF_HOUR, ChronoField.MINUTE_OF_HOUR.range().minimum)
-                .parseDefaulting(ChronoField.SECOND_OF_MINUTE, ChronoField.SECOND_OF_MINUTE.range().minimum)
-                .parseDefaulting(ChronoField.NANO_OF_SECOND, ChronoField.NANO_OF_SECOND.range().minimum)
+                .parseDefaulting(HOUR_OF_DAY, HOUR_OF_DAY.range().getMinimum())
+                .parseDefaulting(MINUTE_OF_HOUR, MINUTE_OF_HOUR.range().getMinimum())
+                .parseDefaulting(SECOND_OF_MINUTE, SECOND_OF_MINUTE.range().getMinimum())
+                .parseDefaulting(NANO_OF_SECOND, NANO_OF_SECOND.range().getMinimum())
                 .toFormatter()
                 .withZone(ZoneId.of("UTC"))
-                .withResolverStyle(ResolverStyle.LENIENT)
-        )
-        registrar.registerFormatters(registry)
+                .withResolverStyle(ResolverStyle.LENIENT));
+        registrar.registerFormatters(registry);
     }
 }
