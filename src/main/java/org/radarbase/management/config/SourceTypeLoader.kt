@@ -1,20 +1,14 @@
-package org.radarbase.management.config;
+package org.radarbase.management.config
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-import org.radarbase.management.service.SourceTypeService;
-import org.radarbase.management.service.catalog.CatalogSourceType;
-import org.radarbase.management.service.catalog.SourceTypeResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
+import org.radarbase.management.service.SourceTypeService
+import org.radarbase.management.service.catalog.CatalogSourceType
+import org.radarbase.management.service.catalog.SourceTypeResponse
+import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.CommandLineRunner
+import org.springframework.stereotype.Component
+import org.springframework.web.client.RestClientException
+import org.springframework.web.client.RestTemplate
 
 /**
  * Upon start of Spring application, this class automatically import the source-types provided by
@@ -22,53 +16,53 @@ import org.springframework.web.client.RestTemplate;
  * provided and enableAutoImport is set to true.
  */
 @Component
-public class SourceTypeLoader implements CommandLineRunner {
-
-    private static final Logger log = LoggerFactory.getLogger(SourceTypeLoader.class);
+class SourceTypeLoader : CommandLineRunner {
+    @Autowired
+    private val sourceTypeService: SourceTypeService? = null
 
     @Autowired
-    private SourceTypeService sourceTypeService;
-
-    @Autowired
-    private ManagementPortalProperties managementPortalProperties;
-
-    @Override
-    public void run(String... args) {
-        if (!managementPortalProperties.getCatalogueServer().isEnableAutoImport()) {
-            log.info("Auto source-type import is disabled");
-            return;
+    private val managementPortalProperties: ManagementPortalProperties? = null
+    override fun run(vararg args: String) {
+        if (!managementPortalProperties!!.catalogueServer.isEnableAutoImport) {
+            log.info("Auto source-type import is disabled")
+            return
         }
-
-        String catalogServerUrl = managementPortalProperties.getCatalogueServer().getServerUrl();
-
+        val catalogServerUrl = managementPortalProperties.catalogueServer.serverUrl
         try {
-            RestTemplate restTemplate = new RestTemplate();
-            log.debug("Requesting source-types from catalog server...");
-            ResponseEntity<SourceTypeResponse> catalogues = restTemplate
-                    .getForEntity(catalogServerUrl, SourceTypeResponse.class);
-            SourceTypeResponse catalogueDto = catalogues.getBody();
+            val restTemplate = RestTemplate()
+            log.debug("Requesting source-types from catalog server...")
+            val catalogues = restTemplate
+                .getForEntity(catalogServerUrl, SourceTypeResponse::class.java)
+            val catalogueDto = catalogues.body
             if (catalogueDto == null) {
-                log.warn("Catalog Service {} returned empty response", catalogServerUrl);
-                return;
+                log.warn("Catalog Service {} returned empty response", catalogServerUrl)
+                return
             }
-            List<CatalogSourceType> catalogSourceTypes = new ArrayList<>();
-            addNonNull(catalogSourceTypes, catalogueDto.getPassiveSources());
-            addNonNull(catalogSourceTypes, catalogueDto.getActiveSources());
-            addNonNull(catalogSourceTypes, catalogueDto.getMonitorSources());
-            addNonNull(catalogSourceTypes, catalogueDto.getConnectorSources());
-            sourceTypeService.saveSourceTypesFromCatalogServer(catalogSourceTypes);
-        } catch (RestClientException e) {
-            log.warn("Cannot fetch source types from Catalog Service at {}: {}", catalogServerUrl,
-                    e.toString());
-        } catch (RuntimeException exe) {
-            log.warn("An error has occurred during auto import of source-types: {}", exe
-                    .getMessage());
+            val catalogSourceTypes: MutableList<CatalogSourceType> = ArrayList()
+            addNonNull(catalogSourceTypes, catalogueDto.passiveSources)
+            addNonNull(catalogSourceTypes, catalogueDto.activeSources)
+            addNonNull(catalogSourceTypes, catalogueDto.monitorSources)
+            addNonNull(catalogSourceTypes, catalogueDto.connectorSources)
+            sourceTypeService!!.saveSourceTypesFromCatalogServer(catalogSourceTypes)
+        } catch (e: RestClientException) {
+            log.warn(
+                "Cannot fetch source types from Catalog Service at {}: {}", catalogServerUrl,
+                e.toString()
+            )
+        } catch (exe: RuntimeException) {
+            log.warn(
+                "An error has occurred during auto import of source-types: {}", exe
+                    .message
+            )
         }
     }
 
-    private static <T> void addNonNull(Collection<T> collection, Collection<? extends T> toAdd) {
-        if (toAdd != null && !toAdd.isEmpty()) {
-            collection.addAll(toAdd);
+    companion object {
+        private val log = LoggerFactory.getLogger(SourceTypeLoader::class.java)
+        private fun <T> addNonNull(collection: MutableCollection<T>, toAdd: Collection<T>?) {
+            if (toAdd != null && !toAdd.isEmpty()) {
+                collection.addAll(toAdd)
+            }
         }
     }
 }
