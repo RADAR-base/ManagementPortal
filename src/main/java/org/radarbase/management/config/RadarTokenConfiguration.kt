@@ -1,19 +1,30 @@
-package org.radarbase.management.config
+package org.radarbase.management.config;
 
-import org.radarbase.auth.token.RadarToken
-import org.radarbase.management.security.jwt.RadarTokenLoader
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Configuration
-import org.springframework.context.annotation.Scope
-import org.springframework.context.annotation.ScopedProxyMode
-import javax.servlet.http.HttpServletRequest
+import org.radarbase.auth.token.RadarToken;
+import org.radarbase.management.security.jwt.RadarTokenLoader;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Scope;
+
+import javax.annotation.Nullable;
+import javax.servlet.http.HttpServletRequest;
+
+import static org.springframework.context.annotation.ScopedProxyMode.TARGET_CLASS;
 
 @Configuration
-open class RadarTokenConfiguration @Autowired constructor(private val radarTokenLoader: RadarTokenLoader) {
-    @Scope(value = "request", proxyMode = ScopedProxyMode.TARGET_CLASS)
+public class RadarTokenConfiguration {
+    private final RadarTokenLoader radarTokenLoader;
+
+    @Autowired
+    public RadarTokenConfiguration(RadarTokenLoader radarTokenLoader) {
+        this.radarTokenLoader = radarTokenLoader;
+    }
+
+    @Scope(value = "request", proxyMode = TARGET_CLASS)
     @Bean
-    open fun radarToken(request: HttpServletRequest?): RadarToken? {
-        return radarTokenLoader.loadToken(request!!)
+    @Nullable
+    public RadarToken radarToken(HttpServletRequest request) {
+        return radarTokenLoader.loadToken(request);
     }
 }
