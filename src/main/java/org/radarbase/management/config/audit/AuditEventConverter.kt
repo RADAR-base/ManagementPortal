@@ -1,30 +1,36 @@
-package org.radarbase.management.config.audit
+package org.radarbase.management.config.audit;
 
-import org.radarbase.management.domain.PersistentAuditEvent
-import org.springframework.boot.actuate.audit.AuditEvent
-import org.springframework.security.web.authentication.WebAuthenticationDetails
-import org.springframework.stereotype.Component
-import java.time.ZoneId
+import java.time.Instant;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import org.radarbase.management.domain.PersistentAuditEvent;
+import org.springframework.boot.actuate.audit.AuditEvent;
+import org.springframework.security.web.authentication.WebAuthenticationDetails;
+import org.springframework.stereotype.Component;
 
 @Component
-class AuditEventConverter {
+public class AuditEventConverter {
+
     /**
      * Convert a list of PersistentAuditEvent to a list of AuditEvent.
      *
      * @param persistentAuditEvents the list to convert
      * @return the converted list.
      */
-    fun convertToAuditEvent(
-        persistentAuditEvents: Iterable<PersistentAuditEvent>?
-    ): List<AuditEvent> {
+    public List<AuditEvent> convertToAuditEvent(
+            Iterable<PersistentAuditEvent> persistentAuditEvents) {
         if (persistentAuditEvents == null) {
-            return emptyList()
+            return Collections.emptyList();
         }
-        val auditEvents: MutableList<AuditEvent> = ArrayList()
-        for (persistentAuditEvent in persistentAuditEvents) {
-            auditEvents.add(convertToAuditEvent(persistentAuditEvent))
+        List<AuditEvent> auditEvents = new ArrayList<>();
+        for (PersistentAuditEvent persistentAuditEvent : persistentAuditEvents) {
+            auditEvents.add(convertToAuditEvent(persistentAuditEvent));
         }
-        return auditEvents
+        return auditEvents;
     }
 
     /**
@@ -33,14 +39,12 @@ class AuditEventConverter {
      * @param persistentAuditEvent the event to convert
      * @return the converted list.
      */
-    fun convertToAuditEvent(persistentAuditEvent: PersistentAuditEvent): AuditEvent {
-        val instant = persistentAuditEvent.auditEventDate?.atZone(ZoneId.systemDefault())
-            ?.toInstant()
-        return AuditEvent(
-            instant, persistentAuditEvent.principal,
-            persistentAuditEvent.auditEventType,
-            convertDataToObjects(persistentAuditEvent.data)
-        )
+    public AuditEvent convertToAuditEvent(PersistentAuditEvent persistentAuditEvent) {
+        Instant instant = persistentAuditEvent.getAuditEventDate().atZone(ZoneId.systemDefault())
+                .toInstant();
+        return new AuditEvent(instant, persistentAuditEvent.getPrincipal(),
+                persistentAuditEvent.getAuditEventType(),
+                convertDataToObjects(persistentAuditEvent.getData()));
     }
 
     /**
@@ -50,14 +54,15 @@ class AuditEventConverter {
      * @param data the data to convert
      * @return a map of String, Object
      */
-    fun convertDataToObjects(data: Map<String, String>?): Map<String, Any> {
-        val results: MutableMap<String, Any> = HashMap()
+    public Map<String, Object> convertDataToObjects(Map<String, String> data) {
+        Map<String, Object> results = new HashMap<>();
+
         if (data != null) {
-            for ((key, value) in data) {
-                results[key] = value
+            for (Map.Entry<String, String> entry : data.entrySet()) {
+                results.put(entry.getKey(), entry.getValue());
             }
         }
-        return results
+        return results;
     }
 
     /**
@@ -67,21 +72,25 @@ class AuditEventConverter {
      * @param data the data to convert
      * @return a map of String, String
      */
-    fun convertDataToStrings(data: Map<String, Any?>?): Map<String, String> {
-        val results: MutableMap<String, String> = HashMap()
+    public Map<String, String> convertDataToStrings(Map<String, Object> data) {
+        Map<String, String> results = new HashMap<>();
+
         if (data != null) {
-            for ((key, value) in data) {
+            for (Map.Entry<String, Object> entry : data.entrySet()) {
+                Object val = entry.getValue();
 
                 // Extract the data that will be saved.
-                if (value is WebAuthenticationDetails && value.sessionId != null) {
-                    results["sessionId"] = value.sessionId
-                } else if (value != null) {
-                    results[key] = value.toString()
+                if (val instanceof WebAuthenticationDetails) {
+                    WebAuthenticationDetails authenticationDetails = (WebAuthenticationDetails) val;
+                    results.put("sessionId", authenticationDetails.getSessionId());
+                } else if (val != null) {
+                    results.put(entry.getKey(), val.toString());
                 } else {
-                    results[key] = "null"
+                    results.put(entry.getKey(), "null");
                 }
             }
         }
-        return results
+
+        return results;
     }
 }
