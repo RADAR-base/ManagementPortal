@@ -1,58 +1,60 @@
-package org.radarbase.management.config;
+package org.radarbase.management.config
 
-import com.fasterxml.jackson.datatype.hibernate5.Hibernate5Module;
-import liquibase.integration.spring.SpringLiquibase;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.liquibase.LiquibaseProperties;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.core.env.Environment;
-import org.springframework.core.env.Profiles;
-import org.springframework.data.envers.repository.support.EnversRevisionRepositoryFactoryBean;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.transaction.annotation.EnableTransactionManagement;
-import tech.jhipster.config.JHipsterConstants;
-
-import javax.sql.DataSource;
+import com.fasterxml.jackson.datatype.hibernate5.Hibernate5Module
+import liquibase.integration.spring.SpringLiquibase
+import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.autoconfigure.liquibase.LiquibaseProperties
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
+import org.springframework.core.env.Environment
+import org.springframework.core.env.Profiles
+import org.springframework.data.envers.repository.support.EnversRevisionRepositoryFactoryBean
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories
+import org.springframework.transaction.annotation.EnableTransactionManagement
+import tech.jhipster.config.JHipsterConstants
+import javax.sql.DataSource
 
 @Configuration
-@EnableJpaRepositories(basePackages = "org.radarbase.management.repository",
-        repositoryFactoryBeanClass = EnversRevisionRepositoryFactoryBean.class)
+@EnableJpaRepositories(
+    basePackages = ["org.radarbase.management.repository"],
+    repositoryFactoryBeanClass = EnversRevisionRepositoryFactoryBean::class
+)
 @EnableJpaAuditing(auditorAwareRef = "springSecurityAuditorAware")
 @EnableTransactionManagement
-public class DatabaseConfiguration {
-
-    private static final Logger log = LoggerFactory.getLogger(DatabaseConfiguration.class);
-
+open class DatabaseConfiguration {
     @Autowired
-    private Environment env;
-
+    private val env: Environment? = null
     @Bean
-    public SpringLiquibase liquibase(DataSource dataSource,
-            LiquibaseProperties liquibaseProperties) {
+    open fun liquibase(
+        dataSource: DataSource?,
+        liquibaseProperties: LiquibaseProperties
+    ): SpringLiquibase {
 
         // Use liquibase.integration.spring.SpringLiquibase if you don't want Liquibase to start
         // asynchronously
-        SpringLiquibase liquibase = new SpringLiquibase();
-        liquibase.setDataSource(dataSource);
-        liquibase.setChangeLog("classpath:config/liquibase/master.xml");
-        liquibase.setContexts(liquibaseProperties.getContexts());
-        liquibase.setDefaultSchema(liquibaseProperties.getDefaultSchema());
-        liquibase.setDropFirst(liquibaseProperties.isDropFirst());
-        if (env.acceptsProfiles(Profiles.of(JHipsterConstants.SPRING_PROFILE_NO_LIQUIBASE))) {
-            liquibase.setShouldRun(false);
+        val liquibase = SpringLiquibase()
+        liquibase.dataSource = dataSource
+        liquibase.changeLog = "classpath:config/liquibase/master.xml"
+        liquibase.contexts = liquibaseProperties.contexts
+        liquibase.defaultSchema = liquibaseProperties.defaultSchema
+        liquibase.isDropFirst = liquibaseProperties.isDropFirst
+        if (env!!.acceptsProfiles(Profiles.of(JHipsterConstants.SPRING_PROFILE_NO_LIQUIBASE))) {
+            liquibase.setShouldRun(false)
         } else {
-            liquibase.setShouldRun(liquibaseProperties.isEnabled());
-            log.debug("Configuring Liquibase");
+            liquibase.setShouldRun(liquibaseProperties.isEnabled)
+            log.debug("Configuring Liquibase")
         }
-        return liquibase;
+        return liquibase
     }
 
     @Bean
-    public Hibernate5Module hibernate5Module() {
-        return new Hibernate5Module();
+    open fun hibernate5Module(): Hibernate5Module {
+        return Hibernate5Module()
+    }
+
+    companion object {
+        private val log = LoggerFactory.getLogger(DatabaseConfiguration::class.java)
     }
 }
