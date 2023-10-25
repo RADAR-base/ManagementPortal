@@ -6,8 +6,9 @@ import org.radarbase.management.domain.support.AutowireHelper
 import org.radarbase.management.security.Constants
 import org.radarbase.management.security.SpringSecurityAuditorAware
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.stereotype.Component
 
-
+@Component
 class CustomRevisionListener : RevisionListener {
     @Autowired
     private val springSecurityAuditorAware: SpringSecurityAuditorAware? = null
