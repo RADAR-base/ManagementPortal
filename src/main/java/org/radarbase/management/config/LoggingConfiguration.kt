@@ -1,46 +1,37 @@
-package org.radarbase.management.config;
+package org.radarbase.management.config
 
-import ch.qos.logback.classic.LoggerContext;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
-import tech.jhipster.config.JHipsterProperties;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import static tech.jhipster.config.logging.LoggingUtils.addContextListener;
-import static tech.jhipster.config.logging.LoggingUtils.addJsonConsoleAppender;
-import static tech.jhipster.config.logging.LoggingUtils.addLogstashTcpSocketAppender;
+import ch.qos.logback.classic.LoggerContext
+import com.fasterxml.jackson.databind.ObjectMapper
+import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.context.annotation.Configuration
+import tech.jhipster.config.JHipsterProperties
+import tech.jhipster.config.logging.LoggingUtils
 
 @Configuration
-public class LoggingConfiguration {
-    /** Logging configuration for JHipster. */
-    public LoggingConfiguration(@Value("${spring.application.name}") String appName,
-            @Value("${server.port}") String serverPort,
-            JHipsterProperties jHipsterProperties,
-            ObjectMapper mapper) throws JsonProcessingException {
-        LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
-
-        Map<String, String> map = new HashMap<>();
-        map.put("app_name", appName);
-        map.put("app_port", serverPort);
-
-        String customFields = mapper.writeValueAsString(map);
-
-        JHipsterProperties.Logging loggingProperties = jHipsterProperties.getLogging();
-        JHipsterProperties.Logging.Logstash logstashProperties = loggingProperties.getLogstash();
-
-        if (loggingProperties.isUseJsonFormat()) {
-            addJsonConsoleAppender(context, customFields);
+open class LoggingConfiguration(
+    @Value("\${spring.application.name}") appName: String,
+    @Value("\${server.port}") serverPort: String,
+    jHipsterProperties: JHipsterProperties,
+    mapper: ObjectMapper
+) {
+    /** Logging configuration for JHipster.  */
+    init {
+        val context = LoggerFactory.getILoggerFactory() as LoggerContext
+        val map: MutableMap<String, String> = HashMap()
+        map["app_name"] = appName
+        map["app_port"] = serverPort
+        val customFields = mapper.writeValueAsString(map)
+        val loggingProperties = jHipsterProperties.logging
+        val logstashProperties = loggingProperties.logstash
+        if (loggingProperties.isUseJsonFormat) {
+            LoggingUtils.addJsonConsoleAppender(context, customFields)
         }
-        if (logstashProperties.isEnabled()) {
-            addLogstashTcpSocketAppender(context, customFields, logstashProperties);
+        if (logstashProperties.isEnabled) {
+            LoggingUtils.addLogstashTcpSocketAppender(context, customFields, logstashProperties)
         }
-        if (loggingProperties.isUseJsonFormat() || logstashProperties.isEnabled()) {
-            addContextListener(context, customFields, loggingProperties);
+        if (loggingProperties.isUseJsonFormat || logstashProperties.isEnabled) {
+            LoggingUtils.addContextListener(context, customFields, loggingProperties)
         }
     }
 }

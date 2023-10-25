@@ -1,4 +1,4 @@
 /**
  * Spring Framework configuration files.
  */
-package org.radarbase.management.config;
+package org.radarbase.management.config
