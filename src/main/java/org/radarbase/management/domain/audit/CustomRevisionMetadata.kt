@@ -1,40 +1,61 @@
-package org.radarbase.management.domain.audit
+package org.radarbase.management.domain.audit;
 
-import org.springframework.data.history.RevisionMetadata
-import org.springframework.util.Assert
-import java.time.Instant
-import java.util.*
+import org.springframework.data.history.RevisionMetadata;
+import org.springframework.util.Assert;
 
-class CustomRevisionMetadata(entity: CustomRevisionEntity) : RevisionMetadata<Int> {
-    private val entity: CustomRevisionEntity
+import java.time.Instant;
+import java.util.Optional;
+
+public class CustomRevisionMetadata implements RevisionMetadata<Integer> {
+
+    private final CustomRevisionEntity entity;
 
     /**
-     * Creates a new [CustomRevisionMetadata].
+     * Creates a new {@link CustomRevisionMetadata}.
      *
-     * @param entity must not be null.
+     * @param entity must not be {@literal null}.
      */
-    init {
-        Assert.notNull(entity, "The CustomRevisionEntity can not be null")
-        this.entity = entity
+    public CustomRevisionMetadata(CustomRevisionEntity entity) {
+        Assert.notNull(entity, "The CustomRevisionEntity can not be null");
+        this.entity = entity;
     }
 
     /*
      * (non-Javadoc)
      * @see org.springframework.data.history.RevisionMetadata#getRevisionNumber()
      */
-    override fun getRevisionNumber(): Optional<Int> {
-        return Optional.of(entity.id)
+    @Override
+    public Optional<Integer> getRevisionNumber() {
+        return Optional.of(entity.getId());
     }
 
-    override fun getRevisionInstant(): Optional<Instant> {
-        return Optional.ofNullable(entity.timestamp).map { ts: Date -> ts.toInstant() }
+    @Override
+    public Integer getRequiredRevisionNumber() {
+        return RevisionMetadata.super.getRequiredRevisionNumber();
+    }
+
+    @Override
+    public Optional<Instant> getRevisionInstant() {
+        return Optional.ofNullable(entity.getTimestamp()).map(ts -> ts.toInstant());
+    }
+
+    @Override
+    public Instant getRequiredRevisionInstant() {
+        return RevisionMetadata.super.getRequiredRevisionInstant();
     }
 
     /*
      * (non-Javadoc)
      * @see org.springframework.data.history.RevisionMetadata#getDelegate()
      */
-    override fun <T : Any> getDelegate(): T {
-        return entity as T
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> T getDelegate() {
+        return (T) entity;
+    }
+
+    @Override
+    public RevisionType getRevisionType() {
+        return RevisionMetadata.super.getRevisionType();
     }
 }
