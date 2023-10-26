@@ -54,11 +54,11 @@ public abstract class SourceMapperDecorator implements SourceMapper {
                             SOURCE, ERR_SOURCE_NOT_FOUND,
                             Map.of("sourceId", sourceDto.getId().toString())));
             if (sourceDto.getSubjectLogin() == null) {
-                source.setSubject(existingSource.getSubject());
+                source.subject = existingSource.subject;
             } else {
-                source.setSubject(subjectRepository
+                source.subject = subjectRepository
                         .findOneWithEagerBySubjectLogin(sourceDto.getSubjectLogin())
-                        .orElseThrow(NoSuchElementException::new));
+                        .orElseThrow(NoSuchElementException::new);
             }
         }
         return source;

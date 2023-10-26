@@ -32,8 +32,8 @@ public abstract class RoleMapperDecorator implements RoleMapper {
 
         Role role = delegate.roleDTOToRole(roleDto);
 
-        if (role.getAuthority() == null) {
-            role.setAuthority(authorityRepository.getById(roleDto.getAuthorityName()));
+        if (role.authority == null) {
+            role.authority = authorityRepository.getById(roleDto.getAuthorityName());
         }
 
         return role;

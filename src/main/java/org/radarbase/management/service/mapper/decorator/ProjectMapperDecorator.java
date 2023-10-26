@@ -43,7 +43,7 @@ public abstract class ProjectMapperDecorator implements ProjectMapper {
         }
         ProjectDTO dto = delegate.projectToProjectDTO(project);
 
-        dto.setHumanReadableProjectName(project.getAttributes().get(HUMAN_READABLE_PROJECT_NAME));
+        dto.setHumanReadableProjectName(project.attributes.get(HUMAN_READABLE_PROJECT_NAME));
 
         try {
             dto.setPersistentTokenTimeout(
@@ -62,7 +62,7 @@ public abstract class ProjectMapperDecorator implements ProjectMapper {
             return null;
         }
         ProjectDTO dto = delegate.projectToProjectDTOReduced(project);
-        dto.setHumanReadableProjectName(project.getAttributes().get(HUMAN_READABLE_PROJECT_NAME));
+        dto.setHumanReadableProjectName(project.attributes.get(HUMAN_READABLE_PROJECT_NAME));
         dto.setSourceTypes(null);
         return dto;
     }
@@ -76,7 +76,7 @@ public abstract class ProjectMapperDecorator implements ProjectMapper {
         Project project = delegate.projectDTOToProject(projectDto);
         String projectName = projectDto.getHumanReadableProjectName();
         if (projectName != null && !projectName.isEmpty()) {
-            project.getAttributes().put(HUMAN_READABLE_PROJECT_NAME, projectName);
+            project.attributes.put(HUMAN_READABLE_PROJECT_NAME, projectName);
         }
 
         var orgDto = projectDto.getOrganization();
@@ -86,7 +86,7 @@ public abstract class ProjectMapperDecorator implements ProjectMapper {
                             ORGANIZATION,
                             ErrorConstants.ERR_ORGANIZATION_NAME_NOT_FOUND,
                             Collections.singletonMap("name", orgDto.getName())));
-            project.setOrganization(org);
+            project.organization = org;
         }
 
         return project;

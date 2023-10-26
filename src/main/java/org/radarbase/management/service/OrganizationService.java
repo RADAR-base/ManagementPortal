@@ -122,7 +122,7 @@ public class OrganizationService {
             projectStream = projectRepository.findAllByOrganizationName(organizationName).stream();
         } else if (referents.hasAnyProjects()) {
             projectStream = projectRepository.findAllByOrganizationName(organizationName).stream()
-                    .filter(project -> referents.hasAnyProject(project.getProjectName()));
+                    .filter(project -> referents.hasAnyProject(project.projectName));
         } else {
             return List.of();
         }

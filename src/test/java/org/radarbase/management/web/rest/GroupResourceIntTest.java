@@ -127,7 +127,7 @@ class GroupResourceIntTest {
     @AfterEach
     public void tearDown() {
         groupRepository.delete(group);
-        var roles = roleRepository.findAllRolesByProjectName(project.getProjectName());
+        var roles = roleRepository.findAllRolesByProjectName(project.projectName);
         roleRepository.deleteAll(roles);
         projectRepository.delete(project);
     }
@@ -137,8 +137,8 @@ class GroupResourceIntTest {
      */
     private Group createEntity() {
         Group group = new Group();
-        group.setName("group1");
-        group.setProject(project);
+        group.name = "group1";
+        group.project = project;
         return group;
     }
 
@@ -147,17 +147,17 @@ class GroupResourceIntTest {
         // Create the Group
         var groupDto = groupMapper.groupToGroupDTO(group);
         restGroupMockMvc.perform(post("/api/projects/{projectName}/groups",
-                        project.getProjectName())
+                        project.projectName)
                         .contentType(TestUtil.APPLICATION_JSON_UTF8)
                         .content(TestUtil.convertObjectToJsonBytes(groupDto)))
                 .andExpect(status().isCreated());
 
         var savedGroup = groupRepository.findByProjectNameAndName(
-                project.getProjectName(), groupDto.getName()).get();
+                project.projectName, groupDto.getName()).get();
 
         // Validate the Group in the database
-        assertThat(savedGroup.getProject().getId()).isEqualTo(project.getId());
-        assertThat(savedGroup.getName()).isEqualTo("group1");
+        assertThat(savedGroup.project.getId()).isEqualTo(project.getId());
+        assertThat(savedGroup.name).isEqualTo("group1");
     }
 
 
@@ -168,7 +168,7 @@ class GroupResourceIntTest {
         // Create the Group
         var groupDto = groupMapper.groupToGroupDTO(group);
         restGroupMockMvc.perform(post("/api/projects/{projectName}/groups",
-                        project.getProjectName())
+                        project.projectName)
                         .contentType(TestUtil.APPLICATION_JSON_UTF8)
                         .content(TestUtil.convertObjectToJsonBytes(groupDto)))
                 .andExpect(status().isNotFound());
@@ -179,13 +179,13 @@ class GroupResourceIntTest {
         // Create the Group
         var groupDto = groupMapper.groupToGroupDTO(group);
         restGroupMockMvc.perform(post("/api/projects/{projectName}/groups",
-                        project.getProjectName())
+                        project.projectName)
                         .contentType(TestUtil.APPLICATION_JSON_UTF8)
                         .content(TestUtil.convertObjectToJsonBytes(groupDto)))
                 .andExpect(status().isCreated());
 
         restGroupMockMvc.perform(post("/api/projects/{projectName}/groups",
-                        project.getProjectName())
+                        project.projectName)
                         .contentType(TestUtil.APPLICATION_JSON_UTF8)
                         .content(TestUtil.convertObjectToJsonBytes(groupDto)))
                 .andExpect(status().isConflict());
@@ -195,53 +195,53 @@ class GroupResourceIntTest {
     @Test
     void createGroupWithExistingNameInDifferentProject() throws Exception {
         Project project2 = ProjectResourceIntTest.createEntity()
-                .projectName(project.getProjectName() + "2");
+                .projectName(project.projectName + "2");
 
         projectRepository.saveAndFlush(project2);
         Group group2 = new Group();
-        group2.setName(group.getName());
-        group2.setProject(project2);
+        group2.name = group.name;
+        group2.project = project2;
 
         // Create the Group
         var groupDto = groupMapper.groupToGroupDTO(group);
         restGroupMockMvc.perform(post("/api/projects/{projectName}/groups",
-                        project.getProjectName())
+                        project.projectName)
                         .contentType(TestUtil.APPLICATION_JSON_UTF8)
                         .content(TestUtil.convertObjectToJsonBytes(groupDto)))
                 .andExpect(status().isCreated());
 
         var group2Dto = groupMapper.groupToGroupDTO(group2);
         restGroupMockMvc.perform(post("/api/projects/{projectName}/groups",
-                        project2.getProjectName())
+                        project2.projectName)
                         .contentType(TestUtil.APPLICATION_JSON_UTF8)
                         .content(TestUtil.convertObjectToJsonBytes(group2Dto)))
                 .andExpect(status().isCreated());
 
         // Validate groups are saved for both projects
         var savedGroup1 = groupRepository.findByProjectNameAndName(
-                project.getProjectName(), group.getName()).get();
+                project.projectName, group.name).get();
         var savedGroup2 = groupRepository.findByProjectNameAndName(
-                project2.getProjectName(), group2.getName()).get();
+                project2.projectName, group2.name).get();
         var groupList = Arrays.asList(savedGroup1, savedGroup2);
         assertThat(groupList).hasSize(2);
         assertThat(groupList).haveAtLeastOne(new Condition<>(
-                g -> project.getId().equals(g.getProject().getId()), "use project 1"));
+                g -> project.getId().equals(g.project.getId()), "use project 1"));
         assertThat(groupList).haveAtLeastOne(new Condition<>(
-                g -> project2.getId().equals(g.getProject().getId()), "use project 2"));
+                g -> project2.getId().equals(g.project.getId()), "use project 2"));
         assertThat(groupList).allSatisfy(
-                g -> assertThat(g.getName()).isEqualTo(group.getName()));
+                g -> assertThat(g.name).isEqualTo(group.name));
 
         projectRepository.delete(project2);
     }
 
     @Test
     void checkGroupNameIsRequired() throws Exception {
-        group.setName(null);
+        group.name = null;
 
         // Create the Group
         GroupDTO groupDto = groupMapper.groupToGroupDTO(group);
         restGroupMockMvc.perform(post("/api/projects/{projectName}/groups",
-                        project.getProjectName())
+                        project.projectName)
                         .contentType(TestUtil.APPLICATION_JSON_UTF8)
                         .content(TestUtil.convertObjectToJsonBytes(groupDto)))
                 .andExpect(status().isBadRequest());
@@ -254,7 +254,7 @@ class GroupResourceIntTest {
 
         // Get all the groups
         restGroupMockMvc.perform(get("/api/projects/{projectName}/groups",
-                        project.getProjectName()))
+                        project.projectName))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.[*].projectId").value(
@@ -269,7 +269,7 @@ class GroupResourceIntTest {
 
         // Get the Group
         restGroupMockMvc.perform(get("/api/projects/{projectName}/groups/{groupName}",
-                        project.getProjectName(), group.getName()))
+                        project.projectName, group.name))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.name").value("group1"))
@@ -280,7 +280,7 @@ class GroupResourceIntTest {
     void getNonExistingGroup() throws Exception {
         // Get the Group
         restGroupMockMvc.perform(get("/api/projects/{projectName}/groups/{groupName}",
-                        project.getProjectName(), group.getName()))
+                        project.projectName, group.name))
                 .andExpect(status().isNotFound());
     }
 
@@ -292,13 +292,13 @@ class GroupResourceIntTest {
         // Get the Group
         restGroupMockMvc.perform(delete(
                         "/api/projects/{projectName}/groups/{groupName}",
-                        project.getProjectName(), group.getName())
+                        project.projectName, group.name)
                         .accept(TestUtil.APPLICATION_JSON_UTF8))
                 .andExpect(status().isNoContent());
 
         // Validate the Group is not present in the database
         var savedGroup = groupRepository.findByProjectNameAndName(
-                project.getProjectName(), group.getName());
+                project.projectName, group.name);
         assertThat(savedGroup).isEmpty();
     }
 
@@ -314,27 +314,27 @@ class GroupResourceIntTest {
         subjectDto.setExternalId("exId1");
         subjectDto.setStatus(ACTIVATED);
         subjectDto.setProject(projectDto);
-        subjectDto.setGroup(group.getName());
+        subjectDto.setGroup(group.name);
         var savedSubject = subjectService.createSubject(subjectDto);
 
         // Try to delete the Group (and fail)
         restGroupMockMvc.perform(delete(
                         "/api/projects/{projectName}/groups/{groupName}",
-                        project.getProjectName(), group.getName())
+                        project.projectName, group.name)
                         .accept(TestUtil.APPLICATION_JSON_UTF8))
                 .andExpect(status().isConflict());
 
         // Delete the Group (and unlink the subjects)
         restGroupMockMvc.perform(delete(
                         "/api/projects/{projectName}/groups/{groupName}",
-                        project.getProjectName(), group.getName())
+                        project.projectName, group.name)
                         .param("unlinkSubjects", "true")
                         .accept(TestUtil.APPLICATION_JSON_UTF8))
                 .andExpect(status().isNoContent());
 
         // Validate the Group is not present in the database
         var savedGroup = groupRepository.findByProjectNameAndName(
-                project.getProjectName(), group.getName());
+                project.projectName, group.name);
         assertThat(savedGroup).isEmpty();
 
         var storedSubject = subjectRepository.getOne(savedSubject.getId());
@@ -349,7 +349,7 @@ class GroupResourceIntTest {
         // Get the Group
         restGroupMockMvc.perform(delete(
                         "/api/projects/{projectName}/groups/{groupName}",
-                        project.getProjectName(), group.getName() + "2")
+                        project.projectName, group.name + "2")
                         .accept(TestUtil.APPLICATION_JSON_UTF8))
                 .andExpect(status().isNotFound());
 
@@ -366,7 +366,7 @@ class GroupResourceIntTest {
         // Get the Group
         restGroupMockMvc.perform(delete(
                         "/api/projects/{projectName}/groups/{groupName}",
-                        project.getProjectName() + "2", group.getName())
+                        project.projectName + "2", group.name)
                         .accept(TestUtil.APPLICATION_JSON_UTF8))
                 .andExpect(status().isNotFound());
 
@@ -414,7 +414,7 @@ class GroupResourceIntTest {
         // Get the Group
         restGroupMockMvc.perform(patch(
                         "/api/projects/{projectName}/groups/{groupName}/subjects",
-                        project.getProjectName(), group.getName())
+                        project.projectName, group.name)
 
                         .contentType(TestUtil.APPLICATION_JSON_PATCH)
                         .content(TestUtil.convertObjectToJsonBytes(body)))
@@ -425,7 +425,7 @@ class GroupResourceIntTest {
         var subjects = subjectRepository.findAllBySubjectLogins(subjectLogins);
         assertThat(subjects).hasSize(2);
         assertThat(subjects).allSatisfy(
-                s -> assertThat(s.getGroup().getId()).isEqualTo(group.getId()));
+                s -> assertThat(s.group.getId()).isEqualTo(group.getId()));
 
         subjectRepository.deleteAll(subjects);
     }

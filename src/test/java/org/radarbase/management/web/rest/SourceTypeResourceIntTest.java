@@ -163,18 +163,18 @@ class SourceTypeResourceIntTest {
         List<SourceType> sourceTypeList = sourceTypeRepository.findAll();
         assertThat(sourceTypeList).hasSize(databaseSizeBeforeCreate + 1);
         SourceType testSourceType = sourceTypeList.get(sourceTypeList.size() - 1);
-        assertThat(testSourceType.getProducer()).isEqualTo(DEFAULT_PRODUCER);
-        assertThat(testSourceType.getModel()).isEqualTo(DEFAULT_MODEL);
-        assertThat(testSourceType.getSourceTypeScope()).isEqualTo(DEFAULT_SOURCE_TYPE_SCOPE);
-        assertThat(testSourceType.getCatalogVersion()).isEqualTo(DEFAULT_DEVICE_VERSION);
-        assertThat(testSourceType.getSourceData()).hasSize(1);
-        SourceData testSourceData = testSourceType.getSourceData().iterator().next();
-        assertThat(testSourceData.getSourceDataType()).isEqualTo(sourceDataDto.getSourceDataType());
-        assertThat(testSourceData.getSourceDataName()).isEqualTo(sourceDataDto.getSourceDataName());
-        assertThat(testSourceData.getProcessingState()).isEqualTo(
+        assertThat(testSourceType.producer).isEqualTo(DEFAULT_PRODUCER);
+        assertThat(testSourceType.model).isEqualTo(DEFAULT_MODEL);
+        assertThat(testSourceType.sourceTypeScope).isEqualTo(DEFAULT_SOURCE_TYPE_SCOPE);
+        assertThat(testSourceType.catalogVersion).isEqualTo(DEFAULT_DEVICE_VERSION);
+        assertThat(testSourceType.sourceData).hasSize(1);
+        SourceData testSourceData = testSourceType.sourceData.iterator().next();
+        assertThat(testSourceData.sourceDataType).isEqualTo(sourceDataDto.getSourceDataType());
+        assertThat(testSourceData.sourceDataName).isEqualTo(sourceDataDto.getSourceDataName());
+        assertThat(testSourceData.processingState).isEqualTo(
                 sourceDataDto.getProcessingState());
-        assertThat(testSourceData.getKeySchema()).isEqualTo(sourceDataDto.getKeySchema());
-        assertThat(testSourceData.getFrequency()).isEqualTo(sourceDataDto.getFrequency());
+        assertThat(testSourceData.keySchema).isEqualTo(sourceDataDto.getKeySchema());
+        assertThat(testSourceData.frequency).isEqualTo(sourceDataDto.getFrequency());
     }
 
     @Test
@@ -202,7 +202,7 @@ class SourceTypeResourceIntTest {
     void checkModelIsRequired() throws Exception {
         int databaseSizeBeforeTest = sourceTypeRepository.findAll().size();
         // set the field null
-        sourceType.setModel(null);
+        sourceType.model = null;
 
         // Create the SourceType, which fails.
         SourceTypeDTO sourceTypeDto = sourceTypeMapper.sourceTypeToSourceTypeDTO(sourceType);
@@ -221,7 +221,7 @@ class SourceTypeResourceIntTest {
     void checkSourceTypeIsRequired() throws Exception {
         int databaseSizeBeforeTest = sourceTypeRepository.findAll().size();
         // set the field null
-        sourceType.setSourceTypeScope(null);
+        sourceType.sourceTypeScope = null;
 
         // Create the SourceType, which fails.
         SourceTypeDTO sourceTypeDto = sourceTypeMapper.sourceTypeToSourceTypeDTO(sourceType);
@@ -300,7 +300,7 @@ class SourceTypeResourceIntTest {
 
         // Get the sourceType
         restSourceTypeMockMvc.perform(get("/api/source-types/{prodcuer}/{model}/{version}",
-                sourceType.getProducer(), sourceType.getModel(), sourceType.getCatalogVersion()))
+                        sourceType.producer, sourceType.model, sourceType.catalogVersion))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(sourceType.getId().intValue()))
@@ -344,10 +344,10 @@ class SourceTypeResourceIntTest {
         List<SourceType> sourceTypeList = sourceTypeRepository.findAll();
         assertThat(sourceTypeList).hasSize(databaseSizeBeforeUpdate);
         SourceType testSourceType = sourceTypeList.get(sourceTypeList.size() - 1);
-        assertThat(testSourceType.getProducer()).isEqualTo(UPDATED_PRODUCER);
-        assertThat(testSourceType.getModel()).isEqualTo(UPDATED_MODEL);
-        assertThat(testSourceType.getCatalogVersion()).isEqualTo(UPDATED_DEVICE_VERSION);
-        assertThat(testSourceType.getSourceTypeScope()).isEqualTo(UPDATED_SOURCE_TYPE_SCOPE);
+        assertThat(testSourceType.producer).isEqualTo(UPDATED_PRODUCER);
+        assertThat(testSourceType.model).isEqualTo(UPDATED_MODEL);
+        assertThat(testSourceType.catalogVersion).isEqualTo(UPDATED_DEVICE_VERSION);
+        assertThat(testSourceType.sourceTypeScope).isEqualTo(UPDATED_SOURCE_TYPE_SCOPE);
     }
 
     @Test
@@ -378,7 +378,7 @@ class SourceTypeResourceIntTest {
 
         // Get the sourceType
         restSourceTypeMockMvc.perform(delete("/api/source-types/{prodcuer}/{model}/{version}",
-                sourceType.getProducer(), sourceType.getModel(), sourceType.getCatalogVersion())
+                        sourceType.producer, sourceType.model, sourceType.catalogVersion)
                 .accept(TestUtil.APPLICATION_JSON_UTF8))
                 .andExpect(status().isOk());
 

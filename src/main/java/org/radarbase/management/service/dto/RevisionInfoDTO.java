@@ -73,9 +73,9 @@ public class RevisionInfoDTO implements Serializable {
     public static RevisionInfoDTO from(CustomRevisionEntity revisionEntity, Map<RevisionType,
             List<Object>> changes) {
         RevisionInfoDTO result = new RevisionInfoDTO();
-        result.setAuthor(revisionEntity.getAuditor());
-        result.setTimestamp(revisionEntity.getTimestamp());
-        result.setId(revisionEntity.getId());
+        result.setAuthor(revisionEntity.auditor);
+        result.setTimestamp(revisionEntity.timestamp);
+        result.setId(revisionEntity.id);
         result.setChanges(changes.entrySet().stream()
                 .filter(e -> e.getValue() != null)
                 .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().stream()

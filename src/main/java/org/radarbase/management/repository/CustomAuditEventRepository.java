@@ -52,10 +52,10 @@ public class CustomAuditEventRepository implements AuditEventRepository {
         if (!AUTHORIZATION_FAILURE.equals(eventType)
                 && !Constants.ANONYMOUS_USER.equals(event.getPrincipal())) {
             PersistentAuditEvent persistentAuditEvent = new PersistentAuditEvent();
-            persistentAuditEvent.setPrincipal(event.getPrincipal());
-            persistentAuditEvent.setAuditEventType(eventType);
-            persistentAuditEvent.setAuditEventDate(LocalDateTime.ofInstant(event.getTimestamp(),
-                    ZoneId.systemDefault()));
+            persistentAuditEvent.principal = event.getPrincipal();
+            persistentAuditEvent.auditEventType = eventType;
+            persistentAuditEvent.auditEventDate = LocalDateTime.ofInstant(event.getTimestamp(),
+                    ZoneId.systemDefault());
             persistentAuditEvent.setData(auditEventConverter.convertDataToStrings(event.getData()));
             persistenceAuditEventRepository.save(persistentAuditEvent);
         }

@@ -1,115 +1,85 @@
-package org.radarbase.management.domain.audit;
+package org.radarbase.management.domain.audit
 
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
-import org.hibernate.envers.ModifiedEntityNames;
-import org.hibernate.envers.RevisionEntity;
-import org.hibernate.envers.RevisionNumber;
-import org.hibernate.envers.RevisionTimestamp;
-import org.radarbase.management.config.audit.CustomRevisionListener;
-
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import java.io.Serializable;
-import java.util.Date;
-import java.util.Objects;
-import java.util.Set;
+import org.hibernate.annotations.Fetch
+import org.hibernate.annotations.FetchMode
+import org.hibernate.envers.ModifiedEntityNames
+import org.hibernate.envers.RevisionEntity
+import org.hibernate.envers.RevisionNumber
+import org.hibernate.envers.RevisionTimestamp
+import org.radarbase.management.config.audit.CustomRevisionListener
+import java.io.Serializable
+import java.util.*
+import javax.persistence.Column
+import javax.persistence.ElementCollection
+import javax.persistence.Entity
+import javax.persistence.FetchType
+import javax.persistence.GeneratedValue
+import javax.persistence.GenerationType
+import javax.persistence.Id
+import javax.persistence.JoinColumn
+import javax.persistence.JoinTable
+import javax.persistence.SequenceGenerator
+import javax.persistence.Table
+import javax.persistence.Temporal
+import javax.persistence.TemporalType
 
 @Entity
-@RevisionEntity(CustomRevisionListener.class)
+@RevisionEntity(CustomRevisionListener::class)
 @Table(name = "_revisions_info")
-public class CustomRevisionEntity implements Serializable {
-    private static final long serialVersionUID = 8530213963961662300L;
-
+class CustomRevisionEntity : Serializable {
+    @JvmField
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "revisionGenerator")
-    @SequenceGenerator(name = "revisionGenerator", initialValue = 2, allocationSize = 50,
-            sequenceName = "sequence_revision")
+    @SequenceGenerator(
+        name = "revisionGenerator",
+        initialValue = 2,
+        allocationSize = 50,
+        sequenceName = "sequence_revision"
+    )
     @RevisionNumber
-    private int id;
+    var id = 0
 
+    @JvmField
+    @get:Temporal(TemporalType.TIMESTAMP)
     @RevisionTimestamp
-    private Date timestamp;
+    var timestamp: Date? = null
+    @JvmField
+    var auditor: String? = null
 
-    private String auditor;
-
+    @JvmField
     @ElementCollection(fetch = FetchType.EAGER)
-    @JoinTable(name = "REVCHANGES", joinColumns = @JoinColumn(name = "REV"))
+    @JoinTable(name = "REVCHANGES", joinColumns = [JoinColumn(name = "REV")])
     @Column(name = "ENTITYNAME")
-    @Fetch(FetchMode.JOIN)
+    @Fetch(
+        FetchMode.JOIN
+    )
     @ModifiedEntityNames
-    private Set<String> modifiedEntityNames;
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    @Temporal(TemporalType.TIMESTAMP)
-    public Date getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(Date timestamp) {
-        this.timestamp = timestamp;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
+    var modifiedEntityNames: Set<String>? = null
+    override fun equals(o: Any?): Boolean {
+        if (this === o) {
+            return true
         }
-        if (!(o instanceof CustomRevisionEntity)) {
-            return false;
+        if (o !is CustomRevisionEntity) {
+            return false
         }
-        CustomRevisionEntity that = (CustomRevisionEntity) o;
-        return id == that.id && Objects.equals(timestamp, that.timestamp) && Objects
-                .equals(auditor, that.auditor) && Objects
-                .equals(modifiedEntityNames, that.modifiedEntityNames);
+        val that = o
+        return id == that.id && timestamp == that.timestamp && auditor == that.auditor && modifiedEntityNames == that.modifiedEntityNames
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, timestamp, auditor, modifiedEntityNames);
+    override fun hashCode(): Int {
+        return Objects.hash(id, timestamp, auditor, modifiedEntityNames)
     }
 
-    @Override
-    public String toString() {
-        return "CustomRevisionEntity{"
+    override fun toString(): String {
+        return ("CustomRevisionEntity{"
                 + "id=" + id
                 + ", timestamp=" + timestamp
                 + ", auditor='" + auditor + '\''
                 + ", modifiedEntityNames=" + modifiedEntityNames
-                + '}';
+                + '}')
     }
 
-    public String getAuditor() {
-        return auditor;
-    }
-
-    public void setAuditor(String auditor) {
-        this.auditor = auditor;
-    }
-
-    public Set<String> getModifiedEntityNames() {
-        return modifiedEntityNames;
-    }
-
-    public void setModifiedEntityNames(Set<String> modifiedEntityNames) {
-        this.modifiedEntityNames = modifiedEntityNames;
+    companion object {
+        private const val serialVersionUID = 8530213963961662300L
     }
 }

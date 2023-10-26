@@ -116,12 +116,12 @@ public class UserServiceIntTest {
     public static User createEntity(PasswordService passwordService) {
         User user = new User();
         user.setLogin(DEFAULT_LOGIN);
-        user.setPassword(passwordService.generateEncodedPassword());
-        user.setActivated(true);
-        user.setEmail(DEFAULT_EMAIL);
-        user.setFirstName(DEFAULT_FIRSTNAME);
-        user.setLastName(DEFAULT_LASTNAME);
-        user.setLangKey(DEFAULT_LANGKEY);
+        user.password = passwordService.generateEncodedPassword();
+        user.activated = true;
+        user.email = DEFAULT_EMAIL;
+        user.firstName = DEFAULT_FIRSTNAME;
+        user.lastName = DEFAULT_LASTNAME;
+        user.langKey = DEFAULT_LANGKEY;
         return user;
     }
 
@@ -133,9 +133,9 @@ public class UserServiceIntTest {
         maybeUser = userService.requestPasswordReset("admin@localhost");
         assertThat(maybeUser).isPresent();
 
-        assertThat(maybeUser.get().getEmail()).isEqualTo("admin@localhost");
-        assertThat(maybeUser.get().getResetDate()).isNotNull();
-        assertThat(maybeUser.get().getResetKey()).isNotNull();
+        assertThat(maybeUser.get().email).isEqualTo("admin@localhost");
+        assertThat(maybeUser.get().resetDate).isNotNull();
+        assertThat(maybeUser.get().resetKey).isNotNull();
     }
 
     @Test
@@ -152,14 +152,14 @@ public class UserServiceIntTest {
 
         ZonedDateTime daysAgo = ZonedDateTime.now().minusHours(25);
         String resetKey = passwordService.generateResetKey();
-        user.setActivated(true);
-        user.setResetDate(daysAgo);
-        user.setResetKey(resetKey);
+        user.activated = true;
+        user.resetDate = daysAgo;
+        user.resetKey = resetKey;
 
         userRepository.save(user);
 
         Optional<User> maybeUser = userService.completePasswordReset("johndoe2",
-                user.getResetKey());
+                user.resetKey);
 
         assertThat(maybeUser).isNotPresent();
 
@@ -170,12 +170,12 @@ public class UserServiceIntTest {
     void assertThatResetKeyMustBeValid() throws NotAuthorizedException {
         User user = userService.createUser(userDto);
         ZonedDateTime daysAgo = ZonedDateTime.now().minusHours(25);
-        user.setActivated(true);
-        user.setResetDate(daysAgo);
-        user.setResetKey("1234");
+        user.activated = true;
+        user.resetDate = daysAgo;
+        user.resetKey = "1234";
         userRepository.save(user);
         Optional<User> maybeUser = userService.completePasswordReset("johndoe2",
-                user.getResetKey());
+                user.resetKey);
         assertThat(maybeUser).isNotPresent();
         userRepository.delete(user);
     }
@@ -183,19 +183,19 @@ public class UserServiceIntTest {
     @Test
     void assertThatUserCanResetPassword() throws NotAuthorizedException {
         User user = userService.createUser(userDto);
-        final String oldPassword = user.getPassword();
+        final String oldPassword = user.password;
         ZonedDateTime daysAgo = ZonedDateTime.now().minusHours(2);
         String resetKey = passwordService.generateResetKey();
-        user.setActivated(true);
-        user.setResetDate(daysAgo);
-        user.setResetKey(resetKey);
+        user.activated = true;
+        user.resetDate = daysAgo;
+        user.resetKey = resetKey;
         userRepository.save(user);
         Optional<User> maybeUser = userService.completePasswordReset("johndoe2",
-                user.getResetKey());
+                user.resetKey);
         assertThat(maybeUser).isPresent();
-        assertThat(maybeUser.get().getResetDate()).isNull();
-        assertThat(maybeUser.get().getResetKey()).isNull();
-        assertThat(maybeUser.get().getPassword()).isNotEqualTo(oldPassword);
+        assertThat(maybeUser.get().resetDate).isNull();
+        assertThat(maybeUser.get().resetKey).isNull();
+        assertThat(maybeUser.get().password).isNotEqualTo(oldPassword);
 
         userRepository.delete(user);
     }
@@ -216,12 +216,12 @@ public class UserServiceIntTest {
                         .computeAggregationInInstanceContext())
                 .getSingleResult();
         CustomRevisionEntity first = (CustomRevisionEntity) firstRevision[1];
-        first.setTimestamp(Date.from(expDateTime.toInstant()));
+        first.timestamp = Date.from(expDateTime.toInstant());
         entityManager.joinTransaction();
         CustomRevisionEntity updated = entityManager.merge(first);
         commitTransactionAndStartNew();
-        assertThat(updated.getTimestamp()).isEqualTo(first.getTimestamp());
-        assertThat(updated.getTimestamp()).isEqualTo(Date.from(expDateTime.toInstant()));
+        assertThat(updated.timestamp).isEqualTo(first.timestamp);
+        assertThat(updated.timestamp).isEqualTo(Date.from(expDateTime.toInstant()));
 
         // make sure when we reload the expired user we have the new created date
         assertThat(revisionService.getAuditInfo(expiredUser).getCreatedAt()).isEqualTo(expDateTime);
@@ -234,7 +234,7 @@ public class UserServiceIntTest {
         assertThat(numUsers - users.size()).isEqualTo(1);
         // remaining users should be either activated or have a created date less then 3 days ago
         ZonedDateTime cutoff = ZonedDateTime.now().minus(Period.ofDays(3));
-        users.forEach(u -> assertThat(u.getActivated() || revisionService.getAuditInfo(u)
+        users.forEach(u -> assertThat(u.activated || revisionService.getAuditInfo(u)
                 .getCreatedAt().isAfter(cutoff)).isTrue());
         // commit the deletion, otherwise the deletion will be rolled back
         commitTransactionAndStartNew();
@@ -259,17 +259,17 @@ public class UserServiceIntTest {
 
         Role adminRole = new Role();
         adminRole.setId(1L);
-        adminRole.setAuthority(new Authority(SYS_ADMIN));
-        adminRole.setProject(null);
+        adminRole.authority = new Authority(SYS_ADMIN);
+        adminRole.project = null;
 
         User user = new User();
         user.setLogin("expired");
-        user.setEmail("expired@expired");
-        user.setFirstName("ex");
-        user.setLastName("pired");
+        user.email = "expired@expired";
+        user.firstName = "ex";
+        user.lastName = "pired";
         user.setRoles(Collections.singleton(adminRole));
-        user.setActivated(false);
-        user.setPassword(passwordService.generateEncodedPassword());
+        user.activated = false;
+        user.password = passwordService.generateEncodedPassword();
         return userRepository.save(user);
     }
 

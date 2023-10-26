@@ -163,7 +163,7 @@ public class OAuthClientService {
      */
     public OAuth2AccessToken createAccessToken(User user, String clientId) {
         Set<GrantedAuthority> authorities = user.getAuthorities().stream()
-                .map(a -> new SimpleGrantedAuthority(a.getName()))
+                .map(a -> new SimpleGrantedAuthority(a.name))
                 .collect(Collectors.toSet());
         // lookup the OAuth client
         // getOAuthClient checks if the id exists

@@ -139,7 +139,7 @@ class SourceResourceIntTest {
         source = createEntity();
         List<SourceTypeDTO> sourceTypeDtos = sourceTypeService.findAll();
         assertThat(sourceTypeDtos.size()).isPositive();
-        source.setSourceType(sourceTypeMapper.sourceTypeDTOToSourceType(sourceTypeDtos.get(0)));
+        source.sourceType = sourceTypeMapper.sourceTypeDTOToSourceType(sourceTypeDtos.get(0));
         project = projectRepository.findById(1L).get();
         source.project(project);
     }
@@ -161,8 +161,8 @@ class SourceResourceIntTest {
         assertThat(sourceList).hasSize(databaseSizeBeforeCreate + 1);
         Source testSource = sourceList.get(sourceList.size() - 1);
         assertThat(testSource.isAssigned()).isEqualTo(DEFAULT_ASSIGNED);
-        assertThat(testSource.getSourceName()).isEqualTo(DEFAULT_SOURCE_NAME);
-        assertThat(testSource.getProject().getProjectName()).isEqualTo(project.getProjectName());
+        assertThat(testSource.sourceName).isEqualTo(DEFAULT_SOURCE_NAME);
+        assertThat(testSource.project.projectName).isEqualTo(project.projectName);
     }
 
     @Test
@@ -190,7 +190,7 @@ class SourceResourceIntTest {
     void checkSourcePhysicalIdIsGenerated() throws Exception {
         int databaseSizeBeforeTest = sourceRepository.findAll().size();
         // set the field null
-        source.setSourceId(null);
+        source.sourceId = null;
 
         // Create the Source
         SourceDTO sourceDto = sourceMapper.sourceToSourceDTO(source);
@@ -205,13 +205,13 @@ class SourceResourceIntTest {
 
         // find our created source
         Source createdSource = sourceList.stream()
-                .filter(s -> s.getSourceName().equals(DEFAULT_SOURCE_NAME))
+                .filter(s -> s.sourceName.equals(DEFAULT_SOURCE_NAME))
                 .findFirst()
                 .orElse(null);
         assertThat(createdSource).isNotNull();
 
         // check source id
-        assertThat(createdSource.getSourceId()).isNotNull();
+        assertThat(createdSource.sourceId).isNotNull();
     }
 
     @Test
@@ -256,7 +256,7 @@ class SourceResourceIntTest {
         sourceRepository.saveAndFlush(source);
 
         // Get the source
-        restDeviceMockMvc.perform(get("/api/sources/{sourceName}", source.getSourceName()))
+        restDeviceMockMvc.perform(get("/api/sources/{sourceName}", source.sourceName))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(source.getId().intValue()))
@@ -295,7 +295,7 @@ class SourceResourceIntTest {
         List<Source> sourceList = sourceRepository.findAll();
         assertThat(sourceList).hasSize(databaseSizeBeforeUpdate);
         Source testSource = sourceList.get(sourceList.size() - 1);
-        assertThat(testSource.getSourceId()).isEqualTo(UPDATED_SOURCE_PHYSICAL_ID);
+        assertThat(testSource.sourceId).isEqualTo(UPDATED_SOURCE_PHYSICAL_ID);
         assertThat(testSource.isAssigned()).isEqualTo(UPDATED_ASSIGNED);
     }
 
@@ -326,7 +326,7 @@ class SourceResourceIntTest {
         int databaseSizeBeforeDelete = sourceRepository.findAll().size();
 
         // Get the source
-        restDeviceMockMvc.perform(delete("/api/sources/{sourceName}", source.getSourceName())
+        restDeviceMockMvc.perform(delete("/api/sources/{sourceName}", source.sourceName)
                 .accept(TestUtil.APPLICATION_JSON_UTF8))
                 .andExpect(status().isOk());
 

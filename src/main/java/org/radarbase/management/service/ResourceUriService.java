@@ -105,7 +105,7 @@ public final class ResourceUriService {
      * @throws URISyntaxException See {@link URI#URI(String)}
      */
     public static URI getUri(Source resource) throws URISyntaxException {
-        return new URI(HeaderUtil.buildPath("api", "sources", resource.getSourceName()));
+        return new URI(HeaderUtil.buildPath("api", "sources", resource.sourceName));
     }
 
     /**

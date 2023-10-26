@@ -139,7 +139,7 @@ class ProjectResourceIntTest {
     public static Project createEntity() {
         Organization organization = new Organization();
         organization.setId(1L);
-        organization.setName("main");
+        organization.name = "main";
         return new Project()
                 .projectName(DEFAULT_PROJECT_NAME)
                 .description(DEFAULT_DESCRIPTION)
@@ -172,13 +172,13 @@ class ProjectResourceIntTest {
         List<Project> projectList = projectRepository.findAll();
         assertThat(projectList).hasSize(databaseSizeBeforeCreate + 1);
         Project testProject = projectList.get(projectList.size() - 1);
-        assertThat(testProject.getProjectName()).isEqualTo(DEFAULT_PROJECT_NAME);
-        assertThat(testProject.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
-        assertThat(testProject.getOrganizationName()).isEqualTo(DEFAULT_ORGANIZATION);
-        assertThat(testProject.getLocation()).isEqualTo(DEFAULT_LOCATION);
-        assertThat(testProject.getStartDate()).isEqualTo(DEFAULT_START_DATE);
-        assertThat(testProject.getProjectStatus()).isEqualTo(DEFAULT_PROJECT_STATUS);
-        assertThat(testProject.getEndDate()).isEqualTo(DEFAULT_END_DATE);
+        assertThat(testProject.projectName).isEqualTo(DEFAULT_PROJECT_NAME);
+        assertThat(testProject.description).isEqualTo(DEFAULT_DESCRIPTION);
+        assertThat(testProject.organizationName).isEqualTo(DEFAULT_ORGANIZATION);
+        assertThat(testProject.location).isEqualTo(DEFAULT_LOCATION);
+        assertThat(testProject.startDate).isEqualTo(DEFAULT_START_DATE);
+        assertThat(testProject.projectStatus).isEqualTo(DEFAULT_PROJECT_STATUS);
+        assertThat(testProject.endDate).isEqualTo(DEFAULT_END_DATE);
     }
 
     @Test
@@ -206,7 +206,7 @@ class ProjectResourceIntTest {
     void checkProjectNameIsRequired() throws Exception {
         int databaseSizeBeforeTest = projectRepository.findAll().size();
         // set the field null
-        project.setProjectName(null);
+        project.projectName = null;
 
         // Create the Project, which fails.
         ProjectDTO projectDto = projectMapper.projectToProjectDTO(project);
@@ -225,7 +225,7 @@ class ProjectResourceIntTest {
     void checkDescriptionIsRequired() throws Exception {
         int databaseSizeBeforeTest = projectRepository.findAll().size();
         // set the field null
-        project.setDescription(null);
+        project.description = null;
 
         // Create the Project, which fails.
         ProjectDTO projectDto = projectMapper.projectToProjectDTO(project);
@@ -244,7 +244,7 @@ class ProjectResourceIntTest {
     void checkLocationIsRequired() throws Exception {
         int databaseSizeBeforeTest = projectRepository.findAll().size();
         // set the field null
-        project.setLocation(null);
+        project.location = null;
 
         // Create the Project, which fails.
         ProjectDTO projectDto = projectMapper.projectToProjectDTO(project);
@@ -287,7 +287,7 @@ class ProjectResourceIntTest {
         projectRepository.saveAndFlush(project);
 
         // Get the project
-        restProjectMockMvc.perform(get("/api/projects/{projectName}", project.getProjectName()))
+        restProjectMockMvc.perform(get("/api/projects/{projectName}", project.projectName))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(project.getId().intValue()))
@@ -315,9 +315,9 @@ class ProjectResourceIntTest {
         projectRepository.saveAndFlush(project);
 
         var org = new Organization();
-        org.setName("org1");
-        org.setDescription("Test Organization 1");
-        org.setLocation("Somewhere");
+        org.name = "org1";
+        org.description = "Test Organization 1";
+        org.location = "Somewhere";
         organizationRepository.saveAndFlush(org);
 
         assertThat(org.getId()).isNotNull();
@@ -346,14 +346,14 @@ class ProjectResourceIntTest {
         List<Project> projectList = projectRepository.findAll();
         assertThat(projectList).hasSize(databaseSizeBeforeUpdate);
         Project testProject = projectList.get(projectList.size() - 1);
-        assertThat(testProject.getProjectName()).isEqualTo(UPDATED_PROJECT_NAME);
-        assertThat(testProject.getDescription()).isEqualTo(UPDATED_DESCRIPTION);
-        assertThat(testProject.getOrganizationName()).isEqualTo(UPDATED_ORGANIZATION);
-        assertThat(testProject.getOrganization()).isEqualTo(org);
-        assertThat(testProject.getLocation()).isEqualTo(UPDATED_LOCATION);
-        assertThat(testProject.getStartDate()).isEqualTo(UPDATED_START_DATE);
-        assertThat(testProject.getProjectStatus()).isEqualTo(UPDATED_PROJECT_STATUS);
-        assertThat(testProject.getEndDate()).isEqualTo(UPDATED_END_DATE);
+        assertThat(testProject.projectName).isEqualTo(UPDATED_PROJECT_NAME);
+        assertThat(testProject.description).isEqualTo(UPDATED_DESCRIPTION);
+        assertThat(testProject.organizationName).isEqualTo(UPDATED_ORGANIZATION);
+        assertThat(testProject.organization).isEqualTo(org);
+        assertThat(testProject.location).isEqualTo(UPDATED_LOCATION);
+        assertThat(testProject.startDate).isEqualTo(UPDATED_START_DATE);
+        assertThat(testProject.projectStatus).isEqualTo(UPDATED_PROJECT_STATUS);
+        assertThat(testProject.endDate).isEqualTo(UPDATED_END_DATE);
 
         organizationRepository.delete(org);
     }
@@ -385,7 +385,7 @@ class ProjectResourceIntTest {
         int databaseSizeBeforeDelete = projectRepository.findAll().size();
 
         // Get the project
-        restProjectMockMvc.perform(delete("/api/projects/{projectName}", project.getProjectName())
+        restProjectMockMvc.perform(delete("/api/projects/{projectName}", project.projectName)
                 .accept(TestUtil.APPLICATION_JSON_UTF8))
                 .andExpect(status().isOk());
 

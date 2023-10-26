@@ -1,9 +1,9 @@
-package org.radarbase.management.domain.enumeration;
+package org.radarbase.management.domain.enumeration
 
 /**
  * The Role enumeration.
  */
-public enum Role {
+enum class Role {
     ROLE_ADMIN,
     ROLE_USER,
     ROLE_SYS_ADMIN,

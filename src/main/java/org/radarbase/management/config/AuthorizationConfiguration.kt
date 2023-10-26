@@ -18,8 +18,7 @@ open class AuthorizationConfiguration(
         object : EntityRelationService {
             override suspend fun findOrganizationOfProject(project: String): String? = withContext(Dispatchers.IO) {
                 projectRepository.findOneWithEagerRelationshipsByName(project)
-                    .map { it.organization.name }
-                    .orElse(null)
+                    ?.organization?.name
             }
         }
     )

@@ -71,14 +71,14 @@ public class ClaimsTokenEnhancer implements TokenEnhancer, InitializingBean {
 
             userRepository.findOneByLogin(userName)
                     .ifPresent(user -> {
-                        var roles = user.getRoles().stream()
+                        var roles = user.roles.stream()
                                 .map(role -> {
-                                    var auth = role.getAuthority().getName();
+                                    var auth = role.authority.name;
                                     return switch (role.getRole().getScope()) {
                                         case GLOBAL -> auth;
-                                        case ORGANIZATION -> role.getOrganization().getName()
+                                        case ORGANIZATION -> role.organization.name
                                                 + ":" + auth;
-                                        case PROJECT -> role.getProject().getProjectName()
+                                        case PROJECT -> role.project.projectName
                                                 + ":" + auth;
                                     };
                                 })
@@ -90,7 +90,7 @@ public class ClaimsTokenEnhancer implements TokenEnhancer, InitializingBean {
                         Set<String> newScopes = currentScopes.stream()
                                 .filter(scope -> {
                                     Permission permission = Permission.ofScope(scope);
-                                    var roleAuthorities = user.getRoles().stream()
+                                    var roleAuthorities = user.roles.stream()
                                             .map(Role::getRole)
                                             .collect(Collectors.toCollection(() ->
                                                     EnumSet.noneOf(RoleAuthority.class)));
@@ -107,7 +107,7 @@ public class ClaimsTokenEnhancer implements TokenEnhancer, InitializingBean {
             List<Source> assignedSources = subjectRepository.findSourcesBySubjectLogin(userName);
 
             List<String> sourceIds = assignedSources.stream()
-                    .map(s -> s.getSourceId().toString())
+                    .map(s -> s.sourceId.toString())
                     .toList();
             additionalInfo.put(SOURCES_CLAIM, sourceIds);
         }

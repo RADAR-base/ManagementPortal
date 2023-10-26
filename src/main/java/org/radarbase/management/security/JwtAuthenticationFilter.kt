@@ -5,24 +5,21 @@ import org.radarbase.auth.authorization.AuthorityReference
 import org.radarbase.auth.authorization.RoleAuthority
 import org.radarbase.auth.exception.TokenValidationException
 import org.radarbase.auth.token.RadarToken
-import org.radarbase.management.config.OAuth2ServerConfiguration
 import org.radarbase.management.domain.Role
 import org.radarbase.management.domain.User
 import org.radarbase.management.repository.UserRepository
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
-import org.springframework.security.authentication.AnonymousAuthenticationToken
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.core.Authentication
-import org.springframework.security.core.GrantedAuthority
-import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.oauth2.provider.OAuth2Authentication
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher
 import org.springframework.web.cors.CorsUtils
 import org.springframework.web.filter.OncePerRequestFilter
 import java.io.IOException
+import java.io.Serializable
 import java.time.Instant
 import javax.annotation.Nonnull
 import javax.servlet.FilterChain
@@ -189,15 +186,16 @@ class JwtAuthenticationFilter @JvmOverloads constructor(
          * from the database.
          * @return set of authority references.
          */
-        val User.authorityReferences: Set<AuthorityReference>
-            get() = roles.mapTo(HashSet()) { role: Role ->
-                val auth = role.role
-                val referent = when (auth.scope) {
+        val User.authorityReferences: Set<AuthorityReference>?
+            get() = roles?.mapTo(HashSet()) { role: Role? ->
+                val auth = role?.role
+                val referent = when (auth?.scope) {
                     RoleAuthority.Scope.GLOBAL -> null
-                    RoleAuthority.Scope.ORGANIZATION -> role.organization.name
-                    RoleAuthority.Scope.PROJECT -> role.project.projectName
+                    RoleAuthority.Scope.ORGANIZATION -> role.organization?.name
+                    RoleAuthority.Scope.PROJECT -> role.project?.projectName
+                    null -> null
                 }
-                AuthorityReference(auth, referent)
+                AuthorityReference(auth!!, referent)
             }
 
 

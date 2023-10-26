@@ -161,7 +161,7 @@ class UserResourceIntTest {
                 .ifPresent(userRepository::delete);
         var roles = roleRepository
                 .findRolesByAuthorityName(RoleAuthority.PARTICIPANT.getAuthority())
-                .stream().filter(r -> r.getProject() == null)
+                .stream().filter(r -> r.project == null)
                 .collect(Collectors.toList());
         roleRepository.deleteAll(roles);
     }
@@ -189,10 +189,10 @@ class UserResourceIntTest {
         assertThat(userList).hasSize(databaseSizeBeforeCreate + 1);
         User testUser = userList.get(userList.size() - 1);
         assertThat(testUser.getLogin()).isEqualTo(DEFAULT_LOGIN);
-        assertThat(testUser.getFirstName()).isEqualTo(DEFAULT_FIRSTNAME);
-        assertThat(testUser.getLastName()).isEqualTo(DEFAULT_LASTNAME);
-        assertThat(testUser.getEmail()).isEqualTo(DEFAULT_EMAIL);
-        assertThat(testUser.getLangKey()).isEqualTo(DEFAULT_LANGKEY);
+        assertThat(testUser.firstName).isEqualTo(DEFAULT_FIRSTNAME);
+        assertThat(testUser.lastName).isEqualTo(DEFAULT_LASTNAME);
+        assertThat(testUser.email).isEqualTo(DEFAULT_EMAIL);
+        assertThat(testUser.langKey).isEqualTo(DEFAULT_LANGKEY);
     }
 
     @Test
@@ -275,17 +275,17 @@ class UserResourceIntTest {
         // Initialize the database
         org.radarbase.management.domain.Role adminRole = new org.radarbase.management.domain.Role();
         adminRole.setId(1L);
-        adminRole.setAuthority(new Authority(SYS_ADMIN));
-        adminRole.setProject(null);
+        adminRole.authority = new Authority(SYS_ADMIN);
+        adminRole.project = null;
 
         User userWithRole = new User();
         userWithRole.setLogin(DEFAULT_LOGIN);
-        userWithRole.setPassword(passwordService.generateEncodedPassword());
-        userWithRole.setActivated(true);
-        userWithRole.setEmail(DEFAULT_EMAIL);
-        userWithRole.setFirstName(DEFAULT_FIRSTNAME);
-        userWithRole.setLastName(DEFAULT_LASTNAME);
-        userWithRole.setLangKey(DEFAULT_LANGKEY);
+        userWithRole.password = passwordService.generateEncodedPassword();
+        userWithRole.activated = true;
+        userWithRole.email = DEFAULT_EMAIL;
+        userWithRole.firstName = DEFAULT_FIRSTNAME;
+        userWithRole.lastName = DEFAULT_LASTNAME;
+        userWithRole.langKey = DEFAULT_LANGKEY;
         userWithRole.setRoles(Collections.singleton(adminRole));
         userRepository.saveAndFlush(userWithRole);
 
@@ -345,7 +345,7 @@ class UserResourceIntTest {
         managedUserVm.setFirstName(UPDATED_FIRSTNAME);
         managedUserVm.setLastName(UPDATED_LASTNAME);
         managedUserVm.setEmail(UPDATED_EMAIL);
-        managedUserVm.setActivated(updatedUser.getActivated());
+        managedUserVm.setActivated(updatedUser.activated);
         managedUserVm.setLangKey(UPDATED_LANGKEY);
 
         RoleDTO role = new RoleDTO();
@@ -362,10 +362,10 @@ class UserResourceIntTest {
         List<User> userList = userRepository.findAll();
         assertThat(userList).hasSize(databaseSizeBeforeUpdate);
         User testUser = userList.get(userList.size() - 1);
-        assertThat(testUser.getFirstName()).isEqualTo(UPDATED_FIRSTNAME);
-        assertThat(testUser.getLastName()).isEqualTo(UPDATED_LASTNAME);
-        assertThat(testUser.getEmail()).isEqualTo(UPDATED_EMAIL);
-        assertThat(testUser.getLangKey()).isEqualTo(UPDATED_LANGKEY);
+        assertThat(testUser.firstName).isEqualTo(UPDATED_FIRSTNAME);
+        assertThat(testUser.lastName).isEqualTo(UPDATED_LASTNAME);
+        assertThat(testUser.email).isEqualTo(UPDATED_EMAIL);
+        assertThat(testUser.langKey).isEqualTo(UPDATED_LANGKEY);
     }
 
     @Test
@@ -389,7 +389,7 @@ class UserResourceIntTest {
         managedUserVm.setFirstName(UPDATED_FIRSTNAME);
         managedUserVm.setLastName(UPDATED_LASTNAME);
         managedUserVm.setEmail(UPDATED_EMAIL);
-        managedUserVm.setActivated(updatedUser.getActivated());
+        managedUserVm.setActivated(updatedUser.activated);
         managedUserVm.setLangKey(UPDATED_LANGKEY);
 
         RoleDTO role = new RoleDTO();
@@ -407,10 +407,10 @@ class UserResourceIntTest {
         assertThat(userList).hasSize(databaseSizeBeforeUpdate);
         User testUser = userList.get(userList.size() - 1);
         assertThat(testUser.getLogin()).isEqualTo(DEFAULT_LOGIN);
-        assertThat(testUser.getFirstName()).isEqualTo(UPDATED_FIRSTNAME);
-        assertThat(testUser.getLastName()).isEqualTo(UPDATED_LASTNAME);
-        assertThat(testUser.getEmail()).isEqualTo(UPDATED_EMAIL);
-        assertThat(testUser.getLangKey()).isEqualTo(UPDATED_LANGKEY);
+        assertThat(testUser.firstName).isEqualTo(UPDATED_FIRSTNAME);
+        assertThat(testUser.lastName).isEqualTo(UPDATED_LASTNAME);
+        assertThat(testUser.email).isEqualTo(UPDATED_EMAIL);
+        assertThat(testUser.langKey).isEqualTo(UPDATED_LANGKEY);
     }
 
     @Test
@@ -423,12 +423,12 @@ class UserResourceIntTest {
 
         User anotherUser = new User();
         anotherUser.setLogin("jhipster");
-        anotherUser.setPassword(passwordService.generateEncodedPassword());
-        anotherUser.setActivated(true);
-        anotherUser.setEmail("jhipster@localhost");
-        anotherUser.setFirstName("java");
-        anotherUser.setLastName("hipster");
-        anotherUser.setLangKey("en");
+        anotherUser.password = passwordService.generateEncodedPassword();
+        anotherUser.activated = true;
+        anotherUser.email = "jhipster@localhost";
+        anotherUser.firstName = "java";
+        anotherUser.lastName = "hipster";
+        anotherUser.langKey = "en";
         userRepository.saveAndFlush(anotherUser);
 
         // Update the user
@@ -438,12 +438,12 @@ class UserResourceIntTest {
         ManagedUserVM managedUserVm = new ManagedUserVM();
         managedUserVm.setId(updatedUser.getId());
         managedUserVm.setLogin(updatedUser.getLogin());
-        managedUserVm.setPassword(updatedUser.getPassword());
-        managedUserVm.setFirstName(updatedUser.getFirstName());
-        managedUserVm.setLastName(updatedUser.getLastName());
+        managedUserVm.setPassword(updatedUser.password);
+        managedUserVm.setFirstName(updatedUser.firstName);
+        managedUserVm.setLastName(updatedUser.lastName);
         managedUserVm.setEmail("jhipster@localhost");
-        managedUserVm.setActivated(updatedUser.getActivated());
-        managedUserVm.setLangKey(updatedUser.getLangKey());
+        managedUserVm.setActivated(updatedUser.activated);
+        managedUserVm.setLangKey(updatedUser.langKey);
 
         RoleDTO role = new RoleDTO();
         role.setProjectId(project.getId());
@@ -466,12 +466,12 @@ class UserResourceIntTest {
 
         User anotherUser = new User();
         anotherUser.setLogin("jhipster");
-        anotherUser.setPassword(passwordService.generateEncodedPassword());
-        anotherUser.setActivated(true);
-        anotherUser.setEmail("jhipster@localhost");
-        anotherUser.setFirstName("java");
-        anotherUser.setLastName("hipster");
-        anotherUser.setLangKey("en");
+        anotherUser.password = passwordService.generateEncodedPassword();
+        anotherUser.activated = true;
+        anotherUser.email = "jhipster@localhost";
+        anotherUser.firstName = "java";
+        anotherUser.lastName = "hipster";
+        anotherUser.langKey = "en";
         userRepository.saveAndFlush(anotherUser);
 
         // Update the user
@@ -481,12 +481,12 @@ class UserResourceIntTest {
         ManagedUserVM managedUserVm = new ManagedUserVM();
         managedUserVm.setId(updatedUser.getId());
         managedUserVm.setLogin("jhipster");
-        managedUserVm.setPassword(updatedUser.getPassword());
-        managedUserVm.setFirstName(updatedUser.getFirstName());
-        managedUserVm.setLastName(updatedUser.getLastName());
-        managedUserVm.setEmail(updatedUser.getEmail());
-        managedUserVm.setActivated(updatedUser.getActivated());
-        managedUserVm.setLangKey(updatedUser.getLangKey());
+        managedUserVm.setPassword(updatedUser.password);
+        managedUserVm.setFirstName(updatedUser.firstName);
+        managedUserVm.setLastName(updatedUser.lastName);
+        managedUserVm.setEmail(updatedUser.email);
+        managedUserVm.setActivated(updatedUser.activated);
+        managedUserVm.setLangKey(updatedUser.langKey);
 
         RoleDTO role = new RoleDTO();
         role.setProjectId(project.getId());

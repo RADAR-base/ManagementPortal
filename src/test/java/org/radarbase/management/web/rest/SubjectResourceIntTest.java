@@ -150,10 +150,10 @@ class SubjectResourceIntTest {
         List<Subject> subjectList = subjectRepository.findAll();
         assertThat(subjectList).hasSize(databaseSizeBeforeCreate + 1);
         Subject testSubject = subjectList.get(subjectList.size() - 1);
-        assertThat(testSubject.getExternalLink()).isEqualTo(DEFAULT_EXTERNAL_LINK);
-        assertThat(testSubject.getExternalId()).isEqualTo(DEFAULT_ENTERNAL_ID);
+        assertThat(testSubject.externalLink).isEqualTo(DEFAULT_EXTERNAL_LINK);
+        assertThat(testSubject.externalId).isEqualTo(DEFAULT_ENTERNAL_ID);
         assertThat(testSubject.isRemoved()).isEqualTo(DEFAULT_REMOVED);
-        assertEquals(1, testSubject.getUser().getRoles().size());
+        assertEquals(1, testSubject.user.roles.size());
     }
 
     @Test
@@ -238,8 +238,8 @@ class SubjectResourceIntTest {
         List<Subject> subjectList = subjectRepository.findAll();
         assertThat(subjectList).hasSize(databaseSizeBeforeUpdate);
         Subject testSubject = subjectList.get(subjectList.size() - 1);
-        assertThat(testSubject.getExternalLink()).isEqualTo(UPDATED_EXTERNAL_LINK);
-        assertThat(testSubject.getExternalId()).isEqualTo(UPDATED_ENTERNAL_ID);
+        assertThat(testSubject.externalLink).isEqualTo(UPDATED_EXTERNAL_LINK);
+        assertThat(testSubject.externalId).isEqualTo(UPDATED_ENTERNAL_ID);
         assertThat(testSubject.isRemoved()).isEqualTo(UPDATED_REMOVED);
     }
 
@@ -274,10 +274,10 @@ class SubjectResourceIntTest {
         List<Subject> subjectList = subjectRepository.findAll();
         assertThat(subjectList).hasSize(databaseSizeBeforeUpdate);
         Subject testSubject = subjectList.get(subjectList.size() - 1);
-        assertThat(testSubject.getExternalLink()).isEqualTo(UPDATED_EXTERNAL_LINK);
-        assertThat(testSubject.getExternalId()).isEqualTo(UPDATED_ENTERNAL_ID);
+        assertThat(testSubject.externalLink).isEqualTo(UPDATED_EXTERNAL_LINK);
+        assertThat(testSubject.externalId).isEqualTo(UPDATED_ENTERNAL_ID);
         assertThat(testSubject.isRemoved()).isEqualTo(UPDATED_REMOVED);
-        assertThat(testSubject.getUser().getRoles().size()).isEqualTo(2);
+        assertThat(testSubject.user.roles.size()).isEqualTo(2);
     }
 
     @Test
@@ -340,7 +340,7 @@ class SubjectResourceIntTest {
         assertThat(subjectList).hasSize(databaseSizeBeforeCreate + 1);
         Subject testSubject = subjectList.get(subjectList.size() - 1);
 
-        String subjectLogin = testSubject.getUser().getLogin();
+        String subjectLogin = testSubject.user.getLogin();
         assertNotNull(subjectLogin);
 
         // Create a source description
@@ -377,7 +377,7 @@ class SubjectResourceIntTest {
         assertThat(subjectList).hasSize(databaseSizeBeforeCreate + 1);
         Subject testSubject = subjectList.get(subjectList.size() - 1);
 
-        String subjectLogin = testSubject.getUser().getLogin();
+        String subjectLogin = testSubject.user.getLogin();
         assertNotNull(subjectLogin);
 
         // Create a source description
@@ -422,7 +422,7 @@ class SubjectResourceIntTest {
         assertThat(subjectList).hasSize(databaseSizeBeforeCreate + 1);
         Subject testSubject = subjectList.get(subjectList.size() - 1);
 
-        String subjectLogin = testSubject.getUser().getLogin();
+        String subjectLogin = testSubject.user.getLogin();
         assertNotNull(subjectLogin);
 
         // Create a source description
@@ -602,7 +602,7 @@ class SubjectResourceIntTest {
         assertThat(subjectList).hasSize(databaseSizeBeforeCreate + 1);
         Subject testSubject = subjectList.get(subjectList.size() - 1);
 
-        String subjectLogin = testSubject.getUser().getLogin();
+        String subjectLogin = testSubject.user.getLogin();
         assertNotNull(subjectLogin);
 
         // Create a source description
