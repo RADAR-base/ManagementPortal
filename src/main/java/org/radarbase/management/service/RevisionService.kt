@@ -43,6 +43,7 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
 import java.util.function.Consumer
 import java.util.function.Function
+import java.util.stream.Collectors
 import java.util.stream.Stream
 import javax.persistence.EntityManager
 import javax.persistence.NoResultException
@@ -52,7 +53,7 @@ import javax.validation.constraints.NotNull
 
 @Service
 @Transactional(isolation = Isolation.REPEATABLE_READ, readOnly = true)
-class RevisionService(@param:Autowired private val revisionEntityRepository: CustomRevisionEntityRepository) :
+open class RevisionService(@param:Autowired private val revisionEntityRepository: CustomRevisionEntityRepository) :
     ApplicationContextAware {
     @PersistenceContext
     private val entityManager: EntityManager? = null
@@ -77,7 +78,7 @@ class RevisionService(@param:Autowired private val revisionEntityRepository: Cus
                     AuditEntity.revisionNumber().minimize()
                         .computeAggregationInInstanceContext()
                 )
-                .singleResult as Array<*>
+                .singleResult as Array<Any>
             val first = firstRevision[1] as CustomRevisionEntity
 
             // find last revision of the entity
@@ -88,7 +89,7 @@ class RevisionService(@param:Autowired private val revisionEntityRepository: Cus
                     AuditEntity.revisionNumber().maximize()
                         .computeAggregationInInstanceContext()
                 )
-                .singleResult as Array<*>
+                .singleResult as Array<Any>
             val last = lastRevision[1] as CustomRevisionEntity
 
             // now populate the result object and return it
@@ -150,9 +151,9 @@ class RevisionService(@param:Autowired private val revisionEntityRepository: Cus
      * @param pageable Page information
      * @return the page of revisions [RevisionInfoDTO]
      */
-    fun getRevisions(pageable: Pageable): Page<RevisionInfoDTO> {
+    fun getRevisions(pageable: Pageable?): Page<RevisionInfoDTO> {
         return revisionEntityRepository.findAll(pageable)
-            .map { rev -> RevisionInfoDTO.from(rev!!, getChangesForRevision(rev.id)) }
+            .map { rev: CustomRevisionEntity -> RevisionInfoDTO.from(rev, getChangesForRevision(rev.id)) }
     }
 
     /**
@@ -176,31 +177,34 @@ class RevisionService(@param:Autowired private val revisionEntityRepository: Cus
             .add(AuditEntity.id().eq(entity.id))
 
         // add the page sorting information to the query
-        pageable.sort
-            .forEach(Consumer { order: Sort.Order ->
-                query.addOrder(
-                    if (order.direction.isAscending) AuditEntity.property(
-                        order.property
-                    ).asc() else AuditEntity.property(order.property).desc()
-                )
-            })
+        if (pageable.sort != null) {
+            pageable.sort
+                .forEach(Consumer { order: Sort.Order ->
+                    query.addOrder(
+                        if (order.direction.isAscending) AuditEntity.property(
+                            order.property
+                        ).asc() else AuditEntity.property(order.property).desc()
+                    )
+                })
+        }
 
         // add the page constraints (offset and amount of results)
         query.setFirstResult(Math.toIntExact(pageable.offset))
             .setMaxResults(Math.toIntExact(pageable.pageSize.toLong()))
         val dtoMapper = getDtoMapper(entity.javaClass)
-        val resultList = query.resultList as List<Array<*>?>
-        val revisionDtos = resultList
-            .map { objArray: Array<*>? ->
+        val resultList = query.resultList as List<Array<Any>?>
+        val revisionDtos = resultList.stream()
+            .map { objArray: Array<Any>? ->
                 RevisionDTO(
                     Revision.of(
                         CustomRevisionMetadata((objArray!![1] as CustomRevisionEntity)),
                         objArray[0]
                     ),
                     objArray[2] as RevisionType,
-                    objArray[0]?.let { dtoMapper.apply(it) }
+                    dtoMapper.apply(objArray[0])
                 )
             }
+            .collect(Collectors.toList())
         return PageImpl(revisionDtos, pageable, count.toLong())
     }
 
@@ -278,7 +282,7 @@ class RevisionService(@param:Autowired private val revisionEntityRepository: Cus
         return if (entity != null) getDtoMapper(entity.javaClass).apply(entity) else null
     }
 
-    private fun getDtoMapper(@NotNull entity: Class<*>?): Function<Any, Any?> {
+    private fun getDtoMapper(entity: @NotNull Class<*>?): Function<Any, Any?> {
         return dtoMapperMap.computeIfAbsent(entity) { clazz: Class<*>? -> addMapperForClass(clazz) }
     }
 
@@ -359,7 +363,7 @@ class RevisionService(@param:Autowired private val revisionEntityRepository: Cus
                     })
             })
             .findAny()
-            .orElse(Function { null })
+            .orElse(Function { obj: Any? -> null })
     }
 
     private fun beanFromDefinition(beanDefinition: BeanDefinition): Any {
@@ -386,7 +390,7 @@ class RevisionService(@param:Autowired private val revisionEntityRepository: Cus
     }
 
     private val auditReader: AuditReader
-        get() = AuditReaderFactory.get(entityManager)
+        private get() = AuditReaderFactory.get(entityManager)
 
     companion object {
         private val log = LoggerFactory.getLogger(RevisionService::class.java)

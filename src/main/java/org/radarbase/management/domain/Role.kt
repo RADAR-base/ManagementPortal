@@ -99,14 +99,14 @@ class Role : AbstractEntity, Serializable {
         return this
     }
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) {
+    override fun equals(o: Any?): Boolean {
+        if (this === o) {
             return true
         }
-        if (other == null || javaClass != other.javaClass) {
+        if (o == null || javaClass != o.javaClass) {
             return false
         }
-        val role = other as Role
+        val role = o as Role
         return authority == role.authority && project == role.project && organization == role.organization
     }
 

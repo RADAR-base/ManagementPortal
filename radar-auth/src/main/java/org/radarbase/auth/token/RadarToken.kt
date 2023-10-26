@@ -11,7 +11,7 @@ interface RadarToken {
      * Get all roles defined in this token.
      * @return non-null set describing the roles defined in this token.
      */
-    val roles: Set<AuthorityReference>
+    val roles: Set<AuthorityReference>?
 
     /**
      * Get a list of scopes assigned to this token.
@@ -98,7 +98,7 @@ interface RadarToken {
     val isClientCredentials: Boolean
         get() = grantType == CLIENT_CREDENTIALS
 
-    fun copyWithRoles(roles: Set<AuthorityReference>): RadarToken
+    fun copyWithRoles(roles: Set<AuthorityReference>?): RadarToken
 
     companion object {
         const val CLIENT_CREDENTIALS = "client_credentials"

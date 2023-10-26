@@ -19,6 +19,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher
 import org.springframework.web.cors.CorsUtils
 import org.springframework.web.filter.OncePerRequestFilter
 import java.io.IOException
+import java.io.Serializable
 import java.time.Instant
 import javax.annotation.Nonnull
 import javax.servlet.FilterChain
@@ -107,18 +108,11 @@ class JwtAuthenticationFilter @JvmOverloads constructor(
         }
     }
 
-    private fun tokenFromHeader(httpRequest: HttpServletRequest): String? {
-        val authHeader = httpRequest.getHeader(HttpHeaders.AUTHORIZATION)
+    private fun tokenFromHeader(httpRequest: HttpServletRequest): String? =
+        httpRequest.getHeader(HttpHeaders.AUTHORIZATION)
             ?.takeIf { it.startsWith(AUTHORIZATION_BEARER_HEADER) }
             ?.removePrefix(AUTHORIZATION_BEARER_HEADER)
             ?.trim { it <= ' ' }
-        if (authHeader == null) {
-            return httpRequest.cookies?.find { it.name == "ory_kratos_session" }
-                ?.value
-        }
-
-        return authHeader
-    }
 
     @Throws(IOException::class)
     private fun validateToken(
@@ -155,8 +149,8 @@ class JwtAuthenticationFilter @JvmOverloads constructor(
     ): RadarToken? {
         val userName = token.username ?: return token
         val user = userRepository.findOneByLogin(userName)
-        return if (user != null) {
-            token.copyWithRoles(user.authorityReferences)
+        return if (user.isPresent) {
+            token.copyWithRoles(user.get().authorityReferences)
         } else {
             session?.removeAttribute(TOKEN_ATTRIBUTE)
             httpResponse.returnUnauthorized(httpRequest, "User not found")
@@ -192,7 +186,7 @@ class JwtAuthenticationFilter @JvmOverloads constructor(
          * from the database.
          * @return set of authority references.
          */
-        val User.authorityReferences: Set<AuthorityReference>
+        val User.authorityReferences: Set<AuthorityReference>?
             get() = roles?.mapTo(HashSet()) { role: Role? ->
                 val auth = role?.role
                 val referent = when (auth?.scope) {
@@ -202,8 +196,7 @@ class JwtAuthenticationFilter @JvmOverloads constructor(
                     null -> null
                 }
                 AuthorityReference(auth!!, referent)
-            } ?: setOf()
-
+            }
 
 
         @get:JvmStatic

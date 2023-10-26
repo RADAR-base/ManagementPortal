@@ -43,31 +43,45 @@ import javax.validation.Valid
  */
 @RestController
 @RequestMapping("/api")
-class OAuthClientsResource(
-    @Autowired private val oAuthClientService: OAuthClientService,
-    @Autowired private val metaTokenService: MetaTokenService,
-    @Autowired private val clientDetailsMapper: ClientDetailsMapper,
-    @Autowired private val subjectService: SubjectService,
-    @Autowired private val userService: UserService,
-    @Autowired private val eventRepository: AuditEventRepository,
-    @Autowired private val authService: AuthService
-) {
+class OAuthClientsResource {
+    @Autowired
+    private val oAuthClientService: OAuthClientService? = null
 
-    @Throws(NotAuthorizedException::class)
-    @Timed
-    @GetMapping("/oauth-clients")
-    /**
-     * GET /api/oauth-clients.
-     *
-     *
-     * Retrieve a list of currently registered OAuth clients.
-     *
-     * @return the list of registered clients as a list of [ClientDetailsDTO]
-     */
-    fun oAuthClients(): ResponseEntity<List<ClientDetailsDTO>> {
-            authService.checkPermission(Permission.OAUTHCLIENTS_READ)
+    @Autowired
+    private val metaTokenService: MetaTokenService? = null
+
+    @Autowired
+    private val clientDetailsMapper: ClientDetailsMapper? = null
+
+    @Autowired
+    private val subjectService: SubjectService? = null
+
+    @Autowired
+    private val userService: UserService? = null
+
+    @Autowired
+    private val eventRepository: AuditEventRepository? = null
+
+    @Autowired
+    private val authService: AuthService? = null
+
+    @get:Throws(NotAuthorizedException::class)
+    @get:Timed
+    @get:GetMapping("/oauth-clients")
+    val oAuthClients: ResponseEntity<List<ClientDetailsDTO>>
+        /**
+         * GET /api/oauth-clients.
+         *
+         *
+         * Retrieve a list of currently registered OAuth clients.
+         *
+         * @return the list of registered clients as a list of [ClientDetailsDTO]
+         */
+        get() {
+            authService!!.checkPermission(Permission.OAUTHCLIENTS_READ)
             return ResponseEntity.ok().body(
-                clientDetailsMapper.clientDetailsToClientDetailsDTO(oAuthClientService.findAllOAuthClients())
+                clientDetailsMapper
+                    ?.clientDetailsToClientDetailsDTO(oAuthClientService!!.findAllOAuthClients())
             )
         }
 
@@ -86,13 +100,12 @@ class OAuthClientsResource(
         NotAuthorizedException::class
     )
     fun getOAuthClientById(@PathVariable("id") id: String?): ResponseEntity<ClientDetailsDTO> {
-        authService.checkPermission(Permission.OAUTHCLIENTS_READ)
-
-        val client = oAuthClientService.findOneByClientId(id)
-        val clientDTO = clientDetailsMapper.clientDetailsToClientDetailsDTO(client)
-
+        authService!!.checkPermission(Permission.OAUTHCLIENTS_READ)
         // getOAuthClient checks if the id exists
-        return ResponseEntity.ok().body(clientDTO)
+        return ResponseEntity.ok().body(
+            clientDetailsMapper
+                ?.clientDetailsToClientDetailsDTO(oAuthClientService!!.findOneByClientId(id))
+        )
     }
 
     /**
@@ -107,10 +120,10 @@ class OAuthClientsResource(
     @PutMapping("/oauth-clients")
     @Timed
     @Throws(NotAuthorizedException::class)
-    fun updateOAuthClient(@RequestBody @Valid clientDetailsDto: ClientDetailsDTO?): ResponseEntity<ClientDetailsDTO> {
-        authService.checkPermission(Permission.OAUTHCLIENTS_UPDATE)
+    fun updateOAuthClient(@RequestBody clientDetailsDto: @Valid ClientDetailsDTO?): ResponseEntity<ClientDetailsDTO> {
+        authService!!.checkPermission(Permission.OAUTHCLIENTS_UPDATE)
         // getOAuthClient checks if the id exists
-        OAuthClientService.checkProtected(oAuthClientService.findOneByClientId(clientDetailsDto!!.clientId))
+        OAuthClientService.checkProtected(oAuthClientService!!.findOneByClientId(clientDetailsDto!!.clientId))
         val updated = oAuthClientService.updateOauthClient(clientDetailsDto)
         return ResponseEntity.ok()
             .headers(
@@ -119,7 +132,7 @@ class OAuthClientsResource(
                     clientDetailsDto.clientId
                 )
             )
-            .body(clientDetailsMapper.clientDetailsToClientDetailsDTO(updated))
+            .body(clientDetailsMapper!!.clientDetailsToClientDetailsDTO(updated))
     }
 
     /**
@@ -137,9 +150,9 @@ class OAuthClientsResource(
         NotAuthorizedException::class
     )
     fun deleteOAuthClient(@PathVariable id: String?): ResponseEntity<Void> {
-        authService.checkPermission(Permission.OAUTHCLIENTS_DELETE)
+        authService!!.checkPermission(Permission.OAUTHCLIENTS_DELETE)
         // getOAuthClient checks if the id exists
-        OAuthClientService.checkProtected(oAuthClientService.findOneByClientId(id))
+        OAuthClientService.checkProtected(oAuthClientService!!.findOneByClientId(id))
         oAuthClientService.deleteClientDetails(id)
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(EntityName.OAUTH_CLIENT, id))
             .build()
@@ -158,12 +171,12 @@ class OAuthClientsResource(
     @PostMapping("/oauth-clients")
     @Timed
     @Throws(URISyntaxException::class, NotAuthorizedException::class)
-    fun createOAuthClient(@RequestBody clientDetailsDto: @Valid ClientDetailsDTO): ResponseEntity<ClientDetailsDTO> {
-        authService.checkPermission(Permission.OAUTHCLIENTS_CREATE)
-        val created = oAuthClientService.createClientDetail(clientDetailsDto)
+    fun createOAuthClient(@RequestBody clientDetailsDto: @Valid ClientDetailsDTO?): ResponseEntity<ClientDetailsDTO> {
+        authService!!.checkPermission(Permission.OAUTHCLIENTS_CREATE)
+        val created = oAuthClientService!!.createClientDetail(clientDetailsDto)
         return ResponseEntity.created(ResourceUriService.getUri(clientDetailsDto))
             .headers(HeaderUtil.createEntityCreationAlert(EntityName.OAUTH_CLIENT, created.clientId))
-            .body(clientDetailsMapper.clientDetailsToClientDetailsDTO(created))
+            .body(clientDetailsMapper!!.clientDetailsToClientDetailsDTO(created))
     }
 
     /**
@@ -186,16 +199,18 @@ class OAuthClientsResource(
         @RequestParam(value = "clientId") clientId: String,
         @RequestParam(value = "persistent", defaultValue = "false") persistent: Boolean?
     ): ResponseEntity<ClientPairInfoDTO> {
-        authService.checkScope(Permission.SUBJECT_UPDATE)
+        authService!!.checkScope(Permission.SUBJECT_UPDATE)
         val currentUser =
-            userService.getUserWithAuthorities() // We only allow this for actual logged in users for now, not for client_credentials
-                ?: throw AccessDeniedException(
+            userService!!.userWithAuthorities // We only allow this for actual logged in users for now, not for client_credentials
+                .orElseThrow {
+                    AccessDeniedException(
                         "You must be a logged in user to access this resource"
                     )
+                }
 
         // lookup the subject
-        val subject = subjectService.findOneByLogin(login)
-        val projectName: String = subject.activeProject
+        val subject = subjectService!!.findOneByLogin(login)
+        val project: String = subject.activeProject
             ?.projectName
             ?: throw NotFoundException(
                     "Project for subject $login not found", EntityName.SUBJECT,
@@ -206,10 +221,10 @@ class OAuthClientsResource(
         // Users who can update a subject can also generate a refresh token for that subject
         authService.checkPermission(
             Permission.SUBJECT_UPDATE,
-            { e: EntityDetails -> e.project(projectName).subject(login) })
-        val cpi = metaTokenService.createMetaToken(subject, clientId, persistent!!)
+            { e: EntityDetails -> e.subject(login) })
+        val cpi = metaTokenService!!.createMetaToken(subject, clientId, persistent!!)
         // generate audit event
-        eventRepository.add(
+        eventRepository!!.add(
             AuditEvent(
                 currentUser.login, "PAIR_CLIENT_REQUEST",
                 "client_id=$clientId", "subject_login=$login"

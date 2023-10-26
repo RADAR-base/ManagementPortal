@@ -21,10 +21,8 @@ plugins {
     id "io.github.gradle-nexus.publish-plugin" version "1.3.0"
     id("com.github.ben-manes.versions") version "0.47.0"
     id 'org.jetbrains.kotlin.jvm' version "1.9.10"
-    id "org.jetbrains.kotlin.kapt" version "1.9.10"
     id 'org.jetbrains.kotlin.plugin.serialization' version '1.9.10' apply false
     id 'org.jetbrains.dokka' version "1.8.20"
-    id "org.jetbrains.kotlin.plugin.allopen" version "1.9.10"
 }
 
 apply plugin: 'org.springframework.boot'
@@ -149,20 +147,7 @@ if (project.hasProperty('prod')) {
 ext.findbugAnnotationVersion = '3.0.2'
 
 dependencies {
-    api group: 'com.auth0', name: 'java-jwt', version: oauth_jwt_version
-    api(platform("org.jetbrains.kotlinx:kotlinx-coroutines-bom:$coroutines_version"))
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version")
     implementation("org.jetbrains.kotlin:kotlin-reflect:1.9.10")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:$coroutines_version")
-
-    implementation("org.radarbase:radar-commons-kotlin:1.0.0")
-
-    implementation(platform("io.ktor:ktor-bom:$ktor_version"))
-    implementation("io.ktor:ktor-client-core")
-    implementation("io.ktor:ktor-client-cio")
-    implementation("io.ktor:ktor-client-content-negotiation")
-    implementation("io.ktor:ktor-serialization-kotlinx-json")
-
     implementation("tech.jhipster:jhipster-framework:${jhipster_server_version}")
     implementation("tech.jhipster:jhipster-dependencies:${jhipster_server_version}")
     implementation("io.micrometer:micrometer-core")
@@ -185,7 +170,6 @@ dependencies {
     runtimeOnly ("org.springframework.boot:spring-boot-starter-data-jpa") {
         exclude group: 'org.hibernate', module: 'hibernate-entitymanager'
     }
-    implementation "org.hibernate:hibernate-core"
     implementation "org.hibernate:hibernate-core"
     implementation "org.hibernate:hibernate-envers"
     implementation 'org.hibernate:hibernate-validator:8.0.0.Final'
@@ -218,9 +202,6 @@ dependencies {
     implementation project(':radar-auth')
     implementation "org.springframework.data:spring-data-envers"
 
-    implementation "org.mockito:mockito-core:$mockito_version"
-    implementation "org.mockito.kotlin:mockito-kotlin:${mockito_kotlin_version}"
-
     runtimeOnly("jakarta.xml.bind:jakarta.xml.bind-api:${javax_xml_bind_version}")
     runtimeOnly("org.glassfish.jaxb:jaxb-core:${javax_jaxb_core_version}")
     runtimeOnly("org.glassfish.jaxb:jaxb-runtime:${javax_jaxb_runtime_version}")
@@ -237,18 +218,12 @@ dependencies {
     testImplementation "org.springframework.boot:spring-boot-test"
     testImplementation "org.assertj:assertj-core:${assertj_version}"
     testImplementation "org.junit.jupiter:junit-jupiter-api"
-    testImplementation "org.mockito.kotlin:mockito-kotlin:${mockito_kotlin_version}"
+    testImplementation "org.mockito:mockito-core:$mockito_version"
     testImplementation "com.mattbertolini:liquibase-slf4j:${liquibase_slf4j_version}"
     testImplementation "org.hamcrest:hamcrest-library"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
 
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
-}
-
-allOpen {
-    annotation("org.springframework.stereotype.Component")
-    annotation("org.springframework.boot.test.context.SpringBootTest")
-    annotation("org.springframework.web.bind.annotation.RestController")
 }
 
 dependencyManagement {
