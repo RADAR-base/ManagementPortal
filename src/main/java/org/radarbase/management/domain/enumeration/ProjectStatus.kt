@@ -1,10 +1,8 @@
-package org.radarbase.management.domain.enumeration
+package org.radarbase.management.domain.enumeration;
 
 /**
  * The ProjectStatus enumeration.
  */
-enum class ProjectStatus {
-    PLANNING,
-    ONGOING,
-    ENDED
+public enum ProjectStatus {
+    PLANNING, ONGOING, ENDED
 }
