@@ -40,12 +40,12 @@ class SourceData : AbstractEntity(), Serializable {
     //SourceData type e.g. ACCELEROMETER, TEMPERATURE.
     @JvmField
     @Column(name = "source_data_type", nullable = false)
-    @NotNull var sourceDataType: String? = null
+    var sourceDataType: @NotNull String? = null
 
     // this will be the unique human readable identifier of
     @JvmField
     @Column(name = "source_data_name", nullable = false, unique = true)
-    @NotNull @Pattern(regexp = Constants.ENTITY_ID_REGEX) var sourceDataName: String? = null
+    var sourceDataName: @NotNull @Pattern(regexp = Constants.ENTITY_ID_REGEX) String? = null
 
     //Default data frequency
     @JvmField
@@ -86,7 +86,7 @@ class SourceData : AbstractEntity(), Serializable {
     var provider: String? = null
 
     @Column(name = "enabled")
-    var enabled = true
+    var isEnabled = true
 
     @JvmField
     @ManyToOne(fetch = FetchType.LAZY)
@@ -137,14 +137,14 @@ class SourceData : AbstractEntity(), Serializable {
         return this
     }
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) {
+    override fun equals(o: Any?): Boolean {
+        if (this === o) {
             return true
         }
-        if (other == null || javaClass != other.javaClass) {
+        if (o == null || javaClass != o.javaClass) {
             return false
         }
-        val sourceData = other as SourceData
+        val sourceData = o as SourceData
         return if (sourceData.id == null || id == null) {
             false
         } else id == sourceData.id
@@ -162,7 +162,7 @@ class SourceData : AbstractEntity(), Serializable {
                 + ", dataClass='" + dataClass + '\'' + ", keySchema='" + keySchema + '\''
                 + ", valueSchema='" + valueSchema + '\'' + ", topic='" + topic + '\''
                 + ", provider='"
-                + provider + '\'' + ", enabled=" + enabled + '}')
+                + provider + '\'' + ", enabled=" + isEnabled + '}')
     }
 
     companion object {

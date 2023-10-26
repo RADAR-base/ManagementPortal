@@ -12,6 +12,7 @@ import org.hibernate.envers.Audited
 import org.hibernate.envers.NotAudited
 import org.radarbase.management.domain.enumeration.ProjectStatus
 import org.radarbase.management.domain.support.AbstractEntityListener
+import org.radarbase.management.security.Constants
 import java.io.Serializable
 import java.time.ZonedDateTime
 import java.util.*
@@ -55,25 +56,17 @@ class Project : AbstractEntity(), Serializable {
     @SequenceGenerator(name = "sequenceGenerator", initialValue = 1000, sequenceName = "hibernate_sequence")
     override var id: Long? = null
 
+    @JvmField
     @Column(name = "project_name", nullable = false, unique = true)
-    @NotNull @Pattern(regexp = "^[_'.@A-Za-z0-9- ]*$") var projectName: String? = null
+    var projectName: @NotNull @Pattern(regexp = Constants.ENTITY_ID_REGEX) String? = null
 
+    @JvmField
     @Column(name = "description", nullable = false)
-    @NotNull var description: String? = null
+    var description: @NotNull String? = null
 
-    // Defaults to organization name, but if that is not set then we can use the organizationName
+    @JvmField
     @Column(name = "jhi_organization")
     var organizationName: String? = null
-        get() {
-            if (organization?.name != null)
-                field = organization?.name
-            return field
-        }
-        // needed because the @JVMField annotation cannot be added when a custom getter/setter is set
-        set(value) {
-            field = value
-        }
-
 
     @JvmField
     @ManyToOne(fetch = FetchType.EAGER)
@@ -82,7 +75,7 @@ class Project : AbstractEntity(), Serializable {
 
     @JvmField
     @Column(name = "location", nullable = false)
-    @NotNull var location: String? = null
+    var location: @NotNull String? = null
 
     @JvmField
     @Column(name = "start_date")
@@ -97,14 +90,14 @@ class Project : AbstractEntity(), Serializable {
     @Column(name = "end_date")
     var endDate: ZonedDateTime? = null
 
-    @JsonSetter(nulls = Nulls.AS_EMPTY)
+    @set:JsonSetter(nulls = Nulls.AS_EMPTY)
     @JsonIgnore
     @OneToMany(mappedBy = "project", fetch = FetchType.LAZY)
     @Cascade(CascadeType.ALL)
     var roles: Set<Role> = HashSet()
 
     @JvmField
-    @JsonSetter(nulls = Nulls.AS_EMPTY)
+    @set:JsonSetter(nulls = Nulls.AS_EMPTY)
     @ManyToMany(fetch = FetchType.LAZY)
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @JoinTable(
@@ -115,14 +108,15 @@ class Project : AbstractEntity(), Serializable {
     var sourceTypes: Set<SourceType> = HashSet()
 
     @JvmField
-    @JsonSetter(nulls = Nulls.AS_EMPTY)
+    @set:JsonSetter(nulls = Nulls.AS_EMPTY)
     @ElementCollection(fetch = FetchType.EAGER)
     @MapKeyColumn(name = "attribute_key")
     @Column(name = "attribute_value")
     @CollectionTable(name = "project_metadata", joinColumns = [JoinColumn(name = "id")])
-    var attributes: MutableMap<String, String> = HashMap()
+    var attributes: Map<String, String> = HashMap()
 
     @JvmField
+    @set:JsonSetter(nulls = Nulls.AS_EMPTY)
     @NotAudited
     @OneToMany(
         mappedBy = "project",
@@ -177,14 +171,14 @@ class Project : AbstractEntity(), Serializable {
         return this
     }
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) {
+    override fun equals(o: Any?): Boolean {
+        if (this === o) {
             return true
         }
-        if (other == null || javaClass != other.javaClass) {
+        if (o == null || javaClass != o.javaClass) {
             return false
         }
-        val project = other as Project
+        val project = o as Project
         return if (project.id == null || id == null) {
             false
         } else id == project.id

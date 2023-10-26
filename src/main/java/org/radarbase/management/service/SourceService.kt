@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
+import org.springframework.data.history.Revision
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.*
@@ -26,13 +27,21 @@ import java.util.*
  */
 @Service
 @Transactional
-open class SourceService(
-    @Autowired private val sourceRepository: SourceRepository,
-    @Autowired private val sourceMapper: SourceMapper,
-    @Autowired private val projectRepository: ProjectRepository,
-    @Autowired private val sourceTypeMapper: SourceTypeMapper,
-    @Autowired private val authService: AuthService
-) {
+open class SourceService {
+    @Autowired
+    private val sourceRepository: SourceRepository? = null
+
+    @Autowired
+    private val sourceMapper: SourceMapper? = null
+
+    @Autowired
+    private val projectRepository: ProjectRepository? = null
+
+    @Autowired
+    private val sourceTypeMapper: SourceTypeMapper? = null
+
+    @Autowired
+    private val authService: AuthService? = null
 
     /**
      * Save a Source.
@@ -40,10 +49,10 @@ open class SourceService(
      * @param sourceDto the entity to save
      * @return the persisted entity
      */
-    fun save(sourceDto: SourceDTO): SourceDTO {
+    fun save(sourceDto: SourceDTO?): SourceDTO {
         log.debug("Request to save Source : {}", sourceDto)
-        var source = sourceMapper.sourceDTOToSource(sourceDto)
-        source = sourceRepository.save(source)
+        var source = sourceMapper!!.sourceDTOToSource(sourceDto)
+        source = sourceRepository!!.save(source)
         return sourceMapper.sourceToSourceDTO(source)
     }
 
@@ -53,12 +62,12 @@ open class SourceService(
      * @return the list of entities
      */
     @Transactional(readOnly = true)
-    open fun findAll(): List<SourceDTO> {
+    open fun findAll(): List<SourceDTO>? {
         return sourceRepository
-            .findAll()
-            .filterNotNull()
-            .map { source: Source -> sourceMapper.sourceToSourceDTO(source) }
-            .toList()
+            ?.findAll()
+            ?.stream()
+            ?.map { source: Source? -> sourceMapper!!.sourceToSourceDTO(source) }
+            ?.toList()
     }
 
     /**
@@ -69,14 +78,10 @@ open class SourceService(
     @Transactional(readOnly = true)
     open fun findAll(pageable: Pageable?): Page<SourceDTO>? {
         log.debug("Request to get SourceData with pagination")
-        // somehow the compiler does not understand what's going on here, so we suppress the warning
-        @Suppress("UNNECESSARY_SAFE_CALL")
         return pageable?.let {
-            it.let { it1 ->
-                sourceRepository
-                    .findAll(it1)
-                    ?.map { source -> source?.let { it2 -> sourceMapper.sourceToSourceDTO(it2) } }
-            }
+            sourceRepository
+                ?.findAll(it)
+                ?.map { source: Source? -> sourceMapper!!.sourceToSourceDTO(source) }
         }
     }
 
@@ -87,10 +92,10 @@ open class SourceService(
      * @return the entity
      */
     @Transactional(readOnly = true)
-    open fun findOneByName(sourceName: String): SourceDTO? {
+    open fun findOneByName(sourceName: String?): Optional<SourceDTO> {
         log.debug("Request to get Source : {}", sourceName)
-        return sourceRepository.findOneBySourceName(sourceName)
-            .let { source: Source? -> source?.let { sourceMapper.sourceToSourceDTO(it) } }
+        return sourceRepository!!.findOneBySourceName(sourceName)
+            .map { source: Source? -> sourceMapper!!.sourceToSourceDTO(source) }
     }
 
     /**
@@ -102,8 +107,8 @@ open class SourceService(
     @Transactional(readOnly = true)
     open fun findOneById(id: Long): Optional<SourceDTO> {
         log.debug("Request to get Source by id: {}", id)
-        return Optional.ofNullable(sourceRepository.findById(id).orElse(null))
-            .map { source: Source? -> source?.let { sourceMapper.sourceToSourceDTO(it) } }
+        return Optional.ofNullable(sourceRepository!!.findById(id).orElse(null))
+            .map { source: Source? -> sourceMapper!!.sourceToSourceDTO(source) }
     }
 
     /**
@@ -114,10 +119,10 @@ open class SourceService(
     @Transactional
     open fun delete(id: Long) {
         log.info("Request to delete Source : {}", id)
-        val sourceHistory = sourceRepository.findRevisions(id)
+        val sourceHistory = sourceRepository!!.findRevisions(id)
         val sources = sourceHistory.content
-            .mapNotNull { obj -> obj.entity }
-            .filter{ it.assigned
+            .map { obj: Revision<Int, Source> -> obj.entity }
+            .filter{ it.isAssigned
                 ?: false }
             .toList()
         if (sources.isEmpty()) {
@@ -138,9 +143,9 @@ open class SourceService(
      *
      * @return list of sources
      */
-    fun findAllByProjectId(projectId: Long, pageable: Pageable): Page<SourceDTO> {
-        return sourceRepository.findAllSourcesByProjectId(pageable, projectId)
-            .map { source -> sourceMapper.sourceToSourceWithoutProjectDTO(source) }
+    fun findAllByProjectId(projectId: Long?, pageable: Pageable?): Page<SourceDTO> {
+        return sourceRepository!!.findAllSourcesByProjectId(pageable, projectId)
+            .map { source: Source? -> sourceMapper!!.sourceToSourceWithoutProjectDTO(source) }
     }
 
     /**
@@ -149,19 +154,19 @@ open class SourceService(
      * @return list of sources
      */
     fun findAllMinimalSourceDetailsByProject(
-        projectId: Long,
-        pageable: Pageable
+        projectId: Long?,
+        pageable: Pageable?
     ): Page<MinimalSourceDetailsDTO> {
-        return sourceRepository.findAllSourcesByProjectId(pageable, projectId)
-            .map { source: Source -> sourceMapper.sourceToMinimalSourceDetailsDTO(source) }
+        return sourceRepository!!.findAllSourcesByProjectId(pageable, projectId)
+            .map { source: Source? -> sourceMapper!!.sourceToMinimalSourceDetailsDTO(source) }
     }
 
     /**
      * Returns list of not-assigned sources by project id.
      */
     fun findAllByProjectAndAssigned(projectId: Long?, assigned: Boolean): List<SourceDTO> {
-        return sourceMapper.sourcesToSourceDTOs(
-            sourceRepository.findAllSourcesByProjectIdAndAssigned(projectId, assigned)
+        return sourceMapper!!.sourcesToSourceDTOs(
+            sourceRepository!!.findAllSourcesByProjectIdAndAssigned(projectId, assigned)
         )
     }
 
@@ -172,8 +177,8 @@ open class SourceService(
         projectId: Long?, assigned: Boolean
     ): List<MinimalSourceDetailsDTO> {
         return sourceRepository
-            .findAllSourcesByProjectIdAndAssigned(projectId, assigned)
-            ?.map { source -> sourceMapper.sourceToMinimalSourceDetailsDTO(source) }
+            ?.findAllSourcesByProjectIdAndAssigned(projectId, assigned)
+            ?.map { source -> sourceMapper!!.sourceToMinimalSourceDetailsDTO(source) }
             ?.toList()
             ?: listOf()
     }
@@ -197,7 +202,7 @@ open class SourceService(
         updatedAttributes.putAll(attributes!!)
         sourceToUpdate.attributes = updatedAttributes
         // rest of the properties should not be updated from this request.
-        return sourceMapper.sourceToMinimalSourceDetailsDTO(sourceRepository.save(sourceToUpdate))
+        return sourceMapper!!.sourceToMinimalSourceDetailsDTO(sourceRepository!!.save(sourceToUpdate))
     }
 
     /**
@@ -210,25 +215,27 @@ open class SourceService(
      */
     @Transactional
     @Throws(NotAuthorizedException::class)
-    open fun updateSource(sourceDto: SourceDTO): SourceDTO? {
-        val existingSourceOpt = sourceDto.id?.let { sourceRepository.findById(it) } ?: return null
-
+    open fun updateSource(sourceDto: SourceDTO): Optional<SourceDTO> {
+        val existingSourceOpt = sourceRepository!!.findById(sourceDto.id)
+        if (existingSourceOpt.isEmpty) {
+            return Optional.empty()
+        }
         val existingSource = existingSourceOpt.get()
-        authService.checkPermission(Permission.SOURCE_UPDATE, { e: EntityDetails ->
-            e.source = existingSource.sourceName
+        authService!!.checkPermission(Permission.SOURCE_UPDATE, { (_, project, subject, _, source): EntityDetails ->
+            source
             if (existingSource.project != null) {
-                e.project = existingSource.project?.projectName
+                project
             }
             if (existingSource.subject != null
                 && existingSource.subject!!.user != null
             ) {
-                e.subject = existingSource.subject?.user?.login
+                subject
             }
         })
 
         // if the source is being transferred to another project.
-        if (existingSource.project?.id != sourceDto.project?.id) {
-            if (existingSource.assigned!!) {
+        if (existingSource.project!!.id != sourceDto.project.id) {
+            if (existingSource.isAssigned!!) {
                 throw InvalidRequestException(
                     "Cannot transfer an assigned source", EntityName.SOURCE,
                     "error.sourceIsAssigned"
@@ -238,19 +245,20 @@ open class SourceService(
             // check whether source-type of the device is assigned to the new project
             // to be transferred.
             val sourceType = projectRepository
-                .findSourceTypeByProjectIdAndSourceTypeId(
-                    sourceDto.project?.id,
-                    existingSource.sourceType?.id
+                ?.findSourceTypeByProjectIdAndSourceTypeId(
+                    sourceDto.project.id,
+                    existingSource.sourceType!!.id
                 )
-                ?: throw InvalidRequestException(
+            if (sourceType!!.isEmpty) {
+                throw InvalidRequestException(
                     "Cannot transfer a source to a project which doesn't have compatible "
                             + "source-type", IdentifierGenerator.ENTITY_NAME, "error.invalidTransfer"
                 )
-
+            }
             // set old source-type, ensures compatibility
-            sourceDto.sourceType = existingSource.sourceType?.let { sourceTypeMapper.sourceTypeToSourceTypeDTO(it) }
+            sourceDto.sourceType = sourceTypeMapper!!.sourceTypeToSourceTypeDTO(existingSource.sourceType)
         }
-        return save(sourceDto)
+        return Optional.of(save(sourceDto))
     }
 
     companion object {

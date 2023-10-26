@@ -47,21 +47,21 @@ class Source : AbstractEntity, Serializable {
     // pass
     @JvmField
     @Column(name = "source_id", nullable = false, unique = true)
-    @NotNull var sourceId: UUID? = null
+    var sourceId: @NotNull UUID? = null
 
     @JvmField
     @Column(name = "source_name", nullable = false, unique = true)
-    @NotNull @Pattern(regexp = Constants.ENTITY_ID_REGEX) var sourceName: String? = null
+    var sourceName: @NotNull @Pattern(regexp = Constants.ENTITY_ID_REGEX) String? = null
 
     @JvmField
     @Column(name = "expected_source_name")
     var expectedSourceName: String? = null
 
     @Column(name = "assigned", nullable = false)
-    @NotNull var assigned: Boolean? = false
+    var isAssigned: @NotNull Boolean? = null
 
     @Column(name = "deleted", nullable = false)
-    @NotNull var deleted: Boolean = false
+    var isDeleted: @NotNull Boolean? = false
 
     @JvmField
     @ManyToOne(fetch = FetchType.EAGER)
@@ -79,7 +79,7 @@ class Source : AbstractEntity, Serializable {
     var project: Project? = null
 
     @JvmField
-    @JsonSetter(nulls = Nulls.AS_EMPTY)
+    @set:JsonSetter(nulls = Nulls.AS_EMPTY)
     @ElementCollection(fetch = FetchType.EAGER)
     @MapKeyColumn(name = "attribute_key")
     @Column(name = "attribute_value")
@@ -124,6 +124,17 @@ class Source : AbstractEntity, Serializable {
             )
         }
     }
+
+    fun assigned(assigned: Boolean?): Source {
+        isAssigned = assigned
+        return this
+    }
+
+    fun deleted(deleted: Boolean?): Source {
+        isDeleted = deleted
+        return this
+    }
+
     fun sourceType(sourceType: SourceType?): Source {
         this.sourceType = sourceType
         return this
@@ -144,14 +155,14 @@ class Source : AbstractEntity, Serializable {
         return this
     }
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) {
+    override fun equals(o: Any?): Boolean {
+        if (this === o) {
             return true
         }
-        if (other == null || javaClass != other.javaClass) {
+        if (o == null || javaClass != o.javaClass) {
             return false
         }
-        val source = other as Source
+        val source = o as Source
         return if (source.id == null || id == null) {
             false
         } else id == source.id && sourceId == source.sourceId
@@ -166,7 +177,7 @@ class Source : AbstractEntity, Serializable {
                 + "id=" + id
                 + ", sourceId='" + sourceId + '\''
                 + ", sourceName='" + sourceName + '\''
-                + ", assigned=" + assigned
+                + ", assigned=" + isAssigned
                 + ", sourceType=" + sourceType
                 + ", project=" + project
                 + '}')

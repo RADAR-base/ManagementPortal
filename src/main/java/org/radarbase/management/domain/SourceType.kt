@@ -44,7 +44,7 @@ class SourceType : AbstractEntity(), Serializable {
 
     @JvmField
     @Column(name = "producer")
-    @NotNull @Pattern(regexp = Constants.ENTITY_ID_REGEX) var producer: String? = null
+    var producer: @NotNull @Pattern(regexp = Constants.ENTITY_ID_REGEX) String? = null
 
     @JvmField
     @Column(name = "name")
@@ -64,22 +64,22 @@ class SourceType : AbstractEntity(), Serializable {
 
     @JvmField
     @Column(name = "model", nullable = false)
-    @NotNull @Pattern(regexp = Constants.ENTITY_ID_REGEX) var model: String? = null
+    var model: @NotNull @Pattern(regexp = Constants.ENTITY_ID_REGEX) String? = null
 
     @JvmField
     @Column(name = "catalog_version", nullable = false)
-    @NotNull @Pattern(regexp = Constants.ENTITY_ID_REGEX) var catalogVersion: String? = null
+    var catalogVersion: @NotNull @Pattern(regexp = Constants.ENTITY_ID_REGEX) String? = null
 
     @JvmField
     @Column(name = "source_type_scope", nullable = false)
-    @NotNull var sourceTypeScope: String? = null
+    var sourceTypeScope: @NotNull String? = null
 
     @JvmField
     @Column(name = "dynamic_registration", nullable = false)
-    @NotNull var canRegisterDynamically: Boolean? = false
+    var canRegisterDynamically: @NotNull Boolean? = false
 
     @JvmField
-    @JsonSetter(nulls = Nulls.AS_EMPTY)
+    @set:JsonSetter(nulls = Nulls.AS_EMPTY)
     @OneToMany(mappedBy = "sourceType", orphanRemoval = true, fetch = FetchType.LAZY)
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @Cascade(
@@ -122,14 +122,14 @@ class SourceType : AbstractEntity(), Serializable {
         return this
     }
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) {
+    override fun equals(o: Any?): Boolean {
+        if (this === o) {
             return true
         }
-        if (other == null || javaClass != other.javaClass) {
+        if (o == null || javaClass != o.javaClass) {
             return false
         }
-        val sourceType = other as SourceType
+        val sourceType = o as SourceType
         return if (sourceType.id == null || id == null) {
             false
         } else id == sourceType.id && producer == sourceType.producer && model == sourceType.model && catalogVersion == sourceType.catalogVersion && canRegisterDynamically == sourceType.canRegisterDynamically && sourceTypeScope == sourceType.sourceTypeScope && name == sourceType.name && description == sourceType.description && appProvider == sourceType.appProvider && assessmentType == sourceType.assessmentType

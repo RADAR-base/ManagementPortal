@@ -23,11 +23,8 @@ import org.radarbase.management.web.rest.criteria.SubjectCriteria
 import org.radarbase.management.web.rest.errors.BadRequestException
 import org.radarbase.management.web.rest.errors.ErrorConstants
 import org.radarbase.management.web.rest.errors.ErrorVM
-import org.radarbase.management.web.rest.util.HeaderUtil.buildPath
-import org.radarbase.management.web.rest.util.HeaderUtil.createEntityCreationAlert
-import org.radarbase.management.web.rest.util.HeaderUtil.createEntityDeletionAlert
-import org.radarbase.management.web.rest.util.HeaderUtil.createEntityUpdateAlert
-import org.radarbase.management.web.rest.util.HeaderUtil.createFailureAlert
+import org.radarbase.management.web.rest.util.HeaderUtil
+import org.radarbase.management.web.rest.util.HeaderUtil.*
 import org.radarbase.management.web.rest.util.PaginationUtil
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -53,14 +50,13 @@ import javax.validation.Valid
  */
 @RestController
 @RequestMapping("/api")
-class ProjectResource(
-    @Autowired private val subjectMapper: SubjectMapper,
-    @Autowired private val projectRepository: ProjectRepository,
-    @Autowired private val projectService: ProjectService,
-    @Autowired private val roleService: RoleService,
-    @Autowired private val subjectService: SubjectService,
-    @Autowired private val sourceService: SourceService,
-    @Autowired private val authService: AuthService
+class ProjectResource(@Autowired private val subjectMapper: SubjectMapper,
+                      @Autowired private val projectRepository: ProjectRepository,
+                      @Autowired private val projectService: ProjectService,
+                      @Autowired private val roleService: RoleService,
+                      @Autowired private val subjectService: SubjectService,
+                      @Autowired private val sourceService: SourceService,
+                      @Autowired private val authService: AuthService
 ) {
 
     /**
@@ -74,16 +70,18 @@ class ProjectResource(
     @PostMapping("/projects")
     @Timed
     @Throws(URISyntaxException::class, NotAuthorizedException::class)
-    fun createProject(@RequestBody @Valid projectDto: ProjectDTO?): ResponseEntity<ProjectDTO> {
+    fun createProject(@RequestBody projectDto: @Valid ProjectDTO?): ResponseEntity<ProjectDTO> {
         log.debug("REST request to save Project : {}", projectDto)
-        val org = projectDto?.organizationName
-            ?: throw BadRequestException(
+        val org = projectDto!!.organization
+        if (org == null || org.name == null) {
+            throw BadRequestException(
                 "Organization must be provided",
                 ENTITY_NAME, ErrorConstants.ERR_VALIDATION
             )
+        }
         authService.checkPermission(
             Permission.PROJECT_CREATE,
-            { e: EntityDetails -> e.organization(org) })
+            { e: EntityDetails -> e.organization(org.name) })
         if (projectDto.id != null) {
             return ResponseEntity.badRequest()
                 .headers(
@@ -91,7 +89,7 @@ class ProjectResource(
                         ENTITY_NAME, "idexists", "A new project cannot already have an ID"
                     )
                 )
-                .body(null)
+                .body<ProjectDTO>(null)
         }
         if (projectRepository.findOneWithEagerRelationshipsByName(projectDto.projectName) != null) {
             return ResponseEntity.badRequest()
@@ -100,7 +98,7 @@ class ProjectResource(
                         ENTITY_NAME, "nameexists", "A project with this name already exists"
                     )
                 )
-                .body(null)
+                .body<ProjectDTO>(null)
         }
         val result = projectService.save(projectDto)
         return ResponseEntity.created(ResourceUriService.getUri(result))
@@ -110,7 +108,7 @@ class ProjectResource(
                     result.projectName
                 )
             )
-            .body(result)
+            .body<ProjectDTO>(result)
     }
 
     /**
@@ -125,14 +123,15 @@ class ProjectResource(
     @PutMapping("/projects")
     @Timed
     @Throws(URISyntaxException::class, NotAuthorizedException::class)
-    fun updateProject(@RequestBody @Valid projectDto: ProjectDTO?): ResponseEntity<ProjectDTO> {log.debug("REST request to update Project : {}", projectDto)
-        if (projectDto?.id == null) {
+    fun updateProject(@RequestBody projectDto: @Valid ProjectDTO?): ResponseEntity<ProjectDTO> {
+        log.debug("REST request to update Project : {}", projectDto)
+        if (projectDto!!.id == null) {
             return createProject(projectDto)
         }
         // When a client wants to link the project to the default organization,
         // this must be done explicitly.
         val org = projectDto.organization
-        if (org?.name == null) {
+        if (org == null || org.name == null) {
             throw BadRequestException(
                 "Organization must be provided",
                 ENTITY_NAME, ErrorConstants.ERR_VALIDATION
@@ -140,8 +139,8 @@ class ProjectResource(
         }
         // When clients want to transfer a project,
         // they must have permissions to modify both new & old organizations
-        val existingProject = projectService.findOne(projectDto.id!!)
-        if (existingProject?.projectName != projectDto.projectName) {
+        val existingProject = projectService.findOne(projectDto.id)
+        if (existingProject.projectName != projectDto.projectName) {
             throw BadRequestException(
                 "The project name cannot be modified.", ENTITY_NAME,
                 ErrorConstants.ERR_VALIDATION
@@ -152,9 +151,9 @@ class ProjectResource(
             Permission.PROJECT_UPDATE,
             { e: EntityDetails ->
                 e.organization(newOrgName)
-                e.project(existingProject?.projectName)
+                e.project(existingProject.projectName)
             })
-        val oldOrgName = existingProject?.organizationName
+        val oldOrgName = existingProject.organization.name
         if (newOrgName != oldOrgName) {
             authService.checkPermission(
                 Permission.PROJECT_UPDATE,
@@ -180,8 +179,8 @@ class ProjectResource(
     @Timed
     @Throws(NotAuthorizedException::class)
     fun getAllProjects(
-        @PageableDefault(size = Int.MAX_VALUE) pageable: Pageable,
-        @RequestParam(name = "minimized", required = false, defaultValue = "false") minimized: Boolean
+        @PageableDefault(size = Int.MAX_VALUE) pageable: Pageable?,
+        @RequestParam(name = "minimized", required = false, defaultValue = "false") minimized: Boolean?
     ): ResponseEntity<*> {
         log.debug("REST request to get Projects")
         authService.checkPermission(Permission.PROJECT_READ)
@@ -208,7 +207,7 @@ class ProjectResource(
         log.debug("REST request to get Project : {}", projectName)
         val projectDto = projectService.findOneByName(projectName!!)
         authService.checkPermission(Permission.PROJECT_READ, { e: EntityDetails ->
-            e.organization(projectDto.organizationName)
+            e.organization(projectDto.organization.name)
             e.project(projectDto.projectName)
         })
         return ResponseEntity.ok(projectDto)
@@ -231,10 +230,10 @@ class ProjectResource(
         log.debug("REST request to get Project : {}", projectName)
         val projectDto = projectService.findOneByName(projectName!!)
         authService.checkPermission(Permission.PROJECT_READ, { e: EntityDetails ->
-            e.organization(projectDto.organizationName)
+            e.organization(projectDto.organization.name)
             e.project(projectDto.projectName)
         })
-        return projectService.findSourceTypesByProjectId(projectDto.id!!)
+        return projectService.findSourceTypesByProjectId(projectDto.id)
     }
 
     /**
@@ -253,11 +252,11 @@ class ProjectResource(
         log.debug("REST request to delete Project : {}", projectName)
         val projectDto = projectService.findOneByName(projectName!!)
         authService.checkPermission(Permission.PROJECT_DELETE, { e: EntityDetails ->
-            e.organization(projectDto.organizationName)
+            e.organization(projectDto.organization.name)
             e.project(projectDto.projectName)
         })
         return try {
-            projectService.delete(projectDto.id!!)
+            projectService.delete(projectDto.id)
             ResponseEntity.ok()
                 .headers(createEntityDeletionAlert(ENTITY_NAME, projectName))
                 .build<Any>()
@@ -282,7 +281,7 @@ class ProjectResource(
         log.debug("REST request to get all Roles for project {}", projectName)
         val projectDto = projectService.findOneByName(projectName!!)
         authService.checkPermission(Permission.ROLE_READ, { e: EntityDetails ->
-            e.organization(projectDto.organizationName)
+            e.organization(projectDto.organization.name)
             e.project(projectDto.projectName)
         })
         return ResponseEntity.ok(roleService.getRolesByProject(projectName))
@@ -299,17 +298,16 @@ class ProjectResource(
         NotAuthorizedException::class
     )
     fun getAllSourcesForProject(
-        @Parameter pageable: Pageable,
-        @PathVariable projectName: String,
+        @Parameter pageable: Pageable?,
+        @PathVariable projectName: String?,
         @RequestParam(value = "assigned", required = false) assigned: Boolean?,
         @RequestParam(name = "minimized", required = false, defaultValue = "false") minimized: Boolean
     ): ResponseEntity<*> {
         authService.checkScope(Permission.SOURCE_READ)
         log.debug("REST request to get all Sources")
-        val projectDto = projectService.findOneByName(projectName) //?: throw NoSuchElementException()
-
+        val projectDto = projectService.findOneByName(projectName!!)
         authService.checkPermission(Permission.SOURCE_READ, { e: EntityDetails ->
-            e.organization(projectDto.organizationName)
+            e.organization(projectDto.organization.name)
             e.project(projectDto.projectName)
         })
         return if (assigned != null) {
@@ -329,7 +327,7 @@ class ProjectResource(
         } else {
             if (minimized) {
                 val page = sourceService
-                    .findAllMinimalSourceDetailsByProject(projectDto.id!!, pageable)
+                    .findAllMinimalSourceDetailsByProject(projectDto.id, pageable)
                 val headers = PaginationUtil
                     .generatePaginationHttpHeaders(
                         page, buildPath(
@@ -340,7 +338,7 @@ class ProjectResource(
                 ResponseEntity(page.content, headers, HttpStatus.OK)
             } else {
                 val page = sourceService
-                    .findAllByProjectId(projectDto.id!!, pageable)
+                    .findAllByProjectId(projectDto.id, pageable)
                 val headers = PaginationUtil
                     .generatePaginationHttpHeaders(
                         page, buildPath(
@@ -364,35 +362,31 @@ class ProjectResource(
         NotAuthorizedException::class
     )
     fun getAllSubjects(
-        @Valid subjectCriteria: SubjectCriteria?
-    ): ResponseEntity<List<SubjectDTO>> {
+        subjectCriteria: @Valid SubjectCriteria?
+    ): ResponseEntity<List<SubjectDTO?>> {
         authService.checkScope(Permission.SUBJECT_READ)
-
-
-        val projectName = subjectCriteria!!.projectName ?: throw NoSuchElementException()
+        val projectName = subjectCriteria!!.projectName
         // this checks if the project exists
-        val projectDto = projectName.let { projectService.findOneByName(it) }
+        val projectDto = projectService.findOneByName(projectName)
         authService.checkPermission(Permission.SUBJECT_READ, { e: EntityDetails ->
-            e.organization(projectDto.organizationName)
+            e.organization(projectDto.organization.name)
             e.project(projectDto.projectName)
         })
 
         // this checks if the project exists
         projectService.findOneByName(projectName)
-
-
         subjectCriteria.projectName = projectName
         log.debug(
             "REST request to get all subjects for project {} using criteria {}", projectName,
             subjectCriteria
         )
         val page = subjectService.findAll(subjectCriteria)
-            .map { subject: Subject -> subjectMapper.subjectToSubjectWithoutProjectDTO(subject) }
+            .map { subject: Subject? -> subjectMapper.subjectToSubjectWithoutProjectDTO(subject) }
         val baseUri = buildPath("api", "projects", projectName, "subjects")
         val headers = PaginationUtil.generateSubjectPaginationHttpHeaders(
             page, baseUri, subjectCriteria
         )
-        return ResponseEntity(page.content.filterNotNull(), headers, HttpStatus.OK)
+        return ResponseEntity(page.content, headers, HttpStatus.OK)
     }
 
     companion object {

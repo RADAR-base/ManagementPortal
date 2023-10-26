@@ -10,15 +10,15 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
 @Configuration
-class AuthorizationConfiguration(
+open class AuthorizationConfiguration(
     private val projectRepository: ProjectRepository,
 ) {
     @Bean
-    fun authorizationOracle(): AuthorizationOracle = MPAuthorizationOracle(
+    open fun authorizationOracle(): AuthorizationOracle = MPAuthorizationOracle(
         object : EntityRelationService {
             override suspend fun findOrganizationOfProject(project: String): String? = withContext(Dispatchers.IO) {
                 projectRepository.findOneWithEagerRelationshipsByName(project)
-                    ?.organizationName
+                    ?.organization?.name
             }
         }
     )

@@ -64,7 +64,7 @@ class Subject(
     var externalId: String? = null
 
     @Column(name = "removed", nullable = false)
-    @NotNull var removed: Boolean = false
+    var isRemoved: @NotNull Boolean? = false
 
     @JvmField
     @OneToOne
@@ -81,7 +81,7 @@ class Subject(
     var sources: MutableSet<Source> = HashSet()
 
     @JvmField
-    @JsonSetter(nulls = Nulls.AS_EMPTY)
+    @set:JsonSetter(nulls = Nulls.AS_EMPTY)
     @ElementCollection(fetch = FetchType.EAGER)
     @MapKeyColumn(name = "attribute_key")
     @Column(name = "attribute_value")
@@ -114,36 +114,6 @@ class Subject(
     @JvmField
     @Column(name = "person_name")
     var personName: String? = null
-
-    val activeProject: Project?
-        /**
-         * Gets the active project of subject.
-         *
-         *
-         *  There can be only one role with PARTICIPANT authority
-         * and the project that is related to that role is the active role.
-         *
-         * @return [Project] currently active project of subject.
-         */
-        get() = user?.roles
-            ?.firstOrNull { r -> r.authority?.name == RoleAuthority.PARTICIPANT.authority }
-            ?.project
-
-    val associatedProject: Project?
-        /**
-         * Get the active project of a subject, and otherwise the
-         * inactive project.
-         * @return the project a subject belongs to, if any.
-         */
-        get() {
-            val user = user ?: return null
-            return user.roles
-                ?.filter { r -> PARTICIPANT_TYPES.contains(r.authority?.name) }
-                ?.sortedBy { it.authority?.name }?.firstOrNull()
-                .let { obj: Role? -> obj?.project }
-
-        }
-
     fun externalLink(externalLink: String?): Subject {
         this.externalLink = externalLink
         return this
@@ -151,6 +121,11 @@ class Subject(
 
     fun externalId(enternalId: String?): Subject {
         externalId = enternalId
+        return this
+    }
+
+    fun removed(removed: Boolean?): Subject {
+        isRemoved = removed
         return this
     }
 
@@ -163,6 +138,34 @@ class Subject(
         this.sources = sources
         return this
     }
+
+    val activeProject: Project?
+        /**
+         * Gets the active project of subject.
+         *
+         *
+         *  There can be only one role with PARTICIPANT authority
+         * and the project that is related to that role is the active role.
+         *
+         * @return [Project] currently active project of subject.
+         */
+        get() = user?.roles
+            ?.first { r -> r.authority?.name == RoleAuthority.PARTICIPANT.authority }
+            ?.project
+    val associatedProject: Project?
+        /**
+         * Get the active project of a subject, and otherwise the
+         * inactive project.
+         * @return the project a subject belongs to, if any.
+         */
+        get() {
+            val user = user ?: return null
+            return user.roles?.asIterable()
+                ?.filter { r -> PARTICIPANT_TYPES.contains(r.authority?.name) }
+                ?.sortedBy { it.authority?.name }?.first()
+                .let { obj: Role? -> obj?.project }
+
+        }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) {
@@ -186,7 +189,7 @@ class Subject(
                 + "id=" + id
                 + ", externalLink='" + externalLink + '\''
                 + ", externalId='" + externalId + '\''
-                + ", removed=" + removed
+                + ", removed=" + isRemoved
                 + ", user=" + user
                 + ", sources=" + sources
                 + ", attributes=" + attributes
@@ -196,7 +199,7 @@ class Subject(
 
     companion object {
         private const val serialVersionUID = 1L
-        private val PARTICIPANT_TYPES = mutableSetOf(
+        private val PARTICIPANT_TYPES = java.util.Set.of(
             RoleAuthority.PARTICIPANT.authority,
             RoleAuthority.INACTIVE_PARTICIPANT.authority
         )

@@ -36,28 +36,27 @@ class Organization : AbstractEntity() {
 
     @JvmField
     @Column(name = "name", nullable = false, unique = true)
-    @NotNull @Pattern(regexp = Constants.ENTITY_ID_REGEX) var name: String? = null
+    var name: @NotNull @Pattern(regexp = Constants.ENTITY_ID_REGEX) String? = null
 
     @JvmField
     @Column(name = "description", nullable = false)
-    @NotNull var description: String? = null
+    var description: @NotNull String? = null
 
     @JvmField
     @Column(name = "location", nullable = false)
-    @NotNull var location: String? = null
+    var location: @NotNull String? = null
 
     @JvmField
     @OneToMany(mappedBy = "organization")
-    var projects: List<Project> = emptyList()
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) {
+    var projects: List<Project>? = null
+    override fun equals(o: Any?): Boolean {
+        if (this === o) {
             return true
         }
-        if (other == null || javaClass != other.javaClass) {
+        if (o == null || javaClass != o.javaClass) {
             return false
         }
-        val org = other as Organization
+        val org = o as Organization
         return if (org.id == null || id == null) {
             false
         } else id == org.id

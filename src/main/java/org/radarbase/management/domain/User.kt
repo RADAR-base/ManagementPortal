@@ -47,59 +47,49 @@ class User : AbstractEntity(), Serializable {
     override var id: Long? = null
 
     @Column(length = 50, unique = true, nullable = false)
-    @NotNull @Pattern(regexp = Constants.ENTITY_ID_REGEX) @Size(min = 1, max = 50) var login: String? = null
+    var login: @NotNull @Pattern(regexp = Constants.ENTITY_ID_REGEX) @Size(min = 1, max = 50) String? = null
         private set
 
     @JvmField
     @JsonIgnore
     @Column(name = "password_hash", length = 60)
-    @NotNull @Size(min = 60, max = 60) var password: String? = null
+    var password: @NotNull @Size(min = 60, max = 60) String? = null
 
     @JvmField
     @Column(name = "first_name", length = 50)
-    @Size(max = 50) var firstName: String? = null
+    var firstName: @Size(max = 50) String? = null
 
     @JvmField
     @Column(name = "last_name", length = 50)
-    @Size(max = 50) var lastName: String? = null
+    var lastName: @Size(max = 50) String? = null
 
     @JvmField
     @Column(length = 100, unique = true, nullable = true)
-    @Email @Size(min = 5, max = 100) var email: String? = null
+    var email: @Email @Size(min = 5, max = 100) String? = null
 
     @JvmField
     @Column(nullable = false)
-    @NotNull var activated: Boolean = false
+    var activated: @NotNull Boolean = false
 
     @JvmField
     @Column(name = "lang_key", length = 5)
-    @Size(min = 2, max = 5) var langKey: String? = null
+    var langKey: @Size(min = 2, max = 5) String? = null
 
     @JvmField
     @Column(name = "activation_key", length = 20)
     @JsonIgnore
-    @Size(max = 20) var activationKey: String? = null
+    var activationKey: @Size(max = 20) String? = null
 
     @JvmField
     @Column(name = "reset_key", length = 20)
-    @Size(max = 20) var resetKey: String? = null
+    var resetKey: @Size(max = 20) String? = null
 
     @JvmField
     @Column(name = "reset_date")
     var resetDate: ZonedDateTime? = null
 
-    /** Identifier for association with the identity service provider.
-     * Null if not linked to an external identity. */
-    var identity: String? = null
-
-    /** Authorities that a user has.  */
-    val authorities: Set<String>
-        get() {
-            return roles.mapNotNull { obj: Role? -> obj?.authority?.name }.toSet()
-        }
-
     @JvmField
-    @JsonSetter(nulls = Nulls.AS_EMPTY)
+    @set:JsonSetter(nulls = Nulls.AS_EMPTY)
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "role_users",
@@ -111,12 +101,17 @@ class User : AbstractEntity(), Serializable {
     @Cascade(
         CascadeType.SAVE_UPDATE
     )
-    var roles: MutableSet<Role> = HashSet()
+    //TODO remove ?
+    var roles: MutableSet<Role>? = HashSet()
 
     //Lowercase the login before saving it in database
-    fun setLogin(login: String?) {
-        this.login = login?.lowercase()
+    fun setLogin(login: String) {
+        this.login = login.lowercase()
     }
+
+    val authorities: Set<Authority?>?
+        /** Authorities that a user has.  */
+        get() = roles?.map { obj: Role? -> obj?.authority }?.toSet()
 
     override fun equals(other: Any?): Boolean {
         if (this === other) {

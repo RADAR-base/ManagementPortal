@@ -40,7 +40,7 @@ class Group : AbstractEntity(), Serializable {
 
     @JvmField
     @Column(name = "name", length = 50, nullable = false)
-    @NotNull @Pattern(regexp = Constants.ENTITY_ID_REGEX) @Size(min = 1, max = 50) var name: String? = null
+    var name: @NotNull @Pattern(regexp = Constants.ENTITY_ID_REGEX) @Size(min = 1, max = 50) String? = null
 
     @JvmField
     @JsonIgnore
@@ -48,14 +48,14 @@ class Group : AbstractEntity(), Serializable {
     @JoinColumn(name = "project_id", nullable = false)
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     var project: Project? = null
-    override fun equals(other: Any?): Boolean {
-        if (this === other) {
+    override fun equals(o: Any?): Boolean {
+        if (this === o) {
             return true
         }
-        if (other == null || javaClass != other.javaClass) {
+        if (o == null || javaClass != o.javaClass) {
             return false
         }
-        val group = other as Group
+        val group = o as Group
         return if (group.id == null || id == null) {
             false
         } else id == group.id

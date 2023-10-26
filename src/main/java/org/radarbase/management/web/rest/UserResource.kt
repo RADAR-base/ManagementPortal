@@ -96,39 +96,38 @@ class UserResource(
     @PostMapping("/users")
     @Timed
     @Throws(URISyntaxException::class, NotAuthorizedException::class)
-    suspend fun createUser(@RequestBody managedUserVm: ManagedUserVM): ResponseEntity<User?> {
+    fun createUser(@RequestBody managedUserVm: ManagedUserVM): ResponseEntity<User?> {
         log.debug("REST request to save User : {}", managedUserVm)
         authService.checkPermission(Permission.USER_CREATE)
         return if (managedUserVm.id != null) {
             ResponseEntity.badRequest().headers(
-                HeaderUtil.createFailureAlert(
-                    EntityName.USER, "idexists", "A new user cannot already have an ID"
-                )
-            ).body(null)
+                    HeaderUtil.createFailureAlert(
+                        EntityName.USER, "idexists", "A new user cannot already have an ID"
+                    )
+                ).body(null)
             // Lowercase the user login before comparing with database
-        } else if (managedUserVm.login?.lowercase().let { userRepository.findOneByLogin(it) } != null) {
+        } else if (userRepository.findOneByLogin(managedUserVm.login.lowercase()).isPresent) {
             ResponseEntity.badRequest().headers(
-                HeaderUtil.createFailureAlert(
-                    EntityName.USER, "userexists", "Login already in use"
-                )
-            ).body(null)
-        } else if (managedUserVm.email?.let { userRepository.findOneByEmail(it) } != null) {
+                    HeaderUtil.createFailureAlert(
+                            EntityName.USER, "userexists", "Login already in use"
+                        )
+                ).body(null)
+        } else if (userRepository.findOneByEmail(managedUserVm.email).isPresent) {
             ResponseEntity.badRequest().headers(
-                HeaderUtil.createFailureAlert(
-                    EntityName.USER, "emailexists", "Email already in use"
-                )
-            ).body(null)
+                    HeaderUtil.createFailureAlert(
+                            EntityName.USER, "emailexists", "Email already in use"
+                        )
+                ).body(null)
         } else {
-            val newUser: User;
-            newUser = userService.createUser(managedUserVm)
+            val newUser = userService.createUser(managedUserVm)
             mailService.sendCreationEmail(
                 newUser, managementPortalProperties.common.activationKeyTimeoutInSeconds.toLong()
             )
             ResponseEntity.created(ResourceUriService.getUri(newUser)).headers(
-                HeaderUtil.createAlert(
-                    "userManagement.created", newUser.login
-                )
-            ).body(newUser)
+                    HeaderUtil.createAlert(
+                        "userManagement.created", newUser.login
+                    )
+                ).body(newUser)
         }
     }
 
@@ -143,35 +142,34 @@ class UserResource(
     @PutMapping("/users")
     @Timed
     @Throws(NotAuthorizedException::class)
-    suspend fun updateUser(@RequestBody managedUserVm: ManagedUserVM): ResponseEntity<UserDTO> {
+    fun updateUser(@RequestBody managedUserVm: ManagedUserVM): ResponseEntity<UserDTO> {
         log.debug("REST request to update User : {}", managedUserVm)
         authService.checkPermission(Permission.USER_UPDATE, { e: EntityDetails -> e.user(managedUserVm.login) })
-        var existingUser = managedUserVm.email?.let { userRepository.findOneByEmail(it) }
-        if (existingUser != null && existingUser.id != managedUserVm.id) {
+        var existingUser = userRepository.findOneByEmail(managedUserVm.email)
+        if (existingUser.isPresent && existingUser.get().id != managedUserVm.id) {
             throw BadRequestException("Email already in use", EntityName.USER, "emailexists")
         }
-        existingUser = managedUserVm.login?.lowercase().let {
-            userRepository.findOneByLogin(
-                it
-            )
-        }
-        if (existingUser != null && existingUser.id != managedUserVm.id) {
+        existingUser = userRepository.findOneByLogin(
+            managedUserVm.login.lowercase()
+        )
+        if (existingUser.isPresent && existingUser.get().id != managedUserVm.id) {
             throw BadRequestException("Login already in use", EntityName.USER, "emailexists")
         }
         val subject = subjectRepository.findOneWithEagerBySubjectLogin(managedUserVm.login)
-        if (subject != null && managedUserVm.isActivated && subject.removed) {
+        if (subject.isPresent && managedUserVm.isActivated && subject.get().isRemoved!!) {
             // if the subject is also a user, check if the removed/activated states are valid
             throw InvalidRequestException(
                 "Subject cannot be the user to request " + "this changes", EntityName.USER, "error.invalidsubjectstate"
             )
         }
-        val updatedUser: UserDTO?
-        updatedUser = userService.updateUser(managedUserVm)
-        return ResponseEntity.ok().headers(
-            HeaderUtil.createAlert("userManagement.updated", managedUserVm.login)
-        ).body(
-            updatedUser
+        val updatedUser: UserDTO? = userService.updateUser(
+            managedUserVm
         )
+        return ResponseEntity.ok().headers(
+                HeaderUtil.createAlert("userManagement.updated", managedUserVm.login)
+            ).body(
+                updatedUser
+            )
     }
 
     /**
@@ -212,11 +210,11 @@ class UserResource(
     @Throws(
         NotAuthorizedException::class
     )
-    fun getUser(@PathVariable login: String): ResponseEntity<UserDTO> {
+    fun getUser(@PathVariable login: String?): ResponseEntity<UserDTO> {
         log.debug("REST request to get User : {}", login)
         authService.checkPermission(Permission.USER_READ, { e: EntityDetails -> e.user(login) })
         return ResponseUtil.wrapOrNotFound(
-            Optional.ofNullable(userService.getUserWithAuthoritiesByLogin(login))
+            userService.getUserWithAuthoritiesByLogin(login)
         )
     }
 
@@ -231,7 +229,7 @@ class UserResource(
     @Throws(
         NotAuthorizedException::class
     )
-    suspend fun deleteUser(@PathVariable login: String): ResponseEntity<Void> {
+    fun deleteUser(@PathVariable login: String?): ResponseEntity<Void> {
         log.debug("REST request to delete User: {}", login)
         authService.checkPermission(Permission.USER_DELETE, { e: EntityDetails -> e.user(login) })
         userService.deleteUser(login)
@@ -249,12 +247,11 @@ class UserResource(
     @Throws(
         NotAuthorizedException::class
     )
-    fun getUserRoles(@PathVariable login: String): ResponseEntity<Set<RoleDTO>> {
+    fun getUserRoles(@PathVariable login: String?): ResponseEntity<Set<RoleDTO>> {
         log.debug("REST request to read User roles: {}", login)
         authService.checkPermission(Permission.ROLE_READ, { e: EntityDetails -> e.user(login) })
-        return ResponseUtil.wrapOrNotFound(
-            Optional.ofNullable(userService.getUserWithAuthoritiesByLogin(login).let { obj: UserDTO? -> obj?.roles })
-        )
+        return ResponseUtil.wrapOrNotFound(userService.getUserWithAuthoritiesByLogin(login)
+            .map { obj: UserDTO -> obj.roles })
     }
 
     /**
@@ -268,7 +265,7 @@ class UserResource(
     @Throws(
         NotAuthorizedException::class
     )
-    suspend fun putUserRoles(
+    fun putUserRoles(
         @PathVariable login: String?, @RequestBody roleDtos: Set<RoleDTO>?
     ): ResponseEntity<Void> {
         log.debug("REST request to update User roles: {} to {}", login, roleDtos)

@@ -1,15 +1,5 @@
 package org.radarbase.management.service
 
-import io.ktor.client.*
-import io.ktor.client.call.*
-import io.ktor.client.engine.cio.*
-import io.ktor.client.plugins.*
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.request.*
-import io.ktor.http.*
-import io.ktor.serialization.kotlinx.json.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import org.radarbase.auth.authorization.EntityDetails
 import org.radarbase.auth.authorization.Permission
 import org.radarbase.auth.authorization.RoleAuthority
@@ -41,24 +31,28 @@ import org.springframework.transaction.annotation.Transactional
 import java.time.Period
 import java.time.ZonedDateTime
 import java.util.*
+import java.util.Map
 import java.util.function.Function
+import java.util.stream.Collectors
+import kotlin.collections.HashSet
+import kotlin.collections.MutableSet
+import kotlin.collections.Set
+import kotlin.collections.setOf
 
 /**
  * Service class for managing users.
  */
 @Service
 @Transactional
-class UserService @Autowired constructor(
-    private val userRepository: UserRepository,
-    private val passwordService: PasswordService,
-    private val userMapper: UserMapper,
-    private val revisionService: RevisionService,
-    private val managementPortalProperties: ManagementPortalProperties,
-    private val authService: AuthService,
-    private val identityService: IdentityService
+open class UserService(
+    @Autowired private val userRepository: UserRepository,
+    @Autowired private val passwordService: PasswordService,
+    @Autowired private val roleService: RoleService,
+    @Autowired private val userMapper: UserMapper,
+    @Autowired private val revisionService: RevisionService,
+    @Autowired private val managementPortalProperties: ManagementPortalProperties,
+    @Autowired private val authService: AuthService
 ) {
-    @Autowired
-    lateinit var roleService: RoleService
 
     /**
      * Activate a user with the given activation key.
@@ -66,20 +60,15 @@ class UserService @Autowired constructor(
      * @return an [Optional] which is populated with the activated user if the registration
      * key was found, and is empty otherwise.
      */
-    fun activateRegistration(key: String): User {
+    fun activateRegistration(key: String?): Optional<User> {
         log.debug("Activating user for activation key {}", key)
-        return userRepository.findOneByActivationKey(key).let { user: User? ->
-            // activate given user for the registration key.
-            user?.activated = true
-            user?.activationKey = null
-            log.debug("Activated user: {}", user)
-            user
-        } ?: throw NotFoundException(
-            "User with activation key $key not found",
-            EntityName.USER,
-            ErrorConstants.ERR_ENTITY_NOT_FOUND,
-            mapOf(Pair("activationKey", key))
-        )
+        return userRepository.findOneByActivationKey(key).map { user: User ->
+                // activate given user for the registration key.
+                user.activated = true
+                user.activationKey = null
+                log.debug("Activated user: {}", user)
+                user
+            }
     }
 
     /**
@@ -89,20 +78,20 @@ class UserService @Autowired constructor(
      * @return an [Optional] which is populated with the user whose password was reset if
      * the reset key was found, and is empty otherwise
      */
-    fun completePasswordReset(newPassword: String, key: String): User? {
+    fun completePasswordReset(newPassword: String?, key: String?): Optional<User> {
         log.debug("Reset user password for reset key {}", key)
-        val user = userRepository.findOneByResetKey(key)
-        val oneDayAgo = ZonedDateTime.now().minusSeconds(
-            managementPortalProperties.common.activationKeyTimeoutInSeconds.toLong()
-        )
-        return if (user?.resetDate?.isAfter(oneDayAgo) == true) {
-            user.password = passwordService.encode(newPassword)
-            user.resetKey = null
-            user.resetDate = null
-            user.activated = true
-            user
-        } else
-            null
+        return userRepository.findOneByResetKey(key).filter { user: User ->
+                val oneDayAgo = ZonedDateTime.now().minusSeconds(
+                        managementPortalProperties.common.activationKeyTimeoutInSeconds.toLong()
+                    )
+                user.resetDate!!.isAfter(oneDayAgo)
+            }.map { user: User ->
+                user.password = passwordService.encode(newPassword)
+                user.resetKey = null
+                user.resetDate = null
+                user.activated = true
+                user
+            }
     }
 
     /**
@@ -114,14 +103,12 @@ class UserService @Autowired constructor(
      * @return an [Optional] which holds the user if an deactivated user was found with the
      * given login, and is empty otherwise
      */
-    fun requestActivationReset(login: String): User? {
-        val user = userRepository.findOneByLogin(login)
-        if (user?.activated != true) {
-            user?.resetKey = passwordService.generateResetKey()
-            user?.resetDate = ZonedDateTime.now()
-        }
-
-        return user
+    fun requestActivationReset(login: String?): Optional<User> {
+        return userRepository.findOneByLogin(login).filter { p: User -> !p.activated }.map { user: User ->
+                user.resetKey = passwordService.generateResetKey()
+                user.resetDate = ZonedDateTime.now()
+                user
+            }
     }
 
     /**
@@ -130,14 +117,12 @@ class UserService @Autowired constructor(
      * @return an [Optional] which holds the user if an activated user was found with the
      * given email address, and is empty otherwise
      */
-    fun requestPasswordReset(mail: String): User? {
-        val user = userRepository.findOneByEmail(mail)
-        return if (user?.activated == true) {
-            user.resetKey = passwordService.generateResetKey()
-            user.resetDate = ZonedDateTime.now()
-            user
-        } else
-            null
+    fun requestPasswordReset(mail: String?): Optional<User> {
+        return userRepository.findOneByEmail(mail).filter(User::activated).map<User> { user: User ->
+                user.resetKey = passwordService.generateResetKey()
+                user.resetDate = ZonedDateTime.now()
+                user
+            }
     }
 
     /**
@@ -151,7 +136,7 @@ class UserService @Autowired constructor(
      * @return the newly created user
      */
     @Throws(NotAuthorizedException::class)
-    suspend fun createUser(userDto: UserDTO): User {
+    fun createUser(userDto: UserDTO): User {
         var user = User()
         user.setLogin(userDto.login)
         user.firstName = userDto.firstName
@@ -165,43 +150,31 @@ class UserService @Autowired constructor(
         user.password = passwordService.generateEncodedPassword()
         user.resetKey = passwordService.generateResetKey()
         user.resetDate = ZonedDateTime.now()
-        user.activated = false //TODO autoactivation, desirable?
-        user.roles = getUserRoles(userDto.roles, mutableSetOf())
-
-        try{
-            user.identity = identityService.saveAsIdentity(user)?.id
-        }
-        catch (e: Throwable) {
-            log.warn("could not save user ${user.login} as identity", e)
-        }
-
-        user = withContext(Dispatchers.IO) {
-            userRepository.save(user)
-        }
-
+        user.activated = false
+        user.roles = getUserRoles(userDto.roles, setOf<Role>())
+        user = userRepository.save(user)
         log.debug("Created Information for User: {}", user)
-
         return user
     }
 
     @Throws(NotAuthorizedException::class)
-    private fun getUserRoles(roleDtos: Set<RoleDTO>?, oldRoles: MutableSet<Role>): MutableSet<Role> {
+    private fun getUserRoles(roleDtos: Set<RoleDTO>?, oldRoles: Set<Role>): MutableSet<Role>? {
         if (roleDtos == null) {
-            return mutableSetOf()
+            return null
         }
-        val roles = roleDtos.map { roleDto: RoleDTO ->
-            val authority = getRoleAuthority(roleDto)
-            when (authority.scope) {
-                RoleAuthority.Scope.GLOBAL -> roleService.getGlobalRole(authority)
-                RoleAuthority.Scope.ORGANIZATION -> roleService.getOrganizationRole(
-                    authority, roleDto.organizationId!!
-                )
+        val roles = roleDtos.stream().map { roleDto: RoleDTO ->
+                val authority = getRoleAuthority(roleDto)
+                when (authority.scope) {
+                    RoleAuthority.Scope.GLOBAL -> roleService.getGlobalRole(authority)
+                    RoleAuthority.Scope.ORGANIZATION -> roleService.getOrganizationRole(
+                        authority, roleDto.organizationId
+                    )
 
-                RoleAuthority.Scope.PROJECT -> roleService.getProjectRole(
-                    authority, roleDto.projectId!!
-                )
-            }
-        }.toMutableSet()
+                    RoleAuthority.Scope.PROJECT -> roleService.getProjectRole(
+                        authority, roleDto.projectId
+                    )
+                }
+            }.collect(Collectors.toSet())
         checkAuthorityForRoleChange(roles, oldRoles)
         return roles
     }
@@ -228,7 +201,7 @@ class UserService @Autowired constructor(
                 RoleAuthority.Scope.ORGANIZATION -> e.organization(role.organization?.name)
                 RoleAuthority.Scope.PROJECT -> {
                     if (role.project?.organization != null) {
-                        e.organization(role.project?.organizationName)
+                        e.organization(role.project?.organization?.name)
                     }
                     e.project(role.project?.projectName)
                 }
@@ -246,28 +219,30 @@ class UserService @Autowired constructor(
      * @param email email id of user
      * @param langKey language key
      */
-    suspend fun updateUser(
-        userName: String, firstName: String?, lastName: String?, email: String?, langKey: String?
+    fun updateUser(
+        userName: String, firstName: String?, lastName: String?, email: String, langKey: String?
     ) {
-        val userWithEmail = email?.let { userRepository.findOneByEmail(it) }
+        val userWithEmail = userRepository.findOneByEmail(email)
         val user: User
-        if (userWithEmail != null) {
-            user = userWithEmail
+        if (userWithEmail.isPresent) {
+            user = userWithEmail.get()
             if (!user.login.equals(userName, ignoreCase = true)) {
                 throw ConflictException(
                     "Email address $email already in use",
                     EntityName.USER,
                     ErrorConstants.ERR_EMAIL_EXISTS,
-                    mapOf(Pair("email", email))
+                    Map.of("email", email)
                 )
             }
         } else {
-            user = userRepository.findOneByLogin(userName) ?: throw NotFoundException(
-                "User with login $userName not found",
-                EntityName.USER,
-                ErrorConstants.ERR_ENTITY_NOT_FOUND,
-                mapOf(Pair("user", userName))
-            )
+            user = userRepository.findOneByLogin(userName).orElseThrow {
+                    NotFoundException(
+                        "User with login $userName not found",
+                        EntityName.USER,
+                        ErrorConstants.ERR_ENTITY_NOT_FOUND,
+                        Map.of("user", userName)
+                    )
+                }
         }
         user.firstName = firstName
         user.lastName = lastName
@@ -275,13 +250,6 @@ class UserService @Autowired constructor(
         user.langKey = langKey
         log.debug("Changed Information for User: {}", user)
         userRepository.save(user)
-
-        try {
-            identityService.updateAssociatedIdentity(user)
-        }
-        catch (e: Throwable){
-            log.warn(e.message, e)
-        }
     }
 
     /**
@@ -292,9 +260,9 @@ class UserService @Autowired constructor(
      */
     @Transactional
     @Throws(NotAuthorizedException::class)
-    suspend fun updateUser(userDto: UserDTO): UserDTO? {
-        val userOpt = userDto.id?.let { userRepository.findById(it) }
-        return if (userOpt?.isPresent == true) {
+    open fun updateUser(userDto: UserDTO): UserDTO? {
+        val userOpt = userRepository.findById(userDto.id)
+        return if (userOpt.isPresent) {
             var user = userOpt.get()
             user.firstName = userDto.firstName
             user.lastName = userDto.lastName
@@ -303,17 +271,10 @@ class UserService @Autowired constructor(
             user.langKey = userDto.langKey
             val managedRoles = user.roles
             val oldRoles = java.util.Set.copyOf(managedRoles)
-            managedRoles.clear()
-            managedRoles.addAll(getUserRoles(userDto.roles, oldRoles))
+            managedRoles?.clear()
+            managedRoles?.addAll(getUserRoles(userDto.roles, oldRoles)!!)
             user = userRepository.save(user)
             log.debug("Changed Information for User: {}", user)
-            try{
-                identityService.updateAssociatedIdentity(user)
-            }
-            catch (e: Throwable) {
-                log.warn("could not delete user ${user.login} with identity ${user.identity} from IDP", e)
-            }
-
             userMapper.userToUserDTO(user)
         } else {
             null
@@ -324,19 +285,10 @@ class UserService @Autowired constructor(
      * Delete the user with the given login.
      * @param login the login to delete
      */
-    suspend fun deleteUser(login: String) {
-        val user = userRepository.findOneByLogin(login)
-        if (user != null) {
+    fun deleteUser(login: String?) {
+        userRepository.findOneByLogin(login).ifPresent { user: User ->
             userRepository.delete(user)
-            try {
-                identityService.deleteAssociatedIdentity(user.identity)
-            }
-            catch (e: Throwable){
-                log.warn(e.message, e)
-            }
             log.debug("Deleted User: {}", user)
-        } else {
-            log.warn("could not delete User with login: {}", login)
         }
     }
 
@@ -344,11 +296,12 @@ class UserService @Autowired constructor(
      * Change the password of the user with the given login.
      * @param password the new password
      */
-    fun changePassword(password: String) {
-        val currentUser = SecurityUtils.currentUserLogin
-            ?: throw InvalidRequestException(
-                "Cannot change password of unknown user", "", ErrorConstants.ERR_ENTITY_NOT_FOUND
-            )
+    fun changePassword(password: String?) {
+        val currentUser = SecurityUtils.getCurrentUserLogin().orElseThrow {
+                InvalidRequestException(
+                    "Cannot change password of unknown user", null, ErrorConstants.ERR_ENTITY_NOT_FOUND
+                )
+            }
         changePassword(currentUser, password)
     }
 
@@ -357,15 +310,12 @@ class UserService @Autowired constructor(
      * @param password the new password
      * @param login of the user to change password
      */
-    fun changePassword(login: String, password: String) {
-        val user = userRepository.findOneByLogin(login)
-
-        if (user != null) {
+    fun changePassword(login: String?, password: String?) {
+        userRepository.findOneByLogin(login).ifPresent { user: User ->
             val encryptedPassword = passwordService.encode(password)
             user.password = encryptedPassword
             log.debug("Changed password for User: {}", user)
         }
-
     }
 
     /**
@@ -374,7 +324,7 @@ class UserService @Autowired constructor(
      * @return the requested page of users
      */
     @Transactional(readOnly = true)
-    fun getAllManagedUsers(pageable: Pageable): Page<UserDTO> {
+    open fun getAllManagedUsers(pageable: Pageable?): Page<UserDTO> {
         log.debug("Request to get all Users")
         return userRepository.findAllByLoginNot(pageable, Constants.ANONYMOUS_USER)
             .map { user: User? -> userMapper.userToUserDTO(user) }
@@ -387,18 +337,18 @@ class UserService @Autowired constructor(
      * and is empty otherwise
      */
     @Transactional(readOnly = true)
-    fun getUserWithAuthoritiesByLogin(login: String): UserDTO? {
-        return userMapper.userToUserDTO(userRepository.findOneWithRolesByLogin(login))
+    open fun getUserWithAuthoritiesByLogin(login: String?): Optional<UserDTO> {
+        return userRepository.findOneWithRolesByLogin(login).map { user: User? -> userMapper.userToUserDTO(user) }
     }
 
-    @Transactional(readOnly = true)
-    /**
-     * Get the current user.
-     * @return the currently authenticated user, or null if no user is currently authenticated
-     */
-    fun getUserWithAuthorities(): User? {
-        return SecurityUtils.currentUserLogin?.let { userRepository.findOneWithRolesByLogin(it) }
-    }
+    @get:Transactional(readOnly = true)
+    open val userWithAuthorities: Optional<User>
+        /**
+         * Get the current user.
+         * @return the currently authenticated user, or null if no user is currently authenticated
+         */
+        get() = SecurityUtils.getCurrentUserLogin()
+            .flatMap { currentUser: String? -> userRepository.findOneWithRolesByLogin(currentUser) }
 
     /**
      * Not activated users should be automatically deleted after 3 days.
@@ -456,29 +406,20 @@ class UserService @Autowired constructor(
      */
     @Transactional
     @Throws(NotAuthorizedException::class)
-    suspend fun updateRoles(login: String, roleDtos: Set<RoleDTO>?) {
-        val user = userRepository.findOneByLogin(login)
-            ?: throw NotFoundException(
-                "User with login $login not found",
-                EntityName.USER,
-                ErrorConstants.ERR_ENTITY_NOT_FOUND,
-                mapOf(Pair("user", login))
-            )
-
+    open fun updateRoles(login: String, roleDtos: Set<RoleDTO>?) {
+        val user = userRepository.findOneByLogin(login).orElseThrow {
+                NotFoundException(
+                    "User with login $login not found",
+                    EntityName.USER,
+                    ErrorConstants.ERR_ENTITY_NOT_FOUND,
+                    Map.of("user", login)
+                )
+            }
         val managedRoles = user.roles
-        val oldRoles = managedRoles.toMutableSet()
-
-        managedRoles.clear()
-        roleDtos?.let { getUserRoles(it, oldRoles) }?.let { managedRoles.addAll(it) }
-            ?: throw Exception("could not add roles for user: $user")
+        val oldRoles = java.util.Set.copyOf(managedRoles)
+        managedRoles?.clear()
+        managedRoles?.addAll(getUserRoles(roleDtos, oldRoles)!!)
         userRepository.save(user)
-
-        try {
-            identityService.updateAssociatedIdentity(user)
-        }
-        catch (e: Throwable){
-            log.warn(e.message, e)
-        }
     }
 
     companion object {

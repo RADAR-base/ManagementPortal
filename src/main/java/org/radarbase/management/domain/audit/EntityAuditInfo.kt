@@ -1,83 +1,62 @@
-package org.radarbase.management.domain.audit;
+package org.radarbase.management.domain.audit
 
-import java.time.ZonedDateTime;
-import java.util.Objects;
+import java.time.ZonedDateTime
 
 /**
  * POJO only used to easily get entity audit information, i.e. created by, created at, modified
  * by and modified at.
  */
-public class EntityAuditInfo {
-    private ZonedDateTime createdAt;
-    private String createdBy;
-    private ZonedDateTime lastModifiedAt;
-    private String lastModifiedBy;
+class EntityAuditInfo {
+    var createdAt: ZonedDateTime? = null
+        private set
+    var createdBy: String? = null
+        private set
+    var lastModifiedAt: ZonedDateTime? = null
+        private set
+    var lastModifiedBy: String? = null
+        private set
 
-    public ZonedDateTime getCreatedAt() {
-        return createdAt;
+    fun setCreatedAt(createdAt: ZonedDateTime?): EntityAuditInfo {
+        this.createdAt = createdAt
+        return this
     }
 
-    public EntityAuditInfo setCreatedAt(ZonedDateTime createdAt) {
-        this.createdAt = createdAt;
-        return this;
+    fun setCreatedBy(createdBy: String?): EntityAuditInfo {
+        this.createdBy = createdBy
+        return this
     }
 
-    public String getCreatedBy() {
-        return createdBy;
+    fun setLastModifiedAt(lastModifiedAt: ZonedDateTime?): EntityAuditInfo {
+        this.lastModifiedAt = lastModifiedAt
+        return this
     }
 
-    public EntityAuditInfo setCreatedBy(String createdBy) {
-        this.createdBy = createdBy;
-        return this;
+    fun setLastModifiedBy(lastModifiedBy: String?): EntityAuditInfo {
+        this.lastModifiedBy = lastModifiedBy
+        return this
     }
 
-    public ZonedDateTime getLastModifiedAt() {
-        return lastModifiedAt;
-    }
-
-    public EntityAuditInfo setLastModifiedAt(ZonedDateTime lastModifiedAt) {
-        this.lastModifiedAt = lastModifiedAt;
-        return this;
-    }
-
-    public String getLastModifiedBy() {
-        return lastModifiedBy;
-    }
-
-    public EntityAuditInfo setLastModifiedBy(String lastModifiedBy) {
-        this.lastModifiedBy = lastModifiedBy;
-        return this;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
+    override fun equals(o: Any?): Boolean {
+        if (this === o) {
+            return true
         }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
+        if (o == null || javaClass != o.javaClass) {
+            return false
         }
-
-        EntityAuditInfo that = (EntityAuditInfo) o;
-
-        return Objects.equals(createdAt, that.createdAt)
-                && Objects.equals(createdBy, that.createdBy)
-                && Objects.equals(lastModifiedAt, that.lastModifiedAt)
-                && Objects.equals(lastModifiedBy, that.lastModifiedBy);
+        val that = o as EntityAuditInfo
+        return createdAt == that.createdAt && createdBy == that.createdBy && lastModifiedAt == that.lastModifiedAt && lastModifiedBy == that.lastModifiedBy
     }
 
-    @Override
-    public int hashCode() {
-        return lastModifiedAt != null ? lastModifiedAt.hashCode() : 0;
+    override fun hashCode(): Int {
+        return if (lastModifiedAt != null) lastModifiedAt.hashCode() else 0
     }
 
-    @Override
-    public String toString() {
-        return "EntityAuditInfo{"
+    override fun toString(): String {
+        return ("EntityAuditInfo{"
                 + "createdAt=" + createdAt
                 + ", createdBy='" + createdBy + '\''
                 + ", lastModifiedAt=" + lastModifiedAt
                 + ", lastModifiedBy='" + lastModifiedBy + '\''
-                + '}';
+                + '}')
     }
 }
