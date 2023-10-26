@@ -81,15 +81,15 @@ public class MailService {
      */
     @Async
     public void sendActivationEmail(User user) {
-        log.debug("Sending activation email to '{}'", user.getEmail());
-        Locale locale = Locale.forLanguageTag(user.getLangKey());
+        log.debug("Sending activation email to '{}'", user.email);
+        Locale locale = Locale.forLanguageTag(user.langKey);
         Context context = new Context(locale);
         context.setVariable(USER, user);
         context.setVariable(BASE_URL,
                 managementPortalProperties.getCommon().getManagementPortalBaseUrl());
         String content = templateEngine.process("activationEmail", context);
         String subject = messageSource.getMessage("email.activation.title", null, locale);
-        sendEmail(user.getEmail(), subject, content, false, true);
+        sendEmail(user.email, subject, content, false, true);
     }
 
     /**
@@ -98,8 +98,8 @@ public class MailService {
      */
     @Async
     public void sendCreationEmail(User user, long duration) {
-        log.debug("Sending creation email to '{}'", user.getEmail());
-        Locale locale = Locale.forLanguageTag(user.getLangKey());
+        log.debug("Sending creation email to '{}'", user.email);
+        Locale locale = Locale.forLanguageTag(user.langKey);
         Context context = new Context(locale);
         context.setVariable(USER, user);
         context.setVariable(BASE_URL,
@@ -107,7 +107,7 @@ public class MailService {
         context.setVariable(EXPIRY, Duration.ofSeconds(duration).toHours());
         String content = templateEngine.process("creationEmail", context);
         String subject = messageSource.getMessage("email.activation.title", null, locale);
-        sendEmail(user.getEmail(), subject, content, false, true);
+        sendEmail(user.email, subject, content, false, true);
     }
 
     /**
@@ -118,7 +118,7 @@ public class MailService {
     @Async
     public void sendCreationEmailForGivenEmail(User user, String email) {
         log.debug("Sending creation email to '{}'", email);
-        Locale locale = Locale.forLanguageTag(user.getLangKey());
+        Locale locale = Locale.forLanguageTag(user.langKey);
         Context context = new Context(locale);
         context.setVariable(USER, user);
         context.setVariable(BASE_URL,
@@ -134,14 +134,14 @@ public class MailService {
      */
     @Async
     public void sendPasswordResetMail(User user) {
-        log.debug("Sending password reset email to '{}'", user.getEmail());
-        Locale locale = Locale.forLanguageTag(user.getLangKey());
+        log.debug("Sending password reset email to '{}'", user.email);
+        Locale locale = Locale.forLanguageTag(user.langKey);
         Context context = new Context(locale);
         context.setVariable(USER, user);
         context.setVariable(BASE_URL,
                 managementPortalProperties.getCommon().getManagementPortalBaseUrl());
         String content = templateEngine.process("passwordResetEmail", context);
         String subject = messageSource.getMessage("email.reset.title", null, locale);
-        sendEmail(user.getEmail(), subject, content, false, true);
+        sendEmail(user.email, subject, content, false, true);
     }
 }

@@ -160,14 +160,14 @@ class SourceDataResourceIntTest {
         List<SourceData> sourceDataList = sourceDataRepository.findAll();
         assertThat(sourceDataList).hasSize(databaseSizeBeforeCreate + 1);
         SourceData testSourceData = sourceDataList.get(sourceDataList.size() - 1);
-        assertThat(testSourceData.getSourceDataType()).isEqualTo(DEFAULT_SOURCE_DATA_TYPE);
-        assertThat(testSourceData.getSourceDataName()).isEqualTo(DEFAULT_SOURCE_DATA_NAME);
-        assertThat(testSourceData.getProcessingState()).isEqualTo(DEFAULT_PROCESSING_STATE);
-        assertThat(testSourceData.getKeySchema()).isEqualTo(DEFAULT_KEY_SCHEMA);
-        assertThat(testSourceData.getValueSchema()).isEqualTo(DEFAULT_VALUE_SCHEMA);
-        assertThat(testSourceData.getFrequency()).isEqualTo(DEFAULT_FREQUENCY);
-        assertThat(testSourceData.getTopic()).isEqualTo(DEFAULT_TOPIC);
-        assertThat(testSourceData.getUnit()).isEqualTo(DEFAULT_UNTI);
+        assertThat(testSourceData.sourceDataType).isEqualTo(DEFAULT_SOURCE_DATA_TYPE);
+        assertThat(testSourceData.sourceDataName).isEqualTo(DEFAULT_SOURCE_DATA_NAME);
+        assertThat(testSourceData.processingState).isEqualTo(DEFAULT_PROCESSING_STATE);
+        assertThat(testSourceData.keySchema).isEqualTo(DEFAULT_KEY_SCHEMA);
+        assertThat(testSourceData.valueSchema).isEqualTo(DEFAULT_VALUE_SCHEMA);
+        assertThat(testSourceData.frequency).isEqualTo(DEFAULT_FREQUENCY);
+        assertThat(testSourceData.topic).isEqualTo(DEFAULT_TOPIC);
+        assertThat(testSourceData.unit).isEqualTo(DEFAULT_UNTI);
     }
 
     @Test
@@ -195,7 +195,7 @@ class SourceDataResourceIntTest {
     void checkSourceDataTypeIsNotRequired() throws Exception {
         final int databaseSizeBeforeTest = sourceDataRepository.findAll().size();
         // set the field null
-        sourceData.setSourceDataType(null);
+        sourceData.sourceDataType = null;
 
         // Create the SourceData, which fails.
         SourceDataDTO sourceDataDto = sourceDataMapper.sourceDataToSourceDataDTO(sourceData);
@@ -215,8 +215,8 @@ class SourceDataResourceIntTest {
     void checkSourceDataTypeOrTopicIsRequired() throws Exception {
         final int databaseSizeBeforeTest = sourceDataRepository.findAll().size();
         // set the field null
-        sourceData.setSourceDataType(null);
-        sourceData.setTopic(null);
+        sourceData.sourceDataType = null;
+        sourceData.topic = null;
 
         // Create the SourceData, which fails.
         SourceDataDTO sourceDataDto = sourceDataMapper.sourceDataToSourceDataDTO(sourceData);
@@ -285,7 +285,7 @@ class SourceDataResourceIntTest {
 
         // Get the sourceData
         restSourceDataMockMvc.perform(get("/api/source-data/{sourceDataName}",
-                sourceData.getSourceDataName()))
+                        sourceData.sourceDataName))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(sourceData.getId().intValue()))
@@ -337,14 +337,14 @@ class SourceDataResourceIntTest {
         List<SourceData> sourceDataList = sourceDataRepository.findAll();
         assertThat(sourceDataList).hasSize(databaseSizeBeforeUpdate);
         SourceData testSourceData = sourceDataList.get(sourceDataList.size() - 1);
-        assertThat(testSourceData.getSourceDataType()).isEqualTo(UPDATED_SOURCE_DATA_TYPE);
-        assertThat(testSourceData.getSourceDataName()).isEqualTo(UPDATED_SOURCE_DATA_NAME);
-        assertThat(testSourceData.getProcessingState()).isEqualTo(UPDATED_PROCESSING_STATE);
-        assertThat(testSourceData.getKeySchema()).isEqualTo(UPDATED_KEY_SCHEMA);
-        assertThat(testSourceData.getValueSchema()).isEqualTo(UPDATED_VALUE_SCHEMA);
-        assertThat(testSourceData.getTopic()).isEqualTo(UPDATED_TOPIC);
-        assertThat(testSourceData.getUnit()).isEqualTo(UPDATED_UNIT);
-        assertThat(testSourceData.getFrequency()).isEqualTo(UPDATED_FREQUENCY);
+        assertThat(testSourceData.sourceDataType).isEqualTo(UPDATED_SOURCE_DATA_TYPE);
+        assertThat(testSourceData.sourceDataName).isEqualTo(UPDATED_SOURCE_DATA_NAME);
+        assertThat(testSourceData.processingState).isEqualTo(UPDATED_PROCESSING_STATE);
+        assertThat(testSourceData.keySchema).isEqualTo(UPDATED_KEY_SCHEMA);
+        assertThat(testSourceData.valueSchema).isEqualTo(UPDATED_VALUE_SCHEMA);
+        assertThat(testSourceData.topic).isEqualTo(UPDATED_TOPIC);
+        assertThat(testSourceData.unit).isEqualTo(UPDATED_UNIT);
+        assertThat(testSourceData.frequency).isEqualTo(UPDATED_FREQUENCY);
     }
 
     @Test
@@ -375,7 +375,7 @@ class SourceDataResourceIntTest {
 
         // Get the sourceData
         restSourceDataMockMvc.perform(delete("/api/source-data/{sourceDataName}",
-                sourceData.getSourceDataName())
+                        sourceData.sourceDataName)
                 .accept(TestUtil.APPLICATION_JSON_UTF8))
                 .andExpect(status().isOk());
 

@@ -34,8 +34,8 @@ class AuditEventConverter {
      * @return the converted list.
      */
     fun convertToAuditEvent(persistentAuditEvent: PersistentAuditEvent): AuditEvent {
-        val instant = persistentAuditEvent.auditEventDate.atZone(ZoneId.systemDefault())
-            .toInstant()
+        val instant = persistentAuditEvent.auditEventDate?.atZone(ZoneId.systemDefault())
+            ?.toInstant()
         return AuditEvent(
             instant, persistentAuditEvent.principal,
             persistentAuditEvent.auditEventType,

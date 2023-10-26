@@ -39,18 +39,18 @@ public class DomainUserDetailsService implements UserDetailsService {
         User user = userRepository.findOneWithRolesByLogin(lowercaseLogin)
                 .orElseThrow(() -> new UsernameNotFoundException(
                         "User " + lowercaseLogin + " was not found in the database"));
-        if (!user.getActivated()) {
+        if (!user.activated) {
             throw new UserNotActivatedException("User " + lowercaseLogin
                     + " was not activated");
         }
 
         List<GrantedAuthority> grantedAuthorities = user.getAuthorities().stream()
-                .map(authority -> new SimpleGrantedAuthority(authority.getName()))
+                .map(authority -> new SimpleGrantedAuthority(authority.name))
                 .collect(Collectors.toList());
 
         return new org.springframework.security.core.userdetails.User(
                 lowercaseLogin,
-                user.getPassword(),
+                user.password,
                 grantedAuthorities);
     }
 }

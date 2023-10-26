@@ -96,7 +96,7 @@ class OrganizationResourceIntTest {
 
     @AfterEach
     public void tearDown() {
-        var testOrg = organizationRepository.findOneByName(organization.getName());
+        var testOrg = organizationRepository.findOneByName(organization.name);
         testOrg.ifPresent(organizationRepository::delete);
     }
 
@@ -105,9 +105,9 @@ class OrganizationResourceIntTest {
      */
     private Organization createEntity() {
         var org = new Organization();
-        org.setName("org1");
-        org.setDescription("Test Organization 1");
-        org.setLocation("Somewhere");
+        org.name = "org1";
+        org.description = "Test Organization 1";
+        org.location = "Somewhere";
         return org;
     }
 
@@ -168,7 +168,7 @@ class OrganizationResourceIntTest {
 
         // Get the organization
         restOrganizationMockMvc.perform(get("/api/organizations/{name}",
-                        organization.getName()))
+                        organization.name))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.name").value("org1"));
@@ -191,7 +191,7 @@ class OrganizationResourceIntTest {
 
         // Get the organization
         restOrganizationMockMvc.perform(get("/api/organizations/{name}",
-                        organization.getName()))
+                        organization.name))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.location").value("Other location"));
@@ -201,7 +201,7 @@ class OrganizationResourceIntTest {
     void getNonExistingOrganization() throws Exception {
         // Get the organization
         restOrganizationMockMvc.perform(get("/api/organizations/{name}",
-                        organization.getName()))
+                        organization.name))
                 .andExpect(status().isNotFound());
     }
 
@@ -217,7 +217,7 @@ class OrganizationResourceIntTest {
 
         // Get projects of the organization
         restOrganizationMockMvc.perform(get("/api/organizations/{name}/projects",
-                        organization.getName()))
+                        organization.name))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.[*].projectName").value("organization_project"));

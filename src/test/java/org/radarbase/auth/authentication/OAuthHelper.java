@@ -154,7 +154,7 @@ public final class OAuthHelper {
         User user = new User();
         user.setId(1L);
         user.setLogin("admin");
-        user.setActivated(true);
+        user.activated = true;
         user.setRoles(Set.of(
             new Role(new Authority("ROLE_SYS_ADMIN"))
         ));

@@ -147,6 +147,7 @@ if (project.hasProperty('prod')) {
 ext.findbugAnnotationVersion = '3.0.2'
 
 dependencies {
+    implementation("org.jetbrains.kotlin:kotlin-reflect:1.9.10")
     implementation("tech.jhipster:jhipster-framework:${jhipster_server_version}")
     implementation("tech.jhipster:jhipster-dependencies:${jhipster_server_version}")
     implementation("io.micrometer:micrometer-core")

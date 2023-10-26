@@ -128,16 +128,16 @@ class AccountResourceIntTest {
         Set<org.radarbase.management.domain.Role> roles = new HashSet<>();
         org.radarbase.management.domain.Role role = new org.radarbase.management.domain.Role();
         Authority authority = new Authority();
-        authority.setName(RoleAuthority.SYS_ADMIN.getAuthority());
-        role.setAuthority(authority);
+        authority.name = RoleAuthority.SYS_ADMIN.getAuthority();
+        role.authority = authority;
         roles.add(role);
 
         User user = new User();
         user.setLogin("test");
-        user.setFirstName("john");
-        user.setLastName("doe");
-        user.setEmail("john.doe@jhipster.com");
-        user.setLangKey("en");
+        user.firstName = "john";
+        user.lastName = "doe";
+        user.email = "john.doe@jhipster.com";
+        user.langKey = "en";
         user.setRoles(roles);
         when(mockUserService.getUserWithAuthorities()).thenReturn(Optional.of(user));
 
@@ -164,16 +164,16 @@ class AccountResourceIntTest {
         Set<org.radarbase.management.domain.Role> roles = new HashSet<>();
         org.radarbase.management.domain.Role role = new org.radarbase.management.domain.Role();
         Authority authority = new Authority();
-        authority.setName(RoleAuthority.SYS_ADMIN.getAuthority());
-        role.setAuthority(authority);
+        authority.name = RoleAuthority.SYS_ADMIN.getAuthority();
+        role.authority = authority;
         roles.add(role);
 
         User user = new User();
         user.setLogin("test");
-        user.setFirstName("john");
-        user.setLastName("doe");
-        user.setEmail("john.doe@jhipster.com");
-        user.setLangKey("en");
+        user.firstName = "john";
+        user.lastName = "doe";
+        user.email = "john.doe@jhipster.com";
+        user.langKey = "en";
         user.setRoles(roles);
         when(mockUserService.getUserWithAuthorities()).thenReturn(Optional.of(user));
 

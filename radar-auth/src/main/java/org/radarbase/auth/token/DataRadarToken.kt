@@ -12,7 +12,7 @@ data class DataRadarToken(
      * Get all roles defined in this token.
      * @return non-null set describing the roles defined in this token.
      */
-    override val roles: Set<AuthorityReference>,
+    override val roles: Set<AuthorityReference>?,
 
     /**
      * Get a list of scopes assigned to this token.
@@ -101,7 +101,7 @@ data class DataRadarToken(
         clientId = radarToken.clientId,
     )
 
-    override fun copyWithRoles(roles: Set<AuthorityReference>): DataRadarToken = copy(roles = roles)
+    override fun copyWithRoles(roles: Set<AuthorityReference>?): DataRadarToken = copy(roles = roles)
 
     companion object {
         fun RadarToken.toDataRadarToken(): DataRadarToken = DataRadarToken(this)

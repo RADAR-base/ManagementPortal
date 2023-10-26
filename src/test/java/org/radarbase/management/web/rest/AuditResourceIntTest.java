@@ -95,9 +95,9 @@ class AuditResourceIntTest {
     public void initTest() {
         auditEventRepository.deleteAll();
         auditEvent = new PersistentAuditEvent();
-        auditEvent.setAuditEventType(SAMPLE_TYPE);
-        auditEvent.setPrincipal(SAMPLE_PRINCIPAL);
-        auditEvent.setAuditEventDate(SAMPLE_TIMESTAMP);
+        auditEvent.auditEventType = SAMPLE_TYPE;
+        auditEvent.principal = SAMPLE_PRINCIPAL;
+        auditEvent.auditEventDate = SAMPLE_TIMESTAMP;
     }
 
     @Test
@@ -118,7 +118,7 @@ class AuditResourceIntTest {
         auditEventRepository.save(auditEvent);
 
         // Get the audit
-        restAuditMockMvc.perform(get("/management/audits/{id}", auditEvent.getId()))
+        restAuditMockMvc.perform(get("/management/audits/{id}", auditEvent.id))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.principal").value(SAMPLE_PRINCIPAL));
