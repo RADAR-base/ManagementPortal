@@ -1,56 +1,69 @@
-package org.radarbase.auth.authentication
+package org.radarbase.auth.authentication;
 
-import com.auth0.jwt.JWT
-import com.auth0.jwt.algorithms.Algorithm
-import org.mockito.ArgumentMatchers
-import org.mockito.Mockito
-import org.radarbase.auth.authorization.Permission.Companion.scopes
-import org.radarbase.auth.jwks.JwksTokenVerifierLoader.Companion.toTokenVerifier
-import org.radarbase.management.domain.Authority
-import org.radarbase.management.domain.Role
-import org.radarbase.management.domain.User
-import org.radarbase.management.repository.UserRepository
-import org.radarbase.management.security.JwtAuthenticationFilter
-import org.radarbase.management.security.jwt.ManagementPortalJwtAccessTokenConverter
-import org.slf4j.LoggerFactory
-import org.springframework.mock.web.MockHttpServletRequest
-import org.springframework.security.core.Authentication
-import org.springframework.test.web.servlet.request.RequestPostProcessor
-import java.security.KeyStore
-import java.security.interfaces.ECPrivateKey
-import java.security.interfaces.ECPublicKey
-import java.security.interfaces.RSAPrivateKey
-import java.security.interfaces.RSAPublicKey
-import java.time.Instant
-import java.util.*
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
+import org.radarbase.auth.authorization.Permission;
+import org.radarbase.management.domain.Authority;
+import org.radarbase.management.domain.Role;
+import org.radarbase.management.domain.User;
+import org.radarbase.management.repository.UserRepository;
+import org.radarbase.management.security.JwtAuthenticationFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
+
+import java.io.InputStream;
+import java.security.KeyStore;
+import java.security.cert.Certificate;
+import java.security.interfaces.ECPrivateKey;
+import java.security.interfaces.ECPublicKey;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
+import java.time.Instant;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Stream;
+
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.radarbase.auth.jwks.JwksTokenVerifierLoader.toTokenVerifier;
+import static org.radarbase.management.security.jwt.ManagementPortalJwtAccessTokenConverter.RES_MANAGEMENT_PORTAL;
 
 /**
  * Created by dverbeec on 29/06/2017.
  */
-object OAuthHelper {
-    private val logger = LoggerFactory.getLogger(OAuthHelper::class.java)
-    private var validEcToken: String? = null
-    private var validRsaToken: String? = null
-    const val TEST_KEYSTORE_PASSWORD = "radarbase"
-    const val TEST_SIGNKEY_ALIAS = "radarbase-managementportal-ec"
-    const val TEST_CHECKKEY_ALIAS = "radarbase-managementportal-rsa"
-    val SCOPES = scopes()
-    val AUTHORITIES = arrayOf("ROLE_SYS_ADMIN")
-    val ROLES = arrayOf("ROLE_SYS_ADMIN")
-    val SOURCES = arrayOf<String>()
-    val AUD = arrayOf(ManagementPortalJwtAccessTokenConverter.RES_MANAGEMENT_PORTAL)
-    const val CLIENT = "unit_test"
-    const val USER = "admin"
-    const val ISS = "RADAR"
-    const val JTI = "some-jwt-id"
-    private var verifiers: List<TokenVerifierLoader>? = null
+public final class OAuthHelper {
+    private static final Logger logger = LoggerFactory.getLogger(OAuthHelper.class);
+    private static String validEcToken;
+    private static String validRsaToken;
 
-    init {
+    public static final String TEST_KEYSTORE_PASSWORD = "radarbase";
+    public static final String TEST_SIGNKEY_ALIAS = "radarbase-managementportal-ec";
+    public static final String TEST_CHECKKEY_ALIAS = "radarbase-managementportal-rsa";
+    public static final String[] SCOPES = Permission.scopes();
+    public static final String[] AUTHORITIES = {"ROLE_SYS_ADMIN"};
+    public static final String[] ROLES = {"ROLE_SYS_ADMIN"};
+    public static final String[] SOURCES = {};
+    public static final String[] AUD = {RES_MANAGEMENT_PORTAL};
+    public static final String CLIENT = "unit_test";
+    public static final String USER = "admin";
+    public static final String ISS = "RADAR";
+    public static final String JTI = "some-jwt-id";
+    private static List<TokenVerifierLoader> verifiers;
+
+    static {
         try {
-            setUp()
-        } catch (e: Exception) {
-            logger.error("Failed to set up OAuthHelper", e)
+            setUp();
+        } catch (Exception e) {
+            logger.error("Failed to set up OAuthHelper", e);
         }
+    }
+
+    private OAuthHelper() {
+        // utility class
     }
 
     /**
@@ -58,11 +71,11 @@ object OAuthHelper {
      * MockMVC.
      * @return the request post processor
      */
-    fun bearerToken(): RequestPostProcessor {
-        return RequestPostProcessor { mockRequest: MockHttpServletRequest ->
-            mockRequest.addHeader("Authorization", "Bearer " + validEcToken)
-            mockRequest
-        }
+    public static RequestPostProcessor bearerToken() {
+        return mockRequest -> {
+            mockRequest.addHeader("Authorization", "Bearer " + validEcToken);
+            return mockRequest;
+        };
     }
 
     /**
@@ -70,52 +83,50 @@ object OAuthHelper {
      * MockMVC.
      * @return the request post processor
      */
-    fun rsaBearerToken(): RequestPostProcessor {
-        return RequestPostProcessor { mockRequest: MockHttpServletRequest ->
-            mockRequest.addHeader("Authorization", "Bearer " + validRsaToken)
-            mockRequest
-        }
+    public static RequestPostProcessor rsaBearerToken() {
+        return mockRequest -> {
+            mockRequest.addHeader("Authorization", "Bearer " + validRsaToken);
+            return mockRequest;
+        };
     }
 
     /**
      * Set up a keypair for signing the tokens, initialize all kinds of different tokens for tests.
      * @throws Exception If anything goes wrong during setup
      */
-    @Throws(Exception::class)
-    fun setUp() {
-        val ks = KeyStore.getInstance("PKCS12")
-        Thread.currentThread().getContextClassLoader()
-            .getResourceAsStream("config/keystore.p12").use { keyStream ->
-                checkNotNull(keyStream) { "Cannot find keystore to set up OAuth" }
-                ks.load(keyStream, TEST_KEYSTORE_PASSWORD.toCharArray())
-
-                // get the EC keypair for signing
-                val privateKey = ks.getKey(
-                    TEST_SIGNKEY_ALIAS,
-                    TEST_KEYSTORE_PASSWORD.toCharArray()
-                ) as ECPrivateKey
-                val cert = ks.getCertificate(TEST_SIGNKEY_ALIAS)
-                val publicKey = cert.publicKey as ECPublicKey
-                val ecdsa = Algorithm.ECDSA256(publicKey, privateKey)
-                validEcToken = createValidToken(ecdsa)
-
-                // also get an RSA keypair to test accepting multiple keys
-                val rsaPrivateKey = ks.getKey(
-                    TEST_CHECKKEY_ALIAS,
-                    TEST_KEYSTORE_PASSWORD.toCharArray()
-                ) as RSAPrivateKey
-                val rsaPublicKey = ks.getCertificate(TEST_CHECKKEY_ALIAS)
-                    .publicKey as RSAPublicKey
-                val rsa = Algorithm.RSA256(rsaPublicKey, rsaPrivateKey)
-                validRsaToken = createValidToken(rsa)
-                val verifierList = listOf(ecdsa, rsa)
-                    .map { alg: Algorithm? ->
-                        alg?.toTokenVerifier(ManagementPortalJwtAccessTokenConverter.RES_MANAGEMENT_PORTAL)
-                    }
-                    .requireNoNulls()
-                    .toList()
-                verifiers = listOf(StaticTokenVerifierLoader(verifierList))
+    public static void setUp() throws Exception {
+        KeyStore ks = KeyStore.getInstance("PKCS12");
+        try (InputStream keyStream = Thread.currentThread().getContextClassLoader()
+                .getResourceAsStream("config/keystore.p12")) {
+            if (keyStream == null) {
+                throw new IllegalStateException("Cannot find keystore to set up OAuth");
             }
+
+            ks.load(keyStream, TEST_KEYSTORE_PASSWORD.toCharArray());
+
+            // get the EC keypair for signing
+            ECPrivateKey privateKey = (ECPrivateKey) ks.getKey(TEST_SIGNKEY_ALIAS,
+                    TEST_KEYSTORE_PASSWORD.toCharArray());
+            Certificate cert = ks.getCertificate(TEST_SIGNKEY_ALIAS);
+            ECPublicKey publicKey = (ECPublicKey) cert.getPublicKey();
+
+            Algorithm ecdsa = Algorithm.ECDSA256(publicKey, privateKey);
+            validEcToken = createValidToken(ecdsa);
+
+            // also get an RSA keypair to test accepting multiple keys
+            RSAPrivateKey rsaPrivateKey = (RSAPrivateKey) ks.getKey(TEST_CHECKKEY_ALIAS,
+                    TEST_KEYSTORE_PASSWORD.toCharArray());
+            RSAPublicKey rsaPublicKey = (RSAPublicKey) ks.getCertificate(TEST_CHECKKEY_ALIAS)
+                    .getPublicKey();
+            Algorithm rsa = Algorithm.RSA256(rsaPublicKey, rsaPrivateKey);
+            validRsaToken = createValidToken(rsa);
+
+            var verifierList = Stream.of(ecdsa, rsa)
+                    .map(alg -> toTokenVerifier(alg, RES_MANAGEMENT_PORTAL))
+                    .toList();
+
+            verifiers = List.of(new StaticTokenVerifierLoader(verifierList));
+        }
     }
 
     /**
@@ -123,12 +134,10 @@ object OAuthHelper {
      *
      * @return an initialized JwtAuthenticationFilter
      */
-    fun createAuthenticationFilter(): JwtAuthenticationFilter {
-        val userRepository = Mockito.mock(UserRepository::class.java)
-        Mockito.`when`(userRepository.findOneByLogin(ArgumentMatchers.anyString())).thenReturn(
-            createAdminUser()
-        )
-        return JwtAuthenticationFilter(createTokenValidator(), { auth: Authentication? -> auth }, userRepository)
+    public static JwtAuthenticationFilter createAuthenticationFilter() {
+        UserRepository userRepository = mock(UserRepository.class);
+        when(userRepository.findOneByLogin(anyString())).thenReturn(Optional.of(createAdminUser()));
+        return new JwtAuthenticationFilter(createTokenValidator(), auth -> auth, userRepository);
     }
 
     /**
@@ -136,39 +145,40 @@ object OAuthHelper {
      *
      * @return configured TokenValidator
      */
-    fun createTokenValidator(): TokenValidator {
+    public static TokenValidator createTokenValidator() {
         // Use tokenValidator with known JWTVerifier which signs.
-        return TokenValidator(verifiers!!)
+        return new TokenValidator(verifiers);
     }
 
-    private fun createAdminUser(): User {
-        val user = User()
-        user.id = 1L
-        user.setLogin("admin")
-        user.activated = true
-        user.roles = mutableSetOf(Role(Authority("ROLE_SYS_ADMIN")))
-
-        return user
+    private static User createAdminUser() {
+        User user = new User();
+        user.setId(1L);
+        user.setLogin("admin");
+        user.activated = true;
+        user.setRoles(Set.of(
+            new Role(new Authority("ROLE_SYS_ADMIN"))
+        ));
+        return user;
     }
 
-    private fun createValidToken(algorithm: Algorithm): String {
-        val exp = Instant.now().plusSeconds((30 * 60).toLong())
-        val iat = Instant.now()
+    private static String createValidToken(Algorithm algorithm) {
+        Instant exp = Instant.now().plusSeconds(30 * 60);
+        Instant iat = Instant.now();
         return JWT.create()
-            .withIssuer(ISS)
-            .withIssuedAt(Date.from(iat))
-            .withExpiresAt(Date.from(exp))
-            .withAudience("res_ManagementPortal")
-            .withSubject(USER)
-            .withArrayClaim("scope", SCOPES)
-            .withArrayClaim("authorities", AUTHORITIES)
-            .withArrayClaim("roles", ROLES)
-            .withArrayClaim("sources", SOURCES)
-            .withArrayClaim("aud", AUD)
-            .withClaim("client_id", CLIENT)
-            .withClaim("user_name", USER)
-            .withClaim("jti", JTI)
-            .withClaim("grant_type", "password")
-            .sign(algorithm)
+                .withIssuer(ISS)
+                .withIssuedAt(Date.from(iat))
+                .withExpiresAt(Date.from(exp))
+                .withAudience("res_ManagementPortal")
+                .withSubject(USER)
+                .withArrayClaim("scope", SCOPES)
+                .withArrayClaim("authorities", AUTHORITIES)
+                .withArrayClaim("roles", ROLES)
+                .withArrayClaim("sources", SOURCES)
+                .withArrayClaim("aud", AUD)
+                .withClaim("client_id", CLIENT)
+                .withClaim("user_name", USER)
+                .withClaim("jti", JTI)
+                .withClaim("grant_type", "password")
+                .sign(algorithm);
     }
 }

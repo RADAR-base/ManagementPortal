@@ -1,218 +1,227 @@
-package org.radarbase.management.web.rest
+package org.radarbase.management.web.rest;
 
-import org.assertj.core.api.Assertions
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.kotlin.anyVararg
-import org.mockito.kotlin.doAnswer
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.whenever
-import org.radarbase.auth.authorization.RoleAuthority
-import org.radarbase.auth.token.RadarToken
-import org.radarbase.management.ManagementPortalTestApp
-import org.radarbase.management.config.ManagementPortalProperties
-import org.radarbase.management.domain.Authority
-import org.radarbase.management.domain.Role
-import org.radarbase.management.domain.User
-import org.radarbase.management.repository.UserRepository
-import org.radarbase.management.security.JwtAuthenticationFilter.Companion.radarToken
-import org.radarbase.management.security.RadarAuthentication
-import org.radarbase.management.service.AuthService
-import org.radarbase.management.service.MailService
-import org.radarbase.management.service.PasswordService
-import org.radarbase.management.service.UserService
-import org.radarbase.management.service.dto.RoleDTO
-import org.radarbase.management.service.dto.UserDTO
-import org.radarbase.management.service.mapper.UserMapper
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.http.MediaType
-import org.springframework.mock.web.MockHttpServletRequest
-import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.test.context.junit.jupiter.SpringExtension
-import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers
-import org.springframework.test.web.servlet.setup.MockMvcBuilders
-import org.springframework.transaction.annotation.Transactional
-import java.util.*
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.radarbase.auth.authorization.RoleAuthority;
+import org.radarbase.auth.token.RadarToken;
+import org.radarbase.management.ManagementPortalTestApp;
+import org.radarbase.management.config.ManagementPortalProperties;
+import org.radarbase.management.domain.Authority;
+import org.radarbase.management.domain.User;
+import org.radarbase.management.repository.UserRepository;
+import org.radarbase.management.security.RadarAuthentication;
+import org.radarbase.management.service.AuthService;
+import org.radarbase.management.service.MailService;
+import org.radarbase.management.service.UserService;
+import org.radarbase.management.service.dto.RoleDTO;
+import org.radarbase.management.service.dto.UserDTO;
+import org.radarbase.management.service.mapper.UserMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.radarbase.management.security.JwtAuthenticationFilter.setRadarToken;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
  * Test class for the AccountResource REST controller.
  *
  * @see AccountResource
  */
-@ExtendWith(SpringExtension::class)
-@SpringBootTest(classes = [ManagementPortalTestApp::class])
-internal class AccountResourceIntTest(
-    @Autowired private val userRepository: UserRepository,
-    @Autowired private val radarToken: RadarToken,
-    @Autowired private val userMapper: UserMapper,
-    @Autowired private val managementPortalProperties: ManagementPortalProperties,
-    @Autowired private val authService: AuthService,
-    @Autowired private val passwordService: PasswordService
-) {
-    @Autowired private lateinit var mockUserService: UserService
-    @Autowired private lateinit var mockMailService: MailService
-    private lateinit var restUserMockMvc: MockMvc
+@ExtendWith(SpringExtension.class)
+@SpringBootTest(classes = ManagementPortalTestApp.class)
+class AccountResourceIntTest {
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private UserMapper userMapper;
+
+    @Mock
+    private UserService mockUserService;
+
+    @Mock
+    private MailService mockMailService;
+
+    private MockMvc restUserMockMvc;
+
+    @Autowired
+    private RadarToken radarToken;
+
+    @Autowired
+    private AuthService authService;
+
+    @Autowired
+    private ManagementPortalProperties managementPortalProperties;
 
     @BeforeEach
-    fun setUp() {
-        mockUserService = mock()
-        mockMailService = mock()
+    public void setUp() {
+        MockitoAnnotations.initMocks(this);
+        doNothing().when(mockMailService).sendActivationEmail(any(User.class));
 
-        whenever(mockMailService.sendActivationEmail(anyVararg<User>())).doAnswer{ print("tried to send mail") }
+        SecurityContextHolder.getContext().setAuthentication(new RadarAuthentication(radarToken));
 
-        SecurityContextHolder.getContext().authentication = RadarAuthentication(radarToken)
-        val accountResource = AccountResource(
-            mockUserService,
-            mockMailService,
-            userMapper,
-            managementPortalProperties,
-            authService,
-            passwordService,
-        )
-        accountResource.token = radarToken
+        AccountResource accountResource = new AccountResource();
+        ReflectionTestUtils.setField(accountResource, "userService", userService);
+        ReflectionTestUtils.setField(accountResource, "userMapper", userMapper);
+        ReflectionTestUtils.setField(accountResource, "mailService", mockMailService);
+        ReflectionTestUtils.setField(accountResource, "authService", authService);
+        ReflectionTestUtils.setField(accountResource, "token", radarToken);
+        ReflectionTestUtils.setField(accountResource, "managementPortalProperties",
+                managementPortalProperties);
 
-        val accountUserMockResource = AccountResource(
-            mockUserService,
-            mockMailService,
-            userMapper,
-            managementPortalProperties,
-            authService,
-            passwordService,
-        )
-        accountUserMockResource.token = radarToken
+        AccountResource accountUserMockResource = new AccountResource();
+        ReflectionTestUtils.setField(accountUserMockResource, "userService", mockUserService);
+        ReflectionTestUtils.setField(accountUserMockResource, "userMapper", userMapper);
+        ReflectionTestUtils.setField(accountUserMockResource, "mailService", mockMailService);
+        ReflectionTestUtils.setField(accountUserMockResource, "authService", authService);
+        ReflectionTestUtils.setField(accountUserMockResource, "token", radarToken);
+        ReflectionTestUtils.setField(accountUserMockResource, "managementPortalProperties",
+                managementPortalProperties);
 
-        restUserMockMvc = MockMvcBuilders.standaloneSetup(accountUserMockResource).build()
+        this.restUserMockMvc = MockMvcBuilders.standaloneSetup(accountUserMockResource).build();
     }
 
     @AfterEach
-    fun tearDown() {
-        SecurityContextHolder.getContext().authentication = null
+    public void tearDown() {
+        SecurityContextHolder.getContext().setAuthentication(null);
     }
 
     @Test
-    @Throws(Exception::class)
-    fun testNonAuthenticatedUser() {
-        restUserMockMvc.perform(
-            MockMvcRequestBuilders.post("/api/login")
-                .accept(MediaType.APPLICATION_JSON)
-        )
-            .andExpect(MockMvcResultMatchers.status().isForbidden())
+    void testNonAuthenticatedUser() throws Exception {
+        restUserMockMvc.perform(post("/api/login")
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden());
     }
 
     @Test
-    @Throws(Exception::class)
-    fun testAuthenticatedUser() {
-        val token = mock<RadarToken>()
-        val roles: MutableSet<Role> = HashSet()
-        val role = Role()
-        val authority = Authority()
-        authority.name = RoleAuthority.SYS_ADMIN.authority
-        role.authority = authority
-        roles.add(role)
-        val user = User()
-        user.setLogin("test")
-        user.firstName = "john"
-        user.lastName = "doe"
-        user.email = "john.doe@jhipster.com"
-        user.langKey = "en"
-        user.roles = roles
-        whenever(mockUserService.getUserWithAuthorities()).doReturn(user)
-        restUserMockMvc.perform(MockMvcRequestBuilders.post("/api/login")
-            .with { request: MockHttpServletRequest ->
-                request.radarToken = token
-                request.remoteUser = "test"
-                request
-            }
-            .accept(MediaType.APPLICATION_JSON))
-            .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.login").value("test"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.firstName").value("john"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.lastName").value("doe"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.email").value("john.doe@jhipster.com"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.langKey").value("en"))
-            .andExpect(
-                MockMvcResultMatchers.jsonPath("$.authorities").value(
-                    RoleAuthority.SYS_ADMIN.authority
-                )
-            )
+    void testAuthenticatedUser() throws Exception {
+        final RadarToken token = mock(RadarToken.class);
+
+        Set<org.radarbase.management.domain.Role> roles = new HashSet<>();
+        org.radarbase.management.domain.Role role = new org.radarbase.management.domain.Role();
+        Authority authority = new Authority();
+        authority.name = RoleAuthority.SYS_ADMIN.getAuthority();
+        role.authority = authority;
+        roles.add(role);
+
+        User user = new User();
+        user.setLogin("test");
+        user.firstName = "john";
+        user.lastName = "doe";
+        user.email = "john.doe@jhipster.com";
+        user.langKey = "en";
+        user.setRoles(roles);
+        when(mockUserService.getUserWithAuthorities()).thenReturn(Optional.of(user));
+
+        restUserMockMvc.perform(post("/api/login")
+                .with(request -> {
+                    setRadarToken(request, token);
+                    request.setRemoteUser("test");
+                    return request;
+                })
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.login").value("test"))
+                .andExpect(jsonPath("$.firstName").value("john"))
+                .andExpect(jsonPath("$.lastName").value("doe"))
+                .andExpect(jsonPath("$.email").value("john.doe@jhipster.com"))
+                .andExpect(jsonPath("$.langKey").value("en"))
+                .andExpect(jsonPath("$.authorities").value(
+                        RoleAuthority.SYS_ADMIN.getAuthority()));
     }
 
     @Test
-    @Throws(Exception::class)
-    fun testGetExistingAccount() {
-        val roles: MutableSet<Role> = HashSet()
-        val role = Role()
-        val authority = Authority()
-        authority.name = RoleAuthority.SYS_ADMIN.authority
-        role.authority = authority
-        roles.add(role)
-        val user = User()
-        user.setLogin("test")
-        user.firstName = "john"
-        user.lastName = "doe"
-        user.email = "john.doe@jhipster.com"
-        user.langKey = "en"
-        user.roles = roles
-        whenever(mockUserService.getUserWithAuthorities()).doReturn(user)
-        restUserMockMvc.perform(
-            MockMvcRequestBuilders.get("/api/account")
-                .accept(MediaType.APPLICATION_JSON)
-        )
-            .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.login").value("test"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.firstName").value("john"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.lastName").value("doe"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.email").value("john.doe@jhipster.com"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.langKey").value("en"))
-            .andExpect(
-                MockMvcResultMatchers.jsonPath("$.authorities").value(
-                    RoleAuthority.SYS_ADMIN.authority
-                )
-            )
+    void testGetExistingAccount() throws Exception {
+        Set<org.radarbase.management.domain.Role> roles = new HashSet<>();
+        org.radarbase.management.domain.Role role = new org.radarbase.management.domain.Role();
+        Authority authority = new Authority();
+        authority.name = RoleAuthority.SYS_ADMIN.getAuthority();
+        role.authority = authority;
+        roles.add(role);
+
+        User user = new User();
+        user.setLogin("test");
+        user.firstName = "john";
+        user.lastName = "doe";
+        user.email = "john.doe@jhipster.com";
+        user.langKey = "en";
+        user.setRoles(roles);
+        when(mockUserService.getUserWithAuthorities()).thenReturn(Optional.of(user));
+
+        restUserMockMvc.perform(get("/api/account")
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.login").value("test"))
+                .andExpect(jsonPath("$.firstName").value("john"))
+                .andExpect(jsonPath("$.lastName").value("doe"))
+                .andExpect(jsonPath("$.email").value("john.doe@jhipster.com"))
+                .andExpect(jsonPath("$.langKey").value("en"))
+                .andExpect(jsonPath("$.authorities").value(
+                        RoleAuthority.SYS_ADMIN.getAuthority()));
     }
 
     @Test
-    @Throws(Exception::class)
-    fun testGetUnknownAccount() {
-        whenever(mockUserService.getUserWithAuthorities()).doReturn(null)
-        restUserMockMvc.perform(
-            MockMvcRequestBuilders.get("/api/account")
-                .accept(MediaType.APPLICATION_JSON)
-        )
-            .andExpect(MockMvcResultMatchers.status().isForbidden())
+    void testGetUnknownAccount() throws Exception {
+        when(mockUserService.getUserWithAuthorities()).thenReturn(Optional.empty());
+
+        restUserMockMvc.perform(get("/api/account")
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden());
     }
 
     @Test
     @Transactional
-    @Throws(Exception::class)
-    fun testSaveInvalidLogin() {
-        val roles: MutableSet<RoleDTO> = HashSet()
-        val role = RoleDTO()
-        role.authorityName = RoleAuthority.PARTICIPANT.authority
-        roles.add(role)
-        val invalidUser = UserDTO()
-        invalidUser.login = "funky-log!n" // invalid login
-        invalidUser.firstName = "Funky"
-        invalidUser.lastName = "One"
-        invalidUser.email = "funky@example.com"
-        invalidUser.isActivated = true
-        invalidUser.langKey = "en"
-        invalidUser.roles = roles
-        restUserMockMvc.perform(
-            MockMvcRequestBuilders.post("/api/account")
+    void testSaveInvalidLogin() throws Exception {
+        Set<RoleDTO> roles = new HashSet<>();
+        RoleDTO role = new RoleDTO();
+        role.setAuthorityName(RoleAuthority.PARTICIPANT.getAuthority());
+        roles.add(role);
+
+        UserDTO invalidUser = new UserDTO();
+        invalidUser.setLogin("funky-log!n");          // invalid login
+        invalidUser.setFirstName("Funky");
+        invalidUser.setLastName("One");
+        invalidUser.setEmail("funky@example.com");
+        invalidUser.setActivated(true);
+        invalidUser.setLangKey("en");
+        invalidUser.setRoles(roles);
+
+        restUserMockMvc.perform(post("/api/account")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(invalidUser))
-        )
-            .andExpect(MockMvcResultMatchers.status().isBadRequest())
-        val user = userRepository.findOneByEmail("funky@example.com")
-        Assertions.assertThat(user).isNull()
+                .content(TestUtil.convertObjectToJsonBytes(invalidUser)))
+                .andExpect(status().isBadRequest());
+
+        Optional<User> user = userRepository.findOneByEmail("funky@example.com");
+        assertThat(user).isNotPresent();
     }
 }

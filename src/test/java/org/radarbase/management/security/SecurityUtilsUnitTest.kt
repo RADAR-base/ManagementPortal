@@ -1,33 +1,26 @@
-package org.radarbase.management.security
+package org.radarbase.management.security;
 
-import org.assertj.core.api.Assertions
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
-import org.radarbase.management.ManagementPortalTestApp
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
-import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.security.test.context.support.WithMockUser
-import org.springframework.test.context.junit.jupiter.SpringExtension
+import org.junit.jupiter.api.Test;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Test class for the SecurityUtils utility class.
- *
- * @see SecurityUtils
- */
-@ExtendWith(SpringExtension::class)
-@SpringBootTest(classes = [ManagementPortalTestApp::class])
-@WithMockUser
-internal class SecurityUtilsUnitTest {
+* Test class for the SecurityUtils utility class.
+*
+* @see SecurityUtils
+*/
+class SecurityUtilsUnitTest {
+
     @Test
-    fun testGetCurrentUserLogin() {
-        val securityContext = SecurityContextHolder.createEmptyContext()
-        securityContext.authentication = UsernamePasswordAuthenticationToken(
-            "admin",
-            "admin"
-        )
-        SecurityContextHolder.setContext(securityContext)
-        val login = SecurityUtils.currentUserLogin
-        Assertions.assertThat(login).isEqualTo("admin")
+    void testGetCurrentUserLogin() {
+        SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
+        securityContext.setAuthentication(new UsernamePasswordAuthenticationToken("admin",
+                "admin"));
+        SecurityContextHolder.setContext(securityContext);
+        String login = SecurityUtils.getCurrentUserLogin().orElse(null);
+        assertThat(login).isEqualTo("admin");
     }
 }
