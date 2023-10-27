@@ -1,343 +1,343 @@
-package org.radarbase.management.web.rest;
+package org.radarbase.management.web.rest
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.MockitoAnnotations;
-import org.radarbase.auth.authentication.OAuthHelper;
-import org.radarbase.management.ManagementPortalTestApp;
-import org.radarbase.management.domain.Project;
-import org.radarbase.management.domain.Source;
-import org.radarbase.management.repository.ProjectRepository;
-import org.radarbase.management.repository.SourceRepository;
-import org.radarbase.management.security.JwtAuthenticationFilter;
-import org.radarbase.management.service.AuthService;
-import org.radarbase.management.service.SourceService;
-import org.radarbase.management.service.SourceTypeService;
-import org.radarbase.management.service.dto.SourceDTO;
-import org.radarbase.management.service.dto.SourceTypeDTO;
-import org.radarbase.management.service.mapper.SourceMapper;
-import org.radarbase.management.service.mapper.SourceTypeMapper;
-import org.radarbase.management.web.rest.errors.ExceptionTranslator;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
-import org.springframework.http.MediaType;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.mock.web.MockFilterConfig;
-import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.util.ReflectionTestUtils;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.transaction.annotation.Transactional;
-
-import javax.servlet.ServletException;
-import java.util.List;
-import java.util.UUID;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.everyItem;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import org.assertj.core.api.Assertions
+import org.hamcrest.Matchers
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
+import org.mockito.MockitoAnnotations
+import org.radarbase.auth.authentication.OAuthHelper
+import org.radarbase.management.ManagementPortalTestApp
+import org.radarbase.management.domain.Project
+import org.radarbase.management.domain.Source
+import org.radarbase.management.repository.ProjectRepository
+import org.radarbase.management.repository.SourceRepository
+import org.radarbase.management.service.AuthService
+import org.radarbase.management.service.SourceService
+import org.radarbase.management.service.SourceTypeService
+import org.radarbase.management.service.mapper.SourceMapper
+import org.radarbase.management.service.mapper.SourceTypeMapper
+import org.radarbase.management.web.rest.errors.ExceptionTranslator
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.data.web.PageableHandlerMethodArgumentResolver
+import org.springframework.http.MediaType
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter
+import org.springframework.mock.web.MockFilterConfig
+import org.springframework.security.test.context.support.WithMockUser
+import org.springframework.test.context.junit.jupiter.SpringExtension
+import org.springframework.test.util.ReflectionTestUtils
+import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers
+import org.springframework.test.web.servlet.setup.MockMvcBuilders
+import org.springframework.test.web.servlet.setup.StandaloneMockMvcBuilder
+import org.springframework.transaction.annotation.Transactional
+import java.util.*
+import javax.servlet.ServletException
 
 /**
  * Test class for the DeviceResource REST controller.
  *
  * @see SourceResource
  */
-@ExtendWith(SpringExtension.class)
-@SpringBootTest(classes = ManagementPortalTestApp.class)
+@ExtendWith(SpringExtension::class)
+@SpringBootTest(classes = [ManagementPortalTestApp::class])
 @WithMockUser
-class SourceResourceIntTest {
-
-    private static final UUID DEFAULT_SOURCE_PHYSICAL_ID = UUID.randomUUID();
-    private static final UUID UPDATED_SOURCE_PHYSICAL_ID = DEFAULT_SOURCE_PHYSICAL_ID;
-
-    private static final String DEFAULT_SOURCE_NAME = "CCCCCCCCCC";
-
-    private static final Boolean DEFAULT_ASSIGNED = false;
-    private static final Boolean UPDATED_ASSIGNED = true;
-
-    @Autowired
-    private SourceRepository sourceRepository;
-
-    @Autowired
-    private SourceMapper sourceMapper;
-
-    @Autowired
-    private SourceService sourceService;
-
-    @Autowired
-    private SourceTypeService sourceTypeService;
-
-    @Autowired
-    private SourceTypeMapper sourceTypeMapper;
-
-    @Autowired
-    private MappingJackson2HttpMessageConverter jacksonMessageConverter;
-
-    @Autowired
-    private PageableHandlerMethodArgumentResolver pageableArgumentResolver;
-
-    @Autowired
-    private ExceptionTranslator exceptionTranslator;
-
-    @Autowired
-    private ProjectRepository projectRepository;
-
-    private MockMvc restDeviceMockMvc;
-
-    private Source source;
-
-    private Project project;
-    @Autowired
-    private AuthService authService;
+internal open class SourceResourceIntTest(
+    @Autowired private val sourceRepository: SourceRepository,
+    @Autowired private val sourceMapper: SourceMapper,
+    @Autowired private val sourceService: SourceService,
+    @Autowired private val sourceTypeService: SourceTypeService,
+    @Autowired private val sourceTypeMapper: SourceTypeMapper,
+    @Autowired private val jacksonMessageConverter: MappingJackson2HttpMessageConverter,
+    @Autowired private val pageableArgumentResolver: PageableHandlerMethodArgumentResolver,
+    @Autowired private val exceptionTranslator: ExceptionTranslator,
+    @Autowired private val projectRepository: ProjectRepository,
+    private var restDeviceMockMvc: MockMvc,
+    private var source: Source,
+    private var project: Project,
+    @Autowired private val authService: AuthService
+) {
 
     @BeforeEach
-    public void setUp() throws ServletException {
-        MockitoAnnotations.initMocks(this);
-        SourceResource sourceResource = new SourceResource();
-        ReflectionTestUtils.setField(sourceResource, "authService", authService);
-        ReflectionTestUtils.setField(sourceResource, "sourceService", sourceService);
-        ReflectionTestUtils.setField(sourceResource, "sourceRepository", sourceRepository);
-
-        JwtAuthenticationFilter filter = OAuthHelper.createAuthenticationFilter();
-        filter.init(new MockFilterConfig());
-        this.restDeviceMockMvc = MockMvcBuilders.standaloneSetup(sourceResource)
-                .setCustomArgumentResolvers(pageableArgumentResolver)
-                .setControllerAdvice(exceptionTranslator)
-                .setMessageConverters(jacksonMessageConverter)
-                .addFilter(filter)
-                .defaultRequest(get("/").with(OAuthHelper.bearerToken()))
-                .alwaysDo(MockMvcResultHandlers.print()).build();
-    }
-
-    /**
-     * Create an entity for this test.
-     *
-     * <p>This is a static method, as tests for other entities might also need it,
-     * if they test an entity which requires the current entity.</p>
-     */
-    public static Source createEntity() {
-        return new Source()
-                .assigned(DEFAULT_ASSIGNED)
-                .sourceName(DEFAULT_SOURCE_NAME);
+    @Throws(ServletException::class)
+    fun setUp() {
+        MockitoAnnotations.openMocks(this)
+        val sourceResource = SourceResource()
+        ReflectionTestUtils.setField(sourceResource, "authService", authService)
+        ReflectionTestUtils.setField(sourceResource, "sourceService", sourceService)
+        ReflectionTestUtils.setField(sourceResource, "sourceRepository", sourceRepository)
+        val filter = OAuthHelper.createAuthenticationFilter()
+        filter.init(MockFilterConfig())
+        restDeviceMockMvc = MockMvcBuilders.standaloneSetup(sourceResource)
+            .setCustomArgumentResolvers(pageableArgumentResolver)
+            .setControllerAdvice(exceptionTranslator)
+            .setMessageConverters(jacksonMessageConverter)
+            .addFilter<StandaloneMockMvcBuilder>(filter)
+            .defaultRequest<StandaloneMockMvcBuilder>(MockMvcRequestBuilders.get("/").with(OAuthHelper.bearerToken()))
+            .alwaysDo<StandaloneMockMvcBuilder>(MockMvcResultHandlers.print()).build()
     }
 
     @BeforeEach
-    public void initTest() {
-        source = createEntity();
-        List<SourceTypeDTO> sourceTypeDtos = sourceTypeService.findAll();
-        assertThat(sourceTypeDtos.size()).isPositive();
-        source.sourceType = sourceTypeMapper.sourceTypeDTOToSourceType(sourceTypeDtos.get(0));
-        project = projectRepository.findById(1L).get();
-        source.project(project);
+    fun initTest() {
+        source = createEntity()
+        val sourceTypeDtos = sourceTypeService.findAll()
+        Assertions.assertThat(sourceTypeDtos.size).isPositive()
+        source.sourceType = sourceTypeMapper.sourceTypeDTOToSourceType(sourceTypeDtos[0])
+        project = projectRepository.findById(1L).get()
+        source.project(project)
     }
 
     @Test
     @Transactional
-    void createSource() throws Exception {
-        int databaseSizeBeforeCreate = sourceRepository.findAll().size();
+    @Throws(Exception::class)
+    open fun createSource() {
+        val databaseSizeBeforeCreate = sourceRepository.findAll().size
 
         // Create the Source
-        SourceDTO sourceDto = sourceMapper.sourceToSourceDTO(source);
-        restDeviceMockMvc.perform(post("/api/sources")
+        val sourceDto = sourceMapper.sourceToSourceDTO(source)
+        restDeviceMockMvc.perform(
+            MockMvcRequestBuilders.post("/api/sources")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(sourceDto)))
-                .andExpect(status().isCreated());
+                .content(TestUtil.convertObjectToJsonBytes(sourceDto))
+        )
+            .andExpect(MockMvcResultMatchers.status().isCreated())
 
         // Validate the Source in the database
-        List<Source> sourceList = sourceRepository.findAll();
-        assertThat(sourceList).hasSize(databaseSizeBeforeCreate + 1);
-        Source testSource = sourceList.get(sourceList.size() - 1);
-        assertThat(testSource.isAssigned()).isEqualTo(DEFAULT_ASSIGNED);
-        assertThat(testSource.sourceName).isEqualTo(DEFAULT_SOURCE_NAME);
-        assertThat(testSource.project.projectName).isEqualTo(project.projectName);
+        val sourceList = sourceRepository.findAll()
+        Assertions.assertThat(sourceList).hasSize(databaseSizeBeforeCreate + 1)
+        val testSource = sourceList[sourceList.size - 1]
+        Assertions.assertThat(testSource.isAssigned).isEqualTo(DEFAULT_ASSIGNED)
+        Assertions.assertThat(testSource.sourceName).isEqualTo(DEFAULT_SOURCE_NAME)
+        Assertions.assertThat(testSource.project!!.projectName).isEqualTo(project.projectName)
     }
 
     @Test
     @Transactional
-    void createSourceWithExistingId() throws Exception {
-        int databaseSizeBeforeCreate = sourceRepository.findAll().size();
+    @Throws(Exception::class)
+    open fun createSourceWithExistingId() {
+        val databaseSizeBeforeCreate = sourceRepository.findAll().size
 
         // Create the Source with an existing ID
-        source.setId(1L);
-        SourceDTO sourceDto = sourceMapper.sourceToSourceDTO(source);
+        source.id = 1L
+        val sourceDto = sourceMapper.sourceToSourceDTO(source)
 
         // An entity with an existing ID cannot be created, so this API call must fail
-        restDeviceMockMvc.perform(post("/api/sources")
+        restDeviceMockMvc.perform(
+            MockMvcRequestBuilders.post("/api/sources")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(sourceDto)))
-                .andExpect(status().isBadRequest());
+                .content(TestUtil.convertObjectToJsonBytes(sourceDto))
+        )
+            .andExpect(MockMvcResultMatchers.status().isBadRequest())
 
         // Validate the Alice in the database
-        List<Source> sourceList = sourceRepository.findAll();
-        assertThat(sourceList).hasSize(databaseSizeBeforeCreate);
+        val sourceList = sourceRepository.findAll()
+        Assertions.assertThat(sourceList).hasSize(databaseSizeBeforeCreate)
     }
 
     @Test
     @Transactional
-    void checkSourcePhysicalIdIsGenerated() throws Exception {
-        int databaseSizeBeforeTest = sourceRepository.findAll().size();
+    @Throws(Exception::class)
+    open fun checkSourcePhysicalIdIsGenerated() {
+        val databaseSizeBeforeTest = sourceRepository.findAll().size
         // set the field null
-        source.sourceId = null;
+        source.sourceId = null
 
         // Create the Source
-        SourceDTO sourceDto = sourceMapper.sourceToSourceDTO(source);
-
-        restDeviceMockMvc.perform(post("/api/sources")
+        val sourceDto = sourceMapper.sourceToSourceDTO(source)
+        restDeviceMockMvc.perform(
+            MockMvcRequestBuilders.post("/api/sources")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(sourceDto)))
-                .andExpect(status().isCreated());
-
-        List<Source> sourceList = sourceRepository.findAll();
-        assertThat(sourceList).hasSize(databaseSizeBeforeTest + 1);
+                .content(TestUtil.convertObjectToJsonBytes(sourceDto))
+        )
+            .andExpect(MockMvcResultMatchers.status().isCreated())
+        val sourceList = sourceRepository.findAll()
+        Assertions.assertThat(sourceList).hasSize(databaseSizeBeforeTest + 1)
 
         // find our created source
-        Source createdSource = sourceList.stream()
-                .filter(s -> s.sourceName.equals(DEFAULT_SOURCE_NAME))
-                .findFirst()
-                .orElse(null);
-        assertThat(createdSource).isNotNull();
+        val createdSource = sourceList.stream()
+            .filter { s: Source? -> s!!.sourceName == DEFAULT_SOURCE_NAME }
+            .findFirst()
+            .orElse(null)
+        Assertions.assertThat(createdSource).isNotNull()
 
         // check source id
-        assertThat(createdSource.sourceId).isNotNull();
+        Assertions.assertThat(createdSource!!.sourceId).isNotNull()
     }
 
     @Test
     @Transactional
-    void checkAssignedIsRequired() throws Exception {
-        int databaseSizeBeforeTest = sourceRepository.findAll().size();
+    @Throws(Exception::class)
+    open fun checkAssignedIsRequired() {
+        val databaseSizeBeforeTest = sourceRepository.findAll().size
         // set the field null
-        source.setAssigned(null);
+        source.isAssigned = null
 
         // Create the Source, which fails.
-        SourceDTO sourceDto = sourceMapper.sourceToSourceDTO(source);
-
-        restDeviceMockMvc.perform(post("/api/sources")
+        val sourceDto = sourceMapper.sourceToSourceDTO(source)
+        restDeviceMockMvc.perform(
+            MockMvcRequestBuilders.post("/api/sources")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(sourceDto)))
-                .andExpect(status().isBadRequest());
-
-        List<Source> sourceList = sourceRepository.findAll();
-        assertThat(sourceList).hasSize(databaseSizeBeforeTest);
+                .content(TestUtil.convertObjectToJsonBytes(sourceDto))
+        )
+            .andExpect(MockMvcResultMatchers.status().isBadRequest())
+        val sourceList = sourceRepository.findAll()
+        Assertions.assertThat(sourceList).hasSize(databaseSizeBeforeTest)
     }
+
+    @get:Throws(Exception::class)
+    @get:Transactional
+    @get:Test
+    open val allSources: Unit
+        get() {
+            // Initialize the database
+            sourceRepository.saveAndFlush(source)
+
+            // Get all the deviceList
+            restDeviceMockMvc.perform(MockMvcRequestBuilders.get("/api/sources?sort=id,desc"))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(
+                    MockMvcResultMatchers.jsonPath("$.[*].id").value<Iterable<Int?>>(
+                        Matchers.hasItem(
+                            source.id!!.toInt()
+                        )
+                    )
+                )
+                .andExpect(
+                    MockMvcResultMatchers.jsonPath("$.[*].sourceId").value(Matchers.everyItem(Matchers.notNullValue()))
+                )
+                .andExpect(
+                    MockMvcResultMatchers.jsonPath("$.[*].assigned").value<Iterable<Boolean?>>(
+                        Matchers.hasItem(DEFAULT_ASSIGNED)
+                    )
+                )
+        }
 
     @Test
     @Transactional
-    void getAllSources() throws Exception {
+    @Throws(Exception::class)
+    open fun getSource() {
         // Initialize the database
-        sourceRepository.saveAndFlush(source);
-
-        // Get all the deviceList
-        restDeviceMockMvc.perform(get("/api/sources?sort=id,desc"))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.[*].id").value(hasItem(source.getId().intValue())))
-                .andExpect(jsonPath("$.[*].sourceId").value(everyItem(notNullValue())))
-                .andExpect(jsonPath("$.[*].assigned").value(
-                        hasItem(DEFAULT_ASSIGNED.booleanValue())));
-    }
-
-    @Test
-    @Transactional
-    void getSource() throws Exception {
-        // Initialize the database
-        sourceRepository.saveAndFlush(source);
+        sourceRepository.saveAndFlush(source)
 
         // Get the source
-        restDeviceMockMvc.perform(get("/api/sources/{sourceName}", source.sourceName))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.id").value(source.getId().intValue()))
-                .andExpect(jsonPath("$.sourceId").value(notNullValue()))
-                .andExpect(jsonPath("$.assigned").value(DEFAULT_ASSIGNED.booleanValue()));
+        restDeviceMockMvc.perform(MockMvcRequestBuilders.get("/api/sources/{sourceName}", source.sourceName))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(source.id!!.toInt()))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.sourceId").value(Matchers.notNullValue()))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.assigned").value(DEFAULT_ASSIGNED))
     }
+
+    @get:Throws(Exception::class)
+    @get:Transactional
+    @get:Test
+    open val nonExistingSource: Unit
+        get() {
+            // Get the source
+            restDeviceMockMvc.perform(MockMvcRequestBuilders.get("/api/sources/{id}", Long.MAX_VALUE))
+                .andExpect(MockMvcResultMatchers.status().isNotFound())
+        }
 
     @Test
     @Transactional
-    void getNonExistingSource() throws Exception {
-        // Get the source
-        restDeviceMockMvc.perform(get("/api/sources/{id}", Long.MAX_VALUE))
-                .andExpect(status().isNotFound());
-    }
-
-    @Test
-    @Transactional
-    void updateSource() throws Exception {
+    @Throws(Exception::class)
+    open fun updateSource() {
         // Initialize the database
-        sourceRepository.saveAndFlush(source);
-        int databaseSizeBeforeUpdate = sourceRepository.findAll().size();
+        sourceRepository.saveAndFlush(source)
+        val databaseSizeBeforeUpdate = sourceRepository.findAll().size
 
         // Update the source
-        Source updatedSource = sourceRepository.findById(source.getId()).get();
+        val updatedSource = sourceRepository.findById(source.id!!).get()
         updatedSource
-                .sourceId(UPDATED_SOURCE_PHYSICAL_ID)
-                .assigned(UPDATED_ASSIGNED);
-        SourceDTO sourceDto = sourceMapper.sourceToSourceDTO(updatedSource);
-
-        restDeviceMockMvc.perform(put("/api/sources")
+            .sourceId(UPDATED_SOURCE_PHYSICAL_ID)
+            .assigned(UPDATED_ASSIGNED)
+        val sourceDto = sourceMapper.sourceToSourceDTO(updatedSource)
+        restDeviceMockMvc.perform(
+            MockMvcRequestBuilders.put("/api/sources")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(sourceDto)))
-                .andExpect(status().isOk());
+                .content(TestUtil.convertObjectToJsonBytes(sourceDto))
+        )
+            .andExpect(MockMvcResultMatchers.status().isOk())
 
         // Validate the Source in the database
-        List<Source> sourceList = sourceRepository.findAll();
-        assertThat(sourceList).hasSize(databaseSizeBeforeUpdate);
-        Source testSource = sourceList.get(sourceList.size() - 1);
-        assertThat(testSource.sourceId).isEqualTo(UPDATED_SOURCE_PHYSICAL_ID);
-        assertThat(testSource.isAssigned()).isEqualTo(UPDATED_ASSIGNED);
+        val sourceList = sourceRepository.findAll()
+        Assertions.assertThat(sourceList).hasSize(databaseSizeBeforeUpdate)
+        val testSource = sourceList[sourceList.size - 1]
+        Assertions.assertThat(testSource.sourceId).isEqualTo(UPDATED_SOURCE_PHYSICAL_ID)
+        Assertions.assertThat(testSource.isAssigned).isEqualTo(UPDATED_ASSIGNED)
     }
 
     @Test
     @Transactional
-    void updateNonExistingSource() throws Exception {
-        int databaseSizeBeforeUpdate = sourceRepository.findAll().size();
+    @Throws(Exception::class)
+    open fun updateNonExistingSource() {
+        val databaseSizeBeforeUpdate = sourceRepository.findAll().size
 
         // Create the Source
-        SourceDTO sourceDto = sourceMapper.sourceToSourceDTO(source);
+        val sourceDto = sourceMapper.sourceToSourceDTO(source)
 
         // If the entity doesn't have an ID, it will be created instead of just being updated
-        restDeviceMockMvc.perform(put("/api/sources")
+        restDeviceMockMvc.perform(
+            MockMvcRequestBuilders.put("/api/sources")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(sourceDto)))
-                .andExpect(status().isCreated());
+                .content(TestUtil.convertObjectToJsonBytes(sourceDto))
+        )
+            .andExpect(MockMvcResultMatchers.status().isCreated())
 
         // Validate the Source in the database
-        List<Source> sourceList = sourceRepository.findAll();
-        assertThat(sourceList).hasSize(databaseSizeBeforeUpdate + 1);
+        val sourceList = sourceRepository.findAll()
+        Assertions.assertThat(sourceList).hasSize(databaseSizeBeforeUpdate + 1)
     }
 
     @Test
     @Transactional
-    void deleteSource() throws Exception {
+    @Throws(Exception::class)
+    open fun deleteSource() {
         // Initialize the database
-        sourceRepository.saveAndFlush(source);
-        int databaseSizeBeforeDelete = sourceRepository.findAll().size();
+        sourceRepository.saveAndFlush(source)
+        val databaseSizeBeforeDelete = sourceRepository.findAll().size
 
         // Get the source
-        restDeviceMockMvc.perform(delete("/api/sources/{sourceName}", source.sourceName)
-                .accept(TestUtil.APPLICATION_JSON_UTF8))
-                .andExpect(status().isOk());
+        restDeviceMockMvc.perform(
+            MockMvcRequestBuilders.delete("/api/sources/{sourceName}", source.sourceName)
+                .accept(TestUtil.APPLICATION_JSON_UTF8)
+        )
+            .andExpect(MockMvcResultMatchers.status().isOk())
 
         // Validate the database is empty
-        List<Source> sourceList = sourceRepository.findAll();
-        assertThat(sourceList).hasSize(databaseSizeBeforeDelete - 1);
+        val sourceList = sourceRepository.findAll()
+        Assertions.assertThat(sourceList).hasSize(databaseSizeBeforeDelete - 1)
     }
 
     @Test
     @Transactional
-    void equalsVerifier() throws Exception {
-        Assertions.assertTrue(TestUtil.equalsVerifier(Source.class));
+    @Throws(Exception::class)
+    open fun equalsVerifier() {
+        org.junit.jupiter.api.Assertions.assertTrue(TestUtil.equalsVerifier(Source::class.java))
+    }
+
+    companion object {
+        private val DEFAULT_SOURCE_PHYSICAL_ID = UUID.randomUUID()
+        private val UPDATED_SOURCE_PHYSICAL_ID = DEFAULT_SOURCE_PHYSICAL_ID
+        private const val DEFAULT_SOURCE_NAME = "CCCCCCCCCC"
+        private const val DEFAULT_ASSIGNED = false
+        private const val UPDATED_ASSIGNED = true
+
+        /**
+         * Create an entity for this test.
+         *
+         *
+         * This is a static method, as tests for other entities might also need it,
+         * if they test an entity which requires the current entity.
+         */
+        fun createEntity(): Source {
+            return Source()
+                .assigned(DEFAULT_ASSIGNED)
+                .sourceName(DEFAULT_SOURCE_NAME)
+        }
     }
 }

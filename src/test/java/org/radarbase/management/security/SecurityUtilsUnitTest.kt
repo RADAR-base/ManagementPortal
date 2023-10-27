@@ -1,26 +1,25 @@
-package org.radarbase.management.security;
+package org.radarbase.management.security
 
-import org.junit.jupiter.api.Test;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import org.assertj.core.api.Assertions
+import org.junit.jupiter.api.Test
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.context.SecurityContextHolder
 
 /**
-* Test class for the SecurityUtils utility class.
-*
-* @see SecurityUtils
-*/
-class SecurityUtilsUnitTest {
-
+ * Test class for the SecurityUtils utility class.
+ *
+ * @see SecurityUtils
+ */
+internal class SecurityUtilsUnitTest {
     @Test
-    void testGetCurrentUserLogin() {
-        SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
-        securityContext.setAuthentication(new UsernamePasswordAuthenticationToken("admin",
-                "admin"));
-        SecurityContextHolder.setContext(securityContext);
-        String login = SecurityUtils.getCurrentUserLogin().orElse(null);
-        assertThat(login).isEqualTo("admin");
+    fun testGetCurrentUserLogin() {
+        val securityContext = SecurityContextHolder.createEmptyContext()
+        securityContext.authentication = UsernamePasswordAuthenticationToken(
+            "admin",
+            "admin"
+        )
+        SecurityContextHolder.setContext(securityContext)
+        val login = SecurityUtils.getCurrentUserLogin().orElse(null)
+        Assertions.assertThat(login).isEqualTo("admin")
     }
 }
