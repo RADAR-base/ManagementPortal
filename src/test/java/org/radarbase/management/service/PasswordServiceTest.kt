@@ -6,58 +6,63 @@
  *
  * See the file LICENSE in the root of this repository.
  */
-package org.radarbase.management.service
 
-import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
-import org.radarbase.management.ManagementPortalTestApp
-import org.radarbase.management.web.rest.errors.BadRequestException
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.context.junit.jupiter.SpringExtension
-import java.util.*
+package org.radarbase.management.service;
 
-@ExtendWith(SpringExtension::class)
-@SpringBootTest(classes = [ManagementPortalTestApp::class])
-internal class PasswordServiceTest {
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.radarbase.management.ManagementPortalTestApp;
+import org.radarbase.management.web.rest.errors.BadRequestException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import java.util.Arrays;
+
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+@ExtendWith(SpringExtension.class)
+@SpringBootTest(classes = ManagementPortalTestApp.class)
+class PasswordServiceTest {
     @Autowired
-    private val passwordService: PasswordService? = null
+    private PasswordService passwordService;
+
     @Test
-    fun encode() {
-        Assertions.assertNotEquals("abc", passwordService!!.encode("abc"))
+    void encode() {
+        assertNotEquals("abc", passwordService.encode("abc"));
     }
 
     @Test
-    fun generateEncodedPassword() {
-        val pass = passwordService!!.generateEncodedPassword()
-        Assertions.assertTrue(pass.length >= 30)
-        Assertions.assertTrue(pass.length < 100)
-        Assertions.assertDoesNotThrow { passwordService.checkPasswordStrength(pass) }
+    void generateEncodedPassword() {
+        String pass = passwordService.generateEncodedPassword();
+        assertTrue(pass.length() >= 30);
+        assertTrue(pass.length() < 100);
+        assertDoesNotThrow(() -> passwordService.checkPasswordStrength(pass));
     }
 
     @Test
-    fun generateResetKey() {
-        val resetKey = passwordService!!.generateResetKey()
-        Assertions.assertTrue(resetKey.length > 16)
-        Assertions.assertTrue(resetKey.length < 100)
+    void generateResetKey() {
+        String resetKey = passwordService.generateResetKey();
+        assertTrue(resetKey.length() > 16);
+        assertTrue(resetKey.length() < 100);
     }
 
     @Test
-    fun checkPasswordStrength() {
-        Assertions.assertDoesNotThrow { passwordService!!.checkPasswordStrength("aA1aaaaaaaa") }
-        Assertions.assertThrows(BadRequestException::class.java) { passwordService!!.checkPasswordStrength("a") }
-        val tooLong = ByteArray(101)
-        Arrays.fill(tooLong, 'A'.code.toByte())
-        Assertions.assertThrows(BadRequestException::class.java) {
-            passwordService!!.checkPasswordStrength(
-                "aA1" + String(
-                    tooLong
-                )
-            )
-        }
-        Assertions.assertThrows(BadRequestException::class.java) { passwordService!!.checkPasswordStrength("aAaaaaaaaaa") }
-        Assertions.assertThrows(BadRequestException::class.java) { passwordService!!.checkPasswordStrength("a1aaaaaaaaa") }
-        Assertions.assertThrows(BadRequestException::class.java) { passwordService!!.checkPasswordStrength("aAaaaaaaaaa") }
+    void checkPasswordStrength() {
+        assertDoesNotThrow(() -> passwordService.checkPasswordStrength("aA1aaaaaaaa"));
+        assertThrows(BadRequestException.class, () -> passwordService.checkPasswordStrength("a"));
+        byte[] tooLong = new byte[101];
+        Arrays.fill(tooLong, (byte)'A');
+        assertThrows(BadRequestException.class, () ->
+                passwordService.checkPasswordStrength("aA1" + new String(tooLong)));
+        assertThrows(BadRequestException.class, () ->
+                passwordService.checkPasswordStrength("aAaaaaaaaaa"));
+        assertThrows(BadRequestException.class, () ->
+                passwordService.checkPasswordStrength("a1aaaaaaaaa"));
+        assertThrows(BadRequestException.class, () ->
+                passwordService.checkPasswordStrength("aAaaaaaaaaa"));
     }
 }

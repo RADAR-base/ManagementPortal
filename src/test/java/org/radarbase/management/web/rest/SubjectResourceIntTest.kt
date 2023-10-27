@@ -1,579 +1,637 @@
-package org.radarbase.management.web.rest
+package org.radarbase.management.web.rest;
 
-import org.assertj.core.api.Assertions
-import org.hamcrest.Matchers
-import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.MockitoAnnotations
-import org.radarbase.auth.authentication.OAuthHelper
-import org.radarbase.management.ManagementPortalTestApp
-import org.radarbase.management.domain.Subject
-import org.radarbase.management.repository.SubjectRepository
-import org.radarbase.management.service.SourceService
-import org.radarbase.management.service.SourceTypeService
-import org.radarbase.management.service.SubjectService
-import org.radarbase.management.service.SubjectServiceTest
-import org.radarbase.management.service.dto.MinimalSourceDetailsDTO
-import org.radarbase.management.service.dto.ProjectDTO
-import org.radarbase.management.service.dto.SourceDTO
-import org.radarbase.management.service.dto.SourceTypeDTO
-import org.radarbase.management.service.dto.SubjectDTO
-import org.radarbase.management.service.mapper.SubjectMapper
-import org.radarbase.management.web.rest.errors.ExceptionTranslator
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.data.web.PageableHandlerMethodArgumentResolver
-import org.springframework.http.MediaType
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter
-import org.springframework.mock.web.MockFilterConfig
-import org.springframework.security.test.context.support.WithMockUser
-import org.springframework.test.context.junit.jupiter.SpringExtension
-import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers
-import org.springframework.test.web.servlet.setup.MockMvcBuilders
-import org.springframework.test.web.servlet.setup.StandaloneMockMvcBuilder
-import org.springframework.transaction.annotation.Transactional
-import java.util.*
-import java.util.stream.Collectors
-import javax.servlet.ServletException
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.MockitoAnnotations;
+import org.radarbase.auth.authentication.OAuthHelper;
+import org.radarbase.management.ManagementPortalTestApp;
+import org.radarbase.management.domain.Subject;
+import org.radarbase.management.repository.ProjectRepository;
+import org.radarbase.management.repository.SubjectRepository;
+import org.radarbase.management.security.JwtAuthenticationFilter;
+import org.radarbase.management.service.AuthService;
+import org.radarbase.management.service.SourceService;
+import org.radarbase.management.service.SourceTypeService;
+import org.radarbase.management.service.SubjectService;
+import org.radarbase.management.service.dto.MinimalSourceDetailsDTO;
+import org.radarbase.management.service.dto.ProjectDTO;
+import org.radarbase.management.service.dto.SourceDTO;
+import org.radarbase.management.service.dto.SourceTypeDTO;
+import org.radarbase.management.service.dto.SubjectDTO;
+import org.radarbase.management.service.mapper.SubjectMapper;
+import org.radarbase.management.web.rest.errors.ExceptionTranslator;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
+import org.springframework.http.MediaType;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.mock.web.MockFilterConfig;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.servlet.ServletException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.hasItem;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.radarbase.management.service.SubjectServiceTest.DEFAULT_ENTERNAL_ID;
+import static org.radarbase.management.service.SubjectServiceTest.DEFAULT_EXTERNAL_LINK;
+import static org.radarbase.management.service.SubjectServiceTest.DEFAULT_REMOVED;
+import static org.radarbase.management.service.SubjectServiceTest.DEFAULT_STATUS;
+import static org.radarbase.management.service.SubjectServiceTest.MODEL;
+import static org.radarbase.management.service.SubjectServiceTest.PRODUCER;
+import static org.radarbase.management.service.SubjectServiceTest.UPDATED_ENTERNAL_ID;
+import static org.radarbase.management.service.SubjectServiceTest.UPDATED_EXTERNAL_LINK;
+import static org.radarbase.management.service.SubjectServiceTest.UPDATED_REMOVED;
+import static org.radarbase.management.service.SubjectServiceTest.createEntityDTO;
+import static org.radarbase.management.web.rest.TestUtil.commitTransactionAndStartNew;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
  * Test class for the SubjectResource REST controller.
  *
  * @see SubjectResource
  */
-@ExtendWith(SpringExtension::class)
-@SpringBootTest(classes = [ManagementPortalTestApp::class])
+@ExtendWith(SpringExtension.class)
+@SpringBootTest(classes = ManagementPortalTestApp.class)
 @WithMockUser
-internal class SubjectResourceIntTest(
-    @Autowired private val subjectResource: SubjectResource,
-    @Autowired private val subjectRepository: SubjectRepository,
-    @Autowired private val subjectMapper: SubjectMapper,
-    @Autowired private val subjectService: SubjectService,
-    @Autowired private val sourceService: SourceService,
-    @Autowired private val sourceTypeService: SourceTypeService,
-    @Autowired private val jacksonMessageConverter: MappingJackson2HttpMessageConverter,
-    @Autowired private val pageableArgumentResolver: PageableHandlerMethodArgumentResolver,
-    @Autowired private val exceptionTranslator: ExceptionTranslator,
-) {
-    private lateinit var restSubjectMockMvc: MockMvc
+class SubjectResourceIntTest {
+
+    @Autowired
+    private SubjectRepository subjectRepository;
+
+    @Autowired
+    private SubjectMapper subjectMapper;
+
+    @Autowired
+    private SubjectService subjectService;
+
+    @Autowired
+    private SourceService sourceService;
+
+    @Autowired
+    private SourceTypeService sourceTypeService;
+
+    @Autowired
+    private MappingJackson2HttpMessageConverter jacksonMessageConverter;
+
+    @Autowired
+    private PageableHandlerMethodArgumentResolver pageableArgumentResolver;
+
+    @Autowired
+    private ExceptionTranslator exceptionTranslator;
+
+    @Autowired
+    private ProjectRepository projectRepository;
+
+    private MockMvc restSubjectMockMvc;
+
+    @Autowired
+    private AuthService authService;
 
     @BeforeEach
-    @Throws(ServletException::class)
-    fun setUp() {
-        MockitoAnnotations.openMocks(this)
+    public void setUp() throws ServletException {
+        MockitoAnnotations.initMocks(this);
+        SubjectResource subjectResource = new SubjectResource();
+        ReflectionTestUtils.setField(subjectResource, "subjectService", subjectService);
+        ReflectionTestUtils.setField(subjectResource, "subjectRepository", subjectRepository);
+        ReflectionTestUtils.setField(subjectResource, "subjectMapper", subjectMapper);
+        ReflectionTestUtils.setField(subjectResource, "projectRepository", projectRepository);
+        ReflectionTestUtils.setField(subjectResource, "sourceTypeService", sourceTypeService);
+        ReflectionTestUtils.setField(subjectResource, "authService", authService);
+        ReflectionTestUtils.setField(subjectResource, "sourceService", sourceService);
 
-        val filter = OAuthHelper.createAuthenticationFilter()
-        filter.init(MockFilterConfig())
-        restSubjectMockMvc =
-            MockMvcBuilders.standaloneSetup(subjectResource).setCustomArgumentResolvers(pageableArgumentResolver)
-                .setControllerAdvice(exceptionTranslator).setMessageConverters(jacksonMessageConverter)
-                .addFilter<StandaloneMockMvcBuilder>(filter) // add the oauth token by default to all requests for this mockMvc
-                .defaultRequest<StandaloneMockMvcBuilder>(
-                    MockMvcRequestBuilders.get("/").with(OAuthHelper.bearerToken())
-                ).build()
+        JwtAuthenticationFilter filter = OAuthHelper.createAuthenticationFilter();
+        filter.init(new MockFilterConfig());
+
+        this.restSubjectMockMvc = MockMvcBuilders.standaloneSetup(subjectResource)
+                .setCustomArgumentResolvers(pageableArgumentResolver)
+                .setControllerAdvice(exceptionTranslator)
+                .setMessageConverters(jacksonMessageConverter)
+                .addFilter(filter)
+                // add the oauth token by default to all requests for this mockMvc
+                .defaultRequest(get("/").with(OAuthHelper.bearerToken())).build();
     }
 
     @Test
     @Transactional
-    @Throws(Exception::class)
-    fun createSubject() {
-        val databaseSizeBeforeCreate = subjectRepository.findAll().size
+    void createSubject() throws Exception {
+        final int databaseSizeBeforeCreate = subjectRepository.findAll().size();
 
         // Create the Subject
-        val subjectDto: SubjectDTO = SubjectServiceTest.createEntityDTO()
-        restSubjectMockMvc.perform(
-            MockMvcRequestBuilders.post("/api/subjects").contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(subjectDto))
-        ).andExpect(MockMvcResultMatchers.status().isCreated())
+        SubjectDTO subjectDto = createEntityDTO();
+        restSubjectMockMvc.perform(post("/api/subjects")
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(subjectDto)))
+                .andExpect(status().isCreated());
 
         // Validate the Subject in the database
-        val subjectList = subjectRepository.findAll()
-        Assertions.assertThat(subjectList).hasSize(databaseSizeBeforeCreate + 1)
-        val testSubject = subjectList[subjectList.size - 1]
-        Assertions.assertThat(testSubject.externalLink).isEqualTo(SubjectServiceTest.DEFAULT_EXTERNAL_LINK)
-        Assertions.assertThat(testSubject.externalId).isEqualTo(SubjectServiceTest.DEFAULT_ENTERNAL_ID)
-        Assertions.assertThat(testSubject.removed).isEqualTo(SubjectServiceTest.DEFAULT_REMOVED)
-        Assertions.assertThat(testSubject.user!!.roles.size).isEqualTo(1)
+        List<Subject> subjectList = subjectRepository.findAll();
+        assertThat(subjectList).hasSize(databaseSizeBeforeCreate + 1);
+        Subject testSubject = subjectList.get(subjectList.size() - 1);
+        assertThat(testSubject.externalLink).isEqualTo(DEFAULT_EXTERNAL_LINK);
+        assertThat(testSubject.externalId).isEqualTo(DEFAULT_ENTERNAL_ID);
+        assertThat(testSubject.isRemoved()).isEqualTo(DEFAULT_REMOVED);
+        assertEquals(1, testSubject.user.roles.size());
     }
 
     @Test
     @Transactional
-    @Throws(Exception::class)
-    fun createSubjectWithExistingId() {
+    void createSubjectWithExistingId() throws Exception {
         // Create a Subject
-        val subjectDto = subjectService.createSubject(SubjectServiceTest.createEntityDTO())
-        val databaseSizeBeforeCreate = subjectRepository.findAll().size
+        SubjectDTO subjectDto = subjectService.createSubject(createEntityDTO());
+        final int databaseSizeBeforeCreate = subjectRepository.findAll().size();
 
         // An entity with an existing ID cannot be created, so this API call must fail
-        restSubjectMockMvc.perform(
-            MockMvcRequestBuilders.post("/api/subjects").contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(subjectDto))
-        ).andExpect(MockMvcResultMatchers.status().isBadRequest())
+        restSubjectMockMvc.perform(post("/api/subjects")
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(subjectDto)))
+                .andExpect(status().isBadRequest());
 
         // Validate the Alice in the database
-        val subjectList = subjectRepository.findAll()
-        Assertions.assertThat(subjectList).hasSize(databaseSizeBeforeCreate)
+        List<Subject> subjectList = subjectRepository.findAll();
+        assertThat(subjectList).hasSize(databaseSizeBeforeCreate);
     }
 
-    @Throws(Exception::class)
-    @Transactional
     @Test
-    fun allSubjects() {
+    @Transactional
+    void getAllSubjects() throws Exception {
         // Initialize the database
-        val subjectDto = subjectService.createSubject(SubjectServiceTest.createEntityDTO())
+        SubjectDTO subjectDto = subjectService.createSubject(createEntityDTO());
 
         // Get all the subjectList
-        restSubjectMockMvc.perform(MockMvcRequestBuilders.get("/api/subjects?sort=id,desc"))
-            .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON)).andExpect(
-                MockMvcResultMatchers.jsonPath("$.[*].id").value<Iterable<Int?>>(
-                    Matchers.hasItem(
-                        subjectDto!!.id!!.toInt()
-                    )
-                )
-            ).andExpect(
-                MockMvcResultMatchers.jsonPath("$.[*].externalLink")
-                    .value<Iterable<String?>>(Matchers.hasItem(SubjectServiceTest.DEFAULT_EXTERNAL_LINK))
-            ).andExpect(
-                MockMvcResultMatchers.jsonPath("$.[*].externalId")
-                    .value<Iterable<String?>>(Matchers.hasItem(SubjectServiceTest.DEFAULT_ENTERNAL_ID))
-            ).andExpect(
-                MockMvcResultMatchers.jsonPath("$.[*].status")
-                    .value<Iterable<String?>>(Matchers.hasItem(SubjectServiceTest.DEFAULT_STATUS.toString()))
-            )
+        restSubjectMockMvc.perform(get("/api/subjects?sort=id,desc"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.[*].id").value(hasItem(subjectDto.getId().intValue())))
+                .andExpect(jsonPath("$.[*].externalLink").value(hasItem(DEFAULT_EXTERNAL_LINK)))
+                .andExpect(jsonPath("$.[*].externalId").value(hasItem(DEFAULT_ENTERNAL_ID)))
+                .andExpect(jsonPath("$.[*].status").value(hasItem(DEFAULT_STATUS.toString())));
     }
 
-    @Throws(Exception::class)
-    @Transactional
     @Test
-    fun subject() {
+    @Transactional
+    void getSubject() throws Exception {
         // Initialize the database
-        val subjectDto = subjectService.createSubject(SubjectServiceTest.createEntityDTO())
+        SubjectDTO subjectDto = subjectService.createSubject(createEntityDTO());
 
         // Get the subject
-        restSubjectMockMvc.perform(MockMvcRequestBuilders.get("/api/subjects/{login}", subjectDto!!.login))
-            .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(subjectDto.id!!.toInt())).andExpect(
-                MockMvcResultMatchers.jsonPath("$.externalLink").value(SubjectServiceTest.DEFAULT_EXTERNAL_LINK)
-            ).andExpect(
-                MockMvcResultMatchers.jsonPath("$.externalId").value(SubjectServiceTest.DEFAULT_ENTERNAL_ID)
-            ).andExpect(
-                MockMvcResultMatchers.jsonPath("$.status").value(SubjectServiceTest.DEFAULT_STATUS.toString())
-            )
+        restSubjectMockMvc.perform(get("/api/subjects/{login}", subjectDto.getLogin()))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").value(subjectDto.getId().intValue()))
+                .andExpect(jsonPath("$.externalLink").value(DEFAULT_EXTERNAL_LINK))
+                .andExpect(jsonPath("$.externalId").value(DEFAULT_ENTERNAL_ID))
+                .andExpect(jsonPath("$.status").value(DEFAULT_STATUS.toString()));
     }
 
-    @Throws(Exception::class)
-    @Transactional
     @Test
-    fun nonExistingSubject() {
+    @Transactional
+    void getNonExistingSubject() throws Exception {
         // Get the subject
-        restSubjectMockMvc.perform(MockMvcRequestBuilders.get("/api/subjects/{id}", Long.MAX_VALUE))
-            .andExpect(MockMvcResultMatchers.status().isNotFound())
+        restSubjectMockMvc.perform(get("/api/subjects/{id}", Long.MAX_VALUE))
+                .andExpect(status().isNotFound());
     }
 
     @Test
     @Transactional
-    @Throws(Exception::class)
-    fun updateSubject() {
+    void updateSubject() throws Exception {
         // Initialize the database
-        var subjectDto = subjectService.createSubject(SubjectServiceTest.createEntityDTO())
-        val databaseSizeBeforeUpdate = subjectRepository.findAll().size
+        SubjectDTO subjectDto = subjectService.createSubject(createEntityDTO());
+        final int databaseSizeBeforeUpdate = subjectRepository.findAll().size();
 
         // Update the subject
-        val updatedSubject = subjectRepository.findById(subjectDto!!.id!!).get()
-        updatedSubject.externalLink(SubjectServiceTest.UPDATED_EXTERNAL_LINK)
-            .externalId(SubjectServiceTest.UPDATED_ENTERNAL_ID).removed = SubjectServiceTest.UPDATED_REMOVED
-        subjectDto = subjectMapper.subjectToSubjectDTO(updatedSubject)
-        restSubjectMockMvc.perform(
-            MockMvcRequestBuilders.put("/api/subjects").contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(subjectDto))
-        ).andExpect(MockMvcResultMatchers.status().isOk())
+        Subject updatedSubject = subjectRepository.findById(subjectDto.getId()).get();
+        updatedSubject
+                .externalLink(UPDATED_EXTERNAL_LINK)
+                .externalId(UPDATED_ENTERNAL_ID)
+                .removed(UPDATED_REMOVED);
+        subjectDto = subjectMapper.subjectToSubjectDTO(updatedSubject);
+
+        restSubjectMockMvc.perform(put("/api/subjects")
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(subjectDto)))
+                .andExpect(status().isOk());
 
         // Validate the Subject in the database
-        val subjectList = subjectRepository.findAll()
-        Assertions.assertThat(subjectList).hasSize(databaseSizeBeforeUpdate)
-        val testSubject = subjectList[subjectList.size - 1]
-        Assertions.assertThat(testSubject.externalLink).isEqualTo(SubjectServiceTest.UPDATED_EXTERNAL_LINK)
-        Assertions.assertThat(testSubject.externalId).isEqualTo(SubjectServiceTest.UPDATED_ENTERNAL_ID)
-        Assertions.assertThat(testSubject.removed).isEqualTo(SubjectServiceTest.UPDATED_REMOVED)
+        List<Subject> subjectList = subjectRepository.findAll();
+        assertThat(subjectList).hasSize(databaseSizeBeforeUpdate);
+        Subject testSubject = subjectList.get(subjectList.size() - 1);
+        assertThat(testSubject.externalLink).isEqualTo(UPDATED_EXTERNAL_LINK);
+        assertThat(testSubject.externalId).isEqualTo(UPDATED_ENTERNAL_ID);
+        assertThat(testSubject.isRemoved()).isEqualTo(UPDATED_REMOVED);
     }
 
     @Test
     @Transactional
-    @Throws(Exception::class)
-    fun updateSubjectWithNewProject() {
+    void updateSubjectWithNewProject() throws Exception {
         // Initialize the database
-        var subjectDto = subjectService.createSubject(SubjectServiceTest.createEntityDTO())
-        val databaseSizeBeforeUpdate = subjectRepository.findAll().size
+        SubjectDTO subjectDto = subjectService.createSubject(createEntityDTO());
+        final int databaseSizeBeforeUpdate = subjectRepository.findAll().size();
 
         // Update the subject
-        val updatedSubject = subjectRepository.findById(subjectDto!!.id!!).get()
-        updatedSubject.externalLink(SubjectServiceTest.UPDATED_EXTERNAL_LINK)
-            .externalId(SubjectServiceTest.UPDATED_ENTERNAL_ID).removed = SubjectServiceTest.UPDATED_REMOVED
-        subjectDto = subjectMapper.subjectToSubjectDTO(updatedSubject)
-        val newProject = ProjectDTO()
-        newProject.id = 2L
-        newProject.projectName = "RadarNew"
-        newProject.location = "new location"
-        subjectDto!!.project = newProject
-        restSubjectMockMvc.perform(
-            MockMvcRequestBuilders.put("/api/subjects").contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(subjectDto))
-        ).andExpect(MockMvcResultMatchers.status().isOk())
+        Subject updatedSubject = subjectRepository.findById(subjectDto.getId()).get();
+
+        updatedSubject
+                .externalLink(UPDATED_EXTERNAL_LINK)
+                .externalId(UPDATED_ENTERNAL_ID)
+                .removed(UPDATED_REMOVED);
+
+        subjectDto = subjectMapper.subjectToSubjectDTO(updatedSubject);
+        ProjectDTO newProject = new ProjectDTO();
+        newProject.setId(2L);
+        newProject.setProjectName("RadarNew");
+        newProject.setLocation("new location");
+        subjectDto.setProject(newProject);
+
+        restSubjectMockMvc.perform(put("/api/subjects")
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(subjectDto)))
+                .andExpect(status().isOk());
 
         // Validate the Subject in the database
-        val subjectList = subjectRepository.findAll()
-        Assertions.assertThat(subjectList).hasSize(databaseSizeBeforeUpdate)
-        val testSubject = subjectList[subjectList.size - 1]
-        Assertions.assertThat(testSubject.externalLink).isEqualTo(SubjectServiceTest.UPDATED_EXTERNAL_LINK)
-        Assertions.assertThat(testSubject.externalId).isEqualTo(SubjectServiceTest.UPDATED_ENTERNAL_ID)
-        Assertions.assertThat(testSubject.removed).isEqualTo(SubjectServiceTest.UPDATED_REMOVED)
-        Assertions.assertThat(testSubject.user!!.roles.size).isEqualTo(2)
+        List<Subject> subjectList = subjectRepository.findAll();
+        assertThat(subjectList).hasSize(databaseSizeBeforeUpdate);
+        Subject testSubject = subjectList.get(subjectList.size() - 1);
+        assertThat(testSubject.externalLink).isEqualTo(UPDATED_EXTERNAL_LINK);
+        assertThat(testSubject.externalId).isEqualTo(UPDATED_ENTERNAL_ID);
+        assertThat(testSubject.isRemoved()).isEqualTo(UPDATED_REMOVED);
+        assertThat(testSubject.user.roles.size()).isEqualTo(2);
     }
 
     @Test
     @Transactional
-    @Throws(Exception::class)
-    fun updateNonExistingSubject() {
-        val databaseSizeBeforeUpdate = subjectRepository.findAll().size
+    void updateNonExistingSubject() throws Exception {
+        final int databaseSizeBeforeUpdate = subjectRepository.findAll().size();
 
         // Create the Subject
-        val subjectDto: SubjectDTO = SubjectServiceTest.createEntityDTO()
+        SubjectDTO subjectDto = createEntityDTO();
 
         // If the entity doesn't have an ID, it will be created instead of just being updated
-        restSubjectMockMvc.perform(
-            MockMvcRequestBuilders.put("/api/subjects").contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(subjectDto))
-        ).andExpect(MockMvcResultMatchers.status().isCreated())
+        restSubjectMockMvc.perform(put("/api/subjects")
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(subjectDto)))
+                .andExpect(status().isCreated());
 
         // Validate the Subject in the database
-        val subjectList = subjectRepository.findAll()
-        Assertions.assertThat(subjectList).hasSize(databaseSizeBeforeUpdate + 1)
+        List<Subject> subjectList = subjectRepository.findAll();
+        assertThat(subjectList).hasSize(databaseSizeBeforeUpdate + 1);
     }
 
     @Test
     @Transactional
-    @Throws(Exception::class)
-    fun deleteSubject() {
+    void deleteSubject() throws Exception {
         // Initialize the database
-        val subjectDto = subjectService.createSubject(SubjectServiceTest.createEntityDTO())
-        val databaseSizeBeforeDelete = subjectRepository.findAll().size
+        SubjectDTO subjectDto = subjectService.createSubject(createEntityDTO());
+        final int databaseSizeBeforeDelete = subjectRepository.findAll().size();
 
         // Get the subject
-        restSubjectMockMvc.perform(
-            MockMvcRequestBuilders.delete("/api/subjects/{login}", subjectDto!!.login)
-                .accept(TestUtil.APPLICATION_JSON_UTF8)
-        ).andExpect(MockMvcResultMatchers.status().isOk())
+        restSubjectMockMvc.perform(delete("/api/subjects/{login}", subjectDto.getLogin())
+                .accept(TestUtil.APPLICATION_JSON_UTF8))
+                .andExpect(status().isOk());
 
         // Validate the database is empty
-        val subjectList = subjectRepository.findAll()
-        Assertions.assertThat(subjectList).hasSize(databaseSizeBeforeDelete - 1)
+        List<Subject> subjectList = subjectRepository.findAll();
+        assertThat(subjectList).hasSize(databaseSizeBeforeDelete - 1);
     }
 
     @Test
     @Transactional
-    @Throws(Exception::class)
-    fun equalsVerifier() {
-        assertTrue(TestUtil.equalsVerifier(Subject::class.java))
+    void equalsVerifier() throws Exception {
+        assertTrue(TestUtil.equalsVerifier(Subject.class));
     }
+
 
     @Test
     @Transactional
-    @Throws(Exception::class)
-    fun dynamicSourceRegistrationWithId() {
-        val databaseSizeBeforeCreate = subjectRepository.findAll().size
+    void dynamicSourceRegistrationWithId() throws Exception {
+        final int databaseSizeBeforeCreate = subjectRepository.findAll().size();
 
         // Create the Subject
-        val subjectDto: SubjectDTO = SubjectServiceTest.createEntityDTO()
-        restSubjectMockMvc.perform(
-            MockMvcRequestBuilders.post("/api/subjects").contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(subjectDto))
-        ).andExpect(MockMvcResultMatchers.status().isCreated())
+        SubjectDTO subjectDto = createEntityDTO();
+        restSubjectMockMvc.perform(post("/api/subjects")
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(subjectDto)))
+                .andExpect(status().isCreated());
 
         // Validate the Subject in the database
-        val subjectList = subjectRepository.findAll()
-        Assertions.assertThat(subjectList).hasSize(databaseSizeBeforeCreate + 1)
-        val testSubject = subjectList[subjectList.size - 1]
-        val subjectLogin = testSubject.user!!.login
-        assertNotNull(subjectLogin)
+        List<Subject> subjectList = subjectRepository.findAll();
+        assertThat(subjectList).hasSize(databaseSizeBeforeCreate + 1);
+        Subject testSubject = subjectList.get(subjectList.size() - 1);
+
+        String subjectLogin = testSubject.user.getLogin();
+        assertNotNull(subjectLogin);
 
         // Create a source description
-        val sourceRegistrationDto = createSourceWithSourceTypeId()
-        restSubjectMockMvc.perform(
-            MockMvcRequestBuilders.post("/api/subjects/{login}/sources", subjectLogin)
+        MinimalSourceDetailsDTO sourceRegistrationDto = createSourceWithSourceTypeId();
+
+        restSubjectMockMvc.perform(post("/api/subjects/{login}/sources", subjectLogin)
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(sourceRegistrationDto))
-        ).andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.jsonPath("$.sourceId").isNotEmpty())
+                .content(TestUtil.convertObjectToJsonBytes(sourceRegistrationDto)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.sourceId").isNotEmpty());
 
         // A source can not be assigned twice to a subject, so this call must fail
-        Assertions.assertThat(sourceRegistrationDto.sourceId).isNull()
-        restSubjectMockMvc.perform(
-            MockMvcRequestBuilders.post("/api/subjects/{login}/sources", subjectLogin)
+        assertThat(sourceRegistrationDto.getSourceId()).isNull();
+        restSubjectMockMvc.perform(post("/api/subjects/{login}/sources", subjectLogin)
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(sourceRegistrationDto))
-        ).andExpect(MockMvcResultMatchers.status().is4xxClientError())
+                .content(TestUtil.convertObjectToJsonBytes(sourceRegistrationDto)))
+                .andExpect(status().is4xxClientError());
     }
 
     @Test
     @Transactional
-    @Throws(Exception::class)
-    fun dynamicSourceRegistrationWithoutId() {
-        val databaseSizeBeforeCreate = subjectRepository.findAll().size
+    void dynamicSourceRegistrationWithoutId() throws Exception {
+        final int databaseSizeBeforeCreate = subjectRepository.findAll().size();
 
         // Create the Subject
-        val subjectDto: SubjectDTO = SubjectServiceTest.createEntityDTO()
-        restSubjectMockMvc.perform(
-            MockMvcRequestBuilders.post("/api/subjects").contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(subjectDto))
-        ).andExpect(MockMvcResultMatchers.status().isCreated())
+        SubjectDTO subjectDto = createEntityDTO();
+        restSubjectMockMvc.perform(post("/api/subjects")
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(subjectDto)))
+                .andExpect(status().isCreated());
 
         // Validate the Subject in the database
-        val subjectList = subjectRepository.findAll()
-        Assertions.assertThat(subjectList).hasSize(databaseSizeBeforeCreate + 1)
-        val testSubject = subjectList[subjectList.size - 1]
-        val subjectLogin = testSubject.user!!.login
-        assertNotNull(subjectLogin)
+        List<Subject> subjectList = subjectRepository.findAll();
+        assertThat(subjectList).hasSize(databaseSizeBeforeCreate + 1);
+        Subject testSubject = subjectList.get(subjectList.size() - 1);
+
+        String subjectLogin = testSubject.user.getLogin();
+        assertNotNull(subjectLogin);
 
         // Create a source description
-        val sourceRegistrationDto = createSourceWithoutSourceTypeId()
-        restSubjectMockMvc.perform(
-            MockMvcRequestBuilders.post("/api/subjects/{login}/sources", subjectLogin)
+        MinimalSourceDetailsDTO sourceRegistrationDto = createSourceWithoutSourceTypeId();
+
+        restSubjectMockMvc.perform(post("/api/subjects/{login}/sources", subjectLogin)
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(sourceRegistrationDto))
-        ).andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.jsonPath("$.sourceId").isNotEmpty())
+                .content(TestUtil.convertObjectToJsonBytes(sourceRegistrationDto)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.sourceId").isNotEmpty());
 
         // A source can not be assigned twice to a subject, so this call must fail
-        Assertions.assertThat(sourceRegistrationDto.sourceId).isNull()
-        restSubjectMockMvc.perform(
-            MockMvcRequestBuilders.post("/api/subjects/{login}/sources", subjectLogin)
+        assertThat(sourceRegistrationDto.getSourceId()).isNull();
+        restSubjectMockMvc.perform(post("/api/subjects/{login}/sources", subjectLogin)
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(sourceRegistrationDto))
-        ).andExpect(MockMvcResultMatchers.status().is4xxClientError())
+                .content(TestUtil.convertObjectToJsonBytes(sourceRegistrationDto)))
+                .andExpect(status().is4xxClientError());
 
         // Get all the subjectList
-        restSubjectMockMvc.perform(
-                MockMvcRequestBuilders.get(
-                    "/api/subjects/{login}/sources?sort=id,desc",
-                    subjectDto.login
-                )
-            ).andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.[*].id").isNotEmpty())
+        restSubjectMockMvc
+                .perform(get("/api/subjects/{login}/sources?sort=id,desc", subjectDto.getLogin()))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.[*].id").isNotEmpty());
+
     }
 
     @Test
     @Transactional
-    @Throws(Exception::class)
-    fun dynamicSourceRegistrationWithoutDynamicRegistrationFlag() {
-        val databaseSizeBeforeCreate = subjectRepository.findAll().size
+    void dynamicSourceRegistrationWithoutDynamicRegistrationFlag() throws Exception {
+        final int databaseSizeBeforeCreate = subjectRepository.findAll().size();
 
         // Create the Subject
-        val subjectDto: SubjectDTO = SubjectServiceTest.createEntityDTO()
-        restSubjectMockMvc.perform(
-            MockMvcRequestBuilders.post("/api/subjects").contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(subjectDto))
-        ).andExpect(MockMvcResultMatchers.status().isCreated())
-
-        // Validate the Subject in the database
-        val subjectList = subjectRepository.findAll()
-        Assertions.assertThat(subjectList).hasSize(databaseSizeBeforeCreate + 1)
-        val testSubject = subjectList[subjectList.size - 1]
-        val subjectLogin = testSubject.user!!.login
-        assertNotNull(subjectLogin)
-
-        // Create a source description
-        val sourceRegistrationDto = createSourceWithoutSourceTypeIdAndWithoutDynamicRegistration()
-        restSubjectMockMvc.perform(
-            MockMvcRequestBuilders.post("/api/subjects/{login}/sources", subjectLogin)
+        SubjectDTO subjectDto = createEntityDTO();
+        restSubjectMockMvc.perform(post("/api/subjects")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(sourceRegistrationDto))
-        ).andExpect(MockMvcResultMatchers.status().is4xxClientError())
-            .andExpect(MockMvcResultMatchers.jsonPath("$.message").isNotEmpty())
-    }
-
-    @Throws(Exception::class)
-    @Transactional
-    @Test
-    fun subjectSources() {
-        // Initialize the database
-        val subjectDtoToCreate: SubjectDTO = SubjectServiceTest.createEntityDTO()
-        val createdSource = sourceService.save(createSource())
-        val sourceDto = MinimalSourceDetailsDTO().id(createdSource.id).sourceName(createdSource.sourceName)
-            .sourceTypeId(createdSource.sourceType?.id).sourceId(createdSource.sourceId!!)
-        subjectDtoToCreate.sources = setOf(sourceDto)
-        assertNotNull(sourceDto.id)
-        val createdSubject = subjectService.createSubject(subjectDtoToCreate)
-        assertFalse(createdSubject!!.sources.isEmpty())
-
-        // Get the subject
-        restSubjectMockMvc.perform(
-            MockMvcRequestBuilders.get(
-                "/api/subjects/{login}/sources", createdSubject.login
-            )
-        ).andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.[0].id").value(createdSource.id!!.toInt())).andExpect(
-                MockMvcResultMatchers.jsonPath("$.[0].sourceId").value(createdSource.sourceId.toString())
-            )
-    }
-
-    @Throws(Exception::class)
-    @Transactional
-    @Test
-    fun subjectSourcesWithQueryParam() {
-        // Initialize the database
-        val subjectDtoToCreate: SubjectDTO = SubjectServiceTest.createEntityDTO()
-        val createdSource = sourceService.save(createSource())
-        val sourceDto = MinimalSourceDetailsDTO().id(createdSource.id).sourceName(createdSource.sourceName)
-            .sourceTypeId(createdSource.sourceType?.id).sourceId(createdSource.sourceId!!)
-        subjectDtoToCreate.sources = setOf(sourceDto)
-        assertNotNull(sourceDto.id)
-        val createdSubject = subjectService.createSubject(subjectDtoToCreate)
-        TestUtil.commitTransactionAndStartNew()
-        assertNotNull(createdSubject!!.login)
-        // Get the subject
-        restSubjectMockMvc.perform(
-            MockMvcRequestBuilders.get(
-                "/api/subjects/{login}/sources?withInactiveSources=true", createdSubject.login
-            )
-        ).andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.[*].id").value(createdSource.id!!.toInt())).andExpect(
-                MockMvcResultMatchers.jsonPath("$.[*].sourceId").value(createdSource.sourceId.toString())
-            )
-    }
-
-    @Throws(Exception::class)
-    @Transactional
-    @Test
-    fun inactiveSubjectSourcesWithQueryParam() {
-        // Initialize the database
-        val subjectDtoToCreate: SubjectDTO = SubjectServiceTest.createEntityDTO()
-        val createdSource = sourceService.save(createSource())
-        val sourceDto = MinimalSourceDetailsDTO().id(createdSource.id).sourceName(createdSource.sourceName)
-            .sourceTypeId(createdSource.sourceType?.id).sourceId(createdSource.sourceId!!)
-        subjectDtoToCreate.sources = setOf(sourceDto)
-        assertNotNull(sourceDto.id)
-        val createdSubject = subjectService.createSubject(subjectDtoToCreate)
-        TestUtil.commitTransactionAndStartNew()
-        createdSubject!!.sources = emptySet()
-        val updatedSubject = subjectService.updateSubject(createdSubject)
-        TestUtil.commitTransactionAndStartNew()
-        assertNotNull(updatedSubject!!.login)
-        // Get the subject
-        restSubjectMockMvc.perform(
-            MockMvcRequestBuilders.get(
-                "/api/subjects/{login}/sources?withInactiveSources=true", updatedSubject.login
-            )
-        ).andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.[*].id").value(createdSource.id!!.toInt())).andExpect(
-                MockMvcResultMatchers.jsonPath("$.[*].sourceId").value(createdSource.sourceId.toString())
-            )
-
-        // Get the subject
-        restSubjectMockMvc.perform(
-                MockMvcRequestBuilders.get(
-                    "/api/subjects/{login}/sources?withInactiveSources=false", updatedSubject.login
-                )
-            ).andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON)).andReturn()
-    }
-
-    private fun createSource(): SourceDTO {
-        val sourceDto = SourceDTO()
-        sourceDto.assigned = false
-        sourceDto.sourceId = UUID.randomUUID()
-        sourceDto.sourceType = sourceTypeService.findAll()[0]
-        sourceDto.sourceName = "something" + UUID.randomUUID()
-        return sourceDto
-    }
-
-    private fun createSourceWithSourceTypeId(): MinimalSourceDetailsDTO {
-        val sourceTypes =
-            sourceTypeService.findAll().stream().filter { obj: SourceTypeDTO -> obj.canRegisterDynamically }
-                .collect(Collectors.toList())
-        Assertions.assertThat(sourceTypes.size).isPositive()
-        val sourceType = sourceTypes[0]
-        return source.sourceTypeId(sourceType.id)
-    }
-
-    private fun createSourceWithoutSourceTypeId(): MinimalSourceDetailsDTO {
-        val sourceTypes =
-            sourceTypeService.findAll().stream().filter { obj: SourceTypeDTO -> obj.canRegisterDynamically }
-                .collect(Collectors.toList())
-        Assertions.assertThat(sourceTypes.size).isPositive()
-        val sourceType = sourceTypes[0]
-        return source.sourceTypeCatalogVersion(sourceType.catalogVersion).sourceTypeModel(sourceType.model)
-            .sourceTypeProducer(sourceType.producer)
-    }
-
-    private fun createSourceWithoutSourceTypeIdAndWithoutDynamicRegistration(): MinimalSourceDetailsDTO {
-        val sourceTypes =
-            sourceTypeService.findAll().filter { it: SourceTypeDTO -> !it.canRegisterDynamically }
-        Assertions.assertThat(sourceTypes.size).isPositive()
-        val sourceType = sourceTypes[0]
-        return source.sourceTypeCatalogVersion(sourceType.catalogVersion).sourceTypeModel(sourceType.model)
-            .sourceTypeProducer(sourceType.producer)
-    }
-
-    private val source: MinimalSourceDetailsDTO
-        get() {
-            val sourceRegistrationDto =
-                MinimalSourceDetailsDTO().sourceName(SubjectServiceTest.PRODUCER + "-" + SubjectServiceTest.MODEL)
-                    .attributes(Collections.singletonMap("something", "value"))
-            Assertions.assertThat(sourceRegistrationDto.sourceId).isNull()
-            return sourceRegistrationDto
-        }
-
-    @Test
-    @Transactional
-    @Throws(Exception::class)
-    fun testDynamicRegistrationAndUpdateSourceAttributes() {
-        val databaseSizeBeforeCreate = subjectRepository.findAll().size
-
-        // Create the Subject
-        val subjectDto: SubjectDTO = SubjectServiceTest.createEntityDTO()
-        restSubjectMockMvc.perform(
-            MockMvcRequestBuilders.post("/api/subjects").contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(subjectDto))
-        ).andExpect(MockMvcResultMatchers.status().isCreated())
+                .content(TestUtil.convertObjectToJsonBytes(subjectDto)))
+                .andExpect(status().isCreated());
 
         // Validate the Subject in the database
-        val subjectList = subjectRepository.findAll()
-        Assertions.assertThat(subjectList).hasSize(databaseSizeBeforeCreate + 1)
-        val testSubject = subjectList[subjectList.size - 1]
-        val subjectLogin = testSubject.user!!.login
-        assertNotNull(subjectLogin)
+        List<Subject> subjectList = subjectRepository.findAll();
+        assertThat(subjectList).hasSize(databaseSizeBeforeCreate + 1);
+        Subject testSubject = subjectList.get(subjectList.size() - 1);
+
+        String subjectLogin = testSubject.user.getLogin();
+        assertNotNull(subjectLogin);
 
         // Create a source description
-        val sourceRegistrationDto = createSourceWithoutSourceTypeId()
-        val result = restSubjectMockMvc.perform(
-            MockMvcRequestBuilders.post(
-                "/api/subjects/{login}/sources", subjectLogin
-            ).contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(sourceRegistrationDto))
-        ).andExpect(MockMvcResultMatchers.status().isOk()).andReturn()
-        val value = TestUtil.convertJsonStringToObject(
-            result.response.contentAsString, MinimalSourceDetailsDTO::class.java
-        ) as MinimalSourceDetailsDTO
-        assertNotNull(value.sourceName)
-        val attributes: MutableMap<String, String> = HashMap()
-        attributes["TEST_KEY"] = "Value"
-        attributes["ANDROID_VERSION"] = "something"
-        attributes["Other"] = "test"
-        restSubjectMockMvc.perform(
-            MockMvcRequestBuilders.post(
-                "/api/subjects/{login}/sources/{sourceName}", subjectLogin, value.sourceName
-            ).contentType(TestUtil.APPLICATION_JSON_UTF8).content(TestUtil.convertObjectToJsonBytes(attributes))
-        ).andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.jsonPath("$.attributes").isNotEmpty())
+        MinimalSourceDetailsDTO sourceRegistrationDto =
+                createSourceWithoutSourceTypeIdAndWithoutDynamicRegistration();
+
+        restSubjectMockMvc.perform(post("/api/subjects/{login}/sources", subjectLogin)
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(sourceRegistrationDto)))
+                .andExpect(status().is4xxClientError())
+                .andExpect(jsonPath("$.message").isNotEmpty());
+    }
+
+    @Test
+    @Transactional
+    void getSubjectSources() throws Exception {
+        // Initialize the database
+        SubjectDTO subjectDtoToCreate = createEntityDTO();
+        SourceDTO createdSource = sourceService.save(createSource());
+        MinimalSourceDetailsDTO sourceDto = new MinimalSourceDetailsDTO()
+                .id(createdSource.getId())
+                .sourceName(createdSource.getSourceName())
+                .sourceTypeId(createdSource.getSourceType().getId())
+                .sourceId(createdSource.getSourceId());
+
+        subjectDtoToCreate.setSources(Collections.singleton(sourceDto));
+
+        assertNotNull(sourceDto.getId());
+        SubjectDTO createdSubject = subjectService.createSubject(subjectDtoToCreate);
+        assertFalse(createdSubject.getSources().isEmpty());
+
+        // Get the subject
+        restSubjectMockMvc.perform(get("/api/subjects/{login}/sources", createdSubject.getLogin()))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.[0].id").value(createdSource.getId().intValue()))
+                .andExpect(
+                        jsonPath("$.[0].sourceId").value(createdSource.getSourceId().toString()));
+    }
+
+    @Test
+    @Transactional
+    void getSubjectSourcesWithQueryParam() throws Exception {
+        // Initialize the database
+        SubjectDTO subjectDtoToCreate = createEntityDTO();
+        SourceDTO createdSource = sourceService.save(createSource());
+        MinimalSourceDetailsDTO sourceDto = new MinimalSourceDetailsDTO()
+                .id(createdSource.getId())
+                .sourceName(createdSource.getSourceName())
+                .sourceTypeId(createdSource.getSourceType().getId())
+                .sourceId(createdSource.getSourceId());
+
+        subjectDtoToCreate.setSources(Collections.singleton(sourceDto));
+
+        assertNotNull(sourceDto.getId());
+        SubjectDTO createdSubject = subjectService.createSubject(subjectDtoToCreate);
+        commitTransactionAndStartNew();
+
+        assertNotNull(createdSubject.getLogin());
+        // Get the subject
+        restSubjectMockMvc.perform(get("/api/subjects/{login}/sources?withInactiveSources=true",
+                createdSubject.getLogin()))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.[*].id").value(createdSource.getId().intValue()))
+                .andExpect(
+                        jsonPath("$.[*].sourceId").value(createdSource.getSourceId().toString()));
+    }
+
+    @Test
+    @Transactional
+    void getInactiveSubjectSourcesWithQueryParam() throws Exception {
+        // Initialize the database
+        SubjectDTO subjectDtoToCreate = createEntityDTO();
+        SourceDTO createdSource = sourceService.save(createSource());
+        MinimalSourceDetailsDTO sourceDto = new MinimalSourceDetailsDTO()
+                .id(createdSource.getId())
+                .sourceName(createdSource.getSourceName())
+                .sourceTypeId(createdSource.getSourceType().getId())
+                .sourceId(createdSource.getSourceId());
+
+        subjectDtoToCreate.setSources(Collections.singleton(sourceDto));
+
+        assertNotNull(sourceDto.getId());
+        SubjectDTO createdSubject = subjectService.createSubject(subjectDtoToCreate);
+        commitTransactionAndStartNew();
+
+        createdSubject.setSources(Collections.emptySet());
+
+        SubjectDTO updatedSubject = subjectService.updateSubject(createdSubject);
+        commitTransactionAndStartNew();
+
+        assertNotNull(updatedSubject.getLogin());
+        // Get the subject
+        restSubjectMockMvc.perform(get("/api/subjects/{login}/sources?withInactiveSources=true",
+                updatedSubject.getLogin()))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.[*].id").value(createdSource.getId().intValue()))
+                .andExpect(
+                        jsonPath("$.[*].sourceId").value(createdSource.getSourceId().toString()));
+
+        // Get the subject
+        restSubjectMockMvc
+                .perform(get("/api/subjects/{login}/sources?withInactiveSources=false",
+                        updatedSubject.getLogin()))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
+    }
+
+    private SourceDTO createSource() {
+        SourceDTO sourceDto = new SourceDTO();
+        sourceDto.setAssigned(false);
+        sourceDto.setSourceId(UUID.randomUUID());
+        sourceDto.setSourceType(sourceTypeService.findAll().get(0));
+        sourceDto.setSourceName("something" + UUID.randomUUID());
+        return sourceDto;
+    }
+
+    private MinimalSourceDetailsDTO createSourceWithSourceTypeId() {
+        List<SourceTypeDTO> sourceTypes = sourceTypeService.findAll().stream()
+                .filter(SourceTypeDTO::getCanRegisterDynamically)
+                .collect(Collectors.toList());
+        assertThat(sourceTypes.size()).isPositive();
+        SourceTypeDTO sourceType = sourceTypes.get(0);
+
+        return getSource().sourceTypeId(sourceType.getId());
+    }
+
+    private MinimalSourceDetailsDTO createSourceWithoutSourceTypeId() {
+        List<SourceTypeDTO> sourceTypes = sourceTypeService.findAll().stream()
+                .filter(SourceTypeDTO::getCanRegisterDynamically)
+                .collect(Collectors.toList());
+        assertThat(sourceTypes.size()).isPositive();
+        SourceTypeDTO sourceType = sourceTypes.get(0);
+        return getSource()
+                .sourceTypeCatalogVersion(sourceType.getCatalogVersion())
+                .sourceTypeModel(sourceType.getModel())
+                .sourceTypeProducer(sourceType.getProducer());
+    }
+
+    private MinimalSourceDetailsDTO createSourceWithoutSourceTypeIdAndWithoutDynamicRegistration() {
+        List<SourceTypeDTO> sourceTypes = sourceTypeService.findAll().stream()
+                .filter(it -> !it.getCanRegisterDynamically())
+                .collect(Collectors.toList());
+        assertThat(sourceTypes.size()).isPositive();
+        SourceTypeDTO sourceType = sourceTypes.get(0);
+        return getSource()
+                .sourceTypeCatalogVersion(sourceType.getCatalogVersion())
+                .sourceTypeModel(sourceType.getModel())
+                .sourceTypeProducer(sourceType.getProducer());
+    }
+
+    private MinimalSourceDetailsDTO getSource() {
+        MinimalSourceDetailsDTO sourceRegistrationDto = new MinimalSourceDetailsDTO()
+                .sourceName(PRODUCER + "-" + MODEL)
+                .attributes(Collections.singletonMap("something", "value"));
+        assertThat(sourceRegistrationDto.getSourceId()).isNull();
+        return sourceRegistrationDto;
+    }
+
+    @Test
+    @Transactional
+    void testDynamicRegistrationAndUpdateSourceAttributes() throws Exception {
+        final int databaseSizeBeforeCreate = subjectRepository.findAll().size();
+
+        // Create the Subject
+        SubjectDTO subjectDto = createEntityDTO();
+        restSubjectMockMvc.perform(post("/api/subjects")
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(subjectDto)))
+                .andExpect(status().isCreated());
+
+        // Validate the Subject in the database
+        List<Subject> subjectList = subjectRepository.findAll();
+        assertThat(subjectList).hasSize(databaseSizeBeforeCreate + 1);
+        Subject testSubject = subjectList.get(subjectList.size() - 1);
+
+        String subjectLogin = testSubject.user.getLogin();
+        assertNotNull(subjectLogin);
+
+        // Create a source description
+        MinimalSourceDetailsDTO sourceRegistrationDto = createSourceWithoutSourceTypeId();
+
+        MvcResult result = restSubjectMockMvc.perform(post("/api/subjects/{login}/sources",
+                subjectLogin)
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(sourceRegistrationDto)))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        MinimalSourceDetailsDTO value = (MinimalSourceDetailsDTO)
+                TestUtil.convertJsonStringToObject(result
+                .getResponse().getContentAsString() , MinimalSourceDetailsDTO.class);
+
+        assertNotNull(value.getSourceName());
+
+        Map<String, String> attributes = new HashMap<>();
+        attributes.put("TEST_KEY" , "Value");
+        attributes.put("ANDROID_VERSION" , "something");
+        attributes.put("Other" , "test");
+
+        restSubjectMockMvc.perform(post(
+                "/api/subjects/{login}/sources/{sourceName}", subjectLogin, value.getSourceName())
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(attributes)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.attributes").isNotEmpty());
+
     }
 }

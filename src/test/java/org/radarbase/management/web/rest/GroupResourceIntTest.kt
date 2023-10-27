@@ -1,422 +1,432 @@
-package org.radarbase.management.web.rest
+package org.radarbase.management.web.rest;
 
-import org.assertj.core.api.Assertions
-import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Condition
-import org.hamcrest.Matchers
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.MockitoAnnotations
-import org.radarbase.auth.authentication.OAuthHelper
-import org.radarbase.management.ManagementPortalTestApp
-import org.radarbase.management.domain.Group
-import org.radarbase.management.domain.Project
-import org.radarbase.management.domain.Subject
-import org.radarbase.management.repository.GroupRepository
-import org.radarbase.management.repository.ProjectRepository
-import org.radarbase.management.repository.RoleRepository
-import org.radarbase.management.repository.SubjectRepository
-import org.radarbase.management.service.SubjectService
-import org.radarbase.management.service.dto.SubjectDTO
-import org.radarbase.management.service.dto.SubjectDTO.SubjectStatus
-import org.radarbase.management.service.mapper.GroupMapper
-import org.radarbase.management.service.mapper.ProjectMapper
-import org.radarbase.management.web.rest.errors.ExceptionTranslator
-import org.radarbase.management.web.rest.vm.GroupPatchOperation
-import org.radarbase.management.web.rest.vm.GroupPatchOperation.SubjectPatchValue
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.data.web.PageableHandlerMethodArgumentResolver
-import org.springframework.http.MediaType
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter
-import org.springframework.mock.web.MockFilterConfig
-import org.springframework.security.test.context.support.WithMockUser
-import org.springframework.test.context.junit.jupiter.SpringExtension
-import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers
-import org.springframework.test.web.servlet.setup.MockMvcBuilders
-import org.springframework.test.web.servlet.setup.StandaloneMockMvcBuilder
-import java.util.*
-import javax.servlet.ServletException
+import org.assertj.core.api.Condition;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.MockitoAnnotations;
+import org.radarbase.auth.authentication.OAuthHelper;
+import org.radarbase.management.ManagementPortalTestApp;
+import org.radarbase.management.domain.Group;
+import org.radarbase.management.domain.Project;
+import org.radarbase.management.repository.GroupRepository;
+import org.radarbase.management.repository.ProjectRepository;
+import org.radarbase.management.repository.RoleRepository;
+import org.radarbase.management.repository.SubjectRepository;
+import org.radarbase.management.security.JwtAuthenticationFilter;
+import org.radarbase.management.service.AuthService;
+import org.radarbase.management.service.GroupService;
+import org.radarbase.management.service.SubjectService;
+import org.radarbase.management.service.dto.GroupDTO;
+import org.radarbase.management.service.dto.SubjectDTO;
+import org.radarbase.management.service.mapper.GroupMapper;
+import org.radarbase.management.service.mapper.ProjectMapper;
+import org.radarbase.management.web.rest.errors.ExceptionTranslator;
+import org.radarbase.management.web.rest.vm.GroupPatchOperation;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
+import org.springframework.http.MediaType;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.mock.web.MockFilterConfig;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+
+import javax.servlet.ServletException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.hasItem;
+import static org.radarbase.management.service.dto.SubjectDTO.SubjectStatus.ACTIVATED;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
  * Test class for the GroupResource REST controller.
  *
  * @see GroupResource
  */
-@ExtendWith(SpringExtension::class)
-@SpringBootTest(classes = [ManagementPortalTestApp::class])
+@ExtendWith(SpringExtension.class)
+@SpringBootTest(classes = ManagementPortalTestApp.class)
 @WithMockUser
-internal class GroupResourceIntTest(
-    @Autowired private val groupResource: GroupResource,
+class GroupResourceIntTest {
 
-    @Autowired private val pageableArgumentResolver: PageableHandlerMethodArgumentResolver,
-    @Autowired private val exceptionTranslator: ExceptionTranslator,
-    @Autowired private val jacksonMessageConverter: MappingJackson2HttpMessageConverter,
+    @Autowired
+    private GroupService groupService;
 
-    @Autowired private val projectMapper: ProjectMapper,
-    @Autowired private val projectRepository: ProjectRepository,
-    @Autowired private val roleRepository: RoleRepository,
-    @Autowired private val subjectRepository: SubjectRepository,
-    @Autowired private val subjectService: SubjectService,
-    @Autowired private val groupMapper: GroupMapper,
-    @Autowired private val groupRepository: GroupRepository
-) {
-    private lateinit var restGroupMockMvc: MockMvc
-    private lateinit var group: Group
-    private lateinit var project: Project
+    @Autowired
+    private MappingJackson2HttpMessageConverter jacksonMessageConverter;
 
+    @Autowired
+    private ProjectMapper projectMapper;
 
+    @Autowired
+    private ProjectRepository projectRepository;
+
+    @Autowired
+    private RoleRepository roleRepository;
+
+    @Autowired
+    private SubjectRepository subjectRepository;
+
+    @Autowired
+    private SubjectService subjectService;
+
+    @Autowired
+    private GroupMapper groupMapper;
+
+    @Autowired
+    private PageableHandlerMethodArgumentResolver pageableArgumentResolver;
+
+    @Autowired
+    private ExceptionTranslator exceptionTranslator;
+
+    @Autowired
+    private GroupRepository groupRepository;
+
+    private MockMvc restGroupMockMvc;
+
+    private Group group;
+
+    private Project project;
+    @Autowired
+    private AuthService authService;
 
     @BeforeEach
-    @Throws(ServletException::class)
-    fun setUp() {
-        MockitoAnnotations.openMocks(this)
-        val filter = OAuthHelper.createAuthenticationFilter()
-        filter.init(MockFilterConfig())
-        restGroupMockMvc =
-            MockMvcBuilders.standaloneSetup(groupResource)
+    public void setUp() throws ServletException {
+        MockitoAnnotations.initMocks(this);
+        var groupResource = new GroupResource();
+        ReflectionTestUtils.setField(groupResource, "groupService", groupService);
+        ReflectionTestUtils.setField(groupResource, "authService", authService);
+
+        JwtAuthenticationFilter filter = OAuthHelper.createAuthenticationFilter();
+        filter.init(new MockFilterConfig());
+
+        this.restGroupMockMvc = MockMvcBuilders.standaloneSetup(groupResource)
                 .setCustomArgumentResolvers(pageableArgumentResolver)
                 .setControllerAdvice(exceptionTranslator)
                 .setMessageConverters(jacksonMessageConverter)
-                .addFilter<StandaloneMockMvcBuilder>(filter)
-                .defaultRequest<StandaloneMockMvcBuilder>(
-                    MockMvcRequestBuilders.get("/").with(OAuthHelper.bearerToken())
-                )
-                .build()
-        project = ProjectResourceIntTest.createEntity()
-        projectRepository.save(project)
-        group = createEntity()
+                .addFilter(filter)
+                .defaultRequest(get("/").with(OAuthHelper.bearerToken())).build();
+        project = ProjectResourceIntTest.createEntity();
+        projectRepository.save(project);
+        group = createEntity();
     }
 
     @AfterEach
-    fun tearDown() {
-        groupRepository.delete(group)
-        val roles = roleRepository.findAllRolesByProjectName(
-            project.projectName!!
-        )
-        roleRepository.deleteAll(roles)
-        projectRepository.delete(project)
+    public void tearDown() {
+        groupRepository.delete(group);
+        var roles = roleRepository.findAllRolesByProjectName(project.projectName);
+        roleRepository.deleteAll(roles);
+        projectRepository.delete(project);
     }
 
     /**
      * Create an entity for this test.
      */
-    private fun createEntity(): Group {
-        val group = Group()
-        group.name = "group1"
-        group.project = project
-        return group
+    private Group createEntity() {
+        Group group = new Group();
+        group.name = "group1";
+        group.project = project;
+        return group;
     }
 
     @Test
-    @Throws(Exception::class)
-    fun createGroup() {
+    void createGroup() throws Exception {
         // Create the Group
-        val groupDto = groupMapper.groupToGroupDTO(group)
-        restGroupMockMvc.perform(
-            MockMvcRequestBuilders.post(
-                "/api/projects/{projectName}/groups", project.projectName
-            ).contentType(TestUtil.APPLICATION_JSON_UTF8).content(TestUtil.convertObjectToJsonBytes(groupDto))
-        ).andExpect(MockMvcResultMatchers.status().isCreated())
-        val savedGroup: Group? = groupRepository.findByProjectNameAndName(
-            project.projectName, groupDto.name
-        )
+        var groupDto = groupMapper.groupToGroupDTO(group);
+        restGroupMockMvc.perform(post("/api/projects/{projectName}/groups",
+                        project.projectName)
+                        .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                        .content(TestUtil.convertObjectToJsonBytes(groupDto)))
+                .andExpect(status().isCreated());
+
+        var savedGroup = groupRepository.findByProjectNameAndName(
+                project.projectName, groupDto.getName()).get();
 
         // Validate the Group in the database
-        assertThat(savedGroup?.project?.id).isEqualTo(project.id)
-        assertThat(savedGroup?.name).isEqualTo("group1")
+        assertThat(savedGroup.project.getId()).isEqualTo(project.getId());
+        assertThat(savedGroup.name).isEqualTo("group1");
+    }
+
+
+    @Test
+    void createGroupNonExistingProject() throws Exception {
+        projectRepository.delete(project);
+
+        // Create the Group
+        var groupDto = groupMapper.groupToGroupDTO(group);
+        restGroupMockMvc.perform(post("/api/projects/{projectName}/groups",
+                        project.projectName)
+                        .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                        .content(TestUtil.convertObjectToJsonBytes(groupDto)))
+                .andExpect(status().isNotFound());
     }
 
     @Test
-    @Throws(Exception::class)
-    fun createGroupNonExistingProject() {
-        projectRepository.delete(project)
-
+    void createGroupWithExistingName() throws Exception {
         // Create the Group
-        val groupDto = groupMapper.groupToGroupDTO(group)
-        restGroupMockMvc.perform(
-            MockMvcRequestBuilders.post(
-                "/api/projects/{projectName}/groups", project.projectName
-            ).contentType(TestUtil.APPLICATION_JSON_UTF8).content(TestUtil.convertObjectToJsonBytes(groupDto))
-        ).andExpect(MockMvcResultMatchers.status().isNotFound())
+        var groupDto = groupMapper.groupToGroupDTO(group);
+        restGroupMockMvc.perform(post("/api/projects/{projectName}/groups",
+                        project.projectName)
+                        .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                        .content(TestUtil.convertObjectToJsonBytes(groupDto)))
+                .andExpect(status().isCreated());
+
+        restGroupMockMvc.perform(post("/api/projects/{projectName}/groups",
+                        project.projectName)
+                        .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                        .content(TestUtil.convertObjectToJsonBytes(groupDto)))
+                .andExpect(status().isConflict());
     }
 
-    @Test
-    @Throws(Exception::class)
-    fun createGroupWithExistingName() {
-        // Create the Group
-        val groupDto = groupMapper.groupToGroupDTO(group)
-        restGroupMockMvc.perform(
-            MockMvcRequestBuilders.post(
-                "/api/projects/{projectName}/groups", project.projectName
-            ).contentType(TestUtil.APPLICATION_JSON_UTF8).content(TestUtil.convertObjectToJsonBytes(groupDto))
-        ).andExpect(MockMvcResultMatchers.status().isCreated())
-        restGroupMockMvc.perform(
-            MockMvcRequestBuilders.post(
-                "/api/projects/{projectName}/groups", project.projectName
-            ).contentType(TestUtil.APPLICATION_JSON_UTF8).content(TestUtil.convertObjectToJsonBytes(groupDto))
-        ).andExpect(MockMvcResultMatchers.status().isConflict())
-    }
 
     @Test
-    @Throws(Exception::class)
-    fun createGroupWithExistingNameInDifferentProject() {
-        val project2: Project = ProjectResourceIntTest.createEntity().projectName(project.projectName + "2")
-        projectRepository.saveAndFlush(project2)
-        val group2 = Group()
-        group2.name = group.name
-        group2.project = project2
+    void createGroupWithExistingNameInDifferentProject() throws Exception {
+        Project project2 = ProjectResourceIntTest.createEntity()
+                .projectName(project.projectName + "2");
+
+        projectRepository.saveAndFlush(project2);
+        Group group2 = new Group();
+        group2.name = group.name;
+        group2.project = project2;
 
         // Create the Group
-        val groupDto = groupMapper.groupToGroupDTO(group)
-        restGroupMockMvc.perform(
-            MockMvcRequestBuilders.post(
-                "/api/projects/{projectName}/groups", project.projectName
-            ).contentType(TestUtil.APPLICATION_JSON_UTF8).content(TestUtil.convertObjectToJsonBytes(groupDto))
-        ).andExpect(MockMvcResultMatchers.status().isCreated())
-        val group2Dto = groupMapper.groupToGroupDTO(group2)
-        restGroupMockMvc.perform(
-            MockMvcRequestBuilders.post(
-                "/api/projects/{projectName}/groups", project2.projectName
-            ).contentType(TestUtil.APPLICATION_JSON_UTF8).content(TestUtil.convertObjectToJsonBytes(group2Dto))
-        ).andExpect(MockMvcResultMatchers.status().isCreated())
+        var groupDto = groupMapper.groupToGroupDTO(group);
+        restGroupMockMvc.perform(post("/api/projects/{projectName}/groups",
+                        project.projectName)
+                        .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                        .content(TestUtil.convertObjectToJsonBytes(groupDto)))
+                .andExpect(status().isCreated());
+
+        var group2Dto = groupMapper.groupToGroupDTO(group2);
+        restGroupMockMvc.perform(post("/api/projects/{projectName}/groups",
+                        project2.projectName)
+                        .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                        .content(TestUtil.convertObjectToJsonBytes(group2Dto)))
+                .andExpect(status().isCreated());
 
         // Validate groups are saved for both projects
-        val savedGroup1: Group? = groupRepository.findByProjectNameAndName(
-            project.projectName, group.name
-        )
-        val savedGroup2: Group? = groupRepository.findByProjectNameAndName(
-            project2.projectName, group2.name
-        )
-        val groupList = listOf(savedGroup1, savedGroup2)
-        assertThat(groupList).hasSize(2)
-        assertThat(groupList).haveAtLeastOne(
-            Condition(
-                { g -> project.id == g?.project?.id }, "use project 1"
-            )
-        )
-        assertThat(groupList).haveAtLeastOne(
-            Condition(
-                { g -> project2.id == g?.project?.id }, "use project 2"
-            )
-        )
-        assertThat(groupList).allSatisfy { g -> assertThat(g?.name).isEqualTo(group.name) }
-        projectRepository.delete(project2)
+        var savedGroup1 = groupRepository.findByProjectNameAndName(
+                project.projectName, group.name).get();
+        var savedGroup2 = groupRepository.findByProjectNameAndName(
+                project2.projectName, group2.name).get();
+        var groupList = Arrays.asList(savedGroup1, savedGroup2);
+        assertThat(groupList).hasSize(2);
+        assertThat(groupList).haveAtLeastOne(new Condition<>(
+                g -> project.getId().equals(g.project.getId()), "use project 1"));
+        assertThat(groupList).haveAtLeastOne(new Condition<>(
+                g -> project2.getId().equals(g.project.getId()), "use project 2"));
+        assertThat(groupList).allSatisfy(
+                g -> assertThat(g.name).isEqualTo(group.name));
+
+        projectRepository.delete(project2);
     }
 
     @Test
-    @Throws(Exception::class)
-    fun checkGroupNameIsRequired() {
-        group.name = null
+    void checkGroupNameIsRequired() throws Exception {
+        group.name = null;
 
         // Create the Group
-        val groupDto = groupMapper.groupToGroupDTO(group)
-        restGroupMockMvc.perform(
-            MockMvcRequestBuilders.post(
-                "/api/projects/{projectName}/groups", project.projectName
-            ).contentType(TestUtil.APPLICATION_JSON_UTF8).content(TestUtil.convertObjectToJsonBytes(groupDto))
-        ).andExpect(MockMvcResultMatchers.status().isBadRequest())
+        GroupDTO groupDto = groupMapper.groupToGroupDTO(group);
+        restGroupMockMvc.perform(post("/api/projects/{projectName}/groups",
+                        project.projectName)
+                        .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                        .content(TestUtil.convertObjectToJsonBytes(groupDto)))
+                .andExpect(status().isBadRequest());
     }
 
-    @Throws(Exception::class)
     @Test
-    fun allGroups() {
-            // Initialize the database
-            groupRepository.saveAndFlush<Group>(group)
-
-            // Get all the groups
-            restGroupMockMvc.perform(
-                MockMvcRequestBuilders.get(
-                    "/api/projects/{projectName}/groups", project.projectName
-                )
-            ).andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON)).andExpect(
-                    MockMvcResultMatchers.jsonPath("$.[*].projectId").value<Iterable<Int?>>(
-                        Matchers.hasItem(project.id!!.toInt())
-                    )
-                ).andExpect(
-                    MockMvcResultMatchers.jsonPath("$.[*].name").value<Iterable<String?>>(Matchers.hasItem("group1"))
-                )
-        }
-
-    @Test
-    @Throws(Exception::class)
-    fun getGroup() {
+    void getAllGroups() throws Exception {
         // Initialize the database
-        groupRepository.saveAndFlush<Group>(group)
+        groupRepository.saveAndFlush(group);
 
-        // Get the Group
-        restGroupMockMvc.perform(
-            MockMvcRequestBuilders.get(
-                "/api/projects/{projectName}/groups/{groupName}", project.projectName, group.name
-            )
-        ).andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.name").value("group1"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.projectId").value(project.id!!.toInt()))
+        // Get all the groups
+        restGroupMockMvc.perform(get("/api/projects/{projectName}/groups",
+                        project.projectName))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.[*].projectId").value(
+                        hasItem(project.getId().intValue())))
+                .andExpect(jsonPath("$.[*].name").value(hasItem("group1")));
     }
 
-    @Throws(Exception::class)
     @Test
-    fun nonExistingGroup() {
-            // Get the Group
-            restGroupMockMvc.perform(
-                MockMvcRequestBuilders.get(
-                    "/api/projects/{projectName}/groups/{groupName}", project.projectName, group.name
-                )
-            ).andExpect(MockMvcResultMatchers.status().isNotFound())
-        }
-
-    @Test
-    @Throws(Exception::class)
-    fun deleteGroup() {
+    void getGroup() throws Exception {
         // Initialize the database
-        groupRepository.saveAndFlush<Group>(group)
+        groupRepository.saveAndFlush(group);
 
         // Get the Group
-        restGroupMockMvc.perform(
-            MockMvcRequestBuilders.delete(
-                "/api/projects/{projectName}/groups/{groupName}", project.projectName, group.name
-            ).accept(TestUtil.APPLICATION_JSON_UTF8)
-        ).andExpect(MockMvcResultMatchers.status().isNoContent())
+        restGroupMockMvc.perform(get("/api/projects/{projectName}/groups/{groupName}",
+                        project.projectName, group.name))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.name").value("group1"))
+                .andExpect(jsonPath("$.projectId").value(project.getId().intValue()));
+    }
+
+    @Test
+    void getNonExistingGroup() throws Exception {
+        // Get the Group
+        restGroupMockMvc.perform(get("/api/projects/{projectName}/groups/{groupName}",
+                        project.projectName, group.name))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void deleteGroup() throws Exception {
+        // Initialize the database
+        groupRepository.saveAndFlush(group);
+
+        // Get the Group
+        restGroupMockMvc.perform(delete(
+                        "/api/projects/{projectName}/groups/{groupName}",
+                        project.projectName, group.name)
+                        .accept(TestUtil.APPLICATION_JSON_UTF8))
+                .andExpect(status().isNoContent());
 
         // Validate the Group is not present in the database
-        val savedGroup = groupRepository.findByProjectNameAndName(
-            project.projectName, group.name
-        )
-        assertThat(savedGroup).isNull()
+        var savedGroup = groupRepository.findByProjectNameAndName(
+                project.projectName, group.name);
+        assertThat(savedGroup).isEmpty();
     }
 
     @Test
-    @Throws(Exception::class)
-    fun deleteGroupWithSubjects() {
+    void deleteGroupWithSubjects() throws Exception {
         // Initialize the database
-        groupRepository.saveAndFlush<Group>(group)
-        val projectDto = projectMapper.projectToProjectDTO(project)
-        val subjectDto = SubjectDTO()
-        subjectDto.externalLink = "exLink1"
-        subjectDto.externalId = "exId1"
-        subjectDto.status = SubjectStatus.ACTIVATED
-        subjectDto.project = projectDto
-        subjectDto.group = group.name
-        val savedSubject = subjectService.createSubject(subjectDto)
+        groupRepository.saveAndFlush(group);
+
+        var projectDto = projectMapper.projectToProjectDTO(project);
+
+        var subjectDto = new SubjectDTO();
+        subjectDto.setExternalLink("exLink1");
+        subjectDto.setExternalId("exId1");
+        subjectDto.setStatus(ACTIVATED);
+        subjectDto.setProject(projectDto);
+        subjectDto.setGroup(group.name);
+        var savedSubject = subjectService.createSubject(subjectDto);
 
         // Try to delete the Group (and fail)
-        restGroupMockMvc.perform(
-            MockMvcRequestBuilders.delete(
-                "/api/projects/{projectName}/groups/{groupName}", project.projectName, group.name
-            ).accept(TestUtil.APPLICATION_JSON_UTF8)
-        ).andExpect(MockMvcResultMatchers.status().isConflict())
+        restGroupMockMvc.perform(delete(
+                        "/api/projects/{projectName}/groups/{groupName}",
+                        project.projectName, group.name)
+                        .accept(TestUtil.APPLICATION_JSON_UTF8))
+                .andExpect(status().isConflict());
 
         // Delete the Group (and unlink the subjects)
-        restGroupMockMvc.perform(
-            MockMvcRequestBuilders.delete(
-                "/api/projects/{projectName}/groups/{groupName}", project.projectName, group.name
-            ).param("unlinkSubjects", "true").accept(TestUtil.APPLICATION_JSON_UTF8)
-        ).andExpect(MockMvcResultMatchers.status().isNoContent())
+        restGroupMockMvc.perform(delete(
+                        "/api/projects/{projectName}/groups/{groupName}",
+                        project.projectName, group.name)
+                        .param("unlinkSubjects", "true")
+                        .accept(TestUtil.APPLICATION_JSON_UTF8))
+                .andExpect(status().isNoContent());
 
         // Validate the Group is not present in the database
-        val savedGroup = groupRepository.findByProjectNameAndName(
-            project.projectName, group.name
-        )
-        Assertions.assertThat(savedGroup).isNull()
-        val storedSubject = subjectRepository.getOne(savedSubject!!.id!!)
-        subjectRepository.delete(storedSubject)
+        var savedGroup = groupRepository.findByProjectNameAndName(
+                project.projectName, group.name);
+        assertThat(savedGroup).isEmpty();
+
+        var storedSubject = subjectRepository.getOne(savedSubject.getId());
+        subjectRepository.delete(storedSubject);
     }
 
     @Test
-    @Throws(Exception::class)
-    fun deleteGroupNonExisting() {
+    void deleteGroupNonExisting() throws Exception {
         // Initialize the database
-        groupRepository.saveAndFlush<Group>(group)
+        groupRepository.saveAndFlush(group);
 
         // Get the Group
-        restGroupMockMvc.perform(
-            MockMvcRequestBuilders.delete(
-                "/api/projects/{projectName}/groups/{groupName}", project.projectName, group.name + "2"
-            ).accept(TestUtil.APPLICATION_JSON_UTF8)
-        ).andExpect(MockMvcResultMatchers.status().isNotFound())
+        restGroupMockMvc.perform(delete(
+                        "/api/projects/{projectName}/groups/{groupName}",
+                        project.projectName, group.name + "2")
+                        .accept(TestUtil.APPLICATION_JSON_UTF8))
+                .andExpect(status().isNotFound());
 
         // Validate the database still contains the group
-        Assertions.assertThat(
-            groupRepository.findById(
-                group.id!!
-            )
-        ).isNotEmpty()
+        assertThat(groupRepository.findById(group.getId())).isNotEmpty();
     }
 
+
     @Test
-    @Throws(Exception::class)
-    fun deleteGroupNonExistingProject() {
+    void deleteGroupNonExistingProject() throws Exception {
         // Initialize the database
-        groupRepository.saveAndFlush<Group>(group)
+        groupRepository.saveAndFlush(group);
 
         // Get the Group
-        restGroupMockMvc.perform(
-            MockMvcRequestBuilders.delete(
-                "/api/projects/{projectName}/groups/{groupName}", project.projectName + "2", group.name
-            ).accept(TestUtil.APPLICATION_JSON_UTF8)
-        ).andExpect(MockMvcResultMatchers.status().isNotFound())
+        restGroupMockMvc.perform(delete(
+                        "/api/projects/{projectName}/groups/{groupName}",
+                        project.projectName + "2", group.name)
+                        .accept(TestUtil.APPLICATION_JSON_UTF8))
+                .andExpect(status().isNotFound());
 
         // Validate the database still contains the group
-        Assertions.assertThat(
-            groupRepository.findById(
-                group.id!!
-            )
-        ).isNotEmpty()
+        assertThat(groupRepository.findById(group.getId())).isNotEmpty();
     }
 
     @Test
-    @Throws(Exception::class)
-    fun addSubjectsToGroup() {
+    void addSubjectsToGroup() throws Exception {
         // Initialize the database
-        groupRepository.saveAndFlush<Group>(group)
-        val projectDto = projectMapper.projectToProjectDTO(project)
-        val sub1 = SubjectDTO()
-        sub1.externalLink = "exLink1"
-        sub1.externalId = "exId1"
-        sub1.status = SubjectStatus.ACTIVATED
-        sub1.project = projectDto
-        val sub2 = SubjectDTO()
-        sub2.externalLink = "exLink2"
-        sub2.externalId = "exId2"
-        sub2.status = SubjectStatus.ACTIVATED
-        sub2.project = projectDto
-        val savedSub1 = subjectService.createSubject(sub1)
-        val savedSub2 = subjectService.createSubject(sub2)
-        val sub1Patch = SubjectPatchValue()
-        sub1Patch.id = savedSub1!!.id
-        val sub2Patch = SubjectPatchValue()
-        sub2Patch.login = savedSub2!!.login
-        val patchOp = GroupPatchOperation()
-        patchOp.op = "add"
-        val patchValue = ArrayList<SubjectPatchValue>()
-        patchValue.add(sub1Patch)
-        patchValue.add(sub2Patch)
-        patchOp.value = patchValue
-        val body: MutableList<GroupPatchOperation> = ArrayList()
-        body.add(patchOp)
+        groupRepository.saveAndFlush(group);
+
+        var projectDto = projectMapper.projectToProjectDTO(project);
+
+        var sub1 = new SubjectDTO();
+        sub1.setExternalLink("exLink1");
+        sub1.setExternalId("exId1");
+        sub1.setStatus(ACTIVATED);
+        sub1.setProject(projectDto);
+
+        var sub2 = new SubjectDTO();
+        sub2.setExternalLink("exLink2");
+        sub2.setExternalId("exId2");
+        sub2.setStatus(ACTIVATED);
+        sub2.setProject(projectDto);
+
+        var savedSub1 = subjectService.createSubject(sub1);
+        var savedSub2 = subjectService.createSubject(sub2);
+
+        var sub1Patch = new GroupPatchOperation.SubjectPatchValue();
+        sub1Patch.setId(savedSub1.getId());
+        var sub2Patch = new GroupPatchOperation.SubjectPatchValue();
+        sub2Patch.setLogin(savedSub2.getLogin());
+
+        var patchOp = new GroupPatchOperation();
+        patchOp.setOp("add");
+        var patchValue = new ArrayList<GroupPatchOperation.SubjectPatchValue>();
+        patchValue.add(sub1Patch);
+        patchValue.add(sub2Patch);
+        patchOp.setValue(patchValue);
+
+        List<GroupPatchOperation> body = new ArrayList<>();
+        body.add(patchOp);
 
         // Get the Group
-        restGroupMockMvc.perform(
-            MockMvcRequestBuilders.patch(
-                "/api/projects/{projectName}/groups/{groupName}/subjects", project.projectName, group.name
-            ).contentType(TestUtil.APPLICATION_JSON_PATCH).content(TestUtil.convertObjectToJsonBytes(body))
-        ).andExpect(MockMvcResultMatchers.status().isNoContent())
+        restGroupMockMvc.perform(patch(
+                        "/api/projects/{projectName}/groups/{groupName}/subjects",
+                        project.projectName, group.name)
+
+                        .contentType(TestUtil.APPLICATION_JSON_PATCH)
+                        .content(TestUtil.convertObjectToJsonBytes(body)))
+                .andExpect(status().isNoContent());
 
         // Validate that the group was set for both subjects
-        val subjectLogins = listOf(savedSub1.login!!, savedSub2.login!!)
-        val subjects = subjectRepository.findAllBySubjectLogins(subjectLogins)
-        Assertions.assertThat(subjects).hasSize(2)
-        Assertions.assertThat(subjects).allSatisfy { s: Subject ->
-            Assertions.assertThat(
-                s.group!!.id
-            ).isEqualTo(group.id)
-        }
-        subjectRepository.deleteAll(subjects)
+        var subjectLogins = Arrays.asList(savedSub1.getLogin(), savedSub2.getLogin());
+        var subjects = subjectRepository.findAllBySubjectLogins(subjectLogins);
+        assertThat(subjects).hasSize(2);
+        assertThat(subjects).allSatisfy(
+                s -> assertThat(s.group.getId()).isEqualTo(group.getId()));
+
+        subjectRepository.deleteAll(subjects);
     }
 }
