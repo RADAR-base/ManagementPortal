@@ -1,436 +1,500 @@
-package org.radarbase.management.web.rest;
+package org.radarbase.management.web.rest
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.MockitoAnnotations;
-import org.radarbase.auth.authentication.OAuthHelper;
-import org.radarbase.management.ManagementPortalTestApp;
-import org.radarbase.management.domain.SourceData;
-import org.radarbase.management.domain.SourceType;
-import org.radarbase.management.repository.SourceDataRepository;
-import org.radarbase.management.repository.SourceTypeRepository;
-import org.radarbase.management.security.JwtAuthenticationFilter;
-import org.radarbase.management.service.AuthService;
-import org.radarbase.management.service.SourceTypeService;
-import org.radarbase.management.service.dto.SourceDataDTO;
-import org.radarbase.management.service.dto.SourceTypeDTO;
-import org.radarbase.management.service.mapper.SourceDataMapper;
-import org.radarbase.management.service.mapper.SourceTypeMapper;
-import org.radarbase.management.web.rest.errors.ExceptionTranslator;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.mock.web.MockFilterConfig;
-import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.util.ReflectionTestUtils;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.transaction.annotation.Transactional;
-
-import javax.persistence.EntityManager;
-import javax.servlet.ServletException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.hasItem;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import org.assertj.core.api.Assertions
+import org.hamcrest.Matchers
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
+import org.mockito.MockitoAnnotations
+import org.radarbase.auth.authentication.OAuthHelper
+import org.radarbase.management.ManagementPortalTestApp
+import org.radarbase.management.domain.SourceType
+import org.radarbase.management.repository.SourceDataRepository
+import org.radarbase.management.repository.SourceTypeRepository
+import org.radarbase.management.service.AuthService
+import org.radarbase.management.service.SourceTypeService
+import org.radarbase.management.service.mapper.SourceDataMapper
+import org.radarbase.management.service.mapper.SourceTypeMapper
+import org.radarbase.management.web.rest.errors.ExceptionTranslator
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.data.web.PageableHandlerMethodArgumentResolver
+import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter
+import org.springframework.mock.web.MockFilterConfig
+import org.springframework.security.test.context.support.WithMockUser
+import org.springframework.test.context.junit.jupiter.SpringExtension
+import org.springframework.test.util.ReflectionTestUtils
+import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers
+import org.springframework.test.web.servlet.setup.MockMvcBuilders
+import org.springframework.test.web.servlet.setup.StandaloneMockMvcBuilder
+import org.springframework.transaction.annotation.Transactional
+import javax.persistence.EntityManager
+import javax.servlet.ServletException
 
 /**
  * Test class for the SourceTypeResource REST controller.
  *
  * @see SourceTypeResource
  */
-@ExtendWith(SpringExtension.class)
-@SpringBootTest(classes = ManagementPortalTestApp.class)
+@ExtendWith(SpringExtension::class)
+@SpringBootTest(classes = [ManagementPortalTestApp::class])
 @WithMockUser
-class SourceTypeResourceIntTest {
-
-    private static final String DEFAULT_PRODUCER = "AAAAA AAAAA";
-    private static final String UPDATED_PRODUCER = "BBBBBBBBBB";
-
-    private static final String DEFAULT_MODEL = "AAAAA AAAAA";
-    private static final String UPDATED_MODEL = "BBBBBBBBBB";
-
-    private static final String DEFAULT_DEVICE_VERSION = "AAAAAAAAAA";
-    private static final String UPDATED_DEVICE_VERSION = "AAAAAAAAAA";
-
-    private static final String DEFAULT_SOURCE_TYPE_SCOPE = "ACTIVE";
-    private static final String UPDATED_SOURCE_TYPE_SCOPE = "PASSIVE";
-
-    @Autowired
-    private SourceTypeRepository sourceTypeRepository;
-
-    @Autowired
-    private SourceTypeMapper sourceTypeMapper;
-
-    @Autowired
-    private SourceTypeService sourceTypeService;
-
-    @Autowired
-    private SourceDataMapper sourceDataMapper;
-
-    @Autowired
-    private SourceDataRepository sourceDataRepository;
-
-    @Autowired
-    private MappingJackson2HttpMessageConverter jacksonMessageConverter;
-
-    @Autowired
-    private PageableHandlerMethodArgumentResolver pageableArgumentResolver;
-
-    @Autowired
-    private ExceptionTranslator exceptionTranslator;
-
-    @Autowired
-    private EntityManager em;
-
-    private MockMvc restSourceTypeMockMvc;
-
-    private SourceType sourceType;
-    @Autowired
-    private AuthService authService;
+internal open class SourceTypeResourceIntTest(
+    @Autowired private val sourceTypeRepository: SourceTypeRepository,
+    @Autowired private val sourceTypeMapper: SourceTypeMapper,
+    @Autowired private val sourceTypeService: SourceTypeService,
+    @Autowired private val sourceDataMapper: SourceDataMapper,
+    @Autowired private val sourceDataRepository: SourceDataRepository,
+    @Autowired private val jacksonMessageConverter: MappingJackson2HttpMessageConverter,
+    @Autowired private val pageableArgumentResolver: PageableHandlerMethodArgumentResolver,
+    @Autowired private val exceptionTranslator: ExceptionTranslator,
+    @Autowired private val em: EntityManager,
+    private var restSourceTypeMockMvc: MockMvc,
+    private var sourceType: SourceType,
+    @Autowired private val authService: AuthService
+) {
 
     @BeforeEach
-    public void setUp() throws ServletException {
-        MockitoAnnotations.initMocks(this);
-        SourceTypeResource sourceTypeResource = new SourceTypeResource();
-        ReflectionTestUtils.setField(sourceTypeResource, "sourceTypeService" , sourceTypeService);
-        ReflectionTestUtils.setField(sourceTypeResource, "sourceTypeRepository" ,
-                sourceTypeRepository);
-        ReflectionTestUtils.setField(sourceTypeResource, "authService", authService);
-
-        JwtAuthenticationFilter filter = OAuthHelper.createAuthenticationFilter();
-        filter.init(new MockFilterConfig());
-
-        this.restSourceTypeMockMvc = MockMvcBuilders.standaloneSetup(sourceTypeResource)
+    @Throws(ServletException::class)
+    fun setUp() {
+        MockitoAnnotations.openMocks(this)
+        val sourceTypeResource = SourceTypeResource()
+        ReflectionTestUtils.setField(sourceTypeResource, "sourceTypeService", sourceTypeService)
+        ReflectionTestUtils.setField(
+            sourceTypeResource, "sourceTypeRepository",
+            sourceTypeRepository
+        )
+        ReflectionTestUtils.setField(sourceTypeResource, "authService", authService)
+        val filter = OAuthHelper.createAuthenticationFilter()
+        filter.init(MockFilterConfig())
+        restSourceTypeMockMvc = MockMvcBuilders.standaloneSetup(sourceTypeResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
             .setMessageConverters(jacksonMessageConverter)
-            .addFilter(filter)
-            .defaultRequest(get("/").with(OAuthHelper.bearerToken())).build();
-    }
-
-    /**
-     * Create an entity for this test.
-     *
-     * <p>This is a static method, as tests for other entities might also need it,
-     * if they test an entity which requires the current entity.</p>
-     */
-    public static SourceType createEntity() {
-        return new SourceType()
-                .producer(DEFAULT_PRODUCER)
-                .model(DEFAULT_MODEL)
-                .catalogVersion(DEFAULT_DEVICE_VERSION)
-                .sourceTypeScope(DEFAULT_SOURCE_TYPE_SCOPE);
+            .addFilter<StandaloneMockMvcBuilder>(filter)
+            .defaultRequest<StandaloneMockMvcBuilder>(MockMvcRequestBuilders.get("/").with(OAuthHelper.bearerToken()))
+            .build()
     }
 
     @BeforeEach
-    public void initTest() {
-        sourceType = createEntity();
+    fun initTest() {
+        sourceType = createEntity()
     }
 
     @Test
     @Transactional
-    void createSourceType() throws Exception {
-        int databaseSizeBeforeCreate = sourceTypeRepository.findAll().size();
+    @Throws(Exception::class)
+    open fun createSourceType() {
+        val databaseSizeBeforeCreate = sourceTypeRepository.findAll().size
 
         // Create the SourceType
-        SourceTypeDTO sourceTypeDto = sourceTypeMapper.sourceTypeToSourceTypeDTO(sourceType);
-        SourceDataDTO sourceDataDto = sourceDataMapper.sourceDataToSourceDataDTO(
-                SourceDataResourceIntTest.createEntity(em));
-        Set<SourceDataDTO> sourceData = sourceTypeDto.getSourceData();
-        sourceData.add(sourceDataDto);
-        restSourceTypeMockMvc.perform(post("/api/source-types")
+        val sourceTypeDto = sourceTypeMapper.sourceTypeToSourceTypeDTO(sourceType)
+        val sourceDataDto = sourceDataMapper.sourceDataToSourceDataDTO(
+            SourceDataResourceIntTest.Companion.createEntity(em)
+        )
+        val sourceData = sourceTypeDto.sourceData
+        sourceData.add(sourceDataDto)
+        restSourceTypeMockMvc.perform(
+            MockMvcRequestBuilders.post("/api/source-types")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(sourceTypeDto)))
-                .andExpect(status().isCreated());
+                .content(TestUtil.convertObjectToJsonBytes(sourceTypeDto))
+        )
+            .andExpect(MockMvcResultMatchers.status().isCreated())
 
         // Validate the SourceType in the database
-        List<SourceType> sourceTypeList = sourceTypeRepository.findAll();
-        assertThat(sourceTypeList).hasSize(databaseSizeBeforeCreate + 1);
-        SourceType testSourceType = sourceTypeList.get(sourceTypeList.size() - 1);
-        assertThat(testSourceType.producer).isEqualTo(DEFAULT_PRODUCER);
-        assertThat(testSourceType.model).isEqualTo(DEFAULT_MODEL);
-        assertThat(testSourceType.sourceTypeScope).isEqualTo(DEFAULT_SOURCE_TYPE_SCOPE);
-        assertThat(testSourceType.catalogVersion).isEqualTo(DEFAULT_DEVICE_VERSION);
-        assertThat(testSourceType.sourceData).hasSize(1);
-        SourceData testSourceData = testSourceType.sourceData.iterator().next();
-        assertThat(testSourceData.sourceDataType).isEqualTo(sourceDataDto.getSourceDataType());
-        assertThat(testSourceData.sourceDataName).isEqualTo(sourceDataDto.getSourceDataName());
-        assertThat(testSourceData.processingState).isEqualTo(
-                sourceDataDto.getProcessingState());
-        assertThat(testSourceData.keySchema).isEqualTo(sourceDataDto.getKeySchema());
-        assertThat(testSourceData.frequency).isEqualTo(sourceDataDto.getFrequency());
+        val sourceTypeList = sourceTypeRepository.findAll()
+        Assertions.assertThat(sourceTypeList).hasSize(databaseSizeBeforeCreate + 1)
+        val testSourceType = sourceTypeList[sourceTypeList.size - 1]
+        Assertions.assertThat(testSourceType.producer).isEqualTo(DEFAULT_PRODUCER)
+        Assertions.assertThat(testSourceType.model).isEqualTo(DEFAULT_MODEL)
+        Assertions.assertThat(testSourceType.sourceTypeScope).isEqualTo(DEFAULT_SOURCE_TYPE_SCOPE)
+        Assertions.assertThat(testSourceType.catalogVersion).isEqualTo(DEFAULT_DEVICE_VERSION)
+        Assertions.assertThat(testSourceType.sourceData).hasSize(1)
+        val testSourceData = testSourceType.sourceData.iterator().next()
+        Assertions.assertThat(testSourceData.sourceDataType).isEqualTo(sourceDataDto.sourceDataType)
+        Assertions.assertThat(testSourceData.sourceDataName).isEqualTo(sourceDataDto.sourceDataName)
+        Assertions.assertThat(testSourceData.processingState).isEqualTo(
+            sourceDataDto.processingState
+        )
+        Assertions.assertThat(testSourceData.keySchema).isEqualTo(sourceDataDto.keySchema)
+        Assertions.assertThat(testSourceData.frequency).isEqualTo(sourceDataDto.frequency)
     }
 
     @Test
     @Transactional
-    void createSourceTypeWithExistingId() throws Exception {
-        int databaseSizeBeforeCreate = sourceTypeRepository.findAll().size();
+    @Throws(Exception::class)
+    open fun createSourceTypeWithExistingId() {
+        val databaseSizeBeforeCreate = sourceTypeRepository.findAll().size
 
         // Create the SourceType with an existing ID
-        sourceType.setId(1L);
-        SourceTypeDTO sourceTypeDto = sourceTypeMapper.sourceTypeToSourceTypeDTO(sourceType);
+        sourceType.id = 1L
+        val sourceTypeDto = sourceTypeMapper.sourceTypeToSourceTypeDTO(sourceType)
 
         // An entity with an existing ID cannot be created, so this API call must fail
-        restSourceTypeMockMvc.perform(post("/api/source-types")
+        restSourceTypeMockMvc.perform(
+            MockMvcRequestBuilders.post("/api/source-types")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(sourceTypeDto)))
-                .andExpect(status().isBadRequest());
+                .content(TestUtil.convertObjectToJsonBytes(sourceTypeDto))
+        )
+            .andExpect(MockMvcResultMatchers.status().isBadRequest())
 
         // Validate the Alice in the database
-        List<SourceType> sourceTypeList = sourceTypeRepository.findAll();
-        assertThat(sourceTypeList).hasSize(databaseSizeBeforeCreate);
+        val sourceTypeList = sourceTypeRepository.findAll()
+        Assertions.assertThat(sourceTypeList).hasSize(databaseSizeBeforeCreate)
     }
 
     @Test
     @Transactional
-    void checkModelIsRequired() throws Exception {
-        int databaseSizeBeforeTest = sourceTypeRepository.findAll().size();
+    @Throws(Exception::class)
+    open fun checkModelIsRequired() {
+        val databaseSizeBeforeTest = sourceTypeRepository.findAll().size
         // set the field null
-        sourceType.model = null;
+        sourceType.model = null
 
         // Create the SourceType, which fails.
-        SourceTypeDTO sourceTypeDto = sourceTypeMapper.sourceTypeToSourceTypeDTO(sourceType);
-
-        restSourceTypeMockMvc.perform(post("/api/source-types")
+        val sourceTypeDto = sourceTypeMapper.sourceTypeToSourceTypeDTO(sourceType)
+        restSourceTypeMockMvc.perform(
+            MockMvcRequestBuilders.post("/api/source-types")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(sourceTypeDto)))
-                .andExpect(status().isBadRequest());
-
-        List<SourceType> sourceTypeList = sourceTypeRepository.findAll();
-        assertThat(sourceTypeList).hasSize(databaseSizeBeforeTest);
+                .content(TestUtil.convertObjectToJsonBytes(sourceTypeDto))
+        )
+            .andExpect(MockMvcResultMatchers.status().isBadRequest())
+        val sourceTypeList = sourceTypeRepository.findAll()
+        Assertions.assertThat(sourceTypeList).hasSize(databaseSizeBeforeTest)
     }
 
     @Test
     @Transactional
-    void checkSourceTypeIsRequired() throws Exception {
-        int databaseSizeBeforeTest = sourceTypeRepository.findAll().size();
+    @Throws(Exception::class)
+    open fun checkSourceTypeIsRequired() {
+        val databaseSizeBeforeTest = sourceTypeRepository.findAll().size
         // set the field null
-        sourceType.sourceTypeScope = null;
+        sourceType.sourceTypeScope = null
 
         // Create the SourceType, which fails.
-        SourceTypeDTO sourceTypeDto = sourceTypeMapper.sourceTypeToSourceTypeDTO(sourceType);
-
-        restSourceTypeMockMvc.perform(post("/api/source-types")
+        val sourceTypeDto = sourceTypeMapper.sourceTypeToSourceTypeDTO(sourceType)
+        restSourceTypeMockMvc.perform(
+            MockMvcRequestBuilders.post("/api/source-types")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(sourceTypeDto)))
-                .andExpect(status().isBadRequest());
-
-        List<SourceType> sourceTypeList = sourceTypeRepository.findAll();
-        assertThat(sourceTypeList).hasSize(databaseSizeBeforeTest);
+                .content(TestUtil.convertObjectToJsonBytes(sourceTypeDto))
+        )
+            .andExpect(MockMvcResultMatchers.status().isBadRequest())
+        val sourceTypeList = sourceTypeRepository.findAll()
+        Assertions.assertThat(sourceTypeList).hasSize(databaseSizeBeforeTest)
     }
 
     @Test
     @Transactional
-    void checkVersionIsRequired() throws Exception {
-        int databaseSizeBeforeTest = sourceTypeRepository.findAll().size();
+    @Throws(Exception::class)
+    open fun checkVersionIsRequired() {
+        val databaseSizeBeforeTest = sourceTypeRepository.findAll().size
         // set the field null
-        sourceType.catalogVersion(null);
+        sourceType.catalogVersion(null)
 
         // Create the SourceType, which fails.
-        SourceTypeDTO sourceTypeDto = sourceTypeMapper.sourceTypeToSourceTypeDTO(sourceType);
-
-        restSourceTypeMockMvc.perform(post("/api/source-types")
+        val sourceTypeDto = sourceTypeMapper.sourceTypeToSourceTypeDTO(sourceType)
+        restSourceTypeMockMvc.perform(
+            MockMvcRequestBuilders.post("/api/source-types")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(sourceTypeDto)))
-                .andExpect(status().isBadRequest());
-
-        List<SourceType> sourceTypeList = sourceTypeRepository.findAll();
-        assertThat(sourceTypeList).hasSize(databaseSizeBeforeTest);
+                .content(TestUtil.convertObjectToJsonBytes(sourceTypeDto))
+        )
+            .andExpect(MockMvcResultMatchers.status().isBadRequest())
+        val sourceTypeList = sourceTypeRepository.findAll()
+        Assertions.assertThat(sourceTypeList).hasSize(databaseSizeBeforeTest)
     }
+
+    @get:Throws(Exception::class)
+    @get:Transactional
+    @get:Test
+    open val allSourceTypes: Unit
+        get() {
+            // Initialize the database
+            sourceTypeRepository.saveAndFlush(sourceType)
+
+            // Get all the sourceTypeList
+            restSourceTypeMockMvc.perform(MockMvcRequestBuilders.get("/api/source-types"))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(
+                    MockMvcResultMatchers.jsonPath("$.[*].id").value<Iterable<Int?>>(
+                        Matchers.hasItem(
+                            sourceType.id!!.toInt()
+                        )
+                    )
+                )
+                .andExpect(
+                    MockMvcResultMatchers.jsonPath("$.[*].producer").value<Iterable<String?>>(
+                        Matchers.hasItem(
+                            DEFAULT_PRODUCER
+                        )
+                    )
+                )
+                .andExpect(
+                    MockMvcResultMatchers.jsonPath("$.[*].model").value<Iterable<String?>>(
+                        Matchers.hasItem(
+                            DEFAULT_MODEL
+                        )
+                    )
+                )
+                .andExpect(
+                    MockMvcResultMatchers.jsonPath("$.[*].catalogVersion").value<Iterable<String?>>(
+                        Matchers.hasItem(
+                            DEFAULT_DEVICE_VERSION
+                        )
+                    )
+                )
+                .andExpect(
+                    MockMvcResultMatchers.jsonPath("$.[*].sourceTypeScope").value<Iterable<String?>>(
+                        Matchers.hasItem(DEFAULT_SOURCE_TYPE_SCOPE)
+                    )
+                )
+        }
+
+    @get:Throws(Exception::class)
+    @get:Transactional
+    @get:Test
+    open val allSourceTypesWithPagination: Unit
+        get() {
+            // Initialize the database
+            sourceTypeRepository.saveAndFlush(sourceType)
+
+            // Get all the sourceTypeList
+            restSourceTypeMockMvc.perform(MockMvcRequestBuilders.get("/api/source-types?page=0&size=5&sort=id,desc"))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(
+                    MockMvcResultMatchers.jsonPath("$.[*].id").value<Iterable<Int?>>(
+                        Matchers.hasItem(
+                            sourceType.id!!.toInt()
+                        )
+                    )
+                )
+                .andExpect(
+                    MockMvcResultMatchers.jsonPath("$.[*].producer").value<Iterable<String?>>(
+                        Matchers.hasItem(
+                            DEFAULT_PRODUCER
+                        )
+                    )
+                )
+                .andExpect(
+                    MockMvcResultMatchers.jsonPath("$.[*].model").value<Iterable<String?>>(
+                        Matchers.hasItem(
+                            DEFAULT_MODEL
+                        )
+                    )
+                )
+                .andExpect(
+                    MockMvcResultMatchers.jsonPath("$.[*].catalogVersion").value<Iterable<String?>>(
+                        Matchers.hasItem(
+                            DEFAULT_DEVICE_VERSION
+                        )
+                    )
+                )
+                .andExpect(
+                    MockMvcResultMatchers.jsonPath("$.[*].sourceTypeScope").value<Iterable<String?>>(
+                        Matchers.hasItem(DEFAULT_SOURCE_TYPE_SCOPE)
+                    )
+                )
+        }
 
     @Test
     @Transactional
-    void getAllSourceTypes() throws Exception {
+    @Throws(Exception::class)
+    open fun getSourceType() {
         // Initialize the database
-        sourceTypeRepository.saveAndFlush(sourceType);
-
-        // Get all the sourceTypeList
-        restSourceTypeMockMvc.perform(get("/api/source-types"))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.[*].id").value(hasItem(sourceType.getId().intValue())))
-                .andExpect(jsonPath("$.[*].producer").value(hasItem(DEFAULT_PRODUCER)))
-                .andExpect(jsonPath("$.[*].model").value(hasItem(DEFAULT_MODEL)))
-                .andExpect(jsonPath("$.[*].catalogVersion").value(hasItem(DEFAULT_DEVICE_VERSION)))
-                .andExpect(jsonPath("$.[*].sourceTypeScope").value(
-                        hasItem(DEFAULT_SOURCE_TYPE_SCOPE)));
-    }
-
-
-    @Test
-    @Transactional
-    void getAllSourceTypesWithPagination() throws Exception {
-        // Initialize the database
-        sourceTypeRepository.saveAndFlush(sourceType);
-
-        // Get all the sourceTypeList
-        restSourceTypeMockMvc.perform(get("/api/source-types?page=0&size=5&sort=id,desc"))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.[*].id").value(hasItem(sourceType.getId().intValue())))
-                .andExpect(jsonPath("$.[*].producer").value(hasItem(DEFAULT_PRODUCER)))
-                .andExpect(jsonPath("$.[*].model").value(hasItem(DEFAULT_MODEL)))
-                .andExpect(jsonPath("$.[*].catalogVersion").value(hasItem(DEFAULT_DEVICE_VERSION)))
-                .andExpect(jsonPath("$.[*].sourceTypeScope").value(
-                        hasItem(DEFAULT_SOURCE_TYPE_SCOPE)));
-    }
-
-
-    @Test
-    @Transactional
-    void getSourceType() throws Exception {
-        // Initialize the database
-        sourceTypeRepository.saveAndFlush(sourceType);
+        sourceTypeRepository.saveAndFlush(sourceType)
 
         // Get the sourceType
-        restSourceTypeMockMvc.perform(get("/api/source-types/{prodcuer}/{model}/{version}",
-                        sourceType.producer, sourceType.model, sourceType.catalogVersion))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.id").value(sourceType.getId().intValue()))
-                .andExpect(jsonPath("$.producer").value(DEFAULT_PRODUCER))
-                .andExpect(jsonPath("$.model").value(DEFAULT_MODEL))
-                .andExpect(jsonPath("$.sourceTypeScope").value(
-                        DEFAULT_SOURCE_TYPE_SCOPE));
+        restSourceTypeMockMvc.perform(
+            MockMvcRequestBuilders.get(
+                "/api/source-types/{prodcuer}/{model}/{version}",
+                sourceType.producer, sourceType.model, sourceType.catalogVersion
+            )
+        )
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(sourceType.id!!.toInt()))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.producer").value(DEFAULT_PRODUCER))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.model").value(DEFAULT_MODEL))
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$.sourceTypeScope").value(
+                    DEFAULT_SOURCE_TYPE_SCOPE
+                )
+            )
     }
+
+    @get:Throws(Exception::class)
+    @get:Transactional
+    @get:Test
+    open val nonExistingSourceType: Unit
+        get() {
+            // Get the sourceType
+            restSourceTypeMockMvc.perform(
+                MockMvcRequestBuilders.get(
+                    "/api/source-types/{prodcuer}/{model}/{version}",
+                    "does", "not", "exist"
+                )
+            )
+                .andExpect(MockMvcResultMatchers.status().isNotFound())
+        }
 
     @Test
     @Transactional
-    void getNonExistingSourceType() throws Exception {
-        // Get the sourceType
-        restSourceTypeMockMvc.perform(get("/api/source-types/{prodcuer}/{model}/{version}",
-                "does", "not", "exist"))
-                .andExpect(status().isNotFound());
-    }
-
-    @Test
-    @Transactional
-    void updateSourceType() throws Exception {
+    @Throws(Exception::class)
+    open fun updateSourceType() {
         // Initialize the database
-        sourceTypeRepository.saveAndFlush(sourceType);
-        int databaseSizeBeforeUpdate = sourceTypeRepository.findAll().size();
+        sourceTypeRepository.saveAndFlush(sourceType)
+        val databaseSizeBeforeUpdate = sourceTypeRepository.findAll().size
 
         // Update the sourceType
-        SourceType updatedSourceType = sourceTypeRepository.findById(sourceType.getId()).get();
+        val updatedSourceType = sourceTypeRepository.findById(sourceType.id!!).get()
         updatedSourceType
-                .producer(UPDATED_PRODUCER)
-                .model(UPDATED_MODEL)
-                .catalogVersion(UPDATED_DEVICE_VERSION)
-                .sourceTypeScope(UPDATED_SOURCE_TYPE_SCOPE);
-        SourceTypeDTO sourceTypeDto = sourceTypeMapper.sourceTypeToSourceTypeDTO(updatedSourceType);
-
-        restSourceTypeMockMvc.perform(put("/api/source-types")
+            .producer(UPDATED_PRODUCER)
+            .model(UPDATED_MODEL)
+            .catalogVersion(UPDATED_DEVICE_VERSION)
+            .sourceTypeScope(UPDATED_SOURCE_TYPE_SCOPE)
+        val sourceTypeDto = sourceTypeMapper.sourceTypeToSourceTypeDTO(updatedSourceType)
+        restSourceTypeMockMvc.perform(
+            MockMvcRequestBuilders.put("/api/source-types")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(sourceTypeDto)))
-                .andExpect(status().isOk());
+                .content(TestUtil.convertObjectToJsonBytes(sourceTypeDto))
+        )
+            .andExpect(MockMvcResultMatchers.status().isOk())
 
         // Validate the SourceType in the database
-        List<SourceType> sourceTypeList = sourceTypeRepository.findAll();
-        assertThat(sourceTypeList).hasSize(databaseSizeBeforeUpdate);
-        SourceType testSourceType = sourceTypeList.get(sourceTypeList.size() - 1);
-        assertThat(testSourceType.producer).isEqualTo(UPDATED_PRODUCER);
-        assertThat(testSourceType.model).isEqualTo(UPDATED_MODEL);
-        assertThat(testSourceType.catalogVersion).isEqualTo(UPDATED_DEVICE_VERSION);
-        assertThat(testSourceType.sourceTypeScope).isEqualTo(UPDATED_SOURCE_TYPE_SCOPE);
+        val sourceTypeList = sourceTypeRepository.findAll()
+        Assertions.assertThat(sourceTypeList).hasSize(databaseSizeBeforeUpdate)
+        val testSourceType = sourceTypeList[sourceTypeList.size - 1]
+        Assertions.assertThat(testSourceType.producer).isEqualTo(UPDATED_PRODUCER)
+        Assertions.assertThat(testSourceType.model).isEqualTo(UPDATED_MODEL)
+        Assertions.assertThat(testSourceType.catalogVersion).isEqualTo(UPDATED_DEVICE_VERSION)
+        Assertions.assertThat(testSourceType.sourceTypeScope).isEqualTo(UPDATED_SOURCE_TYPE_SCOPE)
     }
 
     @Test
     @Transactional
-    void updateNonExistingSourceType() throws Exception {
-        int databaseSizeBeforeUpdate = sourceTypeRepository.findAll().size();
+    @Throws(Exception::class)
+    open fun updateNonExistingSourceType() {
+        val databaseSizeBeforeUpdate = sourceTypeRepository.findAll().size
 
         // Create the SourceType
-        SourceTypeDTO sourceTypeDto = sourceTypeMapper.sourceTypeToSourceTypeDTO(sourceType);
+        val sourceTypeDto = sourceTypeMapper.sourceTypeToSourceTypeDTO(sourceType)
 
         // If the entity doesn't have an ID, it will be created instead of just being updated
-        restSourceTypeMockMvc.perform(put("/api/source-types")
+        restSourceTypeMockMvc.perform(
+            MockMvcRequestBuilders.put("/api/source-types")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(sourceTypeDto)))
-                .andExpect(status().isCreated());
+                .content(TestUtil.convertObjectToJsonBytes(sourceTypeDto))
+        )
+            .andExpect(MockMvcResultMatchers.status().isCreated())
 
         // Validate the SourceType in the database
-        List<SourceType> sourceTypeList = sourceTypeRepository.findAll();
-        assertThat(sourceTypeList).hasSize(databaseSizeBeforeUpdate + 1);
+        val sourceTypeList = sourceTypeRepository.findAll()
+        Assertions.assertThat(sourceTypeList).hasSize(databaseSizeBeforeUpdate + 1)
     }
 
     @Test
     @Transactional
-    void deleteSourceType() throws Exception {
+    @Throws(Exception::class)
+    open fun deleteSourceType() {
         // Initialize the database
-        sourceTypeRepository.saveAndFlush(sourceType);
-        int databaseSizeBeforeDelete = sourceTypeRepository.findAll().size();
+        sourceTypeRepository.saveAndFlush(sourceType)
+        val databaseSizeBeforeDelete = sourceTypeRepository.findAll().size
 
         // Get the sourceType
-        restSourceTypeMockMvc.perform(delete("/api/source-types/{prodcuer}/{model}/{version}",
-                        sourceType.producer, sourceType.model, sourceType.catalogVersion)
-                .accept(TestUtil.APPLICATION_JSON_UTF8))
-                .andExpect(status().isOk());
+        restSourceTypeMockMvc.perform(
+            MockMvcRequestBuilders.delete(
+                "/api/source-types/{prodcuer}/{model}/{version}",
+                sourceType.producer, sourceType.model, sourceType.catalogVersion
+            )
+                .accept(TestUtil.APPLICATION_JSON_UTF8)
+        )
+            .andExpect(MockMvcResultMatchers.status().isOk())
 
         // Validate the database is empty
-        List<SourceType> sourceTypeList = sourceTypeRepository.findAll();
-        assertThat(sourceTypeList).hasSize(databaseSizeBeforeDelete - 1);
+        val sourceTypeList = sourceTypeRepository.findAll()
+        Assertions.assertThat(sourceTypeList).hasSize(databaseSizeBeforeDelete - 1)
     }
 
     @Test
     @Transactional
-    void equalsVerifier() throws Exception {
-        Assertions.assertTrue(TestUtil.equalsVerifier(SourceType.class));
+    @Throws(Exception::class)
+    open fun equalsVerifier() {
+        org.junit.jupiter.api.Assertions.assertTrue(TestUtil.equalsVerifier(SourceType::class.java))
     }
 
     @Test
     @Transactional
-    void idempotentPutWithoutId() throws Exception {
-        final int databaseSizeBeforeUpdate = sourceTypeRepository.findAll().size();
-        final int sensorsSizeBeforeUpdate = sourceDataRepository.findAll().size();
-
-        sourceType.setSourceData(Collections.singleton(SourceDataResourceIntTest.createEntity(em)));
+    @Throws(Exception::class)
+    open fun idempotentPutWithoutId() {
+        val databaseSizeBeforeUpdate = sourceTypeRepository.findAll().size
+        val sensorsSizeBeforeUpdate = sourceDataRepository.findAll().size
+        sourceType.sourceData = setOf(SourceDataResourceIntTest.Companion.createEntity(em))
         // Create the SourceType
-        SourceTypeDTO sourceTypeDto = sourceTypeMapper.sourceTypeToSourceTypeDTO(sourceType);
+        val sourceTypeDto = sourceTypeMapper.sourceTypeToSourceTypeDTO(sourceType)
 
         // If the entity doesn't have an ID, it will be created instead of just being updated
-        restSourceTypeMockMvc.perform(put("/api/source-types")
+        restSourceTypeMockMvc.perform(
+            MockMvcRequestBuilders.put("/api/source-types")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(sourceTypeDto)))
-                .andExpect(status().isCreated());
+                .content(TestUtil.convertObjectToJsonBytes(sourceTypeDto))
+        )
+            .andExpect(MockMvcResultMatchers.status().isCreated())
 
         // Validate the SourceType in the database
-        List<SourceType> sourceTypeList = sourceTypeRepository.findAll();
-        assertThat(sourceTypeList).hasSize(databaseSizeBeforeUpdate + 1);
+        var sourceTypeList = sourceTypeRepository.findAll()
+        Assertions.assertThat(sourceTypeList).hasSize(databaseSizeBeforeUpdate + 1)
 
         // Validate the SourceData in the database
-        List<SourceData> sourceDataList = sourceDataRepository.findAll();
-        assertThat(sourceDataList).hasSize(sensorsSizeBeforeUpdate + 1);
+        var sourceDataList = sourceDataRepository.findAll()
+        Assertions.assertThat(sourceDataList).hasSize(sensorsSizeBeforeUpdate + 1)
 
         // Test doing a put with only producer and model, no id, does not create a new source-type
         // assert that the id is still unset
-        assertThat(sourceTypeDto.getId()).isNull();
-        restSourceTypeMockMvc.perform(put("/api/source-types")
+        Assertions.assertThat(sourceTypeDto.id).isNull()
+        restSourceTypeMockMvc.perform(
+            MockMvcRequestBuilders.put("/api/source-types")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(sourceTypeDto)))
-                .andExpect(status().is(HttpStatus.CONFLICT.value()));
+                .content(TestUtil.convertObjectToJsonBytes(sourceTypeDto))
+        )
+            .andExpect(MockMvcResultMatchers.status().`is`(HttpStatus.CONFLICT.value()))
 
         // Validate no change in database size
-        sourceTypeList = sourceTypeRepository.findAll();
-        assertThat(sourceTypeList).hasSize(databaseSizeBeforeUpdate + 1);
+        sourceTypeList = sourceTypeRepository.findAll()
+        Assertions.assertThat(sourceTypeList).hasSize(databaseSizeBeforeUpdate + 1)
 
         // Validate no change in sourceData database size
-        sourceDataList = sourceDataRepository.findAll();
-        assertThat(sourceDataList).hasSize(sensorsSizeBeforeUpdate + 1);
+        sourceDataList = sourceDataRepository.findAll()
+        Assertions.assertThat(sourceDataList).hasSize(sensorsSizeBeforeUpdate + 1)
+    }
+
+    companion object {
+        private const val DEFAULT_PRODUCER = "AAAAA AAAAA"
+        private const val UPDATED_PRODUCER = "BBBBBBBBBB"
+        private const val DEFAULT_MODEL = "AAAAA AAAAA"
+        private const val UPDATED_MODEL = "BBBBBBBBBB"
+        private const val DEFAULT_DEVICE_VERSION = "AAAAAAAAAA"
+        private const val UPDATED_DEVICE_VERSION = "AAAAAAAAAA"
+        private const val DEFAULT_SOURCE_TYPE_SCOPE = "ACTIVE"
+        private const val UPDATED_SOURCE_TYPE_SCOPE = "PASSIVE"
+
+        /**
+         * Create an entity for this test.
+         *
+         *
+         * This is a static method, as tests for other entities might also need it,
+         * if they test an entity which requires the current entity.
+         */
+        fun createEntity(): SourceType {
+            return SourceType()
+                .producer(DEFAULT_PRODUCER)
+                .model(DEFAULT_MODEL)
+                .catalogVersion(DEFAULT_DEVICE_VERSION)
+                .sourceTypeScope(DEFAULT_SOURCE_TYPE_SCOPE)
+        }
     }
 }

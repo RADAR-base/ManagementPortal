@@ -1,43 +1,35 @@
-package org.radarbase.management.web.rest;
+package org.radarbase.management.web.rest
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import org.hamcrest.Description;
-import org.hamcrest.TypeSafeDiagnosingMatcher;
-import org.springframework.http.MediaType;
-import org.springframework.test.context.transaction.TestTransaction;
-
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeParseException;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import org.assertj.core.api.Assertions
+import org.hamcrest.Description
+import org.hamcrest.TypeSafeDiagnosingMatcher
+import org.springframework.http.MediaType
+import org.springframework.test.context.transaction.TestTransaction
+import java.io.IOException
+import java.nio.charset.Charset
+import java.time.ZonedDateTime
+import java.time.format.DateTimeParseException
 
 /**
  * Utility class for testing REST controllers.
  */
-public final class TestUtil {
+object TestUtil {
     /* MediaType for JSON UTF8 */
-    public static final MediaType APPLICATION_JSON_UTF8 = new MediaType(
-            MediaType.APPLICATION_JSON.getType(),
-            MediaType.APPLICATION_JSON.getSubtype(), Charset.forName("utf8"));
-
-    public static final MediaType APPLICATION_JSON_PATCH = new MediaType(
-            "application",
-            "json-patch+json", Charset.forName("utf8"));
-
-
-    private  static final  JavaTimeModule module = new JavaTimeModule();
-
-    private static  final ObjectMapper mapper = new ObjectMapper()
-            .setSerializationInclusion(JsonInclude.Include.NON_NULL)
-            .registerModule(module);
-
-    private TestUtil() {
-        // utilitly class
-    }
+    val APPLICATION_JSON_UTF8 = MediaType(
+        MediaType.APPLICATION_JSON.type,
+        MediaType.APPLICATION_JSON.subtype, Charset.forName("utf8")
+    )
+    val APPLICATION_JSON_PATCH = MediaType(
+        "application",
+        "json-patch+json", Charset.forName("utf8")
+    )
+    private val module = JavaTimeModule()
+    private val mapper = ObjectMapper()
+        .setSerializationInclusion(JsonInclude.Include.NON_NULL)
+        .registerModule(module)
 
     /**
      * Convert a JSON String to an object.
@@ -47,9 +39,9 @@ public final class TestUtil {
      *
      * @return the converted object instance.
      */
-    public static <T>  Object convertJsonStringToObject(String json, Class<T> objectClass)
-            throws IOException {
-        return mapper.readValue(json, objectClass);
+    @Throws(IOException::class)
+    fun <T : Any> convertJsonStringToObject(json: String?, objectClass: Class<T>?): Any {
+        return mapper.readValue(json, objectClass)
     }
 
     /**
@@ -58,8 +50,9 @@ public final class TestUtil {
      * @param object the object to convert
      * @return the JSON byte array
      */
-    public static byte[] convertObjectToJsonBytes(Object object) throws IOException {
-        return mapper.writeValueAsBytes(object);
+    @Throws(IOException::class)
+    fun convertObjectToJsonBytes(`object`: Any?): ByteArray {
+        return mapper.writeValueAsBytes(`object`)
     }
 
     /**
@@ -69,46 +62,12 @@ public final class TestUtil {
      * @param data the data to put in the byte array
      * @return the JSON byte array
      */
-    public static byte[] createByteArray(int size, String data) {
-        byte[] byteArray = new byte[size];
-        for (int i = 0; i < size; i++) {
-            byteArray[i] = Byte.parseByte(data, 2);
+    fun createByteArray(size: Int, data: String): ByteArray {
+        val byteArray = ByteArray(size)
+        for (i in 0 until size) {
+            byteArray[i] = data.toByte(2)
         }
-        return byteArray;
-    }
-
-    /**
-     * A matcher that tests that the examined string represents the same instant as the reference
-     * datetime.
-     */
-    public static class ZonedDateTimeMatcher extends TypeSafeDiagnosingMatcher<String> {
-
-        private final ZonedDateTime date;
-
-        public ZonedDateTimeMatcher(ZonedDateTime date) {
-            this.date = date;
-        }
-
-        @Override
-        protected boolean matchesSafely(String item, Description mismatchDescription) {
-            try {
-                if (!date.isEqual(ZonedDateTime.parse(item))) {
-                    mismatchDescription.appendText("was ").appendValue(item);
-                    return false;
-                }
-                return true;
-            } catch (DateTimeParseException e) {
-                mismatchDescription.appendText("was ").appendValue(item)
-                        .appendText(", which could not be parsed as a ZonedDateTime");
-                return false;
-            }
-
-        }
-
-        @Override
-        public void describeTo(Description description) {
-            description.appendText("a String representing the same Instant as ").appendValue(date);
-        }
+        return byteArray
     }
 
     /**
@@ -117,39 +76,62 @@ public final class TestUtil {
      *
      * @param date the reference datetime against which the examined string is checked
      */
-    public static ZonedDateTimeMatcher sameInstant(ZonedDateTime date) {
-        return new ZonedDateTimeMatcher(date);
+    fun sameInstant(date: ZonedDateTime): ZonedDateTimeMatcher {
+        return ZonedDateTimeMatcher(date)
     }
 
     /**
      * Verifies the equals/hashcode contract on the domain object.
      */
-    @SuppressWarnings("unchecked")
-    public static boolean equalsVerifier(Class clazz) throws Exception {
-        Object domainObject1 = clazz.getConstructor().newInstance();
-        assertThat(domainObject1.toString()).isNotNull();
-        assertThat(domainObject1).isEqualTo(domainObject1);
-        assertThat(domainObject1.hashCode()).isEqualTo(domainObject1.hashCode());
+    @Throws(Exception::class)
+    fun equalsVerifier(clazz: Class<*>): Boolean {
+        val domainObject1 = clazz.getConstructor().newInstance()
+        Assertions.assertThat(domainObject1.toString()).isNotNull()
+        Assertions.assertThat(domainObject1).isEqualTo(domainObject1)
+        Assertions.assertThat(domainObject1.hashCode()).isEqualTo(domainObject1.hashCode())
         // Test with an instance of another class
-        Object testOtherObject = new Object();
-        assertThat(domainObject1).isNotEqualTo(testOtherObject);
+        val testOtherObject = Any()
+        Assertions.assertThat(domainObject1).isNotEqualTo(testOtherObject)
         // Test with an instance of the same class
-        Object domainObject2 = clazz.getConstructor().newInstance();
-        assertThat(domainObject1).isNotEqualTo(domainObject2);
+        val domainObject2 = clazz.getConstructor().newInstance()
+        Assertions.assertThat(domainObject1).isNotEqualTo(domainObject2)
         // HashCodes are equals because the objects are not persisted yet
-        assertThat(domainObject1.hashCode()).isEqualTo(domainObject2.hashCode());
-        return true;
+        Assertions.assertThat(domainObject1.hashCode()).isEqualTo(domainObject2.hashCode())
+        return true
     }
-
 
     /**
      * This allows to commit current transaction and start a new transaction.
      */
-    public static void commitTransactionAndStartNew() {
+    fun commitTransactionAndStartNew() {
         // flag this transaction for commit and end it
-        TestTransaction.flagForCommit();
-        TestTransaction.end();
-        TestTransaction.start();
-        TestTransaction.flagForCommit();
+        TestTransaction.flagForCommit()
+        TestTransaction.end()
+        TestTransaction.start()
+        TestTransaction.flagForCommit()
+    }
+
+    /**
+     * A matcher that tests that the examined string represents the same instant as the reference
+     * datetime.
+     */
+    class ZonedDateTimeMatcher(private val date: ZonedDateTime) : TypeSafeDiagnosingMatcher<String?>() {
+        override fun matchesSafely(item: String?, mismatchDescription: Description): Boolean {
+            return try {
+                if (!date.isEqual(ZonedDateTime.parse(item))) {
+                    mismatchDescription.appendText("was ").appendValue(item)
+                    return false
+                }
+                true
+            } catch (e: DateTimeParseException) {
+                mismatchDescription.appendText("was ").appendValue(item)
+                    .appendText(", which could not be parsed as a ZonedDateTime")
+                false
+            }
+        }
+
+        override fun describeTo(description: Description) {
+            description.appendText("a String representing the same Instant as ").appendValue(date)
+        }
     }
 }
