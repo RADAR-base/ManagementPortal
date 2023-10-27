@@ -33,8 +33,8 @@ abstract class SubjectMapperDecorator(
         }
         val dto = subjectToSubjectWithoutProjectDTO(subject)
         val project = subject.activeProject
-            .let { p -> projectRepository!!.findOneWithEagerRelationships(p?.id) }
-        dto!!.project = projectMapper!!.projectToProjectDTO(project)
+            .let { p -> projectRepository.findOneWithEagerRelationships(p?.id) }
+        dto!!.project = projectMapper.projectToProjectDTO(project)
         addAuditInfo(subject, dto)
         return dto
     }
@@ -44,13 +44,13 @@ abstract class SubjectMapperDecorator(
             return null
         }
         val dto = subjectToSubjectWithoutProjectDTO(subject)
-        subject.activeProject?.let { project -> dto!!.project = projectMapper!!.projectToProjectDTOReduced(project) }
+        subject.activeProject?.let { project -> dto!!.project = projectMapper.projectToProjectDTOReduced(project) }
         addAuditInfo(subject, dto)
         return dto
     }
 
     private fun addAuditInfo(subject: Subject, dto: SubjectDTO?) {
-        val auditInfo = revisionService!!.getAuditInfo(subject)
+        val auditInfo = revisionService.getAuditInfo(subject)
         dto!!.createdDate = auditInfo.createdAt
         dto.createdBy = auditInfo.createdBy
         dto.lastModifiedDate = auditInfo.lastModifiedAt
@@ -61,7 +61,7 @@ abstract class SubjectMapperDecorator(
         if (subject == null) {
             return null
         }
-        val dto = delegate!!.subjectToSubjectWithoutProjectDTO(subject)
+        val dto = delegate.subjectToSubjectWithoutProjectDTO(subject)
         dto!!.status = getSubjectStatus(subject)
         return dto
     }
@@ -70,7 +70,7 @@ abstract class SubjectMapperDecorator(
         if (subjectDto == null) {
             return null
         }
-        val subject = delegate!!.subjectDTOToSubject(subjectDto)
+        val subject = delegate.subjectDTOToSubject(subjectDto)
         setSubjectStatus(subjectDto, subject)
         subject!!.group = getGroup(subjectDto)
         return subject

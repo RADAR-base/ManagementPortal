@@ -210,7 +210,7 @@ class OAuthClientsResource {
 
         // lookup the subject
         val subject = subjectService!!.findOneByLogin(login)
-        val project: String = subject.activeProject
+        val projectName: String = subject.activeProject
             ?.projectName
             ?: throw NotFoundException(
                     "Project for subject $login not found", EntityName.SUBJECT,
@@ -221,7 +221,7 @@ class OAuthClientsResource {
         // Users who can update a subject can also generate a refresh token for that subject
         authService.checkPermission(
             Permission.SUBJECT_UPDATE,
-            { e: EntityDetails -> e.subject(login) })
+            { e: EntityDetails -> e.project(projectName).subject(login) })
         val cpi = metaTokenService!!.createMetaToken(subject, clientId, persistent!!)
         // generate audit event
         eventRepository!!.add(
