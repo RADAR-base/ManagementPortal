@@ -1,250 +1,270 @@
-package org.radarbase.management.security.jwt
+package org.radarbase.management.security.jwt;
 
-import com.auth0.jwt.JWT
-import com.auth0.jwt.JWTVerifier
-import com.auth0.jwt.algorithms.Algorithm
-import com.auth0.jwt.exceptions.JWTVerificationException
-import com.auth0.jwt.exceptions.SignatureVerificationException
-import com.fasterxml.jackson.core.JsonProcessingException
-import com.fasterxml.jackson.databind.ObjectMapper
-import org.radarbase.management.security.jwt.ManagementPortalJwtAccessTokenConverter
-import org.slf4j.LoggerFactory
-import org.springframework.security.oauth2.common.DefaultExpiringOAuth2RefreshToken
-import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken
-import org.springframework.security.oauth2.common.DefaultOAuth2RefreshToken
-import org.springframework.security.oauth2.common.ExpiringOAuth2RefreshToken
-import org.springframework.security.oauth2.common.OAuth2AccessToken
-import org.springframework.security.oauth2.common.exceptions.InvalidTokenException
-import org.springframework.security.oauth2.provider.OAuth2Authentication
-import org.springframework.security.oauth2.provider.token.AccessTokenConverter
-import org.springframework.security.oauth2.provider.token.DefaultAccessTokenConverter
-import org.springframework.security.oauth2.provider.token.store.JwtClaimsSetVerifier
-import org.springframework.util.Assert
-import java.nio.charset.StandardCharsets
-import java.time.Instant
-import java.util.*
-import java.util.stream.Stream
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTCreator;
+import com.auth0.jwt.JWTVerifier;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.exceptions.SignatureVerificationException;
+import com.auth0.jwt.interfaces.DecodedJWT;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.oauth2.common.DefaultExpiringOAuth2RefreshToken;
+import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
+import org.springframework.security.oauth2.common.DefaultOAuth2RefreshToken;
+import org.springframework.security.oauth2.common.ExpiringOAuth2RefreshToken;
+import org.springframework.security.oauth2.common.OAuth2AccessToken;
+import org.springframework.security.oauth2.common.OAuth2RefreshToken;
+import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
+import org.springframework.security.oauth2.provider.OAuth2Authentication;
+import org.springframework.security.oauth2.provider.token.AccessTokenConverter;
+import org.springframework.security.oauth2.provider.token.DefaultAccessTokenConverter;
+import org.springframework.security.oauth2.provider.token.store.JwtClaimsSetVerifier;
+import org.springframework.util.Assert;
+
+import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.util.Base64;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Stream;
 
 /**
- * Implementation of [JwtAccessTokenConverter] for the RADAR-base ManagementPortal platform.
+ * Implementation of {@link JwtAccessTokenConverter} for the RADAR-base ManagementPortal platform.
  *
- *
- * This class can accept an EC keypair as well as an RSA keypair for signing. EC signatures
- * are significantly smaller than RSA signatures.
+ * <p>This class can accept an EC keypair as well as an RSA keypair for signing. EC signatures
+ * are significantly smaller than RSA signatures.</p>
  */
-open class ManagementPortalJwtAccessTokenConverter(
-    algorithm: Algorithm,
-    verifiers: MutableList<JWTVerifier>,
-    private val refreshTokenVerifiers: List<JWTVerifier>
-) : JwtAccessTokenConverter {
-    private val jsonParser = ObjectMapper().readerFor(
-        MutableMap::class.java
-    )
-    private val tokenConverter: AccessTokenConverter
+public class ManagementPortalJwtAccessTokenConverter implements JwtAccessTokenConverter {
+
+    public static final String RES_MANAGEMENT_PORTAL = "res_ManagementPortal";
+
+    private final ObjectReader jsonParser = new ObjectMapper().readerFor(Map.class);
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(ManagementPortalJwtAccessTokenConverter.class);
+
+    private final AccessTokenConverter tokenConverter;
+
+    private JwtClaimsSetVerifier jwtClaimsSetVerifier;
+
+    private Algorithm algorithm;
+
+    private final List<JWTVerifier> verifiers;
+
+    private final List<JWTVerifier> refreshTokenVerifiers;
+
+
+    /**
+     * Default constructor.
+     * Creates {@link ManagementPortalJwtAccessTokenConverter} with
+     * {@link DefaultAccessTokenConverter} as the accessTokenConverter with explicitly including
+     * grant_type claim.
+     */
+    public ManagementPortalJwtAccessTokenConverter(
+            Algorithm algorithm,
+            List<JWTVerifier> verifiers,
+            List<JWTVerifier> refreshTokenVerifiers) {
+        this.refreshTokenVerifiers = refreshTokenVerifiers;
+        DefaultAccessTokenConverter accessToken = new DefaultAccessTokenConverter();
+        accessToken.setIncludeGrantType(true);
+        this.tokenConverter = accessToken;
+        this.verifiers = verifiers;
+        setAlgorithm(algorithm);
+    }
 
     /**
      * Returns JwtClaimsSetVerifier.
      *
-     * @return the [JwtClaimsSetVerifier] used to verify the claim(s) in the JWT Claims Set
+     * @return the {@link JwtClaimsSetVerifier} used to verify the claim(s) in the JWT Claims Set
      */
-    var jwtClaimsSetVerifier: JwtClaimsSetVerifier? = null
-        /**
-         * Sets JwtClaimsSetVerifier instance.
-         *
-         * @param jwtClaimsSetVerifier the [JwtClaimsSetVerifier] used to verify the claim(s)
-         * in the JWT Claims Set
-         */
-        set(jwtClaimsSetVerifier) {
-            Assert.notNull(jwtClaimsSetVerifier, "jwtClaimsSetVerifier cannot be null")
-            field = jwtClaimsSetVerifier
-        }
-    private var algorithm: Algorithm? = null
-    private val verifiers: MutableList<JWTVerifier>
+    public JwtClaimsSetVerifier getJwtClaimsSetVerifier() {
+        return this.jwtClaimsSetVerifier;
+    }
 
     /**
-     * Default constructor.
-     * Creates [ManagementPortalJwtAccessTokenConverter] with
-     * [DefaultAccessTokenConverter] as the accessTokenConverter with explicitly including
-     * grant_type claim.
+     * Sets JwtClaimsSetVerifier instance.
+     *
+     * @param jwtClaimsSetVerifier the {@link JwtClaimsSetVerifier} used to verify the claim(s)
+     *                             in the JWT Claims Set
      */
-    init {
-        val accessToken = DefaultAccessTokenConverter()
-        accessToken.setIncludeGrantType(true)
-        tokenConverter = accessToken
-        this.verifiers = verifiers
-        setAlgorithm(algorithm)
+    public void setJwtClaimsSetVerifier(JwtClaimsSetVerifier jwtClaimsSetVerifier) {
+        Assert.notNull(jwtClaimsSetVerifier, "jwtClaimsSetVerifier cannot be null");
+        this.jwtClaimsSetVerifier = jwtClaimsSetVerifier;
     }
 
-    override fun convertAccessToken(
-        token: OAuth2AccessToken,
-        authentication: OAuth2Authentication
-    ): Map<String, *> {
-        return tokenConverter.convertAccessToken(token, authentication)
+    @Override
+    public Map<String, ?> convertAccessToken(OAuth2AccessToken token,
+            OAuth2Authentication authentication) {
+        return tokenConverter.convertAccessToken(token, authentication);
     }
 
-    override fun extractAccessToken(value: String, map: Map<String?, *>?): OAuth2AccessToken {
-        var mapCopy = map?.toMutableMap()
-
-        if (mapCopy?.containsKey(AccessTokenConverter.EXP) == true) {
-            mapCopy[AccessTokenConverter.EXP] = (mapCopy[AccessTokenConverter.EXP] as Int).toLong()
-        }
-        return tokenConverter.extractAccessToken(value, mapCopy)
+    @Override
+    public OAuth2AccessToken extractAccessToken(String value, Map<String, ?> map) {
+        return tokenConverter.extractAccessToken(value, map);
     }
 
-    override fun extractAuthentication(map: Map<String?, *>?): OAuth2Authentication {
-        return tokenConverter.extractAuthentication(map)
+    @Override
+    public OAuth2Authentication extractAuthentication(Map<String, ?> map) {
+        return tokenConverter.extractAuthentication(map);
     }
 
-    override fun setAlgorithm(algorithm: Algorithm) {
-        this.algorithm = algorithm
+    @Override
+    public final void setAlgorithm(Algorithm algorithm) {
+        this.algorithm = algorithm;
         if (verifiers.isEmpty()) {
-            verifiers.add(JWT.require(algorithm).withAudience(RES_MANAGEMENT_PORTAL).build())
+            this.verifiers.add(JWT.require(algorithm).withAudience(RES_MANAGEMENT_PORTAL).build());
         }
     }
+
 
     /**
      * Simplified the existing enhancing logic of
-     * [JwtAccessTokenConverter.enhance].
+     * {@link JwtAccessTokenConverter#enhance(OAuth2AccessToken, OAuth2Authentication)}.
      * Keeping the same logic.
      *
-     *
-     *
+     * <p>
      * It mainly adds token-id for access token and access-token-id and token-id for refresh
      * token to the additional information.
-     *
+     * </p>
      *
      * @param accessToken    accessToken to enhance.
      * @param authentication current authentication of the token.
      * @return enhancedToken.
      */
-    override fun enhance(
-        accessToken: OAuth2AccessToken,
-        authentication: OAuth2Authentication
-    ): OAuth2AccessToken {
+    @Override
+    public OAuth2AccessToken enhance(OAuth2AccessToken accessToken,
+            OAuth2Authentication authentication) {
         // create new instance of token to enhance
-        val resultAccessToken = DefaultOAuth2AccessToken(accessToken)
+        DefaultOAuth2AccessToken resultAccessToken = new DefaultOAuth2AccessToken(accessToken);
         // set additional information for access token
-        val additionalInfoAccessToken: MutableMap<String, Any?> = HashMap(accessToken.additionalInformation)
+        Map<String, Object> additionalInfoAccessToken =
+                new HashMap<>(accessToken.getAdditionalInformation());
 
         // add token id if not available
-        var accessTokenId = accessToken.value
-        if (!additionalInfoAccessToken.containsKey(JwtAccessTokenConverter.TOKEN_ID)) {
-            additionalInfoAccessToken[JwtAccessTokenConverter.TOKEN_ID] = accessTokenId
+        String accessTokenId = accessToken.getValue();
+
+        if (!additionalInfoAccessToken.containsKey(TOKEN_ID)) {
+            additionalInfoAccessToken.put(TOKEN_ID, accessTokenId);
         } else {
-            accessTokenId = additionalInfoAccessToken[JwtAccessTokenConverter.TOKEN_ID] as String?
+            accessTokenId = (String) additionalInfoAccessToken.get(TOKEN_ID);
         }
-        resultAccessToken.additionalInformation = additionalInfoAccessToken
-        resultAccessToken.value = encode(accessToken, authentication)
+
+        resultAccessToken
+                .setAdditionalInformation(additionalInfoAccessToken);
+
+        resultAccessToken.setValue(encode(accessToken, authentication));
 
         // add additional information for refresh-token
-        val refreshToken = accessToken.refreshToken
+        OAuth2RefreshToken refreshToken = accessToken.getRefreshToken();
         if (refreshToken != null) {
-            val refreshTokenToEnhance = DefaultOAuth2AccessToken(accessToken)
-            refreshTokenToEnhance.value = refreshToken.value
+            DefaultOAuth2AccessToken refreshTokenToEnhance =
+                    new DefaultOAuth2AccessToken(accessToken);
+            refreshTokenToEnhance.setValue(refreshToken.getValue());
             // Refresh tokens do not expire unless explicitly of the right type
-            refreshTokenToEnhance.expiration = null
-            refreshTokenToEnhance.scope = accessToken.scope
+            refreshTokenToEnhance.setExpiration(null);
+            refreshTokenToEnhance.setScope(accessToken.getScope());
             // set info of access token to refresh-token and add token-id and access-token-id for
             // reference.
-            val refreshTokenInfo: MutableMap<String, Any?> = HashMap(accessToken.additionalInformation)
-            refreshTokenInfo[JwtAccessTokenConverter.TOKEN_ID] = refreshTokenToEnhance.value
-            refreshTokenInfo[JwtAccessTokenConverter.ACCESS_TOKEN_ID] = accessTokenId
-            refreshTokenToEnhance.additionalInformation = refreshTokenInfo
-            val encodedRefreshToken: DefaultOAuth2RefreshToken
-            if (refreshToken is ExpiringOAuth2RefreshToken) {
-                val expiration = refreshToken.expiration
-                refreshTokenToEnhance.expiration = expiration
-                encodedRefreshToken = DefaultExpiringOAuth2RefreshToken(
-                    encode(refreshTokenToEnhance, authentication), expiration
-                )
+
+            Map<String, Object> refreshTokenInfo =
+                    new HashMap<>(accessToken.getAdditionalInformation());
+            refreshTokenInfo.put(TOKEN_ID, refreshTokenToEnhance.getValue());
+            refreshTokenInfo.put(ACCESS_TOKEN_ID, accessTokenId);
+
+            refreshTokenToEnhance.setAdditionalInformation(refreshTokenInfo);
+
+            DefaultOAuth2RefreshToken encodedRefreshToken;
+            if (refreshToken instanceof ExpiringOAuth2RefreshToken) {
+                Date expiration = ((ExpiringOAuth2RefreshToken) refreshToken).getExpiration();
+                refreshTokenToEnhance.setExpiration(expiration);
+
+                encodedRefreshToken = new DefaultExpiringOAuth2RefreshToken(
+                        encode(refreshTokenToEnhance, authentication), expiration);
             } else {
-                encodedRefreshToken = DefaultOAuth2RefreshToken(
-                    encode(refreshTokenToEnhance, authentication)
-                )
+                encodedRefreshToken = new DefaultOAuth2RefreshToken(
+                        encode(refreshTokenToEnhance, authentication));
             }
-            resultAccessToken.refreshToken = encodedRefreshToken
+            resultAccessToken.setRefreshToken(encodedRefreshToken);
         }
-        return resultAccessToken
+        return resultAccessToken;
     }
 
-    override fun isRefreshToken(token: OAuth2AccessToken): Boolean {
-        return token.additionalInformation?.containsKey(JwtAccessTokenConverter.ACCESS_TOKEN_ID) == true
+    @Override
+    public boolean isRefreshToken(OAuth2AccessToken token) {
+        return token.getAdditionalInformation().containsKey(ACCESS_TOKEN_ID);
     }
 
-    override fun encode(accessToken: OAuth2AccessToken, authentication: OAuth2Authentication): String {
+    @Override
+    public String encode(OAuth2AccessToken accessToken, OAuth2Authentication authentication) {
         // we need to override the encode method as well, Spring security does not know about
-        // ECDSA, so it can not set the 'alg' header claim of the JWT to the correct value; here
+        // ECDSA so it can not set the 'alg' header claim of the JWT to the correct value; here
         // we use the auth0 JWT implementation to create a signed, encoded JWT.
-        val claims = convertAccessToken(accessToken, authentication)
-        val builder = JWT.create()
+        Map<String, ?> claims = convertAccessToken(accessToken, authentication);
+
+        JWTCreator.Builder builder = JWT.create();
 
         // add the string array claims
         Stream.of("aud", "sources", "roles", "authorities", "scope")
-            .filter { key: String -> claims.containsKey(key) }
-            .forEach { claim: String ->
-                builder.withArrayClaim(
-                    claim,
-                    (claims[claim] as Collection<String>).toTypedArray<String>()
-                )
-            }
+                .filter(claims::containsKey)
+                .forEach(claim -> builder.withArrayClaim(claim,
+                        ((Collection<String>) claims.get(claim)).toArray(new String[0])));
 
         // add the string claims
         Stream.of("sub", "iss", "user_name", "client_id", "grant_type", "jti", "ati")
-            .filter { key: String -> claims.containsKey(key) }
-            .forEach { claim: String -> builder.withClaim(claim, claims[claim] as String?) }
+                .filter(claims::containsKey)
+                .forEach(claim -> builder.withClaim(claim, (String) claims.get(claim)));
 
         // add the date claims, they are in seconds since epoch, we need milliseconds
         Stream.of("exp", "iat")
-            .filter { key: String -> claims.containsKey(key) }
-            .forEach { claim: String ->
-                builder.withClaim(
-                    claim,
-                    Date.from(Instant.ofEpochSecond((claims[claim] as Long?)!!))
-                )
-            }
-        return builder.sign(algorithm)
+                .filter(claims::containsKey)
+                .forEach(claim -> builder.withClaim(claim,
+                        Date.from(Instant.ofEpochSecond((Long)claims.get(claim)))));
+
+        return builder.sign(algorithm);
     }
 
-    override fun decode(token: String): Map<String, Any> {
-        val jwt = JWT.decode(token)
-        val verifierToUse: List<JWTVerifier>
-        val claims: MutableMap<String, Any>
+    @Override
+    public Map<String, Object> decode(String token) {
+        DecodedJWT jwt = JWT.decode(token);
+        List<JWTVerifier> verifierToUse;
+        Map<String, Object> claims;
         try {
-            val decodedPayload = String(
-                Base64.getUrlDecoder().decode(jwt.payload),
-                StandardCharsets.UTF_8
-            )
-            claims = jsonParser.readValue(decodedPayload)
-            if (claims.containsKey(AccessTokenConverter.EXP) && claims[AccessTokenConverter.EXP] is Int) {
-                val intValue = claims[AccessTokenConverter.EXP] as Int?
-                claims[AccessTokenConverter.EXP] = intValue!!
+            String decodedPayload = new String(Base64.getUrlDecoder().decode(jwt.getPayload()),
+                    StandardCharsets.UTF_8);
+            claims = jsonParser.readValue(decodedPayload);
+            if (claims.containsKey(EXP) && claims.get(EXP) instanceof Integer) {
+                Integer intValue = (Integer) claims.get(EXP);
+                claims.put(EXP, Long.valueOf(intValue));
             }
-            if (jwtClaimsSetVerifier != null) {
-                jwtClaimsSetVerifier!!.verify(claims)
+            if (this.getJwtClaimsSetVerifier() != null) {
+                this.getJwtClaimsSetVerifier().verify(claims);
             }
-            verifierToUse =
-                if (claims[JwtAccessTokenConverter.ACCESS_TOKEN_ID] != null) refreshTokenVerifiers else verifiers
-        } catch (ex: JsonProcessingException) {
-            throw InvalidTokenException("Invalid token", ex)
-        }
-        for (verifier in verifierToUse) {
-            try {
-                verifier.verify(token)
-                return claims
-            } catch (sve: SignatureVerificationException) {
-                logger.warn("Client presented a token with an incorrect signature")
-            } catch (ex: JWTVerificationException) {
-                logger.debug(
-                    "Verifier {} with implementation {} did not accept token: {}",
-                    verifier, verifier.javaClass, ex.message
-                )
-            }
-        }
-        throw InvalidTokenException("No registered validator could authenticate this token")
-    }
 
-    companion object {
-        const val RES_MANAGEMENT_PORTAL = "res_ManagementPortal"
-        private val logger = LoggerFactory.getLogger(ManagementPortalJwtAccessTokenConverter::class.java)
+            verifierToUse = claims.get(ACCESS_TOKEN_ID) != null
+                    ? refreshTokenVerifiers : verifiers;
+        } catch (JsonProcessingException ex) {
+            throw new InvalidTokenException("Invalid token", ex);
+        }
+
+        for (JWTVerifier verifier : verifierToUse) {
+            try {
+                verifier.verify(token);
+                return claims;
+            } catch (SignatureVerificationException sve) {
+                logger.warn("Client presented a token with an incorrect signature");
+            } catch (JWTVerificationException ex) {
+                logger.debug("Verifier {} with implementation {} did not accept token: {}",
+                        verifier, verifier.getClass(), ex.getMessage());
+            }
+        }
+
+        throw new InvalidTokenException("No registered validator could authenticate this token");
     }
 }
