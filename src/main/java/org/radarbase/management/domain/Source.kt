@@ -58,10 +58,10 @@ class Source : AbstractEntity, Serializable {
     var expectedSourceName: String? = null
 
     @Column(name = "assigned", nullable = false)
-    var isAssigned: @NotNull Boolean? = null
+    var isAssigned: @NotNull Boolean? = false
 
     @Column(name = "deleted", nullable = false)
-    var isDeleted: @NotNull Boolean? = false
+    var isDeleted: @NotNull Boolean = false
 
     @JvmField
     @ManyToOne(fetch = FetchType.EAGER)
@@ -125,12 +125,12 @@ class Source : AbstractEntity, Serializable {
         }
     }
 
-    fun assigned(assigned: Boolean?): Source {
+    fun assigned(assigned: Boolean): Source {
         isAssigned = assigned
         return this
     }
 
-    fun deleted(deleted: Boolean?): Source {
+    fun deleted(deleted: Boolean): Source {
         isDeleted = deleted
         return this
     }
@@ -155,14 +155,14 @@ class Source : AbstractEntity, Serializable {
         return this
     }
 
-    override fun equals(o: Any?): Boolean {
-        if (this === o) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
             return true
         }
-        if (o == null || javaClass != o.javaClass) {
+        if (other == null || javaClass != other.javaClass) {
             return false
         }
-        val source = o as Source
+        val source = other as Source
         return if (source.id == null || id == null) {
             false
         } else id == source.id && sourceId == source.sourceId
