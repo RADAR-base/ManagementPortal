@@ -16,6 +16,7 @@ import java.util.*
  * test takes one language as the 'ground truth' to check against. That language is currently
  * configured to be English, but can be changed by changing the `BASE_LANG` field.
  */
+//TODO reimplement in proper kotlin
 internal class CheckTranslationsUnitTest {
 //    @Test
 //    fun testLanguages() {
