@@ -65,7 +65,7 @@ internal open class SourceResourceIntTest(
     @Throws(ServletException::class)
     fun setUp() {
         MockitoAnnotations.openMocks(this)
-        val sourceResource = SourceResource()
+        val sourceResource = SourceResource
         ReflectionTestUtils.setField(sourceResource, "authService", authService)
         ReflectionTestUtils.setField(sourceResource, "sourceService", sourceService)
         ReflectionTestUtils.setField(sourceResource, "sourceRepository", sourceRepository)
