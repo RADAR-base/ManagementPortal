@@ -40,41 +40,31 @@ import javax.servlet.ServletException
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(classes = [ManagementPortalTestApp::class])
 @WithMockUser
-internal class SourceDataResourceIntTest {
-    @Autowired
-    private val sourceDataRepository: SourceDataRepository? = null
+internal open class SourceDataResourceIntTest(
+    @Autowired private val sourceDataRepository: SourceDataRepository,
+    @Autowired private val sourceDataMapper: SourceDataMapper,
+    @Autowired private val sourceDataService: SourceDataService,
+    @Autowired private val jacksonMessageConverter: MappingJackson2HttpMessageConverter,
+    @Autowired private val pageableArgumentResolver: PageableHandlerMethodArgumentResolver,
+    @Autowired private val exceptionTranslator: ExceptionTranslator,
+    @Autowired private val em: EntityManager,
+    private var restSourceDataMockMvc: MockMvc,
+    private var sourceData: SourceData,
+    @Autowired private val authService: AuthService
+) {
 
-    @Autowired
-    private val sourceDataMapper: SourceDataMapper? = null
-
-    @Autowired
-    private val sourceDataService: SourceDataService? = null
-
-    @Autowired
-    private val jacksonMessageConverter: MappingJackson2HttpMessageConverter? = null
-
-    @Autowired
-    private val pageableArgumentResolver: PageableHandlerMethodArgumentResolver? = null
-
-    @Autowired
-    private val exceptionTranslator: ExceptionTranslator? = null
-
-    @Autowired
-    private val em: EntityManager? = null
-    private var restSourceDataMockMvc: MockMvc? = null
-    private var sourceData: SourceData? = null
-
-    @Autowired
-    private val authService: AuthService? = null
     @BeforeEach
     @Throws(ServletException::class)
     fun setUp() {
-        MockitoAnnotations.initMocks(this)
-        val sourceDataResource = SourceDataResource()
+        MockitoAnnotations.openMocks(this)
+        val sourceDataResource = SourceDataResource(
+            sourceDataService,
+            authService
+        )
         ReflectionTestUtils.setField(sourceDataResource, "sourceDataService", sourceDataService)
         ReflectionTestUtils.setField(sourceDataResource, "authService", authService)
         val filter = OAuthHelper.createAuthenticationFilter()
-        filter!!.init(MockFilterConfig())
+        filter.init(MockFilterConfig())
         restSourceDataMockMvc = MockMvcBuilders.standaloneSetup(sourceDataResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
@@ -92,12 +82,12 @@ internal class SourceDataResourceIntTest {
     @Test
     @Transactional
     @Throws(Exception::class)
-    fun createSourceData() {
-        val databaseSizeBeforeCreate = sourceDataRepository!!.findAll().size
+    open fun createSourceData() {
+        val databaseSizeBeforeCreate = sourceDataRepository.findAll().size
 
         // Create the SourceData
-        val sourceDataDto = sourceDataMapper!!.sourceDataToSourceDataDTO(sourceData)
-        restSourceDataMockMvc!!.perform(
+        val sourceDataDto = sourceDataMapper.sourceDataToSourceDataDTO(sourceData)
+        restSourceDataMockMvc.perform(
             MockMvcRequestBuilders.post("/api/source-data")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(sourceDataDto))
@@ -121,15 +111,15 @@ internal class SourceDataResourceIntTest {
     @Test
     @Transactional
     @Throws(Exception::class)
-    fun createSourceDataWithExistingId() {
-        val databaseSizeBeforeCreate = sourceDataRepository!!.findAll().size
+    open fun createSourceDataWithExistingId() {
+        val databaseSizeBeforeCreate = sourceDataRepository.findAll().size
 
         // Create the SourceData with an existing ID
-        sourceData!!.id = 1L
-        val sourceDataDto = sourceDataMapper!!.sourceDataToSourceDataDTO(sourceData)
+        sourceData.id = 1L
+        val sourceDataDto = sourceDataMapper.sourceDataToSourceDataDTO(sourceData)
 
         // An entity with an existing ID cannot be created, so this API call must fail
-        restSourceDataMockMvc!!.perform(
+        restSourceDataMockMvc.perform(
             MockMvcRequestBuilders.post("/api/source-data")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(sourceDataDto))
@@ -144,14 +134,14 @@ internal class SourceDataResourceIntTest {
     @Test
     @Transactional
     @Throws(Exception::class)
-    fun checkSourceDataTypeIsNotRequired() {
-        val databaseSizeBeforeTest = sourceDataRepository!!.findAll().size
+    open fun checkSourceDataTypeIsNotRequired() {
+        val databaseSizeBeforeTest = sourceDataRepository.findAll().size
         // set the field null
-        sourceData!!.sourceDataType = null
+        sourceData.sourceDataType = null
 
         // Create the SourceData, which fails.
-        val sourceDataDto = sourceDataMapper!!.sourceDataToSourceDataDTO(sourceData)
-        restSourceDataMockMvc!!.perform(
+        val sourceDataDto = sourceDataMapper.sourceDataToSourceDataDTO(sourceData)
+        restSourceDataMockMvc.perform(
             MockMvcRequestBuilders.post("/api/source-data")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(sourceDataDto))
@@ -164,15 +154,15 @@ internal class SourceDataResourceIntTest {
     @Test
     @Transactional
     @Throws(Exception::class)
-    fun checkSourceDataTypeOrTopicIsRequired() {
-        val databaseSizeBeforeTest = sourceDataRepository!!.findAll().size
+    open fun checkSourceDataTypeOrTopicIsRequired() {
+        val databaseSizeBeforeTest = sourceDataRepository.findAll().size
         // set the field null
-        sourceData!!.sourceDataType = null
-        sourceData!!.topic = null
+        sourceData.sourceDataType = null
+        sourceData.topic = null
 
         // Create the SourceData, which fails.
-        val sourceDataDto = sourceDataMapper!!.sourceDataToSourceDataDTO(sourceData)
-        restSourceDataMockMvc!!.perform(
+        val sourceDataDto = sourceDataMapper.sourceDataToSourceDataDTO(sourceData)
+        restSourceDataMockMvc.perform(
             MockMvcRequestBuilders.post("/api/source-data")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(sourceDataDto))
@@ -185,19 +175,19 @@ internal class SourceDataResourceIntTest {
     @get:Throws(Exception::class)
     @get:Transactional
     @get:Test
-    val allSourceData: Unit
+    open val allSourceData: Unit
         get() {
             // Initialize the database
-            sourceDataRepository!!.saveAndFlush(sourceData)
+            sourceDataRepository.saveAndFlush(sourceData)
 
             // Get all the sourceDataList
-            restSourceDataMockMvc!!.perform(MockMvcRequestBuilders.get("/api/source-data?sort=id,desc"))
+            restSourceDataMockMvc.perform(MockMvcRequestBuilders.get("/api/source-data?sort=id,desc"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(
                     MockMvcResultMatchers.jsonPath("$.[*].id").value<Iterable<Int?>>(
                         Matchers.hasItem(
-                            sourceData!!.id!!.toInt()
+                            sourceData.id!!.toInt()
                         )
                     )
                 )
@@ -256,19 +246,19 @@ internal class SourceDataResourceIntTest {
     @get:Throws(Exception::class)
     @get:Transactional
     @get:Test
-    val allSourceDataWithPagination: Unit
+    open val allSourceDataWithPagination: Unit
         get() {
             // Initialize the database
-            sourceDataRepository!!.saveAndFlush(sourceData)
+            sourceDataRepository.saveAndFlush(sourceData)
 
             // Get all the sourceDataList
-            restSourceDataMockMvc!!.perform(MockMvcRequestBuilders.get("/api/source-data?page=0&size=5&sort=id,desc"))
+            restSourceDataMockMvc.perform(MockMvcRequestBuilders.get("/api/source-data?page=0&size=5&sort=id,desc"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(
                     MockMvcResultMatchers.jsonPath("$.[*].id").value<Iterable<Int?>>(
                         Matchers.hasItem(
-                            sourceData!!.id!!.toInt()
+                            sourceData.id!!.toInt()
                         )
                     )
                 )
@@ -327,20 +317,20 @@ internal class SourceDataResourceIntTest {
     @Test
     @Transactional
     @Throws(Exception::class)
-    fun getSourceData() {
+    open fun getSourceData() {
         // Initialize the database
-        sourceDataRepository!!.saveAndFlush(sourceData)
+        sourceDataRepository.saveAndFlush(sourceData)
 
         // Get the sourceData
-        restSourceDataMockMvc!!.perform(
+        restSourceDataMockMvc.perform(
             MockMvcRequestBuilders.get(
                 "/api/source-data/{sourceDataName}",
-                sourceData!!.sourceDataName
+                sourceData.sourceDataName
             )
         )
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(sourceData!!.id!!.toInt()))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(sourceData.id!!.toInt()))
             .andExpect(MockMvcResultMatchers.jsonPath("$.sourceDataType").value(DEFAULT_SOURCE_DATA_TYPE))
             .andExpect(MockMvcResultMatchers.jsonPath("$.sourceDataName").value(DEFAULT_SOURCE_DATA_NAME))
             .andExpect(MockMvcResultMatchers.jsonPath("$.processingState").value(DEFAULT_PROCESSING_STATE))
@@ -354,10 +344,10 @@ internal class SourceDataResourceIntTest {
     @get:Throws(Exception::class)
     @get:Transactional
     @get:Test
-    val nonExistingSourceData: Unit
+    open val nonExistingSourceData: Unit
         get() {
             // Get the sourceData
-            restSourceDataMockMvc!!.perform(
+            restSourceDataMockMvc.perform(
                 MockMvcRequestBuilders.get(
                     "/api/source-data/{sourceDataName}",
                     DEFAULT_SOURCE_DATA_NAME + DEFAULT_SOURCE_DATA_NAME
@@ -369,13 +359,13 @@ internal class SourceDataResourceIntTest {
     @Test
     @Transactional
     @Throws(Exception::class)
-    fun updateSourceData() {
+    open fun updateSourceData() {
         // Initialize the database
-        sourceDataRepository!!.saveAndFlush(sourceData)
+        sourceDataRepository.saveAndFlush(sourceData)
         val databaseSizeBeforeUpdate = sourceDataRepository.findAll().size
 
         // Update the sourceData
-        val updatedSourceData = sourceDataRepository.findById(sourceData!!.id).get()
+        val updatedSourceData = sourceDataRepository.findById(sourceData.id).get()
         updatedSourceData
             .sourceDataType(UPDATED_SOURCE_DATA_TYPE)
             .sourceDataName(UPDATED_SOURCE_DATA_NAME)
@@ -385,8 +375,8 @@ internal class SourceDataResourceIntTest {
             .topic(UPDATED_TOPIC)
             .unit(UPDATED_UNIT)
             .frequency(UPDATED_FREQUENCY)
-        val sourceDataDto = sourceDataMapper!!.sourceDataToSourceDataDTO(updatedSourceData)
-        restSourceDataMockMvc!!.perform(
+        val sourceDataDto = sourceDataMapper.sourceDataToSourceDataDTO(updatedSourceData)
+        restSourceDataMockMvc.perform(
             MockMvcRequestBuilders.put("/api/source-data")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(sourceDataDto))
@@ -410,14 +400,14 @@ internal class SourceDataResourceIntTest {
     @Test
     @Transactional
     @Throws(Exception::class)
-    fun updateNonExistingSourceData() {
-        val databaseSizeBeforeUpdate = sourceDataRepository!!.findAll().size
+    open fun updateNonExistingSourceData() {
+        val databaseSizeBeforeUpdate = sourceDataRepository.findAll().size
 
         // Create the SourceData
-        val sourceDataDto = sourceDataMapper!!.sourceDataToSourceDataDTO(sourceData)
+        val sourceDataDto = sourceDataMapper.sourceDataToSourceDataDTO(sourceData)
 
         // If the entity doesn't have an ID, it will be created instead of just being updated
-        restSourceDataMockMvc!!.perform(
+        restSourceDataMockMvc.perform(
             MockMvcRequestBuilders.put("/api/source-data")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(sourceDataDto))
@@ -432,16 +422,16 @@ internal class SourceDataResourceIntTest {
     @Test
     @Transactional
     @Throws(Exception::class)
-    fun deleteSourceData() {
+    open fun deleteSourceData() {
         // Initialize the database
-        sourceDataRepository!!.saveAndFlush(sourceData)
+        sourceDataRepository.saveAndFlush(sourceData)
         val databaseSizeBeforeDelete = sourceDataRepository.findAll().size
 
         // Get the sourceData
-        restSourceDataMockMvc!!.perform(
+        restSourceDataMockMvc.perform(
             MockMvcRequestBuilders.delete(
                 "/api/source-data/{sourceDataName}",
-                sourceData!!.sourceDataName
+                sourceData.sourceDataName
             )
                 .accept(TestUtil.APPLICATION_JSON_UTF8)
         )
@@ -455,7 +445,7 @@ internal class SourceDataResourceIntTest {
     @Test
     @Transactional
     @Throws(Exception::class)
-    fun equalsVerifier() {
+    open fun equalsVerifier() {
         org.junit.jupiter.api.Assertions.assertTrue(TestUtil.equalsVerifier(SourceData::class.java))
     }
 

@@ -19,7 +19,7 @@ import java.util.*
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(classes = [ManagementPortalTestApp::class])
 @Transactional
-internal class RedcapIntegrationWorkFlowOnServiceLevelTest {
+internal open class RedcapIntegrationWorkFlowOnServiceLevelTest {
     @Autowired
     private val projectService: ProjectService? = null
 

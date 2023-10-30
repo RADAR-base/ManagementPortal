@@ -109,7 +109,7 @@ object OAuthHelper {
                 val rsa = Algorithm.RSA256(rsaPublicKey, rsaPrivateKey)
                 validRsaToken = createValidToken(rsa)
                 val verifierList = listOf(ecdsa, rsa)
-                    .map{ alg: Algorithm? ->
+                    .map { alg: Algorithm? ->
                         alg?.toTokenVerifier(ManagementPortalJwtAccessTokenConverter.RES_MANAGEMENT_PORTAL)
                     }
                     .requireNoNulls()
@@ -126,9 +126,7 @@ object OAuthHelper {
     fun createAuthenticationFilter(): JwtAuthenticationFilter {
         val userRepository = Mockito.mock(UserRepository::class.java)
         Mockito.`when`(userRepository.findOneByLogin(ArgumentMatchers.anyString())).thenReturn(
-            Optional.of(
-                createAdminUser()
-            )
+            createAdminUser()
         )
         return JwtAuthenticationFilter(createTokenValidator(), { auth: Authentication? -> auth }, userRepository)
     }

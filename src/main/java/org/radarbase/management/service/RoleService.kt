@@ -19,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.*
-import java.util.Map
 import java.util.function.Consumer
 
 /**
@@ -144,8 +143,9 @@ open class RoleService(
                         "Cannot find organization for authority",
                         EntityName.USER,
                         ErrorConstants.ERR_INVALID_AUTHORITY,
-                        Map.of(
-                            "authorityName", role.authority, "projectId", organizationId.toString()
+                        mapOf(
+                            Pair("authorityName", role.authority),
+                            Pair("projectId", organizationId.toString())
                         )
                     )
                 }
@@ -164,8 +164,10 @@ open class RoleService(
         )
             ?: createNewRole(role) { r: Role ->
                 r.project = projectRepository.findByIdWithOrganization(projectId) ?: throw NotFoundException(
-                    "Cannot find project for authority", EntityName.USER, ErrorConstants.ERR_INVALID_AUTHORITY, Map.of(
-                        "authorityName", role.authority, "projectId", projectId.toString()
+                    "Cannot find project for authority", EntityName.USER, ErrorConstants.ERR_INVALID_AUTHORITY,
+                    mapOf(
+                        Pair("authorityName", role.authority),
+                        Pair("projectId", projectId.toString())
                     )
                 )
             }

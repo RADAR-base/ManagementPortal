@@ -25,7 +25,7 @@ class SourceTypeDTO : Serializable {
 
     @set:JsonSetter(nulls = Nulls.AS_EMPTY)
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    var sourceData: Set<SourceDataDTO> = HashSet()
+    var sourceData: MutableSet<SourceDataDTO> = HashSet()
     override fun equals(other: Any?): Boolean {
         if (this === other) {
             return true

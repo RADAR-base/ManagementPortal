@@ -66,19 +66,20 @@ open class UserServiceIntTest(
         ReflectionTestUtils.setField(revisionService, "entityManager", entityManager)
         ReflectionTestUtils.setField(userService, "userMapper", userMapper)
         ReflectionTestUtils.setField(userService, "userRepository", userRepository)
-        userRepository.findOneByLogin(userDto!!.login)
-            .ifPresent { entity: User -> userRepository.delete(entity) }
+
+
+        userRepository.delete(userRepository.findOneByLogin(userDto!!.login)!!)
     }
 
     @Test
     fun assertThatUserMustExistToResetPassword() {
         var maybeUser = userService.requestPasswordReset("john.doe@localhost")
-        Assertions.assertThat(maybeUser).isNotPresent()
+        Assertions.assertThat(maybeUser).isNull()
         maybeUser = userService.requestPasswordReset("admin@localhost")
-        Assertions.assertThat(maybeUser).isPresent()
-        Assertions.assertThat(maybeUser.get().email).isEqualTo("admin@localhost")
-        Assertions.assertThat(maybeUser.get().resetDate).isNotNull()
-        Assertions.assertThat(maybeUser.get().resetKey).isNotNull()
+        Assertions.assertThat(maybeUser).isNotNull()
+        Assertions.assertThat(maybeUser?.email).isEqualTo("admin@localhost")
+        Assertions.assertThat(maybeUser?.resetDate).isNotNull()
+        Assertions.assertThat(maybeUser?.resetKey).isNotNull()
     }
 
     @Test
@@ -86,9 +87,9 @@ open class UserServiceIntTest(
     fun assertThatOnlyActivatedUserCanRequestPasswordReset() {
         val user = userService.createUser(userDto!!)
         val maybeUser = userService.requestPasswordReset(
-            userDto?.email
+            userDto?.email!!
         )
-        Assertions.assertThat(maybeUser).isNotPresent()
+        Assertions.assertThat(maybeUser).isNull()
         userRepository.delete(user)
     }
 
@@ -104,9 +105,9 @@ open class UserServiceIntTest(
         userRepository.save(user)
         val maybeUser = userService.completePasswordReset(
             "johndoe2",
-            user.resetKey
+            user.resetKey!!
         )
-        Assertions.assertThat(maybeUser).isNotPresent()
+        Assertions.assertThat(maybeUser).isNull()
         userRepository.delete(user)
     }
 
@@ -121,9 +122,9 @@ open class UserServiceIntTest(
         userRepository.save(user)
         val maybeUser = userService.completePasswordReset(
             "johndoe2",
-            user.resetKey
+            user.resetKey!!
         )
-        Assertions.assertThat(maybeUser).isNotPresent()
+        Assertions.assertThat(maybeUser).isNull()
         userRepository.delete(user)
     }
 
@@ -140,12 +141,12 @@ open class UserServiceIntTest(
         userRepository.save(user)
         val maybeUser = userService.completePasswordReset(
             "johndoe2",
-            user.resetKey
+            user.resetKey!!
         )
-        Assertions.assertThat(maybeUser).isPresent()
-        Assertions.assertThat(maybeUser.get().resetDate).isNull()
-        Assertions.assertThat(maybeUser.get().resetKey).isNull()
-        Assertions.assertThat(maybeUser.get().password).isNotEqualTo(oldPassword)
+        Assertions.assertThat(maybeUser).isNotNull()
+        Assertions.assertThat(maybeUser?.resetDate).isNull()
+        Assertions.assertThat(maybeUser?.resetKey).isNull()
+        Assertions.assertThat(maybeUser?.password).isNotEqualTo(oldPassword)
         userRepository.delete(user)
     }
 

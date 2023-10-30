@@ -131,7 +131,7 @@ internal open class OAuthClientsResourceIntTest(
                 MockMvcResultMatchers.jsonPath("$.accessTokenValiditySeconds").value(
                     Matchers.equalTo(
                         details
-                            .getAccessTokenValiditySeconds().toInt()
+                            .accessTokenValiditySeconds?.toInt()
                     )
                 )
             )
@@ -139,34 +139,34 @@ internal open class OAuthClientsResourceIntTest(
                 MockMvcResultMatchers.jsonPath("$.refreshTokenValiditySeconds").value(
                     Matchers.equalTo(
                         details
-                            .refreshTokenValiditySeconds.toInt()
+                            .refreshTokenValiditySeconds?.toInt()
                     )
                 )
             )
             .andExpect(
                 MockMvcResultMatchers.jsonPath("$.scope").value(
                     Matchers.containsInAnyOrder<Any>(
-                        *details.scope.toTypedArray()
+                        details.scope?.toTypedArray()
                     )
                 )
             )
             .andExpect(
                 MockMvcResultMatchers.jsonPath("$.autoApproveScopes").value(
                     Matchers.containsInAnyOrder<Any>(
-                        *details.autoApproveScopes.toTypedArray()
+                        details.autoApproveScopes?.toTypedArray()
                     )
                 )
             )
             .andExpect(
                 MockMvcResultMatchers.jsonPath("$.authorizedGrantTypes").value(
                     Matchers.containsInAnyOrder<Any>(
-                        *details.authorizedGrantTypes.toTypedArray()
+                        details.authorizedGrantTypes?.toTypedArray()
                     )
                 )
             )
             .andExpect(
                 MockMvcResultMatchers.jsonPath("$.authorities").value(
-                    Matchers.containsInAnyOrder<Any>(*details.authorities.toTypedArray())
+                    Matchers.containsInAnyOrder<Any>(details.authorities?.toTypedArray())
                 )
             )
         val testDetails = clientDetailsList.stream()
@@ -183,7 +183,7 @@ internal open class OAuthClientsResourceIntTest(
         Assertions.assertThat(testDetails.authorizedGrantTypes).containsExactlyInAnyOrderElementsOf(
             details.authorizedGrantTypes
         )
-        details.autoApproveScopes.forEach(Consumer { scope: String? ->
+        details.autoApproveScopes?.forEach(Consumer { scope: String? ->
             Assertions.assertThat(
                 testDetails.isAutoApprove(
                     scope
@@ -191,10 +191,10 @@ internal open class OAuthClientsResourceIntTest(
             ).isTrue()
         })
         Assertions.assertThat(testDetails.accessTokenValiditySeconds).isEqualTo(
-            details.accessTokenValiditySeconds.toInt()
+            details.accessTokenValiditySeconds?.toInt()
         )
         Assertions.assertThat(testDetails.refreshTokenValiditySeconds).isEqualTo(
-            details.refreshTokenValiditySeconds.toInt()
+            details.refreshTokenValiditySeconds?.toInt()
         )
         Assertions.assertThat(testDetails.authorities.stream().map { obj: GrantedAuthority -> obj.authority })
             .containsExactlyInAnyOrderElementsOf(details.authorities)
@@ -257,7 +257,7 @@ internal open class OAuthClientsResourceIntTest(
     @Throws(Exception::class)
     open fun cannotModifyProtected() {
         // first change our test client to be protected
-        details.additionalInformation["protected"] = "true"
+        details.additionalInformation!!["protected"] = "true"
         restOauthClientMvc.perform(
             MockMvcRequestBuilders.put("/api/oauth-clients")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
