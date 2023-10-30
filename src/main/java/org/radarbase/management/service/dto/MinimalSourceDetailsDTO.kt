@@ -13,10 +13,10 @@ class MinimalSourceDetailsDTO {
     var sourceTypeCatalogVersion: String? = null
     var expectedSourceName: String? = null
         private set
-    var sourceId: UUID? = null
+    lateinit var sourceId: UUID
     var sourceName: String? = null
     var isAssigned: Boolean? = null
-    var attributes: MutableMap<String, String> = HashMap()
+    var attributes: Map<String, String> = HashMap()
     fun id(id: Long?): MinimalSourceDetailsDTO {
         this.id = id
         return this
@@ -24,6 +24,11 @@ class MinimalSourceDetailsDTO {
 
     fun sourceTypeId(sourceTypeId: Long?): MinimalSourceDetailsDTO {
         this.sourceTypeId = sourceTypeId
+        return this
+    }
+
+    fun setExpectedSourceName(expectedSourceName: String?): MinimalSourceDetailsDTO {
+        this.expectedSourceName = expectedSourceName
         return this
     }
 
@@ -42,7 +47,7 @@ class MinimalSourceDetailsDTO {
         return this
     }
 
-    fun attributes(attributes: MutableMap<String, String>): MinimalSourceDetailsDTO {
+    fun attributes(attributes: Map<String, String>): MinimalSourceDetailsDTO {
         this.attributes = attributes
         return this
     }

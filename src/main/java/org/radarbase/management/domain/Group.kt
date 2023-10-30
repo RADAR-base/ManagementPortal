@@ -48,14 +48,14 @@ class Group : AbstractEntity(), Serializable {
     @JoinColumn(name = "project_id", nullable = false)
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     var project: Project? = null
-    override fun equals(o: Any?): Boolean {
-        if (this === o) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
             return true
         }
-        if (o == null || javaClass != o.javaClass) {
+        if (other == null || javaClass != other.javaClass) {
             return false
         }
-        val group = o as Group
+        val group = other as Group
         return if (group.id == null || id == null) {
             false
         } else id == group.id

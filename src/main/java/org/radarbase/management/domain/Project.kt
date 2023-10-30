@@ -56,11 +56,9 @@ class Project : AbstractEntity(), Serializable {
     @SequenceGenerator(name = "sequenceGenerator", initialValue = 1000, sequenceName = "hibernate_sequence")
     override var id: Long? = null
 
-    @JvmField
     @Column(name = "project_name", nullable = false, unique = true)
     var projectName: @NotNull @Pattern(regexp = Constants.ENTITY_ID_REGEX) String? = null
 
-    @JvmField
     @Column(name = "description", nullable = false)
     var description: @NotNull String? = null
 
@@ -113,7 +111,7 @@ class Project : AbstractEntity(), Serializable {
     @MapKeyColumn(name = "attribute_key")
     @Column(name = "attribute_value")
     @CollectionTable(name = "project_metadata", joinColumns = [JoinColumn(name = "id")])
-    var attributes: Map<String, String> = HashMap()
+    var attributes: MutableMap<String, String> = HashMap()
 
     @JvmField
     @set:JsonSetter(nulls = Nulls.AS_EMPTY)

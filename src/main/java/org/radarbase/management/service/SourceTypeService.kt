@@ -28,7 +28,7 @@ import javax.validation.constraints.NotNull
  */
 @Service
 @Transactional
-class SourceTypeService(
+open class SourceTypeService(
     @Autowired private val sourceTypeRepository: SourceTypeRepository,
     @Autowired private val sourceTypeMapper: SourceTypeMapper,
     @Autowired private val sourceDataRepository: SourceDataRepository,
@@ -61,7 +61,7 @@ class SourceTypeService(
      * @return the list of entities
      */
     @Transactional(readOnly = true)
-    fun findAll(): List<SourceTypeDTO> {
+    open fun findAll(): List<SourceTypeDTO> {
         log.debug("Request to get all SourceTypes")
         val result = sourceTypeRepository.findAllWithEagerRelationships()
         return result
@@ -95,33 +95,23 @@ class SourceTypeService(
      * Fetch SourceType by producer and model.
      */
     fun findByProducerAndModelAndVersion(
-        @NotNull producer: String?,
-        @NotNull model: String?, @NotNull version: String?
+        producer: @NotNull String,
+        model: @NotNull String, version: @NotNull String
     ): SourceTypeDTO {
         log.debug(
             "Request to get SourceType by producer and model and version: {}, {}, {}",
             producer, model, version
         )
-        if (producer == null || model == null || version == null) {
-            throw NotFoundException(
-                "SourceType not found with producer, model, " + "version ", EntityName.SOURCE_TYPE,
-                ErrorConstants.ERR_SOURCE_TYPE_NOT_FOUND, Collections.singletonMap(
-                    "producer-model-version",
-                    "$producer-$model-$version"
-                )
-            )
-        }
-        val result =
-            sourceTypeRepository.findOneWithEagerRelationshipsByProducerAndModelAndVersion(producer, model, version)
-                ?: throw NotFoundException(
-                    "SourceType not found with producer, model, " + "version ", EntityName.SOURCE_TYPE,
-                    ErrorConstants.ERR_SOURCE_TYPE_NOT_FOUND, Collections.singletonMap(
+        return sourceTypeRepository
+            .findOneWithEagerRelationshipsByProducerAndModelAndVersion(producer, model, version)
+            .let { sourceType: SourceType? -> sourceType?.let { sourceTypeMapper.sourceTypeToSourceTypeDTO(it) } }
+            ?: throw NotFoundException(
+                    "SourceType not found with producer, model, " + "version ", EntityName.Companion.SOURCE_TYPE,
+                    ErrorConstants.ERR_SOURCE_TYPE_NOT_FOUND, Collections.singletonMap<String, String?>(
                         "producer-model-version",
                         "$producer-$model-$version"
                     )
                 )
-
-        return sourceTypeMapper.sourceTypeToSourceTypeDTO(result)
     }
 
     /**
@@ -169,7 +159,7 @@ class SourceTypeService(
      * @param catalogSourceTypes list of source-type from catalogue-server.
      */
     @Transactional
-    fun saveSourceTypesFromCatalogServer(catalogSourceTypes: List<CatalogSourceType>) {
+    open fun saveSourceTypesFromCatalogServer(catalogSourceTypes: List<CatalogSourceType>) {
         for (catalogSourceType in catalogSourceTypes) {
             var sourceType = catalogSourceTypeMapper
                 .catalogSourceTypeToSourceType(catalogSourceType)

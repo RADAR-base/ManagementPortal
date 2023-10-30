@@ -21,14 +21,14 @@ class RoleDTO {
                 + '}')
     }
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) {
+    override fun equals(o: Any?): Boolean {
+        if (this === o) {
             return true
         }
-        if (other == null || javaClass != other.javaClass) {
+        if (o == null || javaClass != o.javaClass) {
             return false
         }
-        val roleDto = other as RoleDTO
+        val roleDto = o as RoleDTO
         return id == roleDto.id && organizationId == roleDto.organizationId && organizationName == roleDto.organizationName && projectId == roleDto.projectId && projectName == roleDto.projectName && authorityName == roleDto.authorityName
     }
 

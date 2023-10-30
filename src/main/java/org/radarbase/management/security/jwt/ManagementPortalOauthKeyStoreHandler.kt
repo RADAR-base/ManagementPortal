@@ -7,10 +7,8 @@ import org.radarbase.auth.authentication.TokenValidator
 import org.radarbase.auth.jwks.JsonWebKeySet
 import org.radarbase.auth.jwks.JwkAlgorithmParser
 import org.radarbase.auth.jwks.JwksTokenVerifierLoader
-import org.radarbase.auth.kratos.KratosTokenVerifierLoader
 import org.radarbase.management.config.ManagementPortalProperties
 import org.radarbase.management.config.ManagementPortalProperties.Oauth
-import org.radarbase.management.security.jwt.ManagementPortalJwtAccessTokenConverter.Companion.RES_MANAGEMENT_PORTAL
 import org.radarbase.management.security.jwt.algorithm.EcdsaJwtAlgorithm
 import org.radarbase.management.security.jwt.algorithm.JwtAlgorithm
 import org.radarbase.management.security.jwt.algorithm.RsaJwtAlgorithm
@@ -33,6 +31,7 @@ import java.security.interfaces.ECPrivateKey
 import java.security.interfaces.RSAPrivateKey
 import java.util.*
 import java.util.AbstractMap.SimpleImmutableEntry
+import java.util.stream.Stream
 import javax.annotation.Nonnull
 import javax.servlet.ServletContext
 import kotlin.collections.Map.Entry
@@ -44,7 +43,7 @@ import kotlin.collections.Map.Entry
  */
 @Component
 class ManagementPortalOauthKeyStoreHandler @Autowired constructor(
-    environment: Environment, servletContext: ServletContext, private val managementPortalProperties: ManagementPortalProperties
+    environment: Environment, servletContext: ServletContext, managementPortalProperties: ManagementPortalProperties
 ) {
     private val password: CharArray
     private val store: KeyStore
@@ -73,12 +72,12 @@ class ManagementPortalOauthKeyStoreHandler @Autowired constructor(
             ("http://localhost:" + environment.getProperty("server.port") + servletContext.contextPath)
         logger.info("Using Management Portal base-url {}", managementPortalBaseUrl)
         val algorithms = loadAlgorithmsFromAlias().filter { obj: Algorithm? -> Objects.nonNull(obj) }.toList()
-        verifiers = algorithms.map { algo: Algorithm? ->
-            JWT.require(algo).withAudience(ManagementPortalJwtAccessTokenConverter.RES_MANAGEMENT_PORTAL).build()
-        }.toMutableList()
+        verifiers = algorithms.stream().map { algo: Algorithm? ->
+                JWT.require(algo).withAudience(ManagementPortalJwtAccessTokenConverter.RES_MANAGEMENT_PORTAL).build()
+            }.toList()
         // No need to check audience with a refresh token: it can be used
         // to refresh tokens intended for other resources.
-        refreshTokenVerifiers = algorithms.map { algo: Algorithm -> JWT.require(algo).build() }.toMutableList()
+        refreshTokenVerifiers = algorithms.stream().map { algo: Algorithm? -> JWT.require(algo).build() }.toList()
     }
 
     @Nonnull
@@ -94,7 +93,7 @@ class ManagementPortalOauthKeyStoreHandler @Autowired constructor(
                 val localStore = KeyStore.getInstance(type)
                 localStore.load(resource.inputStream, password)
                 logger.debug("Loaded JWT key store {}", resource)
-                if (localStore != null)
+                if (resource != null && localStore != null)
                     return SimpleImmutableEntry(resource, localStore)
             } catch (ex: CertificateException) {
                 logger.error("Cannot load JWT key store", ex)
@@ -113,9 +112,9 @@ class ManagementPortalOauthKeyStoreHandler @Autowired constructor(
 
     private fun loadVerifiersPublicKeyAliasList(): List<String> {
         val publicKeyAliases: MutableList<String> = ArrayList()
-        oauthConfig.signingKeyAlias?.let { publicKeyAliases.add(it) }
+        publicKeyAliases.add(oauthConfig.signingKeyAlias)
         if (oauthConfig.checkingKeyAliases != null) {
-            publicKeyAliases.addAll(oauthConfig.checkingKeyAliases!!)
+            publicKeyAliases.addAll(oauthConfig.checkingKeyAliases)
         }
         return publicKeyAliases
     }
@@ -125,18 +124,17 @@ class ManagementPortalOauthKeyStoreHandler @Autowired constructor(
      * @return List of public keys for token verification.
      */
     fun loadJwks(): JsonWebKeySet {
-        return JsonWebKeySet(verifierPublicKeyAliasList.map { alias: String -> this.getKeyPair(alias) }
+        return JsonWebKeySet(verifierPublicKeyAliasList.map { alias: String? -> this.getKeyPair(alias) }
             .map { keyPair: KeyPair? -> getJwtAlgorithm(keyPair) }.mapNotNull { obj: JwtAlgorithm? -> obj?.jwk })
     }
 
     /**
      * Load default verifiers from configured keystore and aliases.
      */
-    private fun loadAlgorithmsFromAlias(): Collection<Algorithm> {
-        return verifierPublicKeyAliasList
-            .map { alias: String -> this.getKeyPair(alias) }
-            .mapNotNull { keyPair -> getJwtAlgorithm(keyPair) }
-            .map { obj: JwtAlgorithm -> obj.algorithm }
+    private fun loadAlgorithmsFromAlias(): Stream<Algorithm?> {
+        return verifierPublicKeyAliasList.stream().map { alias: String? -> this.getKeyPair(alias) }
+            .map { keyPair: KeyPair? -> getJwtAlgorithm(keyPair) }.filter { obj: JwtAlgorithm? -> Objects.nonNull(obj) }
+            .map { obj: JwtAlgorithm? -> obj?.algorithm }
     }
 
     val algorithmForSigning: Algorithm
@@ -161,7 +159,7 @@ class ManagementPortalOauthKeyStoreHandler @Autowired constructor(
      * @throws IllegalArgumentException if the key alias password is wrong or the key cannot
      * loaded.
      */
-    private fun getKeyPair(alias: String): KeyPair? {
+    private fun getKeyPair(alias: String?): KeyPair? {
         return getKeyPair(alias, password)
     }
 
@@ -174,7 +172,7 @@ class ManagementPortalOauthKeyStoreHandler @Autowired constructor(
      * @throws IllegalArgumentException if the key alias password is wrong or the key cannot
      * load.
      */
-    private fun getKeyPair(alias: String, password: CharArray): KeyPair? {
+    private fun getKeyPair(alias: String?, password: CharArray): KeyPair? {
         return try {
             val key = store.getKey(alias, password) as PrivateKey?
             if (key == null) {
@@ -222,32 +220,33 @@ class ManagementPortalOauthKeyStoreHandler @Autowired constructor(
     val tokenValidator: TokenValidator
         /** Get the default token validator.  */
         get() {
-            val loaderList = listOf(
-                JwksTokenVerifierLoader(
-                    managementPortalBaseUrl + "/oauth/token_key",
-                    RES_MANAGEMENT_PORTAL,
-                    JwkAlgorithmParser()
-                ),
-                KratosTokenVerifierLoader(managementPortalProperties.identityServer.serverUrl),
+            val jwksLoader = JwksTokenVerifierLoader(
+                "$managementPortalBaseUrl/oauth/token_key", "res_ManagementPortal", JwkAlgorithmParser()
             )
-            return TokenValidator(loaderList)
+            return TokenValidator(java.util.List.of(jwksLoader))
         }
 
     companion object {
         private val logger = LoggerFactory.getLogger(
             ManagementPortalOauthKeyStoreHandler::class.java
         )
-        private val KEYSTORE_PATHS = listOf<Resource>(
+        private val KEYSTORE_PATHS = Arrays.asList<Resource>(
             ClassPathResource("/config/keystore.p12"), ClassPathResource("/config/keystore.jks")
         )
 
         private fun checkOAuthConfig(managementPortalProperties: ManagementPortalProperties) {
             val oauthConfig = managementPortalProperties.oauth
-            if (oauthConfig.keyStorePassword.isEmpty()) {
+            if (oauthConfig == null) {
+                logger.error(
+                    "Could not find valid Oauth Config. Please configure compulsary " + "properties of Oauth configs of Management Portal"
+                )
+                throw IllegalArgumentException("OauthConfig is not provided")
+            }
+            if (oauthConfig.keyStorePassword == null || oauthConfig.keyStorePassword.isEmpty()) {
                 logger.error("oauth.keyStorePassword is empty")
                 throw IllegalArgumentException("oauth.keyStorePassword is empty")
             }
-            if (oauthConfig.signingKeyAlias == null || oauthConfig.signingKeyAlias!!.isEmpty()) {
+            if (oauthConfig.signingKeyAlias == null || oauthConfig.signingKeyAlias.isEmpty()) {
                 logger.error("oauth.signingKeyAlias is empty")
                 throw IllegalArgumentException("OauthConfig is not provided")
             }
@@ -275,21 +274,15 @@ class ManagementPortalOauthKeyStoreHandler @Autowired constructor(
                 return null
             }
             val privateKey = keyPair.private
-            return when (privateKey) {
-                is ECPrivateKey -> {
-                    EcdsaJwtAlgorithm(keyPair)
-                }
-
-                is RSAPrivateKey -> {
-                    RsaJwtAlgorithm(keyPair)
-                }
-
-                else -> {
-                    logger.warn(
-                        "No JWT algorithm found for key type {}", privateKey.javaClass
-                    )
-                    null
-                }
+            return if (privateKey is ECPrivateKey) {
+                EcdsaJwtAlgorithm(keyPair)
+            } else if (privateKey is RSAPrivateKey) {
+                RsaJwtAlgorithm(keyPair)
+            } else {
+                logger.warn(
+                    "No JWT algorithm found for key type {}", privateKey.javaClass
+                )
+                null
             }
         }
     }

@@ -12,8 +12,9 @@ import org.springframework.transaction.annotation.Transactional
  */
 @Service
 @Transactional
-class SiteSettingsService(
-    @Autowired private val managementPortalProperties: ManagementPortalProperties) {
+class SiteSettingsService {
+    @Autowired
+    private val managementPortalProperties: ManagementPortalProperties? = null
 
     /**
      * Convert a [SiteSettings] to a [SiteSettingsDto] object.
@@ -27,5 +28,6 @@ class SiteSettingsService(
     }
 
     val siteSettingsDto: SiteSettingsDto
-        get() = createSiteSettingsDto(managementPortalProperties.siteSettings)
+        // NAMING!
+        get() = createSiteSettingsDto(managementPortalProperties!!.siteSettings)
 }

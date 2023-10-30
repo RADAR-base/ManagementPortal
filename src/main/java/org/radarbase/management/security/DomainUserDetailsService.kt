@@ -1,5 +1,6 @@
 package org.radarbase.management.security
 
+import org.radarbase.management.domain.Authority
 import org.radarbase.management.repository.UserRepository
 import org.slf4j.LoggerFactory
 import org.springframework.security.core.authority.SimpleGrantedAuthority
@@ -32,7 +33,7 @@ class DomainUserDetailsService(
             )
         }
         val grantedAuthorities =
-            user.authorities!!.map { authority -> SimpleGrantedAuthority(authority) }
+            user.authorities!!.mapNotNull { authority: Authority? -> SimpleGrantedAuthority(authority?.name) }
         return User(
             lowercaseLogin,
             user.password,

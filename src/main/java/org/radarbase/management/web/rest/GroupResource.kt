@@ -36,10 +36,12 @@ import javax.validation.Valid
 
 @RestController
 @RequestMapping("/api/projects/{projectName:" + Constants.ENTITY_ID_REGEX + "}/groups")
-class GroupResource(
-    @Autowired private val groupService: GroupService,
-    @Autowired private val authService: AuthService
-) {
+class GroupResource {
+    @Autowired
+    private val groupService: GroupService? = null
+
+    @Autowired
+    private val authService: AuthService? = null
 
     /**
      * Create group.
@@ -52,13 +54,13 @@ class GroupResource(
     @Throws(NotAuthorizedException::class)
     fun createGroup(
         @PathVariable projectName: String?,
-        @RequestBody @Valid groupDto: GroupDTO?
+        @RequestBody groupDto: @Valid GroupDTO?
     ): ResponseEntity<GroupDTO> {
-        authService.checkPermission(Permission.PROJECT_UPDATE, { e: EntityDetails -> e.project(projectName) })
-        val groupDtoResult = groupService.createGroup(projectName!!, groupDto!!)
+        authService!!.checkPermission(Permission.PROJECT_UPDATE, { e: EntityDetails -> e.project(projectName) })
+        val groupDtoResult = groupService!!.createGroup(projectName!!, groupDto!!)
         val location = MvcUriComponentsBuilder.fromController(javaClass)
             .path("/{groupName}")
-            .buildAndExpand(projectName, groupDtoResult.name)
+            .buildAndExpand(projectName, groupDtoResult?.name)
             .toUri()
         return ResponseEntity.created(location)
             .body(groupDtoResult)
@@ -75,8 +77,8 @@ class GroupResource(
     fun listGroups(
         @PathVariable projectName: String?
     ): List<GroupDTO> {
-        authService.checkPermission(Permission.PROJECT_READ, { e: EntityDetails -> e.project(projectName) })
-        return groupService.listGroups(projectName!!)
+        authService!!.checkPermission(Permission.PROJECT_READ, { e: EntityDetails -> e.project(projectName) })
+        return groupService!!.listGroups(projectName!!)
     }
 
     /**
@@ -94,8 +96,8 @@ class GroupResource(
         @PathVariable projectName: String?,
         @PathVariable groupName: String?
     ): GroupDTO {
-        authService.checkPermission(Permission.PROJECT_READ, { e: EntityDetails -> e.project(projectName) })
-        return groupService.getGroup(projectName!!, groupName!!)
+        authService!!.checkPermission(Permission.PROJECT_READ, { e: EntityDetails -> e.project(projectName) })
+        return groupService!!.getGroup(projectName!!, groupName!!)
     }
 
     /**
@@ -113,8 +115,8 @@ class GroupResource(
         @PathVariable projectName: String?,
         @PathVariable groupName: String?
     ): ResponseEntity<*> {
-        authService.checkPermission(Permission.PROJECT_UPDATE, { e: EntityDetails -> e.project(projectName) })
-        groupService.deleteGroup(projectName!!, groupName!!, unlinkSubjects!!)
+        authService!!.checkPermission(Permission.PROJECT_UPDATE, { (_, project): EntityDetails -> project })
+        groupService!!.deleteGroup(projectName!!, groupName!!, unlinkSubjects!!)
         return ResponseEntity.noContent().build<Any>()
     }
 
@@ -138,11 +140,12 @@ class GroupResource(
         // so it would make sense to check permissions per subject,
         // but I assume that only those who are authorized to perform project-wide actions
         // should be allowed to use this endpoint
-        authService.checkPermission(Permission.SUBJECT_UPDATE, { e: EntityDetails -> e.project(projectName) })
+        authService!!.checkPermission(Permission.SUBJECT_UPDATE, { e: EntityDetails -> e.project(projectName) })
         val addedItems = ArrayList<SubjectPatchValue?>()
         val removedItems = ArrayList<SubjectPatchValue?>()
         for (operation in patchOperations) {
-            when (val opCode = operation.op) {
+            val opCode = operation.op
+            when (opCode) {
                 "add" -> operation.value?.let { addedItems.addAll(it) }
                 "remove" -> operation.value?.let { removedItems.addAll(it) }
                 else -> throw BadRequestException(
@@ -151,7 +154,7 @@ class GroupResource(
                 )
             }
         }
-        groupService.updateGroupSubjects(projectName!!, groupName!!, addedItems.filterNotNull(), removedItems.filterNotNull())
+        groupService!!.updateGroupSubjects(projectName!!, groupName!!, addedItems.filterNotNull(), removedItems.filterNotNull())
         return ResponseEntity.noContent().build<Any>()
     }
 }

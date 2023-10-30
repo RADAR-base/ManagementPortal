@@ -25,8 +25,8 @@ class CustomAuditEventRepository(
 ) : AuditEventRepository {
 
     override fun find(principal: String, after: Instant, type: String): List<AuditEvent> {
-        val persistentAuditEvents: Iterable<PersistentAuditEvent> = persistenceAuditEventRepository
-            .findByPrincipalAndAuditEventDateAfterAndAuditEventType(
+        val persistentAuditEvents: Iterable<PersistentAuditEvent>? = persistenceAuditEventRepository
+            ?.findByPrincipalAndAuditEventDateAfterAndAuditEventType(
                 principal,
                 LocalDateTime.from(after), type
             )
@@ -46,8 +46,8 @@ class CustomAuditEventRepository(
                 event.timestamp,
                 ZoneId.systemDefault()
             )
-            persistentAuditEvent.data = auditEventConverter.convertDataToStrings(event.data)
-            persistenceAuditEventRepository.save(persistentAuditEvent)
+            persistentAuditEvent.data = auditEventConverter!!.convertDataToStrings(event.data)
+            persistenceAuditEventRepository!!.save(persistentAuditEvent)
         }
         if (eventType != null && eventType.endsWith("_FAILURE")) {
             val typeObj = event.data["type"]

@@ -1,6 +1,9 @@
 package org.radarbase.management.web.rest.errors
 
 import org.radarbase.management.security.NotAuthorizedException
+import org.radarbase.management.web.rest.errors.InvalidStateException
+import org.radarbase.management.web.rest.errors.RadarWebApplicationException
+import org.radarbase.management.web.rest.errors.RequestGoneException
 import org.radarbase.management.web.rest.util.HeaderUtil
 import org.slf4j.LoggerFactory
 import org.springframework.core.annotation.AnnotationUtils
@@ -45,6 +48,7 @@ class ExceptionTranslator {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
     fun processValidationError(ex: TransactionSystemException): ErrorVM {
+        // TODO: this is the top level exception that is thrown when e.g. a
         // ConstraintValidationException occurs. Need to investigate what other exceptions result
         // in this one and probably add a check for it.
         return ErrorVM(ErrorConstants.ERR_VALIDATION, ex.message)
@@ -65,7 +69,7 @@ class ExceptionTranslator {
         for (fieldError in fieldErrors) {
             dto.add(
                 fieldError.objectName, fieldError.field,
-                (fieldError.code?.plus(": ") ?: "undefined.error.code") + fieldError.defaultMessage
+                fieldError.code + ": " + fieldError.defaultMessage
             )
         }
         return dto

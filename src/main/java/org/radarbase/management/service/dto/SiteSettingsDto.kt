@@ -9,14 +9,14 @@ import java.util.*
  */
 class SiteSettingsDto : Serializable {
     var hiddenSubjectFields = listOf<String>()
-    override fun equals(other: Any?): Boolean {
-        if (this === other) {
+    override fun equals(o: Any?): Boolean {
+        if (this === o) {
             return true
         }
-        if (other == null || javaClass != other.javaClass) {
+        if (o == null || javaClass != o.javaClass) {
             return false
         }
-        val that = other as SiteSettingsDto
+        val that = o as SiteSettingsDto
         return hiddenSubjectFields == that.hiddenSubjectFields
     }
 

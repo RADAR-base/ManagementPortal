@@ -76,8 +76,8 @@ class MetaTokenService {
         // process the response if the token is not fetched or not expired
         return if (metaToken.isValid) {
             val refreshToken = oAuthClientService!!.createAccessToken(
-                metaToken.subject!!.user,
-                metaToken.clientId
+                metaToken.subject!!.user!!,
+                metaToken.clientId!!
             )
                 .refreshToken
                 .value
@@ -112,14 +112,12 @@ class MetaTokenService {
     @Transactional(readOnly = true)
     fun getToken(tokenName: String): MetaToken {
         return metaTokenRepository!!.findOneByTokenName(tokenName)
-            .orElseThrow {
-                NotFoundException(
+            ?: throw NotFoundException(
                     "Meta token not found with tokenName",
                     EntityName.META_TOKEN,
                     ErrorConstants.ERR_TOKEN_NOT_FOUND,
                     Collections.singletonMap("tokenName", tokenName)
                 )
-            }
     }
 
     /**
@@ -169,14 +167,15 @@ class MetaTokenService {
             subject, clientId, false,
             Instant.now().plus(timeout), persistent
         )
-        return if (metaToken.id != null && metaToken.tokenName != null) {
+        val tokenName = metaToken.tokenName
+        return if (metaToken.id != null && tokenName != null) {
             // get base url from settings
             val baseUrl = managementPortalProperties!!.common.managementPortalBaseUrl
             // create complete uri string
             val tokenUrl = baseUrl + ResourceUriService.getUri(metaToken).getPath()
             // create response
             ClientPairInfoDTO(
-                URL(baseUrl), metaToken.tokenName,
+                URL(baseUrl), tokenName,
                 URL(tokenUrl), timeout
             )
         } else {

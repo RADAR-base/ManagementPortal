@@ -7,14 +7,14 @@ import java.util.*
  */
 class AttributeMapDTO @JvmOverloads constructor(var key: String? = null, var value: String? = null) {
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) {
+    override fun equals(o: Any?): Boolean {
+        if (this === o) {
             return true
         }
-        if (other == null || javaClass != other.javaClass) {
+        if (o == null || javaClass != o.javaClass) {
             return false
         }
-        val attributeMapDto = other as AttributeMapDTO
+        val attributeMapDto = o as AttributeMapDTO
         return key == attributeMapDto.key && value == attributeMapDto.value
     }
 

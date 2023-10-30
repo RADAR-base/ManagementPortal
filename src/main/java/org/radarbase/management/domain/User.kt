@@ -47,7 +47,7 @@ class User : AbstractEntity(), Serializable {
     override var id: Long? = null
 
     @Column(length = 50, unique = true, nullable = false)
-    var login: @NotNull @Pattern(regexp = Constants.ENTITY_ID_REGEX) @Size(min = 1, max = 50) String? = null
+    lateinit var login: @NotNull @Pattern(regexp = Constants.ENTITY_ID_REGEX) @Size(min = 1, max = 50) String
         private set
 
     @JvmField
