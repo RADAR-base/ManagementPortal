@@ -4,7 +4,6 @@ import org.slf4j.LoggerFactory
 import org.springframework.http.HttpHeaders
 import java.io.UnsupportedEncodingException
 import java.net.URLEncoder
-import java.util.*
 
 /**
  * Utility class for HTTP headers creation.
@@ -85,10 +84,9 @@ object HeaderUtil {
      * @param components The components of the path.
      * @return A String where the components are URLEncoded and joined by forward slashes.
      */
-    fun buildPath(vararg components: String): String {
-        return Arrays.stream(components)
-            .filter { obj: String? -> Objects.nonNull(obj) }
-            .filter { c: String -> !c.isEmpty() }
+    fun buildPath(vararg components: String?): String {
+        return components
+            .filterNotNull()
             .map { c: String? ->
                 // try-catch needs to be inside the lambda
                 try {
@@ -98,6 +96,6 @@ object HeaderUtil {
                     return@map ""
                 }
             }
-            .reduce("") { a: String?, b: String? -> java.lang.String.join("/", a, b) }
+            .reduce { a: String, b: String -> java.lang.String.join("/", a, b) }
     }
 }

@@ -25,7 +25,6 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.mock.web.MockFilterConfig
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.junit.jupiter.SpringExtension
-import org.springframework.test.util.ReflectionTestUtils
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
@@ -62,13 +61,12 @@ internal open class SourceTypeResourceIntTest(
     @Throws(ServletException::class)
     fun setUp() {
         MockitoAnnotations.openMocks(this)
-        val sourceTypeResource = SourceTypeResource()
-        ReflectionTestUtils.setField(sourceTypeResource, "sourceTypeService", sourceTypeService)
-        ReflectionTestUtils.setField(
-            sourceTypeResource, "sourceTypeRepository",
-            sourceTypeRepository
+        val sourceTypeResource = SourceTypeResource(
+            sourceTypeService,
+            sourceTypeRepository,
+            authService
         )
-        ReflectionTestUtils.setField(sourceTypeResource, "authService", authService)
+
         val filter = OAuthHelper.createAuthenticationFilter()
         filter.init(MockFilterConfig())
         restSourceTypeMockMvc = MockMvcBuilders.standaloneSetup(sourceTypeResource)
@@ -97,7 +95,7 @@ internal open class SourceTypeResourceIntTest(
             SourceDataResourceIntTest.Companion.createEntity(em)
         )
         val sourceData = sourceTypeDto.sourceData
-        sourceData.add(sourceDataDto)
+        sourceData.add(sourceDataDto!!)
         restSourceTypeMockMvc.perform(
             MockMvcRequestBuilders.post("/api/source-types")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)

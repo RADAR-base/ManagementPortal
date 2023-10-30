@@ -147,7 +147,7 @@ internal open class SubjectResourceIntTest(@Autowired private val subjectReposit
                 .andExpect(
                     MockMvcResultMatchers.jsonPath("$.[*].id").value<Iterable<Int?>>(
                         Matchers.hasItem(
-                            subjectDto!!.id.toInt()
+                            subjectDto!!.id!!.toInt()
                         )
                     )
                 )
@@ -174,10 +174,10 @@ internal open class SubjectResourceIntTest(@Autowired private val subjectReposit
             val subjectDto = subjectService.createSubject(SubjectServiceTest.Companion.createEntityDTO())
 
             // Get the subject
-            restSubjectMockMvc.perform(MockMvcRequestBuilders.get("/api/subjects/{login}", subjectDto!!.getLogin()))
+            restSubjectMockMvc.perform(MockMvcRequestBuilders.get("/api/subjects/{login}", subjectDto!!.login))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(subjectDto.id.toInt()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(subjectDto.id!!.toInt()))
                 .andExpect(
                     MockMvcResultMatchers.jsonPath("$.externalLink")
                         .value(SubjectServiceTest.Companion.DEFAULT_EXTERNAL_LINK)
@@ -302,7 +302,7 @@ internal open class SubjectResourceIntTest(@Autowired private val subjectReposit
 
         // Get the subject
         restSubjectMockMvc.perform(
-            MockMvcRequestBuilders.delete("/api/subjects/{login}", subjectDto!!.getLogin())
+            MockMvcRequestBuilders.delete("/api/subjects/{login}", subjectDto!!.login)
                 .accept(TestUtil.APPLICATION_JSON_UTF8)
         )
             .andExpect(MockMvcResultMatchers.status().isOk())
@@ -404,7 +404,7 @@ internal open class SubjectResourceIntTest(@Autowired private val subjectReposit
 
         // Get all the subjectList
         restSubjectMockMvc
-            .perform(MockMvcRequestBuilders.get("/api/subjects/{login}/sources?sort=id,desc", subjectDto.getLogin()))
+            .perform(MockMvcRequestBuilders.get("/api/subjects/{login}/sources?sort=id,desc", subjectDto.login))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$.[*].id").isNotEmpty())
@@ -455,7 +455,7 @@ internal open class SubjectResourceIntTest(@Autowired private val subjectReposit
                 .id(createdSource.id)
                 .sourceName(createdSource.sourceName)
                 .sourceTypeId(createdSource.sourceType.id)
-                .sourceId(createdSource.sourceId)
+                .sourceId(createdSource.sourceId!!)
             subjectDtoToCreate.sources = setOf(sourceDto)
             org.junit.jupiter.api.Assertions.assertNotNull(sourceDto.id)
             val createdSubject = subjectService.createSubject(subjectDtoToCreate)
@@ -465,12 +465,12 @@ internal open class SubjectResourceIntTest(@Autowired private val subjectReposit
             restSubjectMockMvc.perform(
                 MockMvcRequestBuilders.get(
                     "/api/subjects/{login}/sources",
-                    createdSubject.getLogin()
+                    createdSubject.login
                 )
             )
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.[0].id").value(createdSource.id.toInt()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.[0].id").value(createdSource.id!!.toInt()))
                 .andExpect(
                     MockMvcResultMatchers.jsonPath("$.[0].sourceId").value(createdSource.sourceId.toString())
                 )
@@ -488,22 +488,22 @@ internal open class SubjectResourceIntTest(@Autowired private val subjectReposit
                 .id(createdSource.id)
                 .sourceName(createdSource.sourceName)
                 .sourceTypeId(createdSource.sourceType.id)
-                .sourceId(createdSource.sourceId)
+                .sourceId(createdSource.sourceId!!)
             subjectDtoToCreate.sources = setOf(sourceDto)
             org.junit.jupiter.api.Assertions.assertNotNull(sourceDto.id)
             val createdSubject = subjectService.createSubject(subjectDtoToCreate)
             TestUtil.commitTransactionAndStartNew()
-            org.junit.jupiter.api.Assertions.assertNotNull(createdSubject!!.getLogin())
+            org.junit.jupiter.api.Assertions.assertNotNull(createdSubject!!.login)
             // Get the subject
             restSubjectMockMvc.perform(
                 MockMvcRequestBuilders.get(
                     "/api/subjects/{login}/sources?withInactiveSources=true",
-                    createdSubject.getLogin()
+                    createdSubject.login
                 )
             )
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.[*].id").value(createdSource.id.toInt()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.[*].id").value(createdSource.id!!.toInt()))
                 .andExpect(
                     MockMvcResultMatchers.jsonPath("$.[*].sourceId").value(createdSource.sourceId.toString())
                 )
@@ -521,7 +521,7 @@ internal open class SubjectResourceIntTest(@Autowired private val subjectReposit
                 .id(createdSource.id)
                 .sourceName(createdSource.sourceName)
                 .sourceTypeId(createdSource.sourceType.id)
-                .sourceId(createdSource.sourceId)
+                .sourceId(createdSource.sourceId!!)
             subjectDtoToCreate.sources = setOf(sourceDto)
             org.junit.jupiter.api.Assertions.assertNotNull(sourceDto.id)
             val createdSubject = subjectService.createSubject(subjectDtoToCreate)
@@ -529,17 +529,17 @@ internal open class SubjectResourceIntTest(@Autowired private val subjectReposit
             createdSubject!!.sources = emptySet()
             val updatedSubject = subjectService.updateSubject(createdSubject)
             TestUtil.commitTransactionAndStartNew()
-            org.junit.jupiter.api.Assertions.assertNotNull(updatedSubject!!.getLogin())
+            org.junit.jupiter.api.Assertions.assertNotNull(updatedSubject!!.login)
             // Get the subject
             restSubjectMockMvc.perform(
                 MockMvcRequestBuilders.get(
                     "/api/subjects/{login}/sources?withInactiveSources=true",
-                    updatedSubject.getLogin()
+                    updatedSubject.login
                 )
             )
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.[*].id").value(createdSource.id.toInt()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.[*].id").value(createdSource.id!!.toInt()))
                 .andExpect(
                     MockMvcResultMatchers.jsonPath("$.[*].sourceId").value(createdSource.sourceId.toString())
                 )
@@ -549,7 +549,7 @@ internal open class SubjectResourceIntTest(@Autowired private val subjectReposit
                 .perform(
                     MockMvcRequestBuilders.get(
                         "/api/subjects/{login}/sources?withInactiveSources=false",
-                        updatedSubject.getLogin()
+                        updatedSubject.login
                     )
                 )
                 .andExpect(MockMvcResultMatchers.status().isOk())

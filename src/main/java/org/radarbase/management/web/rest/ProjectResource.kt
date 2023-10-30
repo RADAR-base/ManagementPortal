@@ -77,7 +77,7 @@ class ProjectResource(@Autowired private val subjectMapper: SubjectMapper,
     fun createProject(@RequestBody projectDto: @Valid ProjectDTO?): ResponseEntity<ProjectDTO> {
         log.debug("REST request to save Project : {}", projectDto)
         val org = projectDto!!.organization
-        if (org == null || org.name == null) {
+        if (org?.name == null) {
             throw BadRequestException(
                 "Organization must be provided",
                 ENTITY_NAME, ErrorConstants.ERR_VALIDATION
@@ -109,7 +109,7 @@ class ProjectResource(@Autowired private val subjectMapper: SubjectMapper,
             .headers(
                 createEntityCreationAlert(
                     ENTITY_NAME,
-                    result?.projectName
+                    result.projectName
                 )
             )
             .body<ProjectDTO>(result)
@@ -135,7 +135,7 @@ class ProjectResource(@Autowired private val subjectMapper: SubjectMapper,
         // When a client wants to link the project to the default organization,
         // this must be done explicitly.
         val org = projectDto.organization
-        if (org == null || org.name == null) {
+        if (org?.name == null) {
             throw BadRequestException(
                 "Organization must be provided",
                 ENTITY_NAME, ErrorConstants.ERR_VALIDATION
@@ -309,7 +309,7 @@ class ProjectResource(@Autowired private val subjectMapper: SubjectMapper,
     ): ResponseEntity<*> {
         authService.checkScope(Permission.SOURCE_READ)
         log.debug("REST request to get all Sources")
-        val projectDto = projectService.findOneByName(projectName) ?: throw NoSuchElementException()
+        val projectDto = projectService.findOneByName(projectName) //?: throw NoSuchElementException()
 
         authService.checkPermission(Permission.SOURCE_READ, { e: EntityDetails ->
             e.organization(projectDto.organization?.name)

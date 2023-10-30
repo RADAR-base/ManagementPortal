@@ -19,7 +19,7 @@ internal class SecurityUtilsUnitTest {
             "admin"
         )
         SecurityContextHolder.setContext(securityContext)
-        val login = SecurityUtils.getCurrentUserLogin().orElse(null)
+        val login = SecurityUtils.currentUserLogin
         Assertions.assertThat(login).isEqualTo("admin")
     }
 }

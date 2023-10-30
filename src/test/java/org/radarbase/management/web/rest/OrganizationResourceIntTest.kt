@@ -41,7 +41,7 @@ import javax.servlet.ServletException
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(classes = [ManagementPortalTestApp::class])
 @WithMockUser
-internal class OrganizationResourceIntTest(
+internal open class OrganizationResourceIntTest(
     @Autowired private val organizationMapper: OrganizationMapper,
     @Autowired private val organizationRepository: OrganizationRepository,
     @Autowired private val organizationService: OrganizationService,
@@ -71,15 +71,7 @@ internal class OrganizationResourceIntTest(
             .addFilter<StandaloneMockMvcBuilder>(filter)
             .defaultRequest<StandaloneMockMvcBuilder>(MockMvcRequestBuilders.get("/").with(OAuthHelper.bearerToken()))
             .build()
-        organization = createEntity()
-    }
-
-    @AfterEach
-    fun tearDown() {
-        val testOrg = organizationRepository.findOneByName(
-            organization.name
-        )
-        testOrg.ifPresent { entity: Organization -> organizationRepository.delete(entity) }
+        organization = this.createEntity()
     }
 
     /**
@@ -93,54 +85,20 @@ internal class OrganizationResourceIntTest(
         return org
     }
 
-    @Test
-    @Throws(Exception::class)
-    fun createOrganization() {
-        val orgDto = organizationMapper.organizationToOrganizationDTO(organization)
-        restOrganizationMockMvc.perform(
-            MockMvcRequestBuilders.post("/api/organizations")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(orgDto))
-        )
-            .andExpect(MockMvcResultMatchers.status().isCreated())
 
-        // Validate the Organization in the database
-        val savedOrg = organizationRepository.findOneByName(orgDto.name)
-        Assertions.assertThat(savedOrg).isNotEmpty()
-    }
-
-    @Test
-    @Throws(Exception::class)
-    fun createOrganizationWithExistingName() {
-        val orgDto = organizationMapper.organizationToOrganizationDTO(organization)
-        restOrganizationMockMvc.perform(
-            MockMvcRequestBuilders.post("/api/organizations")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(orgDto))
-        )
-            .andExpect(MockMvcResultMatchers.status().isCreated())
-
-        // Second request should fail
-        restOrganizationMockMvc.perform(
-            MockMvcRequestBuilders.post("/api/organizations")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(orgDto))
-        )
-            .andExpect(MockMvcResultMatchers.status().isConflict())
-    }
-
-    @Test
-    @Throws(Exception::class)
-    fun checkGroupNameIsRequired() {
-        val orgDto = organizationMapper.organizationToOrganizationDTO(organization)
-        orgDto.name = null
-        restOrganizationMockMvc.perform(
-            MockMvcRequestBuilders.post("/api/organizations")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(orgDto))
-        )
-            .andExpect(MockMvcResultMatchers.status().isBadRequest())
-    }
+    @get:Throws(Exception::class)
+    @get:Test
+    val nonExistingOrganization: Unit
+        get() {
+            // Get the organization
+            restOrganizationMockMvc.perform(
+                MockMvcRequestBuilders.get(
+                    "/api/organizations/{name}",
+                    organization.name
+                )
+            )
+                .andExpect(MockMvcResultMatchers.status().isNotFound())
+        }
 
     @get:Throws(Exception::class)
     @get:Test
@@ -156,67 +114,6 @@ internal class OrganizationResourceIntTest(
                 .andExpect(
                     MockMvcResultMatchers.jsonPath("$.[*].name").value<Iterable<String?>>(Matchers.hasItem("org1"))
                 )
-        }
-
-    @Test
-    @Throws(Exception::class)
-    fun getOrganization() {
-        // Initialize the database
-        organizationRepository.saveAndFlush(organization)
-
-        // Get the organization
-        restOrganizationMockMvc.perform(
-            MockMvcRequestBuilders.get(
-                "/api/organizations/{name}",
-                organization.name
-            )
-        )
-            .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.name").value("org1"))
-    }
-
-    @Test
-    @Throws(Exception::class)
-    fun editOrganization() {
-        // Initialize the database
-        organizationRepository.saveAndFlush(organization)
-        val updatedOrgDto = organizationMapper
-            .organizationToOrganizationDTO(organization)
-        updatedOrgDto?.location = "Other location"
-
-        // Update the organization
-        restOrganizationMockMvc.perform(
-            MockMvcRequestBuilders.put("/api/organizations")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(updatedOrgDto))
-        )
-            .andExpect(MockMvcResultMatchers.status().isOk())
-
-        // Get the organization
-        restOrganizationMockMvc.perform(
-            MockMvcRequestBuilders.get(
-                "/api/organizations/{name}",
-                organization.name
-            )
-        )
-            .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.location").value("Other location"))
-    }
-
-    @get:Throws(Exception::class)
-    @get:Test
-    val nonExistingOrganization: Unit
-        get() {
-            // Get the organization
-            restOrganizationMockMvc.perform(
-                MockMvcRequestBuilders.get(
-                    "/api/organizations/{name}",
-                    organization.name
-                )
-            )
-                .andExpect(MockMvcResultMatchers.status().isNotFound())
         }
 
     @get:Throws(Exception::class)
@@ -242,4 +139,115 @@ internal class OrganizationResourceIntTest(
                 .andExpect(MockMvcResultMatchers.jsonPath("$.[*].projectName").value("organization_project"))
             projectRepository.delete(project)
         }
+
+    @AfterEach
+    fun tearDown() {
+        val testOrg = organizationRepository.findOneByName(
+            organization.name!!
+        )
+        if (testOrg != null)
+            organizationRepository.delete(testOrg)
+
+
+        @Test
+        @Throws(Exception::class)
+        fun createOrganization() {
+            val orgDto = organizationMapper.organizationToOrganizationDTO(organization)
+            restOrganizationMockMvc.perform(
+                MockMvcRequestBuilders.post("/api/organizations")
+                    .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                    .content(TestUtil.convertObjectToJsonBytes(orgDto))
+            )
+                .andExpect(MockMvcResultMatchers.status().isCreated())
+
+            // Validate the Organization in the database
+            val savedOrg = organizationRepository.findOneByName(orgDto.name)
+            Assertions.assertThat(savedOrg).isNotNull()
+        }
+
+        @Test
+        @Throws(Exception::class)
+        fun createOrganizationWithExistingName() {
+            val orgDto = organizationMapper.organizationToOrganizationDTO(organization)
+            restOrganizationMockMvc.perform(
+                MockMvcRequestBuilders.post("/api/organizations")
+                    .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                    .content(TestUtil.convertObjectToJsonBytes(orgDto))
+            )
+                .andExpect(MockMvcResultMatchers.status().isCreated())
+
+            // Second request should fail
+            restOrganizationMockMvc.perform(
+                MockMvcRequestBuilders.post("/api/organizations")
+                    .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                    .content(TestUtil.convertObjectToJsonBytes(orgDto))
+            )
+                .andExpect(MockMvcResultMatchers.status().isConflict())
+        }
+
+
+        @Test
+        @Throws(Exception::class)
+        //TODO this is covered by not using a nullable type
+        fun checkGroupNameIsRequired() {
+            val orgDto = organizationMapper.organizationToOrganizationDTO(organization)
+            orgDto.name = ""
+            restOrganizationMockMvc.perform(
+                MockMvcRequestBuilders.post("/api/organizations")
+                    .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                    .content(TestUtil.convertObjectToJsonBytes(orgDto))
+            )
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+        }
+
+
+        @Test
+        @Throws(Exception::class)
+        fun getOrganization() {
+            // Initialize the database
+            organizationRepository.saveAndFlush(organization)
+
+            // Get the organization
+            restOrganizationMockMvc.perform(
+                MockMvcRequestBuilders.get(
+                    "/api/organizations/{name}",
+                    organization.name
+                )
+            )
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.name").value("org1"))
+        }
+
+        @Test
+        @Throws(Exception::class)
+        fun editOrganization() {
+            // Initialize the database
+            organizationRepository.saveAndFlush(organization)
+            val updatedOrgDto = organizationMapper
+                .organizationToOrganizationDTO(organization)
+            updatedOrgDto?.location = "Other location"
+
+            // Update the organization
+            restOrganizationMockMvc.perform(
+                MockMvcRequestBuilders.put("/api/organizations")
+                    .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                    .content(TestUtil.convertObjectToJsonBytes(updatedOrgDto))
+            )
+                .andExpect(MockMvcResultMatchers.status().isOk())
+
+            // Get the organization
+            restOrganizationMockMvc.perform(
+                MockMvcRequestBuilders.get(
+                    "/api/organizations/{name}",
+                    organization.name
+                )
+            )
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.location").value("Other location"))
+        }
+
+
+    }
 }
