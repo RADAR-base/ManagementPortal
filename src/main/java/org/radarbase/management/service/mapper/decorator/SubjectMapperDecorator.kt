@@ -33,8 +33,8 @@ abstract class SubjectMapperDecorator(
         }
         val dto = subjectToSubjectWithoutProjectDTO(subject)
         val project = subject.activeProject
-            .let { p -> projectRepository.findOneWithEagerRelationships(p?.id) }
-        dto!!.project = projectMapper.projectToProjectDTO(project)
+            .let { p -> projectRepository.findOneWithEagerRelationships(p?.id!!) }
+        dto?.project = projectMapper.projectToProjectDTO(project)
         addAuditInfo(subject, dto)
         return dto
     }
@@ -44,7 +44,7 @@ abstract class SubjectMapperDecorator(
             return null
         }
         val dto = subjectToSubjectWithoutProjectDTO(subject)
-        subject.activeProject?.let { project -> dto!!.project = projectMapper.projectToProjectDTOReduced(project) }
+        subject.activeProject?.let { project -> dto?.project = projectMapper.projectToProjectDTOReduced(project) }
         addAuditInfo(subject, dto)
         return dto
     }
@@ -62,7 +62,7 @@ abstract class SubjectMapperDecorator(
             return null
         }
         val dto = delegate.subjectToSubjectWithoutProjectDTO(subject)
-        dto!!.status = getSubjectStatus(subject)
+        dto?.status = getSubjectStatus(subject)
         return dto
     }
 
@@ -72,24 +72,24 @@ abstract class SubjectMapperDecorator(
         }
         val subject = delegate.subjectDTOToSubject(subjectDto)
         setSubjectStatus(subjectDto, subject)
-        subject!!.group = getGroup(subjectDto)
+        subject?.group = getGroup(subjectDto)
         return subject
     }
 
     private fun getGroup(subjectDto: SubjectDTO?): Group? {
         return if (subjectDto!!.group == null) {
             null
-        } else if (subjectDto.project.id != null) {
-            groupRepository.findByProjectIdAndName(subjectDto.project.id, subjectDto.group)
+        } else if (subjectDto.project?.id != null) {
+            groupRepository.findByProjectIdAndName(subjectDto.project?.id, subjectDto.group)
                 ?: throw BadRequestException(
                         "Group " + subjectDto.group + " not found in project "
-                                + subjectDto.project.id,
+                                + subjectDto.project?.id,
                         EntityName.SUBJECT, ErrorConstants.ERR_GROUP_NOT_FOUND)
-        } else if (subjectDto.project.projectName != null) {
-        groupRepository.findByProjectNameAndName(subjectDto.project.projectName, subjectDto.group)
+        } else if (subjectDto.project?.projectName != null) {
+        groupRepository.findByProjectNameAndName(subjectDto.project?.projectName, subjectDto.group)
             ?: throw BadRequestException(
                 "Group " + subjectDto.group + " not found in project "
-                        + subjectDto.project.projectName,
+                        + subjectDto.project?.projectName,
                 EntityName.SUBJECT, ErrorConstants.ERR_GROUP_NOT_FOUND
                 )
         } else {

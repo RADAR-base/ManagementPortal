@@ -32,11 +32,11 @@ class AuditResource(private val auditEventService: AuditEventService, private va
      */
     @GetMapping
     @Throws(NotAuthorizedException::class)
-    fun getAll(@Parameter pageable: Pageable): ResponseEntity<List<AuditEvent?>> {
+    fun getAll(@Parameter pageable: Pageable?): ResponseEntity<List<AuditEvent?>> {
         authService.checkPermission(Permission.AUDIT_READ)
         val page = auditEventService.findAll(pageable)
         val headers = PaginationUtil.generatePaginationHttpHeaders(page, "/management/audits")
-        return ResponseEntity(page.content, headers, HttpStatus.OK)
+        return ResponseEntity(page!!.content, headers, HttpStatus.OK)
     }
 
     /**
@@ -58,7 +58,7 @@ class AuditResource(private val auditEventService: AuditEventService, private va
         val page = auditEventService
             .findByDates(fromDate.atTime(0, 0), toDate.atTime(23, 59), pageable)
         val headers = PaginationUtil.generatePaginationHttpHeaders(page, "/management/audits")
-        return ResponseEntity(page.content, headers, HttpStatus.OK)
+        return ResponseEntity(page!!.content, headers, HttpStatus.OK)
     }
 
     /**

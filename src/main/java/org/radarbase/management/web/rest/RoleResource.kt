@@ -51,7 +51,7 @@ class RoleResource(
     @Throws(
         URISyntaxException::class, NotAuthorizedException::class
     )
-    fun createRole(@RequestBody @Valid roleDto: RoleDTO): ResponseEntity<RoleDTO> {
+    fun createRole(@RequestBody roleDto: @Valid RoleDTO): ResponseEntity<RoleDTO> {
         log.debug("REST request to save Role : {}", roleDto)
         authService.checkPermission(Permission.ROLE_CREATE, { e: EntityDetails ->
             e.project = roleDto.projectName
@@ -85,7 +85,7 @@ class RoleResource(
     @Throws(
         URISyntaxException::class, NotAuthorizedException::class
     )
-    fun updateRole(@RequestBody @Valid roleDto: RoleDTO): ResponseEntity<RoleDTO> {
+    fun updateRole(@RequestBody roleDto: @Valid RoleDTO): ResponseEntity<RoleDTO> {
         log.debug("REST request to update Role : {}", roleDto)
         if (roleDto.id == null) {
             return createRole(roleDto)

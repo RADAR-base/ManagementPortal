@@ -43,7 +43,7 @@ class PredicateBuilder(val criteriaBuilder: CriteriaBuilder) {
     fun toAndPredicate(): Predicate? {
         return if (predicates.size == 1) {
             predicates[0]
-        } else if (predicates.isNotEmpty()) {
+        } else if (!predicates.isEmpty()) {
             criteriaBuilder.and(*predicates.toTypedArray<Predicate>())
         } else {
             null
@@ -163,8 +163,8 @@ class PredicateBuilder(val criteriaBuilder: CriteriaBuilder) {
             return
         }
         range.validate()
-        if (range.`is` != null) {
-            add(criteriaBuilder.equal(path, range.`is`))
+        if (range.iss != null) {
+            add(criteriaBuilder.equal(path, range.iss))
         } else {
             val from = range.from
             val to = range.to

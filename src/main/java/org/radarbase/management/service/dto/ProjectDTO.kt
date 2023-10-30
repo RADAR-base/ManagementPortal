@@ -13,40 +13,31 @@ import javax.validation.constraints.NotNull
 @JsonInclude(JsonInclude.Include.NON_NULL)
 class ProjectDTO : Serializable {
     var id: Long? = null
-    @NotNull var projectName: String? = null
+    var projectName: @NotNull String? = null
     var humanReadableProjectName: String? = null
-    @NotNull var description: String? = null
+    var description: @NotNull String? = null
     var organization: OrganizationDTO? = null
-
-    // Defaults to organization name, but if that is not set then we can use the organizationName
     var organizationName: String? = null
-        get() {
-            if (organization?.name != null)
-                field = organization?.name
-            return field
-        }
-
-
-    @NotNull var location: String? = null
+    var location: @NotNull String? = null
     var startDate: ZonedDateTime? = null
     var projectStatus: ProjectStatus? = null
     var endDate: ZonedDateTime? = null
 
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    var sourceTypes: Set<SourceTypeDTO> = emptySet()
+    var sourceTypes: Set<SourceTypeDTO>? = null
     var attributes: Map<String, String>? = null
 
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     var groups: Set<GroupDTO>? = null
     var persistentTokenTimeout: Long? = null
-    override fun equals(other: Any?): Boolean {
-        if (this === other) {
+    override fun equals(o: Any?): Boolean {
+        if (this === o) {
             return true
         }
-        if (other == null || javaClass != other.javaClass) {
+        if (o == null || javaClass != o.javaClass) {
             return false
         }
-        val projectDto = other as ProjectDTO
+        val projectDto = o as ProjectDTO
         return if (id == null || projectDto.id == null) {
             false
         } else id == projectDto.id

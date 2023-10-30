@@ -25,25 +25,27 @@ object SecurityUtils {
      * @param authentication context authentication
      * @return user name if present
      */
-    fun getUserName(authentication: Authentication): String? = authentication
-        .let { obj: Authentication -> obj.principal }
-        .let { principal: Any? ->
-            when (principal) {
-                is UserDetails -> {
-                    return (authentication.principal as UserDetails).username
-                }
+    fun getUserName(authentication: Authentication): String? {
+        return authentication
+            .let { obj: Authentication -> obj.principal }
+            .let { principal: Any? ->
+                when (principal) {
+                    is UserDetails -> {
+                        return (authentication.principal as UserDetails).username
+                    }
 
-                is String -> {
-                    return authentication.principal as String
-                }
+                    is String -> {
+                        return authentication.principal as String
+                    }
 
-                is Authentication -> {
-                    return principal.name
-                }
+                    is Authentication -> {
+                        return principal.name
+                    }
 
-                else -> {
-                    return null
+                    else -> {
+                        return null
+                    }
                 }
             }
-        }
+    }
 }

@@ -100,16 +100,18 @@ object PaginationUtil {
         )
         generateUriParam(builder, "projectName", criteria.projectName)
         generateUriParam(builder, "login", criteria.login)
-        criteria.authority.forEach(Consumer { a: SubjectAuthority? ->
-            generateUriParam(
-                builder,
-                "authority", a
-            )
-        })
+        if (criteria.authority != null) {
+            criteria.authority!!.forEach(Consumer { a: SubjectAuthority? ->
+                generateUriParam(
+                    builder,
+                    "authority", a
+                )
+            })
+        }
         generateUriParam(builder, "size", criteria.size)
         generateUriParam(builder, "page", criteria.page)
-        if (criteria.sort != null) {
-            criteria.parsedSort!!.forEach(Consumer { order: SubjectSortOrder? ->
+        if (criteria.getSort() != null) {
+            criteria.getParsedSort()!!.forEach(Consumer { order: SubjectSortOrder? ->
                 generateUriParam(
                     builder, "sort",
                     order?.sortBy?.queryParam + ','
@@ -133,7 +135,7 @@ object PaginationUtil {
         if (range == null) {
             return
         }
-        generateUriParam(builder, "$prefix.is", range.`is`)
+        generateUriParam(builder, "$prefix.is", range.iss)
         generateUriParam(builder, "$prefix.from", range.from)
         generateUriParam(builder, "$prefix.to", range.to)
     }

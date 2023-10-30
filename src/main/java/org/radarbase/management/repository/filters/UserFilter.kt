@@ -56,7 +56,7 @@ class UserFilter : Specification<User?> {
         if (authoritiesAllowed.isEmpty()) {
             val builder = predicates.criteriaBuilder
             // never match
-            predicates.add(builder.isTrue(builder.literal(false)))
+            predicates.add(builder!!.isTrue(builder.literal(false)))
             return
         }
         determineScope(predicates, roleJoin, query, authoritiesAllowed, allowNoRole)
@@ -109,9 +109,9 @@ class UserFilter : Specification<User?> {
             )
         }
         if (allowNoRoleInScope) {
-            authorityPredicates.isNull(roleJoin.get<Any>("id"))
+            authorityPredicates!!.isNull(roleJoin.get<Any>("id"))
         }
-        predicates.add(authorityPredicates.toOrPredicate())
+        predicates.add(authorityPredicates!!.toOrPredicate())
     }
 
     private fun addAllowedAuthorities(
@@ -160,8 +160,8 @@ class UserFilter : Specification<User?> {
         subQuery.select(orgRoot.get("id"))
         val subqueryPredicates = predicates.newBuilder()
         queryMatch.accept(subqueryPredicates, orgRoot)
-        subQuery.where(subqueryPredicates.toAndPredicate())
-        authorityPredicates.`in`(
+        subQuery.where(subqueryPredicates!!.toAndPredicate())
+        authorityPredicates!!.`in`(
             roleJoin.get<Any>(
                 when (scope) {
                     RoleAuthority.Scope.ORGANIZATION -> "organization"

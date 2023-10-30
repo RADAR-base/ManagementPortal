@@ -10,12 +10,12 @@ import javax.validation.constraints.Size
  */
 open class UserDTO {
     var id: Long? = null
-    @Pattern(regexp = "^[_'.@A-Za-z0-9- ]*$") @Size(max = 50, min = 1) var login: String? = null
-    @Size(max = 50) var firstName: String? = null
-    @Size(max = 50) var lastName: String? = null
-    @Email @Size(min = 5, max = 100) var email: String? = null
+    lateinit var login: @Pattern(regexp = "^[_'.@A-Za-z0-9- ]*$") @Size(max = 50, min = 1) String
+    var firstName: @Size(max = 50) String? = null
+    var lastName: @Size(max = 50) String? = null
+    var email: @Email @Size(min = 5, max = 100) String? = null
     var isActivated = false
-    @Size(min = 2, max = 5) var langKey: String? = null
+    var langKey: @Size(min = 2, max = 5) String? = null
     var createdBy: String? = null
     var createdDate: ZonedDateTime? = null
     var lastModifiedBy: String? = null
@@ -23,10 +23,6 @@ open class UserDTO {
     var roles: Set<RoleDTO>? = null
     var authorities: Set<String>? = null
     var accessToken: String? = null
-
-    /** Identifier for association with the identity service provider.
-     * Null if not linked to an external identity. */
-    var identity: String? = null
     override fun toString(): String {
         return ("UserDTO{"
                 + "login='" + login + '\''

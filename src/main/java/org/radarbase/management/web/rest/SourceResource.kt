@@ -55,53 +55,46 @@ class SourceResource(
     @PostMapping("/sources")
     @Timed
     @Throws(URISyntaxException::class, NotAuthorizedException::class)
-    fun createSource(@RequestBody sourceDto: @Valid SourceDTO?): ResponseEntity<SourceDTO?> {
+    fun createSource(@RequestBody sourceDto: @Valid SourceDTO?): ResponseEntity<SourceDTO> {
         log.debug("REST request to save Source : {}", sourceDto)
         val project = sourceDto!!.project
-        authService.checkPermission(Permission.SOURCE_CREATE, { (_, project1): EntityDetails ->
+        authService.checkPermission(Permission.SOURCE_CREATE, { e: EntityDetails ->
             if (project != null) {
-                project1
+                e.project(project.projectName)
             }
         })
+
         return if (sourceDto.id != null) {
             ResponseEntity.badRequest().headers(
                 HeaderUtil.createFailureAlert(
-                    ENTITY_NAME,
-                    "idexists", "A new source cannot already have an ID"
+                    ENTITY_NAME, "idexists", "A new source cannot already have an ID"
                 )
             ).build()
-        } else if (sourceDto.sourceId != null) {
+        }  else if (sourceDto.sourceId != null) {
             ResponseEntity.badRequest().headers(
                 HeaderUtil.createFailureAlert(
-                    ENTITY_NAME,
-                    "sourceIdExists", "A new source cannot already have a Source ID"
+                    ENTITY_NAME, "sourceIdExists", "A new source cannot already have a Source ID"
                 )
             ).build()
-        } else if (sourceRepository.findOneBySourceName(sourceDto.sourceName).isPresent) {
+        } else if (sourceRepository.findOneBySourceName(sourceDto.sourceName) != null) {
             ResponseEntity.badRequest().headers(
                 HeaderUtil.createFailureAlert(
-                    ENTITY_NAME,
-                    "sourceNameExists", "Source name already in use"
+                    ENTITY_NAME, "sourceNameExists", "Source name already in use"
                 )
             ).build()
         } else if (sourceDto.assigned == null) {
-            ResponseEntity.badRequest()
-                .headers(
-                    HeaderUtil.createFailureAlert(
-                        ENTITY_NAME, "sourceAssignedRequired",
-                        "A new source must have the 'assigned' field specified"
-                    )
-                ).body(null)
+            ResponseEntity.badRequest().headers(
+                HeaderUtil.createFailureAlert(
+                    ENTITY_NAME, "sourceAssignedRequired", "A new source must have the 'assigned' field specified"
+                )
+            ).body(null)
         } else {
             val result = sourceService.save(sourceDto)
-            ResponseEntity.created(ResourceUriService.getUri(result))
-                .headers(
+            ResponseEntity.created(ResourceUriService.getUri(result)).headers(
                     HeaderUtil.createEntityCreationAlert(
-                        ENTITY_NAME,
-                        result.sourceName
+                        ENTITY_NAME, result.sourceName
                     )
-                )
-                .body(result)
+                ).body(result)
         }
     }
 
@@ -117,15 +110,15 @@ class SourceResource(
     @PutMapping("/sources")
     @Timed
     @Throws(URISyntaxException::class, NotAuthorizedException::class)
-    fun updateSource(@RequestBody sourceDto: @Valid SourceDTO?): ResponseEntity<SourceDTO?> {
+    fun updateSource(@RequestBody sourceDto: @Valid SourceDTO): ResponseEntity<SourceDTO> {
         log.debug("REST request to update Source : {}", sourceDto)
-        if (sourceDto!!.id == null) {
+        if (sourceDto.id == null) {
             return createSource(sourceDto)
         }
         val project = sourceDto.project
-        authService.checkPermission(Permission.SOURCE_UPDATE, { (_, project1): EntityDetails ->
+        authService.checkPermission(Permission.SOURCE_UPDATE, { e: EntityDetails ->
             if (project != null) {
-                project1
+                e.project(project.projectName)
             }
         })
         val updatedSource: SourceDTO? = sourceService.updateSource(sourceDto)
@@ -150,8 +143,7 @@ class SourceResource(
         authService.checkPermission(Permission.SUBJECT_READ)
         log.debug("REST request to get all Sources")
         val page = sourceService.findAll(pageable)
-        val headers = PaginationUtil
-            .generatePaginationHttpHeaders(page, "/api/sources")
+        val headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/sources")
         return ResponseEntity(page!!.content, headers, HttpStatus.OK)
     }
 
@@ -167,21 +159,19 @@ class SourceResource(
     @Throws(
         NotAuthorizedException::class
     )
-    fun getSource(@PathVariable sourceName: String?): ResponseEntity<SourceDTO> {
+    fun getSource(@PathVariable sourceName: String): ResponseEntity<SourceDTO> {
         log.debug("REST request to get Source : {}", sourceName)
         authService.checkScope(Permission.SOURCE_READ)
-        val sourceOpt = sourceService.findOneByName(sourceName)
-        if (sourceOpt.isPresent) {
-            val source = sourceOpt.get()
-            authService.checkPermission(Permission.SOURCE_READ, { (_, project, subject): EntityDetails ->
+        val source = sourceService.findOneByName(sourceName)
+        if (source != null) {
+            authService.checkPermission(Permission.SOURCE_READ, { e: EntityDetails ->
                 if (source.project != null) {
-                    project
+                    e.project(source.project!!.projectName)
                 }
-                subject
-                    //.source(source.sourceName)
+                e.subject(source.subjectLogin).source(source.sourceName)
             })
         }
-        return ResponseUtil.wrapOrNotFound(sourceOpt)
+        return ResponseUtil.wrapOrNotFound(Optional.ofNullable(source))
     }
 
     /**
@@ -195,45 +185,40 @@ class SourceResource(
     @Throws(
         NotAuthorizedException::class
     )
-    fun deleteSource(@PathVariable sourceName: String?): ResponseEntity<Void> {
+    fun deleteSource(@PathVariable sourceName: String): ResponseEntity<Void> {
         log.debug("REST request to delete Source : {}", sourceName)
         authService.checkScope(Permission.SOURCE_DELETE)
-        val sourceDtoOpt = sourceService.findOneByName(sourceName)
-        if (sourceDtoOpt.isEmpty) {
-            return ResponseEntity.notFound().build()
-        }
-        val sourceDto = sourceDtoOpt.get()
-        authService.checkPermission(Permission.SOURCE_DELETE, { (_, project, subject): EntityDetails ->
+        val sourceDto = sourceService.findOneByName(sourceName)
+            ?: return ResponseEntity.notFound().build()
+        authService.checkPermission(Permission.SOURCE_DELETE, { e: EntityDetails ->
             if (sourceDto.project != null) {
-                project
+                e.project(sourceDto.project!!.projectName);
             }
-            subject
-                //.source(sourceDto.sourceName)
+            e.subject(sourceDto.subjectLogin)
+                .source(sourceDto.sourceName)
         })
-        if (sourceDto.assigned) {
+        if (sourceDto.assigned == true) {
             return ResponseEntity.badRequest().headers(
                 HeaderUtil.createFailureAlert(
-                    ENTITY_NAME,
-                    "sourceIsAssigned", "Cannot delete an assigned source"
+                    ENTITY_NAME, "sourceIsAssigned", "Cannot delete an assigned source"
                 )
             ).build()
         }
-        val sourceId = sourceDtoOpt.get().id
-        val sourceHistory = sourceRepository.findRevisions(sourceId)
-        val sources = sourceHistory.content.mapNotNull { obj: Revision<Int, Source> -> obj.entity }
-            .filter { it.isAssigned == true }.toList()
-        if (sources.isNotEmpty()) {
+        val sourceId = sourceDto.id
+        val sourceHistory = sourceId?.let { sourceRepository.findRevisions(it) }
+        val sources =
+            sourceHistory?.mapNotNull { obj: Revision<Int, Source?> -> obj.entity }?.filter { it.isAssigned == true }
+                ?.toList()
+        if (sources?.isNotEmpty() == true) {
             val failureAlert = HeaderUtil.createFailureAlert(
-                ENTITY_NAME,
-                "sourceRevisionIsAssigned", "Cannot delete a previously assigned source"
+                ENTITY_NAME, "sourceRevisionIsAssigned", "Cannot delete a previously assigned source"
             )
             return ResponseEntity.status(HttpStatus.CONFLICT).headers(failureAlert).build()
         }
-        sourceService.delete(sourceId)
+        sourceId?.let { sourceService.delete(it) }
         return ResponseEntity.ok().headers(
             HeaderUtil.createEntityDeletionAlert(
-                ENTITY_NAME,
-                sourceName
+                ENTITY_NAME, sourceName
             )
         ).build()
     }

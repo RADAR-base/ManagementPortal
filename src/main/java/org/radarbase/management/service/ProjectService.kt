@@ -37,11 +37,11 @@ open class ProjectService(
      * @param projectDto the entity to save
      * @return the persisted entity
      */
-    fun save(projectDto: ProjectDTO?): ProjectDTO {
+    fun save(projectDto: ProjectDTO): ProjectDTO {
         log.debug("Request to save Project : {}", projectDto)
         var project = projectMapper.projectDTOToProject(projectDto)
-        project = projectRepository.save(project)
-        return projectMapper.projectToProjectDTO(project)
+        project = project?.let { projectRepository.save(it) }
+        return projectMapper.projectToProjectDTO(project)!!
     }
 
     /**
@@ -50,8 +50,8 @@ open class ProjectService(
      * @return the list of entities
      */
     @Transactional(readOnly = true)
-    open fun findAll(fetchMinimal: Boolean?, pageable: Pageable?): Page<*> {
-        val projects: Page<Project?>?
+    open fun findAll(fetchMinimal: Boolean, pageable: Pageable): Page<*> {
+        val projects: Page<Project>
         val referents = authService.referentsByScope(Permission.PROJECT_READ)
         projects = if (referents.isEmpty()) {
             PageImpl(listOf<Project>())
@@ -62,10 +62,10 @@ open class ProjectService(
                 pageable, referents.organizations, referents.allProjects
             )
         }
-        return if (!fetchMinimal!!) {
-            projects!!.map { project: Project? -> projectMapper.projectToProjectDTO(project) }
+        return if (!fetchMinimal) {
+            projects.map { project: Project -> projectMapper.projectToProjectDTO(project) }
         } else {
-            projects!!.map { project: Project? -> projectMapper.projectToMinimalProjectDetailsDTO(project) }
+            projects.map { project: Project -> projectMapper.projectToMinimalProjectDetailsDTO(project) }
         }
     }
 
@@ -76,15 +76,17 @@ open class ProjectService(
      * @return the entity
      */
     @Transactional(readOnly = true)
-    open fun findOne(id: Long): ProjectDTO {
+    open fun findOne(id: Long): ProjectDTO? {
         log.debug("Request to get Project : {}", id)
-        return projectRepository.findOneWithEagerRelationships(id)
-            .let { project: Project? -> projectMapper.projectToProjectDTO(project) } ?: throw NotFoundException(
-            "Project not found with id",
-            EntityName.PROJECT,
-            ErrorConstants.ERR_PROJECT_ID_NOT_FOUND,
-            Collections.singletonMap("id", id.toString())
-        )
+        val project = projectRepository.findOneWithEagerRelationships(id)
+            ?: throw NotFoundException(
+                "Project not found with id",
+                EntityName.PROJECT,
+                ErrorConstants.ERR_PROJECT_ID_NOT_FOUND,
+                Collections.singletonMap("id", id.toString())
+            )
+
+        return projectMapper.projectToProjectDTO(project)
     }
 
     /**
@@ -96,13 +98,14 @@ open class ProjectService(
     @Transactional(readOnly = true)
     open fun findOneByName(name: String): ProjectDTO {
         log.debug("Request to get Project by name: {}", name)
-        return projectRepository.findOneWithEagerRelationshipsByName(name)
-            .let { project: Project? -> projectMapper.projectToProjectDTO(project) } ?: throw NotFoundException(
-            "Project not found with projectName $name",
-            EntityName.PROJECT,
-            ErrorConstants.ERR_PROJECT_NAME_NOT_FOUND,
-            Collections.singletonMap("projectName", name)
-        )
+        val project = projectRepository.findOneWithEagerRelationshipsByName(name)
+            ?: throw NotFoundException(
+                "Project not found with projectName $name",
+                EntityName.PROJECT,
+                ErrorConstants.ERR_PROJECT_NAME_NOT_FOUND,
+                Collections.singletonMap("projectName", name))
+
+        return projectMapper.projectToProjectDTO(project)!!
     }
 
     /**
@@ -112,10 +115,10 @@ open class ProjectService(
      * @return the list of source-types assigned.
      */
     @Transactional(readOnly = true)
-    open fun findSourceTypesByProjectId(id: Long?): List<SourceTypeDTO> {
+    open fun findSourceTypesByProjectId(id: Long): List<SourceTypeDTO> {
         log.debug("Request to get Project.sourceTypes of project: {}", id)
         val sourceTypes = projectRepository.findSourceTypesByProjectId(id)
-        return sourceTypeMapper.sourceTypesToSourceTypeDTOs(sourceTypes)
+        return sourceTypeMapper.sourceTypesToSourceTypeDTOs(sourceTypes).filterNotNull()
     }
 
     /**

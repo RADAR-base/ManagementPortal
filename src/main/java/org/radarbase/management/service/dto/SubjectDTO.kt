@@ -28,12 +28,14 @@ class SubjectDTO : Serializable {
     var id: Long? = null
     private var _login: String? = null
     var login: String?
-        get() = if (_login == null) {
+        get() = {
+            if (_login == null) {
                 _login = UUID.randomUUID().toString()
                 _login
             } else {
                 _login
             }
+        }.toString()
         set(value) {
             _login = value
         }

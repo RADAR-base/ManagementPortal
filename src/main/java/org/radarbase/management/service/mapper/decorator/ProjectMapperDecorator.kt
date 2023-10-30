@@ -18,12 +18,12 @@ import java.util.*
 /**
  * Created by nivethika on 30-8-17.
  */
-abstract class ProjectMapperDecorator : ProjectMapper {
-
-    @Autowired @Qualifier("delegate") private lateinit var delegate: ProjectMapper
-    @Autowired private lateinit var organizationRepository: OrganizationRepository
-    @Autowired private lateinit var projectRepository: ProjectRepository
-    @Autowired private lateinit var metaTokenService: MetaTokenService
+abstract class ProjectMapperDecorator(
+    @Autowired @Qualifier("delegate") private val delegate: ProjectMapper,
+    @Autowired private val organizationRepository: OrganizationRepository,
+    @Autowired private val projectRepository: ProjectRepository,
+    @Autowired private val metaTokenService: MetaTokenService
+) : ProjectMapper {
 
     override fun projectToProjectDTO(project: Project?): ProjectDTO? {
         val dto = delegate.projectToProjectDTO(project)
@@ -41,8 +41,8 @@ abstract class ProjectMapperDecorator : ProjectMapper {
             return null
         }
         val dto = delegate.projectToProjectDTOReduced(project)
-        dto?.humanReadableProjectName = project.attributes[ProjectDTO.HUMAN_READABLE_PROJECT_NAME]
-        dto?.sourceTypes = emptySet()
+        dto?.humanReadableProjectName = project.attributes[ProjectDTO.Companion.HUMAN_READABLE_PROJECT_NAME]
+        dto?.sourceTypes = null
         return dto
     }
 
@@ -53,17 +53,16 @@ abstract class ProjectMapperDecorator : ProjectMapper {
         val project = delegate.projectDTOToProject(projectDto)
         val projectName = projectDto.humanReadableProjectName
         if (!projectName.isNullOrEmpty()) {
-            project!!.attributes[ProjectDTO.HUMAN_READABLE_PROJECT_NAME] = projectName
+            project!!.attributes[ProjectDTO.Companion.HUMAN_READABLE_PROJECT_NAME] = projectName
         }
-
-        val name = projectDto.organizationName
-        if (name != null && projectDto.organization != null) {
-            val org = organizationRepository.findOneByName(name)
+        val orgDto = projectDto.organization
+        if (orgDto?.name != null) {
+            val org = organizationRepository.findOneByName(orgDto.name)
                 ?: throw NotFoundException(
                         "Organization not found with name",
-                        EntityName.ORGANIZATION,
+                        EntityName.Companion.ORGANIZATION,
                         ErrorConstants.ERR_ORGANIZATION_NAME_NOT_FOUND,
-                        Collections.singletonMap("name", name)
+                        Collections.singletonMap<String, String?>("name", orgDto.name)
                     )
             project!!.organization = org
         }

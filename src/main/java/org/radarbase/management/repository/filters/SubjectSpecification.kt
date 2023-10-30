@@ -3,17 +3,19 @@ package org.radarbase.management.repository.filters
 import org.radarbase.management.domain.Role
 import org.radarbase.management.domain.Subject
 import org.radarbase.management.domain.User
-import org.radarbase.management.web.rest.criteria.LocalDateCriteriaRange
+import org.radarbase.management.web.rest.criteria.CriteriaRange
 import org.radarbase.management.web.rest.criteria.SubjectAuthority
 import org.radarbase.management.web.rest.criteria.SubjectCriteria
 import org.radarbase.management.web.rest.criteria.SubjectCriteriaLast
 import org.radarbase.management.web.rest.criteria.SubjectSortBy
 import org.radarbase.management.web.rest.criteria.SubjectSortOrder
-import org.radarbase.management.web.rest.criteria.ZonedDateTimeCriteriaRange
 import org.radarbase.management.web.rest.errors.BadRequestException
 import org.radarbase.management.web.rest.errors.EntityName
 import org.radarbase.management.web.rest.errors.ErrorConstants
 import org.springframework.data.jpa.domain.Specification
+import java.time.LocalDate
+import java.time.ZonedDateTime
+import java.util.stream.Collectors
 import javax.persistence.criteria.CriteriaBuilder
 import javax.persistence.criteria.CriteriaQuery
 import javax.persistence.criteria.Join
@@ -23,10 +25,9 @@ import javax.persistence.criteria.Path
 import javax.persistence.criteria.Predicate
 import javax.persistence.criteria.Root
 
-
 class SubjectSpecification(criteria: SubjectCriteria) : Specification<Subject?> {
-    private val dateOfBirth: LocalDateCriteriaRange?
-    private val enrollmentDate: ZonedDateTimeCriteriaRange?
+    private val dateOfBirth: CriteriaRange<LocalDate?>?
+    private val enrollmentDate: CriteriaRange<ZonedDateTime?>?
     private val groupId: Long?
     private val humanReadableIdentifier: String?
     private val last: SubjectCriteriaLast?
@@ -35,17 +36,17 @@ class SubjectSpecification(criteria: SubjectCriteria) : Specification<Subject?> 
     private val externalId: String?
     private val subjectId: String?
     private val sort: List<SubjectSortOrder>?
-    private val authority: Set<String>
-    private var sortLastValues: List<String>? = null
+    private val authority: Set<String?>
+    private var sortLastValues: List<String?>? = null
 
     /**
      * Subject specification based on criteria.
      * @param criteria criteria to use for the specification.
      */
     init {
-        authority = criteria.authority
-            .map { obj: SubjectAuthority -> obj.name }
-            .toSet()
+        authority = criteria.authority.stream()
+            .map { obj: SubjectAuthority? -> obj!!.name }
+            .collect(Collectors.toSet())
         dateOfBirth = criteria.dateOfBirth
         enrollmentDate = criteria.enrollmentDate
         groupId = criteria.groupId
@@ -55,22 +56,22 @@ class SubjectSpecification(criteria: SubjectCriteria) : Specification<Subject?> 
         projectName = criteria.projectName
         externalId = criteria.externalId
         subjectId = criteria.login
-        sort = criteria.parsedSort
-        sortLastValues = if (last != null) {
-            sort
-                ?.mapNotNull { o: SubjectSortOrder -> getLastValue(o.sortBy) }
+        sort = criteria.getParsedSort()
+        if (last != null) {
+            sortLastValues = sort
+                ?.map { o: SubjectSortOrder -> getLastValue(o.sortBy) }
                 ?.toList()
         } else {
-            null
+            sortLastValues = null
         }
     }
 
     override fun toPredicate(
-        root: Root<Subject?>, query: CriteriaQuery<*>,
-        builder: CriteriaBuilder
+        root: Root<Subject?>?, query: CriteriaQuery<*>?,
+        builder: CriteriaBuilder?
     ): Predicate? {
         if (root == null || query == null || builder == null) {
-            return null;
+            return null
         }
         query.distinct(true)
         root.alias("subject")
@@ -93,6 +94,7 @@ class SubjectSpecification(criteria: SubjectCriteria) : Specification<Subject?> 
         return predicates.toAndPredicate()!!
     }
 
+    //TODO I don't think return type needs to be nullable
     private fun filterLastValues(root: Root<Subject?>, builder: CriteriaBuilder): Predicate? {
         val lastPredicates = arrayOfNulls<Predicate?>(
             sort!!.size
@@ -110,15 +112,10 @@ class SubjectSpecification(criteria: SubjectCriteria) : Specification<Subject?> 
                 lastAndPredicates!![j] = builder.equal(paths[j], sortLastValues!![j])
             }
             val order = sort[i]
-            val saveVal = sortLastValues
-                ?: throw BadRequestException(
-                    "No last value given",
-                    EntityName.SUBJECT, ErrorConstants.ERR_VALIDATION
-                )
             val currentSort: Predicate? = if (order.direction.isAscending) {
-                builder.greaterThan(paths[i], saveVal[i])
+                builder.greaterThan(paths[i], sortLastValues!![i]!!)//TODO
             } else {
-                builder.lessThan(paths[i], saveVal[i])
+                builder.lessThan(paths[i], sortLastValues!![i]!!)//TODO
             }
             if (lastAndPredicates != null) {
                 lastAndPredicates[i] = currentSort
@@ -139,7 +136,7 @@ class SubjectSpecification(criteria: SubjectCriteria) : Specification<Subject?> 
         root: Root<Subject?>, queryResult: Class<*>
     ) {
         // Don't add content for count queries.
-        if (Long::class.javaObjectType == queryResult) {
+        if (queryResult == Long::class.java || queryResult == Long::class.javaPrimitiveType) {
             return
         }
         root.fetch<Any, Any>("sources", JoinType.LEFT)
@@ -158,7 +155,7 @@ class SubjectSpecification(criteria: SubjectCriteria) : Specification<Subject?> 
         if (property.isUnique && result == null) {
             throw BadRequestException(
                 "No last value given for sort property $property",
-                EntityName.SUBJECT, ErrorConstants.ERR_VALIDATION
+                EntityName.Companion.SUBJECT, ErrorConstants.ERR_VALIDATION
             )
         }
         return result
@@ -176,7 +173,7 @@ class SubjectSpecification(criteria: SubjectCriteria) : Specification<Subject?> 
         val rolesJoin = userJoin.join<User, Role>("roles")
         rolesJoin.alias("roles")
         predicates.equal({ rolesJoin.get<Any>("project").get("projectName") }, projectName)
-        if (authority.isNotEmpty() && authority.size != SubjectAuthority.values().size) {
+        if (!authority.isEmpty() && authority.size != SubjectAuthority.values().size) {
             predicates.add(rolesJoin.get<Any>("authority").get<Any>("name").`in`(authority))
         }
     }

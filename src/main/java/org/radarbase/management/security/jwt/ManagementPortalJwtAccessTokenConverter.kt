@@ -32,7 +32,7 @@ import java.util.stream.Stream
  * This class can accept an EC keypair as well as an RSA keypair for signing. EC signatures
  * are significantly smaller than RSA signatures.
  */
-class ManagementPortalJwtAccessTokenConverter(
+open class ManagementPortalJwtAccessTokenConverter(
     algorithm: Algorithm,
     verifiers: MutableList<JWTVerifier>,
     private val refreshTokenVerifiers: List<JWTVerifier>
@@ -163,7 +163,7 @@ class ManagementPortalJwtAccessTokenConverter(
     }
 
     override fun isRefreshToken(token: OAuth2AccessToken): Boolean {
-        return token.additionalInformation.containsKey(JwtAccessTokenConverter.ACCESS_TOKEN_ID)
+        return token?.additionalInformation?.containsKey(JwtAccessTokenConverter.ACCESS_TOKEN_ID) == true
     }
 
     override fun encode(accessToken: OAuth2AccessToken, authentication: OAuth2Authentication): String {

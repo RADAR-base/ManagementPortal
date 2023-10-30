@@ -35,7 +35,7 @@ interface UserRepository : JpaRepository<User, Long>, RevisionRepository<User, L
 
     fun findOneByResetKey(resetKey: String): User?
     fun findOneByEmail(email: String): User?
-    fun findOneByLogin(login: String?): User?
+    fun findOneByLogin(login: String): User?
 
     @EntityGraph(attributePaths = ["roles", "roles.authority.name"])
     fun findOneWithRolesByLogin(login: String): User?

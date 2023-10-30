@@ -19,7 +19,6 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher
 import org.springframework.web.cors.CorsUtils
 import org.springframework.web.filter.OncePerRequestFilter
 import java.io.IOException
-import java.io.Serializable
 import java.time.Instant
 import javax.annotation.Nonnull
 import javax.servlet.FilterChain
@@ -149,8 +148,8 @@ class JwtAuthenticationFilter @JvmOverloads constructor(
     ): RadarToken? {
         val userName = token.username ?: return token
         val user = userRepository.findOneByLogin(userName)
-        return if (user.isPresent) {
-            token.copyWithRoles(user.get().authorityReferences)
+        return if (user != null) {
+            token.copyWithRoles(user.authorityReferences)
         } else {
             session?.removeAttribute(TOKEN_ATTRIBUTE)
             httpResponse.returnUnauthorized(httpRequest, "User not found")
@@ -201,14 +200,14 @@ class JwtAuthenticationFilter @JvmOverloads constructor(
 
         @get:JvmStatic
         @set:JvmStatic
-        var HttpSession.radarToken: RadarToken?
-            get() = getAttribute(TOKEN_ATTRIBUTE) as RadarToken?
+        var HttpSession.radarToken: RadarToken
+            get() = getAttribute(TOKEN_ATTRIBUTE) as RadarToken
             set(value) = setAttribute(TOKEN_ATTRIBUTE, value)
 
         @get:JvmStatic
         @set:JvmStatic
-        var HttpServletRequest.radarToken: RadarToken?
-            get() = getAttribute(TOKEN_ATTRIBUTE) as RadarToken?
+        var HttpServletRequest.radarToken: RadarToken
+            get() = getAttribute(TOKEN_ATTRIBUTE) as RadarToken
             set(value) = setAttribute(TOKEN_ATTRIBUTE, value)
 
         val Authentication?.isAnonymous: Boolean

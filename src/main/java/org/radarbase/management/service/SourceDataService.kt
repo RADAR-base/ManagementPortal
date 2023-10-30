@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional
  */
 @Service
 @Transactional
-class SourceDataService(
+open class SourceDataService(
     private val sourceDataRepository: SourceDataRepository,
     private val sourceDataMapper: SourceDataMapper
 ) {
@@ -30,9 +30,9 @@ class SourceDataService(
      */
     fun save(sourceDataDto: SourceDataDTO?): SourceDataDTO? {
         log.debug("Request to save SourceData : {}", sourceDataDto)
-        if (sourceDataDto?.sourceDataType == null) {
+        if (sourceDataDto!!.sourceDataType == null) {
             throw BadRequestException(
-                ErrorConstants.ERR_VALIDATION, EntityName.SOURCE_DATA,
+                ErrorConstants.ERR_VALIDATION, EntityName.Companion.SOURCE_DATA,
                 "Source Data must contain a type or a topic."
             )
         }
@@ -47,7 +47,7 @@ class SourceDataService(
      * @return the list of entities
      */
     @Transactional(readOnly = true)
-    fun findAll(): List<SourceDataDTO?> {
+    open fun findAll(): List<SourceDataDTO?> {
         log.debug("Request to get all SourceData")
         return sourceDataRepository.findAll().stream()
             .map { sourceData: SourceData? -> sourceDataMapper.sourceDataToSourceDataDTO(sourceData) }
@@ -60,7 +60,7 @@ class SourceDataService(
      * @return the list of entities
      */
     @Transactional(readOnly = true)
-    fun findAll(pageable: Pageable): Page<SourceDataDTO?> {
+    open fun findAll(pageable: Pageable?): Page<SourceDataDTO?> {
         log.debug("Request to get all SourceData")
         return sourceDataRepository.findAll(pageable)
             .map { sourceData: SourceData? -> sourceDataMapper.sourceDataToSourceDataDTO(sourceData) }
@@ -73,7 +73,7 @@ class SourceDataService(
      * @return the entity
      */
     @Transactional(readOnly = true)
-    fun findOne(id: Long): SourceDataDTO? {
+    open fun findOne(id: Long): SourceDataDTO? {
         log.debug("Request to get SourceData : {}", id)
         val sourceData = sourceDataRepository.findById(id).get()
         return sourceDataMapper.sourceDataToSourceDataDTO(sourceData)
@@ -86,7 +86,7 @@ class SourceDataService(
      * @return the entity
      */
     @Transactional(readOnly = true)
-    fun findOneBySourceDataName(sourceDataName: String?): SourceDataDTO? {
+    open fun findOneBySourceDataName(sourceDataName: String?): SourceDataDTO? {
         log.debug("Request to get SourceData : {}", sourceDataName)
         return sourceDataRepository.findOneBySourceDataName(sourceDataName)
             .let { sourceData: SourceData? -> sourceDataMapper.sourceDataToSourceDataDTO(sourceData) }
@@ -98,7 +98,7 @@ class SourceDataService(
      * @param id the id of the entity
      */
     @Transactional
-    fun delete(id: Long?) {
+    open fun delete(id: Long?) {
         log.debug("Request to delete SourceData : {}", id)
         sourceDataRepository.deleteById(id)
     }
