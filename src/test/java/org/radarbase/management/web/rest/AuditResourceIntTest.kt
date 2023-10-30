@@ -38,37 +38,28 @@ import javax.servlet.ServletException
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(classes = [ManagementPortalTestApp::class])
 @Transactional
-internal class AuditResourceIntTest {
-    @Autowired
-    private val auditEventRepository: PersistenceAuditEventRepository? = null
+internal open class AuditResourceIntTest(
+    @Autowired private val auditEventRepository: PersistenceAuditEventRepository,
+    @Autowired private val auditEventConverter: AuditEventConverter,
+    @Autowired private val jacksonMessageConverter: MappingJackson2HttpMessageConverter,
+    @Autowired private val formattingConversionService: FormattingConversionService,
+    @Autowired private val pageableArgumentResolver: PageableHandlerMethodArgumentResolver,
+    private var auditEvent: PersistentAuditEvent,
+    private var restAuditMockMvc: MockMvc,
+    @Autowired private val authService: AuthService
+) {
 
-    @Autowired
-    private val auditEventConverter: AuditEventConverter? = null
-
-    @Autowired
-    private val jacksonMessageConverter: MappingJackson2HttpMessageConverter? = null
-
-    @Autowired
-    private val formattingConversionService: FormattingConversionService? = null
-
-    @Autowired
-    private val pageableArgumentResolver: PageableHandlerMethodArgumentResolver? = null
-    private var auditEvent: PersistentAuditEvent? = null
-    private var restAuditMockMvc: MockMvc? = null
-
-    @Autowired
-    private val authService: AuthService? = null
     @BeforeEach
     @Throws(ServletException::class)
     fun setUp() {
-        MockitoAnnotations.initMocks(this)
+        MockitoAnnotations.openMocks(this)
         val auditEventService = AuditEventService(
             auditEventRepository,
             auditEventConverter
         )
         val auditResource = AuditResource(auditEventService, authService)
         val filter = OAuthHelper.createAuthenticationFilter()
-        filter!!.init(MockFilterConfig())
+        filter.init(MockFilterConfig())
         restAuditMockMvc = MockMvcBuilders.standaloneSetup(auditResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setConversionService(formattingConversionService)
@@ -80,11 +71,11 @@ internal class AuditResourceIntTest {
 
     @BeforeEach
     fun initTest() {
-        auditEventRepository!!.deleteAll()
+        auditEventRepository.deleteAll()
         auditEvent = PersistentAuditEvent()
-        auditEvent!!.auditEventType = SAMPLE_TYPE
-        auditEvent!!.principal = SAMPLE_PRINCIPAL
-        auditEvent!!.auditEventDate = SAMPLE_TIMESTAMP
+        auditEvent.auditEventType = SAMPLE_TYPE
+        auditEvent.principal = SAMPLE_PRINCIPAL
+        auditEvent.auditEventDate = SAMPLE_TIMESTAMP
     }
 
     @get:Throws(Exception::class)
@@ -92,10 +83,10 @@ internal class AuditResourceIntTest {
     val allAudits: Unit
         get() {
             // Initialize the database
-            auditEventRepository!!.save(auditEvent)
+            auditEventRepository.save(auditEvent)
 
             // Get all the audits
-            restAuditMockMvc!!.perform(MockMvcRequestBuilders.get("/management/audits"))
+            restAuditMockMvc.perform(MockMvcRequestBuilders.get("/management/audits"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(
@@ -112,10 +103,10 @@ internal class AuditResourceIntTest {
     val audit: Unit
         get() {
             // Initialize the database
-            auditEventRepository!!.save(auditEvent)
+            auditEventRepository.save(auditEvent)
 
             // Get the audit
-            restAuditMockMvc!!.perform(MockMvcRequestBuilders.get("/management/audits/{id}", auditEvent!!.id))
+            restAuditMockMvc.perform(MockMvcRequestBuilders.get("/management/audits/{id}", auditEvent.id))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.principal").value(SAMPLE_PRINCIPAL))
@@ -123,17 +114,17 @@ internal class AuditResourceIntTest {
 
     @get:Throws(Exception::class)
     @get:Test
-    val auditsByDate: Unit
+    open val auditsByDate: Unit
         get() {
             // Initialize the database
-            auditEventRepository!!.save(auditEvent)
+            auditEventRepository.save(auditEvent)
 
             // Generate dates for selecting audits by date, making sure the period contains the audit
             val fromDate = SAMPLE_TIMESTAMP.minusDays(1).format(FORMATTER)
             val toDate = SAMPLE_TIMESTAMP.plusDays(1).format(FORMATTER)
 
             // Get the audit
-            restAuditMockMvc!!.perform(
+            restAuditMockMvc.perform(
                 MockMvcRequestBuilders.get(
                     "/management/audits?fromDate=" + fromDate + "&toDate="
                             + toDate
@@ -155,7 +146,7 @@ internal class AuditResourceIntTest {
     val nonExistingAuditsByDate: Unit
         get() {
             // Initialize the database
-            auditEventRepository!!.save(auditEvent)
+            auditEventRepository.save(auditEvent)
 
             // Generate dates for selecting audits by date, making sure the period will not contain the
             // sample audit
@@ -163,7 +154,7 @@ internal class AuditResourceIntTest {
             val toDate = SAMPLE_TIMESTAMP.minusDays(1).format(FORMATTER)
 
             // Query audits but expect no results
-            restAuditMockMvc!!.perform(
+            restAuditMockMvc.perform(
                 MockMvcRequestBuilders.get(
                     "/management/audits?fromDate=" + fromDate + "&toDate="
                             + toDate
@@ -179,7 +170,7 @@ internal class AuditResourceIntTest {
     val nonExistingAudit: Unit
         get() {
             // Get the audit
-            restAuditMockMvc!!.perform(MockMvcRequestBuilders.get("/management/audits/{id}", Long.MAX_VALUE))
+            restAuditMockMvc.perform(MockMvcRequestBuilders.get("/management/audits/{id}", Long.MAX_VALUE))
                 .andExpect(MockMvcResultMatchers.status().isNotFound())
         }
 

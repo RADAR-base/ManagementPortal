@@ -21,6 +21,7 @@ import org.radarbase.management.security.JwtAuthenticationFilter.Companion.radar
 import org.radarbase.management.security.RadarAuthentication
 import org.radarbase.management.service.AuthService
 import org.radarbase.management.service.MailService
+import org.radarbase.management.service.PasswordService
 import org.radarbase.management.service.UserService
 import org.radarbase.management.service.dto.RoleDTO
 import org.radarbase.management.service.dto.UserDTO
@@ -50,6 +51,7 @@ internal open class AccountResourceIntTest(
     @Autowired private val userRepository: UserRepository,
     @Autowired private val userService: UserService,
     @Autowired private val userMapper: UserMapper,
+    @Autowired private val passwordService: PasswordService,
     @Mock private val mockUserService: UserService,
     @Mock private val mockMailService: MailService,
     private var restUserMockMvc: MockMvc,
@@ -67,25 +69,22 @@ internal open class AccountResourceIntTest(
             )
         )
         SecurityContextHolder.getContext().authentication = RadarAuthentication(radarToken)
-        val accountResource = AccountResource()
-        ReflectionTestUtils.setField(accountResource, "userService", userService)
-        ReflectionTestUtils.setField(accountResource, "userMapper", userMapper)
-        ReflectionTestUtils.setField(accountResource, "mailService", mockMailService)
-        ReflectionTestUtils.setField(accountResource, "authService", authService)
-        ReflectionTestUtils.setField(accountResource, "token", radarToken)
-        ReflectionTestUtils.setField(
-            accountResource, "managementPortalProperties",
-            managementPortalProperties
+        val accountResource = AccountResource(
+            userService,
+            mockMailService,
+            userMapper,
+            managementPortalProperties,
+            authService,
+            passwordService
         )
-        val accountUserMockResource = AccountResource()
-        ReflectionTestUtils.setField(accountUserMockResource, "userService", mockUserService)
-        ReflectionTestUtils.setField(accountUserMockResource, "userMapper", userMapper)
-        ReflectionTestUtils.setField(accountUserMockResource, "mailService", mockMailService)
-        ReflectionTestUtils.setField(accountUserMockResource, "authService", authService)
-        ReflectionTestUtils.setField(accountUserMockResource, "token", radarToken)
-        ReflectionTestUtils.setField(
-            accountUserMockResource, "managementPortalProperties",
-            managementPortalProperties
+        ReflectionTestUtils.setField(accountResource, "token", radarToken)
+        val accountUserMockResource = AccountResource(
+            userService,
+            mockMailService,
+            userMapper,
+            managementPortalProperties,
+            authService,
+            passwordService
         )
         restUserMockMvc = MockMvcBuilders.standaloneSetup(accountUserMockResource).build()
     }
@@ -122,7 +121,7 @@ internal open class AccountResourceIntTest(
         user.email = "john.doe@jhipster.com"
         user.langKey = "en"
         user.roles = roles
-        Mockito.`when`(mockUserService.userWithAuthorities).thenReturn(Optional.of(user))
+        Mockito.`when`(mockUserService.userWithAuthorities).thenReturn(user)
         restUserMockMvc.perform(MockMvcRequestBuilders.post("/api/login")
             .with { request: MockHttpServletRequest ->
                 request.radarToken = token
@@ -160,7 +159,7 @@ internal open class AccountResourceIntTest(
         user.email = "john.doe@jhipster.com"
         user.langKey = "en"
         user.roles = roles
-        Mockito.`when`(mockUserService.userWithAuthorities).thenReturn(Optional.of(user))
+        Mockito.`when`(mockUserService.userWithAuthorities).thenReturn(user)
         restUserMockMvc.perform(
             MockMvcRequestBuilders.get("/api/account")
                 .accept(MediaType.APPLICATION_JSON)
@@ -182,7 +181,7 @@ internal open class AccountResourceIntTest(
     @Test
     @Throws(Exception::class)
     fun testGetUnknownAccount() {
-        Mockito.`when`(mockUserService.userWithAuthorities).thenReturn(Optional.empty())
+        Mockito.`when`(mockUserService.userWithAuthorities).thenReturn(null)
         restUserMockMvc.perform(
             MockMvcRequestBuilders.get("/api/account")
                 .accept(MediaType.APPLICATION_JSON)
@@ -213,6 +212,6 @@ internal open class AccountResourceIntTest(
         )
             .andExpect(MockMvcResultMatchers.status().isBadRequest())
         val user = userRepository.findOneByEmail("funky@example.com")
-        Assertions.assertThat(user).isNotPresent()
+        Assertions.assertThat(user).isNull()
     }
 }

@@ -16,5 +16,5 @@ class ClientDetailsDTO {
     var refreshTokenValiditySeconds: Long? = null
     var authorities: Set<String>? = null
     var registeredRedirectUri: Set<String>? = null
-    var additionalInformation: Map<String, String>? = null
+    var additionalInformation: MutableMap<String, String>? = null
 }

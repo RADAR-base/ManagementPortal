@@ -107,10 +107,12 @@ internal open class UserResourceIntTest(
     @BeforeEach
     fun initTest() {
         user = UserServiceIntTest.createEntity(passwordService)
-        userRepository.findOneByLogin(UserServiceIntTest.DEFAULT_LOGIN)
-            .ifPresent { entity: User -> userRepository.delete(entity) }
-        userRepository.findOneByLogin(UserServiceIntTest.UPDATED_LOGIN)
-            .ifPresent { entity: User -> userRepository.delete(entity) }
+        val default_user = userRepository.findOneByLogin(UserServiceIntTest.DEFAULT_LOGIN)
+            if (default_user != null)
+                userRepository.delete(default_user)
+        val updated_user = userRepository.findOneByLogin(UserServiceIntTest.UPDATED_LOGIN)
+            if (updated_user != null)
+                userRepository.delete(updated_user)
         val roles = roleRepository
             .findRolesByAuthorityName(RoleAuthority.PARTICIPANT.authority)
             .stream().filter { r: Role -> r.project == null }

@@ -31,13 +31,10 @@ import org.springframework.transaction.annotation.Transactional
 import java.time.Period
 import java.time.ZonedDateTime
 import java.util.*
-import java.util.Map
 import java.util.function.Function
-import java.util.stream.Collectors
 import kotlin.collections.HashSet
 import kotlin.collections.MutableSet
 import kotlin.collections.Set
-import kotlin.collections.setOf
 
 /**
  * Service class for managing users.
@@ -72,7 +69,7 @@ open class UserService(
             "User with activation key $key not found",
             EntityName.USER,
             ErrorConstants.ERR_ENTITY_NOT_FOUND,
-            Map.of("activationKey", key)
+            mapOf(Pair("activationKey", key))
         )
     }
 
@@ -235,7 +232,7 @@ open class UserService(
                     "Email address $email already in use",
                     EntityName.USER,
                     ErrorConstants.ERR_EMAIL_EXISTS,
-                    Map.of("email", email)
+                    mapOf(Pair("email", email))
                 )
             }
         } else {
@@ -243,7 +240,7 @@ open class UserService(
                 "User with login $userName not found",
                 EntityName.USER,
                 ErrorConstants.ERR_ENTITY_NOT_FOUND,
-                Map.of("user", userName)
+                mapOf(Pair("user", userName))
             )
         }
         user.firstName = firstName
@@ -420,7 +417,7 @@ open class UserService(
                 "User with login $login not found",
                 EntityName.USER,
                 ErrorConstants.ERR_ENTITY_NOT_FOUND,
-                Map.of("user", login)
+                mapOf(Pair("user", login))
             )
 
         val managedRoles = user.roles

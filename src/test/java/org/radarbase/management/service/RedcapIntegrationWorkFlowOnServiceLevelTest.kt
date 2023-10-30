@@ -19,7 +19,7 @@ import java.util.*
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(classes = [ManagementPortalTestApp::class])
 @Transactional
-internal class RedcapIntegrationWorkFlowOnServiceLevelTest {
+internal open class RedcapIntegrationWorkFlowOnServiceLevelTest {
     @Autowired
     private val projectService: ProjectService? = null
 
@@ -46,13 +46,13 @@ internal class RedcapIntegrationWorkFlowOnServiceLevelTest {
 
         // manually save
         val saved = projectService!!.save(projectDto)
-        val storedProjectId = saved.id
+        val storedProjectId = saved.id!!
         Assertions.assertTrue(storedProjectId > 0)
 
         // Use ROLE_EXTERNAL_ERF_INTEGRATOR authority in your oauth2 client config
         // GET api/projects/{storedProjectId}
         val retrievedById = projectService.findOne(storedProjectId)
-        Assertions.assertEquals(retrievedById.id, storedProjectId)
+        Assertions.assertEquals(retrievedById?.id, storedProjectId)
 
         // retrieve required details
         // location is part of project property
@@ -64,7 +64,7 @@ internal class RedcapIntegrationWorkFlowOnServiceLevelTest {
 
         // redcap-id from trigger
         val redcapRecordId = "1"
-        for ((key, value) in retrievedById.attributes) {
+        for ((key, value) in retrievedById!!.attributes!!) {
             when (key) {
                 ProjectDTO.WORK_PACKAGE_KEY -> workPackageRetrieved = value
                 ProjectDTO.PHASE_KEY -> phaseRetrieved = value
@@ -98,7 +98,7 @@ internal class RedcapIntegrationWorkFlowOnServiceLevelTest {
         // create/save a subject
         // PUT api/subjects/
         val savedSubject = subjectService!!.createSubject(newSubject)
-        Assertions.assertTrue(savedSubject!!.id > 0)
+        Assertions.assertTrue(savedSubject!!.id!! > 0)
 
         // asset human-readable-id
         for ((key, value) in savedSubject.attributes) {

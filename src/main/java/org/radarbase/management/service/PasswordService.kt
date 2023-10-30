@@ -17,7 +17,7 @@ import java.security.SecureRandom
 import java.util.*
 
 @Service
-class PasswordService(private val passwordEncoder: PasswordEncoder) {
+open class PasswordService(private val passwordEncoder: PasswordEncoder) {
     private val random: Random = SecureRandom()
 
     /**

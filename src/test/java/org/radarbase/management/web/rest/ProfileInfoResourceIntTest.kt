@@ -30,7 +30,7 @@ internal class ProfileInfoResourceIntTest {
     private var restProfileMockMvc: MockMvc? = null
     @BeforeEach
     fun setUp() {
-        MockitoAnnotations.initMocks(this)
+        MockitoAnnotations.openMocks(this)
         val activeProfiles = arrayOf("test")
         Mockito.`when`(environment!!.defaultProfiles).thenReturn(activeProfiles)
         Mockito.`when`(environment.activeProfiles).thenReturn(activeProfiles)
