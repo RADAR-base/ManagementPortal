@@ -171,7 +171,7 @@ class OAuthClientsResource {
     @PostMapping("/oauth-clients")
     @Timed
     @Throws(URISyntaxException::class, NotAuthorizedException::class)
-    fun createOAuthClient(@RequestBody clientDetailsDto: @Valid ClientDetailsDTO?): ResponseEntity<ClientDetailsDTO> {
+    fun createOAuthClient(@RequestBody clientDetailsDto: @Valid ClientDetailsDTO): ResponseEntity<ClientDetailsDTO> {
         authService!!.checkPermission(Permission.OAUTHCLIENTS_CREATE)
         val created = oAuthClientService!!.createClientDetail(clientDetailsDto)
         return ResponseEntity.created(ResourceUriService.getUri(clientDetailsDto))
@@ -202,11 +202,9 @@ class OAuthClientsResource {
         authService!!.checkScope(Permission.SUBJECT_UPDATE)
         val currentUser =
             userService!!.userWithAuthorities // We only allow this for actual logged in users for now, not for client_credentials
-                .orElseThrow {
-                    AccessDeniedException(
+                ?: throw AccessDeniedException(
                         "You must be a logged in user to access this resource"
                     )
-                }
 
         // lookup the subject
         val subject = subjectService!!.findOneByLogin(login)
