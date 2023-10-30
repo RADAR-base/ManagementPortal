@@ -42,7 +42,7 @@ internal open class MetaTokenServiceTest(
     fun setUp() {
         subjectDto = SubjectServiceTest.createEntityDTO()
         subjectDto = subjectService.createSubject(subjectDto)!!
-        clientDetails = oAuthClientService.createClientDetail(OAuthClientServiceTestUtil.createClient())!!
+        clientDetails = oAuthClientService.createClientDetail(OAuthClientServiceTestUtil.createClient())
     }
 
     @Test
