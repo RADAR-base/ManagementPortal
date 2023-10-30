@@ -37,6 +37,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.actuate.audit.AuditEvent
 import org.springframework.boot.actuate.audit.AuditEventRepository
+import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -94,13 +95,10 @@ class SubjectResource(
                 EntityName.SUBJECT, "idexists"
             )
         }
-        if (subjectDto.getLogin() == null) {
-            throw BadRequestException("A subject login is required", EntityName.SUBJECT, "loginrequired")
-        }
-        if (subjectDto.externalId != null && subjectDto.externalId.isNotEmpty()
+        if (!subjectDto.externalId.isNullOrEmpty()
             && subjectRepository.findOneByProjectNameAndExternalId(
                 projectName, subjectDto.externalId
-            ).isPresent
+            ) != null
         ) {
             throw BadRequestException(
                 "A subject with given project-id and"
@@ -109,18 +107,18 @@ class SubjectResource(
         }
         val result = subjectService.createSubject(subjectDto)
         return ResponseEntity.created(ResourceUriService.getUri(subjectDto))
-            .headers(HeaderUtil.createEntityCreationAlert(EntityName.SUBJECT, result?.getLogin()))
+            .headers(HeaderUtil.createEntityCreationAlert(EntityName.SUBJECT, result?.login))
             .body(result)
     }
 
     private fun getProjectName(subjectDto: SubjectDTO): String {
-        if (subjectDto.project == null || subjectDto.project.id == null || subjectDto.project.projectName == null) {
+        if (subjectDto.project == null || subjectDto.project!!.id == null || subjectDto.project!!.projectName == null) {
             throw BadRequestException(
                 "A subject should be assigned to a project", EntityName.SUBJECT,
                 "projectrequired"
             )
         }
-        return subjectDto.project.projectName
+        return subjectDto.project!!.projectName!!
     }
 
     /**
@@ -144,11 +142,11 @@ class SubjectResource(
         authService.checkPermission(Permission.SUBJECT_UPDATE, { e: EntityDetails ->
             e
                 .project(projectName)
-                .subject(subjectDto.getLogin())
+                .subject(subjectDto.login)
         })
         val result = subjectService.updateSubject(subjectDto)
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(EntityName.SUBJECT, subjectDto.getLogin()))
+            .headers(HeaderUtil.createEntityUpdateAlert(EntityName.SUBJECT, subjectDto.login))
             .body(result)
     }
 
@@ -159,7 +157,7 @@ class SubjectResource(
      * @param subjectDto the subjectDto to update
      * @return the ResponseEntity with status 200 (OK) and with body the updated subjectDto, or with
      * status 400 (Bad Request) if the subjectDto is not valid, or with status 500 (Internal
-     * Server Error) if the subjectDto couldnt be updated
+     * Server Error) if the subjectDto couldn't be updated
      */
     @PutMapping("/subjects/discontinue")
     @Timed
@@ -173,20 +171,20 @@ class SubjectResource(
         authService.checkPermission(Permission.SUBJECT_UPDATE, { e: EntityDetails ->
             e
                 .project(projectName)
-                .subject(subjectDto.getLogin())
+                .subject(subjectDto.login)
         })
 
         // In principle this is already captured by the PostUpdate event listener, adding this
         // event just makes it more clear a subject was discontinued.
         eventRepository.add(
             AuditEvent(
-                SecurityUtils.getCurrentUserLogin().orElse(null),
-                "SUBJECT_DISCONTINUE", "subject_login=" + subjectDto.getLogin()
+                SecurityUtils.currentUserLogin,
+                "SUBJECT_DISCONTINUE", "subject_login=" + subjectDto.login
             )
         )
         val result = subjectService.discontinueSubject(subjectDto)
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(EntityName.SUBJECT, subjectDto.getLogin()))
+            .headers(HeaderUtil.createEntityUpdateAlert(EntityName.SUBJECT, subjectDto.login))
             .body(result)
     }
 
@@ -211,26 +209,26 @@ class SubjectResource(
             .map { obj: SubjectAuthority -> obj.name }
             .toList()
         return if (projectName != null && externalId != null) {
-            val subject = subjectRepository
+            val subject = Optional.ofNullable(subjectRepository
                 .findOneByProjectNameAndExternalIdAndAuthoritiesIn(
                     projectName, externalId, authoritiesToInclude
                 )
-                ?.map { s: Subject? ->
+                ?.let { s: Subject? ->
                     listOf(
                         subjectMapper.subjectToSubjectReducedProjectDTO(s)
                     )
-                }
+                });
             ResponseUtil.wrapOrNotFound(subject)
         } else if (projectName == null && externalId != null) {
             val page = subjectService.findAll(subjectCriteria)
-                .map { s: Subject? -> subjectMapper.subjectToSubjectWithoutProjectDTO(s) }
+                .map { s: Subject -> subjectMapper.subjectToSubjectWithoutProjectDTO(s) }
             val headers = PaginationUtil.generateSubjectPaginationHttpHeaders(
                 page, "/api/subjects", subjectCriteria
             )
             ResponseEntity(page.content, headers, HttpStatus.OK)
         } else {
             val page = subjectService.findAll(subjectCriteria)
-                .map { subject: Subject? -> subjectMapper.subjectToSubjectWithoutProjectDTO(subject) }
+                .map { subject: Subject -> subjectMapper.subjectToSubjectWithoutProjectDTO(subject) }
             val headers = PaginationUtil.generateSubjectPaginationHttpHeaders(
                 page, "/api/subjects", subjectCriteria
             )
@@ -255,7 +253,7 @@ class SubjectResource(
         authService.checkScope(Permission.SUBJECT_READ)
         val subject = subjectService.findOneByLogin(login)
         val project: Project? = subject.activeProject
-            ?.let { p -> projectRepository.findOneWithEagerRelationships(p.id) }
+            ?.let { p -> p.id?.let { projectRepository.findOneWithEagerRelationships(it) } }
         authService.checkPermission(Permission.SUBJECT_READ, { e: EntityDetails ->
             if (project != null) {
                 e.project(project.projectName)
@@ -280,7 +278,7 @@ class SubjectResource(
     )
     fun getSubjectRevisions(
         @Parameter pageable: Pageable?,
-        @PathVariable login: String?
+        @PathVariable login: String
     ): ResponseEntity<List<RevisionDTO>> {
         authService.checkScope(Permission.SUBJECT_READ)
         log.debug("REST request to get revisions for Subject : {}", login)
@@ -315,14 +313,14 @@ class SubjectResource(
     @Timed
     @Throws(NotAuthorizedException::class)
     fun getSubjectRevision(
-        @PathVariable login: String?,
+        @PathVariable login: String,
         @PathVariable revisionNb: Int?
     ): ResponseEntity<SubjectDTO> {
         authService.checkScope(Permission.SUBJECT_READ)
         log.debug("REST request to get Subject : {}, for revisionNb: {}", login, revisionNb)
         val subjectDto = subjectService.findRevision(login, revisionNb)
         authService.checkPermission(Permission.SUBJECT_READ, { e: EntityDetails ->
-            e.project(subjectDto.project.projectName)
+            e.project(subjectDto.project?.projectName)
                 .subject(subjectDto.login)
         })
         return ResponseEntity.ok(subjectDto)
@@ -404,10 +402,10 @@ class SubjectResource(
             }
             sourceTypeId = sourceTypeService
                 .findByProducerAndModelAndVersion(
-                    sourceDto.sourceTypeProducer,
-                    sourceDto.sourceTypeModel,
-                    sourceDto.sourceTypeCatalogVersion
-                )?.id
+                    sourceDto.sourceTypeProducer!!,
+                    sourceDto.sourceTypeModel!!,
+                    sourceDto.sourceTypeCatalogVersion!!
+                ).id
             // also update the sourceDto, since we pass it on to SubjectService later
             sourceDto.sourceTypeId = sourceTypeId
         }
@@ -431,14 +429,12 @@ class SubjectResource(
         // find whether the relevant source-type is available in the subject's project
         val sourceType = projectRepository
             .findSourceTypeByProjectIdAndSourceTypeId(currentProject.id, sourceTypeId)
-            ?.orElseThrow {
-                BadRequestException(
+            ?: throw BadRequestException(
                     "No valid source-type found for project."
                             + " You must provide either valid source-type id or producer, model,"
                             + " version of a source-type that is assigned to project",
                     EntityName.SUBJECT, ErrorConstants.ERR_SOURCE_TYPE_NOT_PROVIDED
                 )
-            }
 
         // check if any of id, sourceID, sourceName were non-null
         val existing = Stream.of(
@@ -449,7 +445,7 @@ class SubjectResource(
 
         // handle the source registration
         val sourceRegistered = subjectService
-            .assignOrUpdateSource(sub, sourceType!!, currentProject, sourceDto)
+            .assignOrUpdateSource(sub, sourceType, currentProject, sourceDto)
 
         // Return the correct response type, either created if a new source was created, or ok if
         // an existing source was provided. If an existing source was given but not found, the
@@ -494,7 +490,7 @@ class SubjectResource(
         val withInactiveSources = withInactiveSourcesParam != null && withInactiveSourcesParam
         // check the subject id
         val subject = subjectRepository.findOneWithEagerBySubjectLogin(login)
-            .orElseThrow { NoSuchElementException() }
+            ?: throw NoSuchElementException()
         authService.checkPermission(Permission.SUBJECT_READ, { e: EntityDetails ->
             e
                 .project(subject.associatedProject?.projectName)
@@ -546,13 +542,11 @@ class SubjectResource(
 
         // check the subject id
         val subject = subjectRepository.findOneWithEagerBySubjectLogin(login)
-            .orElseThrow {
-                NotFoundException(
-                    "Subject ID not found",
-                    EntityName.SUBJECT, ErrorConstants.ERR_SUBJECT_NOT_FOUND,
-                    Collections.singletonMap("subjectLogin", login)
-                )
-            }
+            ?: throw NotFoundException(
+                "Subject ID not found",
+                EntityName.SUBJECT, ErrorConstants.ERR_SUBJECT_NOT_FOUND,
+                Collections.singletonMap("subjectLogin", login)
+            )
         authService.checkPermission(Permission.SUBJECT_UPDATE, { e: EntityDetails ->
             e
                 .project(subject.associatedProject?.projectName)

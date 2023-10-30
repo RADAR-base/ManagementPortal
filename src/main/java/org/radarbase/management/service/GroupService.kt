@@ -48,14 +48,13 @@ open class GroupService(
     open fun getGroup(projectName: String, groupName: String): GroupDTO {
         return groupMapper.groupToGroupDTOFull(
             groupRepository.findByProjectNameAndName(
-                projectName,
-                groupName
+                projectName, groupName
+            ) ?: throw NotFoundException(
+                "Group $groupName not found in project $projectName",
+                EntityName.GROUP,
+                ErrorConstants.ERR_GROUP_NOT_FOUND
             )
-                ?: throw NotFoundException(
-                    "Group $groupName not found in project $projectName",
-                    EntityName.GROUP, ErrorConstants.ERR_GROUP_NOT_FOUND
-                )
-        )
+        )!!
     }
 
     /**
@@ -67,16 +66,14 @@ open class GroupService(
      */
     @Transactional
     open fun deleteGroup(projectName: String, groupName: String, unlinkSubjects: Boolean) {
-        val group = groupRepository.findByProjectNameAndName(projectName, groupName)
-            ?: throw NotFoundException(
-                "Group $groupName not found in project $projectName",
-                EntityName.GROUP, ErrorConstants.ERR_GROUP_NOT_FOUND
-            )
+        val group = groupRepository.findByProjectNameAndName(projectName, groupName) ?: throw NotFoundException(
+            "Group $groupName not found in project $projectName", EntityName.GROUP, ErrorConstants.ERR_GROUP_NOT_FOUND
+        )
         if (!unlinkSubjects) {
             val subjectCount = subjectRepository.countByGroupId(group.id)
             if (subjectCount > 0) {
-                val msg = ("Group " + groupName + " has subjects. "
-                        + "Add `unlinkSubjects=true` query param to confirm deletion")
+                val msg =
+                    ("Group " + groupName + " has subjects. " + "Add `unlinkSubjects=true` query param to confirm deletion")
                 throw ConflictException(msg, EntityName.GROUP, ErrorConstants.ERR_VALIDATION)
             }
         }
@@ -91,26 +88,30 @@ open class GroupService(
      * @throws ConflictException if the group name already exists.
      */
     @Transactional
-    open fun createGroup(projectName: String, groupDto: GroupDTO): GroupDTO {
-        val project = projectRepository.findOneWithGroupsByName(projectName)
-            ?: throw NotFoundException(
-                "Project with name $projectName not found",
-                EntityName.PROJECT, ErrorConstants.ERR_PROJECT_NAME_NOT_FOUND
-            )
-        if (project.groups.stream()
-                .anyMatch { g: Group -> g.name == groupDto.name }
-        ) {
+    open fun createGroup(projectName: String, groupDto: GroupDTO): GroupDTO? {
+        val project = projectRepository.findOneWithGroupsByName(projectName) ?: throw NotFoundException(
+            "Project with name $projectName not found", EntityName.PROJECT, ErrorConstants.ERR_PROJECT_NAME_NOT_FOUND
+        )
+        if (project.groups.stream().anyMatch { g: Group -> g.name == groupDto.name }) {
             throw ConflictException(
                 "Group " + groupDto.name + " already exists in project " + projectName,
-                EntityName.GROUP, ErrorConstants.ERR_GROUP_EXISTS
+                EntityName.GROUP,
+                ErrorConstants.ERR_GROUP_EXISTS
             )
         }
         val group = groupMapper.groupDTOToGroup(groupDto)
-        group.project = project
-        val groupDtoResult = groupMapper.groupToGroupDTOFull(groupRepository.save(group))
-        project.groups.add(group)
-        projectRepository.save(project)
-        return groupDtoResult
+        if (group != null) {
+            group.project = project
+            val groupDtoResult = groupMapper.groupToGroupDTOFull(groupRepository.save(group))
+            project.groups.add(group)
+            projectRepository.save(project)
+            return groupDtoResult
+        }
+        else {
+            throw NotFoundException(
+                "Group ${groupDto.name} not found in project $projectName", EntityName.GROUP, ErrorConstants.ERR_GROUP_NOT_FOUND
+            )
+        }
     }
 
     /**
@@ -119,11 +120,9 @@ open class GroupService(
      * @throws NotFoundException if the project is not found.
      */
     fun listGroups(projectName: String): List<GroupDTO> {
-        val project = projectRepository.findOneWithGroupsByName(projectName)
-            ?: throw NotFoundException(
-                    "Project with name $projectName not found",
-                    EntityName.PROJECT, ErrorConstants.ERR_PROJECT_NAME_NOT_FOUND
-                )
+        val project = projectRepository.findOneWithGroupsByName(projectName) ?: throw NotFoundException(
+            "Project with name $projectName not found", EntityName.PROJECT, ErrorConstants.ERR_PROJECT_NAME_NOT_FOUND
+        )
         return groupMapper.groupToGroupDTOs(project.groups)
     }
 
@@ -137,59 +136,51 @@ open class GroupService(
      */
     @Transactional
     open fun updateGroupSubjects(
-        projectName: String, groupName: String,
+        projectName: String,
+        groupName: String,
         subjectsToAdd: List<SubjectPatchValue>,
         subjectsToRemove: List<SubjectPatchValue>
     ) {
 
         groupRepository ?: throw NullPointerException()
 
-        val group = groupRepository.findByProjectNameAndName(projectName, groupName)
-            ?: throw NotFoundException(
-                    "Group $groupName not found in project $projectName",
-                    EntityName.GROUP, ErrorConstants.ERR_GROUP_NOT_FOUND
-                )
+        val group = groupRepository.findByProjectNameAndName(projectName, groupName) ?: throw NotFoundException(
+            "Group $groupName not found in project $projectName", EntityName.GROUP, ErrorConstants.ERR_GROUP_NOT_FOUND
+        )
 
         val entitiesToAdd = getSubjectEntities(projectName, subjectsToAdd)
         val entitiesToRemove = getSubjectEntities(projectName, subjectsToRemove)
         if (entitiesToAdd.isNotEmpty()) {
-            val idsToAdd = entitiesToAdd.stream()
-                .map(Subject::id)
-                .toList()
-            subjectRepository.setGroupIdByIds(group.id, idsToAdd)
+            val idsToAdd = entitiesToAdd.mapNotNull(Subject::id).toList()
+            subjectRepository.setGroupIdByIds(group.id!!, idsToAdd)
         }
         if (entitiesToRemove.isNotEmpty()) {
-            val idsToRemove = entitiesToRemove.stream()
-                .map(Subject::id)
-                .toList()
+            val idsToRemove = entitiesToRemove.mapNotNull(Subject::id)
             subjectRepository.unsetGroupIdByIds(idsToRemove)
         }
     }
 
     private fun getSubjectEntities(
-        projectName: String,
-        subjectsToModify: List<SubjectPatchValue>
+        projectName: String, subjectsToModify: List<SubjectPatchValue>
     ): List<Subject> {
         val logins: MutableList<String> = ArrayList()
         val ids: MutableList<Long> = ArrayList()
         extractSubjectIdentities(subjectsToModify, logins, ids)
         val subjectEntities: MutableList<Subject> = ArrayList(subjectsToModify.size)
-        if (!ids.isEmpty()) {
+        if (ids.isNotEmpty()) {
             subjectEntities.addAll(subjectRepository.findAllById(ids))
         }
-        if (!logins.isEmpty()) {
+        if (logins.isNotEmpty()) {
             subjectEntities.addAll(subjectRepository.findAllBySubjectLogins(logins))
         }
         for (s in subjectEntities) {
             val login = s.user!!.login
             s.activeProject ?: throw BadRequestException(
-                "Subject $login is not assigned to a project",
-                EntityName.SUBJECT, ErrorConstants.ERR_VALIDATION
+                "Subject $login is not assigned to a project", EntityName.SUBJECT, ErrorConstants.ERR_VALIDATION
             )
             if (projectName != s.activeProject!!.projectName) {
                 throw BadRequestException(
-                    "Subject $login belongs to a different project",
-                    EntityName.SUBJECT, ErrorConstants.ERR_VALIDATION
+                    "Subject $login belongs to a different project", EntityName.SUBJECT, ErrorConstants.ERR_VALIDATION
                 )
             }
         }
@@ -197,9 +188,7 @@ open class GroupService(
     }
 
     private fun extractSubjectIdentities(
-        subjectsToModify: List<SubjectPatchValue>,
-        logins: MutableList<String>,
-        ids: MutableList<Long>
+        subjectsToModify: List<SubjectPatchValue>, logins: MutableList<String>, ids: MutableList<Long>
     ) {
         // Each item should specify either a login or an ID,
         // since having both will require an extra validation step
@@ -211,15 +200,14 @@ open class GroupService(
             val id = item.id
             if (id == null && login == null) {
                 throw BadRequestException(
-                    "Subject identification must be specified",
-                    EntityName.GROUP, ErrorConstants.ERR_VALIDATION
+                    "Subject identification must be specified", EntityName.GROUP, ErrorConstants.ERR_VALIDATION
                 )
             }
             if (id != null && login != null) {
                 throw BadRequestException(
-                    "Subject identification must be specify either ID or Login. "
-                            + "Do not provide both values to avoid potential confusion.",
-                    EntityName.GROUP, ErrorConstants.ERR_VALIDATION
+                    "Subject identification must be specify either ID or Login. " + "Do not provide both values to avoid potential confusion.",
+                    EntityName.GROUP,
+                    ErrorConstants.ERR_VALIDATION
                 )
             }
             if (id != null) {

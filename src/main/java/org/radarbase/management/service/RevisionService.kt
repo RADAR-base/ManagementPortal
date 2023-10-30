@@ -151,9 +151,9 @@ open class RevisionService(@param:Autowired private val revisionEntityRepository
      * @param pageable Page information
      * @return the page of revisions [RevisionInfoDTO]
      */
-    fun getRevisions(pageable: Pageable?): Page<RevisionInfoDTO> {
+    fun getRevisions(pageable: Pageable): Page<RevisionInfoDTO> {
         return revisionEntityRepository.findAll(pageable)
-            .map { rev: CustomRevisionEntity -> RevisionInfoDTO.from(rev, getChangesForRevision(rev.id)) }
+            .map { rev -> RevisionInfoDTO.from(rev!!, getChangesForRevision(rev.id)) }
     }
 
     /**

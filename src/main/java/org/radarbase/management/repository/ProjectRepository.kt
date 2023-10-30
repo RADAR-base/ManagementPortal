@@ -9,20 +9,19 @@ import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.RepositoryDefinition
 import org.springframework.data.repository.history.RevisionRepository
 import org.springframework.data.repository.query.Param
-import java.util.*
 
 /**
  * Spring Data JPA repository for the Project entity.
  */
 @Suppress("unused")
 @RepositoryDefinition(domainClass = Project::class, idClass = Long::class)
-interface ProjectRepository : JpaRepository<Project?, Long?>, RevisionRepository<Project?, Long?, Int> {
+interface ProjectRepository : JpaRepository<Project, Long>, RevisionRepository<Project, Long, Int> {
     @Query(
         value = "select distinct project from Project project "
                 + "left join fetch project.sourceTypes",
         countQuery = "select distinct count(project) from Project project"
     )
-    fun findAllWithEagerRelationships(pageable: Pageable?): Page<Project?>?
+    fun findAllWithEagerRelationships(pageable: Pageable): Page<Project>
 
     @Query(
         value = "select distinct project from Project project "
@@ -35,17 +34,17 @@ interface ProjectRepository : JpaRepository<Project?, Long?>, RevisionRepository
     )
     fun findAllWithEagerRelationshipsInOrganizationsOrProjects(
         pageable: Pageable?,
-        @Param("organizationNames") organizationNames: Collection<String?>?,
-        @Param("projectNames") projectNames: Collection<String?>?
-    ): Page<Project?>?
+        @Param("organizationNames") organizationNames: Collection<String>,
+        @Param("projectNames") projectNames: Collection<String>
+    ): Page<Project>
 
     @Query(
         "select project from Project project "
                 + "WHERE project.organization.name = :organization_name"
     )
     fun findAllByOrganizationName(
-        @Param("organization_name") organizationName: String?
-    ): List<Project>?
+        @Param("organization_name") organizationName: String
+    ): List<Project>
 
     @Query(
         "select project from Project project "
@@ -54,7 +53,7 @@ interface ProjectRepository : JpaRepository<Project?, Long?>, RevisionRepository
                 + "left join fetch project.organization "
                 + "where project.id = :id"
     )
-    fun findOneWithEagerRelationships(@Param("id") id: Long?): Project?
+    fun findOneWithEagerRelationships(@Param("id") id: Long): Project?
 
     @Query(
         "select project from Project project "
@@ -76,17 +75,17 @@ interface ProjectRepository : JpaRepository<Project?, Long?>, RevisionRepository
         "select project.id from Project project "
                 + "where project.projectName =:name"
     )
-    fun findProjectIdByName(@Param("name") name: String?): Long?
+    fun findProjectIdByName(@Param("name") name: String): Long?
 
     @Query(
         "select project from Project project "
                 + "left join fetch project.groups "
                 + "where project.projectName = :name"
     )
-    fun findOneWithGroupsByName(@Param("name") name: String?): Project?
+    fun findOneWithGroupsByName(@Param("name") name: String): Project?
 
     @Query("select project.sourceTypes from Project project WHERE project.id = :id")
-    fun findSourceTypesByProjectId(@Param("id") id: Long?): List<SourceType>?
+    fun findSourceTypesByProjectId(@Param("id") id: Long): List<SourceType>
 
     @Query(
         "select distinct sourceType from Project project "
@@ -97,5 +96,5 @@ interface ProjectRepository : JpaRepository<Project?, Long?>, RevisionRepository
     fun findSourceTypeByProjectIdAndSourceTypeId(
         @Param("id") id: Long?,
         @Param("sourceTypeId") sourceTypeId: Long?
-    ): Optional<SourceType?>?
+    ): SourceType?
 }

@@ -60,15 +60,20 @@ open class UserService(
      * @return an [Optional] which is populated with the activated user if the registration
      * key was found, and is empty otherwise.
      */
-    fun activateRegistration(key: String?): Optional<User> {
+    fun activateRegistration(key: String): User {
         log.debug("Activating user for activation key {}", key)
-        return userRepository.findOneByActivationKey(key).map { user: User ->
-                // activate given user for the registration key.
-                user.activated = true
-                user.activationKey = null
-                log.debug("Activated user: {}", user)
-                user
-            }
+        return userRepository.findOneByActivationKey(key).let { user: User? ->
+            // activate given user for the registration key.
+            user?.activated = true
+            user?.activationKey = null
+            log.debug("Activated user: {}", user)
+            user
+        } ?: throw NotFoundException(
+            "User with activation key $key not found",
+            EntityName.USER,
+            ErrorConstants.ERR_ENTITY_NOT_FOUND,
+            Map.of("activationKey", key)
+        )
     }
 
     /**
@@ -78,20 +83,18 @@ open class UserService(
      * @return an [Optional] which is populated with the user whose password was reset if
      * the reset key was found, and is empty otherwise
      */
-    fun completePasswordReset(newPassword: String?, key: String?): Optional<User> {
+    fun completePasswordReset(newPassword: String, key: String): User? {
         log.debug("Reset user password for reset key {}", key)
-        return userRepository.findOneByResetKey(key).filter { user: User ->
-                val oneDayAgo = ZonedDateTime.now().minusSeconds(
-                        managementPortalProperties.common.activationKeyTimeoutInSeconds.toLong()
-                    )
-                user.resetDate!!.isAfter(oneDayAgo)
-            }.map { user: User ->
-                user.password = passwordService.encode(newPassword)
-                user.resetKey = null
-                user.resetDate = null
-                user.activated = true
-                user
-            }
+        val user = userRepository.findOneByResetKey(key)
+        val oneDayAgo = ZonedDateTime.now().minusSeconds(
+            managementPortalProperties.common.activationKeyTimeoutInSeconds.toLong()
+        )
+        if (user?.resetDate?.isAfter(oneDayAgo) == true) user.password = passwordService.encode(newPassword)
+        user?.resetKey = null
+        user?.resetDate = null
+        user?.activated = true
+
+        return user
     }
 
     /**
@@ -103,12 +106,14 @@ open class UserService(
      * @return an [Optional] which holds the user if an deactivated user was found with the
      * given login, and is empty otherwise
      */
-    fun requestActivationReset(login: String?): Optional<User> {
-        return userRepository.findOneByLogin(login).filter { p: User -> !p.activated }.map { user: User ->
-                user.resetKey = passwordService.generateResetKey()
-                user.resetDate = ZonedDateTime.now()
-                user
-            }
+    fun requestActivationReset(login: String): User? {
+        val user = userRepository.findOneByLogin(login)
+        if (user?.activated != true) {
+            user?.resetKey = passwordService.generateResetKey()
+            user?.resetDate = ZonedDateTime.now()
+        }
+
+        return user
     }
 
     /**
@@ -117,12 +122,11 @@ open class UserService(
      * @return an [Optional] which holds the user if an activated user was found with the
      * given email address, and is empty otherwise
      */
-    fun requestPasswordReset(mail: String?): Optional<User> {
-        return userRepository.findOneByEmail(mail).filter(User::activated).map<User> { user: User ->
-                user.resetKey = passwordService.generateResetKey()
-                user.resetDate = ZonedDateTime.now()
-                user
-            }
+    fun requestPasswordReset(mail: String): User? {
+        val user = userRepository.findOneByEmail(mail)
+        if (user?.activated == true) user.resetKey = passwordService.generateResetKey()
+        user?.resetDate = ZonedDateTime.now()
+        return user
     }
 
     /**
@@ -151,30 +155,30 @@ open class UserService(
         user.resetKey = passwordService.generateResetKey()
         user.resetDate = ZonedDateTime.now()
         user.activated = false
-        user.roles = getUserRoles(userDto.roles, setOf<Role>())
+        user.roles = userDto.roles?.let { getUserRoles(it, mutableSetOf()) }
         user = userRepository.save(user)
         log.debug("Created Information for User: {}", user)
         return user
     }
 
     @Throws(NotAuthorizedException::class)
-    private fun getUserRoles(roleDtos: Set<RoleDTO>?, oldRoles: Set<Role>): MutableSet<Role>? {
+    private fun getUserRoles(roleDtos: Set<RoleDTO>?, oldRoles: MutableSet<Role>): MutableSet<Role>? {
         if (roleDtos == null) {
             return null
         }
-        val roles = roleDtos.stream().map { roleDto: RoleDTO ->
-                val authority = getRoleAuthority(roleDto)
-                when (authority.scope) {
-                    RoleAuthority.Scope.GLOBAL -> roleService.getGlobalRole(authority)
-                    RoleAuthority.Scope.ORGANIZATION -> roleService.getOrganizationRole(
-                        authority, roleDto.organizationId
-                    )
+        val roles = roleDtos.map { roleDto: RoleDTO ->
+            val authority = getRoleAuthority(roleDto)
+            when (authority.scope) {
+                RoleAuthority.Scope.GLOBAL -> roleService.getGlobalRole(authority)
+                RoleAuthority.Scope.ORGANIZATION -> roleService.getOrganizationRole(
+                    authority, roleDto.organizationId!!
+                )
 
-                    RoleAuthority.Scope.PROJECT -> roleService.getProjectRole(
-                        authority, roleDto.projectId
-                    )
-                }
-            }.collect(Collectors.toSet())
+                RoleAuthority.Scope.PROJECT -> roleService.getProjectRole(
+                    authority, roleDto.projectId!!
+                )
+            }
+        }.toMutableSet()
         checkAuthorityForRoleChange(roles, oldRoles)
         return roles
     }
@@ -220,12 +224,12 @@ open class UserService(
      * @param langKey language key
      */
     fun updateUser(
-        userName: String, firstName: String?, lastName: String?, email: String, langKey: String?
+        userName: String, firstName: String?, lastName: String?, email: String?, langKey: String?
     ) {
-        val userWithEmail = userRepository.findOneByEmail(email)
+        val userWithEmail = email?.let { userRepository.findOneByEmail(it) }
         val user: User
-        if (userWithEmail.isPresent) {
-            user = userWithEmail.get()
+        if (userWithEmail != null) {
+            user = userWithEmail
             if (!user.login.equals(userName, ignoreCase = true)) {
                 throw ConflictException(
                     "Email address $email already in use",
@@ -235,14 +239,12 @@ open class UserService(
                 )
             }
         } else {
-            user = userRepository.findOneByLogin(userName).orElseThrow {
-                    NotFoundException(
-                        "User with login $userName not found",
-                        EntityName.USER,
-                        ErrorConstants.ERR_ENTITY_NOT_FOUND,
-                        Map.of("user", userName)
-                    )
-                }
+            user = userRepository.findOneByLogin(userName) ?: throw NotFoundException(
+                "User with login $userName not found",
+                EntityName.USER,
+                ErrorConstants.ERR_ENTITY_NOT_FOUND,
+                Map.of("user", userName)
+            )
         }
         user.firstName = firstName
         user.lastName = lastName
@@ -261,8 +263,8 @@ open class UserService(
     @Transactional
     @Throws(NotAuthorizedException::class)
     open fun updateUser(userDto: UserDTO): UserDTO? {
-        val userOpt = userRepository.findById(userDto.id)
-        return if (userOpt.isPresent) {
+        val userOpt = userDto.id?.let { userRepository.findById(it) }
+        return if (userOpt?.isPresent == true) {
             var user = userOpt.get()
             user.firstName = userDto.firstName
             user.lastName = userDto.lastName
@@ -285,10 +287,14 @@ open class UserService(
      * Delete the user with the given login.
      * @param login the login to delete
      */
-    fun deleteUser(login: String?) {
-        userRepository.findOneByLogin(login).ifPresent { user: User ->
+    fun deleteUser(login: String) {
+        val user = userRepository.findOneByLogin(login)
+        if (user != null) {
             userRepository.delete(user)
             log.debug("Deleted User: {}", user)
+        }
+        else {
+            log.warn("could not delete User with login: {}", login)
         }
     }
 
@@ -296,12 +302,11 @@ open class UserService(
      * Change the password of the user with the given login.
      * @param password the new password
      */
-    fun changePassword(password: String?) {
-        val currentUser = SecurityUtils.getCurrentUserLogin().orElseThrow {
-                InvalidRequestException(
-                    "Cannot change password of unknown user", null, ErrorConstants.ERR_ENTITY_NOT_FOUND
-                )
-            }
+    fun changePassword(password: String) {
+        val currentUser = SecurityUtils.currentUserLogin
+            ?: throw InvalidRequestException(
+                "Cannot change password of unknown user", "", ErrorConstants.ERR_ENTITY_NOT_FOUND
+            )
         changePassword(currentUser, password)
     }
 
@@ -310,12 +315,16 @@ open class UserService(
      * @param password the new password
      * @param login of the user to change password
      */
-    fun changePassword(login: String?, password: String?) {
-        userRepository.findOneByLogin(login).ifPresent { user: User ->
+    fun changePassword(login: String, password: String) {
+        val user = userRepository.findOneByLogin(login)
+
+        if (user != null)
+        {
             val encryptedPassword = passwordService.encode(password)
             user.password = encryptedPassword
             log.debug("Changed password for User: {}", user)
         }
+
     }
 
     /**
@@ -324,7 +333,7 @@ open class UserService(
      * @return the requested page of users
      */
     @Transactional(readOnly = true)
-    open fun getAllManagedUsers(pageable: Pageable?): Page<UserDTO> {
+    open fun getAllManagedUsers(pageable: Pageable): Page<UserDTO> {
         log.debug("Request to get all Users")
         return userRepository.findAllByLoginNot(pageable, Constants.ANONYMOUS_USER)
             .map { user: User? -> userMapper.userToUserDTO(user) }
@@ -337,18 +346,17 @@ open class UserService(
      * and is empty otherwise
      */
     @Transactional(readOnly = true)
-    open fun getUserWithAuthoritiesByLogin(login: String?): Optional<UserDTO> {
-        return userRepository.findOneWithRolesByLogin(login).map { user: User? -> userMapper.userToUserDTO(user) }
+    open fun getUserWithAuthoritiesByLogin(login: String): UserDTO? {
+        return userMapper.userToUserDTO(userRepository.findOneWithRolesByLogin(login))
     }
 
     @get:Transactional(readOnly = true)
-    open val userWithAuthorities: Optional<User>
+    open val userWithAuthorities: User?
         /**
          * Get the current user.
          * @return the currently authenticated user, or null if no user is currently authenticated
          */
-        get() = SecurityUtils.getCurrentUserLogin()
-            .flatMap { currentUser: String? -> userRepository.findOneWithRolesByLogin(currentUser) }
+        get() = SecurityUtils.currentUserLogin?.let { userRepository.findOneWithRolesByLogin(it) }
 
     /**
      * Not activated users should be automatically deleted after 3 days.
@@ -407,18 +415,20 @@ open class UserService(
     @Transactional
     @Throws(NotAuthorizedException::class)
     open fun updateRoles(login: String, roleDtos: Set<RoleDTO>?) {
-        val user = userRepository.findOneByLogin(login).orElseThrow {
-                NotFoundException(
-                    "User with login $login not found",
-                    EntityName.USER,
-                    ErrorConstants.ERR_ENTITY_NOT_FOUND,
-                    Map.of("user", login)
-                )
-            }
+        val user = userRepository.findOneByLogin(login)
+            ?: throw NotFoundException(
+                "User with login $login not found",
+                EntityName.USER,
+                ErrorConstants.ERR_ENTITY_NOT_FOUND,
+                Map.of("user", login)
+            )
+
         val managedRoles = user.roles
-        val oldRoles = java.util.Set.copyOf(managedRoles)
+        val oldRoles = managedRoles?.toMutableSet()
+
         managedRoles?.clear()
-        managedRoles?.addAll(getUserRoles(roleDtos, oldRoles)!!)
+        managedRoles?.addAll(roleDtos?.let { oldRoles?.let { oldroles -> getUserRoles(it, oldroles) } }!!)
+            ?: throw Exception("could not add rolser for user: $user")
         userRepository.save(user)
     }
 

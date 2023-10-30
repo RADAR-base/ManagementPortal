@@ -106,13 +106,13 @@ class UserResource(
                     )
                 ).body(null)
             // Lowercase the user login before comparing with database
-        } else if (userRepository.findOneByLogin(managedUserVm.login.lowercase()).isPresent) {
+        } else if (managedUserVm.login.lowercase().let { userRepository.findOneByLogin(it) } != null) {
             ResponseEntity.badRequest().headers(
                     HeaderUtil.createFailureAlert(
                             EntityName.USER, "userexists", "Login already in use"
                         )
                 ).body(null)
-        } else if (userRepository.findOneByEmail(managedUserVm.email).isPresent) {
+        } else if (managedUserVm.email?.let { userRepository.findOneByEmail(it) } != null) {
             ResponseEntity.badRequest().headers(
                     HeaderUtil.createFailureAlert(
                             EntityName.USER, "emailexists", "Email already in use"
@@ -145,18 +145,20 @@ class UserResource(
     fun updateUser(@RequestBody managedUserVm: ManagedUserVM): ResponseEntity<UserDTO> {
         log.debug("REST request to update User : {}", managedUserVm)
         authService.checkPermission(Permission.USER_UPDATE, { e: EntityDetails -> e.user(managedUserVm.login) })
-        var existingUser = userRepository.findOneByEmail(managedUserVm.email)
-        if (existingUser.isPresent && existingUser.get().id != managedUserVm.id) {
+        var existingUser = managedUserVm.email?.let { userRepository.findOneByEmail(it) }
+        if (existingUser?.id != managedUserVm.id) {
             throw BadRequestException("Email already in use", EntityName.USER, "emailexists")
         }
-        existingUser = userRepository.findOneByLogin(
-            managedUserVm.login.lowercase()
-        )
-        if (existingUser.isPresent && existingUser.get().id != managedUserVm.id) {
+        existingUser = managedUserVm.login.lowercase()?.let {
+            userRepository.findOneByLogin(
+                it
+            )
+        }
+        if (existingUser != null && existingUser.id != managedUserVm.id) {
             throw BadRequestException("Login already in use", EntityName.USER, "emailexists")
         }
         val subject = subjectRepository.findOneWithEagerBySubjectLogin(managedUserVm.login)
-        if (subject.isPresent && managedUserVm.isActivated && subject.get().isRemoved!!) {
+        if (subject != null && managedUserVm.isActivated && subject.isRemoved!!) {
             // if the subject is also a user, check if the removed/activated states are valid
             throw InvalidRequestException(
                 "Subject cannot be the user to request " + "this changes", EntityName.USER, "error.invalidsubjectstate"
@@ -210,11 +212,11 @@ class UserResource(
     @Throws(
         NotAuthorizedException::class
     )
-    fun getUser(@PathVariable login: String?): ResponseEntity<UserDTO> {
+    fun getUser(@PathVariable login: String): ResponseEntity<UserDTO> {
         log.debug("REST request to get User : {}", login)
         authService.checkPermission(Permission.USER_READ, { e: EntityDetails -> e.user(login) })
         return ResponseUtil.wrapOrNotFound(
-            userService.getUserWithAuthoritiesByLogin(login)
+            Optional.ofNullable(userService.getUserWithAuthoritiesByLogin(login))
         )
     }
 
@@ -229,7 +231,7 @@ class UserResource(
     @Throws(
         NotAuthorizedException::class
     )
-    fun deleteUser(@PathVariable login: String?): ResponseEntity<Void> {
+    fun deleteUser(@PathVariable login: String): ResponseEntity<Void> {
         log.debug("REST request to delete User: {}", login)
         authService.checkPermission(Permission.USER_DELETE, { e: EntityDetails -> e.user(login) })
         userService.deleteUser(login)
@@ -247,11 +249,12 @@ class UserResource(
     @Throws(
         NotAuthorizedException::class
     )
-    fun getUserRoles(@PathVariable login: String?): ResponseEntity<Set<RoleDTO>> {
+    fun getUserRoles(@PathVariable login: String): ResponseEntity<Set<RoleDTO>> {
         log.debug("REST request to read User roles: {}", login)
         authService.checkPermission(Permission.ROLE_READ, { e: EntityDetails -> e.user(login) })
-        return ResponseUtil.wrapOrNotFound(userService.getUserWithAuthoritiesByLogin(login)
-            .map { obj: UserDTO -> obj.roles })
+        return ResponseUtil.wrapOrNotFound(
+            Optional.ofNullable(userService.getUserWithAuthoritiesByLogin(login)
+            .let { obj: UserDTO? -> obj?.roles }))
     }
 
     /**
