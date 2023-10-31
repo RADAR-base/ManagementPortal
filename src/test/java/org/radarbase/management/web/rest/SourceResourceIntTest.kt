@@ -55,11 +55,11 @@ internal open class SourceResourceIntTest(
     @Autowired private val pageableArgumentResolver: PageableHandlerMethodArgumentResolver,
     @Autowired private val exceptionTranslator: ExceptionTranslator,
     @Autowired private val projectRepository: ProjectRepository,
-    private var restDeviceMockMvc: MockMvc,
-    private var source: Source,
-    private var project: Project,
     @Autowired private val authService: AuthService
 ) {
+    private lateinit var restDeviceMockMvc: MockMvc
+    private lateinit var source: Source
+    private lateinit var project: Project
 
     @BeforeEach
     @Throws(ServletException::class)
@@ -187,11 +187,10 @@ internal open class SourceResourceIntTest(
         Assertions.assertThat(sourceList).hasSize(databaseSizeBeforeTest)
     }
 
-    @get:Throws(Exception::class)
-    @get:Transactional
-    @get:Test
-    open val allSources: Unit
-        get() {
+    @Throws(Exception::class)
+    @Transactional
+    @Test
+    open fun allSources() {
             // Initialize the database
             sourceRepository.saveAndFlush(source)
 
@@ -232,11 +231,10 @@ internal open class SourceResourceIntTest(
             .andExpect(MockMvcResultMatchers.jsonPath("$.assigned").value(DEFAULT_ASSIGNED))
     }
 
-    @get:Throws(Exception::class)
-    @get:Transactional
-    @get:Test
-    open val nonExistingSource: Unit
-        get() {
+    @Throws(Exception::class)
+    @Transactional
+    @Test
+    open fun nonExistingSource() {
             // Get the source
             restDeviceMockMvc.perform(MockMvcRequestBuilders.get("/api/sources/{id}", Long.MAX_VALUE))
                 .andExpect(MockMvcResultMatchers.status().isNotFound())

@@ -29,7 +29,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.test.web.servlet.setup.StandaloneMockMvcBuilder
 import org.springframework.transaction.annotation.Transactional
-import javax.persistence.EntityManager
 import javax.servlet.ServletException
 
 /**
@@ -47,11 +46,10 @@ internal open class SourceDataResourceIntTest(
     @Autowired private val jacksonMessageConverter: MappingJackson2HttpMessageConverter,
     @Autowired private val pageableArgumentResolver: PageableHandlerMethodArgumentResolver,
     @Autowired private val exceptionTranslator: ExceptionTranslator,
-    @Autowired private val em: EntityManager,
-    private var restSourceDataMockMvc: MockMvc,
-    private var sourceData: SourceData,
     @Autowired private val authService: AuthService
 ) {
+    private lateinit var restSourceDataMockMvc: MockMvc
+    private lateinit var sourceData: SourceData
 
     @BeforeEach
     @Throws(ServletException::class)
@@ -172,11 +170,10 @@ internal open class SourceDataResourceIntTest(
         Assertions.assertThat(sourceDataList).hasSize(databaseSizeBeforeTest)
     }
 
-    @get:Throws(Exception::class)
-    @get:Transactional
-    @get:Test
-    open val allSourceData: Unit
-        get() {
+    @Throws(Exception::class)
+    @Transactional
+    @Test
+    open fun allSourceData() {
             // Initialize the database
             sourceDataRepository.saveAndFlush(sourceData)
 
@@ -243,11 +240,10 @@ internal open class SourceDataResourceIntTest(
                 )
         }
 
-    @get:Throws(Exception::class)
-    @get:Transactional
-    @get:Test
-    open val allSourceDataWithPagination: Unit
-        get() {
+    @Throws(Exception::class)
+    @Transactional
+    @Test
+    open fun allSourceDataWithPagination() {
             // Initialize the database
             sourceDataRepository.saveAndFlush(sourceData)
 
@@ -341,11 +337,10 @@ internal open class SourceDataResourceIntTest(
             .andExpect(MockMvcResultMatchers.jsonPath("$.frequency").value(DEFAULT_FREQUENCY))
     }
 
-    @get:Throws(Exception::class)
-    @get:Transactional
-    @get:Test
-    open val nonExistingSourceData: Unit
-        get() {
+    @Throws(Exception::class)
+    @Transactional
+    @Test
+    open fun nonExistingSourceData() {
             // Get the sourceData
             restSourceDataMockMvc.perform(
                 MockMvcRequestBuilders.get(
