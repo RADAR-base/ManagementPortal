@@ -109,7 +109,7 @@ internal open class SourceResourceIntTest(
         val sourceList = sourceRepository.findAll()
         Assertions.assertThat(sourceList).hasSize(databaseSizeBeforeCreate + 1)
         val testSource = sourceList[sourceList.size - 1]
-        Assertions.assertThat(testSource.isAssigned).isEqualTo(DEFAULT_ASSIGNED)
+        Assertions.assertThat(testSource.assigned).isEqualTo(DEFAULT_ASSIGNED)
         Assertions.assertThat(testSource.sourceName).isEqualTo(DEFAULT_SOURCE_NAME)
         Assertions.assertThat(testSource.project!!.projectName).isEqualTo(project.projectName)
     }
@@ -173,7 +173,7 @@ internal open class SourceResourceIntTest(
     open fun checkAssignedIsRequired() {
         val databaseSizeBeforeTest = sourceRepository.findAll().size
         // set the field null
-        source.isAssigned = null
+        source.assigned = null
 
         // Create the Source, which fails.
         val sourceDto = sourceMapper.sourceToSourceDTO(source)
@@ -254,7 +254,7 @@ internal open class SourceResourceIntTest(
         val updatedSource = sourceRepository.findById(source.id!!).get()
         updatedSource
             .sourceId(UPDATED_SOURCE_PHYSICAL_ID)
-            .assigned(UPDATED_ASSIGNED)
+            .assigned = UPDATED_ASSIGNED
         val sourceDto = sourceMapper.sourceToSourceDTO(updatedSource)
         restDeviceMockMvc.perform(
             MockMvcRequestBuilders.put("/api/sources")
@@ -268,7 +268,7 @@ internal open class SourceResourceIntTest(
         Assertions.assertThat(sourceList).hasSize(databaseSizeBeforeUpdate)
         val testSource = sourceList[sourceList.size - 1]
         Assertions.assertThat(testSource.sourceId).isEqualTo(UPDATED_SOURCE_PHYSICAL_ID)
-        Assertions.assertThat(testSource.isAssigned).isEqualTo(UPDATED_ASSIGNED)
+        Assertions.assertThat(testSource.assigned).isEqualTo(UPDATED_ASSIGNED)
     }
 
     @Test
@@ -335,9 +335,11 @@ internal open class SourceResourceIntTest(
          * if they test an entity which requires the current entity.
          */
         fun createEntity(): Source {
-            return Source()
-                .assigned(DEFAULT_ASSIGNED)
+            val s = Source()
                 .sourceName(DEFAULT_SOURCE_NAME)
+
+            s.assigned = DEFAULT_ASSIGNED
+            return s
         }
     }
 }

@@ -112,9 +112,9 @@ class ManagementPortalOauthKeyStoreHandler @Autowired constructor(
 
     private fun loadVerifiersPublicKeyAliasList(): List<String> {
         val publicKeyAliases: MutableList<String> = ArrayList()
-        publicKeyAliases.add(oauthConfig.signingKeyAlias)
+        oauthConfig.signingKeyAlias?.let { publicKeyAliases.add(it) }
         if (oauthConfig.checkingKeyAliases != null) {
-            publicKeyAliases.addAll(oauthConfig.checkingKeyAliases)
+            publicKeyAliases.addAll(oauthConfig.checkingKeyAliases!!)
         }
         return publicKeyAliases
     }
@@ -230,23 +230,17 @@ class ManagementPortalOauthKeyStoreHandler @Autowired constructor(
         private val logger = LoggerFactory.getLogger(
             ManagementPortalOauthKeyStoreHandler::class.java
         )
-        private val KEYSTORE_PATHS = Arrays.asList<Resource>(
+        private val KEYSTORE_PATHS = listOf<Resource>(
             ClassPathResource("/config/keystore.p12"), ClassPathResource("/config/keystore.jks")
         )
 
         private fun checkOAuthConfig(managementPortalProperties: ManagementPortalProperties) {
             val oauthConfig = managementPortalProperties.oauth
-            if (oauthConfig == null) {
-                logger.error(
-                    "Could not find valid Oauth Config. Please configure compulsary " + "properties of Oauth configs of Management Portal"
-                )
-                throw IllegalArgumentException("OauthConfig is not provided")
-            }
-            if (oauthConfig.keyStorePassword == null || oauthConfig.keyStorePassword.isEmpty()) {
+            if (oauthConfig.keyStorePassword.isEmpty()) {
                 logger.error("oauth.keyStorePassword is empty")
                 throw IllegalArgumentException("oauth.keyStorePassword is empty")
             }
-            if (oauthConfig.signingKeyAlias == null || oauthConfig.signingKeyAlias.isEmpty()) {
+            if (oauthConfig.signingKeyAlias == null || oauthConfig.signingKeyAlias!!.isEmpty()) {
                 logger.error("oauth.signingKeyAlias is empty")
                 throw IllegalArgumentException("OauthConfig is not provided")
             }

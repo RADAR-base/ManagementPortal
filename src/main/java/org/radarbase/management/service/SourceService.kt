@@ -117,7 +117,7 @@ open class SourceService(
         val sourceHistory = sourceRepository.findRevisions(id)
         val sources = sourceHistory.content
             .mapNotNull { obj -> obj.entity }
-            .filter{ it.isAssigned
+            .filter{ it.assigned
                 ?: false }
             .toList()
         if (sources.isEmpty()) {
@@ -228,7 +228,7 @@ open class SourceService(
 
         // if the source is being transferred to another project.
         if (existingSource.project?.id != sourceDto.project?.id) {
-            if (existingSource.isAssigned!!) {
+            if (existingSource.assigned!!) {
                 throw InvalidRequestException(
                     "Cannot transfer an assigned source", EntityName.SOURCE,
                     "error.sourceIsAssigned"

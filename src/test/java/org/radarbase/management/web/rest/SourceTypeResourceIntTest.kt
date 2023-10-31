@@ -92,7 +92,7 @@ internal open class SourceTypeResourceIntTest(
         // Create the SourceType
         val sourceTypeDto = sourceTypeMapper.sourceTypeToSourceTypeDTO(sourceType)
         val sourceDataDto = sourceDataMapper.sourceDataToSourceDataDTO(
-            SourceDataResourceIntTest.Companion.createEntity(em)
+            SourceDataResourceIntTest.Companion.createEntity()
         )
         val sourceData = sourceTypeDto.sourceData
         sourceData.add(sourceDataDto!!)
@@ -431,7 +431,7 @@ internal open class SourceTypeResourceIntTest(
     open fun idempotentPutWithoutId() {
         val databaseSizeBeforeUpdate = sourceTypeRepository.findAll().size
         val sensorsSizeBeforeUpdate = sourceDataRepository.findAll().size
-        sourceType.sourceData = setOf(SourceDataResourceIntTest.Companion.createEntity(em))
+        sourceType.sourceData = setOf(SourceDataResourceIntTest.Companion.createEntity())
         // Create the SourceType
         val sourceTypeDto = sourceTypeMapper.sourceTypeToSourceTypeDTO(sourceType)
 
