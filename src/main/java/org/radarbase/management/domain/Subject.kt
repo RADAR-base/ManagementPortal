@@ -64,7 +64,7 @@ class Subject(
     var externalId: String? = null
 
     @Column(name = "removed", nullable = false)
-    var isRemoved: @NotNull Boolean? = false
+    var removed: @NotNull Boolean = false
 
     @JvmField
     @OneToOne
@@ -121,11 +121,6 @@ class Subject(
 
     fun externalId(enternalId: String?): Subject {
         externalId = enternalId
-        return this
-    }
-
-    fun removed(removed: Boolean?): Subject {
-        isRemoved = removed
         return this
     }
 
@@ -189,7 +184,7 @@ class Subject(
                 + "id=" + id
                 + ", externalLink='" + externalLink + '\''
                 + ", externalId='" + externalId + '\''
-                + ", removed=" + isRemoved
+                + ", removed=" + removed
                 + ", user=" + user
                 + ", sources=" + sources
                 + ", attributes=" + attributes

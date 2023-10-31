@@ -61,7 +61,7 @@ class Source : AbstractEntity, Serializable {
     var assigned: @NotNull Boolean? = false
 
     @Column(name = "deleted", nullable = false)
-    var isDeleted: @NotNull Boolean = false
+    var deleted: @NotNull Boolean = false
 
     @JvmField
     @ManyToOne(fetch = FetchType.EAGER)
@@ -124,12 +124,6 @@ class Source : AbstractEntity, Serializable {
             )
         }
     }
-
-    fun deleted(deleted: Boolean): Source {
-        isDeleted = deleted
-        return this
-    }
-
     fun sourceType(sourceType: SourceType?): Source {
         this.sourceType = sourceType
         return this

@@ -107,7 +107,7 @@ internal open class SubjectResourceIntTest(@Autowired private val subjectReposit
         val testSubject = subjectList[subjectList.size - 1]
         Assertions.assertThat(testSubject.externalLink).isEqualTo(SubjectServiceTest.DEFAULT_EXTERNAL_LINK)
         Assertions.assertThat(testSubject.externalId).isEqualTo(SubjectServiceTest.DEFAULT_ENTERNAL_ID)
-        Assertions.assertThat(testSubject.isRemoved).isEqualTo(SubjectServiceTest.DEFAULT_REMOVED)
+        Assertions.assertThat(testSubject.removed).isEqualTo(SubjectServiceTest.DEFAULT_REMOVED)
         org.junit.jupiter.api.Assertions.assertEquals(1, testSubject.user!!.roles!!.size)
     }
 
@@ -215,7 +215,7 @@ internal open class SubjectResourceIntTest(@Autowired private val subjectReposit
         updatedSubject
             .externalLink(SubjectServiceTest.UPDATED_EXTERNAL_LINK)
             .externalId(SubjectServiceTest.UPDATED_ENTERNAL_ID)
-            .removed(SubjectServiceTest.UPDATED_REMOVED)
+            .removed = SubjectServiceTest.UPDATED_REMOVED
         subjectDto = subjectMapper.subjectToSubjectDTO(updatedSubject)
         restSubjectMockMvc.perform(
             MockMvcRequestBuilders.put("/api/subjects")
@@ -230,7 +230,7 @@ internal open class SubjectResourceIntTest(@Autowired private val subjectReposit
         val testSubject = subjectList[subjectList.size - 1]
         Assertions.assertThat(testSubject.externalLink).isEqualTo(SubjectServiceTest.UPDATED_EXTERNAL_LINK)
         Assertions.assertThat(testSubject.externalId).isEqualTo(SubjectServiceTest.UPDATED_ENTERNAL_ID)
-        Assertions.assertThat(testSubject.isRemoved).isEqualTo(SubjectServiceTest.UPDATED_REMOVED)
+        Assertions.assertThat(testSubject.removed).isEqualTo(SubjectServiceTest.UPDATED_REMOVED)
     }
 
     @Test
@@ -246,7 +246,7 @@ internal open class SubjectResourceIntTest(@Autowired private val subjectReposit
         updatedSubject
             .externalLink(SubjectServiceTest.UPDATED_EXTERNAL_LINK)
             .externalId(SubjectServiceTest.UPDATED_ENTERNAL_ID)
-            .removed(SubjectServiceTest.UPDATED_REMOVED)
+            .removed = SubjectServiceTest.UPDATED_REMOVED
         subjectDto = subjectMapper.subjectToSubjectDTO(updatedSubject)
         val newProject = ProjectDTO()
         newProject.id = 2L
@@ -266,7 +266,7 @@ internal open class SubjectResourceIntTest(@Autowired private val subjectReposit
         val testSubject = subjectList[subjectList.size - 1]
         Assertions.assertThat(testSubject.externalLink).isEqualTo(SubjectServiceTest.UPDATED_EXTERNAL_LINK)
         Assertions.assertThat(testSubject.externalId).isEqualTo(SubjectServiceTest.UPDATED_ENTERNAL_ID)
-        Assertions.assertThat(testSubject.isRemoved).isEqualTo(SubjectServiceTest.UPDATED_REMOVED)
+        Assertions.assertThat(testSubject.removed).isEqualTo(SubjectServiceTest.UPDATED_REMOVED)
         Assertions.assertThat(testSubject.user!!.roles!!.size).isEqualTo(2)
     }
 

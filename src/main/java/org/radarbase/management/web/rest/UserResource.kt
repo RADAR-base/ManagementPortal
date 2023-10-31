@@ -158,7 +158,7 @@ class UserResource(
             throw BadRequestException("Login already in use", EntityName.USER, "emailexists")
         }
         val subject = subjectRepository.findOneWithEagerBySubjectLogin(managedUserVm.login)
-        if (subject != null && managedUserVm.isActivated && subject.isRemoved!!) {
+        if (subject != null && managedUserVm.isActivated && subject.removed!!) {
             // if the subject is also a user, check if the removed/activated states are valid
             throw InvalidRequestException(
                 "Subject cannot be the user to request " + "this changes", EntityName.USER, "error.invalidsubjectstate"

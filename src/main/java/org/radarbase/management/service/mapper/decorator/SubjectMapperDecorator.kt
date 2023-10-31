@@ -108,11 +108,11 @@ abstract class SubjectMapperDecorator(
     }
 
     private fun getSubjectStatus(subject: Subject): SubjectStatus {
-        if (!subject.user!!.activated && !subject.isRemoved!!) {
+        if (!subject.user!!.activated && !subject.removed!!) {
             return SubjectStatus.DEACTIVATED
-        } else if (subject.user!!.activated && !subject.isRemoved!!) {
+        } else if (subject.user!!.activated && !subject.removed!!) {
             return SubjectStatus.ACTIVATED
-        } else if (!subject.user!!.activated && subject.isRemoved!!) {
+        } else if (!subject.user!!.activated && subject.removed!!) {
             return SubjectStatus.DISCONTINUED
         }
         return SubjectStatus.INVALID
@@ -122,22 +122,22 @@ abstract class SubjectMapperDecorator(
         when (subjectDto!!.status) {
             SubjectStatus.DEACTIVATED -> {
                 subject!!.user!!.activated = false
-                subject.isRemoved = false
+                subject.removed = false
             }
 
             SubjectStatus.ACTIVATED -> {
                 subject!!.user!!.activated = true
-                subject.isRemoved = false
+                subject.removed = false
             }
 
             SubjectStatus.DISCONTINUED -> {
                 subject!!.user!!.activated = false
-                subject.isRemoved = true
+                subject.removed = true
             }
 
             SubjectStatus.INVALID -> {
                 subject!!.user!!.activated = true
-                subject.isRemoved = true
+                subject.removed = true
             }
 
             else -> {}
