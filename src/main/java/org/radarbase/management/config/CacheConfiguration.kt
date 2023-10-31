@@ -37,7 +37,7 @@ open class CacheConfiguration {
     }
 
     @Bean
-    open fun HazelcastInstance?.cacheManager(): CacheManager {
+    open fun HazelcastInstance.cacheManager(): CacheManager {
         log.debug("Starting HazelcastCacheManager")
         return HazelcastCacheManager(
             this

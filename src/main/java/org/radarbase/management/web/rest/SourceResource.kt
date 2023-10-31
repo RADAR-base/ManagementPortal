@@ -207,7 +207,7 @@ class SourceResource(
         val sourceId = sourceDto.id
         val sourceHistory = sourceId?.let { sourceRepository.findRevisions(it) }
         val sources =
-            sourceHistory?.mapNotNull { obj: Revision<Int, Source?> -> obj.entity }?.filter { it.isAssigned == true }
+            sourceHistory?.mapNotNull { obj: Revision<Int, Source?> -> obj.entity }?.filter { it.assigned == true }
                 ?.toList()
         if (sources?.isNotEmpty() == true) {
             val failureAlert = HeaderUtil.createFailureAlert(

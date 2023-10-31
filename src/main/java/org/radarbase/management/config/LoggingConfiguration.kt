@@ -18,9 +18,11 @@ open class LoggingConfiguration(
     /** Logging configuration for JHipster.  */
     init {
         val context = LoggerFactory.getILoggerFactory() as LoggerContext
-        val map: MutableMap<String, String> = HashMap()
-        map["app_name"] = appName
-        map["app_port"] = serverPort
+        val map: MutableMap<String, String> = buildMap {
+            put("app_name", appName)
+            put("app_port", serverPort)
+        } as MutableMap
+
         val customFields = mapper.writeValueAsString(map)
         val loggingProperties = jHipsterProperties.logging
         val logstashProperties = loggingProperties.logstash

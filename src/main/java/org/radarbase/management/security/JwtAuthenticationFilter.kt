@@ -185,7 +185,7 @@ class JwtAuthenticationFilter @JvmOverloads constructor(
          * from the database.
          * @return set of authority references.
          */
-        val User.authorityReferences: Set<AuthorityReference>?
+        val User.authorityReferences: Set<AuthorityReference>
             get() = roles?.mapTo(HashSet()) { role: Role? ->
                 val auth = role?.role
                 val referent = when (auth?.scope) {
@@ -195,7 +195,8 @@ class JwtAuthenticationFilter @JvmOverloads constructor(
                     null -> null
                 }
                 AuthorityReference(auth!!, referent)
-            }
+            } ?: setOf()
+
 
 
         @get:JvmStatic

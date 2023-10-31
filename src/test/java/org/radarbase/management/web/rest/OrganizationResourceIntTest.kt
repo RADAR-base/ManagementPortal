@@ -226,7 +226,7 @@ internal open class OrganizationResourceIntTest(
             organizationRepository.saveAndFlush(organization)
             val updatedOrgDto = organizationMapper
                 .organizationToOrganizationDTO(organization)
-            updatedOrgDto?.location = "Other location"
+            updatedOrgDto.location = "Other location"
 
             // Update the organization
             restOrganizationMockMvc.perform(

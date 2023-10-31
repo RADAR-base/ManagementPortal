@@ -35,7 +35,6 @@ open class RoleService(
     @Autowired private val userService: UserService
 ) {
 
-    private val log = LoggerFactory.getLogger(RoleService::class.java)
 
     /**
      * Save a role.

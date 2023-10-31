@@ -16,14 +16,13 @@ import tech.jhipster.config.JHipsterProperties
 @Configuration
 @EnableAsync
 @EnableScheduling
-open class AsyncConfiguration : AsyncConfigurer {
-    @Autowired
-    private val jHipsterProperties: JHipsterProperties? = null
+open class AsyncConfiguration(
+    @Autowired private val jHipsterProperties: JHipsterProperties) : AsyncConfigurer {
     @Bean(name = ["taskExecutor"])
     override fun getAsyncExecutor(): ExceptionHandlingAsyncTaskExecutor {
         log.debug("Creating Async Task Executor")
         val executor = ThreadPoolTaskExecutor()
-        executor.corePoolSize = jHipsterProperties!!.async.corePoolSize
+        executor.corePoolSize = jHipsterProperties.async.corePoolSize
         executor.maxPoolSize = jHipsterProperties.async.maxPoolSize
         executor.queueCapacity = jHipsterProperties.async.queueCapacity
         executor.setThreadNamePrefix("management-portal-Executor-")

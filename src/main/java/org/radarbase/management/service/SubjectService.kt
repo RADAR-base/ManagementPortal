@@ -98,7 +98,10 @@ open class SubjectService(
         user.activated = true
         //set if any devices are set as assigned
         if (subject.sources.isNotEmpty()) {
-            subject.sources.forEach(Consumer { s: Source -> s.assigned(true).subject(subject) })
+            subject.sources.forEach(Consumer { s: Source ->
+                s.assigned = true
+                s.subject(subject)
+            })
         }
         if (subject.enrollmentDate == null) {
             subject.enrollmentDate = ZonedDateTime.now()
@@ -157,7 +160,8 @@ open class SubjectService(
         //set only the devices assigned to a subject as assigned
         subjectMapper.safeUpdateSubjectFromDTO(newSubjectDto, subjectFromDb)
         sourcesToUpdate.addAll(subjectFromDb.sources)
-        subjectFromDb.sources.forEach(Consumer { s: Source -> s.subject(subjectFromDb).assigned(true) })
+        subjectFromDb.sources.forEach(Consumer { s: Source ->
+            s.subject(subjectFromDb).assigned = true })
         sourceRepository.saveAll(sourcesToUpdate)
         // update participant role
         subjectFromDb.user!!.roles = updateParticipantRoles(subjectFromDb, newSubjectDto)
@@ -233,7 +237,7 @@ open class SubjectService(
      */
     private fun unassignAllSources(subject: Subject) {
         subject.sources.forEach(Consumer { source: Source ->
-            source.isAssigned = false
+            source.assigned = false
             source.subject = null
             source.isDeleted = true
             sourceRepository.save(source)
@@ -262,7 +266,8 @@ open class SubjectService(
             // create a source and register metadata
             // we allow only one source of a source-type per subject
             if (sources.isNullOrEmpty()) {
-                var source = Source(sourceType).project(project).assigned(true).sourceType(sourceType).subject(subject)
+                var source = Source(sourceType).project(project).sourceType(sourceType).subject(subject)
+                source.assigned = true
                 source.attributes += sourceRegistrationDto.attributes
                 // if source name is provided update source name
                 if (sourceRegistrationDto.sourceName != null) {
@@ -332,7 +337,7 @@ open class SubjectService(
             source.sourceName = sourceRegistrationDto.sourceName
         }
         source.attributes += sourceRegistrationDto.attributes
-        source.isAssigned = true
+        source.assigned = true
         source.subject = subject
         return sourceRepository.save(source)
     }
