@@ -30,17 +30,14 @@ import java.util.*
  * Created by nivethika on 03/08/2018.
  */
 @Service
-class OAuthClientService {
-    @Autowired
-    private val clientDetailsService: JdbcClientDetailsService? = null
+class OAuthClientService(
+    @Autowired private val clientDetailsService: JdbcClientDetailsService,
+    @Autowired private val clientDetailsMapper: ClientDetailsMapper,
+    @Autowired private val authorizationServerEndpointsConfiguration: AuthorizationServerEndpointsConfiguration
+) {
 
-    @Autowired
-    private val clientDetailsMapper: ClientDetailsMapper? = null
-
-    @Autowired
-    private val authorizationServerEndpointsConfiguration: AuthorizationServerEndpointsConfiguration? = null
     fun findAllOAuthClients(): List<ClientDetails> {
-        return clientDetailsService!!.listClientDetails()
+        return clientDetailsService.listClientDetails()
     }
 
     /**
@@ -52,7 +49,7 @@ class OAuthClientService {
      */
     fun findOneByClientId(clientId: String?): ClientDetails {
         return try {
-            clientDetailsService!!.loadClientByClientId(clientId)
+            clientDetailsService.loadClientByClientId(clientId)
         } catch (e: NoSuchClientException) {
             log.error("Pair client request for unknown client id: {}", clientId)
             val errorParams: MutableMap<String, String?> = HashMap()
@@ -71,9 +68,9 @@ class OAuthClientService {
      * @return Updated [ClientDetails] instance.
      */
     fun updateOauthClient(clientDetailsDto: ClientDetailsDTO): ClientDetails {
-        val details: ClientDetails? = clientDetailsMapper!!.clientDetailsDTOToClientDetails(clientDetailsDto)
+        val details: ClientDetails? = clientDetailsMapper.clientDetailsDTOToClientDetails(clientDetailsDto)
         // update client.
-        clientDetailsService!!.updateClientDetails(details)
+        clientDetailsService.updateClientDetails(details)
         val updated = findOneByClientId(clientDetailsDto.clientId)
         // updateClientDetails does not update secret, so check for it separately
         if (clientDetailsDto.clientSecret != null && clientDetailsDto.clientSecret != updated.clientSecret) {
@@ -90,7 +87,7 @@ class OAuthClientService {
      * @param clientId of the auth-client to delete.
      */
     fun deleteClientDetails(clientId: String?) {
-        clientDetailsService!!.removeClientDetails(clientId)
+        clientDetailsService.removeClientDetails(clientId)
     }
 
     /**
@@ -102,7 +99,7 @@ class OAuthClientService {
     fun createClientDetail(clientDetailsDto: ClientDetailsDTO): ClientDetails {
         // check if the client id exists
         try {
-            val existingClient = clientDetailsService!!.loadClientByClientId(clientDetailsDto.clientId)
+            val existingClient = clientDetailsService.loadClientByClientId(clientDetailsDto.clientId)
             if (existingClient != null) {
                 throw ConflictException(
                     "OAuth client already exists with this id",
@@ -117,9 +114,9 @@ class OAuthClientService {
                 clientDetailsDto.clientId
             )
         }
-        val details: ClientDetails? = clientDetailsMapper!!.clientDetailsDTOToClientDetails(clientDetailsDto)
+        val details: ClientDetails? = clientDetailsMapper.clientDetailsDTOToClientDetails(clientDetailsDto)
         // create oauth client.
-        clientDetailsService!!.addClientDetails(details)
+        clientDetailsService.addClientDetails(details)
         return findOneByClientId(clientDetailsDto.clientId)
     }
 
@@ -149,7 +146,7 @@ class OAuthClientService {
         val authenticationToken: Authentication = UsernamePasswordAuthenticationToken(
             user.login, null, authorities
         )
-        return authorizationServerEndpointsConfiguration!!.getEndpointsConfigurer()
+        return authorizationServerEndpointsConfiguration.getEndpointsConfigurer()
             .tokenServices
             .createAccessToken(OAuth2Authentication(oAuth2Request, authenticationToken))
     }
