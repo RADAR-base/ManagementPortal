@@ -28,7 +28,7 @@ open class DatabaseConfiguration {
     private val env: Environment? = null
     @Bean
     open fun liquibase(
-        dataSource: DataSource?,
+        dataSource: DataSource,
         liquibaseProperties: LiquibaseProperties
     ): SpringLiquibase {
 

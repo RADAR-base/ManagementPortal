@@ -31,7 +31,7 @@ abstract class SourceMapperDecorator(
                     EntityName.Companion.SOURCE, ErrorConstants.ERR_SOURCE_NOT_FOUND,
                     Map.of("sourceId", minimalSourceDetailsDto.sourceId.toString())
                 )
-        source.isAssigned = minimalSourceDetailsDto.isAssigned
+        source.assigned = minimalSourceDetailsDto.isAssigned
         return source
     }
 

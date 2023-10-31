@@ -100,7 +100,7 @@ internal open class UserResourceIntTest(
     @AfterEach
     fun tearDown() {
         if (project != null) {
-            projectRepository.delete(project)
+            projectRepository.delete(project!!)
         }
     }
 

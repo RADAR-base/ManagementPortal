@@ -76,7 +76,7 @@ internal open class SourceDataResourceIntTest(
 
     @BeforeEach
     fun initTest() {
-        sourceData = createEntity(em)
+        sourceData = createEntity()
     }
 
     @Test
@@ -365,7 +365,7 @@ internal open class SourceDataResourceIntTest(
         val databaseSizeBeforeUpdate = sourceDataRepository.findAll().size
 
         // Update the sourceData
-        val updatedSourceData = sourceDataRepository.findById(sourceData.id).get()
+        val updatedSourceData = sourceDataRepository.findById(sourceData.id!!).get()
         updatedSourceData
             .sourceDataType(UPDATED_SOURCE_DATA_TYPE)
             .sourceDataName(UPDATED_SOURCE_DATA_NAME)
@@ -474,7 +474,7 @@ internal open class SourceDataResourceIntTest(
          * This is a static method, as tests for other entities might also need it,
          * if they test an entity which requires the current entity.
          */
-        fun createEntity(em: EntityManager?): SourceData {
+        fun createEntity(): SourceData {
             return SourceData()
                 .sourceDataType(DEFAULT_SOURCE_DATA_TYPE)
                 .sourceDataName(DEFAULT_SOURCE_DATA_NAME)
