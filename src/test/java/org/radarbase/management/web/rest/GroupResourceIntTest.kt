@@ -65,13 +65,13 @@ internal class GroupResourceIntTest(
     @Autowired private val pageableArgumentResolver: PageableHandlerMethodArgumentResolver,
     @Autowired private val exceptionTranslator: ExceptionTranslator,
     @Autowired private val groupRepository: GroupRepository,
-    private var restGroupMockMvc: MockMvc,
-    private var group: Group,
-    private var project: Project
+    @Autowired private val authService: AuthService
 ) {
+    private lateinit var restGroupMockMvc: MockMvc
+    private lateinit var group: Group
+    private lateinit var project: Project
 
-    @Autowired
-    private val authService: AuthService? = null
+
 
     @BeforeEach
     @Throws(ServletException::class)
@@ -223,10 +223,9 @@ internal class GroupResourceIntTest(
         ).andExpect(MockMvcResultMatchers.status().isBadRequest())
     }
 
-    @get:Throws(Exception::class)
-    @get:Test
-    val allGroups: Unit
-        get() {
+    @Throws(Exception::class)
+    @Test
+    fun allGroups() {
             // Initialize the database
             groupRepository.saveAndFlush<Group>(group)
 
@@ -262,10 +261,9 @@ internal class GroupResourceIntTest(
             .andExpect(MockMvcResultMatchers.jsonPath("$.projectId").value(project.id!!.toInt()))
     }
 
-    @get:Throws(Exception::class)
-    @get:Test
-    val nonExistingGroup: Unit
-        get() {
+    @Throws(Exception::class)
+    @Test
+    fun nonExistingGroup() {
             // Get the Group
             restGroupMockMvc.perform(
                 MockMvcRequestBuilders.get(

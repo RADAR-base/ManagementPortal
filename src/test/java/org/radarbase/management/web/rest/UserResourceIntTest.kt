@@ -66,10 +66,10 @@ internal open class UserResourceIntTest(
     @Autowired private val authService: AuthService,
     @Autowired private val passwordService: PasswordService,
     @Autowired private val projectRepository: ProjectRepository,
-    private var restUserMockMvc: MockMvc,
-    private var user: User,
-    private var project: Project?
 ) {
+    private lateinit var restUserMockMvc: MockMvc
+    private lateinit var user: User
+    private var project: Project? = null
 
     @BeforeEach
     @Throws(ServletException::class)

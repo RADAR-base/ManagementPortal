@@ -32,24 +32,21 @@ import java.time.Period
 import java.time.ZonedDateTime
 import java.util.*
 import java.util.function.Function
-import kotlin.collections.HashSet
-import kotlin.collections.MutableSet
-import kotlin.collections.Set
 
 /**
  * Service class for managing users.
  */
 @Service
 @Transactional
-open class UserService(
-    @Autowired private val userRepository: UserRepository,
-    @Autowired private val passwordService: PasswordService,
-    @Autowired private val roleService: RoleService,
-    @Autowired private val userMapper: UserMapper,
-    @Autowired private val revisionService: RevisionService,
-    @Autowired private val managementPortalProperties: ManagementPortalProperties,
-    @Autowired private val authService: AuthService
+open class UserService @Autowired constructor(
+    private val userRepository: UserRepository,
+    private val passwordService: PasswordService,
+    private val userMapper: UserMapper,
+    private val revisionService: RevisionService,
+    private val managementPortalProperties: ManagementPortalProperties,
+    private val authService: AuthService
 ) {
+    @Autowired lateinit var roleService: RoleService
 
     /**
      * Activate a user with the given activation key.
@@ -312,7 +309,7 @@ open class UserService(
      * @param password the new password
      * @param login of the user to change password
      */
-    fun changePassword(login: String, password: String) {
+    open fun changePassword(login: String, password: String) {
         val user = userRepository.findOneByLogin(login)
 
         if (user != null)

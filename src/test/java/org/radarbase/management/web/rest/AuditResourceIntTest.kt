@@ -44,11 +44,10 @@ internal open class AuditResourceIntTest(
     @Autowired private val jacksonMessageConverter: MappingJackson2HttpMessageConverter,
     @Autowired private val formattingConversionService: FormattingConversionService,
     @Autowired private val pageableArgumentResolver: PageableHandlerMethodArgumentResolver,
-    private var auditEvent: PersistentAuditEvent,
-    private var restAuditMockMvc: MockMvc,
     @Autowired private val authService: AuthService
 ) {
-
+    private lateinit var auditEvent: PersistentAuditEvent
+    private lateinit var restAuditMockMvc: MockMvc
     @BeforeEach
     @Throws(ServletException::class)
     fun setUp() {
@@ -78,10 +77,9 @@ internal open class AuditResourceIntTest(
         auditEvent.auditEventDate = SAMPLE_TIMESTAMP
     }
 
-    @get:Throws(Exception::class)
-    @get:Test
-    val allAudits: Unit
-        get() {
+    @Throws(Exception::class)
+    @Test
+    fun allAudits() {
             // Initialize the database
             auditEventRepository.save(auditEvent)
 
@@ -98,10 +96,9 @@ internal open class AuditResourceIntTest(
                 )
         }
 
-    @get:Throws(Exception::class)
-    @get:Test
-    val audit: Unit
-        get() {
+    @Throws(Exception::class)
+    @Test
+    fun audit() {
             // Initialize the database
             auditEventRepository.save(auditEvent)
 
@@ -112,10 +109,9 @@ internal open class AuditResourceIntTest(
                 .andExpect(MockMvcResultMatchers.jsonPath("$.principal").value(SAMPLE_PRINCIPAL))
         }
 
-    @get:Throws(Exception::class)
-    @get:Test
-    open val auditsByDate: Unit
-        get() {
+    @Throws(Exception::class)
+    @Test
+    fun auditsByDate() {
             // Initialize the database
             auditEventRepository.save(auditEvent)
 
@@ -141,10 +137,9 @@ internal open class AuditResourceIntTest(
                 )
         }
 
-    @get:Throws(Exception::class)
-    @get:Test
-    val nonExistingAuditsByDate: Unit
-        get() {
+    @Throws(Exception::class)
+    @Test
+    fun nonExistingAuditsByDate() {
             // Initialize the database
             auditEventRepository.save(auditEvent)
 
@@ -165,10 +160,9 @@ internal open class AuditResourceIntTest(
                 .andExpect(MockMvcResultMatchers.header().string("X-Total-Count", "0"))
         }
 
-    @get:Throws(Exception::class)
-    @get:Test
-    val nonExistingAudit: Unit
-        get() {
+    @Throws(Exception::class)
+    @Test
+    fun nonExistingAudit() {
             // Get the audit
             restAuditMockMvc.perform(MockMvcRequestBuilders.get("/management/audits/{id}", Long.MAX_VALUE))
                 .andExpect(MockMvcResultMatchers.status().isNotFound())

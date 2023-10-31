@@ -31,7 +31,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.test.web.servlet.setup.StandaloneMockMvcBuilder
 import org.springframework.transaction.annotation.Transactional
-import javax.persistence.EntityManager
 import javax.servlet.ServletException
 
 /**
@@ -51,11 +50,10 @@ internal open class SourceTypeResourceIntTest(
     @Autowired private val jacksonMessageConverter: MappingJackson2HttpMessageConverter,
     @Autowired private val pageableArgumentResolver: PageableHandlerMethodArgumentResolver,
     @Autowired private val exceptionTranslator: ExceptionTranslator,
-    @Autowired private val em: EntityManager,
-    private var restSourceTypeMockMvc: MockMvc,
-    private var sourceType: SourceType,
     @Autowired private val authService: AuthService
 ) {
+    private lateinit var restSourceTypeMockMvc: MockMvc
+    private lateinit var sourceType: SourceType
 
     @BeforeEach
     @Throws(ServletException::class)
@@ -205,11 +203,10 @@ internal open class SourceTypeResourceIntTest(
         Assertions.assertThat(sourceTypeList).hasSize(databaseSizeBeforeTest)
     }
 
-    @get:Throws(Exception::class)
-    @get:Transactional
-    @get:Test
-    open val allSourceTypes: Unit
-        get() {
+    @Throws(Exception::class)
+    @Transactional
+    @Test
+    open fun allSourceTypes() {
             // Initialize the database
             sourceTypeRepository.saveAndFlush(sourceType)
 
@@ -252,11 +249,10 @@ internal open class SourceTypeResourceIntTest(
                 )
         }
 
-    @get:Throws(Exception::class)
-    @get:Transactional
-    @get:Test
-    open val allSourceTypesWithPagination: Unit
-        get() {
+    @Throws(Exception::class)
+    @Transactional
+    @Test
+    open fun allSourceTypesWithPagination() {
             // Initialize the database
             sourceTypeRepository.saveAndFlush(sourceType)
 
@@ -325,11 +321,10 @@ internal open class SourceTypeResourceIntTest(
             )
     }
 
-    @get:Throws(Exception::class)
-    @get:Transactional
-    @get:Test
-    open val nonExistingSourceType: Unit
-        get() {
+    @Throws(Exception::class)
+    @Transactional
+    @Test
+    open fun nonExistingSourceType() {
             // Get the sourceType
             restSourceTypeMockMvc.perform(
                 MockMvcRequestBuilders.get(
