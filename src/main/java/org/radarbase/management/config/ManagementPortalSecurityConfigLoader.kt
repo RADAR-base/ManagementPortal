@@ -1,194 +1,198 @@
-package org.radarbase.management.config
+package org.radarbase.management.config;
 
-import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.annotation.JsonSetter
-import com.fasterxml.jackson.core.type.TypeReference
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.dataformat.csv.CsvMapper
-import org.radarbase.auth.authorization.Permission.Companion.scopes
-import org.radarbase.management.service.UserService
-import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.context.event.ContextRefreshedEvent
-import org.springframework.context.event.EventListener
-import org.springframework.security.oauth2.provider.ClientDetails
-import org.springframework.security.oauth2.provider.NoSuchClientException
-import org.springframework.security.oauth2.provider.client.BaseClientDetails
-import org.springframework.security.oauth2.provider.client.JdbcClientDetailsService
-import org.springframework.stereotype.Component
-import java.nio.file.Files
-import java.nio.file.Path
-import java.nio.file.Paths
-import java.util.*
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.MappingIterator;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvSchema;
+import org.radarbase.auth.authorization.Permission;
+import org.radarbase.management.service.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.context.event.EventListener;
+import org.springframework.security.oauth2.provider.ClientDetails;
+import org.springframework.security.oauth2.provider.NoSuchClientException;
+import org.springframework.security.oauth2.provider.client.BaseClientDetails;
+import org.springframework.security.oauth2.provider.client.JdbcClientDetailsService;
+import org.springframework.stereotype.Component;
+
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * Loads security configs such as oauth-clients, and overriding admin password if specified.
  * Created by dverbeec on 20/11/2017.
  */
 @Component
-class ManagementPortalSecurityConfigLoader {
-    @Autowired
-    private val clientDetailsService: JdbcClientDetailsService? = null
+public class ManagementPortalSecurityConfigLoader {
 
     @Autowired
-    private val managementPortalProperties: ManagementPortalProperties? = null
+    private JdbcClientDetailsService clientDetailsService;
 
     @Autowired
-    private val userService: UserService? = null
+    private ManagementPortalProperties managementPortalProperties;
+
+    @Autowired
+    private UserService userService;
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(ManagementPortalSecurityConfigLoader.class);
+
+    private static final Character SEPARATOR = ';';
 
     /**
      * Resets the admin password to the value of managementportal.common.adminPassword value if
      * exists.
      */
-    @EventListener(ContextRefreshedEvent::class)
-    fun overrideAdminPassword() {
-        val adminPassword = managementPortalProperties!!.common.adminPassword
+    @EventListener(ContextRefreshedEvent.class)
+    public void overrideAdminPassword() {
+        String adminPassword = managementPortalProperties.getCommon().getAdminPassword();
+
         if (adminPassword != null && !adminPassword.isEmpty()) {
-            logger.info("Overriding admin password to configured password")
-            userService!!.changePassword("admin", adminPassword)
+            logger.info("Overriding admin password to configured password");
+            userService.changePassword("admin", adminPassword);
         } else {
-            logger.info("AdminPassword property is empty. Using default password...")
+            logger.info("AdminPassword property is empty. Using default password...");
         }
     }
+
 
     /**
      * Build the ClientDetails for the ManagementPortal frontend and load it to the database.
      */
-    @EventListener(ContextRefreshedEvent::class)
-    fun loadFrontendOauthClient() {
-        logger.info("Loading ManagementPortal frontend client")
-        val frontend = managementPortalProperties!!.frontend
-        val details = BaseClientDetails()
-        details.clientId = frontend.clientId
-        details.clientSecret = null
-        details.accessTokenValiditySeconds = frontend.accessTokenValiditySeconds
-        details.refreshTokenValiditySeconds = frontend.refreshTokenValiditySeconds
-        details.setResourceIds(
-            listOf(
-                "res_ManagementPortal", "res_appconfig", "res_upload",
-                "res_restAuthorizer"
-            )
-        )
-        details.setAuthorizedGrantTypes(
-            mutableListOf(
-                "password", "refresh_token",
-                "authorization_code"
-            )
-        )
-        details.setAdditionalInformation(Collections.singletonMap("protected", true))
-        val allScopes = listOf(*scopes())
-        details.setScope(allScopes)
-        details.setAutoApproveScopes(allScopes)
-        loadOAuthClient(details)
+    @EventListener(ContextRefreshedEvent.class)
+    public void loadFrontendOauthClient() {
+        logger.info("Loading ManagementPortal frontend client");
+        ManagementPortalProperties.Frontend frontend = managementPortalProperties.getFrontend();
+        BaseClientDetails details = new BaseClientDetails();
+        details.setClientId(frontend.getClientId());
+        details.setClientSecret(null);
+        details.setAccessTokenValiditySeconds(frontend.getAccessTokenValiditySeconds());
+        details.setRefreshTokenValiditySeconds(frontend.getRefreshTokenValiditySeconds());
+        details.setResourceIds(List.of("res_ManagementPortal", "res_appconfig", "res_upload",
+                "res_restAuthorizer"));
+        details.setAuthorizedGrantTypes(Arrays.asList("password", "refresh_token",
+                "authorization_code"));
+        details.setAdditionalInformation(Collections.singletonMap("protected", Boolean.TRUE));
+        List<String> allScopes = Arrays.asList(Permission.scopes());
+        details.setScope(allScopes);
+        details.setAutoApproveScopes(allScopes);
+        loadOAuthClient(details);
     }
 
     /**
      * Event listener method that loads OAuth clients from file as soon as the application
      * context is refreshed. This happens at least once, on application startup.
      */
-    @EventListener(ContextRefreshedEvent::class)
-    fun loadOAuthClientsFromFile() {
-        val path = managementPortalProperties!!.oauth.clientsFile
-        if (Objects.isNull(path) || path == "") {
-            logger.info("No OAuth clients file specified, not loading additional clients")
-            return
+    @EventListener(ContextRefreshedEvent.class)
+    public void loadOAuthClientsFromFile() {
+        String path = managementPortalProperties.getOauth().getClientsFile();
+        if (Objects.isNull(path) || path.equals("")) {
+            logger.info("No OAuth clients file specified, not loading additional clients");
+            return;
         }
-        val file = Paths.get(path)
+        Path file = Paths.get(path);
         // CsvSchema uses the @JsonPropertyOrder to define column order, it does not
         // read the header. Let's read the header ourselves and provide that as
         // column order
-        val columnOrder = getCsvFileColumnOrder(file) ?: return
-        val mapper = CsvMapper()
-        val schema = mapper.schemaFor(CustomBaseClientDetails::class.java)
-            .withColumnReordering(true)
-            .sortedBy(*columnOrder)
-            .withColumnSeparator(SEPARATOR)
-            .withHeader()
-        val reader = mapper
-            .readerFor(CustomBaseClientDetails::class.java)
-            .with(schema)
-        try {
-            Files.newInputStream(file).use { inputStream ->
-                reader.readValues<BaseClientDetails>(inputStream).use { iterator ->
-                    logger.info("Loading OAuth clients from {}", file.toAbsolutePath())
-                    while (iterator.hasNext()) {
-                        loadOAuthClient(iterator.nextValue())
-                    }
-                }
+        String[] columnOrder = getCsvFileColumnOrder(file);
+        if (columnOrder == null) {
+            return;
+        }
+        CsvMapper mapper = new CsvMapper();
+        CsvSchema schema = mapper.schemaFor(CustomBaseClientDetails.class)
+                .withColumnReordering(true)
+                .sortedBy(columnOrder)
+                .withColumnSeparator(SEPARATOR)
+                .withHeader();
+        ObjectReader reader = mapper
+                .readerFor(CustomBaseClientDetails.class)
+                .with(schema);
+        try (InputStream inputStream = Files.newInputStream(file);
+                MappingIterator<BaseClientDetails> iterator = reader.readValues(inputStream)) {
+            logger.info("Loading OAuth clients from {}", file.toAbsolutePath());
+            while (iterator.hasNext()) {
+                loadOAuthClient(iterator.nextValue());
             }
-        } catch (ex: Exception) {
-            logger.error("Unable to load OAuth clients from file: " + ex.message, ex)
+        } catch (Exception ex) {
+            logger.error("Unable to load OAuth clients from file: " + ex.getMessage(), ex);
         }
     }
 
-    private fun loadOAuthClient(details: ClientDetails) {
+    private void loadOAuthClient(ClientDetails details) {
         try {
-            val client = clientDetailsService!!.loadClientByClientId(details.clientId)
+            ClientDetails client = clientDetailsService.loadClientByClientId(details.getClientId());
             // we delete the existing client and reload it in the next try block
-            clientDetailsService.removeClientDetails(client.clientId)
-            logger.info("Removed existing OAuth client: " + details.clientId)
-        } catch (ex: NoSuchClientException) {
+            clientDetailsService.removeClientDetails(client.getClientId());
+            logger.info("Removed existing OAuth client: " + details.getClientId());
+        } catch (NoSuchClientException ex) {
             // the client is not in the databse yet, this is ok
-        } catch (ex: Exception) {
+        } catch (Exception ex) {
             // other error, e.g. database issue
-            logger.error(ex.message, ex)
+            logger.error(ex.getMessage(), ex);
         }
         try {
-            clientDetailsService!!.addClientDetails(details)
-            logger.info("OAuth client loaded: " + details.clientId)
-        } catch (ex: Exception) {
-            logger.error(
-                "Unable to load OAuth client " + details.clientId + ": "
-                        + ex.message, ex
-            )
+            clientDetailsService.addClientDetails(details);
+            logger.info("OAuth client loaded: " + details.getClientId());
+        } catch (Exception ex) {
+            logger.error("Unable to load OAuth client " + details.getClientId() + ": "
+                    + ex.getMessage(), ex);
         }
     }
 
-    private fun getCsvFileColumnOrder(csvFile: Path): Array<String>? {
-        try {
-            Files.newBufferedReader(csvFile).use { bufferedReader ->
-                return bufferedReader.readLine().split(SEPARATOR.toString().toRegex()).dropLastWhile { it.isEmpty() }
-                    .toTypedArray()
-            }
-        } catch (ex: Exception) {
-            logger.error("Unable to read header from OAuth clients file: " + ex.message, ex)
-            return null
+    private String[] getCsvFileColumnOrder(Path csvFile) {
+        try (BufferedReader bufferedReader = Files.newBufferedReader(csvFile)) {
+            return bufferedReader.readLine().split(SEPARATOR.toString());
+        } catch (Exception ex) {
+            logger.error("Unable to read header from OAuth clients file: " + ex.getMessage(), ex);
+            return null;
         }
     }
 
     /**
      * Custom class that will also deserialize the additional_information field. This field holds a
-     * JSON structure that needs to be converted to a `Map<String, Object>`. This field is
-     * [com.fasterxml.jackson.annotation.JsonIgnore]d in BaseClientDetails but we need it.
+     * JSON structure that needs to be converted to a {@code Map<String, Object>}. This field is
+     * {@link com.fasterxml.jackson.annotation.JsonIgnore}d in BaseClientDetails but we need it.
      */
-    private class CustomBaseClientDetails : BaseClientDetails() {
+    private static class CustomBaseClientDetails extends BaseClientDetails {
+
         @JsonProperty("additional_information")
-        private var additionalInformation: Map<String, Any> = LinkedHashMap()
-        override fun getAdditionalInformation(): Map<String, Any> {
-            return additionalInformation
+        private Map<String, Object> additionalInformation = new LinkedHashMap<>();
+
+        @Override
+        public Map<String, Object> getAdditionalInformation() {
+            return additionalInformation;
         }
 
         @JsonSetter("additional_information")
-        fun setAdditionalInformation(additionalInformation: String) {
-            if (Objects.isNull(additionalInformation) || additionalInformation == "") {
-                this.additionalInformation = emptyMap()
-                return
+        public void setAdditionalInformation(String additionalInformation) {
+            if (Objects.isNull(additionalInformation) || additionalInformation.equals("")) {
+                this.additionalInformation = Collections.emptyMap();
+                return;
             }
-            val mapper = ObjectMapper()
+            ObjectMapper mapper = new ObjectMapper();
             try {
-                this.additionalInformation = mapper.readValue<Map<String, Any>>(additionalInformation,
-                    object : TypeReference<Map<String, Any>>() {})
-            } catch (ex: Exception) {
-                logger.error(
-                    "Unable to parse additional_information field for client "
-                            + clientId + ": " + ex.message, ex
-                )
+                this.additionalInformation = mapper.readValue(additionalInformation,
+                        new TypeReference<Map<String, Object>>() {
+                        });
+            } catch (Exception ex) {
+                logger.error("Unable to parse additional_information field for client "
+                        + getClientId() + ": " + ex.getMessage(), ex);
             }
         }
-    }
-
-    companion object {
-        private val logger = LoggerFactory.getLogger(ManagementPortalSecurityConfigLoader::class.java)
-        private const val SEPARATOR = ';'
     }
 }
