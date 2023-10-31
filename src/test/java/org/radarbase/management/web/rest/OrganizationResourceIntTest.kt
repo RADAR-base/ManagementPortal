@@ -49,10 +49,10 @@ internal open class OrganizationResourceIntTest(
     @Autowired private val jacksonMessageConverter: MappingJackson2HttpMessageConverter,
     @Autowired private val pageableArgumentResolver: PageableHandlerMethodArgumentResolver,
     @Autowired private val exceptionTranslator: ExceptionTranslator,
-    private var restOrganizationMockMvc: MockMvc,
-    private var organization: Organization,
     @Autowired private val authService: AuthService
 ) {
+    private lateinit var restOrganizationMockMvc: MockMvc
+    private lateinit var organization: Organization
 
     @BeforeEach
     @Throws(ServletException::class)
@@ -86,10 +86,9 @@ internal open class OrganizationResourceIntTest(
     }
 
 
-    @get:Throws(Exception::class)
-    @get:Test
-    val nonExistingOrganization: Unit
-        get() {
+    @Throws(Exception::class)
+    @Test
+    fun nonExistingOrganization() {
             // Get the organization
             restOrganizationMockMvc.perform(
                 MockMvcRequestBuilders.get(
@@ -100,10 +99,9 @@ internal open class OrganizationResourceIntTest(
                 .andExpect(MockMvcResultMatchers.status().isNotFound())
         }
 
-    @get:Throws(Exception::class)
-    @get:Test
-    val allOrganizations: Unit
-        get() {
+    @Throws(Exception::class)
+    @Test
+    fun allOrganizations() {
             // Initialize the database
             organizationRepository.saveAndFlush(organization)
 
@@ -116,10 +114,9 @@ internal open class OrganizationResourceIntTest(
                 )
         }
 
-    @get:Throws(Exception::class)
-    @get:Test
-    val projectsByOrganizationName: Unit
-        get() {
+    @Throws(Exception::class)
+    @Test
+    fun projectsByOrganizationName() {
             // Initialize the database
             organizationRepository.saveAndFlush(organization)
             val project: Project = ProjectResourceIntTest.Companion.createEntity()

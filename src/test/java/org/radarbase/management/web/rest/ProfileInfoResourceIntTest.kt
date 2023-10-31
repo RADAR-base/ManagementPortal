@@ -41,19 +41,17 @@ internal class ProfileInfoResourceIntTest {
             .build()
     }
 
-    @get:Throws(Exception::class)
-    @get:Test
-    val profileInfo: Unit
-        get() {
+    @Throws(Exception::class)
+    @Test
+    fun profileInfo() {
             restProfileMockMvc!!.perform(MockMvcRequestBuilders.get("/api/profile-info"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
         }
 
-    @get:Throws(Exception::class)
-    @get:Test
-    val profileInfoWithoutActiveProfiles: Unit
-        get() {
+    @Throws(Exception::class)
+    @Test
+    fun profileInfoWithoutActiveProfiles() {
             val emptyProfile = arrayOf<String>()
             Mockito.`when`(environment!!.defaultProfiles).thenReturn(emptyProfile)
             Mockito.`when`(environment.activeProfiles).thenReturn(emptyProfile)

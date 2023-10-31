@@ -12,7 +12,6 @@ import org.hibernate.envers.Audited
 import org.hibernate.envers.NotAudited
 import org.radarbase.management.domain.enumeration.ProjectStatus
 import org.radarbase.management.domain.support.AbstractEntityListener
-import org.radarbase.management.security.Constants
 import java.io.Serializable
 import java.time.ZonedDateTime
 import java.util.*
@@ -57,7 +56,7 @@ class Project : AbstractEntity(), Serializable {
     override var id: Long? = null
 
     @Column(name = "project_name", nullable = false, unique = true)
-    var projectName: @NotNull @Pattern(regexp = Constants.ENTITY_ID_REGEX) String? = null
+    var projectName: @NotNull @Pattern(regexp = "^[_'.@A-Za-z0-9- ]*$") String? = null
 
     @Column(name = "description", nullable = false)
     var description: @NotNull String? = null
@@ -124,17 +123,17 @@ class Project : AbstractEntity(), Serializable {
     )
     @OrderBy("name ASC")
     var groups: MutableSet<Group> = HashSet()
-    fun projectName(projectName: String?): Project {
+    fun projectName(projectName: String): Project {
         this.projectName = projectName
         return this
     }
 
-    fun description(description: String?): Project {
+    fun description(description: String): Project {
         this.description = description
         return this
     }
 
-    fun organizationName(organizationName: String?): Project {
+    fun organizationName(organizationName: String): Project {
         this.organizationName = organizationName
         return this
     }

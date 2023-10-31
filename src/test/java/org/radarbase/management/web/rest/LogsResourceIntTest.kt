@@ -25,17 +25,16 @@ internal class LogsResourceIntTest {
     private var restLogsMockMvc: MockMvc? = null
     @BeforeEach
     fun setUp() {
-        MockitoAnnotations.initMocks(this)
+        MockitoAnnotations.openMocks(this)
         val logsResource = LogsResource()
         restLogsMockMvc = MockMvcBuilders
             .standaloneSetup(logsResource)
             .build()
     }
 
-    @get:Throws(Exception::class)
-    @get:Test
-    val allLogs: Unit
-        get() {
+    @Throws(Exception::class)
+    @Test
+    fun allLogs() {
             restLogsMockMvc!!.perform(MockMvcRequestBuilders.get("/management/logs"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))

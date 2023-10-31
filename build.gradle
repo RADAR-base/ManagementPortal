@@ -24,6 +24,7 @@ plugins {
     id "org.jetbrains.kotlin.kapt" version "1.9.10"
     id 'org.jetbrains.kotlin.plugin.serialization' version '1.9.10' apply false
     id 'org.jetbrains.dokka' version "1.8.20"
+    id "org.jetbrains.kotlin.plugin.allopen" version "1.9.10"
 }
 
 apply plugin: 'org.springframework.boot'
@@ -172,6 +173,7 @@ dependencies {
         exclude group: 'org.hibernate', module: 'hibernate-entitymanager'
     }
     implementation "org.hibernate:hibernate-core"
+    implementation "org.hibernate:hibernate-core"
     implementation "org.hibernate:hibernate-envers"
     implementation 'org.hibernate:hibernate-validator:8.0.0.Final'
 
@@ -225,6 +227,12 @@ dependencies {
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
 
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+}
+
+allOpen {
+    annotation("org.springframework.stereotype.Component")
+    annotation("org.springframework.boot.test.context.SpringBootTest")
+    annotation("org.springframework.web.bind.annotation.RestController")
 }
 
 dependencyManagement {

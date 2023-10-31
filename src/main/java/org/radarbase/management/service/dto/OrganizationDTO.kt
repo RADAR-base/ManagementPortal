@@ -14,7 +14,8 @@ class OrganizationDTO : Serializable {
     lateinit var name: @NotNull String
     lateinit var description: @NotNull String
     lateinit var location: @NotNull String
-    var projects: List<ProjectDTO>? = null
+
+    var projects: List<ProjectDTO> = emptyList()
     override fun equals(other: Any?): Boolean {
         if (this === other) {
             return true
