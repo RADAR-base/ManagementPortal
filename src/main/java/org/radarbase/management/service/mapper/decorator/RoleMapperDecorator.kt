@@ -10,9 +10,11 @@ import org.springframework.beans.factory.annotation.Qualifier
 /**
  * Created by nivethika on 03-8-18.
  */
-abstract class RoleMapperDecorator(@Autowired @Qualifier("delegate") private val delegate: RoleMapper,
-                                   @Autowired private val authorityRepository: AuthorityRepository
-) : RoleMapper {
+abstract class RoleMapperDecorator() : RoleMapper {
+
+//    constructor(roleMapper: RoleMapper, authorityRepository: AuthorityRepository?) : this(roleMapper)
+    @Autowired @Qualifier("delegate") private val delegate: RoleMapper? = null
+    private var authorityRepository: AuthorityRepository? = null;
 
     /**
      * Overrides standard RoleMapperImpl and loads authority from repository if not specified.
@@ -23,9 +25,9 @@ abstract class RoleMapperDecorator(@Autowired @Qualifier("delegate") private val
         if (roleDto == null) {
             return null
         }
-        val role = delegate.roleDTOToRole(roleDto)
+        val role = delegate?.roleDTOToRole(roleDto)
         if (role!!.authority == null) {
-            role.authority = roleDto.authorityName?.let { authorityRepository.getById(it) }
+            role.authority = roleDto.authorityName?.let { authorityRepository?.getById(it) }
         }
         return role
     }
