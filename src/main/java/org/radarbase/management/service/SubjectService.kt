@@ -214,7 +214,7 @@ open class SubjectService(
 
         // set the removed flag and deactivate the user to prevent them from refreshing their
         // access token
-        subject.isRemoved = true
+        subject.removed = true
         subject.user!!.activated = false
         return subjectMapper.subjectToSubjectReducedProjectDTO(subjectRepository.save(subject))
     }
@@ -239,7 +239,7 @@ open class SubjectService(
         subject.sources.forEach(Consumer { source: Source ->
             source.assigned = false
             source.subject = null
-            source.isDeleted = true
+            source.deleted = true
             sourceRepository.save(source)
         })
         subject.sources.clear()
