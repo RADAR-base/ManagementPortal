@@ -19,22 +19,21 @@ import org.springframework.beans.factory.annotation.Qualifier
 /**
  * Created by nivethika on 30-8-17.
  */
-abstract class SubjectMapperDecorator(
-    @Autowired @Qualifier("delegate") private val delegate: SubjectMapper,
-    @Autowired private val projectMapper: ProjectMapper,
-    @Autowired private val revisionService: RevisionService,
-    @Autowired private val projectRepository: ProjectRepository,
-    @Autowired private val groupRepository: GroupRepository
-) : SubjectMapper {
+abstract class SubjectMapperDecorator() : SubjectMapper {
 
+    @Autowired @Qualifier("delegate") private val delegate: SubjectMapper? = null
+    private var groupRepository: GroupRepository? = null
+    private var projectRepository: ProjectRepository? = null
+    private var revisionService: RevisionService? = null
+    private var projectMapper: ProjectMapper? = null
     override fun subjectToSubjectDTO(subject: Subject?): SubjectDTO? {
         if (subject == null) {
             return null
         }
         val dto = subjectToSubjectWithoutProjectDTO(subject)
         val project = subject.activeProject
-            .let { p -> projectRepository.findOneWithEagerRelationships(p?.id!!) }
-        dto?.project = projectMapper.projectToProjectDTO(project)
+            .let { p -> projectRepository?.findOneWithEagerRelationships(p?.id!!) }
+        dto?.project = projectMapper?.projectToProjectDTO(project)
         addAuditInfo(subject, dto)
         return dto
     }
@@ -44,24 +43,24 @@ abstract class SubjectMapperDecorator(
             return null
         }
         val dto = subjectToSubjectWithoutProjectDTO(subject)
-        subject.activeProject?.let { project -> dto?.project = projectMapper.projectToProjectDTOReduced(project) }
+        subject.activeProject?.let { project -> dto?.project = projectMapper?.projectToProjectDTOReduced(project) }
         addAuditInfo(subject, dto)
         return dto
     }
 
     private fun addAuditInfo(subject: Subject, dto: SubjectDTO?) {
-        val auditInfo = revisionService.getAuditInfo(subject)
-        dto!!.createdDate = auditInfo.createdAt
-        dto.createdBy = auditInfo.createdBy
-        dto.lastModifiedDate = auditInfo.lastModifiedAt
-        dto.lastModifiedBy = auditInfo.lastModifiedBy
+        val auditInfo = revisionService?.getAuditInfo(subject)
+        dto!!.createdDate = auditInfo?.createdAt
+        dto.createdBy = auditInfo?.createdBy
+        dto.lastModifiedDate = auditInfo?.lastModifiedAt
+        dto.lastModifiedBy = auditInfo?.lastModifiedBy
     }
 
     override fun subjectToSubjectWithoutProjectDTO(subject: Subject?): SubjectDTO? {
         if (subject == null) {
             return null
         }
-        val dto = delegate.subjectToSubjectWithoutProjectDTO(subject)
+        val dto = delegate?.subjectToSubjectWithoutProjectDTO(subject)
         dto?.status = getSubjectStatus(subject)
         return dto
     }
@@ -70,7 +69,7 @@ abstract class SubjectMapperDecorator(
         if (subjectDto == null) {
             return null
         }
-        val subject = delegate.subjectDTOToSubject(subjectDto)
+        val subject = delegate?.subjectDTOToSubject(subjectDto)
         setSubjectStatus(subjectDto, subject)
         subject?.group = getGroup(subjectDto)
         return subject
@@ -80,13 +79,13 @@ abstract class SubjectMapperDecorator(
         return if (subjectDto!!.group == null) {
             null
         } else if (subjectDto.project?.id != null) {
-            groupRepository.findByProjectIdAndName(subjectDto.project?.id, subjectDto.group)
+            groupRepository?.findByProjectIdAndName(subjectDto.project?.id, subjectDto.group)
                 ?: throw BadRequestException(
                         "Group " + subjectDto.group + " not found in project "
                                 + subjectDto.project?.id,
                         EntityName.SUBJECT, ErrorConstants.ERR_GROUP_NOT_FOUND)
         } else if (subjectDto.project?.projectName != null) {
-        groupRepository.findByProjectNameAndName(subjectDto.project?.projectName, subjectDto.group)
+        groupRepository?.findByProjectNameAndName(subjectDto.project?.projectName, subjectDto.group)
             ?: throw BadRequestException(
                 "Group " + subjectDto.group + " not found in project "
                         + subjectDto.project?.projectName,
@@ -101,18 +100,18 @@ abstract class SubjectMapperDecorator(
     }
 
     override fun safeUpdateSubjectFromDTO(subjectDto: SubjectDTO?, @MappingTarget subject: Subject?): Subject? {
-        val subjectRetrieved = delegate.safeUpdateSubjectFromDTO(subjectDto, subject)
+        val subjectRetrieved = delegate?.safeUpdateSubjectFromDTO(subjectDto, subject)
         setSubjectStatus(subjectDto, subjectRetrieved)
         subject!!.group = getGroup(subjectDto)
         return subjectRetrieved
     }
 
     private fun getSubjectStatus(subject: Subject): SubjectStatus {
-        if (!subject.user!!.activated && !subject.removed!!) {
+        if (!subject.user!!.activated && !subject.removed) {
             return SubjectStatus.DEACTIVATED
-        } else if (subject.user!!.activated && !subject.removed!!) {
+        } else if (subject.user!!.activated && !subject.removed) {
             return SubjectStatus.ACTIVATED
-        } else if (!subject.user!!.activated && subject.removed!!) {
+        } else if (!subject.user!!.activated && subject.removed) {
             return SubjectStatus.DISCONTINUED
         }
         return SubjectStatus.INVALID
@@ -139,8 +138,6 @@ abstract class SubjectMapperDecorator(
                 subject!!.user!!.activated = true
                 subject.removed = true
             }
-
-            else -> {}
         }
     }
 }
