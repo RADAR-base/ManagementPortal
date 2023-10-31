@@ -54,12 +54,11 @@ internal open class AccountResourceIntTest(
     @Autowired private val passwordService: PasswordService,
     @Mock private val mockUserService: UserService,
     @Mock private val mockMailService: MailService,
-    private var restUserMockMvc: MockMvc,
     @Autowired private val radarToken: RadarToken,
     @Autowired private val authService: AuthService,
     @Autowired private val managementPortalProperties: ManagementPortalProperties
 ) {
-
+    private lateinit var restUserMockMvc: MockMvc
     @BeforeEach
     fun setUp() {
         MockitoAnnotations.openMocks(this)

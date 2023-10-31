@@ -1,6 +1,5 @@
 package org.radarbase.management.web.rest
 
-import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
 import org.hamcrest.Matchers
 import org.junit.jupiter.api.BeforeEach
@@ -14,8 +13,6 @@ import org.radarbase.management.domain.Project
 import org.radarbase.management.domain.enumeration.ProjectStatus
 import org.radarbase.management.repository.OrganizationRepository
 import org.radarbase.management.repository.ProjectRepository
-import org.radarbase.management.service.AuthService
-import org.radarbase.management.service.ProjectService
 import org.radarbase.management.service.mapper.ProjectMapper
 import org.radarbase.management.web.rest.errors.ExceptionTranslator
 import org.springframework.beans.factory.annotation.Autowired
@@ -26,7 +23,6 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.mock.web.MockFilterConfig
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.junit.jupiter.SpringExtension
-import org.springframework.test.util.ReflectionTestUtils
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
@@ -48,26 +44,30 @@ import javax.servlet.ServletException
 @SpringBootTest(classes = [ManagementPortalTestApp::class])
 @WithMockUser
 internal open class ProjectResourceIntTest(
-    @Autowired private val organizationRepository: OrganizationRepository,
+    @Autowired private val projectResource: ProjectResource,
+
+//    @Autowired private val subjectMapper: SubjectMapper,
     @Autowired private val projectRepository: ProjectRepository,
-    @Autowired private val projectMapper: ProjectMapper,
-    @Autowired private val projectService: ProjectService,
-    @Autowired private val jacksonMessageConverter: MappingJackson2HttpMessageConverter,
+//    @Autowired private val projectService: ProjectService,
+//    @Autowired private val roleService: RoleService,
+//    @Autowired private val subjectService: SubjectService,
+//    @Autowired private val sourceService: SourceService,
+//    @Autowired private val authService: AuthService,
+
     @Autowired private val pageableArgumentResolver: PageableHandlerMethodArgumentResolver,
+    @Autowired private val jacksonMessageConverter: MappingJackson2HttpMessageConverter,
     @Autowired private val exceptionTranslator: ExceptionTranslator,
-    private var restProjectMockMvc: MockMvc,
-    private var project: Project,
-    @Autowired private val authService: AuthService
+
+    @Autowired private val projectMapper: ProjectMapper,
+    @Autowired private val organizationRepository: OrganizationRepository,
 ) {
+    private lateinit var restProjectMockMvc: MockMvc
+    private lateinit var project: Project
 
     @BeforeEach
     @Throws(ServletException::class)
     fun setUp() {
         MockitoAnnotations.openMocks(this)
-        val projectResource = ProjectResource
-        ReflectionTestUtils.setField(projectResource, "projectRepository", projectRepository)
-        ReflectionTestUtils.setField(projectResource, "projectService", projectService)
-        ReflectionTestUtils.setField(projectResource, "authService", authService)
         val filter = OAuthHelper.createAuthenticationFilter()
         filter.init(MockFilterConfig())
         restProjectMockMvc = MockMvcBuilders.standaloneSetup(projectResource)
@@ -101,15 +101,15 @@ internal open class ProjectResourceIntTest(
 
         // Validate the Project in the database
         val projectList = projectRepository.findAll()
-        Assertions.assertThat(projectList).hasSize(databaseSizeBeforeCreate + 1)
+        assertThat(projectList).hasSize(databaseSizeBeforeCreate + 1)
         val testProject = projectList[projectList.size - 1]
-        Assertions.assertThat(testProject!!.projectName).isEqualTo(DEFAULT_PROJECT_NAME)
-        Assertions.assertThat(testProject.description).isEqualTo(DEFAULT_DESCRIPTION)
-        Assertions.assertThat(testProject.organizationName).isEqualTo(DEFAULT_ORGANIZATION)
-        Assertions.assertThat(testProject.location).isEqualTo(DEFAULT_LOCATION)
-        Assertions.assertThat(testProject.startDate).isEqualTo(DEFAULT_START_DATE)
-        Assertions.assertThat(testProject.projectStatus).isEqualTo(DEFAULT_PROJECT_STATUS)
-        Assertions.assertThat(testProject.endDate).isEqualTo(DEFAULT_END_DATE)
+        assertThat(testProject!!.projectName).isEqualTo(DEFAULT_PROJECT_NAME)
+        assertThat(testProject.description).isEqualTo(DEFAULT_DESCRIPTION)
+        assertThat(testProject.organizationName).isEqualTo(DEFAULT_ORGANIZATION)
+        assertThat(testProject.location).isEqualTo(DEFAULT_LOCATION)
+        assertThat(testProject.startDate).isEqualTo(DEFAULT_START_DATE)
+        assertThat(testProject.projectStatus).isEqualTo(DEFAULT_PROJECT_STATUS)
+        assertThat(testProject.endDate).isEqualTo(DEFAULT_END_DATE)
     }
 
     @Test
@@ -132,7 +132,7 @@ internal open class ProjectResourceIntTest(
 
         // Validate the Alice in the database
         val projectList = projectRepository.findAll()
-        Assertions.assertThat(projectList).hasSize(databaseSizeBeforeCreate)
+        assertThat(projectList).hasSize(databaseSizeBeforeCreate)
     }
 
     @Test
@@ -152,7 +152,7 @@ internal open class ProjectResourceIntTest(
         )
             .andExpect(MockMvcResultMatchers.status().isBadRequest())
         val projectList = projectRepository.findAll()
-        Assertions.assertThat(projectList).hasSize(databaseSizeBeforeTest)
+        assertThat(projectList).hasSize(databaseSizeBeforeTest)
     }
 
     @Test
@@ -172,7 +172,7 @@ internal open class ProjectResourceIntTest(
         )
             .andExpect(MockMvcResultMatchers.status().isBadRequest())
         val projectList = projectRepository.findAll()
-        Assertions.assertThat(projectList).hasSize(databaseSizeBeforeTest)
+        assertThat(projectList).hasSize(databaseSizeBeforeTest)
     }
 
     @Test
@@ -192,14 +192,13 @@ internal open class ProjectResourceIntTest(
         )
             .andExpect(MockMvcResultMatchers.status().isBadRequest())
         val projectList = projectRepository.findAll()
-        Assertions.assertThat(projectList).hasSize(databaseSizeBeforeTest)
+        assertThat(projectList).hasSize(databaseSizeBeforeTest)
     }
 
-    @get:Throws(Exception::class)
-    @get:Transactional
-    @get:Test
-    open val allProjects: Unit
-        get() {
+    @Throws(Exception::class)
+    @Transactional
+    @Test
+    open fun allProjects() {
             // Initialize the database
             projectRepository.saveAndFlush<Project>(project)
 
@@ -284,11 +283,10 @@ internal open class ProjectResourceIntTest(
             .andExpect(MockMvcResultMatchers.jsonPath("$.endDate").value(TestUtil.sameInstant(DEFAULT_END_DATE)))
     }
 
-    @get:Throws(Exception::class)
-    @get:Transactional
-    @get:Test
-    open val nonExistingProject: Unit
-        get() {
+    @Throws(Exception::class)
+    @Transactional
+    @Test
+    open fun nonExistingProject() {
             // Get the project
             restProjectMockMvc.perform(MockMvcRequestBuilders.get("/api/projects/{id}", Long.MAX_VALUE))
                 .andExpect(MockMvcResultMatchers.status().isNotFound())
@@ -324,8 +322,7 @@ internal open class ProjectResourceIntTest(
             MockMvcRequestBuilders.put("/api/projects")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(projectDto))
-        )
-            .andExpect(MockMvcResultMatchers.status().isOk())
+        ).andExpect(MockMvcResultMatchers.status().isOk())
 
         // Validate the Project in the database
         val projectList = projectRepository.findAll()
@@ -363,7 +360,7 @@ internal open class ProjectResourceIntTest(
 
         // Validate the Project in the database
         val projectList = projectRepository.findAll()
-        Assertions.assertThat(projectList).hasSize(databaseSizeBeforeUpdate + 1)
+        assertThat(projectList).hasSize(databaseSizeBeforeUpdate + 1)
     }
 
     @Test
@@ -383,7 +380,7 @@ internal open class ProjectResourceIntTest(
 
         // Validate the database is empty
         val projectList = projectRepository.findAll()
-        Assertions.assertThat(projectList).hasSize(databaseSizeBeforeDelete - 1)
+        assertThat(projectList).hasSize(databaseSizeBeforeDelete - 1)
     }
 
     @Test

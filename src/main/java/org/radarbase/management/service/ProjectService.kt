@@ -39,7 +39,7 @@ open class ProjectService(
      */
     fun save(projectDto: ProjectDTO): ProjectDTO {
         log.debug("Request to save Project : {}", projectDto)
-        var project = projectMapper.projectDTOToProject(projectDto)
+        var project: Project? = projectMapper.projectDTOToProject(projectDto)
         project = project?.let { projectRepository.save(it) }
         return projectMapper.projectToProjectDTO(project)!!
     }

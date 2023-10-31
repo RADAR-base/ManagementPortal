@@ -46,7 +46,6 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import java.net.URISyntaxException
-import java.util.NoSuchElementException
 import javax.validation.Valid
 
 /**
@@ -54,13 +53,14 @@ import javax.validation.Valid
  */
 @RestController
 @RequestMapping("/api")
-class ProjectResource(@Autowired private val subjectMapper: SubjectMapper,
-                      @Autowired private val projectRepository: ProjectRepository,
-                      @Autowired private val projectService: ProjectService,
-                      @Autowired private val roleService: RoleService,
-                      @Autowired private val subjectService: SubjectService,
-                      @Autowired private val sourceService: SourceService,
-                      @Autowired private val authService: AuthService
+class ProjectResource(
+    @Autowired private val subjectMapper: SubjectMapper,
+    @Autowired private val projectRepository: ProjectRepository,
+    @Autowired private val projectService: ProjectService,
+    @Autowired private val roleService: RoleService,
+    @Autowired private val subjectService: SubjectService,
+    @Autowired private val sourceService: SourceService,
+    @Autowired private val authService: AuthService
 ) {
 
     /**
@@ -127,9 +127,8 @@ class ProjectResource(@Autowired private val subjectMapper: SubjectMapper,
     @PutMapping("/projects")
     @Timed
     @Throws(URISyntaxException::class, NotAuthorizedException::class)
-    fun updateProject(@RequestBody projectDto: @Valid ProjectDTO?): ResponseEntity<ProjectDTO> {
-        log.debug("REST request to update Project : {}", projectDto)
-        if (projectDto!!.id == null) {
+    fun updateProject(@RequestBody projectDto: @Valid ProjectDTO?): ResponseEntity<ProjectDTO> {log.debug("REST request to update Project : {}", projectDto)
+        if (projectDto?.id == null) {
             return createProject(projectDto)
         }
         // When a client wants to link the project to the default organization,

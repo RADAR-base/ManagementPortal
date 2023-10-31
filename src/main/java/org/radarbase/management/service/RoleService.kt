@@ -31,10 +31,9 @@ open class RoleService(
     @Autowired private val authorityRepository: AuthorityRepository,
     @Autowired private val organizationRepository: OrganizationRepository,
     @Autowired private val projectRepository: ProjectRepository,
-    @Autowired private val roleMapper: RoleMapper,
-    @Autowired private val userService: UserService
+    @Autowired private val roleMapper: RoleMapper
 ) {
-
+    @Autowired lateinit private var userService: UserService
 
     /**
      * Save a role.

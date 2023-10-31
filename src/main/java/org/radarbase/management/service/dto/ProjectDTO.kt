@@ -18,26 +18,26 @@ class ProjectDTO : Serializable {
     var description: @NotNull String? = null
     var organization: OrganizationDTO? = null
     var organizationName: String? = null
-    var location: @NotNull String? = null
+    lateinit var location: @NotNull String
     var startDate: ZonedDateTime? = null
     var projectStatus: ProjectStatus? = null
     var endDate: ZonedDateTime? = null
 
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    var sourceTypes: Set<SourceTypeDTO>? = null
+    var sourceTypes: Set<SourceTypeDTO> = emptySet()
     var attributes: Map<String, String>? = null
 
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     var groups: Set<GroupDTO>? = null
     var persistentTokenTimeout: Long? = null
-    override fun equals(o: Any?): Boolean {
-        if (this === o) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
             return true
         }
-        if (o == null || javaClass != o.javaClass) {
+        if (other == null || javaClass != other.javaClass) {
             return false
         }
-        val projectDto = o as ProjectDTO
+        val projectDto = other as ProjectDTO
         return if (id == null || projectDto.id == null) {
             false
         } else id == projectDto.id

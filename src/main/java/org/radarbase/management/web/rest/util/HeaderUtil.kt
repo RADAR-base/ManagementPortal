@@ -85,8 +85,9 @@ object HeaderUtil {
      * @return A String where the components are URLEncoded and joined by forward slashes.
      */
     fun buildPath(vararg components: String?): String {
-        return components
+        return "/" + components
             .filterNotNull()
+            .filter { it != "" }
             .map { c: String? ->
                 // try-catch needs to be inside the lambda
                 try {

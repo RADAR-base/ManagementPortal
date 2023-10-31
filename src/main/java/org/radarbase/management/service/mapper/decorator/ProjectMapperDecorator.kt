@@ -21,9 +21,9 @@ import java.util.*
 abstract class ProjectMapperDecorator() : ProjectMapper {
 
     @Autowired @Qualifier("delegate") private val delegate: ProjectMapper? = null
-    private val organizationRepository: OrganizationRepository? = null
-    private val projectRepository: ProjectRepository? = null
-    private val metaTokenService: MetaTokenService? = null
+    @Autowired private lateinit var organizationRepository: OrganizationRepository
+    @Autowired private lateinit var projectRepository: ProjectRepository
+    @Autowired private lateinit var metaTokenService: MetaTokenService
 
     override fun projectToProjectDTO(project: Project?): ProjectDTO? {
         val dto = delegate?.projectToProjectDTO(project)
@@ -41,8 +41,8 @@ abstract class ProjectMapperDecorator() : ProjectMapper {
             return null
         }
         val dto = delegate?.projectToProjectDTOReduced(project)
-        dto?.humanReadableProjectName = project.attributes[ProjectDTO.Companion.HUMAN_READABLE_PROJECT_NAME]
-        dto?.sourceTypes = null
+        dto?.humanReadableProjectName = project.attributes[ProjectDTO.HUMAN_READABLE_PROJECT_NAME]
+        dto?.sourceTypes = emptySet()
         return dto
     }
 
@@ -57,7 +57,7 @@ abstract class ProjectMapperDecorator() : ProjectMapper {
         }
         val orgDto = projectDto.organization
         if (orgDto?.name != null) {
-            val org = organizationRepository?.findOneByName(orgDto.name)
+            val org = organizationRepository.findOneByName(orgDto.name)
                 ?: throw NotFoundException(
                         "Organization not found with name",
                         EntityName.Companion.ORGANIZATION,

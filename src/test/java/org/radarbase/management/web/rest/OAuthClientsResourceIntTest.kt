@@ -42,22 +42,21 @@ import java.util.function.Consumer
  */
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(classes = [ManagementPortalApp::class])
-internal open class OAuthClientsResourceIntTest(
-    @Autowired private val clientDetailsService: JdbcClientDetailsService,
-    @Autowired private val clientDetailsMapper: ClientDetailsMapper,
-    @Autowired private val subjectService: SubjectService,
-    @Autowired private val userService: UserService,
-    @Autowired private val oAuthClientService: OAuthClientService,
-    @Autowired private val jacksonMessageConverter: MappingJackson2HttpMessageConverter,
-    @Autowired private val pageableArgumentResolver: PageableHandlerMethodArgumentResolver,
-    @Autowired private val exceptionTranslator: ExceptionTranslator,
-    private var restOauthClientMvc: MockMvc,
-    private var details: ClientDetailsDTO,
-    private var clientDetailsList: List<ClientDetails>,
-    private var databaseSizeBeforeCreate: Int = 0,
-    @Autowired private val authService: AuthService
+internal open class OAuthClientsResourceIntTest @Autowired constructor (
+    private val clientDetailsService: JdbcClientDetailsService,
+    private val clientDetailsMapper: ClientDetailsMapper,
+    private val subjectService: SubjectService,
+    private val userService: UserService,
+    private val oAuthClientService: OAuthClientService,
+    private val jacksonMessageConverter: MappingJackson2HttpMessageConverter,
+    private val pageableArgumentResolver: PageableHandlerMethodArgumentResolver,
+    private val exceptionTranslator: ExceptionTranslator,
+    private val authService: AuthService
 ) {
-
+    private lateinit var restOauthClientMvc: MockMvc
+    private lateinit var details: ClientDetailsDTO
+    private var databaseSizeBeforeCreate: Int = 0
+    private lateinit var clientDetailsList: List<ClientDetails>
 
     @BeforeEach
     @Throws(Exception::class)
