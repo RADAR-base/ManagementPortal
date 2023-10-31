@@ -1,44 +1,49 @@
-package org.radarbase.management.web.rest
+package org.radarbase.management.web.rest;
 
-import io.micrometer.core.annotation.Timed
-import org.radarbase.management.service.SiteSettingsService
-import org.radarbase.management.service.dto.SiteSettingsDto
-import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import io.micrometer.core.annotation.Timed;
+import org.radarbase.management.service.SiteSettingsService;
+import org.radarbase.management.service.dto.SiteSettingsDto;
+import org.radarbase.management.config.ManagementPortalProperties.SiteSettings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * REST controller for managing site settings.
  *
- *
- * This class accesses [SiteSettings] entity as a means of defining configurations
- * before authentication.
+ * <p>This class accesses {@link SiteSettings} entity as a means of defining configurations
+ * before authentication.</p>
  *
  */
 @RestController
 @RequestMapping("/api")
-class SiteSettingsResource(
-    @Autowired private val siteSettingsService: SiteSettingsService
-) {
-    @get:Timed
-    @get:GetMapping("/sitesettings")
-    val disabledSubjectFields: ResponseEntity<SiteSettingsDto>
-        /**
-         * GET  /SiteSettings  : Gets the current SiteSettings as a DTO.
-         *
-         * @return the ResponseEntity with status 200 (Ok) and with body [SiteSettingsDto].
-         */
-        get() {
-            log.debug("REST request to get sitesettings")
-            return ResponseEntity
-                .ok()
-                .body(siteSettingsService.siteSettingsDto)
-        }
+public class SiteSettingsResource {
 
-    companion object {
-        private val log = LoggerFactory.getLogger(SiteSettingsResource::class.java)
+    private static final Logger log = LoggerFactory.getLogger(SiteSettingsResource.class);
+
+    private final SiteSettingsService siteSettingsService;
+
+    public SiteSettingsResource(
+            @Autowired SiteSettingsService siteSettingsService) {
+        this.siteSettingsService = siteSettingsService;
+    }
+
+    /**
+     * GET  /SiteSettings  : Gets the current SiteSettings as a DTO.
+     *
+     * @return the ResponseEntity with status 200 (Ok) and with body {@link SiteSettingsDto}.
+     */
+    @GetMapping("/sitesettings")
+    @Timed
+    public ResponseEntity<SiteSettingsDto> getDisabledSubjectFields() {
+        log.debug("REST request to get sitesettings");
+
+        return ResponseEntity
+                .ok()
+                .body(siteSettingsService.getSiteSettingsDto());
     }
 }
