@@ -86,7 +86,7 @@ class SourceData : AbstractEntity(), Serializable {
     var provider: String? = null
 
     @Column(name = "enabled")
-    var isEnabled = true
+    var enabled = true
 
     @JvmField
     @ManyToOne(fetch = FetchType.LAZY)
@@ -137,14 +137,14 @@ class SourceData : AbstractEntity(), Serializable {
         return this
     }
 
-    override fun equals(o: Any?): Boolean {
-        if (this === o) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
             return true
         }
-        if (o == null || javaClass != o.javaClass) {
+        if (other == null || javaClass != other.javaClass) {
             return false
         }
-        val sourceData = o as SourceData
+        val sourceData = other as SourceData
         return if (sourceData.id == null || id == null) {
             false
         } else id == sourceData.id
@@ -162,7 +162,7 @@ class SourceData : AbstractEntity(), Serializable {
                 + ", dataClass='" + dataClass + '\'' + ", keySchema='" + keySchema + '\''
                 + ", valueSchema='" + valueSchema + '\'' + ", topic='" + topic + '\''
                 + ", provider='"
-                + provider + '\'' + ", enabled=" + isEnabled + '}')
+                + provider + '\'' + ", enabled=" + enabled + '}')
     }
 
     companion object {
