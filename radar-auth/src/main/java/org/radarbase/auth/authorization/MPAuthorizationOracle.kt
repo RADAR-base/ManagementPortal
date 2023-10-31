@@ -26,8 +26,7 @@ class MPAuthorizationOracle(
 
         return identity.roles?.forkAny {
             it.hasPermission(identity, permission, entity, entityScope)
-        }
-            ?: false
+        } ?: false
     }
 
     /**

@@ -20,7 +20,7 @@ import org.radarbase.auth.util.TokenTestUtils.WIREMOCK_PORT
  * Created by dverbeec on 24/04/2017.
  */
 internal class TokenValidatorTest {
-    private var validator: TokenValidator? = null
+    private lateinit var validator: TokenValidator
 
     /**
      * Set up a stub public key endpoint and initialize a TokenValidator object.
@@ -53,28 +53,28 @@ internal class TokenValidatorTest {
 
     @Test
     fun testValidToken() {
-        validator!!.validateBlocking(TokenTestUtils.VALID_RSA_TOKEN)
+        validator.validateBlocking(TokenTestUtils.VALID_RSA_TOKEN)
     }
 
     @Test
     fun testIncorrectAudienceToken() {
         Assertions.assertThrows(
             TokenValidationException::class.java
-        ) { validator!!.validateBlocking(TokenTestUtils.INCORRECT_AUDIENCE_TOKEN) }
+        ) { validator.validateBlocking(TokenTestUtils.INCORRECT_AUDIENCE_TOKEN) }
     }
 
     @Test
     fun testExpiredToken() {
         Assertions.assertThrows(
             TokenValidationException::class.java
-        ) { validator!!.validateBlocking(TokenTestUtils.EXPIRED_TOKEN) }
+        ) { validator.validateBlocking(TokenTestUtils.EXPIRED_TOKEN) }
     }
 
     @Test
     fun testIncorrectAlgorithmToken() {
         Assertions.assertThrows(
             TokenValidationException::class.java
-        ) { validator!!.validateBlocking(TokenTestUtils.INCORRECT_ALGORITHM_TOKEN) }
+        ) { validator.validateBlocking(TokenTestUtils.INCORRECT_ALGORITHM_TOKEN) }
     }
 
     companion object {

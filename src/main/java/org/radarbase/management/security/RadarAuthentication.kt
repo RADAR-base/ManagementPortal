@@ -79,7 +79,7 @@ class RadarAuthentication(@param:Nonnull private val token: RadarToken) : Authen
     }
 
     override fun hashCode(): Int {
-        var result = token?.hashCode() ?: 0
+        var result = token.hashCode()
         result = 31 * result + if (isAuthenticated) 1 else 0
         return result
     }

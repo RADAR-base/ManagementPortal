@@ -93,7 +93,7 @@ internal open class SubjectResourceIntTest(@Autowired private val subjectReposit
         val databaseSizeBeforeCreate = subjectRepository.findAll().size
 
         // Create the Subject
-        val subjectDto: SubjectDTO = SubjectServiceTest.Companion.createEntityDTO()
+        val subjectDto: SubjectDTO = SubjectServiceTest.createEntityDTO()
         restSubjectMockMvc.perform(
             MockMvcRequestBuilders.post("/api/subjects")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -105,9 +105,9 @@ internal open class SubjectResourceIntTest(@Autowired private val subjectReposit
         val subjectList = subjectRepository.findAll()
         Assertions.assertThat(subjectList).hasSize(databaseSizeBeforeCreate + 1)
         val testSubject = subjectList[subjectList.size - 1]
-        Assertions.assertThat(testSubject.externalLink).isEqualTo(SubjectServiceTest.Companion.DEFAULT_EXTERNAL_LINK)
-        Assertions.assertThat(testSubject.externalId).isEqualTo(SubjectServiceTest.Companion.DEFAULT_ENTERNAL_ID)
-        Assertions.assertThat(testSubject.isRemoved).isEqualTo(SubjectServiceTest.Companion.DEFAULT_REMOVED)
+        Assertions.assertThat(testSubject.externalLink).isEqualTo(SubjectServiceTest.DEFAULT_EXTERNAL_LINK)
+        Assertions.assertThat(testSubject.externalId).isEqualTo(SubjectServiceTest.DEFAULT_ENTERNAL_ID)
+        Assertions.assertThat(testSubject.isRemoved).isEqualTo(SubjectServiceTest.DEFAULT_REMOVED)
         org.junit.jupiter.api.Assertions.assertEquals(1, testSubject.user!!.roles!!.size)
     }
 
@@ -116,7 +116,7 @@ internal open class SubjectResourceIntTest(@Autowired private val subjectReposit
     @Throws(Exception::class)
     open fun createSubjectWithExistingId() {
         // Create a Subject
-        val subjectDto = subjectService.createSubject(SubjectServiceTest.Companion.createEntityDTO())
+        val subjectDto = subjectService.createSubject(SubjectServiceTest.createEntityDTO())
         val databaseSizeBeforeCreate = subjectRepository.findAll().size
 
         // An entity with an existing ID cannot be created, so this API call must fail
@@ -138,7 +138,7 @@ internal open class SubjectResourceIntTest(@Autowired private val subjectReposit
     open val allSubjects: Unit
         get() {
             // Initialize the database
-            val subjectDto = subjectService.createSubject(SubjectServiceTest.Companion.createEntityDTO())
+            val subjectDto = subjectService.createSubject(SubjectServiceTest.createEntityDTO())
 
             // Get all the subjectList
             restSubjectMockMvc.perform(MockMvcRequestBuilders.get("/api/subjects?sort=id,desc"))
@@ -153,15 +153,15 @@ internal open class SubjectResourceIntTest(@Autowired private val subjectReposit
                 )
                 .andExpect(
                     MockMvcResultMatchers.jsonPath("$.[*].externalLink")
-                        .value<Iterable<String?>>(Matchers.hasItem(SubjectServiceTest.Companion.DEFAULT_EXTERNAL_LINK))
+                        .value<Iterable<String?>>(Matchers.hasItem(SubjectServiceTest.DEFAULT_EXTERNAL_LINK))
                 )
                 .andExpect(
                     MockMvcResultMatchers.jsonPath("$.[*].externalId")
-                        .value<Iterable<String?>>(Matchers.hasItem(SubjectServiceTest.Companion.DEFAULT_ENTERNAL_ID))
+                        .value<Iterable<String?>>(Matchers.hasItem(SubjectServiceTest.DEFAULT_ENTERNAL_ID))
                 )
                 .andExpect(
                     MockMvcResultMatchers.jsonPath("$.[*].status")
-                        .value<Iterable<String?>>(Matchers.hasItem(SubjectServiceTest.Companion.DEFAULT_STATUS.toString()))
+                        .value<Iterable<String?>>(Matchers.hasItem(SubjectServiceTest.DEFAULT_STATUS.toString()))
                 )
         }
 
@@ -171,7 +171,7 @@ internal open class SubjectResourceIntTest(@Autowired private val subjectReposit
     open val subject: Unit
         get() {
             // Initialize the database
-            val subjectDto = subjectService.createSubject(SubjectServiceTest.Companion.createEntityDTO())
+            val subjectDto = subjectService.createSubject(SubjectServiceTest.createEntityDTO())
 
             // Get the subject
             restSubjectMockMvc.perform(MockMvcRequestBuilders.get("/api/subjects/{login}", subjectDto!!.login))
@@ -180,15 +180,15 @@ internal open class SubjectResourceIntTest(@Autowired private val subjectReposit
                 .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(subjectDto.id!!.toInt()))
                 .andExpect(
                     MockMvcResultMatchers.jsonPath("$.externalLink")
-                        .value(SubjectServiceTest.Companion.DEFAULT_EXTERNAL_LINK)
+                        .value(SubjectServiceTest.DEFAULT_EXTERNAL_LINK)
                 )
                 .andExpect(
                     MockMvcResultMatchers.jsonPath("$.externalId")
-                        .value(SubjectServiceTest.Companion.DEFAULT_ENTERNAL_ID)
+                        .value(SubjectServiceTest.DEFAULT_ENTERNAL_ID)
                 )
                 .andExpect(
                     MockMvcResultMatchers.jsonPath("$.status")
-                        .value(SubjectServiceTest.Companion.DEFAULT_STATUS.toString())
+                        .value(SubjectServiceTest.DEFAULT_STATUS.toString())
                 )
         }
 
@@ -207,15 +207,15 @@ internal open class SubjectResourceIntTest(@Autowired private val subjectReposit
     @Throws(Exception::class)
     open fun updateSubject() {
         // Initialize the database
-        var subjectDto = subjectService.createSubject(SubjectServiceTest.Companion.createEntityDTO())
+        var subjectDto = subjectService.createSubject(SubjectServiceTest.createEntityDTO())
         val databaseSizeBeforeUpdate = subjectRepository.findAll().size
 
         // Update the subject
-        val updatedSubject = subjectRepository.findById(subjectDto!!.id).get()
+        val updatedSubject = subjectRepository.findById(subjectDto!!.id!!).get()
         updatedSubject
-            .externalLink(SubjectServiceTest.Companion.UPDATED_EXTERNAL_LINK)
-            .externalId(SubjectServiceTest.Companion.UPDATED_ENTERNAL_ID)
-            .removed(SubjectServiceTest.Companion.UPDATED_REMOVED)
+            .externalLink(SubjectServiceTest.UPDATED_EXTERNAL_LINK)
+            .externalId(SubjectServiceTest.UPDATED_ENTERNAL_ID)
+            .removed(SubjectServiceTest.UPDATED_REMOVED)
         subjectDto = subjectMapper.subjectToSubjectDTO(updatedSubject)
         restSubjectMockMvc.perform(
             MockMvcRequestBuilders.put("/api/subjects")
@@ -228,9 +228,9 @@ internal open class SubjectResourceIntTest(@Autowired private val subjectReposit
         val subjectList = subjectRepository.findAll()
         Assertions.assertThat(subjectList).hasSize(databaseSizeBeforeUpdate)
         val testSubject = subjectList[subjectList.size - 1]
-        Assertions.assertThat(testSubject.externalLink).isEqualTo(SubjectServiceTest.Companion.UPDATED_EXTERNAL_LINK)
-        Assertions.assertThat(testSubject.externalId).isEqualTo(SubjectServiceTest.Companion.UPDATED_ENTERNAL_ID)
-        Assertions.assertThat(testSubject.isRemoved).isEqualTo(SubjectServiceTest.Companion.UPDATED_REMOVED)
+        Assertions.assertThat(testSubject.externalLink).isEqualTo(SubjectServiceTest.UPDATED_EXTERNAL_LINK)
+        Assertions.assertThat(testSubject.externalId).isEqualTo(SubjectServiceTest.UPDATED_ENTERNAL_ID)
+        Assertions.assertThat(testSubject.isRemoved).isEqualTo(SubjectServiceTest.UPDATED_REMOVED)
     }
 
     @Test
@@ -238,15 +238,15 @@ internal open class SubjectResourceIntTest(@Autowired private val subjectReposit
     @Throws(Exception::class)
     open fun updateSubjectWithNewProject() {
         // Initialize the database
-        var subjectDto = subjectService.createSubject(SubjectServiceTest.Companion.createEntityDTO())
+        var subjectDto = subjectService.createSubject(SubjectServiceTest.createEntityDTO())
         val databaseSizeBeforeUpdate = subjectRepository.findAll().size
 
         // Update the subject
-        val updatedSubject = subjectRepository.findById(subjectDto!!.id).get()
+        val updatedSubject = subjectRepository.findById(subjectDto!!.id!!).get()
         updatedSubject
-            .externalLink(SubjectServiceTest.Companion.UPDATED_EXTERNAL_LINK)
-            .externalId(SubjectServiceTest.Companion.UPDATED_ENTERNAL_ID)
-            .removed(SubjectServiceTest.Companion.UPDATED_REMOVED)
+            .externalLink(SubjectServiceTest.UPDATED_EXTERNAL_LINK)
+            .externalId(SubjectServiceTest.UPDATED_ENTERNAL_ID)
+            .removed(SubjectServiceTest.UPDATED_REMOVED)
         subjectDto = subjectMapper.subjectToSubjectDTO(updatedSubject)
         val newProject = ProjectDTO()
         newProject.id = 2L
@@ -264,9 +264,9 @@ internal open class SubjectResourceIntTest(@Autowired private val subjectReposit
         val subjectList = subjectRepository.findAll()
         Assertions.assertThat(subjectList).hasSize(databaseSizeBeforeUpdate)
         val testSubject = subjectList[subjectList.size - 1]
-        Assertions.assertThat(testSubject.externalLink).isEqualTo(SubjectServiceTest.Companion.UPDATED_EXTERNAL_LINK)
-        Assertions.assertThat(testSubject.externalId).isEqualTo(SubjectServiceTest.Companion.UPDATED_ENTERNAL_ID)
-        Assertions.assertThat(testSubject.isRemoved).isEqualTo(SubjectServiceTest.Companion.UPDATED_REMOVED)
+        Assertions.assertThat(testSubject.externalLink).isEqualTo(SubjectServiceTest.UPDATED_EXTERNAL_LINK)
+        Assertions.assertThat(testSubject.externalId).isEqualTo(SubjectServiceTest.UPDATED_ENTERNAL_ID)
+        Assertions.assertThat(testSubject.isRemoved).isEqualTo(SubjectServiceTest.UPDATED_REMOVED)
         Assertions.assertThat(testSubject.user!!.roles!!.size).isEqualTo(2)
     }
 
@@ -277,7 +277,7 @@ internal open class SubjectResourceIntTest(@Autowired private val subjectReposit
         val databaseSizeBeforeUpdate = subjectRepository.findAll().size
 
         // Create the Subject
-        val subjectDto: SubjectDTO = SubjectServiceTest.Companion.createEntityDTO()
+        val subjectDto: SubjectDTO = SubjectServiceTest.createEntityDTO()
 
         // If the entity doesn't have an ID, it will be created instead of just being updated
         restSubjectMockMvc.perform(
@@ -297,7 +297,7 @@ internal open class SubjectResourceIntTest(@Autowired private val subjectReposit
     @Throws(Exception::class)
     open fun deleteSubject() {
         // Initialize the database
-        val subjectDto = subjectService.createSubject(SubjectServiceTest.Companion.createEntityDTO())
+        val subjectDto = subjectService.createSubject(SubjectServiceTest.createEntityDTO())
         val databaseSizeBeforeDelete = subjectRepository.findAll().size
 
         // Get the subject
@@ -326,7 +326,7 @@ internal open class SubjectResourceIntTest(@Autowired private val subjectReposit
         val databaseSizeBeforeCreate = subjectRepository.findAll().size
 
         // Create the Subject
-        val subjectDto: SubjectDTO = SubjectServiceTest.Companion.createEntityDTO()
+        val subjectDto: SubjectDTO = SubjectServiceTest.createEntityDTO()
         restSubjectMockMvc.perform(
             MockMvcRequestBuilders.post("/api/subjects")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -368,7 +368,7 @@ internal open class SubjectResourceIntTest(@Autowired private val subjectReposit
         val databaseSizeBeforeCreate = subjectRepository.findAll().size
 
         // Create the Subject
-        val subjectDto: SubjectDTO = SubjectServiceTest.Companion.createEntityDTO()
+        val subjectDto: SubjectDTO = SubjectServiceTest.createEntityDTO()
         restSubjectMockMvc.perform(
             MockMvcRequestBuilders.post("/api/subjects")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -417,7 +417,7 @@ internal open class SubjectResourceIntTest(@Autowired private val subjectReposit
         val databaseSizeBeforeCreate = subjectRepository.findAll().size
 
         // Create the Subject
-        val subjectDto: SubjectDTO = SubjectServiceTest.Companion.createEntityDTO()
+        val subjectDto: SubjectDTO = SubjectServiceTest.createEntityDTO()
         restSubjectMockMvc.perform(
             MockMvcRequestBuilders.post("/api/subjects")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -449,7 +449,7 @@ internal open class SubjectResourceIntTest(@Autowired private val subjectReposit
     open val subjectSources: Unit
         get() {
             // Initialize the database
-            val subjectDtoToCreate: SubjectDTO = SubjectServiceTest.Companion.createEntityDTO()
+            val subjectDtoToCreate: SubjectDTO = SubjectServiceTest.createEntityDTO()
             val createdSource = sourceService.save(createSource())
             val sourceDto = MinimalSourceDetailsDTO()
                 .id(createdSource.id)
@@ -482,7 +482,7 @@ internal open class SubjectResourceIntTest(@Autowired private val subjectReposit
     open val subjectSourcesWithQueryParam: Unit
         get() {
             // Initialize the database
-            val subjectDtoToCreate: SubjectDTO = SubjectServiceTest.Companion.createEntityDTO()
+            val subjectDtoToCreate: SubjectDTO = SubjectServiceTest.createEntityDTO()
             val createdSource = sourceService.save(createSource())
             val sourceDto = MinimalSourceDetailsDTO()
                 .id(createdSource.id)
@@ -515,7 +515,7 @@ internal open class SubjectResourceIntTest(@Autowired private val subjectReposit
     open val inactiveSubjectSourcesWithQueryParam: Unit
         get() {
             // Initialize the database
-            val subjectDtoToCreate: SubjectDTO = SubjectServiceTest.Companion.createEntityDTO()
+            val subjectDtoToCreate: SubjectDTO = SubjectServiceTest.createEntityDTO()
             val createdSource = sourceService.save(createSource())
             val sourceDto = MinimalSourceDetailsDTO()
                 .id(createdSource.id)
@@ -602,7 +602,7 @@ internal open class SubjectResourceIntTest(@Autowired private val subjectReposit
     private val source: MinimalSourceDetailsDTO
         get() {
             val sourceRegistrationDto = MinimalSourceDetailsDTO()
-                .sourceName(SubjectServiceTest.Companion.PRODUCER + "-" + SubjectServiceTest.Companion.MODEL)
+                .sourceName(SubjectServiceTest.PRODUCER + "-" + SubjectServiceTest.MODEL)
                 .attributes(Collections.singletonMap("something", "value"))
             Assertions.assertThat(sourceRegistrationDto.sourceId).isNull()
             return sourceRegistrationDto
@@ -615,7 +615,7 @@ internal open class SubjectResourceIntTest(@Autowired private val subjectReposit
         val databaseSizeBeforeCreate = subjectRepository.findAll().size
 
         // Create the Subject
-        val subjectDto: SubjectDTO = SubjectServiceTest.Companion.createEntityDTO()
+        val subjectDto: SubjectDTO = SubjectServiceTest.createEntityDTO()
         restSubjectMockMvc.perform(
             MockMvcRequestBuilders.post("/api/subjects")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)

@@ -35,10 +35,10 @@ interface SourceRepository : JpaRepository<Source, Long>, RevisionRepository<Sou
         value = "select source from Source source "
                 + "WHERE source.isDeleted = false "
                 + "AND source.project.id = :projectId "
-                + "AND source.isAssigned = :assigned", countQuery = "select count(source) from Source source "
+                + "AND source.assigned = :assigned", countQuery = "select count(source) from Source source "
                 + "WHERE source.isDeleted = false "
                 + "AND source.project.id = :projectId "
-                + "AND source.isAssigned = :assigned"
+                + "AND source.assigned = :assigned"
     )
     fun findAllSourcesByProjectIdAndAssigned(
         @Param("projectId") projectId: Long?,

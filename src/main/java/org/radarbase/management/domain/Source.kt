@@ -58,7 +58,7 @@ class Source : AbstractEntity, Serializable {
     var expectedSourceName: String? = null
 
     @Column(name = "assigned", nullable = false)
-    var isAssigned: @NotNull Boolean? = false
+    var assigned: @NotNull Boolean? = false
 
     @Column(name = "deleted", nullable = false)
     var isDeleted: @NotNull Boolean = false
@@ -125,11 +125,6 @@ class Source : AbstractEntity, Serializable {
         }
     }
 
-    fun assigned(assigned: Boolean): Source {
-        isAssigned = assigned
-        return this
-    }
-
     fun deleted(deleted: Boolean): Source {
         isDeleted = deleted
         return this
@@ -177,7 +172,7 @@ class Source : AbstractEntity, Serializable {
                 + "id=" + id
                 + ", sourceId='" + sourceId + '\''
                 + ", sourceName='" + sourceName + '\''
-                + ", assigned=" + isAssigned
+                + ", assigned=" + assigned
                 + ", sourceType=" + sourceType
                 + ", project=" + project
                 + '}')
