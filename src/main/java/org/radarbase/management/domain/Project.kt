@@ -123,17 +123,17 @@ class Project : AbstractEntity(), Serializable {
     )
     @OrderBy("name ASC")
     var groups: MutableSet<Group> = HashSet()
-    fun projectName(projectName: String): Project {
+    fun projectName(projectName: String?): Project {
         this.projectName = projectName
         return this
     }
 
-    fun description(description: String): Project {
+    fun description(description: String?): Project {
         this.description = description
         return this
     }
 
-    fun organizationName(organizationName: String): Project {
+    fun organizationName(organizationName: String?): Project {
         this.organizationName = organizationName
         return this
     }

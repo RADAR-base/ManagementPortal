@@ -13,12 +13,12 @@ import javax.validation.constraints.NotNull
 @JsonInclude(JsonInclude.Include.NON_NULL)
 class ProjectDTO : Serializable {
     var id: Long? = null
-    var projectName: @NotNull String? = null
+    @NotNull var projectName: String? = null
     var humanReadableProjectName: String? = null
-    var description: @NotNull String? = null
+    @NotNull var description: String? = null
     var organization: OrganizationDTO? = null
     var organizationName: String? = null
-    lateinit var location: @NotNull String
+    @NotNull var location: String? = null
     var startDate: ZonedDateTime? = null
     var projectStatus: ProjectStatus? = null
     var endDate: ZonedDateTime? = null
