@@ -17,7 +17,6 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.mock.web.MockFilterConfig
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.junit.jupiter.SpringExtension
-import org.springframework.test.util.ReflectionTestUtils
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
@@ -34,22 +33,22 @@ import javax.servlet.ServletException
 @SpringBootTest(classes = [ManagementPortalTestApp::class])
 @WithMockUser
 internal class JwtAuthenticationFilterIntTest(
+    @Autowired private val projectResource: ProjectResource,
+
     @Autowired private val projectService: ProjectService,
+    @Autowired private val authService: AuthService,
+
     @Autowired private val jacksonMessageConverter: MappingJackson2HttpMessageConverter,
     @Autowired private val pageableArgumentResolver: PageableHandlerMethodArgumentResolver,
     @Autowired private val exceptionTranslator: ExceptionTranslator,
-    private var rsaRestProjectMockMvc: MockMvc,
-    private var ecRestProjectMockMvc: MockMvc,
-    @Autowired private val authService: AuthService
 ) {
+    private lateinit var rsaRestProjectMockMvc: MockMvc
+    private lateinit var ecRestProjectMockMvc: MockMvc
 
     @BeforeEach
     @Throws(ServletException::class)
     fun setUp() {
         MockitoAnnotations.openMocks(this)
-        val projectResource = ProjectResource
-        ReflectionTestUtils.setField(projectResource, "projectService", projectService)
-        ReflectionTestUtils.setField(projectResource, "authService", authService)
         val filter = OAuthHelper.createAuthenticationFilter()
         filter.init(MockFilterConfig())
         rsaRestProjectMockMvc = MockMvcBuilders.standaloneSetup(projectResource)

@@ -12,7 +12,6 @@ import org.radarbase.management.domain.Authority
 import org.radarbase.management.domain.Role
 import org.radarbase.management.domain.User
 import org.radarbase.management.domain.audit.CustomRevisionEntity
-import org.radarbase.management.repository.CustomRevisionEntityRepository
 import org.radarbase.management.repository.UserRepository
 import org.radarbase.management.repository.filters.UserFilter
 import org.radarbase.management.security.Constants
@@ -24,7 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.data.domain.PageRequest
 import org.springframework.test.context.junit.jupiter.SpringExtension
-import org.springframework.test.util.ReflectionTestUtils
 import org.springframework.transaction.annotation.Transactional
 import java.time.Period
 import java.time.ZonedDateTime
@@ -41,34 +39,26 @@ import javax.persistence.EntityManagerFactory
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(classes = [ManagementPortalTestApp::class])
 @Transactional
-open class UserServiceIntTest(
+class UserServiceIntTest(
     @Autowired private val userRepository: UserRepository,
     @Autowired private val userMapper: UserMapper,
     @Autowired private val userService: UserService,
     @Autowired private val revisionService: RevisionService,
-    @Autowired private val revisionEntityRepository: CustomRevisionEntityRepository,
+
     @Autowired private val entityManagerFactory: EntityManagerFactory,
     @Autowired private val passwordService: PasswordService,
-    private var entityManager: EntityManager,
-    private var userDto: UserDTO?
 ) {
+    private lateinit var entityManager: EntityManager
+    private lateinit var userDto: UserDTO
 
     @BeforeEach
     fun setUp() {
         entityManager = entityManagerFactory.createEntityManager(
             entityManagerFactory.properties
         )
-        userDto = userMapper.userToUserDTO(createEntity(passwordService))
-        ReflectionTestUtils.setField(
-            revisionService, "revisionEntityRepository",
-            revisionEntityRepository
-        )
-        ReflectionTestUtils.setField(revisionService, "entityManager", entityManager)
-        ReflectionTestUtils.setField(userService, "userMapper", userMapper)
-        ReflectionTestUtils.setField(userService, "userRepository", userRepository)
+        userDto = userMapper.userToUserDTO(createEntity(passwordService))!!
 
-
-        userRepository.delete(userRepository.findOneByLogin(userDto!!.login)!!)
+        userRepository.delete(userRepository.findOneByLogin(userDto.login)!!)
     }
 
     @Test
@@ -85,7 +75,7 @@ open class UserServiceIntTest(
     @Test
     @Throws(NotAuthorizedException::class)
     fun assertThatOnlyActivatedUserCanRequestPasswordReset() {
-        val user = userService.createUser(userDto!!)
+        val user = userService.createUser(userDto)
         val maybeUser = userService.requestPasswordReset(
             userDto?.email!!
         )
@@ -96,7 +86,7 @@ open class UserServiceIntTest(
     @Test
     @Throws(NotAuthorizedException::class)
     fun assertThatResetKeyMustNotBeOlderThan24Hours() {
-        val user = userService.createUser(userDto!!)
+        val user = userService.createUser(userDto)
         val daysAgo = ZonedDateTime.now().minusHours(25)
         val resetKey = passwordService.generateResetKey()
         user.activated = true
@@ -114,7 +104,7 @@ open class UserServiceIntTest(
     @Test
     @Throws(NotAuthorizedException::class)
     fun assertThatResetKeyMustBeValid() {
-        val user = userService.createUser(userDto!!)
+        val user = userService.createUser(userDto)
         val daysAgo = ZonedDateTime.now().minusHours(25)
         user.activated = true
         user.resetDate = daysAgo
@@ -131,7 +121,7 @@ open class UserServiceIntTest(
     @Test
     @Throws(NotAuthorizedException::class)
     fun assertThatUserCanResetPassword() {
-        val user = userService.createUser(userDto!!)
+        val user = userService.createUser(userDto)
         val oldPassword = user.password
         val daysAgo = ZonedDateTime.now().minusHours(2)
         val resetKey = passwordService.generateResetKey()

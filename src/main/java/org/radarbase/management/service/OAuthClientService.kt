@@ -1,6 +1,5 @@
 package org.radarbase.management.service
 
-import org.radarbase.management.domain.Authority
 import org.radarbase.management.domain.User
 import org.radarbase.management.service.dto.ClientDetailsDTO
 import org.radarbase.management.service.mapper.ClientDetailsMapper
@@ -131,7 +130,7 @@ class OAuthClientService(
      */
     fun createAccessToken(user: User, clientId: String): OAuth2AccessToken {
         val authorities = user.authorities!!
-            .map { a: Authority? -> SimpleGrantedAuthority(a?.name) }
+            .map { a -> SimpleGrantedAuthority(a) }
         // lookup the OAuth client
         // getOAuthClient checks if the id exists
         val client = findOneByClientId(clientId)

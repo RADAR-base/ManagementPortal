@@ -26,7 +26,7 @@ import java.util.function.Consumer
  */
 @Service
 @Transactional
-open class RoleService(
+class RoleService(
     @Autowired private val roleRepository: RoleRepository,
     @Autowired private val authorityRepository: AuthorityRepository,
     @Autowired private val organizationRepository: OrganizationRepository,
@@ -58,12 +58,12 @@ open class RoleService(
      * @return the list of entities
      */
     @Transactional(readOnly = true)
-    open fun findAll(): List<RoleDTO> {
+    fun findAll(): List<RoleDTO> {
         val optUser = userService.userWithAuthorities
             ?: // return an empty list if we do not have a current user (e.g. with client credentials
             // oauth2 grant)
             return emptyList()
-        val currentUserAuthorities: List<String>? = optUser.authorities?.map { auth -> auth?.name!! }
+        val currentUserAuthorities = optUser.authorities
         return if (currentUserAuthorities?.contains(RoleAuthority.SYS_ADMIN.authority) == true) {
             log.debug("Request to get all Roles")
             roleRepository.findAll().filterNotNull().map { role: Role -> roleMapper.roleToRoleDTO(role) }.toList()
@@ -85,7 +85,7 @@ open class RoleService(
      * @return the list of entities
      */
     @Transactional(readOnly = true)
-    open fun findSuperAdminRoles(): List<RoleDTO> {
+    fun findSuperAdminRoles(): List<RoleDTO> {
         log.debug("Request to get admin Roles")
         return roleRepository.findRolesByAuthorityName(RoleAuthority.SYS_ADMIN.authority)
             .map { role: Role -> roleMapper.roleToRoleDTO(role) }.toList()
@@ -98,7 +98,7 @@ open class RoleService(
      * @return the entity
      */
     @Transactional(readOnly = true)
-    open fun findOne(id: Long): RoleDTO {
+    fun findOne(id: Long): RoleDTO {
         log.debug("Request to get Role : {}", id)
         val role = roleRepository.findById(id).get()
         return roleMapper.roleToRoleDTO(role)

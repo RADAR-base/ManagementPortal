@@ -4,13 +4,9 @@ import org.mapstruct.DecoratedWith
 import org.mapstruct.Mapper
 import org.mapstruct.Mapping
 import org.mapstruct.MappingConstants
-import org.radarbase.management.domain.Authority
 import org.radarbase.management.domain.User
 import org.radarbase.management.service.dto.UserDTO
 import org.radarbase.management.service.mapper.decorator.UserMapperDecorator
-import javax.validation.constraints.NotNull
-import javax.validation.constraints.Pattern
-import javax.validation.constraints.Size
 
 /**
  * Mapper for the entity User and its DTO UserDTO.
@@ -40,20 +36,4 @@ interface UserMapper {
     @Mapping(target = "password", ignore = true)
     @Mapping(target = "authorities", ignore = true)
     fun userDTOToUser(userDto: UserDTO?): User?
-
-    /**
-     * Map a set of [Authority]s to a set of strings that are the authority names.
-     * @param authorities the authorities to map
-     * @return the set of strings if authorities is not null, null otherwise
-     */
-    fun map(authorities: Set<Authority>): @NotNull @Size(
-        max = 50,
-        min = 0
-    ) @Pattern(regexp = "^[_'.@A-Za-z0-9- ]*$") Set<String> {
-        return authorities.mapNotNull { it.name }.toSet()
-    }
-
-    fun map(authority: Authority): String {
-        return authority.name!!
-    }
 }

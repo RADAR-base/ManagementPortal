@@ -178,7 +178,7 @@ internal open class OrganizationResourceIntTest(
     //TODO this is covered by not using a nullable type
     fun checkGroupNameIsRequired() {
         val orgDto = organizationMapper.organizationToOrganizationDTO(organization)
-        orgDto.name = ""
+        orgDto.name = null
         restOrganizationMockMvc.perform(
             MockMvcRequestBuilders.post("/api/organizations")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)

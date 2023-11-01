@@ -21,18 +21,10 @@ import javax.validation.constraints.Size
 @Audited
 @Table(name = "radar_authority")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-class Authority : Serializable {
-    @JvmField
-    @Id
-    @Column(length = 50)
-    @NotNull @Size(min = 0, max = 50) @Pattern(regexp = Constants.ENTITY_ID_REGEX) var name: String? = null
-
-    constructor()
-
-    constructor(authorityName: String?) {
-        name = authorityName
-        this.name = authorityName
-    }
+data class Authority(@JvmField
+                     @Id
+                     @Column(length = 50)
+                     @NotNull @Size(min = 0, max = 50) @Pattern(regexp = Constants.ENTITY_ID_REGEX) var name: String? = null) : Serializable {
 
     constructor(role: RoleAuthority) : this(role.authority)
 
@@ -54,12 +46,14 @@ class Authority : Serializable {
     }
 
     override fun toString(): String {
-        return ("Authority{"
-                + "name='" + name + '\''
-                + "}")
+        return name.toString()
     }
 
     companion object {
         private const val serialVersionUID = 1L
+    }
+
+    fun asString() : String? {
+        return name
     }
 }

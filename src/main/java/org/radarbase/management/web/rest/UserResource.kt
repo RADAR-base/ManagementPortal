@@ -106,7 +106,7 @@ class UserResource(
                     )
                 ).body(null)
             // Lowercase the user login before comparing with database
-        } else if (managedUserVm.login.lowercase().let { userRepository.findOneByLogin(it) } != null) {
+        } else if (managedUserVm.login?.lowercase().let { userRepository.findOneByLogin(it) } != null) {
             ResponseEntity.badRequest().headers(
                     HeaderUtil.createFailureAlert(
                             EntityName.USER, "userexists", "Login already in use"
@@ -149,7 +149,7 @@ class UserResource(
         if (existingUser?.id != managedUserVm.id) {
             throw BadRequestException("Email already in use", EntityName.USER, "emailexists")
         }
-        existingUser = managedUserVm.login.lowercase()?.let {
+        existingUser = managedUserVm.login?.lowercase().let {
             userRepository.findOneByLogin(
                 it
             )
