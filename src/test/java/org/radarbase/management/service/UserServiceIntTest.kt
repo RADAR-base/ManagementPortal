@@ -40,9 +40,9 @@ import javax.persistence.EntityManagerFactory
 @SpringBootTest(classes = [ManagementPortalTestApp::class])
 @Transactional
 class UserServiceIntTest(
+    @Autowired private val userService: UserService,
     @Autowired private val userRepository: UserRepository,
     @Autowired private val userMapper: UserMapper,
-    @Autowired private val userService: UserService,
     @Autowired private val revisionService: RevisionService,
 
     @Autowired private val entityManagerFactory: EntityManagerFactory,
@@ -58,7 +58,7 @@ class UserServiceIntTest(
         )
         userDto = userMapper.userToUserDTO(createEntity(passwordService))!!
 
-        userRepository.delete(userRepository.findOneByLogin(userDto.login)!!)
+        userRepository.findOneByLogin(userDto.login)?.let { userRepository.delete(it)}
     }
 
     @Test
@@ -77,7 +77,7 @@ class UserServiceIntTest(
     fun assertThatOnlyActivatedUserCanRequestPasswordReset() {
         val user = userService.createUser(userDto)
         val maybeUser = userService.requestPasswordReset(
-            userDto?.email!!
+            userDto.email!!
         )
         Assertions.assertThat(maybeUser).isNull()
         userRepository.delete(user)
