@@ -34,9 +34,9 @@ internal open class MetaTokenServiceTest(
     @Autowired private val subjectService: SubjectService,
     @Autowired private val subjectMapper: SubjectMapper,
     @Autowired private val oAuthClientService: OAuthClientService,
-    private var clientDetails: ClientDetails,
-    private var subjectDto: SubjectDTO
 ) {
+    private lateinit var clientDetails: ClientDetails
+    private lateinit var subjectDto: SubjectDTO
 
     @BeforeEach
     fun setUp() {

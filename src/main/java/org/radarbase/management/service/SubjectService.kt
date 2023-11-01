@@ -54,7 +54,7 @@ import javax.annotation.Nonnull
  */
 @Service
 @Transactional
-open class SubjectService(
+class SubjectService(
     @Autowired private val subjectMapper: SubjectMapper,
     @Autowired private val projectMapper: ProjectMapper,
     @Autowired private val subjectRepository: SubjectRepository,
@@ -76,7 +76,7 @@ open class SubjectService(
      * @return the newly created subject
      */
     @Transactional
-    open fun createSubject(subjectDto: SubjectDTO): SubjectDTO? {
+    fun createSubject(subjectDto: SubjectDTO): SubjectDTO? {
         val subject = subjectMapper.subjectDTOToSubject(subjectDto) ?: throw NullPointerException()
         //assign roles
         val user = subject.user
@@ -151,7 +151,7 @@ open class SubjectService(
      * @return the updated subject
      */
     @Transactional
-    open fun updateSubject(newSubjectDto: SubjectDTO): SubjectDTO? {
+    fun updateSubject(newSubjectDto: SubjectDTO): SubjectDTO? {
         if (newSubjectDto.id == null) {
             return createSubject(newSubjectDto)
         }
@@ -252,7 +252,7 @@ open class SubjectService(
      * updates meta-data.
      */
     @Transactional
-    open fun assignOrUpdateSource(
+    fun assignOrUpdateSource(
         subject: Subject, sourceType: SourceType, project: Project?, sourceRegistrationDto: MinimalSourceDetailsDTO
     ): MinimalSourceDetailsDTO {
         val assignedSource: Source

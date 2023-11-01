@@ -21,14 +21,14 @@ import java.util.*
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(classes = [ManagementPortalTestApp::class])
 @Transactional
-open class SubjectServiceTest(
+class SubjectServiceTest(
     @Autowired private val subjectService: SubjectService,
     @Autowired private val projectService: ProjectService
 ) {
 
     @Test
     @Transactional
-    open fun testGetPrivacyPolicyUrl() {
+    fun testGetPrivacyPolicyUrl() {
         projectService.save(createEntityDTO().project!!)
         val created = subjectService.createSubject(createEntityDTO())
         Assertions.assertNotNull(created!!.id)
