@@ -18,8 +18,6 @@ import org.radarbase.management.repository.GroupRepository
 import org.radarbase.management.repository.ProjectRepository
 import org.radarbase.management.repository.RoleRepository
 import org.radarbase.management.repository.SubjectRepository
-import org.radarbase.management.service.AuthService
-import org.radarbase.management.service.GroupService
 import org.radarbase.management.service.SubjectService
 import org.radarbase.management.service.dto.SubjectDTO
 import org.radarbase.management.service.dto.SubjectDTO.SubjectStatus
@@ -36,7 +34,6 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.mock.web.MockFilterConfig
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.junit.jupiter.SpringExtension
-import org.springframework.test.util.ReflectionTestUtils
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
@@ -54,18 +51,19 @@ import javax.servlet.ServletException
 @SpringBootTest(classes = [ManagementPortalTestApp::class])
 @WithMockUser
 internal class GroupResourceIntTest(
-    @Autowired private val groupService: GroupService,
+    @Autowired private val groupResource: GroupResource,
+
+    @Autowired private val pageableArgumentResolver: PageableHandlerMethodArgumentResolver,
+    @Autowired private val exceptionTranslator: ExceptionTranslator,
     @Autowired private val jacksonMessageConverter: MappingJackson2HttpMessageConverter,
+
     @Autowired private val projectMapper: ProjectMapper,
     @Autowired private val projectRepository: ProjectRepository,
     @Autowired private val roleRepository: RoleRepository,
     @Autowired private val subjectRepository: SubjectRepository,
     @Autowired private val subjectService: SubjectService,
     @Autowired private val groupMapper: GroupMapper,
-    @Autowired private val pageableArgumentResolver: PageableHandlerMethodArgumentResolver,
-    @Autowired private val exceptionTranslator: ExceptionTranslator,
-    @Autowired private val groupRepository: GroupRepository,
-    @Autowired private val authService: AuthService
+    @Autowired private val groupRepository: GroupRepository
 ) {
     private lateinit var restGroupMockMvc: MockMvc
     private lateinit var group: Group
@@ -77,18 +75,19 @@ internal class GroupResourceIntTest(
     @Throws(ServletException::class)
     fun setUp() {
         MockitoAnnotations.openMocks(this)
-        val groupResource = GroupResource()
-        ReflectionTestUtils.setField(groupResource, "groupService", groupService)
-        ReflectionTestUtils.setField(groupResource, "authService", authService)
         val filter = OAuthHelper.createAuthenticationFilter()
         filter.init(MockFilterConfig())
         restGroupMockMvc =
-            MockMvcBuilders.standaloneSetup(groupResource).setCustomArgumentResolvers(pageableArgumentResolver)
-                .setControllerAdvice(exceptionTranslator).setMessageConverters(jacksonMessageConverter)
-                .addFilter<StandaloneMockMvcBuilder>(filter).defaultRequest<StandaloneMockMvcBuilder>(
+            MockMvcBuilders.standaloneSetup(groupResource)
+                .setCustomArgumentResolvers(pageableArgumentResolver)
+                .setControllerAdvice(exceptionTranslator)
+                .setMessageConverters(jacksonMessageConverter)
+                .addFilter<StandaloneMockMvcBuilder>(filter)
+                .defaultRequest<StandaloneMockMvcBuilder>(
                     MockMvcRequestBuilders.get("/").with(OAuthHelper.bearerToken())
-                ).build()
-        project = ProjectResourceIntTest.Companion.createEntity()
+                )
+                .build()
+        project = ProjectResourceIntTest.createEntity()
         projectRepository.save(project)
         group = createEntity()
     }
@@ -166,7 +165,7 @@ internal class GroupResourceIntTest(
     @Test
     @Throws(Exception::class)
     fun createGroupWithExistingNameInDifferentProject() {
-        val project2: Project = ProjectResourceIntTest.Companion.createEntity().projectName(project.projectName + "2")
+        val project2: Project = ProjectResourceIntTest.createEntity().projectName(project.projectName + "2")
         projectRepository.saveAndFlush(project2)
         val group2 = Group()
         group2.name = group.name

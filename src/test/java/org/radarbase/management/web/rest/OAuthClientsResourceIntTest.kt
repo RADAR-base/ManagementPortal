@@ -42,7 +42,7 @@ import java.util.function.Consumer
  */
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(classes = [ManagementPortalApp::class])
-internal open class OAuthClientsResourceIntTest @Autowired constructor (
+internal class OAuthClientsResourceIntTest @Autowired constructor (
     private val clientDetailsService: JdbcClientDetailsService,
     private val clientDetailsMapper: ClientDetailsMapper,
     private val subjectService: SubjectService,
@@ -111,7 +111,7 @@ internal open class OAuthClientsResourceIntTest @Autowired constructor (
     @Test
     @Transactional
     @Throws(Exception::class)
-    open fun createAndFetchOAuthClient() {
+    fun createAndFetchOAuthClient() {
         // fetch the created oauth client and check the json result
         restOauthClientMvc.perform(
             MockMvcRequestBuilders.get("/api/oauth-clients/" + details.clientId)
@@ -205,7 +205,7 @@ internal open class OAuthClientsResourceIntTest @Autowired constructor (
     @Test
     @Transactional
     @Throws(Exception::class)
-    open fun dupliceOAuthClient() {
+    fun dupliceOAuthClient() {
         restOauthClientMvc.perform(
             MockMvcRequestBuilders.post("/api/oauth-clients")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -217,7 +217,7 @@ internal open class OAuthClientsResourceIntTest @Autowired constructor (
     @Test
     @Transactional
     @Throws(Exception::class)
-    open fun updateOAuthClient() {
+    fun updateOAuthClient() {
         // update the client
         details.refreshTokenValiditySeconds = 20L
         restOauthClientMvc.perform(
@@ -240,7 +240,7 @@ internal open class OAuthClientsResourceIntTest @Autowired constructor (
     @Test
     @Transactional
     @Throws(Exception::class)
-    open fun deleteOAuthClient() {
+    fun deleteOAuthClient() {
         restOauthClientMvc.perform(
             MockMvcRequestBuilders.delete("/api/oauth-clients/" + details.clientId)
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -254,7 +254,7 @@ internal open class OAuthClientsResourceIntTest @Autowired constructor (
     @Test
     @Transactional
     @Throws(Exception::class)
-    open fun cannotModifyProtected() {
+    fun cannotModifyProtected() {
         // first change our test client to be protected
         details.additionalInformation!!["protected"] = "true"
         restOauthClientMvc.perform(
