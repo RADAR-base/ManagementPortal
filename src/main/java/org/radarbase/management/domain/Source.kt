@@ -47,21 +47,21 @@ class Source : AbstractEntity, Serializable {
     // pass
     @JvmField
     @Column(name = "source_id", nullable = false, unique = true)
-    var sourceId: @NotNull UUID? = null
+    @NotNull var sourceId: UUID? = null
 
     @JvmField
     @Column(name = "source_name", nullable = false, unique = true)
-    var sourceName: @NotNull @Pattern(regexp = Constants.ENTITY_ID_REGEX) String? = null
+    @NotNull @Pattern(regexp = Constants.ENTITY_ID_REGEX) var sourceName: String? = null
 
     @JvmField
     @Column(name = "expected_source_name")
     var expectedSourceName: String? = null
 
     @Column(name = "assigned", nullable = false)
-    var assigned: @NotNull Boolean? = false
+    @NotNull var assigned: Boolean? = false
 
     @Column(name = "deleted", nullable = false)
-    var deleted: @NotNull Boolean = false
+    @NotNull var deleted: Boolean = false
 
     @JvmField
     @ManyToOne(fetch = FetchType.EAGER)

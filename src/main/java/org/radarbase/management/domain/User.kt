@@ -47,42 +47,42 @@ class User : AbstractEntity(), Serializable {
     override var id: Long? = null
 
     @Column(length = 50, unique = true, nullable = false)
-    lateinit var login: @NotNull @Pattern(regexp = Constants.ENTITY_ID_REGEX) @Size(min = 1, max = 50) String
+    @NotNull @Pattern(regexp = Constants.ENTITY_ID_REGEX) @Size(min = 1, max = 50) lateinit var login: String
         private set
 
     @JvmField
     @JsonIgnore
     @Column(name = "password_hash", length = 60)
-    var password: @NotNull @Size(min = 60, max = 60) String? = null
+    @NotNull @Size(min = 60, max = 60) var password: String? = null
 
     @JvmField
     @Column(name = "first_name", length = 50)
-    var firstName: @Size(max = 50) String? = null
+    @Size(max = 50) var firstName: String? = null
 
     @JvmField
     @Column(name = "last_name", length = 50)
-    var lastName: @Size(max = 50) String? = null
+    @Size(max = 50) var lastName: String? = null
 
     @JvmField
     @Column(length = 100, unique = true, nullable = true)
-    var email: @Email @Size(min = 5, max = 100) String? = null
+    @Email @Size(min = 5, max = 100) var email: String? = null
 
     @JvmField
     @Column(nullable = false)
-    var activated: @NotNull Boolean = false
+    @NotNull var activated: Boolean = false
 
     @JvmField
     @Column(name = "lang_key", length = 5)
-    var langKey: @Size(min = 2, max = 5) String? = null
+    @Size(min = 2, max = 5) var langKey: String? = null
 
     @JvmField
     @Column(name = "activation_key", length = 20)
     @JsonIgnore
-    var activationKey: @Size(max = 20) String? = null
+    @Size(max = 20) var activationKey: String? = null
 
     @JvmField
     @Column(name = "reset_key", length = 20)
-    var resetKey: @Size(max = 20) String? = null
+    @Size(max = 20) var resetKey: String? = null
 
     @JvmField
     @Column(name = "reset_date")

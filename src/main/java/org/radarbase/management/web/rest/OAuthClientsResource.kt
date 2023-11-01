@@ -120,7 +120,7 @@ class OAuthClientsResource {
     @PutMapping("/oauth-clients")
     @Timed
     @Throws(NotAuthorizedException::class)
-    fun updateOAuthClient(@RequestBody clientDetailsDto: @Valid ClientDetailsDTO?): ResponseEntity<ClientDetailsDTO> {
+    fun updateOAuthClient(@RequestBody @Valid clientDetailsDto: ClientDetailsDTO?): ResponseEntity<ClientDetailsDTO> {
         authService!!.checkPermission(Permission.OAUTHCLIENTS_UPDATE)
         // getOAuthClient checks if the id exists
         OAuthClientService.checkProtected(oAuthClientService!!.findOneByClientId(clientDetailsDto!!.clientId))

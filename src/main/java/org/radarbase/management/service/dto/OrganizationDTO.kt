@@ -11,9 +11,9 @@ import javax.validation.constraints.NotNull
 @JsonInclude(JsonInclude.Include.NON_NULL)
 class OrganizationDTO : Serializable {
     var id: Long? = null
-    var name: @NotNull String? = null
-    var description: @NotNull String? = null
-    var location: @NotNull String? = null
+    @NotNull var name: String? = null
+    @NotNull var description: String? = null
+    @NotNull var location: String? = null
 
     var projects: List<ProjectDTO> = emptyList()
     override fun equals(other: Any?): Boolean {
