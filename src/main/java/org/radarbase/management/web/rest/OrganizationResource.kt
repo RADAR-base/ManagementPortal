@@ -53,7 +53,7 @@ class OrganizationResource(
     @Timed
     @Throws(URISyntaxException::class, NotAuthorizedException::class)
     fun createOrganization(
-        @RequestBody organizationDto: @Valid OrganizationDTO?
+        @RequestBody @Valid organizationDto: OrganizationDTO?
     ): ResponseEntity<OrganizationDTO?> {
         log.debug("REST request to save Organization : {}", organizationDto)
         authService.checkPermission(Permission.ORGANIZATION_CREATE)
@@ -105,7 +105,7 @@ class OrganizationResource(
     @Timed
     @Throws(URISyntaxException::class, NotAuthorizedException::class)
     fun updateOrganization(
-        @RequestBody organizationDto: @Valid OrganizationDTO?
+        @RequestBody @Valid organizationDto: OrganizationDTO?
     ): ResponseEntity<OrganizationDTO?> {
         log.debug("REST request to update Organization : {}", organizationDto)
         if (organizationDto!!.id == null) {

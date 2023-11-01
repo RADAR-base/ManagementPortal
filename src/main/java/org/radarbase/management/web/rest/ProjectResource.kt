@@ -366,7 +366,7 @@ class ProjectResource(
     )
     fun getAllSubjects(
         @Valid subjectCriteria: SubjectCriteria?
-    ): ResponseEntity<List<SubjectDTO?>> {
+    ): ResponseEntity<List<SubjectDTO>> {
         authService.checkScope(Permission.SUBJECT_READ)
 
 
@@ -393,7 +393,7 @@ class ProjectResource(
         val headers = PaginationUtil.generateSubjectPaginationHttpHeaders(
             page, baseUri, subjectCriteria
         )
-        return ResponseEntity(page.content, headers, HttpStatus.OK)
+        return ResponseEntity(page.content.filterNotNull(), headers, HttpStatus.OK)
     }
 
     companion object {

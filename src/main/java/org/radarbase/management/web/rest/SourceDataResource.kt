@@ -55,7 +55,7 @@ class SourceDataResource(
     @PostMapping("/source-data")
     @Timed
     @Throws(URISyntaxException::class, NotAuthorizedException::class)
-    fun createSourceData(@RequestBody sourceDataDto: @Valid SourceDataDTO?): ResponseEntity<SourceDataDTO?> {
+    fun createSourceData(@RequestBody @Valid sourceDataDto: SourceDataDTO?): ResponseEntity<SourceDataDTO?> {
         log.debug("REST request to save SourceData : {}", sourceDataDto)
         authService.checkPermission(Permission.SOURCEDATA_CREATE)
         if (sourceDataDto!!.id != null) {
@@ -92,7 +92,7 @@ class SourceDataResource(
     @PutMapping("/source-data")
     @Timed
     @Throws(URISyntaxException::class, NotAuthorizedException::class)
-    fun updateSourceData(@RequestBody sourceDataDto: @Valid SourceDataDTO?): ResponseEntity<SourceDataDTO?> {
+    fun updateSourceData(@RequestBody @Valid sourceDataDto: SourceDataDTO?): ResponseEntity<SourceDataDTO?> {
         log.debug("REST request to update SourceData : {}", sourceDataDto)
         if (sourceDataDto!!.id == null) {
             return createSourceData(sourceDataDto)

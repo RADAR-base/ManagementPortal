@@ -13,11 +13,11 @@ import javax.validation.constraints.NotNull
 @JsonInclude(JsonInclude.Include.NON_NULL)
 class SourceTypeDTO : Serializable {
     var id: Long? = null
-    lateinit var producer: @NotNull String
-    lateinit var model: @NotNull String
-    lateinit var catalogVersion: @NotNull String
-    lateinit var sourceTypeScope: @NotNull String
-    var canRegisterDynamically: @NotNull Boolean = false
+    @NotNull var producer: String? = null
+    @NotNull var model: String? = null
+    @NotNull var catalogVersion: String? = null
+    @NotNull var sourceTypeScope: String? = null
+    @NotNull var canRegisterDynamically: Boolean = false
     var name: String? = null
     var description: String? = null
     var assessmentType: String? = null

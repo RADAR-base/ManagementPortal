@@ -44,7 +44,7 @@ class SourceType : AbstractEntity(), Serializable {
 
     @JvmField
     @Column(name = "producer")
-    var producer: @NotNull @Pattern(regexp = Constants.ENTITY_ID_REGEX) String? = null
+    @NotNull @Pattern(regexp = Constants.ENTITY_ID_REGEX) var producer: String? = null
 
     @JvmField
     @Column(name = "name")
@@ -64,19 +64,19 @@ class SourceType : AbstractEntity(), Serializable {
 
     @JvmField
     @Column(name = "model", nullable = false)
-    var model: @NotNull @Pattern(regexp = Constants.ENTITY_ID_REGEX) String? = null
+    @NotNull @Pattern(regexp = Constants.ENTITY_ID_REGEX) var model: String? = null
 
     @JvmField
     @Column(name = "catalog_version", nullable = false)
-    var catalogVersion: @NotNull @Pattern(regexp = Constants.ENTITY_ID_REGEX) String? = null
+    @NotNull @Pattern(regexp = Constants.ENTITY_ID_REGEX) var catalogVersion: String? = null
 
     @JvmField
     @Column(name = "source_type_scope", nullable = false)
-    var sourceTypeScope: @NotNull String? = null
+    @NotNull var sourceTypeScope: String? = null
 
     @JvmField
     @Column(name = "dynamic_registration", nullable = false)
-    var canRegisterDynamically: @NotNull Boolean? = false
+    @NotNull var canRegisterDynamically: Boolean? = false
 
     @JvmField
     @set:JsonSetter(nulls = Nulls.AS_EMPTY)

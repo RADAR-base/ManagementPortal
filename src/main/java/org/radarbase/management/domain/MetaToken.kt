@@ -36,7 +36,7 @@ class MetaToken : AbstractEntity() {
     override var id: Long? = null
 
     @Column(name = "token_name", nullable = false, unique = true)
-    var tokenName: @NotNull @Pattern(regexp = Constants.TOKEN_NAME_REGEX) String? = null
+    @NotNull @Pattern(regexp = Constants.TOKEN_NAME_REGEX) var tokenName: String? = null
         private set
 
     @Column(name = "fetched", nullable = false)
@@ -109,14 +109,14 @@ class MetaToken : AbstractEntity() {
     val isValid: Boolean
         get() = (persistent!! || !fetched!!) && Instant.now().isBefore(expiryDate)
 
-    override fun equals(o: Any?): Boolean {
-        if (this === o) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
             return true
         }
-        if (o == null || javaClass != o.javaClass) {
+        if (other == null || javaClass != other.javaClass) {
             return false
         }
-        val metaToken = o as MetaToken
+        val metaToken = other as MetaToken
         return id == metaToken.id && tokenName == metaToken.tokenName && fetched == metaToken.fetched && expiryDate == metaToken.expiryDate && clientId == metaToken.clientId && subject == metaToken.subject && persistent == metaToken.persistent
     }
 
