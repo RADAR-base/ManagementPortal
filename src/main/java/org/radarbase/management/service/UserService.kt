@@ -46,7 +46,8 @@ open class UserService @Autowired constructor(
     private val managementPortalProperties: ManagementPortalProperties,
     private val authService: AuthService
 ) {
-    @Autowired lateinit var roleService: RoleService
+    @Autowired
+    lateinit var roleService: RoleService
 
     /**
      * Activate a user with the given activation key.
@@ -83,12 +84,14 @@ open class UserService @Autowired constructor(
         val oneDayAgo = ZonedDateTime.now().minusSeconds(
             managementPortalProperties.common.activationKeyTimeoutInSeconds.toLong()
         )
-        if (user?.resetDate?.isAfter(oneDayAgo) == true) user.password = passwordService.encode(newPassword)
-        user?.resetKey = null
-        user?.resetDate = null
-        user?.activated = true
-
-        return user
+        return if (user?.resetDate?.isAfter(oneDayAgo) == true) {
+            user.password = passwordService.encode(newPassword)
+            user.resetKey = null
+            user.resetDate = null
+            user.activated = true
+            user
+        } else
+            null
     }
 
     /**
@@ -118,9 +121,12 @@ open class UserService @Autowired constructor(
      */
     fun requestPasswordReset(mail: String): User? {
         val user = userRepository.findOneByEmail(mail)
-        if (user?.activated == true) user.resetKey = passwordService.generateResetKey()
-        user?.resetDate = ZonedDateTime.now()
-        return user
+        return if (user?.activated == true) {
+            user.resetKey = passwordService.generateResetKey()
+            user.resetDate = ZonedDateTime.now()
+            user
+        } else
+            null
     }
 
     /**
@@ -286,8 +292,7 @@ open class UserService @Autowired constructor(
         if (user != null) {
             userRepository.delete(user)
             log.debug("Deleted User: {}", user)
-        }
-        else {
+        } else {
             log.warn("could not delete User with login: {}", login)
         }
     }
@@ -312,8 +317,7 @@ open class UserService @Autowired constructor(
     open fun changePassword(login: String, password: String) {
         val user = userRepository.findOneByLogin(login)
 
-        if (user != null)
-        {
+        if (user != null) {
             val encryptedPassword = passwordService.encode(password)
             user.password = encryptedPassword
             log.debug("Changed password for User: {}", user)
