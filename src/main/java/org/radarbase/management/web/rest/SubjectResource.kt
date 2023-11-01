@@ -197,7 +197,7 @@ class SubjectResource(
     @Timed
     @Throws(NotAuthorizedException::class)
     fun getAllSubjects(
-        subjectCriteria: @Valid SubjectCriteria?
+        @Valid subjectCriteria: SubjectCriteria?
     ): ResponseEntity<List<SubjectDTO?>>? {
         val projectName = subjectCriteria!!.projectName
         authService.checkPermission(Permission.SUBJECT_READ, { e: EntityDetails -> e.project(projectName) })

@@ -64,7 +64,7 @@ class Subject(
     var externalId: String? = null
 
     @Column(name = "removed", nullable = false)
-    var removed: @NotNull Boolean = false
+    @NotNull var removed: Boolean = false
 
     @JvmField
     @OneToOne

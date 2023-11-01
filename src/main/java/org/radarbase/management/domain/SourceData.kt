@@ -40,12 +40,12 @@ class SourceData : AbstractEntity(), Serializable {
     //SourceData type e.g. ACCELEROMETER, TEMPERATURE.
     @JvmField
     @Column(name = "source_data_type", nullable = false)
-    var sourceDataType: @NotNull String? = null
+    @NotNull var sourceDataType: String? = null
 
     // this will be the unique human readable identifier of
     @JvmField
     @Column(name = "source_data_name", nullable = false, unique = true)
-    var sourceDataName: @NotNull @Pattern(regexp = Constants.ENTITY_ID_REGEX) String? = null
+    @NotNull @Pattern(regexp = Constants.ENTITY_ID_REGEX) var sourceDataName: String? = null
 
     //Default data frequency
     @JvmField

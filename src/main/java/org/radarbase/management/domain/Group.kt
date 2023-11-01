@@ -40,7 +40,7 @@ class Group : AbstractEntity(), Serializable {
 
     @JvmField
     @Column(name = "name", length = 50, nullable = false)
-    var name: @NotNull @Pattern(regexp = Constants.ENTITY_ID_REGEX) @Size(min = 1, max = 50) String? = null
+    @NotNull @Pattern(regexp = Constants.ENTITY_ID_REGEX) @Size(min = 1, max = 50) var name: String? = null
 
     @JvmField
     @JsonIgnore

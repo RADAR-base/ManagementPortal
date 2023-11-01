@@ -55,7 +55,7 @@ class SourceResource(
     @PostMapping("/sources")
     @Timed
     @Throws(URISyntaxException::class, NotAuthorizedException::class)
-    fun createSource(@RequestBody sourceDto: @Valid SourceDTO?): ResponseEntity<SourceDTO> {
+    fun createSource(@RequestBody @Valid sourceDto: SourceDTO?): ResponseEntity<SourceDTO> {
         log.debug("REST request to save Source : {}", sourceDto)
         val project = sourceDto!!.project
         authService.checkPermission(Permission.SOURCE_CREATE, { e: EntityDetails ->
@@ -110,7 +110,7 @@ class SourceResource(
     @PutMapping("/sources")
     @Timed
     @Throws(URISyntaxException::class, NotAuthorizedException::class)
-    fun updateSource(@RequestBody sourceDto: @Valid SourceDTO): ResponseEntity<SourceDTO> {
+    fun updateSource(@RequestBody @Valid sourceDto: SourceDTO): ResponseEntity<SourceDTO> {
         log.debug("REST request to update Source : {}", sourceDto)
         if (sourceDto.id == null) {
             return createSource(sourceDto)

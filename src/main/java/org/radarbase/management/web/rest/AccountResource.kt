@@ -139,7 +139,7 @@ class AccountResource(
     @Timed
     @Throws(NotAuthorizedException::class)
     fun saveAccount(
-        @RequestBody userDto: @Valid UserDTO,
+        @RequestBody @Valid userDto: UserDTO,
         authentication: Authentication
     ): ResponseEntity<Void> {
         authService.checkPermission(Permission.USER_UPDATE, { e: EntityDetails ->

@@ -202,7 +202,7 @@ internal open class ProjectResourceIntTest(
     @Test
     open fun allProjects() {
             // Initialize the database
-            projectRepository.saveAndFlush<Project>(project)
+            projectRepository.saveAndFlush(project)
 
             // Get all the projectList
             restProjectMockMvc.perform(MockMvcRequestBuilders.get("/api/projects?sort=id,desc"))
@@ -269,7 +269,7 @@ internal open class ProjectResourceIntTest(
     @Throws(Exception::class)
     open fun getProject() {
         // Initialize the database
-        projectRepository.saveAndFlush<Project>(project)
+        projectRepository.saveAndFlush(project)
 
         // Get the project
         restProjectMockMvc.perform(MockMvcRequestBuilders.get("/api/projects/{projectName}", project.projectName))
@@ -299,7 +299,7 @@ internal open class ProjectResourceIntTest(
     @Throws(Exception::class)
     open fun updateProject() {
         // Initialize the database
-        projectRepository.saveAndFlush<Project>(project)
+        projectRepository.saveAndFlush(project)
         val org = Organization()
         org.name = "org1"
         org.description = "Test Organization 1"
@@ -328,7 +328,7 @@ internal open class ProjectResourceIntTest(
 
         // Validate the Project in the database
         val projectList = projectRepository.findAll()
-        assertThat<Project>(projectList).hasSize(databaseSizeBeforeUpdate)
+        assertThat(projectList).hasSize(databaseSizeBeforeUpdate)
         val testProject = projectList[projectList.size - 1]
         assertThat(testProject!!.projectName).isEqualTo(UPDATED_PROJECT_NAME)
         assertThat(testProject.description).isEqualTo(UPDATED_DESCRIPTION)
@@ -370,7 +370,7 @@ internal open class ProjectResourceIntTest(
     @Throws(Exception::class)
     open fun deleteProject() {
         // Initialize the database
-        projectRepository.saveAndFlush<Project>(project)
+        projectRepository.saveAndFlush(project)
         val databaseSizeBeforeDelete = projectRepository.findAll().size
 
         // Get the project

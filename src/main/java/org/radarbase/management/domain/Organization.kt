@@ -36,15 +36,15 @@ class Organization : AbstractEntity() {
 
     @JvmField
     @Column(name = "name", nullable = false, unique = true)
-    var name: @NotNull @Pattern(regexp = Constants.ENTITY_ID_REGEX) String? = null
+    @NotNull @Pattern(regexp = Constants.ENTITY_ID_REGEX) var name: String? = null
 
     @JvmField
     @Column(name = "description", nullable = false)
-    var description: @NotNull String? = null
+    @NotNull var description: String? = null
 
     @JvmField
     @Column(name = "location", nullable = false)
-    var location: @NotNull String? = null
+    @NotNull var location: String? = null
 
     @JvmField
     @OneToMany(mappedBy = "organization")

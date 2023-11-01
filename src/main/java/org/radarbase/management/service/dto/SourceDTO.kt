@@ -11,10 +11,10 @@ import javax.validation.constraints.NotNull
 class SourceDTO : Serializable {
     var id: Long? = null
     var sourceId: UUID? = null
-    lateinit var sourceName: @NotNull String
+    @NotNull var sourceName: String? = null
     var expectedSourceName: String? = null
-    var assigned: @NotNull Boolean? = null
-    lateinit var sourceType: @NotNull SourceTypeDTO
+    @NotNull var assigned: Boolean? = null
+    @NotNull var sourceType: SourceTypeDTO? = null
     var subjectLogin: String? = null
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
