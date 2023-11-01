@@ -35,12 +35,10 @@ import javax.validation.Valid
  */
 @RestController
 @RequestMapping("/api")
-class OrganizationResource {
-    @Autowired
-    private val organizationService: OrganizationService? = null
-
-    @Autowired
-    private val authService: AuthService? = null
+class OrganizationResource(
+    @Autowired private val organizationService: OrganizationService,
+    @Autowired private val authService: AuthService
+) {
 
     /**
      * POST  /organizations : Create a new organization.
@@ -58,13 +56,13 @@ class OrganizationResource {
         @RequestBody organizationDto: @Valid OrganizationDTO?
     ): ResponseEntity<OrganizationDTO?> {
         log.debug("REST request to save Organization : {}", organizationDto)
-        authService!!.checkPermission(Permission.ORGANIZATION_CREATE)
+        authService.checkPermission(Permission.ORGANIZATION_CREATE)
         if (organizationDto!!.id != null) {
             val msg = "A new organization cannot already have an ID"
             val headers = createFailureAlert(ENTITY_NAME, "idexists", msg)
             return ResponseEntity.badRequest().headers(headers).body(null)
         }
-        val existingOrg = organizationService!!.findByName(organizationDto.name)
+        val existingOrg = organizationDto.name?.let { organizationService.findByName(it) }
         if (existingOrg != null) {
             val msg = "An organization with this name already exists"
             val headers = createFailureAlert(ENTITY_NAME, "nameexists", msg)
@@ -88,8 +86,8 @@ class OrganizationResource {
          */
         get() {
             log.debug("REST request to get Organizations")
-            authService!!.checkScope(Permission.ORGANIZATION_READ)
-            val orgs = organizationService!!.findAll()
+            authService.checkScope(Permission.ORGANIZATION_READ)
+            val orgs = organizationService.findAll()
             return ResponseEntity(orgs, HttpStatus.OK)
         }
 
@@ -114,8 +112,8 @@ class OrganizationResource {
             return createOrganization(organizationDto)
         }
         val name = organizationDto.name
-        authService!!.checkPermission(Permission.ORGANIZATION_UPDATE, { (organization): EntityDetails -> organization })
-        val result = organizationService!!.save(organizationDto)
+        authService.checkPermission(Permission.ORGANIZATION_UPDATE, { (organization): EntityDetails -> organization })
+        val result = organizationService.save(organizationDto)
         return ResponseEntity.ok()
             .headers(createEntityCreationAlert(ENTITY_NAME, result.name))
             .body(result)
@@ -138,8 +136,8 @@ class OrganizationResource {
         @PathVariable name: String
     ): ResponseEntity<OrganizationDTO> {
         log.debug("REST request to get Organization : {}", name)
-        authService!!.checkPermission(Permission.ORGANIZATION_READ, { (organization): EntityDetails -> organization })
-        val org = organizationService!!.findByName(name)
+        authService.checkPermission(Permission.ORGANIZATION_READ, { (organization): EntityDetails -> organization })
+        val org = organizationService.findByName(name)
         val dto = org ?: throw NotFoundException(
                 "Organization not found with name $name",
                 EntityName.ORGANIZATION, ErrorConstants.ERR_ORGANIZATION_NAME_NOT_FOUND,
@@ -166,8 +164,8 @@ class OrganizationResource {
         @PathVariable name: String?
     ): ResponseEntity<List<ProjectDTO>> {
         log.debug("REST request to get Projects of the Organization : {}", name)
-        authService!!.checkPermission(Permission.PROJECT_READ, { (organization): EntityDetails -> organization })
-        val projects = organizationService!!.findAllProjectsByOrganizationName(name!!)
+        authService.checkPermission(Permission.PROJECT_READ, { (organization): EntityDetails -> organization })
+        val projects = organizationService.findAllProjectsByOrganizationName(name!!)
         return ResponseEntity.ok(projects)
     }
 
