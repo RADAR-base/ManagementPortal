@@ -30,7 +30,8 @@ class SubjectServiceTest(
     @Transactional
     fun testGetPrivacyPolicyUrl() {
         projectService.save(createEntityDTO().project!!)
-        val created = subjectService.createSubject(createEntityDTO())
+        val c = createEntityDTO()
+        val created = subjectService.createSubject(c)
         Assertions.assertNotNull(created!!.id)
         val subject = subjectService.findOneByLogin(created.login)
         Assertions.assertNotNull(subject)
