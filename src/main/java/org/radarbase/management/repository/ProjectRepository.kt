@@ -15,7 +15,7 @@ import org.springframework.data.repository.query.Param
  */
 @Suppress("unused")
 @RepositoryDefinition(domainClass = Project::class, idClass = Long::class)
-interface ProjectRepository : JpaRepository<Project, Long>, RevisionRepository<Project, Long, Int> {
+interface ProjectRepository : JpaRepository<Project, Long?>, RevisionRepository<Project, Long?, Int> {
     @Query(
         value = "select distinct project from Project project "
                 + "left join fetch project.sourceTypes",
@@ -53,7 +53,7 @@ interface ProjectRepository : JpaRepository<Project, Long>, RevisionRepository<P
                 + "left join fetch project.organization "
                 + "where project.id = :id"
     )
-    fun findOneWithEagerRelationships(@Param("id") id: Long): Project?
+    fun findOneWithEagerRelationships(@Param("id") id: Long?): Project?
 
     @Query(
         "select project from Project project "
