@@ -2,14 +2,22 @@ package org.radarbase.management.security
 
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
+import org.radarbase.management.ManagementPortalTestApp
+import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.security.test.context.support.WithMockUser
+import org.springframework.test.context.junit.jupiter.SpringExtension
 
 /**
  * Test class for the SecurityUtils utility class.
  *
  * @see SecurityUtils
  */
+@ExtendWith(SpringExtension::class)
+@SpringBootTest(classes = [ManagementPortalTestApp::class])
+@WithMockUser
 internal class SecurityUtilsUnitTest {
     @Test
     fun testGetCurrentUserLogin() {

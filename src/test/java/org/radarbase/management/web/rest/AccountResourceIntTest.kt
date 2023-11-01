@@ -5,10 +5,11 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.ArgumentMatchers
-import org.mockito.Mock
-import org.mockito.Mockito
-import org.mockito.MockitoAnnotations
+import org.mockito.kotlin.anyVararg
+import org.mockito.kotlin.doAnswer
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
 import org.radarbase.auth.authorization.RoleAuthority
 import org.radarbase.auth.token.RadarToken
 import org.radarbase.management.ManagementPortalTestApp
@@ -32,7 +33,6 @@ import org.springframework.http.MediaType
 import org.springframework.mock.web.MockHttpServletRequest
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.test.context.junit.jupiter.SpringExtension
-import org.springframework.test.util.ReflectionTestUtils
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
@@ -47,44 +47,46 @@ import java.util.*
  */
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(classes = [ManagementPortalTestApp::class])
-internal open class AccountResourceIntTest(
+internal class AccountResourceIntTest(
     @Autowired private val userRepository: UserRepository,
-    @Autowired private val userService: UserService,
-    @Autowired private val userMapper: UserMapper,
-    @Autowired private val passwordService: PasswordService,
-    @Mock private val mockUserService: UserService,
-    @Mock private val mockMailService: MailService,
     @Autowired private val radarToken: RadarToken,
+    @Autowired private val userMapper: UserMapper,
+    @Autowired private val managementPortalProperties: ManagementPortalProperties,
     @Autowired private val authService: AuthService,
-    @Autowired private val managementPortalProperties: ManagementPortalProperties
+    @Autowired private val passwordService: PasswordService
 ) {
+    @Autowired private lateinit var mockUserService: UserService
+    @Autowired private lateinit var mockMailService: MailService
     private lateinit var restUserMockMvc: MockMvc
+
     @BeforeEach
     fun setUp() {
-        MockitoAnnotations.openMocks(this)
-        Mockito.doNothing().`when`(mockMailService).sendActivationEmail(
-            ArgumentMatchers.any(
-                User::class.java
-            )
-        )
+        mockUserService = mock()
+        mockMailService = mock()
+
+        whenever(mockMailService.sendActivationEmail(anyVararg<User>())).doAnswer{ print("tried to send mail") }
+
         SecurityContextHolder.getContext().authentication = RadarAuthentication(radarToken)
         val accountResource = AccountResource(
-            userService,
+            mockUserService,
             mockMailService,
             userMapper,
             managementPortalProperties,
             authService,
-            passwordService
+            passwordService,
         )
-        ReflectionTestUtils.setField(accountResource, "token", radarToken)
+        accountResource.token = radarToken
+
         val accountUserMockResource = AccountResource(
-            userService,
+            mockUserService,
             mockMailService,
             userMapper,
             managementPortalProperties,
             authService,
-            passwordService
+            passwordService,
         )
+        accountUserMockResource.token = radarToken
+
         restUserMockMvc = MockMvcBuilders.standaloneSetup(accountUserMockResource).build()
     }
 
@@ -106,7 +108,7 @@ internal open class AccountResourceIntTest(
     @Test
     @Throws(Exception::class)
     fun testAuthenticatedUser() {
-        val token = Mockito.mock(RadarToken::class.java)
+        val token = mock<RadarToken>()
         val roles: MutableSet<Role> = HashSet()
         val role = Role()
         val authority = Authority()
@@ -120,7 +122,7 @@ internal open class AccountResourceIntTest(
         user.email = "john.doe@jhipster.com"
         user.langKey = "en"
         user.roles = roles
-        Mockito.`when`(mockUserService.userWithAuthorities).thenReturn(user)
+        whenever(mockUserService.userWithAuthorities).doReturn(user)
         restUserMockMvc.perform(MockMvcRequestBuilders.post("/api/login")
             .with { request: MockHttpServletRequest ->
                 request.radarToken = token
@@ -158,7 +160,7 @@ internal open class AccountResourceIntTest(
         user.email = "john.doe@jhipster.com"
         user.langKey = "en"
         user.roles = roles
-        Mockito.`when`(mockUserService.userWithAuthorities).thenReturn(user)
+        whenever(mockUserService.userWithAuthorities).doReturn(user)
         restUserMockMvc.perform(
             MockMvcRequestBuilders.get("/api/account")
                 .accept(MediaType.APPLICATION_JSON)
@@ -180,7 +182,7 @@ internal open class AccountResourceIntTest(
     @Test
     @Throws(Exception::class)
     fun testGetUnknownAccount() {
-        Mockito.`when`(mockUserService.userWithAuthorities).thenReturn(null)
+        whenever(mockUserService.userWithAuthorities).doReturn(null)
         restUserMockMvc.perform(
             MockMvcRequestBuilders.get("/api/account")
                 .accept(MediaType.APPLICATION_JSON)
@@ -191,7 +193,7 @@ internal open class AccountResourceIntTest(
     @Test
     @Transactional
     @Throws(Exception::class)
-    open fun testSaveInvalidLogin() {
+    fun testSaveInvalidLogin() {
         val roles: MutableSet<RoleDTO> = HashSet()
         val role = RoleDTO()
         role.authorityName = RoleAuthority.PARTICIPANT.authority

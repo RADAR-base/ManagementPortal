@@ -45,17 +45,17 @@ import javax.servlet.ServletException
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(classes = [ManagementPortalTestApp::class])
 @WithMockUser
-internal open class SourceResourceIntTest(
+internal class SourceResourceIntTest(
+    @Autowired private val sourceResource: SourceResource,
+
     @Autowired private val sourceRepository: SourceRepository,
     @Autowired private val sourceMapper: SourceMapper,
-    @Autowired private val sourceService: SourceService,
     @Autowired private val sourceTypeService: SourceTypeService,
     @Autowired private val sourceTypeMapper: SourceTypeMapper,
     @Autowired private val jacksonMessageConverter: MappingJackson2HttpMessageConverter,
     @Autowired private val pageableArgumentResolver: PageableHandlerMethodArgumentResolver,
     @Autowired private val exceptionTranslator: ExceptionTranslator,
     @Autowired private val projectRepository: ProjectRepository,
-    @Autowired private val authService: AuthService
 ) {
     private lateinit var restDeviceMockMvc: MockMvc
     private lateinit var source: Source
@@ -65,10 +65,6 @@ internal open class SourceResourceIntTest(
     @Throws(ServletException::class)
     fun setUp() {
         MockitoAnnotations.openMocks(this)
-        val sourceResource = SourceResource
-        ReflectionTestUtils.setField(sourceResource, "authService", authService)
-        ReflectionTestUtils.setField(sourceResource, "sourceService", sourceService)
-        ReflectionTestUtils.setField(sourceResource, "sourceRepository", sourceRepository)
         val filter = OAuthHelper.createAuthenticationFilter()
         filter.init(MockFilterConfig())
         restDeviceMockMvc = MockMvcBuilders.standaloneSetup(sourceResource)
@@ -93,7 +89,7 @@ internal open class SourceResourceIntTest(
     @Test
     @Transactional
     @Throws(Exception::class)
-    open fun createSource() {
+    fun createSource() {
         val databaseSizeBeforeCreate = sourceRepository.findAll().size
 
         // Create the Source
@@ -117,7 +113,7 @@ internal open class SourceResourceIntTest(
     @Test
     @Transactional
     @Throws(Exception::class)
-    open fun createSourceWithExistingId() {
+    fun createSourceWithExistingId() {
         val databaseSizeBeforeCreate = sourceRepository.findAll().size
 
         // Create the Source with an existing ID
@@ -140,7 +136,7 @@ internal open class SourceResourceIntTest(
     @Test
     @Transactional
     @Throws(Exception::class)
-    open fun checkSourcePhysicalIdIsGenerated() {
+    fun checkSourcePhysicalIdIsGenerated() {
         val databaseSizeBeforeTest = sourceRepository.findAll().size
         // set the field null
         source.sourceId = null
@@ -170,7 +166,7 @@ internal open class SourceResourceIntTest(
     @Test
     @Transactional
     @Throws(Exception::class)
-    open fun checkAssignedIsRequired() {
+    fun checkAssignedIsRequired() {
         val databaseSizeBeforeTest = sourceRepository.findAll().size
         // set the field null
         source.assigned = null
@@ -190,7 +186,7 @@ internal open class SourceResourceIntTest(
     @Throws(Exception::class)
     @Transactional
     @Test
-    open fun allSources() {
+    fun allSources() {
             // Initialize the database
             sourceRepository.saveAndFlush(source)
 
@@ -218,7 +214,7 @@ internal open class SourceResourceIntTest(
     @Test
     @Transactional
     @Throws(Exception::class)
-    open fun getSource() {
+    fun getSource() {
         // Initialize the database
         sourceRepository.saveAndFlush(source)
 
@@ -234,7 +230,7 @@ internal open class SourceResourceIntTest(
     @Throws(Exception::class)
     @Transactional
     @Test
-    open fun nonExistingSource() {
+    fun nonExistingSource() {
             // Get the source
             restDeviceMockMvc.perform(MockMvcRequestBuilders.get("/api/sources/{id}", Long.MAX_VALUE))
                 .andExpect(MockMvcResultMatchers.status().isNotFound())
@@ -243,7 +239,7 @@ internal open class SourceResourceIntTest(
     @Test
     @Transactional
     @Throws(Exception::class)
-    open fun updateSource() {
+    fun updateSource() {
         // Initialize the database
         sourceRepository.saveAndFlush(source)
         val databaseSizeBeforeUpdate = sourceRepository.findAll().size
@@ -272,7 +268,7 @@ internal open class SourceResourceIntTest(
     @Test
     @Transactional
     @Throws(Exception::class)
-    open fun updateNonExistingSource() {
+    fun updateNonExistingSource() {
         val databaseSizeBeforeUpdate = sourceRepository.findAll().size
 
         // Create the Source
@@ -294,7 +290,7 @@ internal open class SourceResourceIntTest(
     @Test
     @Transactional
     @Throws(Exception::class)
-    open fun deleteSource() {
+    fun deleteSource() {
         // Initialize the database
         sourceRepository.saveAndFlush(source)
         val databaseSizeBeforeDelete = sourceRepository.findAll().size
@@ -314,7 +310,7 @@ internal open class SourceResourceIntTest(
     @Test
     @Transactional
     @Throws(Exception::class)
-    open fun equalsVerifier() {
+    fun equalsVerifier() {
         org.junit.jupiter.api.Assertions.assertTrue(TestUtil.equalsVerifier(Source::class.java))
     }
 

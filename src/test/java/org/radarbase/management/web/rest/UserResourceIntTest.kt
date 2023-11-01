@@ -10,7 +10,6 @@ import org.mockito.MockitoAnnotations
 import org.radarbase.auth.authentication.OAuthHelper
 import org.radarbase.auth.authorization.RoleAuthority
 import org.radarbase.management.ManagementPortalTestApp
-import org.radarbase.management.config.ManagementPortalProperties
 import org.radarbase.management.domain.Authority
 import org.radarbase.management.domain.Project
 import org.radarbase.management.domain.Role
@@ -35,7 +34,6 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.mock.web.MockFilterConfig
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.junit.jupiter.SpringExtension
-import org.springframework.test.util.ReflectionTestUtils
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
@@ -53,8 +51,9 @@ import javax.servlet.ServletException
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(classes = [ManagementPortalTestApp::class])
 @WithMockUser
-internal open class UserResourceIntTest(
-    @Autowired private val managementPortalProperties: ManagementPortalProperties,
+internal class UserResourceIntTest(
+    @Autowired private val userResource: UserResource,
+
     @Autowired private val roleRepository: RoleRepository,
     @Autowired private val userRepository: UserRepository,
     @Autowired private val mailService: MailService,
@@ -75,16 +74,7 @@ internal open class UserResourceIntTest(
     @Throws(ServletException::class)
     fun setUp() {
         MockitoAnnotations.openMocks(this)
-        val userResource = UserResource
-        ReflectionTestUtils.setField(userResource, "userService", userService)
-        ReflectionTestUtils.setField(userResource, "mailService", mailService)
-        ReflectionTestUtils.setField(userResource, "userRepository", userRepository)
-        ReflectionTestUtils.setField(userResource, "subjectRepository", subjectRepository)
-        ReflectionTestUtils.setField(userResource, "authService", authService)
-        ReflectionTestUtils.setField(
-            userResource,
-            "managementPortalProperties", managementPortalProperties
-        )
+
         val filter = OAuthHelper.createAuthenticationFilter()
         filter.init(MockFilterConfig())
         restUserMockMvc = MockMvcBuilders.standaloneSetup(userResource)
@@ -123,7 +113,7 @@ internal open class UserResourceIntTest(
     @Test
     @Transactional
     @Throws(Exception::class)
-    open fun createUser() {
+    fun createUser() {
         val databaseSizeBeforeCreate = userRepository.findAll().size
 
         // Create the User
@@ -153,7 +143,7 @@ internal open class UserResourceIntTest(
     @Test
     @Transactional
     @Throws(Exception::class)
-    open fun createUserWithExistingId() {
+    fun createUserWithExistingId() {
         val databaseSizeBeforeCreate = userRepository.findAll().size
         val roles: MutableSet<RoleDTO> = HashSet()
         val role = RoleDTO()
@@ -178,7 +168,7 @@ internal open class UserResourceIntTest(
     @Test
     @Transactional
     @Throws(Exception::class)
-    open fun createUserWithExistingLogin() {
+    fun createUserWithExistingLogin() {
         // Initialize the database
         userRepository.saveAndFlush(user)
         val databaseSizeBeforeCreate = userRepository.findAll().size
@@ -205,7 +195,7 @@ internal open class UserResourceIntTest(
     @Test
     @Transactional
     @Throws(Exception::class)
-    open fun createUserWithExistingEmail() {
+    fun createUserWithExistingEmail() {
         // Initialize the database
         userRepository.saveAndFlush(user)
         val databaseSizeBeforeCreate = userRepository.findAll().size
@@ -232,7 +222,7 @@ internal open class UserResourceIntTest(
     @get:Throws(Exception::class)
     @get:Transactional
     @get:Test
-    open val allUsers: Unit
+    val allUsers: Unit
         get() {
             // Initialize the database
             val adminRole = Role()
@@ -282,7 +272,7 @@ internal open class UserResourceIntTest(
     @Test
     @Transactional
     @Throws(Exception::class)
-    open fun getUser() {
+    fun getUser() {
         // Initialize the database
         userRepository.saveAndFlush(user)
 
@@ -304,7 +294,7 @@ internal open class UserResourceIntTest(
     @get:Throws(Exception::class)
     @get:Transactional
     @get:Test
-    open val nonExistingUser: Unit
+    val nonExistingUser: Unit
         get() {
             restUserMockMvc.perform(MockMvcRequestBuilders.get("/api/users/unknown"))
                 .andExpect(MockMvcResultMatchers.status().isNotFound())
@@ -313,7 +303,7 @@ internal open class UserResourceIntTest(
     @Test
     @Transactional
     @Throws(Exception::class)
-    open fun updateUser() {
+    fun updateUser() {
         // Initialize the database
         userRepository.saveAndFlush(user)
         val databaseSizeBeforeUpdate = userRepository.findAll().size
@@ -356,7 +346,7 @@ internal open class UserResourceIntTest(
     @Test
     @Transactional
     @Throws(Exception::class)
-    open fun updateUserLogin() {
+    fun updateUserLogin() {
         // Initialize the database
         userRepository.saveAndFlush(user)
         project = ProjectResourceIntTest.createEntity()
@@ -400,7 +390,7 @@ internal open class UserResourceIntTest(
     @Test
     @Transactional
     @Throws(Exception::class)
-    open fun updateUserExistingEmail() {
+    fun updateUserExistingEmail() {
         // Initialize the database with 2 users
         userRepository.saveAndFlush(user)
         project = ProjectResourceIntTest.createEntity()
@@ -442,7 +432,7 @@ internal open class UserResourceIntTest(
     @Test
     @Transactional
     @Throws(Exception::class)
-    open fun updateUserExistingLogin() {
+    fun updateUserExistingLogin() {
         // Initialize the database
         userRepository.saveAndFlush(user)
         project = ProjectResourceIntTest.createEntity()
@@ -484,7 +474,7 @@ internal open class UserResourceIntTest(
     @Test
     @Transactional
     @Throws(Exception::class)
-    open fun deleteUser() {
+    fun deleteUser() {
         // Initialize the database
         userRepository.saveAndFlush(user)
         val databaseSizeBeforeDelete = userRepository.findAll().size
@@ -503,7 +493,7 @@ internal open class UserResourceIntTest(
 
     @Test
     @Transactional
-    open fun equalsVerifier() {
+    fun equalsVerifier() {
         val userA = User()
         userA.setLogin("AAA")
         val userB = User()

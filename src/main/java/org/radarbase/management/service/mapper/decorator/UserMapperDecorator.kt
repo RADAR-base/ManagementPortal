@@ -8,16 +8,16 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 
 abstract class UserMapperDecorator(
-    @Autowired @Qualifier("delegate") private val delegate: UserMapper? = null,
-    @Autowired private val revisionService: RevisionService? = null
 ) : UserMapper {
+    @Autowired @Qualifier("delegate") private lateinit var delegate: UserMapper
+    @Autowired private lateinit var revisionService: RevisionService
 
     override fun userToUserDTO(user: User?): UserDTO? {
         if (user == null) {
             return null
         }
-        val dto = delegate!!.userToUserDTO(user)
-        val auditInfo = revisionService!!.getAuditInfo(user)
+        val dto = delegate.userToUserDTO(user)
+        val auditInfo = revisionService.getAuditInfo(user)
         dto?.createdDate = auditInfo.createdAt
         dto?.createdBy = auditInfo.createdBy
         dto?.lastModifiedDate = auditInfo.lastModifiedAt

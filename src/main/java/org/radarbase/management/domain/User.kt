@@ -47,7 +47,7 @@ class User : AbstractEntity(), Serializable {
     override var id: Long? = null
 
     @Column(length = 50, unique = true, nullable = false)
-    @NotNull @Pattern(regexp = Constants.ENTITY_ID_REGEX) @Size(min = 1, max = 50) lateinit var login: String
+    @NotNull @Pattern(regexp = Constants.ENTITY_ID_REGEX) @Size(min = 1, max = 50) var login: String? = null
         private set
 
     @JvmField
@@ -88,8 +88,14 @@ class User : AbstractEntity(), Serializable {
     @Column(name = "reset_date")
     var resetDate: ZonedDateTime? = null
 
+    /** Authorities that a user has.  */
+    val authorities: Set<String>?
+        get() {
+            return roles?.mapNotNull { obj: Role? -> obj?.authority?.name }?.toSet()
+        }
+
     @JvmField
-    @set:JsonSetter(nulls = Nulls.AS_EMPTY)
+    @JsonSetter(nulls = Nulls.AS_EMPTY)
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "role_users",
@@ -105,13 +111,9 @@ class User : AbstractEntity(), Serializable {
     var roles: MutableSet<Role>? = HashSet()
 
     //Lowercase the login before saving it in database
-    fun setLogin(login: String) {
-        this.login = login.lowercase()
+    fun setLogin(login: String?) {
+        this.login = login?.lowercase()
     }
-
-    val authorities: Set<Authority?>?
-        /** Authorities that a user has.  */
-        get() = roles?.map { obj: Role? -> obj?.authority }?.toSet()
 
     override fun equals(other: Any?): Boolean {
         if (this === other) {
