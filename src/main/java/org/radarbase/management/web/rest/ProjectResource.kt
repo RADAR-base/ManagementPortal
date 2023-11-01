@@ -74,9 +74,9 @@ class ProjectResource(
     @PostMapping("/projects")
     @Timed
     @Throws(URISyntaxException::class, NotAuthorizedException::class)
-    fun createProject(@RequestBody projectDto: @Valid ProjectDTO?): ResponseEntity<ProjectDTO> {
+    fun createProject(@RequestBody @Valid projectDto: ProjectDTO?): ResponseEntity<ProjectDTO> {
         log.debug("REST request to save Project : {}", projectDto)
-        val org = projectDto!!.organization
+        val org = projectDto?.organization
         if (org?.name == null) {
             throw BadRequestException(
                 "Organization must be provided",
@@ -93,7 +93,7 @@ class ProjectResource(
                         ENTITY_NAME, "idexists", "A new project cannot already have an ID"
                     )
                 )
-                .body<ProjectDTO>(null)
+                .body(null)
         }
         if (projectRepository.findOneWithEagerRelationshipsByName(projectDto.projectName) != null) {
             return ResponseEntity.badRequest()
@@ -102,7 +102,7 @@ class ProjectResource(
                         ENTITY_NAME, "nameexists", "A project with this name already exists"
                     )
                 )
-                .body<ProjectDTO>(null)
+                .body(null)
         }
         val result = projectService.save(projectDto)
         return ResponseEntity.created(ResourceUriService.getUri(result))
@@ -112,7 +112,7 @@ class ProjectResource(
                     result.projectName
                 )
             )
-            .body<ProjectDTO>(result)
+            .body(result)
     }
 
     /**
@@ -127,7 +127,7 @@ class ProjectResource(
     @PutMapping("/projects")
     @Timed
     @Throws(URISyntaxException::class, NotAuthorizedException::class)
-    fun updateProject(@RequestBody projectDto: @Valid ProjectDTO?): ResponseEntity<ProjectDTO> {log.debug("REST request to update Project : {}", projectDto)
+    fun updateProject(@RequestBody @Valid projectDto: ProjectDTO?): ResponseEntity<ProjectDTO> {log.debug("REST request to update Project : {}", projectDto)
         if (projectDto?.id == null) {
             return createProject(projectDto)
         }
@@ -366,7 +366,7 @@ class ProjectResource(
         NotAuthorizedException::class
     )
     fun getAllSubjects(
-        subjectCriteria: @Valid SubjectCriteria?
+        @Valid subjectCriteria: SubjectCriteria?
     ): ResponseEntity<List<SubjectDTO?>> {
         authService.checkScope(Permission.SUBJECT_READ)
 
