@@ -6,8 +6,6 @@ import org.radarbase.auth.authorization.Permission
 import org.radarbase.auth.token.DataRadarToken
 import org.radarbase.auth.token.RadarToken
 import org.radarbase.management.config.ManagementPortalProperties
-import org.radarbase.management.domain.User
-import org.radarbase.management.security.JwtAuthenticationFilter
 import org.radarbase.management.security.JwtAuthenticationFilter.Companion.radarToken
 import org.radarbase.management.security.NotAuthorizedException
 import org.radarbase.management.service.AuthService
@@ -33,7 +31,6 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import java.lang.Exception
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpSession
 import javax.validation.Valid
@@ -53,7 +50,7 @@ class AccountResource(
 ) {
 
     @Autowired(required = false)
-    private val token: RadarToken? = null
+    var token: RadarToken? = null
 
     /**
      * GET  /activate : activate the registered user.
@@ -86,8 +83,8 @@ class AccountResource(
         if (token == null) {
             throw NotAuthorizedException("Cannot login without credentials")
         }
-        log.debug("Logging in user to session with principal {}", token.username)
-        session?.radarToken = DataRadarToken(token)
+        log.debug("Logging in user to session with principal {}", token!!.username)
+        session?.radarToken = DataRadarToken(token!!)
         return account
     }
 

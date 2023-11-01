@@ -205,6 +205,9 @@ dependencies {
     implementation project(':radar-auth')
     implementation "org.springframework.data:spring-data-envers"
 
+    implementation "org.mockito:mockito-core:$mockito_version"
+    implementation "org.mockito.kotlin:mockito-kotlin:${mockito_kotlin_version}"
+
     runtimeOnly("jakarta.xml.bind:jakarta.xml.bind-api:${javax_xml_bind_version}")
     runtimeOnly("org.glassfish.jaxb:jaxb-core:${javax_jaxb_core_version}")
     runtimeOnly("org.glassfish.jaxb:jaxb-runtime:${javax_jaxb_runtime_version}")
@@ -221,7 +224,7 @@ dependencies {
     testImplementation "org.springframework.boot:spring-boot-test"
     testImplementation "org.assertj:assertj-core:${assertj_version}"
     testImplementation "org.junit.jupiter:junit-jupiter-api"
-    testImplementation "org.mockito:mockito-core:$mockito_version"
+    testImplementation "org.mockito.kotlin:mockito-kotlin:${mockito_kotlin_version}"
     testImplementation "com.mattbertolini:liquibase-slf4j:${liquibase_slf4j_version}"
     testImplementation "org.hamcrest:hamcrest-library"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
