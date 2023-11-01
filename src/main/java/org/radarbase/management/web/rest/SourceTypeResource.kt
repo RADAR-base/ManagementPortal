@@ -59,9 +59,9 @@ class SourceTypeResource(
     @PostMapping("/source-types")
     @Timed
     @Throws(URISyntaxException::class, NotAuthorizedException::class)
-    fun createSourceType(@RequestBody sourceTypeDto: @Valid SourceTypeDTO?): ResponseEntity<SourceTypeDTO> {
+    fun createSourceType(@RequestBody @Valid sourceTypeDto: SourceTypeDTO?): ResponseEntity<SourceTypeDTO> {
         log.debug("REST request to save SourceType : {}", sourceTypeDto)
-        authService!!.checkPermission(Permission.SOURCETYPE_CREATE)
+        authService.checkPermission(Permission.SOURCETYPE_CREATE)
         if (sourceTypeDto!!.id != null) {
             return ResponseEntity.badRequest().headers(
                 HeaderUtil.createFailureAlert(
@@ -72,8 +72,8 @@ class SourceTypeResource(
         }
         val existing: SourceType? = sourceTypeRepository
             .findOneWithEagerRelationshipsByProducerAndModelAndVersion(
-                sourceTypeDto.producer, sourceTypeDto.model,
-                sourceTypeDto.catalogVersion
+                sourceTypeDto.producer!!, sourceTypeDto.model!!,
+                sourceTypeDto.catalogVersion!!
             )
         if (existing != null) {
             val errorParams: MutableMap<String, String?> = HashMap()
@@ -88,7 +88,7 @@ class SourceTypeResource(
                 ErrorConstants.ERR_SOURCE_TYPE_EXISTS, errorParams
             )
         }
-        val result = sourceTypeService!!.save(sourceTypeDto)
+        val result = sourceTypeService.save(sourceTypeDto)
         return ResponseEntity.created(getUri(result))
             .headers(HeaderUtil.createEntityCreationAlert(EntityName.SOURCE_TYPE, displayName(result)))
             .body(result)
@@ -106,13 +106,13 @@ class SourceTypeResource(
     @PutMapping("/source-types")
     @Timed
     @Throws(URISyntaxException::class, NotAuthorizedException::class)
-    fun updateSourceType(@RequestBody sourceTypeDto: @Valid SourceTypeDTO?): ResponseEntity<SourceTypeDTO> {
+    fun updateSourceType(@RequestBody @Valid sourceTypeDto: SourceTypeDTO?): ResponseEntity<SourceTypeDTO> {
         log.debug("REST request to update SourceType : {}", sourceTypeDto)
         if (sourceTypeDto!!.id == null) {
             return createSourceType(sourceTypeDto)
         }
-        authService!!.checkPermission(Permission.SOURCETYPE_UPDATE)
-        val result = sourceTypeService!!.save(sourceTypeDto)
+        authService.checkPermission(Permission.SOURCETYPE_UPDATE)
+        val result = sourceTypeService.save(sourceTypeDto)
         return ResponseEntity.ok()
             .headers(
                 HeaderUtil.createEntityUpdateAlert(EntityName.SOURCE_TYPE, displayName(sourceTypeDto))
@@ -132,8 +132,8 @@ class SourceTypeResource(
     fun getAllSourceTypes(
         @PageableDefault(page = 0, size = Int.MAX_VALUE) pageable: Pageable?
     ): ResponseEntity<List<SourceTypeDTO>> {
-        authService!!.checkPermission(Permission.SOURCETYPE_READ)
-        val page = sourceTypeService!!.findAll(pageable!!)
+        authService.checkPermission(Permission.SOURCETYPE_READ)
+        val page = sourceTypeService.findAll(pageable!!)
         val headers = PaginationUtil
             .generatePaginationHttpHeaders(page, "/api/source-types")
         return ResponseEntity(page.content, headers, HttpStatus.OK)
@@ -151,8 +151,8 @@ class SourceTypeResource(
         NotAuthorizedException::class
     )
     fun getSourceTypes(@PathVariable producer: String?): ResponseEntity<List<SourceTypeDTO>> {
-        authService!!.checkPermission(Permission.SOURCETYPE_READ)
-        return ResponseEntity.ok(sourceTypeService!!.findByProducer(producer!!))
+        authService.checkPermission(Permission.SOURCETYPE_READ)
+        return ResponseEntity.ok(sourceTypeService.findByProducer(producer!!))
     }
 
     /**
@@ -175,9 +175,9 @@ class SourceTypeResource(
         @PathVariable producer: String?,
         @PathVariable model: String?
     ): ResponseEntity<List<SourceTypeDTO>> {
-        authService!!.checkPermission(Permission.SOURCETYPE_READ)
+        authService.checkPermission(Permission.SOURCETYPE_READ)
         return ResponseEntity.ok(
-            sourceTypeService!!.findByProducerAndModel(
+            sourceTypeService.findByProducerAndModel(
                 producer!!, model!!
             )
         )
@@ -203,10 +203,10 @@ class SourceTypeResource(
         @PathVariable producer: String?,
         @PathVariable model: String?, @PathVariable version: String?
     ): ResponseEntity<SourceTypeDTO> {
-        authService!!.checkPermission(Permission.SOURCETYPE_READ)
+        authService.checkPermission(Permission.SOURCETYPE_READ)
         return ResponseUtil.wrapOrNotFound(
             Optional.ofNullable(
-                sourceTypeService!!.findByProducerAndModelAndVersion(producer!!, model!!, version!!)
+                sourceTypeService.findByProducerAndModelAndVersion(producer!!, model!!, version!!)
             )
         )
     }
@@ -232,13 +232,13 @@ class SourceTypeResource(
         @PathVariable producer: String?,
         @PathVariable model: String?, @PathVariable version: String?
     ): ResponseEntity<Void> {
-        authService!!.checkPermission(Permission.SOURCETYPE_DELETE)
+        authService.checkPermission(Permission.SOURCETYPE_DELETE)
         val sourceTypeDto = sourceTypeService
             .findByProducerAndModelAndVersion(producer!!, model!!, version!!)
         if (Objects.isNull(sourceTypeDto)) {
             return ResponseEntity.notFound().build()
         }
-        val projects = sourceTypeService!!.findProjectsBySourceType(
+        val projects = sourceTypeService.findProjectsBySourceType(
             producer, model,
             version
         )

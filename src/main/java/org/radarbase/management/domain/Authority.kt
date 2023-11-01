@@ -25,7 +25,7 @@ class Authority : Serializable {
     @JvmField
     @Id
     @Column(length = 50)
-    var name: @NotNull @Size(min = 0, max = 50) @Pattern(regexp = Constants.ENTITY_ID_REGEX) String? = null
+    @NotNull @Size(min = 0, max = 50) @Pattern(regexp = Constants.ENTITY_ID_REGEX) var name: String? = null
 
     constructor()
 
@@ -36,14 +36,14 @@ class Authority : Serializable {
 
     constructor(role: RoleAuthority) : this(role.authority)
 
-    override fun equals(o: Any?): Boolean {
-        if (this === o) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
             return true
         }
-        if (o == null || javaClass != o.javaClass) {
+        if (other == null || javaClass != other.javaClass) {
             return false
         }
-        val authority = o as Authority
+        val authority = other as Authority
         return if (name == null || authority.name == null) {
             false
         } else name == authority.name

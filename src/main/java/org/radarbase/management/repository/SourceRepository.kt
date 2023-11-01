@@ -61,5 +61,5 @@ interface SourceRepository : JpaRepository<Source, Long>, RevisionRepository<Sou
                 + "WHERE source.deleted = false "
                 + "AND source.sourceName = :sourceName"
     )
-    fun findOneBySourceName(@Param("sourceName") sourceName: String): Source?
+    fun findOneBySourceName(@Param("sourceName") sourceName: String?): Source?
 }

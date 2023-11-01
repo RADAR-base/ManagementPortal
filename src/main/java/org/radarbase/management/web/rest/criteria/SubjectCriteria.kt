@@ -29,7 +29,8 @@ class SubjectCriteria {
     @Transient
     private var parsedSort: List<SubjectSortOrder>? = null
 
-    val pageable: @NotNull Pageable
+    @get:NotNull
+    val pageable: Pageable
         /** Get the criteria paging settings, excluding sorting.  */
         get() = PageRequest.of(page, size)
 

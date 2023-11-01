@@ -46,10 +46,10 @@ interface UserMapper {
      * @param authorities the authorities to map
      * @return the set of strings if authorities is not null, null otherwise
      */
-    fun map(authorities: Set<Authority>): Set<@NotNull @Size(
+    fun map(authorities: Set<Authority>): @NotNull @Size(
         max = 50,
         min = 0
-    ) @Pattern(regexp = "^[_'.@A-Za-z0-9- ]*$") String> {
+    ) @Pattern(regexp = "^[_'.@A-Za-z0-9- ]*$") Set<String> {
         return authorities.mapNotNull { it.name }.toSet()
     }
 

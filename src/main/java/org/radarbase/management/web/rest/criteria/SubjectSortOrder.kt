@@ -13,22 +13,22 @@ import java.util.*
 import javax.validation.constraints.NotNull
 
 class SubjectSortOrder @JvmOverloads constructor(
-    val sortBy: @NotNull SubjectSortBy,
-    var direction: @NotNull Sort.Direction = Sort.Direction.ASC
+    @NotNull val sortBy: SubjectSortBy,
+    @NotNull var direction: Sort.Direction = Sort.Direction.ASC
 ) {
 
     override fun toString(): String {
         return sortBy.name + ',' + direction.name
     }
 
-    override fun equals(o: Any?): Boolean {
-        if (this === o) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
             return true
         }
-        if (o == null || javaClass != o.javaClass) {
+        if (other == null || javaClass != other.javaClass) {
             return false
         }
-        val that = o as SubjectSortOrder
+        val that = other as SubjectSortOrder
         return sortBy == that.sortBy && direction == that.direction
     }
 

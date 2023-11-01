@@ -95,8 +95,8 @@ open class SourceTypeService(
      * Fetch SourceType by producer and model.
      */
     fun findByProducerAndModelAndVersion(
-        producer: @NotNull String,
-        model: @NotNull String, version: @NotNull String
+        @NotNull producer: String,
+        @NotNull model: String, @NotNull version: String
     ): SourceTypeDTO {
         log.debug(
             "Request to get SourceType by producer and model and version: {}, {}, {}",

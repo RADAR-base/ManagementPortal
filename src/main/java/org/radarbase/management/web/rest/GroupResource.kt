@@ -54,7 +54,7 @@ class GroupResource {
     @Throws(NotAuthorizedException::class)
     fun createGroup(
         @PathVariable projectName: String?,
-        @RequestBody groupDto: @Valid GroupDTO?
+        @RequestBody @Valid groupDto: GroupDTO?
     ): ResponseEntity<GroupDTO> {
         authService!!.checkPermission(Permission.PROJECT_UPDATE, { e: EntityDetails -> e.project(projectName) })
         val groupDtoResult = groupService!!.createGroup(projectName!!, groupDto!!)

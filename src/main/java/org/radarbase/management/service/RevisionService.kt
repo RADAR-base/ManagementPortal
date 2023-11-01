@@ -282,7 +282,7 @@ open class RevisionService(@param:Autowired private val revisionEntityRepository
         return if (entity != null) getDtoMapper(entity.javaClass).apply(entity) else null
     }
 
-    private fun getDtoMapper(entity: @NotNull Class<*>?): Function<Any, Any?> {
+    private fun getDtoMapper(@NotNull entity: Class<*>?): Function<Any, Any?> {
         return dtoMapperMap.computeIfAbsent(entity) { clazz: Class<*>? -> addMapperForClass(clazz) }
     }
 

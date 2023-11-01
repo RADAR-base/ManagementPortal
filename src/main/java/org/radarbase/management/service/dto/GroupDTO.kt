@@ -11,7 +11,7 @@ import javax.validation.constraints.NotNull
 class GroupDTO {
     var id: Long? = null
     var projectId: Long? = null
-    var name: @NotNull String? = null
+    @NotNull var name: String? = null
     override fun equals(other: Any?): Boolean {
         if (this === other) {
             return true

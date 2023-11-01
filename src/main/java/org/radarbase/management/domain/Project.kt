@@ -56,10 +56,10 @@ class Project : AbstractEntity(), Serializable {
     override var id: Long? = null
 
     @Column(name = "project_name", nullable = false, unique = true)
-    var projectName: @NotNull @Pattern(regexp = "^[_'.@A-Za-z0-9- ]*$") String? = null
+    @NotNull @Pattern(regexp = "^[_'.@A-Za-z0-9- ]*$") var projectName: String? = null
 
     @Column(name = "description", nullable = false)
-    var description: @NotNull String? = null
+    @NotNull var description: String? = null
 
     @JvmField
     @Column(name = "jhi_organization")
@@ -72,7 +72,7 @@ class Project : AbstractEntity(), Serializable {
 
     @JvmField
     @Column(name = "location", nullable = false)
-    var location: @NotNull String? = null
+    @NotNull var location: String? = null
 
     @JvmField
     @Column(name = "start_date")
