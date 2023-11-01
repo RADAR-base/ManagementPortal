@@ -19,8 +19,8 @@ import java.util.Map
 abstract class SourceMapperDecorator() : SourceMapper {
 
     @Autowired @Qualifier("delegate") private val delegate: SourceMapper? = null
-    private val sourceRepository: SourceRepository? = null
-    private val subjectRepository: SubjectRepository? = null
+    @Autowired private val sourceRepository: SourceRepository? = null
+    @Autowired private val subjectRepository: SubjectRepository? = null
 
     override fun minimalSourceDTOToSource(minimalSourceDetailsDto: MinimalSourceDetailsDTO): Source? {
         val source = sourceRepository

@@ -22,10 +22,10 @@ import org.springframework.beans.factory.annotation.Qualifier
 abstract class SubjectMapperDecorator() : SubjectMapper {
 
     @Autowired @Qualifier("delegate") private val delegate: SubjectMapper? = null
-    private var groupRepository: GroupRepository? = null
-    private var projectRepository: ProjectRepository? = null
-    private var revisionService: RevisionService? = null
-    private var projectMapper: ProjectMapper? = null
+    @Autowired private var groupRepository: GroupRepository? = null
+    @Autowired private var projectRepository: ProjectRepository? = null
+    @Autowired private var revisionService: RevisionService? = null
+    @Autowired private var projectMapper: ProjectMapper? = null
     override fun subjectToSubjectDTO(subject: Subject?): SubjectDTO? {
         if (subject == null) {
             return null
