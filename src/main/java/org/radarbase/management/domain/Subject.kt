@@ -145,7 +145,7 @@ class Subject(
          * @return [Project] currently active project of subject.
          */
         get() = user?.roles
-            ?.first { r -> r.authority?.name == RoleAuthority.PARTICIPANT.authority }
+            ?.firstOrNull { r -> r.authority?.name == RoleAuthority.PARTICIPANT.authority }
             ?.project
     val associatedProject: Project?
         /**
