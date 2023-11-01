@@ -13,6 +13,7 @@ import org.radarbase.management.domain.Project
 import org.radarbase.management.domain.enumeration.ProjectStatus
 import org.radarbase.management.repository.OrganizationRepository
 import org.radarbase.management.repository.ProjectRepository
+import org.radarbase.management.service.dto.ProjectDTO
 import org.radarbase.management.service.mapper.ProjectMapper
 import org.radarbase.management.web.rest.errors.ExceptionTranslator
 import org.springframework.beans.factory.annotation.Autowired
@@ -144,7 +145,8 @@ internal open class ProjectResourceIntTest(
         project.projectName = null
 
         // Create the Project, which fails.
-        val projectDto = projectMapper.projectToProjectDTO(project)
+        val projectDto: ProjectDTO? = projectMapper.projectToProjectDTO(project)
+        val projectt: Project? = projectMapper.projectDTOToProject(projectDto)
         restProjectMockMvc.perform(
             MockMvcRequestBuilders.post("/api/projects")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -184,7 +186,7 @@ internal open class ProjectResourceIntTest(
         project.location = null
 
         // Create the Project, which fails.
-        val projectDto = projectMapper.projectToProjectDTO(project)
+        val projectDto: ProjectDTO? = projectMapper.projectToProjectDTO(project)
         restProjectMockMvc.perform(
             MockMvcRequestBuilders.post("/api/projects")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -425,6 +427,7 @@ internal open class ProjectResourceIntTest(
             val organization = Organization()
             organization.id = 1L
             organization.name = "main"
+            organization.description = "test"
             return Project()
                 .projectName(DEFAULT_PROJECT_NAME)
                 .description(DEFAULT_DESCRIPTION)

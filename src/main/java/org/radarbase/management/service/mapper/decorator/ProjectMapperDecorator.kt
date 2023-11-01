@@ -18,18 +18,18 @@ import java.util.*
 /**
  * Created by nivethika on 30-8-17.
  */
-abstract class ProjectMapperDecorator() : ProjectMapper {
+abstract class ProjectMapperDecorator : ProjectMapper {
 
-    @Autowired @Qualifier("delegate") private val delegate: ProjectMapper? = null
+    @Autowired @Qualifier("delegate") private lateinit var delegate: ProjectMapper
     @Autowired private lateinit var organizationRepository: OrganizationRepository
     @Autowired private lateinit var projectRepository: ProjectRepository
     @Autowired private lateinit var metaTokenService: MetaTokenService
 
     override fun projectToProjectDTO(project: Project?): ProjectDTO? {
-        val dto = delegate?.projectToProjectDTO(project)
+        val dto = delegate.projectToProjectDTO(project)
         dto?.humanReadableProjectName = project?.attributes?.get(ProjectDTO.HUMAN_READABLE_PROJECT_NAME)
         try {
-            dto?.persistentTokenTimeout = metaTokenService?.getMetaTokenTimeout(true, project)?.toMillis()
+            dto?.persistentTokenTimeout = metaTokenService.getMetaTokenTimeout(true, project).toMillis()
         } catch (ex: BadRequestException) {
             dto?.persistentTokenTimeout = null
         }
@@ -40,7 +40,7 @@ abstract class ProjectMapperDecorator() : ProjectMapper {
         if (project == null) {
             return null
         }
-        val dto = delegate?.projectToProjectDTOReduced(project)
+        val dto = delegate.projectToProjectDTOReduced(project)
         dto?.humanReadableProjectName = project.attributes[ProjectDTO.HUMAN_READABLE_PROJECT_NAME]
         dto?.sourceTypes = emptySet()
         return dto
@@ -50,19 +50,20 @@ abstract class ProjectMapperDecorator() : ProjectMapper {
         if (projectDto == null) {
             return null
         }
-        val project = delegate?.projectDTOToProject(projectDto)
+        val project = delegate.projectDTOToProject(projectDto)
         val projectName = projectDto.humanReadableProjectName
         if (!projectName.isNullOrEmpty()) {
             project!!.attributes[ProjectDTO.Companion.HUMAN_READABLE_PROJECT_NAME] = projectName
         }
-        val orgDto = projectDto.organization
-        if (orgDto?.name != null) {
-            val org = organizationRepository.findOneByName(orgDto.name)
+
+        val name = projectDto.organization?.name
+        if (name != null) {
+            val org = organizationRepository.findOneByName(name)
                 ?: throw NotFoundException(
                         "Organization not found with name",
                         EntityName.Companion.ORGANIZATION,
                         ErrorConstants.ERR_ORGANIZATION_NAME_NOT_FOUND,
-                        Collections.singletonMap<String, String?>("name", orgDto.name)
+                        Collections.singletonMap<String, String?>("name", name)
                     )
             project!!.organization = org
         }
@@ -72,6 +73,6 @@ abstract class ProjectMapperDecorator() : ProjectMapper {
     override fun descriptiveDTOToProject(minimalProjectDetailsDto: MinimalProjectDetailsDTO?): Project? {
         return if (minimalProjectDetailsDto == null) {
             null
-        } else minimalProjectDetailsDto.id?.let { projectRepository?.getById(it) }
+        } else minimalProjectDetailsDto.id?.let { projectRepository.getById(it) }
     }
 }
