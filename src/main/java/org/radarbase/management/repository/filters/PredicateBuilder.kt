@@ -43,7 +43,7 @@ class PredicateBuilder(val criteriaBuilder: CriteriaBuilder) {
     fun toAndPredicate(): Predicate? {
         return if (predicates.size == 1) {
             predicates[0]
-        } else if (!predicates.isEmpty()) {
+        } else if (predicates.isNotEmpty()) {
             criteriaBuilder.and(*predicates.toTypedArray<Predicate>())
         } else {
             null

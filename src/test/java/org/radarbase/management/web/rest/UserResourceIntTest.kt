@@ -16,12 +16,8 @@ import org.radarbase.management.domain.Role
 import org.radarbase.management.domain.User
 import org.radarbase.management.repository.ProjectRepository
 import org.radarbase.management.repository.RoleRepository
-import org.radarbase.management.repository.SubjectRepository
 import org.radarbase.management.repository.UserRepository
-import org.radarbase.management.service.AuthService
-import org.radarbase.management.service.MailService
 import org.radarbase.management.service.PasswordService
-import org.radarbase.management.service.UserService
 import org.radarbase.management.service.UserServiceIntTest
 import org.radarbase.management.service.dto.RoleDTO
 import org.radarbase.management.web.rest.errors.ExceptionTranslator
@@ -56,13 +52,9 @@ internal class UserResourceIntTest(
 
     @Autowired private val roleRepository: RoleRepository,
     @Autowired private val userRepository: UserRepository,
-    @Autowired private val mailService: MailService,
-    @Autowired private val userService: UserService,
     @Autowired private val jacksonMessageConverter: MappingJackson2HttpMessageConverter,
     @Autowired private val pageableArgumentResolver: PageableHandlerMethodArgumentResolver,
     @Autowired private val exceptionTranslator: ExceptionTranslator,
-    @Autowired private val subjectRepository: SubjectRepository,
-    @Autowired private val authService: AuthService,
     @Autowired private val passwordService: PasswordService,
     @Autowired private val projectRepository: ProjectRepository,
 ) {
