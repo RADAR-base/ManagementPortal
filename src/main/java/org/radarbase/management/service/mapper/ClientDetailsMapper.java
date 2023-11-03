@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
  */
 @Mapper(componentModel = "spring", uses = {BaseClientDetails.class})
 @DecoratedWith(ClientDetailsMapperDecorator.class)
-        public interface ClientDetailsMapper {
+public interface ClientDetailsMapper {
 
     @Mapping(target = "clientSecret", ignore = true)
     @Mapping(target = "autoApproveScopes", ignore = true)
@@ -37,6 +37,7 @@ import java.util.stream.Collectors;
 
     /**
      * Map a set of authorities represented as strings to a collection of {@link GrantedAuthority}s.
+     *
      * @param authorities the set of authorities to be mapped
      * @return a collection of {@link GrantedAuthority}s
      */
@@ -44,13 +45,12 @@ import java.util.stream.Collectors;
         if (Objects.isNull(authorities)) {
             return Collections.emptySet();
         }
-        return authorities.stream()
-            .map(SimpleGrantedAuthority::new)
-            .collect(Collectors.toList());
+        return authorities.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
     }
 
     /**
      * Map a collection of authorities represented as {@link GrantedAuthority}s to a set of strings.
+     *
      * @param authorities the collection of {@link GrantedAuthority}s to be mapped
      * @return the set of strings
      */
@@ -58,23 +58,20 @@ import java.util.stream.Collectors;
         if (Objects.isNull(authorities)) {
             return Collections.emptySet();
         }
-        return authorities.stream()
-            .map(GrantedAuthority::getAuthority)
-            .collect(Collectors.toSet());
+        return authorities.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toSet());
     }
 
     /**
      * Transforms the values in the input map to strings so the result is a
      * {@link Map}.
      * @param additionalInformation a {@link Map} to be transformed
-     * @return a new map with the same keys as the input map, but the values are transformed to
-     *     strings using their {@link Object#toString()} method
+     * @return a new map with the same keys as the input map, but the values are strings
      */
     default Map<String, String> map(Map<String, ?> additionalInformation) {
         if (Objects.isNull(additionalInformation)) {
             return Collections.emptyMap();
         }
-        return additionalInformation.entrySet().stream()
-            .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
+        return additionalInformation.entrySet().stream().collect(Collectors.toMap(
+                Map.Entry::getKey, e -> e.getValue().toString()));
     }
 }

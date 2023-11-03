@@ -101,33 +101,33 @@ class UserResource(
         authService.checkPermission(Permission.USER_CREATE)
         return if (managedUserVm.id != null) {
             ResponseEntity.badRequest().headers(
-                    HeaderUtil.createFailureAlert(
-                        EntityName.USER, "idexists", "A new user cannot already have an ID"
-                    )
-                ).body(null)
+                HeaderUtil.createFailureAlert(
+                    EntityName.USER, "idexists", "A new user cannot already have an ID"
+                )
+            ).body(null)
             // Lowercase the user login before comparing with database
         } else if (managedUserVm.login?.lowercase().let { userRepository.findOneByLogin(it) } != null) {
             ResponseEntity.badRequest().headers(
-                    HeaderUtil.createFailureAlert(
-                            EntityName.USER, "userexists", "Login already in use"
-                        )
-                ).body(null)
+                HeaderUtil.createFailureAlert(
+                    EntityName.USER, "userexists", "Login already in use"
+                )
+            ).body(null)
         } else if (managedUserVm.email?.let { userRepository.findOneByEmail(it) } != null) {
             ResponseEntity.badRequest().headers(
-                    HeaderUtil.createFailureAlert(
-                            EntityName.USER, "emailexists", "Email already in use"
-                        )
-                ).body(null)
+                HeaderUtil.createFailureAlert(
+                    EntityName.USER, "emailexists", "Email already in use"
+                )
+            ).body(null)
         } else {
             val newUser = userService.createUser(managedUserVm)
             mailService.sendCreationEmail(
                 newUser, managementPortalProperties.common.activationKeyTimeoutInSeconds.toLong()
             )
             ResponseEntity.created(ResourceUriService.getUri(newUser)).headers(
-                    HeaderUtil.createAlert(
-                        "userManagement.created", newUser.login
-                    )
-                ).body(newUser)
+                HeaderUtil.createAlert(
+                    "userManagement.created", newUser.login
+                )
+            ).body(newUser)
         }
     }
 
@@ -168,10 +168,10 @@ class UserResource(
             managedUserVm
         )
         return ResponseEntity.ok().headers(
-                HeaderUtil.createAlert("userManagement.updated", managedUserVm.login)
-            ).body(
-                updatedUser
-            )
+            HeaderUtil.createAlert("userManagement.updated", managedUserVm.login)
+        ).body(
+            updatedUser
+        )
     }
 
     /**
@@ -254,7 +254,8 @@ class UserResource(
         authService.checkPermission(Permission.ROLE_READ, { e: EntityDetails -> e.user(login) })
         return ResponseUtil.wrapOrNotFound(
             Optional.ofNullable(userService.getUserWithAuthoritiesByLogin(login)
-            .let { obj: UserDTO? -> obj?.roles }))
+                .let { obj: UserDTO? -> obj?.roles })
+        )
     }
 
     /**
