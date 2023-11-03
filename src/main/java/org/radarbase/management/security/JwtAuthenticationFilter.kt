@@ -201,14 +201,14 @@ class JwtAuthenticationFilter @JvmOverloads constructor(
 
         @get:JvmStatic
         @set:JvmStatic
-        var HttpSession.radarToken: RadarToken
-            get() = getAttribute(TOKEN_ATTRIBUTE) as RadarToken
+        var HttpSession.radarToken: RadarToken?
+            get() = getAttribute(TOKEN_ATTRIBUTE) as RadarToken?
             set(value) = setAttribute(TOKEN_ATTRIBUTE, value)
 
         @get:JvmStatic
         @set:JvmStatic
-        var HttpServletRequest.radarToken: RadarToken
-            get() = getAttribute(TOKEN_ATTRIBUTE) as RadarToken
+        var HttpServletRequest.radarToken: RadarToken?
+            get() = getAttribute(TOKEN_ATTRIBUTE) as RadarToken?
             set(value) = setAttribute(TOKEN_ATTRIBUTE, value)
 
         val Authentication?.isAnonymous: Boolean
