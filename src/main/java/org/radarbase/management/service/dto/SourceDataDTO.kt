@@ -10,8 +10,10 @@ import java.util.*
 class SourceDataDTO : Serializable {
     var id: Long? = null
 
-    //Source data type.
+    /** Source data type. Defaults to the topic of the source data. */
     var sourceDataType: String? = null
+        get() = field ?: topic
+
     var sourceDataName: String? = null
 
     //Default data frequency

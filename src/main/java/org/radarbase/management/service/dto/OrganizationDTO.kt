@@ -16,6 +16,7 @@ class OrganizationDTO : Serializable {
     @NotNull var location: String? = null
 
     var projects: List<ProjectDTO> = emptyList()
+
     override fun equals(other: Any?): Boolean {
         if (this === other) {
             return true
