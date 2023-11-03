@@ -83,7 +83,12 @@ open class ManagementPortalJwtAccessTokenConverter(
     }
 
     override fun extractAccessToken(value: String, map: Map<String?, *>?): OAuth2AccessToken {
-        return tokenConverter.extractAccessToken(value, map)
+        var mapCopy = map?.toMutableMap()
+
+        if (mapCopy?.containsKey(AccessTokenConverter.EXP) == true) {
+            mapCopy[AccessTokenConverter.EXP] = (mapCopy[AccessTokenConverter.EXP] as Int).toLong()
+        }
+        return tokenConverter.extractAccessToken(value, mapCopy)
     }
 
     override fun extractAuthentication(map: Map<String?, *>?): OAuth2Authentication {
