@@ -87,14 +87,14 @@ class Project : AbstractEntity(), Serializable {
     @Column(name = "end_date")
     var endDate: ZonedDateTime? = null
 
-    @set:JsonSetter(nulls = Nulls.AS_EMPTY)
+    @JsonSetter(nulls = Nulls.AS_EMPTY)
     @JsonIgnore
     @OneToMany(mappedBy = "project", fetch = FetchType.LAZY)
     @Cascade(CascadeType.ALL)
     var roles: Set<Role> = HashSet()
 
     @JvmField
-    @set:JsonSetter(nulls = Nulls.AS_EMPTY)
+    @JsonSetter(nulls = Nulls.AS_EMPTY)
     @ManyToMany(fetch = FetchType.LAZY)
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @JoinTable(
@@ -105,7 +105,7 @@ class Project : AbstractEntity(), Serializable {
     var sourceTypes: Set<SourceType> = HashSet()
 
     @JvmField
-    @set:JsonSetter(nulls = Nulls.AS_EMPTY)
+    @JsonSetter(nulls = Nulls.AS_EMPTY)
     @ElementCollection(fetch = FetchType.EAGER)
     @MapKeyColumn(name = "attribute_key")
     @Column(name = "attribute_value")
@@ -113,7 +113,6 @@ class Project : AbstractEntity(), Serializable {
     var attributes: MutableMap<String, String> = HashMap()
 
     @JvmField
-    @set:JsonSetter(nulls = Nulls.AS_EMPTY)
     @NotAudited
     @OneToMany(
         mappedBy = "project",

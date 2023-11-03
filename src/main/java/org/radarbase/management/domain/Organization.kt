@@ -48,7 +48,8 @@ class Organization : AbstractEntity() {
 
     @JvmField
     @OneToMany(mappedBy = "organization")
-    var projects: List<Project>? = null
+    var projects: List<Project> = emptyList()
+
     override fun equals(other: Any?): Boolean {
         if (this === other) {
             return true
