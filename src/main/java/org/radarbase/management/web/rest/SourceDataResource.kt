@@ -55,10 +55,10 @@ class SourceDataResource(
     @PostMapping("/source-data")
     @Timed
     @Throws(URISyntaxException::class, NotAuthorizedException::class)
-    fun createSourceData(@RequestBody @Valid sourceDataDto: SourceDataDTO?): ResponseEntity<SourceDataDTO?> {
+    fun createSourceData(@RequestBody @Valid sourceDataDto: SourceDataDTO): ResponseEntity<SourceDataDTO?> {
         log.debug("REST request to save SourceData : {}", sourceDataDto)
         authService.checkPermission(Permission.SOURCEDATA_CREATE)
-        if (sourceDataDto!!.id != null) {
+        if (sourceDataDto.id != null) {
             return ResponseEntity.badRequest().headers(
                 createFailureAlert(
                     EntityName.SOURCE_DATA,

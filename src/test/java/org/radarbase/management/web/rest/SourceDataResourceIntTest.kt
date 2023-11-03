@@ -12,6 +12,7 @@ import org.radarbase.management.domain.SourceData
 import org.radarbase.management.repository.SourceDataRepository
 import org.radarbase.management.service.AuthService
 import org.radarbase.management.service.SourceDataService
+import org.radarbase.management.service.dto.SourceDataDTO
 import org.radarbase.management.service.mapper.SourceDataMapper
 import org.radarbase.management.web.rest.errors.ExceptionTranslator
 import org.springframework.beans.factory.annotation.Autowired
@@ -22,7 +23,6 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.mock.web.MockFilterConfig
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.junit.jupiter.SpringExtension
-import org.springframework.test.util.ReflectionTestUtils
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
@@ -39,7 +39,7 @@ import javax.servlet.ServletException
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(classes = [ManagementPortalTestApp::class])
 @WithMockUser
-internal open class SourceDataResourceIntTest(
+internal class SourceDataResourceIntTest(
     @Autowired private val sourceDataRepository: SourceDataRepository,
     @Autowired private val sourceDataMapper: SourceDataMapper,
     @Autowired private val sourceDataService: SourceDataService,
@@ -59,8 +59,6 @@ internal open class SourceDataResourceIntTest(
             sourceDataService,
             authService
         )
-        ReflectionTestUtils.setField(sourceDataResource, "sourceDataService", sourceDataService)
-        ReflectionTestUtils.setField(sourceDataResource, "authService", authService)
         val filter = OAuthHelper.createAuthenticationFilter()
         filter.init(MockFilterConfig())
         restSourceDataMockMvc = MockMvcBuilders.standaloneSetup(sourceDataResource)
@@ -80,7 +78,7 @@ internal open class SourceDataResourceIntTest(
     @Test
     @Transactional
     @Throws(Exception::class)
-    open fun createSourceData() {
+    fun createSourceData() {
         val databaseSizeBeforeCreate = sourceDataRepository.findAll().size
 
         // Create the SourceData
@@ -109,7 +107,7 @@ internal open class SourceDataResourceIntTest(
     @Test
     @Transactional
     @Throws(Exception::class)
-    open fun createSourceDataWithExistingId() {
+    fun createSourceDataWithExistingId() {
         val databaseSizeBeforeCreate = sourceDataRepository.findAll().size
 
         // Create the SourceData with an existing ID
@@ -132,13 +130,13 @@ internal open class SourceDataResourceIntTest(
     @Test
     @Transactional
     @Throws(Exception::class)
-    open fun checkSourceDataTypeIsNotRequired() {
+    fun checkSourceDataTypeIsNotRequired() {
         val databaseSizeBeforeTest = sourceDataRepository.findAll().size
         // set the field null
         sourceData.sourceDataType = null
 
         // Create the SourceData, which fails.
-        val sourceDataDto = sourceDataMapper.sourceDataToSourceDataDTO(sourceData)
+        val sourceDataDto: SourceDataDTO? = sourceDataMapper.sourceDataToSourceDataDTO(sourceData)
         restSourceDataMockMvc.perform(
             MockMvcRequestBuilders.post("/api/source-data")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -152,7 +150,7 @@ internal open class SourceDataResourceIntTest(
     @Test
     @Transactional
     @Throws(Exception::class)
-    open fun checkSourceDataTypeOrTopicIsRequired() {
+    fun checkSourceDataTypeOrTopicIsRequired() {
         val databaseSizeBeforeTest = sourceDataRepository.findAll().size
         // set the field null
         sourceData.sourceDataType = null
@@ -173,7 +171,7 @@ internal open class SourceDataResourceIntTest(
     @Throws(Exception::class)
     @Transactional
     @Test
-    open fun allSourceData() {
+    fun allSourceData() {
             // Initialize the database
             sourceDataRepository.saveAndFlush(sourceData)
 
@@ -243,7 +241,7 @@ internal open class SourceDataResourceIntTest(
     @Throws(Exception::class)
     @Transactional
     @Test
-    open fun allSourceDataWithPagination() {
+    fun allSourceDataWithPagination() {
             // Initialize the database
             sourceDataRepository.saveAndFlush(sourceData)
 
@@ -313,7 +311,7 @@ internal open class SourceDataResourceIntTest(
     @Test
     @Transactional
     @Throws(Exception::class)
-    open fun getSourceData() {
+    fun getSourceData() {
         // Initialize the database
         sourceDataRepository.saveAndFlush(sourceData)
 
@@ -340,7 +338,7 @@ internal open class SourceDataResourceIntTest(
     @Throws(Exception::class)
     @Transactional
     @Test
-    open fun nonExistingSourceData() {
+    fun nonExistingSourceData() {
             // Get the sourceData
             restSourceDataMockMvc.perform(
                 MockMvcRequestBuilders.get(
@@ -354,7 +352,7 @@ internal open class SourceDataResourceIntTest(
     @Test
     @Transactional
     @Throws(Exception::class)
-    open fun updateSourceData() {
+    fun updateSourceData() {
         // Initialize the database
         sourceDataRepository.saveAndFlush(sourceData)
         val databaseSizeBeforeUpdate = sourceDataRepository.findAll().size
@@ -395,7 +393,7 @@ internal open class SourceDataResourceIntTest(
     @Test
     @Transactional
     @Throws(Exception::class)
-    open fun updateNonExistingSourceData() {
+    fun updateNonExistingSourceData() {
         val databaseSizeBeforeUpdate = sourceDataRepository.findAll().size
 
         // Create the SourceData
@@ -417,7 +415,7 @@ internal open class SourceDataResourceIntTest(
     @Test
     @Transactional
     @Throws(Exception::class)
-    open fun deleteSourceData() {
+    fun deleteSourceData() {
         // Initialize the database
         sourceDataRepository.saveAndFlush(sourceData)
         val databaseSizeBeforeDelete = sourceDataRepository.findAll().size
@@ -440,7 +438,7 @@ internal open class SourceDataResourceIntTest(
     @Test
     @Transactional
     @Throws(Exception::class)
-    open fun equalsVerifier() {
+    fun equalsVerifier() {
         org.junit.jupiter.api.Assertions.assertTrue(TestUtil.equalsVerifier(SourceData::class.java))
     }
 

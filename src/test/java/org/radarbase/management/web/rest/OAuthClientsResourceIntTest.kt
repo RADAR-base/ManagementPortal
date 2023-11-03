@@ -2,19 +2,15 @@ package org.radarbase.management.web.rest
 
 import org.assertj.core.api.Assertions
 import org.hamcrest.Matchers
+import org.hamcrest.Matchers.containsInAnyOrder
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.MockitoAnnotations
 import org.radarbase.auth.authentication.OAuthHelper
 import org.radarbase.management.ManagementPortalApp
-import org.radarbase.management.service.AuthService
-import org.radarbase.management.service.OAuthClientService
 import org.radarbase.management.service.OAuthClientServiceTestUtil
-import org.radarbase.management.service.SubjectService
-import org.radarbase.management.service.UserService
 import org.radarbase.management.service.dto.ClientDetailsDTO
-import org.radarbase.management.service.mapper.ClientDetailsMapper
 import org.radarbase.management.web.rest.errors.ExceptionTranslator
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -26,7 +22,6 @@ import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.oauth2.provider.ClientDetails
 import org.springframework.security.oauth2.provider.client.JdbcClientDetailsService
 import org.springframework.test.context.junit.jupiter.SpringExtension
-import org.springframework.test.util.ReflectionTestUtils
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
@@ -42,16 +37,12 @@ import java.util.function.Consumer
  */
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(classes = [ManagementPortalApp::class])
-internal class OAuthClientsResourceIntTest @Autowired constructor (
-    private val clientDetailsService: JdbcClientDetailsService,
-    private val clientDetailsMapper: ClientDetailsMapper,
-    private val subjectService: SubjectService,
-    private val userService: UserService,
-    private val oAuthClientService: OAuthClientService,
-    private val jacksonMessageConverter: MappingJackson2HttpMessageConverter,
-    private val pageableArgumentResolver: PageableHandlerMethodArgumentResolver,
-    private val exceptionTranslator: ExceptionTranslator,
-    private val authService: AuthService
+internal class OAuthClientsResourceIntTest @Autowired constructor(
+    @Autowired private val oauthClientsResource: OAuthClientsResource,
+    @Autowired private val clientDetailsService: JdbcClientDetailsService,
+    @Autowired private val jacksonMessageConverter: MappingJackson2HttpMessageConverter,
+    @Autowired private val pageableArgumentResolver: PageableHandlerMethodArgumentResolver,
+    @Autowired private val exceptionTranslator: ExceptionTranslator,
 ) {
     private lateinit var restOauthClientMvc: MockMvc
     private lateinit var details: ClientDetailsDTO
@@ -62,46 +53,22 @@ internal class OAuthClientsResourceIntTest @Autowired constructor (
     @Throws(Exception::class)
     fun setUp() {
         MockitoAnnotations.openMocks(this)
-        val oauthClientsResource = OAuthClientsResource()
-        ReflectionTestUtils.setField(
-            oauthClientsResource, "clientDetailsMapper",
-            clientDetailsMapper
-        )
-        ReflectionTestUtils.setField(
-            oauthClientsResource, "subjectService",
-            subjectService
-        )
-        ReflectionTestUtils.setField(
-            oauthClientsResource, "userService",
-            userService
-        )
-        ReflectionTestUtils.setField(
-            oauthClientsResource, "authService",
-            authService
-        )
-        ReflectionTestUtils.setField(
-            oauthClientsResource, "oAuthClientService",
-            oAuthClientService
-        )
         val filter = OAuthHelper.createAuthenticationFilter()
         filter.init(MockFilterConfig())
-        restOauthClientMvc = MockMvcBuilders.standaloneSetup(oauthClientsResource)
-            .setCustomArgumentResolvers(pageableArgumentResolver)
-            .setControllerAdvice(exceptionTranslator)
-            .setMessageConverters(jacksonMessageConverter)
-            .addFilter<StandaloneMockMvcBuilder>(filter)
-            .defaultRequest<StandaloneMockMvcBuilder>(MockMvcRequestBuilders.get("/").with(OAuthHelper.bearerToken()))
-            .build()
+        restOauthClientMvc =
+            MockMvcBuilders.standaloneSetup(oauthClientsResource).setCustomArgumentResolvers(pageableArgumentResolver)
+                .setControllerAdvice(exceptionTranslator).setMessageConverters(jacksonMessageConverter)
+                .addFilter<StandaloneMockMvcBuilder>(filter).defaultRequest<StandaloneMockMvcBuilder>(
+                    MockMvcRequestBuilders.get("/").with(OAuthHelper.bearerToken())
+                ).build()
         databaseSizeBeforeCreate = clientDetailsService.listClientDetails().size
 
         // Create the OAuth Client
         details = OAuthClientServiceTestUtil.createClient()
         restOauthClientMvc.perform(
-            MockMvcRequestBuilders.post("/api/oauth-clients")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            MockMvcRequestBuilders.post("/api/oauth-clients").contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(details))
-        )
-            .andExpect(MockMvcResultMatchers.status().isCreated())
+        ).andExpect(MockMvcResultMatchers.status().isCreated())
 
         // Validate the Project in the database
         clientDetailsList = clientDetailsService.listClientDetails()
@@ -113,65 +80,39 @@ internal class OAuthClientsResourceIntTest @Autowired constructor (
     @Throws(Exception::class)
     fun createAndFetchOAuthClient() {
         // fetch the created oauth client and check the json result
-        restOauthClientMvc.perform(
-            MockMvcRequestBuilders.get("/api/oauth-clients/" + details.clientId)
-                .accept(MediaType.APPLICATION_JSON)
+        var ans = restOauthClientMvc.perform(
+            MockMvcRequestBuilders.get("/api/oauth-clients/" + details.clientId).accept(MediaType.APPLICATION_JSON)
+        ).andExpect(
+            MockMvcResultMatchers.status().isOk()
+        ).andExpect(
+            MockMvcResultMatchers.jsonPath("$.clientId").value(Matchers.equalTo(details.clientId))
+        ).andExpect(MockMvcResultMatchers.jsonPath("$.clientSecret").value(Matchers.nullValue())).andExpect(
+            MockMvcResultMatchers.jsonPath("$.accessTokenValiditySeconds").value(
+                Matchers.equalTo(
+                    details.accessTokenValiditySeconds?.toInt()
+                )
+            )
+        ).andExpect(
+            MockMvcResultMatchers.jsonPath("$.refreshTokenValiditySeconds").value(
+                Matchers.equalTo(
+                    details.refreshTokenValiditySeconds?.toInt()
+                )
+            )
+        ).andExpect(
+            MockMvcResultMatchers.jsonPath("$.scope")
+                .value(containsInAnyOrder(details.scope?.map { Matchers.equalTo(it) }))
+        ).andExpect(MockMvcResultMatchers.jsonPath("$.autoApproveScopes")
+            .value(containsInAnyOrder(details.autoApproveScopes?.map { Matchers.equalTo(it) })))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.authorizedGrantTypes")
+                .value(containsInAnyOrder(details.authorizedGrantTypes?.map { Matchers.equalTo(it) }))).andExpect(
+            MockMvcResultMatchers.jsonPath("$.authorities").value(
+                containsInAnyOrder(details.authorities?.map { Matchers.equalTo(it) })
+            )
         )
-            .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(
-                MockMvcResultMatchers.jsonPath("$.clientId").value(
-                    Matchers.equalTo(
-                        details.clientId
-                    )
-                )
-            )
-            .andExpect(MockMvcResultMatchers.jsonPath("$.clientSecret").value(Matchers.nullValue()))
-            .andExpect(
-                MockMvcResultMatchers.jsonPath("$.accessTokenValiditySeconds").value(
-                    Matchers.equalTo(
-                        details
-                            .accessTokenValiditySeconds?.toInt()
-                    )
-                )
-            )
-            .andExpect(
-                MockMvcResultMatchers.jsonPath("$.refreshTokenValiditySeconds").value(
-                    Matchers.equalTo(
-                        details
-                            .refreshTokenValiditySeconds?.toInt()
-                    )
-                )
-            )
-            .andExpect(
-                MockMvcResultMatchers.jsonPath("$.scope").value(
-                    Matchers.containsInAnyOrder<Any>(
-                        details.scope?.toTypedArray()
-                    )
-                )
-            )
-            .andExpect(
-                MockMvcResultMatchers.jsonPath("$.autoApproveScopes").value(
-                    Matchers.containsInAnyOrder<Any>(
-                        details.autoApproveScopes?.toTypedArray()
-                    )
-                )
-            )
-            .andExpect(
-                MockMvcResultMatchers.jsonPath("$.authorizedGrantTypes").value(
-                    Matchers.containsInAnyOrder<Any>(
-                        details.authorizedGrantTypes?.toTypedArray()
-                    )
-                )
-            )
-            .andExpect(
-                MockMvcResultMatchers.jsonPath("$.authorities").value(
-                    Matchers.containsInAnyOrder<Any>(details.authorities?.toTypedArray())
-                )
-            )
-        val testDetails = clientDetailsList.stream()
-            .filter { d: ClientDetails -> d.clientId == details.clientId }
-            .findFirst()
-            .orElseThrow()
+
+        val testDetails =
+            clientDetailsList.stream().filter { d: ClientDetails -> d.clientId == details.clientId }.findFirst()
+                .orElseThrow()
         Assertions.assertThat(testDetails.clientSecret).startsWith("$2a$10$")
         Assertions.assertThat(testDetails.scope).containsExactlyInAnyOrderElementsOf(
             details.scope
@@ -205,13 +146,11 @@ internal class OAuthClientsResourceIntTest @Autowired constructor (
     @Test
     @Transactional
     @Throws(Exception::class)
-    fun dupliceOAuthClient() {
+    fun duplicateOAuthClient() {
         restOauthClientMvc.perform(
-            MockMvcRequestBuilders.post("/api/oauth-clients")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            MockMvcRequestBuilders.post("/api/oauth-clients").contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(details))
-        )
-            .andExpect(MockMvcResultMatchers.status().isConflict())
+        ).andExpect(MockMvcResultMatchers.status().isConflict())
     }
 
     @Test
@@ -221,19 +160,16 @@ internal class OAuthClientsResourceIntTest @Autowired constructor (
         // update the client
         details.refreshTokenValiditySeconds = 20L
         restOauthClientMvc.perform(
-            MockMvcRequestBuilders.put("/api/oauth-clients")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            MockMvcRequestBuilders.put("/api/oauth-clients").contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(details))
-        )
-            .andExpect(MockMvcResultMatchers.status().isOk())
+        ).andExpect(MockMvcResultMatchers.status().isOk())
 
         // fetch the client
         clientDetailsList = clientDetailsService.listClientDetails()
         Assertions.assertThat(clientDetailsList).hasSize(databaseSizeBeforeCreate + 1)
-        val testDetails = clientDetailsList.stream()
-            .filter { d: ClientDetails -> d.clientId == details.clientId }
-            .findFirst()
-            .orElseThrow()
+        val testDetails =
+            clientDetailsList.stream().filter { d: ClientDetails -> d.clientId == details.clientId }.findFirst()
+                .orElseThrow()
         Assertions.assertThat(testDetails.refreshTokenValiditySeconds).isEqualTo(20)
     }
 
@@ -243,10 +179,8 @@ internal class OAuthClientsResourceIntTest @Autowired constructor (
     fun deleteOAuthClient() {
         restOauthClientMvc.perform(
             MockMvcRequestBuilders.delete("/api/oauth-clients/" + details.clientId)
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(details))
-        )
-            .andExpect(MockMvcResultMatchers.status().isOk())
+                .contentType(TestUtil.APPLICATION_JSON_UTF8).content(TestUtil.convertObjectToJsonBytes(details))
+        ).andExpect(MockMvcResultMatchers.status().isOk())
         val clientDetailsList = clientDetailsService.listClientDetails()
         Assertions.assertThat(clientDetailsList.size).isEqualTo(databaseSizeBeforeCreate)
     }
@@ -258,27 +192,21 @@ internal class OAuthClientsResourceIntTest @Autowired constructor (
         // first change our test client to be protected
         details.additionalInformation!!["protected"] = "true"
         restOauthClientMvc.perform(
-            MockMvcRequestBuilders.put("/api/oauth-clients")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            MockMvcRequestBuilders.put("/api/oauth-clients").contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(details))
-        )
-            .andExpect(MockMvcResultMatchers.status().isOk())
+        ).andExpect(MockMvcResultMatchers.status().isOk())
 
         // expect we can not delete it now
         restOauthClientMvc.perform(
             MockMvcRequestBuilders.delete("/api/oauth-clients/" + details.clientId)
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(details))
-        )
-            .andExpect(MockMvcResultMatchers.status().isForbidden())
+                .contentType(TestUtil.APPLICATION_JSON_UTF8).content(TestUtil.convertObjectToJsonBytes(details))
+        ).andExpect(MockMvcResultMatchers.status().isForbidden())
 
         // expect we can not update it now
         details.refreshTokenValiditySeconds = 20L
         restOauthClientMvc.perform(
-            MockMvcRequestBuilders.put("/api/oauth-clients")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            MockMvcRequestBuilders.put("/api/oauth-clients").contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(details))
-        )
-            .andExpect(MockMvcResultMatchers.status().isForbidden())
+        ).andExpect(MockMvcResultMatchers.status().isForbidden())
     }
 }
