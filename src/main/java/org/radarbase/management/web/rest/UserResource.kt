@@ -146,7 +146,7 @@ class UserResource(
         log.debug("REST request to update User : {}", managedUserVm)
         authService.checkPermission(Permission.USER_UPDATE, { e: EntityDetails -> e.user(managedUserVm.login) })
         var existingUser = managedUserVm.email?.let { userRepository.findOneByEmail(it) }
-        if (existingUser?.id != managedUserVm.id) {
+        if (existingUser != null && existingUser.id != managedUserVm.id) {
             throw BadRequestException("Email already in use", EntityName.USER, "emailexists")
         }
         existingUser = managedUserVm.login?.lowercase().let {
@@ -158,7 +158,7 @@ class UserResource(
             throw BadRequestException("Login already in use", EntityName.USER, "emailexists")
         }
         val subject = subjectRepository.findOneWithEagerBySubjectLogin(managedUserVm.login)
-        if (subject != null && managedUserVm.isActivated && subject.removed!!) {
+        if (subject != null && managedUserVm.isActivated && subject.removed) {
             // if the subject is also a user, check if the removed/activated states are valid
             throw InvalidRequestException(
                 "Subject cannot be the user to request " + "this changes", EntityName.USER, "error.invalidsubjectstate"

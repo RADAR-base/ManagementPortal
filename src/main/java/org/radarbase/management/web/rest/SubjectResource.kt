@@ -37,7 +37,6 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.actuate.audit.AuditEvent
 import org.springframework.boot.actuate.audit.AuditEventRepository
-import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -204,8 +203,7 @@ class SubjectResource(
         val externalId = subjectCriteria.externalId
         log.debug("ProjectName {} and external {}", projectName, externalId)
         // if not specified do not include inactive patients
-        val authoritiesToInclude = subjectCriteria.authority.stream()
-            .filter { obj: SubjectAuthority? -> Objects.nonNull(obj) }
+        val authoritiesToInclude = subjectCriteria.authority
             .map { obj: SubjectAuthority -> obj.name }
             .toList()
         return if (projectName != null && externalId != null) {
