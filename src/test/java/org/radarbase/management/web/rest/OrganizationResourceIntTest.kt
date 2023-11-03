@@ -15,6 +15,7 @@ import org.radarbase.management.repository.OrganizationRepository
 import org.radarbase.management.repository.ProjectRepository
 import org.radarbase.management.service.AuthService
 import org.radarbase.management.service.OrganizationService
+import org.radarbase.management.service.dto.OrganizationDTO
 import org.radarbase.management.service.mapper.OrganizationMapper
 import org.radarbase.management.web.rest.errors.ExceptionTranslator
 import org.springframework.beans.factory.annotation.Autowired
@@ -177,7 +178,7 @@ internal open class OrganizationResourceIntTest(
     @Throws(Exception::class)
     //TODO this is covered by not using a nullable type
     fun checkGroupNameIsRequired() {
-        val orgDto = organizationMapper.organizationToOrganizationDTO(organization)
+        val orgDto: OrganizationDTO = organizationMapper.organizationToOrganizationDTO(organization)
         orgDto.name = null
         restOrganizationMockMvc.perform(
             MockMvcRequestBuilders.post("/api/organizations")
