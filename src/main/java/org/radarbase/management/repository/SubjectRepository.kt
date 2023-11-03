@@ -123,6 +123,6 @@ interface SubjectRepository : JpaRepository<Subject, Long?>, RevisionRepository<
     )
     fun findSubjectSourcesBySourceId(
         @Param("login") login: String?,
-        @Param("sourceId") sourceId: UUID
+        @Param("sourceId") sourceId: UUID?
     ): Source?
 }

@@ -15,7 +15,6 @@ import org.radarbase.management.web.rest.errors.ErrorConstants
 import org.springframework.data.jpa.domain.Specification
 import java.time.LocalDate
 import java.time.ZonedDateTime
-import java.util.stream.Collectors
 import javax.persistence.criteria.CriteriaBuilder
 import javax.persistence.criteria.CriteriaQuery
 import javax.persistence.criteria.Join
@@ -24,6 +23,7 @@ import javax.persistence.criteria.Order
 import javax.persistence.criteria.Path
 import javax.persistence.criteria.Predicate
 import javax.persistence.criteria.Root
+
 
 class SubjectSpecification(criteria: SubjectCriteria) : Specification<Subject?> {
     private val dateOfBirth: CriteriaRange<LocalDate?>?
@@ -44,9 +44,9 @@ class SubjectSpecification(criteria: SubjectCriteria) : Specification<Subject?> 
      * @param criteria criteria to use for the specification.
      */
     init {
-        authority = criteria.authority.stream()
-            .map { obj: SubjectAuthority? -> obj!!.name }
-            .collect(Collectors.toSet())
+        authority = criteria.authority
+            .map { obj: SubjectAuthority? -> obj?.name }
+            .toSet()
         dateOfBirth = criteria.dateOfBirth
         enrollmentDate = criteria.enrollmentDate
         groupId = criteria.groupId
@@ -56,22 +56,22 @@ class SubjectSpecification(criteria: SubjectCriteria) : Specification<Subject?> 
         projectName = criteria.projectName
         externalId = criteria.externalId
         subjectId = criteria.login
-        sort = criteria.getParsedSort()
-        if (last != null) {
-            sortLastValues = sort
+        sort = criteria.parsedSort
+        sortLastValues = if (last != null) {
+            sort
                 ?.map { o: SubjectSortOrder -> getLastValue(o.sortBy) }
                 ?.toList()
         } else {
-            sortLastValues = null
+            null
         }
     }
 
     override fun toPredicate(
-        root: Root<Subject?>?, query: CriteriaQuery<*>?,
-        builder: CriteriaBuilder?
+        root: Root<Subject?>, query: CriteriaQuery<*>,
+        builder: CriteriaBuilder
     ): Predicate? {
         if (root == null || query == null || builder == null) {
-            return null
+            return null;
         }
         query.distinct(true)
         root.alias("subject")
@@ -136,7 +136,7 @@ class SubjectSpecification(criteria: SubjectCriteria) : Specification<Subject?> 
         root: Root<Subject?>, queryResult: Class<*>
     ) {
         // Don't add content for count queries.
-        if (queryResult == Long::class.java || queryResult == Long::class.javaPrimitiveType) {
+        if (Long::class.javaObjectType == queryResult) {
             return
         }
         root.fetch<Any, Any>("sources", JoinType.LEFT)
@@ -173,7 +173,7 @@ class SubjectSpecification(criteria: SubjectCriteria) : Specification<Subject?> 
         val rolesJoin = userJoin.join<User, Role>("roles")
         rolesJoin.alias("roles")
         predicates.equal({ rolesJoin.get<Any>("project").get("projectName") }, projectName)
-        if (!authority.isEmpty() && authority.size != SubjectAuthority.values().size) {
+        if (authority.isNotEmpty() && authority.size != SubjectAuthority.values().size) {
             predicates.add(rolesJoin.get<Any>("authority").get<Any>("name").`in`(authority))
         }
     }

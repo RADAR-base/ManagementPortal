@@ -2,6 +2,7 @@ package org.radarbase.management.web.rest
 
 import org.assertj.core.api.Assertions
 import org.hamcrest.Matchers
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -96,7 +97,7 @@ internal class SubjectResourceIntTest(
         Assertions.assertThat(testSubject.externalLink).isEqualTo(SubjectServiceTest.DEFAULT_EXTERNAL_LINK)
         Assertions.assertThat(testSubject.externalId).isEqualTo(SubjectServiceTest.DEFAULT_ENTERNAL_ID)
         Assertions.assertThat(testSubject.removed).isEqualTo(SubjectServiceTest.DEFAULT_REMOVED)
-        org.junit.jupiter.api.Assertions.assertEquals(1, testSubject.user!!.roles!!.size)
+        Assertions.assertThat(testSubject.user!!.roles!!.size).isEqualTo(1)
     }
 
     @Test
@@ -278,7 +279,7 @@ internal class SubjectResourceIntTest(
     @Transactional
     @Throws(Exception::class)
     fun equalsVerifier() {
-        org.junit.jupiter.api.Assertions.assertTrue(TestUtil.equalsVerifier(Subject::class.java))
+        assertTrue(TestUtil.equalsVerifier(Subject::class.java))
     }
 
     @Test
@@ -299,7 +300,7 @@ internal class SubjectResourceIntTest(
         Assertions.assertThat(subjectList).hasSize(databaseSizeBeforeCreate + 1)
         val testSubject = subjectList[subjectList.size - 1]
         val subjectLogin = testSubject.user!!.login
-        org.junit.jupiter.api.Assertions.assertNotNull(subjectLogin)
+        assertNotNull(subjectLogin)
 
         // Create a source description
         val sourceRegistrationDto = createSourceWithSourceTypeId()
@@ -337,7 +338,7 @@ internal class SubjectResourceIntTest(
         Assertions.assertThat(subjectList).hasSize(databaseSizeBeforeCreate + 1)
         val testSubject = subjectList[subjectList.size - 1]
         val subjectLogin = testSubject.user!!.login
-        org.junit.jupiter.api.Assertions.assertNotNull(subjectLogin)
+        assertNotNull(subjectLogin)
 
         // Create a source description
         val sourceRegistrationDto = createSourceWithoutSourceTypeId()
@@ -385,7 +386,7 @@ internal class SubjectResourceIntTest(
         Assertions.assertThat(subjectList).hasSize(databaseSizeBeforeCreate + 1)
         val testSubject = subjectList[subjectList.size - 1]
         val subjectLogin = testSubject.user!!.login
-        org.junit.jupiter.api.Assertions.assertNotNull(subjectLogin)
+        assertNotNull(subjectLogin)
 
         // Create a source description
         val sourceRegistrationDto = createSourceWithoutSourceTypeIdAndWithoutDynamicRegistration()
@@ -407,9 +408,9 @@ internal class SubjectResourceIntTest(
         val sourceDto = MinimalSourceDetailsDTO().id(createdSource.id).sourceName(createdSource.sourceName)
             .sourceTypeId(createdSource.sourceType?.id).sourceId(createdSource.sourceId!!)
         subjectDtoToCreate.sources = setOf(sourceDto)
-        org.junit.jupiter.api.Assertions.assertNotNull(sourceDto.id)
+        assertNotNull(sourceDto.id)
         val createdSubject = subjectService.createSubject(subjectDtoToCreate)
-        org.junit.jupiter.api.Assertions.assertFalse(createdSubject!!.sources.isEmpty())
+        assertFalse(createdSubject!!.sources.isEmpty())
 
         // Get the subject
         restSubjectMockMvc.perform(
@@ -433,10 +434,10 @@ internal class SubjectResourceIntTest(
         val sourceDto = MinimalSourceDetailsDTO().id(createdSource.id).sourceName(createdSource.sourceName)
             .sourceTypeId(createdSource.sourceType?.id).sourceId(createdSource.sourceId!!)
         subjectDtoToCreate.sources = setOf(sourceDto)
-        org.junit.jupiter.api.Assertions.assertNotNull(sourceDto.id)
+        assertNotNull(sourceDto.id)
         val createdSubject = subjectService.createSubject(subjectDtoToCreate)
         TestUtil.commitTransactionAndStartNew()
-        org.junit.jupiter.api.Assertions.assertNotNull(createdSubject!!.login)
+        assertNotNull(createdSubject!!.login)
         // Get the subject
         restSubjectMockMvc.perform(
             MockMvcRequestBuilders.get(
@@ -459,13 +460,13 @@ internal class SubjectResourceIntTest(
         val sourceDto = MinimalSourceDetailsDTO().id(createdSource.id).sourceName(createdSource.sourceName)
             .sourceTypeId(createdSource.sourceType?.id).sourceId(createdSource.sourceId!!)
         subjectDtoToCreate.sources = setOf(sourceDto)
-        org.junit.jupiter.api.Assertions.assertNotNull(sourceDto.id)
+        assertNotNull(sourceDto.id)
         val createdSubject = subjectService.createSubject(subjectDtoToCreate)
         TestUtil.commitTransactionAndStartNew()
         createdSubject!!.sources = emptySet()
         val updatedSubject = subjectService.updateSubject(createdSubject)
         TestUtil.commitTransactionAndStartNew()
-        org.junit.jupiter.api.Assertions.assertNotNull(updatedSubject!!.login)
+        assertNotNull(updatedSubject!!.login)
         // Get the subject
         restSubjectMockMvc.perform(
             MockMvcRequestBuilders.get(
@@ -550,7 +551,7 @@ internal class SubjectResourceIntTest(
         Assertions.assertThat(subjectList).hasSize(databaseSizeBeforeCreate + 1)
         val testSubject = subjectList[subjectList.size - 1]
         val subjectLogin = testSubject.user!!.login
-        org.junit.jupiter.api.Assertions.assertNotNull(subjectLogin)
+        assertNotNull(subjectLogin)
 
         // Create a source description
         val sourceRegistrationDto = createSourceWithoutSourceTypeId()
@@ -563,7 +564,7 @@ internal class SubjectResourceIntTest(
         val value = TestUtil.convertJsonStringToObject(
             result.response.contentAsString, MinimalSourceDetailsDTO::class.java
         ) as MinimalSourceDetailsDTO
-        org.junit.jupiter.api.Assertions.assertNotNull(value.sourceName)
+        assertNotNull(value.sourceName)
         val attributes: MutableMap<String, String> = HashMap()
         attributes["TEST_KEY"] = "Value"
         attributes["ANDROID_VERSION"] = "something"

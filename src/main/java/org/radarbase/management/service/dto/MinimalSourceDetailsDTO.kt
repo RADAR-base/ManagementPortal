@@ -13,7 +13,7 @@ class MinimalSourceDetailsDTO {
     var sourceTypeCatalogVersion: String? = null
     var expectedSourceName: String? = null
         private set
-    lateinit var sourceId: UUID
+    var sourceId: UUID? = null
     var sourceName: String? = null
     var isAssigned: Boolean? = null
     var attributes: MutableMap<String, String> = HashMap()
