@@ -100,18 +100,16 @@ object PaginationUtil {
         )
         generateUriParam(builder, "projectName", criteria.projectName)
         generateUriParam(builder, "login", criteria.login)
-        if (criteria.authority != null) {
-            criteria.authority!!.forEach(Consumer { a: SubjectAuthority? ->
-                generateUriParam(
-                    builder,
-                    "authority", a
-                )
-            })
-        }
+        criteria.authority.forEach(Consumer { a: SubjectAuthority? ->
+            generateUriParam(
+                builder,
+                "authority", a
+            )
+        })
         generateUriParam(builder, "size", criteria.size)
         generateUriParam(builder, "page", criteria.page)
-        if (criteria.getSort() != null) {
-            criteria.getParsedSort()!!.forEach(Consumer { order: SubjectSortOrder? ->
+        if (criteria.sort != null) {
+            criteria.parsedSort!!.forEach(Consumer { order: SubjectSortOrder? ->
                 generateUriParam(
                     builder, "sort",
                     order?.sortBy?.queryParam + ','
