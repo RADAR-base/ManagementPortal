@@ -110,7 +110,10 @@ class SubjectResource(
             .body(result)
     }
 
+
     private fun getProjectName(subjectDto: SubjectDTO): String {
+        // not ideal, because only name is needed. however, id is checked to verify the project is in the database
+        // this does prevent calls to the database?
         if (subjectDto.project == null || subjectDto.project!!.id == null || subjectDto.project!!.projectName == null) {
             throw BadRequestException(
                 "A subject should be assigned to a project", EntityName.SUBJECT,
@@ -215,7 +218,7 @@ class SubjectResource(
                     listOf(
                         subjectMapper.subjectToSubjectReducedProjectDTO(s)
                     )
-                });
+                })
             ResponseUtil.wrapOrNotFound(subject)
         } else if (projectName == null && externalId != null) {
             val page = subjectService.findAll(subjectCriteria)

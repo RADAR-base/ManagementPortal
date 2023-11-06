@@ -91,7 +91,7 @@ object ResourceUriService {
         return URI(
             HeaderUtil.buildPath(
                 "api", "source-types", resource.producer,
-                resource.model, resource.model
+                resource.model, resource.catalogVersion
             )
         )
     }
