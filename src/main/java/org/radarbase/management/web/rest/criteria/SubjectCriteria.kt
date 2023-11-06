@@ -83,7 +83,7 @@ class SubjectCriteria {
                 if (hasUnique || seenSortBy?.add(order.sortBy) != true) {
                     iterator.remove()
                 }
-                if (order.sortBy?.isUnique == true) {
+                if (order.sortBy.isUnique) {
                     hasUnique = true
                 }
             }

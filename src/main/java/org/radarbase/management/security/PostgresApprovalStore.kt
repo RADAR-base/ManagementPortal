@@ -22,7 +22,6 @@ import org.springframework.jdbc.core.RowMapper
 import org.springframework.security.oauth2.provider.approval.Approval
 import org.springframework.security.oauth2.provider.approval.Approval.ApprovalStatus
 import org.springframework.security.oauth2.provider.approval.ApprovalStore
-import org.springframework.util.Assert
 import java.sql.PreparedStatement
 import java.sql.ResultSet
 import java.sql.SQLException
@@ -48,7 +47,7 @@ class PostgresApprovalStore(dataSource: DataSource?) : ApprovalStore {
     private var handleRevocationsAsExpiry = false
 
     init {
-        Assert.notNull(dataSource)
+        dataSource ?: throw Exception("Data source not ready")
         jdbcTemplate = JdbcTemplate(dataSource)
     }
 
