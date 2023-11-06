@@ -80,7 +80,7 @@ internal class OAuthClientsResourceIntTest @Autowired constructor(
     @Throws(Exception::class)
     fun createAndFetchOAuthClient() {
         // fetch the created oauth client and check the json result
-        var ans = restOauthClientMvc.perform(
+        restOauthClientMvc.perform(
             MockMvcRequestBuilders.get("/api/oauth-clients/" + details.clientId).accept(MediaType.APPLICATION_JSON)
         ).andExpect(
             MockMvcResultMatchers.status().isOk()

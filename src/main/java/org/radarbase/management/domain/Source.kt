@@ -79,7 +79,7 @@ class Source : AbstractEntity, Serializable {
     var project: Project? = null
 
     @JvmField
-    @set:JsonSetter(nulls = Nulls.AS_EMPTY)
+    @JsonSetter(nulls = Nulls.AS_EMPTY)
     @ElementCollection(fetch = FetchType.EAGER)
     @MapKeyColumn(name = "attribute_key")
     @Column(name = "attribute_value")

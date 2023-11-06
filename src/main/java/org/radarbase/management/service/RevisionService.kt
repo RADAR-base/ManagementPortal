@@ -43,7 +43,6 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
 import java.util.function.Consumer
 import java.util.function.Function
-import java.util.stream.Collectors
 import java.util.stream.Stream
 import javax.persistence.EntityManager
 import javax.persistence.NoResultException
@@ -78,7 +77,7 @@ open class RevisionService(@param:Autowired private val revisionEntityRepository
                     AuditEntity.revisionNumber().minimize()
                         .computeAggregationInInstanceContext()
                 )
-                .singleResult as Array<Any>
+                .singleResult as Array<*>
             val first = firstRevision[1] as CustomRevisionEntity
 
             // find last revision of the entity
@@ -89,7 +88,7 @@ open class RevisionService(@param:Autowired private val revisionEntityRepository
                     AuditEntity.revisionNumber().maximize()
                         .computeAggregationInInstanceContext()
                 )
-                .singleResult as Array<Any>
+                .singleResult as Array<*>
             val last = lastRevision[1] as CustomRevisionEntity
 
             // now populate the result object and return it
@@ -177,34 +176,31 @@ open class RevisionService(@param:Autowired private val revisionEntityRepository
             .add(AuditEntity.id().eq(entity.id))
 
         // add the page sorting information to the query
-        if (pageable.sort != null) {
-            pageable.sort
-                .forEach(Consumer { order: Sort.Order ->
-                    query.addOrder(
-                        if (order.direction.isAscending) AuditEntity.property(
-                            order.property
-                        ).asc() else AuditEntity.property(order.property).desc()
-                    )
-                })
-        }
+        pageable.sort
+            .forEach(Consumer { order: Sort.Order ->
+                query.addOrder(
+                    if (order.direction.isAscending) AuditEntity.property(
+                        order.property
+                    ).asc() else AuditEntity.property(order.property).desc()
+                )
+            })
 
         // add the page constraints (offset and amount of results)
         query.setFirstResult(Math.toIntExact(pageable.offset))
             .setMaxResults(Math.toIntExact(pageable.pageSize.toLong()))
         val dtoMapper = getDtoMapper(entity.javaClass)
-        val resultList = query.resultList as List<Array<Any>?>
-        val revisionDtos = resultList.stream()
-            .map { objArray: Array<Any>? ->
+        val resultList = query.resultList as List<Array<*>?>
+        val revisionDtos = resultList
+            .map { objArray: Array<*>? ->
                 RevisionDTO(
                     Revision.of(
                         CustomRevisionMetadata((objArray!![1] as CustomRevisionEntity)),
                         objArray[0]
                     ),
                     objArray[2] as RevisionType,
-                    dtoMapper.apply(objArray[0])
+                    objArray[0]?.let { dtoMapper.apply(it) }
                 )
             }
-            .collect(Collectors.toList())
         return PageImpl(revisionDtos, pageable, count.toLong())
     }
 
@@ -363,7 +359,7 @@ open class RevisionService(@param:Autowired private val revisionEntityRepository
                     })
             })
             .findAny()
-            .orElse(Function { obj: Any? -> null })
+            .orElse(Function { null })
     }
 
     private fun beanFromDefinition(beanDefinition: BeanDefinition): Any {
@@ -390,7 +386,7 @@ open class RevisionService(@param:Autowired private val revisionEntityRepository
     }
 
     private val auditReader: AuditReader
-        private get() = AuditReaderFactory.get(entityManager)
+        get() = AuditReaderFactory.get(entityManager)
 
     companion object {
         private val log = LoggerFactory.getLogger(RevisionService::class.java)

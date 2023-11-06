@@ -220,8 +220,12 @@ class SubjectService(
     }
 
     private fun ensureSubject(subjectDto: SubjectDTO): Subject {
-        return subjectRepository.findById(subjectDto.id).orElseThrow {
-            NotFoundException(
+        return try {
+            subjectDto.id?.let { subjectRepository.findById(it).get() }
+                ?: throw Exception("invalid subject ${subjectDto.login}: No ID")
+        }
+        catch(e: Throwable) {
+            throw NotFoundException(
                 "Subject with ID " + subjectDto.id + " not found.",
                 EntityName.SUBJECT,
                 ErrorConstants.ERR_SUBJECT_NOT_FOUND

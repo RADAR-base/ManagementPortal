@@ -146,7 +146,6 @@ internal open class ProjectResourceIntTest(
 
         // Create the Project, which fails.
         val projectDto: ProjectDTO? = projectMapper.projectToProjectDTO(project)
-        val projectt: Project? = projectMapper.projectDTOToProject(projectDto)
         restProjectMockMvc.perform(
             MockMvcRequestBuilders.post("/api/projects")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)

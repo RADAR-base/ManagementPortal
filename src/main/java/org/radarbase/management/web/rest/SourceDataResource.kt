@@ -114,7 +114,7 @@ class SourceDataResource(
     @Timed
     @Throws(NotAuthorizedException::class)
     fun getAllSourceData(
-        @PageableDefault(page = 0, size = Int.MAX_VALUE) pageable: Pageable?
+        @PageableDefault(page = 0, size = Int.MAX_VALUE) pageable: Pageable
     ): ResponseEntity<List<SourceDataDTO?>> {
         log.debug("REST request to get all SourceData")
         authService.checkScope(Permission.SOURCEDATA_READ)

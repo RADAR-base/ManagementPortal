@@ -29,7 +29,7 @@ import javax.transaction.Transactional
  * Service to manage project groups.
  */
 @Service
-open class GroupService(
+class GroupService(
     @Autowired private val groupRepository: GroupRepository,
     @Autowired private val projectRepository: ProjectRepository,
     @Autowired private val subjectRepository: SubjectRepository,
@@ -45,7 +45,7 @@ open class GroupService(
      */
     @Throws(NotFoundException::class)
     @Transactional
-    open fun getGroup(projectName: String, groupName: String): GroupDTO {
+    fun getGroup(projectName: String, groupName: String): GroupDTO {
         return groupMapper.groupToGroupDTOFull(
             groupRepository.findByProjectNameAndName(
                 projectName, groupName
@@ -54,7 +54,7 @@ open class GroupService(
                 EntityName.GROUP,
                 ErrorConstants.ERR_GROUP_NOT_FOUND
             )
-        )!!
+        )
     }
 
     /**
@@ -65,7 +65,7 @@ open class GroupService(
      * @throws NotFoundException if the project or group is not found.
      */
     @Transactional
-    open fun deleteGroup(projectName: String, groupName: String, unlinkSubjects: Boolean) {
+    fun deleteGroup(projectName: String, groupName: String, unlinkSubjects: Boolean) {
         val group = groupRepository.findByProjectNameAndName(projectName, groupName) ?: throw NotFoundException(
             "Group $groupName not found in project $projectName", EntityName.GROUP, ErrorConstants.ERR_GROUP_NOT_FOUND
         )
@@ -88,7 +88,7 @@ open class GroupService(
      * @throws ConflictException if the group name already exists.
      */
     @Transactional
-    open fun createGroup(projectName: String, groupDto: GroupDTO): GroupDTO? {
+    fun createGroup(projectName: String, groupDto: GroupDTO): GroupDTO {
         val project = projectRepository.findOneWithGroupsByName(projectName) ?: throw NotFoundException(
             "Project with name $projectName not found", EntityName.PROJECT, ErrorConstants.ERR_PROJECT_NAME_NOT_FOUND
         )
@@ -99,19 +99,23 @@ open class GroupService(
                 ErrorConstants.ERR_GROUP_EXISTS
             )
         }
-        val group = groupMapper.groupDTOToGroup(groupDto)
-        if (group != null) {
+        return try {
+            val group = groupMapper.groupDTOToGroup(groupDto)
+
             group.project = project
             val groupDtoResult = groupMapper.groupToGroupDTOFull(groupRepository.save(group))
             project.groups.add(group)
             projectRepository.save(project)
-            return groupDtoResult
-        }
-        else {
+            groupDtoResult
+        } catch(e: Throwable) {
             throw NotFoundException(
-                "Group ${groupDto.name} not found in project $projectName", EntityName.GROUP, ErrorConstants.ERR_GROUP_NOT_FOUND
+                "Group ${groupDto.name} not found in project $projectName",
+                EntityName.GROUP,
+                ErrorConstants.ERR_GROUP_NOT_FOUND
             )
         }
+
+
     }
 
     /**
@@ -135,14 +139,14 @@ open class GroupService(
      * @throws NotFoundException if the project or group is not found.
      */
     @Transactional
-    open fun updateGroupSubjects(
+    fun updateGroupSubjects(
         projectName: String,
         groupName: String,
         subjectsToAdd: List<SubjectPatchValue>,
         subjectsToRemove: List<SubjectPatchValue>
     ) {
 
-        groupRepository ?: throw NullPointerException()
+        groupRepository
 
         val group = groupRepository.findByProjectNameAndName(projectName, groupName) ?: throw NotFoundException(
             "Group $groupName not found in project $projectName", EntityName.GROUP, ErrorConstants.ERR_GROUP_NOT_FOUND

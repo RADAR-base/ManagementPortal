@@ -79,7 +79,7 @@ class SourceType : AbstractEntity(), Serializable {
     @NotNull var canRegisterDynamically: Boolean? = false
 
     @JvmField
-    @set:JsonSetter(nulls = Nulls.AS_EMPTY)
+    @JsonSetter(nulls = Nulls.AS_EMPTY)
     @OneToMany(mappedBy = "sourceType", orphanRemoval = true, fetch = FetchType.LAZY)
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @Cascade(
@@ -122,14 +122,14 @@ class SourceType : AbstractEntity(), Serializable {
         return this
     }
 
-    override fun equals(o: Any?): Boolean {
-        if (this === o) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
             return true
         }
-        if (o == null || javaClass != o.javaClass) {
+        if (other == null || javaClass != other.javaClass) {
             return false
         }
-        val sourceType = o as SourceType
+        val sourceType = other as SourceType
         return if (sourceType.id == null || id == null) {
             false
         } else id == sourceType.id && producer == sourceType.producer && model == sourceType.model && catalogVersion == sourceType.catalogVersion && canRegisterDynamically == sourceType.canRegisterDynamically && sourceTypeScope == sourceType.sourceTypeScope && name == sourceType.name && description == sourceType.description && appProvider == sourceType.appProvider && assessmentType == sourceType.assessmentType
