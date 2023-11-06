@@ -28,7 +28,7 @@ internal class TokenValidatorTest {
      */
     @BeforeEach
     fun setUp() {
-        wireMockServer!!.stubFor(
+        wireMockServer.stubFor(
             WireMock.get(WireMock.urlEqualTo(TokenTestUtils.PUBLIC_KEY_PATH))
                 .willReturn(
                     WireMock.aResponse()
@@ -48,7 +48,7 @@ internal class TokenValidatorTest {
 
     @AfterEach
     fun reset() {
-        wireMockServer!!.resetAll()
+        wireMockServer.resetAll()
     }
 
     @Test
@@ -78,7 +78,7 @@ internal class TokenValidatorTest {
     }
 
     companion object {
-        private var wireMockServer: WireMockServer? = null
+        private lateinit var wireMockServer: WireMockServer
 
         @JvmStatic
         @BeforeAll
@@ -87,13 +87,13 @@ internal class TokenValidatorTest {
                 WireMockConfiguration()
                     .port(WIREMOCK_PORT)
             )
-            wireMockServer!!.start()
+            wireMockServer.start()
         }
 
         @JvmStatic
         @AfterAll
         fun tearDown() {
-            wireMockServer!!.stop()
+            wireMockServer.stop()
         }
     }
 }
