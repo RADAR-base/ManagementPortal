@@ -16,7 +16,7 @@ import tech.jhipster.config.JHipsterProperties
 @Configuration
 @EnableAsync
 @EnableScheduling
-open class AsyncConfiguration(
+class AsyncConfiguration(
     @Autowired private val jHipsterProperties: JHipsterProperties) : AsyncConfigurer {
     @Bean(name = ["taskExecutor"])
     override fun getAsyncExecutor(): ExceptionHandlingAsyncTaskExecutor {
