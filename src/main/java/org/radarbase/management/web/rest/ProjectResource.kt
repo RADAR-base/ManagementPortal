@@ -77,12 +77,10 @@ class ProjectResource(
     fun createProject(@RequestBody @Valid projectDto: ProjectDTO?): ResponseEntity<ProjectDTO> {
         log.debug("REST request to save Project : {}", projectDto)
         val org = projectDto?.organizationName
-        if (org == null) {
-            throw BadRequestException(
+            ?: throw BadRequestException(
                 "Organization must be provided",
                 ENTITY_NAME, ErrorConstants.ERR_VALIDATION
             )
-        }
         authService.checkPermission(
             Permission.PROJECT_CREATE,
             { e: EntityDetails -> e.organization(org) })
@@ -156,7 +154,7 @@ class ProjectResource(
                 e.organization(newOrgName)
                 e.project(existingProject?.projectName)
             })
-        val oldOrgName = existingProject?.organization?.name
+        val oldOrgName = existingProject?.organizationName
         if (newOrgName != oldOrgName) {
             authService.checkPermission(
                 Permission.PROJECT_UPDATE,
@@ -209,7 +207,7 @@ class ProjectResource(
         log.debug("REST request to get Project : {}", projectName)
         val projectDto = projectService.findOneByName(projectName!!)
         authService.checkPermission(Permission.PROJECT_READ, { e: EntityDetails ->
-            e.organization(projectDto.organization?.name)
+            e.organization(projectDto.organizationName)
             e.project(projectDto.projectName)
         })
         return ResponseEntity.ok(projectDto)
@@ -232,7 +230,7 @@ class ProjectResource(
         log.debug("REST request to get Project : {}", projectName)
         val projectDto = projectService.findOneByName(projectName!!)
         authService.checkPermission(Permission.PROJECT_READ, { e: EntityDetails ->
-            e.organization(projectDto.organization?.name)
+            e.organization(projectDto.organizationName)
             e.project(projectDto.projectName)
         })
         return projectService.findSourceTypesByProjectId(projectDto.id!!)
@@ -254,7 +252,7 @@ class ProjectResource(
         log.debug("REST request to delete Project : {}", projectName)
         val projectDto = projectService.findOneByName(projectName!!)
         authService.checkPermission(Permission.PROJECT_DELETE, { e: EntityDetails ->
-            e.organization(projectDto.organization?.name)
+            e.organization(projectDto.organizationName)
             e.project(projectDto.projectName)
         })
         return try {
@@ -283,7 +281,7 @@ class ProjectResource(
         log.debug("REST request to get all Roles for project {}", projectName)
         val projectDto = projectService.findOneByName(projectName!!)
         authService.checkPermission(Permission.ROLE_READ, { e: EntityDetails ->
-            e.organization(projectDto.organization?.name)
+            e.organization(projectDto.organizationName)
             e.project(projectDto.projectName)
         })
         return ResponseEntity.ok(roleService.getRolesByProject(projectName))
@@ -310,7 +308,7 @@ class ProjectResource(
         val projectDto = projectService.findOneByName(projectName) //?: throw NoSuchElementException()
 
         authService.checkPermission(Permission.SOURCE_READ, { e: EntityDetails ->
-            e.organization(projectDto.organization?.name)
+            e.organization(projectDto.organizationName)
             e.project(projectDto.projectName)
         })
         return if (assigned != null) {
@@ -374,7 +372,7 @@ class ProjectResource(
         // this checks if the project exists
         val projectDto = projectName.let { projectService.findOneByName(it) }
         authService.checkPermission(Permission.SUBJECT_READ, { e: EntityDetails ->
-            e.organization(projectDto.organization?.name)
+            e.organization(projectDto.organizationName)
             e.project(projectDto.projectName)
         })
 
