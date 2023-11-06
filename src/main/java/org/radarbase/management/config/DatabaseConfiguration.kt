@@ -23,11 +23,11 @@ import javax.sql.DataSource
 )
 @EnableJpaAuditing(auditorAwareRef = "springSecurityAuditorAware")
 @EnableTransactionManagement
-open class DatabaseConfiguration {
+class DatabaseConfiguration {
     @Autowired
     private val env: Environment? = null
     @Bean
-    open fun liquibase(
+    fun liquibase(
         dataSource: DataSource,
         liquibaseProperties: LiquibaseProperties
     ): SpringLiquibase {
@@ -50,7 +50,7 @@ open class DatabaseConfiguration {
     }
 
     @Bean
-    open fun hibernate5Module(): Hibernate5Module {
+    fun hibernate5Module(): Hibernate5Module {
         return Hibernate5Module()
     }
 
