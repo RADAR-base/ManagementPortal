@@ -168,7 +168,7 @@ open class ManagementPortalJwtAccessTokenConverter(
     }
 
     override fun isRefreshToken(token: OAuth2AccessToken): Boolean {
-        return token?.additionalInformation?.containsKey(JwtAccessTokenConverter.ACCESS_TOKEN_ID) == true
+        return token.additionalInformation?.containsKey(JwtAccessTokenConverter.ACCESS_TOKEN_ID) == true
     }
 
     override fun encode(accessToken: OAuth2AccessToken, authentication: OAuth2Authentication): String {
@@ -184,7 +184,7 @@ open class ManagementPortalJwtAccessTokenConverter(
             .forEach { claim: String ->
                 builder.withArrayClaim(
                     claim,
-                    (claims[claim] as Collection<String>?)!!.toTypedArray<String>()
+                    (claims[claim] as Collection<String>).toTypedArray<String>()
                 )
             }
 

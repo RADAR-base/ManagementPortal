@@ -16,15 +16,10 @@ import org.springframework.security.oauth2.provider.NoSuchClientException
 import org.springframework.security.oauth2.provider.client.BaseClientDetails
 import org.springframework.security.oauth2.provider.client.JdbcClientDetailsService
 import org.springframework.stereotype.Component
-import java.lang.Boolean
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.*
-import kotlin.Any
-import kotlin.Array
-import kotlin.Exception
-import kotlin.String
 
 /**
  * Loads security configs such as oauth-clients, and overriding admin password if specified.
@@ -80,8 +75,8 @@ class ManagementPortalSecurityConfigLoader {
                 "authorization_code"
             )
         )
-        details.setAdditionalInformation(Collections.singletonMap("protected", Boolean.TRUE))
-        val allScopes = Arrays.asList(*scopes())
+        details.setAdditionalInformation(Collections.singletonMap("protected", true))
+        val allScopes = listOf(*scopes())
         details.setScope(allScopes)
         details.setAutoApproveScopes(allScopes)
         loadOAuthClient(details)

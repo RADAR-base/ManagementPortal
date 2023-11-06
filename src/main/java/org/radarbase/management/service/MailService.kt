@@ -54,10 +54,10 @@ class MailService(
                 mimeMessage, isMultipart,
                 StandardCharsets.UTF_8.name()
             )
-            message.setTo(to)
+            message.setTo(to!!)
             message.setFrom(managementPortalProperties.mail.from)
-            message.setSubject(subject)
-            message.setText(content, isHtml)
+            message.setSubject(subject!!)
+            message.setText(content!!, isHtml)
             javaMailSender.send(mimeMessage)
             log.debug("Sent email to User '{}'", to)
         } catch (e: Exception) {
@@ -81,7 +81,7 @@ class MailService(
         )
         val content = templateEngine.process("activationEmail", context)
         val subject = messageSource.getMessage("email.activation.title", null, locale)
-        sendEmail(user.email, subject, content, false, true)
+        sendEmail(user.email, subject, content, isMultipart = false, isHtml = true)
     }
 
     /**
@@ -101,7 +101,7 @@ class MailService(
         context.setVariable(EXPIRY, Duration.ofSeconds(duration).toHours())
         val content = templateEngine.process("creationEmail", context)
         val subject = messageSource.getMessage("email.activation.title", null, locale)
-        sendEmail(user.email, subject, content, false, true)
+        sendEmail(user.email, subject, content, isMultipart = false, isHtml = true)
     }
 
     /**

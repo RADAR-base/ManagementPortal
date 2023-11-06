@@ -88,7 +88,7 @@ class OAuth2LoginUiWebConfig {
             val oauthError = error
             errorParams["status"] = String.format("%d", oauthError.httpErrorCode)
             errorParams["code"] = oauthError.oAuth2ErrorCode
-            errorParams["message"] = HtmlUtils.htmlEscape(oauthError.message)
+            errorParams["message"] = oauthError.message?.let { HtmlUtils.htmlEscape(it) } ?: "No error message found"
             // transform the additionalInfo map to a comma seperated list of key: value pairs
             if (oauthError.additionalInformation != null) {
                 errorParams["additionalInfo"] = HtmlUtils.htmlEscape(

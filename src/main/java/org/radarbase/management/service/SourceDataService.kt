@@ -60,7 +60,7 @@ class SourceDataService(
      * @return the list of entities
      */
     @Transactional(readOnly = true)
-    fun findAll(pageable: Pageable?): Page<SourceDataDTO?> {
+    fun findAll(pageable: Pageable): Page<SourceDataDTO?> {
         log.debug("Request to get all SourceData")
         return sourceDataRepository.findAll(pageable)
             .map { sourceData: SourceData? -> sourceDataMapper.sourceDataToSourceDataDTO(sourceData) }

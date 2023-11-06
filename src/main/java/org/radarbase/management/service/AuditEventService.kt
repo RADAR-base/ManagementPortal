@@ -23,7 +23,7 @@ class AuditEventService(
     private val persistenceAuditEventRepository: PersistenceAuditEventRepository,
     private val auditEventConverter: AuditEventConverter
 ) {
-    fun findAll(pageable: Pageable?): Page<AuditEvent> {
+    fun findAll(pageable: Pageable): Page<AuditEvent> {
         return persistenceAuditEventRepository.findAll(pageable)
             .map { persistentAuditEvent: PersistentAuditEvent? ->
                 auditEventConverter.convertToAuditEvent(

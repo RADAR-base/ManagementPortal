@@ -215,7 +215,7 @@ open class OAuth2ServerConfiguration {
 
         @Bean
         open fun approvalStore(): ApprovalStore {
-            return if (jpaProperties!!.database == Database.POSTGRESQL) {
+            return if (jpaProperties.database == Database.POSTGRESQL) {
                 PostgresApprovalStore(dataSource)
             } else {
                 // to have compatibility for other databases including H2

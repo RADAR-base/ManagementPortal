@@ -11,7 +11,6 @@ import org.radarbase.management.web.rest.errors.ErrorConstants
 import org.radarbase.management.web.rest.errors.NotFoundException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
-import java.util.Map
 
 /**
  * Created by nivethika on 13-6-17.
@@ -29,7 +28,7 @@ abstract class SourceMapperDecorator() : SourceMapper {
                 NotFoundException(
                     "Source ID " + minimalSourceDetailsDto.sourceId + " not found",
                     EntityName.Companion.SOURCE, ErrorConstants.ERR_SOURCE_NOT_FOUND,
-                    Map.of("sourceId", minimalSourceDetailsDto.sourceId.toString())
+                    mapOf(Pair("sourceId", minimalSourceDetailsDto.sourceId.toString()))
                 )
         source.assigned = minimalSourceDetailsDto.isAssigned
         return source
@@ -44,7 +43,7 @@ abstract class SourceMapperDecorator() : SourceMapper {
                         NotFoundException(
                             "Source ID " + sourceDto.id + " not found",
                             EntityName.Companion.SOURCE, ErrorConstants.ERR_SOURCE_NOT_FOUND,
-                            Map.of<String, String?>("sourceId", sourceDto.id.toString())
+                            mapOf(Pair("sourceId", sourceDto.id.toString()))
                         )
                     }
             }!!
