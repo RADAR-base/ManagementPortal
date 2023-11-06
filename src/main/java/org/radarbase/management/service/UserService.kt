@@ -38,7 +38,7 @@ import java.util.function.Function
  */
 @Service
 @Transactional
-open class UserService @Autowired constructor(
+class UserService @Autowired constructor(
     private val userRepository: UserRepository,
     private val passwordService: PasswordService,
     private val userMapper: UserMapper,
@@ -205,7 +205,7 @@ open class UserService @Autowired constructor(
                 RoleAuthority.Scope.ORGANIZATION -> e.organization(role.organization?.name)
                 RoleAuthority.Scope.PROJECT -> {
                     if (role.project?.organization != null) {
-                        e.organization(role.project?.organization?.name)
+                        e.organization(role.project?.organizationName)
                     }
                     e.project(role.project?.projectName)
                 }
@@ -262,7 +262,7 @@ open class UserService @Autowired constructor(
      */
     @Transactional
     @Throws(NotAuthorizedException::class)
-    open fun updateUser(userDto: UserDTO): UserDTO? {
+    fun updateUser(userDto: UserDTO): UserDTO? {
         val userOpt = userDto.id?.let { userRepository.findById(it) }
         return if (userOpt?.isPresent == true) {
             var user = userOpt.get()
@@ -314,7 +314,7 @@ open class UserService @Autowired constructor(
      * @param password the new password
      * @param login of the user to change password
      */
-    open fun changePassword(login: String, password: String) {
+    fun changePassword(login: String, password: String) {
         val user = userRepository.findOneByLogin(login)
 
         if (user != null) {
@@ -331,7 +331,7 @@ open class UserService @Autowired constructor(
      * @return the requested page of users
      */
     @Transactional(readOnly = true)
-    open fun getAllManagedUsers(pageable: Pageable): Page<UserDTO> {
+    fun getAllManagedUsers(pageable: Pageable): Page<UserDTO> {
         log.debug("Request to get all Users")
         return userRepository.findAllByLoginNot(pageable, Constants.ANONYMOUS_USER)
             .map { user: User? -> userMapper.userToUserDTO(user) }
@@ -344,12 +344,12 @@ open class UserService @Autowired constructor(
      * and is empty otherwise
      */
     @Transactional(readOnly = true)
-    open fun getUserWithAuthoritiesByLogin(login: String): UserDTO? {
+    fun getUserWithAuthoritiesByLogin(login: String): UserDTO? {
         return userMapper.userToUserDTO(userRepository.findOneWithRolesByLogin(login))
     }
 
     @get:Transactional(readOnly = true)
-    open val userWithAuthorities: User?
+    val userWithAuthorities: User?
         /**
          * Get the current user.
          * @return the currently authenticated user, or null if no user is currently authenticated
@@ -412,7 +412,7 @@ open class UserService @Autowired constructor(
      */
     @Transactional
     @Throws(NotAuthorizedException::class)
-    open fun updateRoles(login: String, roleDtos: Set<RoleDTO>?) {
+    fun updateRoles(login: String, roleDtos: Set<RoleDTO>?) {
         val user = userRepository.findOneByLogin(login)
             ?: throw NotFoundException(
                 "User with login $login not found",

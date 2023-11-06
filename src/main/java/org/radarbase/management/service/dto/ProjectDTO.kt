@@ -17,7 +17,16 @@ class ProjectDTO : Serializable {
     var humanReadableProjectName: String? = null
     @NotNull var description: String? = null
     var organization: OrganizationDTO? = null
+
+    // Defaults to organization name, but if that is not set then we can use the organizationName
     var organizationName: String? = null
+        get() {
+            if (organization?.name != null)
+                field = organization?.name
+            return field
+        }
+
+
     @NotNull var location: String? = null
     var startDate: ZonedDateTime? = null
     var projectStatus: ProjectStatus? = null
