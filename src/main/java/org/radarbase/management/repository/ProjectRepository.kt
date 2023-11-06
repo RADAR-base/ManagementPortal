@@ -27,10 +27,10 @@ interface ProjectRepository : JpaRepository<Project, Long?>, RevisionRepository<
         value = "select distinct project from Project project "
                 + "left join fetch project.sourceTypes "
                 + "WHERE project.projectName in (:projectNames) "
-                + "OR project.organization.name in (:organizationNames)",
+                + "OR project.organizationName in (:organizationNames)",
         countQuery = "select distinct count(project) from Project project "
                 + "WHERE project.projectName in (:projectNames) "
-                + "OR project.organization.name in (:organizationNames)"
+                + "OR project.organizationName in (:organizationNames)"
     )
     fun findAllWithEagerRelationshipsInOrganizationsOrProjects(
         pageable: Pageable?,
@@ -40,7 +40,7 @@ interface ProjectRepository : JpaRepository<Project, Long?>, RevisionRepository<
 
     @Query(
         "select project from Project project "
-                + "WHERE project.organization.name = :organization_name"
+                + "WHERE project.organizationName = :organization_name"
     )
     fun findAllByOrganizationName(
         @Param("organization_name") organizationName: String
