@@ -163,8 +163,8 @@ class PredicateBuilder(val criteriaBuilder: CriteriaBuilder) {
             return
         }
         range.validate()
-        if (range.iss != null) {
-            add(criteriaBuilder.equal(path, range.iss))
+        if (range.`is` != null) {
+            add(criteriaBuilder.equal(path, range.`is`))
         } else {
             val from = range.from
             val to = range.to
