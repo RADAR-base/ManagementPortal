@@ -76,8 +76,8 @@ class ProjectResource(
     @Throws(URISyntaxException::class, NotAuthorizedException::class)
     fun createProject(@RequestBody @Valid projectDto: ProjectDTO?): ResponseEntity<ProjectDTO> {
         log.debug("REST request to save Project : {}", projectDto)
-        val org = projectDto?.organization
-        if (org?.name == null) {
+        val org = projectDto?.organizationName
+        if (org == null) {
             throw BadRequestException(
                 "Organization must be provided",
                 ENTITY_NAME, ErrorConstants.ERR_VALIDATION
@@ -85,7 +85,7 @@ class ProjectResource(
         }
         authService.checkPermission(
             Permission.PROJECT_CREATE,
-            { e: EntityDetails -> e.organization(org.name) })
+            { e: EntityDetails -> e.organization(org) })
         if (projectDto.id != null) {
             return ResponseEntity.badRequest()
                 .headers(

@@ -24,7 +24,7 @@ import java.util.*
  */
 @Service
 @Transactional
-open class ProjectService(
+class ProjectService(
     @Autowired private val projectRepository: ProjectRepository,
     @Autowired private val projectMapper: ProjectMapper,
     @Autowired private val sourceTypeMapper: SourceTypeMapper,
@@ -50,7 +50,7 @@ open class ProjectService(
      * @return the list of entities
      */
     @Transactional(readOnly = true)
-    open fun findAll(fetchMinimal: Boolean, pageable: Pageable): Page<*> {
+    fun findAll(fetchMinimal: Boolean, pageable: Pageable): Page<*> {
         val projects: Page<Project>
         val referents = authService.referentsByScope(Permission.PROJECT_READ)
         projects = if (referents.isEmpty()) {
@@ -76,7 +76,7 @@ open class ProjectService(
      * @return the entity
      */
     @Transactional(readOnly = true)
-    open fun findOne(id: Long): ProjectDTO? {
+    fun findOne(id: Long): ProjectDTO? {
         log.debug("Request to get Project : {}", id)
         val project = projectRepository.findOneWithEagerRelationships(id)
             ?: throw NotFoundException(
@@ -96,7 +96,7 @@ open class ProjectService(
      * @return the entity
      */
     @Transactional(readOnly = true)
-    open fun findOneByName(name: String): ProjectDTO {
+    fun findOneByName(name: String): ProjectDTO {
         log.debug("Request to get Project by name: {}", name)
         val project = projectRepository.findOneWithEagerRelationshipsByName(name)
             ?: throw NotFoundException(
@@ -115,10 +115,10 @@ open class ProjectService(
      * @return the list of source-types assigned.
      */
     @Transactional(readOnly = true)
-    open fun findSourceTypesByProjectId(id: Long): List<SourceTypeDTO> {
+    fun findSourceTypesByProjectId(id: Long): List<SourceTypeDTO> {
         log.debug("Request to get Project.sourceTypes of project: {}", id)
         val sourceTypes = projectRepository.findSourceTypesByProjectId(id)
-        return sourceTypeMapper.sourceTypesToSourceTypeDTOs(sourceTypes).filterNotNull()
+        return sourceTypeMapper.sourceTypesToSourceTypeDTOs(sourceTypes)
     }
 
     /**
