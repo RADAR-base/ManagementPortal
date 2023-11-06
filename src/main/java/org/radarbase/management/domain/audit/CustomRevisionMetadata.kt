@@ -26,27 +26,15 @@ class CustomRevisionMetadata(entity: CustomRevisionEntity) : RevisionMetadata<In
         return Optional.of(entity.id)
     }
 
-    override fun getRequiredRevisionNumber(): Int {
-        return super.getRequiredRevisionNumber()
-    }
-
     override fun getRevisionInstant(): Optional<Instant> {
         return Optional.ofNullable(entity.timestamp).map { ts: Date -> ts.toInstant() }
-    }
-
-    override fun getRequiredRevisionInstant(): Instant {
-        return super.getRequiredRevisionInstant()
     }
 
     /*
      * (non-Javadoc)
      * @see org.springframework.data.history.RevisionMetadata#getDelegate()
      */
-    override fun <T> getDelegate(): T {
+    override fun <T : Any> getDelegate(): T {
         return entity as T
-    }
-
-    override fun getRevisionType(): RevisionMetadata.RevisionType {
-        return super.getRevisionType()
     }
 }

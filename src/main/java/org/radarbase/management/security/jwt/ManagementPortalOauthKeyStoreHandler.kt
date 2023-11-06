@@ -93,7 +93,7 @@ class ManagementPortalOauthKeyStoreHandler @Autowired constructor(
                 val localStore = KeyStore.getInstance(type)
                 localStore.load(resource.inputStream, password)
                 logger.debug("Loaded JWT key store {}", resource)
-                if (resource != null && localStore != null)
+                if (localStore != null)
                     return SimpleImmutableEntry(resource, localStore)
             } catch (ex: CertificateException) {
                 logger.error("Cannot load JWT key store", ex)

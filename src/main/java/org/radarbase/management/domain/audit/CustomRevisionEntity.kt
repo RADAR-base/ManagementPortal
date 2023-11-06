@@ -40,7 +40,7 @@ class CustomRevisionEntity : Serializable {
     var id = 0
 
     @JvmField
-    @get:Temporal(TemporalType.TIMESTAMP)
+    @Temporal(TemporalType.TIMESTAMP)
     @RevisionTimestamp
     var timestamp: Date? = null
     @JvmField
@@ -55,15 +55,14 @@ class CustomRevisionEntity : Serializable {
     )
     @ModifiedEntityNames
     var modifiedEntityNames: Set<String>? = null
-    override fun equals(o: Any?): Boolean {
-        if (this === o) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
             return true
         }
-        if (o !is CustomRevisionEntity) {
+        if (other !is CustomRevisionEntity) {
             return false
         }
-        val that = o
-        return id == that.id && timestamp == that.timestamp && auditor == that.auditor && modifiedEntityNames == that.modifiedEntityNames
+        return id == other.id && timestamp == other.timestamp && auditor == other.auditor && modifiedEntityNames == other.modifiedEntityNames
     }
 
     override fun hashCode(): Int {
