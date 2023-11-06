@@ -53,17 +53,17 @@ abstract class ProjectMapperDecorator : ProjectMapper {
         val project = delegate.projectDTOToProject(projectDto)
         val projectName = projectDto.humanReadableProjectName
         if (!projectName.isNullOrEmpty()) {
-            project!!.attributes[ProjectDTO.Companion.HUMAN_READABLE_PROJECT_NAME] = projectName
+            project!!.attributes[ProjectDTO.HUMAN_READABLE_PROJECT_NAME] = projectName
         }
 
-        val name = projectDto.organization?.name
-        if (name != null) {
+        val name = projectDto.organizationName
+        if (name != null && projectDto.organization != null) {
             val org = organizationRepository.findOneByName(name)
                 ?: throw NotFoundException(
                         "Organization not found with name",
-                        EntityName.Companion.ORGANIZATION,
+                        EntityName.ORGANIZATION,
                         ErrorConstants.ERR_ORGANIZATION_NAME_NOT_FOUND,
-                        Collections.singletonMap<String, String?>("name", name)
+                        Collections.singletonMap("name", name)
                     )
             project!!.organization = org
         }

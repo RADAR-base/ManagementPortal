@@ -61,9 +61,19 @@ class Project : AbstractEntity(), Serializable {
     @Column(name = "description", nullable = false)
     @NotNull var description: String? = null
 
-    @JvmField
+    // Defaults to organization name, but if that is not set then we can use the organizationName
     @Column(name = "jhi_organization")
     var organizationName: String? = null
+        get() {
+            if (organization?.name != null)
+                field = organization?.name
+            return field
+        }
+        // needed because the @JVMField annotation cannot be added when a custom getter/setter is set
+        set(value) {
+            field = value
+        }
+
 
     @JvmField
     @ManyToOne(fetch = FetchType.EAGER)
