@@ -242,7 +242,7 @@ class SourceTypeResource(
             producer, model,
             version
         )
-        if (!projects.isEmpty()) {
+        if (projects.isNotEmpty()) {
             throw InvalidRequestException( // we know the list is not empty so calling get() is safe here
                 "Cannot delete a source-type that " + "is being used by project(s)", EntityName.SOURCE_TYPE,
                 ErrorConstants.ERR_SOURCE_TYPE_IN_USE, Collections.singletonMap(

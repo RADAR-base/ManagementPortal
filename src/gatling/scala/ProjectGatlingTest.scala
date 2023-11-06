@@ -44,7 +44,7 @@ class ProjectGatlingTest extends ManagementPortalSimulation {
         .exec(http("Create new project")
           .post("/api/projects")
           .headers(headers_http_authenticated)
-          .body(StringBody("""{"id":null, "projectName":"PROJECT-${randstring}", "description":"SAMPLE_TEXT", "organization": {"id": 1, "name": "main" }, "location":"SAMPLE_TEXT", "startDate":"2020-01-01T00:00:00.000Z", "projectStatus":null, "endDate":"2020-01-01T00:00:00.000Z", "projectAdmin":null}""")).asJson
+          .body(StringBody("""{"id":null, "projectName":"PROJECT-${randstring}", "description":"SAMPLE_TEXT", "organizationName":"SAMPLE_TEXT", "location":"SAMPLE_TEXT", "startDate":"2020-01-01T00:00:00.000Z", "projectStatus":null, "endDate":"2020-01-01T00:00:00.000Z", "projectAdmin":null}""")).asJson
           .check(status.is(201))
           .check(headerRegex("Location", "(.*)").saveAs("new_project_url"))).exitHereIfFailed
         .pause(5)
