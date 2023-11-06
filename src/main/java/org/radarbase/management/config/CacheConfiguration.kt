@@ -27,7 +27,7 @@ import javax.annotation.PreDestroy
 @Configuration
 @EnableCaching
 @AutoConfigureBefore(value = [WebConfigurer::class, DatabaseConfiguration::class])
-open class CacheConfiguration {
+class CacheConfiguration {
     @Autowired
     private val env: Environment? = null
     @PreDestroy
@@ -37,7 +37,7 @@ open class CacheConfiguration {
     }
 
     @Bean
-    open fun HazelcastInstance.cacheManager(): CacheManager {
+    fun HazelcastInstance.cacheManager(): CacheManager {
         log.debug("Starting HazelcastCacheManager")
         return HazelcastCacheManager(
             this
@@ -45,7 +45,7 @@ open class CacheConfiguration {
     }
 
     @Bean
-    open fun hazelcastConfig(jHipsterProperties: JHipsterProperties): Config {
+    fun hazelcastConfig(jHipsterProperties: JHipsterProperties): Config {
         val config = Config()
         config.setInstanceName("ManagementPortal")
         val networkConfig = config.networkConfig

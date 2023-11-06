@@ -12,7 +12,7 @@ import java.time.temporal.ChronoField
 import javax.annotation.Nonnull
 
 @Configuration
-open class DateTimeFormatConfiguration : WebMvcConfigurer {
+class DateTimeFormatConfiguration : WebMvcConfigurer {
     override fun addFormatters(@Nonnull registry: FormatterRegistry) {
         val registrar = DateTimeFormatterRegistrar()
         registrar.setUseIsoFormat(true)

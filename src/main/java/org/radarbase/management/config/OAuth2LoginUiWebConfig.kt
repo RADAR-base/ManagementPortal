@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.SessionAttributes
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.util.HtmlUtils
-import java.lang.Boolean
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.function.Function
@@ -18,8 +17,6 @@ import java.util.stream.Collectors
 import java.util.stream.Stream
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
-import kotlin.Any
-import kotlin.String
 
 /**
  * Created by dverbeec on 6/07/2017.
@@ -40,7 +37,7 @@ class OAuth2LoginUiWebConfig {
     fun getLogin(request: HttpServletRequest, response: HttpServletResponse?): ModelAndView {
         val model = TreeMap<String, Any?>()
         if (request.parameterMap.containsKey("error")) {
-            model["loginError"] = Boolean.TRUE
+            model["loginError"] = true
         }
         return ModelAndView("login", model)
     }

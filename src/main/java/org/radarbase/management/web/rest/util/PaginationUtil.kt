@@ -133,7 +133,7 @@ object PaginationUtil {
         if (range == null) {
             return
         }
-        generateUriParam(builder, "$prefix.is", range.iss)
+        generateUriParam(builder, "$prefix.is", range.`is`)
         generateUriParam(builder, "$prefix.from", range.from)
         generateUriParam(builder, "$prefix.to", range.to)
     }

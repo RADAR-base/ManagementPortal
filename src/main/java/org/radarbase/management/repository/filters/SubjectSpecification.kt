@@ -3,18 +3,17 @@ package org.radarbase.management.repository.filters
 import org.radarbase.management.domain.Role
 import org.radarbase.management.domain.Subject
 import org.radarbase.management.domain.User
-import org.radarbase.management.web.rest.criteria.CriteriaRange
+import org.radarbase.management.web.rest.criteria.LocalDateCriteriaRange
 import org.radarbase.management.web.rest.criteria.SubjectAuthority
 import org.radarbase.management.web.rest.criteria.SubjectCriteria
 import org.radarbase.management.web.rest.criteria.SubjectCriteriaLast
 import org.radarbase.management.web.rest.criteria.SubjectSortBy
 import org.radarbase.management.web.rest.criteria.SubjectSortOrder
+import org.radarbase.management.web.rest.criteria.ZonedDateTimeCriteriaRange
 import org.radarbase.management.web.rest.errors.BadRequestException
 import org.radarbase.management.web.rest.errors.EntityName
 import org.radarbase.management.web.rest.errors.ErrorConstants
 import org.springframework.data.jpa.domain.Specification
-import java.time.LocalDate
-import java.time.ZonedDateTime
 import javax.persistence.criteria.CriteriaBuilder
 import javax.persistence.criteria.CriteriaQuery
 import javax.persistence.criteria.Join
@@ -26,8 +25,8 @@ import javax.persistence.criteria.Root
 
 
 class SubjectSpecification(criteria: SubjectCriteria) : Specification<Subject?> {
-    private val dateOfBirth: CriteriaRange<LocalDate?>?
-    private val enrollmentDate: CriteriaRange<ZonedDateTime?>?
+    private val dateOfBirth: LocalDateCriteriaRange?
+    private val enrollmentDate: ZonedDateTimeCriteriaRange?
     private val groupId: Long?
     private val humanReadableIdentifier: String?
     private val last: SubjectCriteriaLast?
