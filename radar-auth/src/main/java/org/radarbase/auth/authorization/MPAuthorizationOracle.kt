@@ -24,9 +24,9 @@ class MPAuthorizationOracle(
 
         if (identity.isClientCredentials) return true
 
-        return identity.roles?.forkAny {
+        return identity.roles.forkAny {
             it.hasPermission(identity, permission, entity, entityScope)
-        } ?: false
+        }
     }
 
     /**
@@ -39,8 +39,7 @@ class MPAuthorizationOracle(
 
         if (identity.isClientCredentials) return true
 
-        return identity.roles?.any { it.role.mayBeGranted(permission) }
-            ?: false
+        return identity.roles.any { it.role.mayBeGranted(permission) }
     }
 
     /**
@@ -62,7 +61,7 @@ class MPAuthorizationOracle(
         val projects = mutableSetOf<String>()
         val personalProjects = mutableSetOf<String>()
 
-        identity.roles?.forEach {
+        identity.roles.forEach {
             if (it.role.mayBeGranted(permission)) {
                 when (it.role.scope) {
                     RoleAuthority.Scope.GLOBAL -> global = true
