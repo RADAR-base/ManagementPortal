@@ -14,10 +14,10 @@
 # ===================================================================
 
 spring:
-    profiles:
-        active: prod,api-docs,e2e-prod-test
-    datasource:
-        username: radarbase
-        password: radarbase
-    liquibase:
-        contexts: dev
+  profiles:
+    active: prod,api-docs,e2e-prod-test
+  datasource:
+    username: radarbase
+    password: radarbase
+  liquibase:
+    contexts: dev
