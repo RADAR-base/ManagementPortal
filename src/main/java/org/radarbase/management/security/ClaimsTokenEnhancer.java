@@ -60,47 +60,38 @@ public class ClaimsTokenEnhancer implements TokenEnhancer, InitializingBean {
 
     @Override
     public OAuth2AccessToken enhance(OAuth2AccessToken accessToken,
-        OAuth2Authentication authentication) {
-        logger.debug("Enhancing token of authentication {}" , authentication);
+                                     OAuth2Authentication authentication) {
+        logger.debug("Enhancing token of authentication {}", authentication);
 
         Map<String, Object> additionalInfo = new HashMap<>();
 
         String userName = authentication.getName();
 
         if (authentication.getPrincipal() instanceof Principal
-            || authentication.getPrincipal() instanceof UserDetails) {
+                || authentication.getPrincipal() instanceof UserDetails) {
             // add the 'sub' claim in accordance with JWT spec
             additionalInfo.put("sub", userName);
 
-            Optional.ofNullable(userRepository.findOneByLogin(userName))
-                .ifPresent(user -> {
-                var roles = user.roles.stream()
-                    .map(role -> {
-                var auth = role.authority.name;
-                return switch (role.getRole().getScope()) {
-                    case GLOBAL -> auth;
-                    case ORGANIZATION -> role.organization.name
-                    + ":" + auth;
-                    case PROJECT -> role.project.getProjectName()
-                    + ":" + auth;
-                };
-            })
-                .toList();
+            Optional.ofNullable(userRepository.findOneByLogin(userName)).ifPresent(user -> {
+                var roles = user.roles.stream().map(role -> {
+                    var auth = role.authority.name;
+                    return switch (role.getRole().getScope()) {
+                        case GLOBAL -> auth;
+                        case ORGANIZATION -> role.organization.name + ":" + auth;
+                        case PROJECT -> role.project.getProjectName() + ":" + auth;
+                    };
+                }).toList();
                 additionalInfo.put(ROLES_CLAIM, roles);
 
                 // Do not grant scopes that cannot be given to a user.
                 Set<String> currentScopes = accessToken.getScope();
-                Set<String> newScopes = currentScopes.stream()
-                    .filter(scope -> {
-                Permission permission = Permission.ofScope(scope);
-                var roleAuthorities = user.roles.stream()
-                    .map(Role::getRole)
-                    .collect(Collectors.toCollection(() ->
-                EnumSet.noneOf(RoleAuthority.class)));
-                return authorizationOracle.mayBeGranted(roleAuthorities,
-                    permission);
-            })
-                .collect(Collectors.toCollection(TreeSet::new));
+                Set<String> newScopes = currentScopes.stream().filter(scope -> {
+                    Permission permission = Permission.ofScope(scope);
+                    var roleAuthorities = user.roles.stream().map(Role::getRole)
+                            .collect(Collectors.toCollection(() ->
+                                    EnumSet.noneOf(RoleAuthority.class)));
+                    return authorizationOracle.mayBeGranted(roleAuthorities, permission);
+                }).collect(Collectors.toCollection(TreeSet::new));
 
                 if (!newScopes.equals(currentScopes)) {
                     ((DefaultOAuth2AccessToken) accessToken).setScope(newScopes);
@@ -109,26 +100,22 @@ public class ClaimsTokenEnhancer implements TokenEnhancer, InitializingBean {
 
             List<Source> assignedSources = subjectRepository.findSourcesBySubjectLogin(userName);
 
-            List<String> sourceIds = assignedSources.stream()
-                .map(s -> s.sourceId.toString())
-            .toList();
+            List<String> sourceIds = assignedSources.stream().map(s ->
+                    s.sourceId.toString()).toList();
             additionalInfo.put(SOURCES_CLAIM, sourceIds);
         }
         // add iat and iss optional JWT claims
         additionalInfo.put("iat", Instant.now().getEpochSecond());
         additionalInfo.put("iss", appName);
-        additionalInfo.put(GRANT_TYPE_CLAIM,
-            authentication.getOAuth2Request().getGrantType());
-        ((DefaultOAuth2AccessToken) accessToken)
-            .setAdditionalInformation(additionalInfo);
+        additionalInfo.put(GRANT_TYPE_CLAIM, authentication.getOAuth2Request().getGrantType());
+        ((DefaultOAuth2AccessToken) accessToken).setAdditionalInformation(additionalInfo);
 
         // HACK: since all granted tokens need to pass here, we can use this point to create an
         // audit event for a granted token, there is an open issue about oauth2 audit events in
         // spring security but it has been inactive for a long time:
         // https://github.com/spring-projects/spring-security-oauth/issues/223
         Map<String, Object> auditData = auditData(accessToken, authentication);
-        auditEventRepository.add(new AuditEvent(userName, GRANT_TOKEN_EVENT,
-            auditData));
+        auditEventRepository.add(new AuditEvent(userName, GRANT_TOKEN_EVENT, auditData));
         logger.info("[{}] for {}: {}", GRANT_TOKEN_EVENT, userName, auditData);
 
         return accessToken;
@@ -140,7 +127,7 @@ public class ClaimsTokenEnhancer implements TokenEnhancer, InitializingBean {
     }
 
     private Map<String, Object> auditData(OAuth2AccessToken accessToken,
-    OAuth2Authentication authentication) {
+                                          OAuth2Authentication authentication) {
         Map<String, Object> result = new HashMap<>();
         result.put("tokenType", accessToken.getTokenType());
         result.put("scope", String.join(", ", accessToken.getScope()));
