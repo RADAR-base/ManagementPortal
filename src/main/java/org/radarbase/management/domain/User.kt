@@ -107,8 +107,7 @@ class User : AbstractEntity(), Serializable {
     @Cascade(
         CascadeType.SAVE_UPDATE
     )
-    //TODO remove ?
-    var roles: MutableSet<Role>? = HashSet()
+    var roles: MutableSet<Role> = HashSet()
 
     //Lowercase the login before saving it in database
     fun setLogin(login: String?) {

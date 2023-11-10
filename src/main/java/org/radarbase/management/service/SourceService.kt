@@ -247,9 +247,8 @@ open class SourceService(
                             + "source-type", IdentifierGenerator.ENTITY_NAME, "error.invalidTransfer"
                 )
 
-            //TODO all the nullchecks are the result of jvmfiel;d annotations not allowing lateinits
             // set old source-type, ensures compatibility
-            sourceDto.sourceType = existingSource.sourceType?.let { sourceTypeMapper.sourceTypeToSourceTypeDTO(it) }!!
+            sourceDto.sourceType = existingSource.sourceType?.let { sourceTypeMapper.sourceTypeToSourceTypeDTO(it) }
         }
         return save(sourceDto)
     }

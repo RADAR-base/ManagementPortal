@@ -268,15 +268,21 @@ class ManagementPortalOauthKeyStoreHandler @Autowired constructor(
                 return null
             }
             val privateKey = keyPair.private
-            return if (privateKey is ECPrivateKey) {
-                EcdsaJwtAlgorithm(keyPair)
-            } else if (privateKey is RSAPrivateKey) {
-                RsaJwtAlgorithm(keyPair)
-            } else {
-                logger.warn(
-                    "No JWT algorithm found for key type {}", privateKey.javaClass
-                )
-                null
+            return when (privateKey) {
+                is ECPrivateKey -> {
+                    EcdsaJwtAlgorithm(keyPair)
+                }
+
+                is RSAPrivateKey -> {
+                    RsaJwtAlgorithm(keyPair)
+                }
+
+                else -> {
+                    logger.warn(
+                        "No JWT algorithm found for key type {}", privateKey.javaClass
+                    )
+                    null
+                }
             }
         }
     }
