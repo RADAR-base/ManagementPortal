@@ -2,6 +2,7 @@ package org.radarbase.management.config
 
 import org.radarbase.auth.authorization.RoleAuthority
 import org.radarbase.management.repository.UserRepository
+import org.radarbase.management.security.ClaimsTokenEnhancer
 import org.radarbase.management.security.Http401UnauthorizedEntryPoint
 import org.radarbase.management.security.JwtAuthenticationFilter
 import org.radarbase.management.security.PostgresApprovalStore
@@ -41,6 +42,7 @@ import org.springframework.security.oauth2.provider.client.JdbcClientDetailsServ
 import org.springframework.security.oauth2.provider.code.AuthorizationCodeServices
 import org.springframework.security.oauth2.provider.code.JdbcAuthorizationCodeServices
 import org.springframework.security.oauth2.provider.token.DefaultTokenServices
+import org.springframework.security.oauth2.provider.token.TokenEnhancer
 import org.springframework.security.oauth2.provider.token.TokenEnhancerChain
 import org.springframework.security.oauth2.provider.token.TokenStore
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
@@ -49,7 +51,7 @@ import java.util.*
 import javax.sql.DataSource
 
 @Configuration
-open class OAuth2ServerConfiguration {
+class OAuth2ServerConfiguration {
     @Autowired
     private val dataSource: DataSource? = null
 
@@ -58,7 +60,7 @@ open class OAuth2ServerConfiguration {
 
     @Configuration
     @Order(-20)
-    protected open class LoginConfig : WebSecurityConfigurerAdapter() {
+    protected class LoginConfig : WebSecurityConfigurerAdapter() {
         @Autowired
         private val authenticationManager: AuthenticationManager? = null
 
@@ -87,7 +89,7 @@ open class OAuth2ServerConfiguration {
     }
 
     @Configuration
-    open class JwtAuthenticationFilterConfiguration {
+    class JwtAuthenticationFilterConfiguration {
         @Autowired
         private val authenticationManager: AuthenticationManager? = null
 
@@ -98,7 +100,7 @@ open class OAuth2ServerConfiguration {
         private val keyStoreHandler: ManagementPortalOauthKeyStoreHandler? = null
 
         @Bean
-        open fun jwtAuthenticationFilter(): JwtAuthenticationFilter {
+        fun jwtAuthenticationFilter(): JwtAuthenticationFilter {
             return JwtAuthenticationFilter(
                 keyStoreHandler!!.tokenValidator,
                 authenticationManager!!,
@@ -109,7 +111,7 @@ open class OAuth2ServerConfiguration {
     }
 
     @Bean
-    open fun jdbcClientDetailsService(): JdbcClientDetailsService {
+    fun jdbcClientDetailsService(): JdbcClientDetailsService {
         val clientDetailsService = JdbcClientDetailsService(dataSource)
         clientDetailsService.setPasswordEncoder(passwordEncoder)
         return clientDetailsService
@@ -117,7 +119,7 @@ open class OAuth2ServerConfiguration {
 
     @Configuration
     @EnableResourceServer
-    protected open class ResourceServerConfiguration(
+    protected class ResourceServerConfiguration(
         @Autowired private val keyStoreHandler: ManagementPortalOauthKeyStoreHandler,
         @Autowired private val tokenStore: TokenStore,
         @Autowired private val http401UnauthorizedEntryPoint: Http401UnauthorizedEntryPoint,
@@ -200,7 +202,7 @@ open class OAuth2ServerConfiguration {
 
     @Configuration
     @EnableAuthorizationServer
-    protected open class AuthorizationServerConfiguration(
+    protected class AuthorizationServerConfiguration(
         @Autowired private val jpaProperties: JpaProperties,
         @Autowired @Qualifier("authenticationManagerBean") private val authenticationManager: AuthenticationManager,
         @Autowired private val dataSource: DataSource,
@@ -209,12 +211,12 @@ open class OAuth2ServerConfiguration {
     ) : AuthorizationServerConfigurerAdapter() {
 
         @Bean
-        protected open fun authorizationCodeServices(): AuthorizationCodeServices {
+        protected fun authorizationCodeServices(): AuthorizationCodeServices {
             return JdbcAuthorizationCodeServices(dataSource)
         }
 
         @Bean
-        open fun approvalStore(): ApprovalStore {
+        fun approvalStore(): ApprovalStore {
             return if (jpaProperties.database == Database.POSTGRESQL) {
                 PostgresApprovalStore(dataSource)
             } else {
@@ -224,12 +226,17 @@ open class OAuth2ServerConfiguration {
         }
 
         @Bean
-        open fun tokenStore(): TokenStore {
+        fun tokenEnhancer(): TokenEnhancer {
+            return ClaimsTokenEnhancer()
+        }
+
+        @Bean
+        fun tokenStore(): TokenStore {
             return ManagementPortalJwtTokenStore(accessTokenConverter())
         }
 
         @Bean
-        open fun accessTokenConverter(): ManagementPortalJwtAccessTokenConverter {
+        fun accessTokenConverter(): ManagementPortalJwtAccessTokenConverter {
             logger.debug("loading token converter from keystore configurations")
             return ManagementPortalJwtAccessTokenConverter(
                 keyStoreHandler.algorithmForSigning,
@@ -240,7 +247,7 @@ open class OAuth2ServerConfiguration {
 
         @Bean
         @Primary
-        open fun tokenServices(tokenStore: TokenStore?): DefaultTokenServices {
+        fun tokenServices(tokenStore: TokenStore?): DefaultTokenServices {
             val defaultTokenServices = DefaultTokenServices()
             defaultTokenServices.setTokenStore(tokenStore)
             defaultTokenServices.setSupportRefreshToken(true)
@@ -251,8 +258,7 @@ open class OAuth2ServerConfiguration {
         override fun configure(endpoints: AuthorizationServerEndpointsConfigurer) {
             val tokenEnhancerChain = TokenEnhancerChain()
             tokenEnhancerChain.setTokenEnhancers(
-                //TODO listOf(tokenEnhancer(), accessTokenConverter())
-                listOf(accessTokenConverter())
+                listOf(tokenEnhancer(), accessTokenConverter())
             )
             endpoints
                 .authorizationCodeServices(authorizationCodeServices())
