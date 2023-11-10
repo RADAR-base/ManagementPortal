@@ -73,7 +73,7 @@ class AuditEventConverter {
             for ((key, value) in data) {
 
                 // Extract the data that will be saved.
-                if (value is WebAuthenticationDetails) {
+                if (value is WebAuthenticationDetails && value.sessionId != null) {
                     results["sessionId"] = value.sessionId
                 } else if (value != null) {
                     results[key] = value.toString()
