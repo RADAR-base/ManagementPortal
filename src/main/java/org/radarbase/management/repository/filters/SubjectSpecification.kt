@@ -35,8 +35,8 @@ class SubjectSpecification(criteria: SubjectCriteria) : Specification<Subject?> 
     private val externalId: String?
     private val subjectId: String?
     private val sort: List<SubjectSortOrder>?
-    private val authority: Set<String?>
-    private var sortLastValues: List<String?>? = null
+    private val authority: Set<String>
+    private var sortLastValues: List<String>? = null
 
     /**
      * Subject specification based on criteria.
@@ -44,7 +44,7 @@ class SubjectSpecification(criteria: SubjectCriteria) : Specification<Subject?> 
      */
     init {
         authority = criteria.authority
-            .map { obj: SubjectAuthority? -> obj?.name }
+            .map { obj: SubjectAuthority -> obj.name }
             .toSet()
         dateOfBirth = criteria.dateOfBirth
         enrollmentDate = criteria.enrollmentDate
@@ -58,7 +58,7 @@ class SubjectSpecification(criteria: SubjectCriteria) : Specification<Subject?> 
         sort = criteria.parsedSort
         sortLastValues = if (last != null) {
             sort
-                ?.map { o: SubjectSortOrder -> getLastValue(o.sortBy) }
+                ?.mapNotNull { o: SubjectSortOrder -> getLastValue(o.sortBy) }
                 ?.toList()
         } else {
             null
@@ -93,7 +93,6 @@ class SubjectSpecification(criteria: SubjectCriteria) : Specification<Subject?> 
         return predicates.toAndPredicate()!!
     }
 
-    //TODO I don't think return type needs to be nullable
     private fun filterLastValues(root: Root<Subject?>, builder: CriteriaBuilder): Predicate? {
         val lastPredicates = arrayOfNulls<Predicate?>(
             sort!!.size
@@ -111,10 +110,15 @@ class SubjectSpecification(criteria: SubjectCriteria) : Specification<Subject?> 
                 lastAndPredicates!![j] = builder.equal(paths[j], sortLastValues!![j])
             }
             val order = sort[i]
+            val saveVal = sortLastValues
+                ?: throw BadRequestException(
+                    "No last value given",
+                    EntityName.SUBJECT, ErrorConstants.ERR_VALIDATION
+                )
             val currentSort: Predicate? = if (order.direction.isAscending) {
-                builder.greaterThan(paths[i], sortLastValues!![i]!!)//TODO
+                builder.greaterThan(paths[i], saveVal[i])
             } else {
-                builder.lessThan(paths[i], sortLastValues!![i]!!)//TODO
+                builder.lessThan(paths[i], saveVal[i])
             }
             if (lastAndPredicates != null) {
                 lastAndPredicates[i] = currentSort
@@ -154,7 +158,7 @@ class SubjectSpecification(criteria: SubjectCriteria) : Specification<Subject?> 
         if (property.isUnique && result == null) {
             throw BadRequestException(
                 "No last value given for sort property $property",
-                EntityName.Companion.SUBJECT, ErrorConstants.ERR_VALIDATION
+                EntityName.SUBJECT, ErrorConstants.ERR_VALIDATION
             )
         }
         return result
