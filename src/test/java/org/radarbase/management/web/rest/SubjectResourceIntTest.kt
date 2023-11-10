@@ -97,7 +97,7 @@ internal class SubjectResourceIntTest(
         Assertions.assertThat(testSubject.externalLink).isEqualTo(SubjectServiceTest.DEFAULT_EXTERNAL_LINK)
         Assertions.assertThat(testSubject.externalId).isEqualTo(SubjectServiceTest.DEFAULT_ENTERNAL_ID)
         Assertions.assertThat(testSubject.removed).isEqualTo(SubjectServiceTest.DEFAULT_REMOVED)
-        Assertions.assertThat(testSubject.user!!.roles!!.size).isEqualTo(1)
+        Assertions.assertThat(testSubject.user!!.roles.size).isEqualTo(1)
     }
 
     @Test
@@ -233,7 +233,7 @@ internal class SubjectResourceIntTest(
         Assertions.assertThat(testSubject.externalLink).isEqualTo(SubjectServiceTest.UPDATED_EXTERNAL_LINK)
         Assertions.assertThat(testSubject.externalId).isEqualTo(SubjectServiceTest.UPDATED_ENTERNAL_ID)
         Assertions.assertThat(testSubject.removed).isEqualTo(SubjectServiceTest.UPDATED_REMOVED)
-        Assertions.assertThat(testSubject.user!!.roles!!.size).isEqualTo(2)
+        Assertions.assertThat(testSubject.user!!.roles.size).isEqualTo(2)
     }
 
     @Test
