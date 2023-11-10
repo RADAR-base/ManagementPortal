@@ -31,7 +31,6 @@ import java.security.interfaces.ECPrivateKey
 import java.security.interfaces.RSAPrivateKey
 import java.util.*
 import java.util.AbstractMap.SimpleImmutableEntry
-import java.util.stream.Stream
 import javax.annotation.Nonnull
 import javax.servlet.ServletContext
 import kotlin.collections.Map.Entry
@@ -72,12 +71,12 @@ class ManagementPortalOauthKeyStoreHandler @Autowired constructor(
             ("http://localhost:" + environment.getProperty("server.port") + servletContext.contextPath)
         logger.info("Using Management Portal base-url {}", managementPortalBaseUrl)
         val algorithms = loadAlgorithmsFromAlias().filter { obj: Algorithm? -> Objects.nonNull(obj) }.toList()
-        verifiers = algorithms.stream().map { algo: Algorithm? ->
-                JWT.require(algo).withAudience(ManagementPortalJwtAccessTokenConverter.RES_MANAGEMENT_PORTAL).build()
-            }.toList()
+        verifiers = algorithms.map { algo: Algorithm? ->
+            JWT.require(algo).withAudience(ManagementPortalJwtAccessTokenConverter.RES_MANAGEMENT_PORTAL).build()
+        }.toMutableList()
         // No need to check audience with a refresh token: it can be used
         // to refresh tokens intended for other resources.
-        refreshTokenVerifiers = algorithms.stream().map { algo: Algorithm? -> JWT.require(algo).build() }.toList()
+        refreshTokenVerifiers = algorithms.map { algo: Algorithm -> JWT.require(algo).build() }.toMutableList()
     }
 
     @Nonnull
@@ -124,17 +123,18 @@ class ManagementPortalOauthKeyStoreHandler @Autowired constructor(
      * @return List of public keys for token verification.
      */
     fun loadJwks(): JsonWebKeySet {
-        return JsonWebKeySet(verifierPublicKeyAliasList.map { alias: String? -> this.getKeyPair(alias) }
+        return JsonWebKeySet(verifierPublicKeyAliasList.map { alias: String -> this.getKeyPair(alias) }
             .map { keyPair: KeyPair? -> getJwtAlgorithm(keyPair) }.mapNotNull { obj: JwtAlgorithm? -> obj?.jwk })
     }
 
     /**
      * Load default verifiers from configured keystore and aliases.
      */
-    private fun loadAlgorithmsFromAlias(): Stream<Algorithm?> {
-        return verifierPublicKeyAliasList.stream().map { alias: String? -> this.getKeyPair(alias) }
-            .map { keyPair: KeyPair? -> getJwtAlgorithm(keyPair) }.filter { obj: JwtAlgorithm? -> Objects.nonNull(obj) }
-            .map { obj: JwtAlgorithm? -> obj?.algorithm }
+    private fun loadAlgorithmsFromAlias(): Collection<Algorithm> {
+        return verifierPublicKeyAliasList
+            .map { alias: String -> this.getKeyPair(alias) }
+            .mapNotNull { keyPair -> getJwtAlgorithm(keyPair) }
+            .map { obj: JwtAlgorithm -> obj.algorithm }
     }
 
     val algorithmForSigning: Algorithm
@@ -159,7 +159,7 @@ class ManagementPortalOauthKeyStoreHandler @Autowired constructor(
      * @throws IllegalArgumentException if the key alias password is wrong or the key cannot
      * loaded.
      */
-    private fun getKeyPair(alias: String?): KeyPair? {
+    private fun getKeyPair(alias: String): KeyPair? {
         return getKeyPair(alias, password)
     }
 
@@ -172,7 +172,7 @@ class ManagementPortalOauthKeyStoreHandler @Autowired constructor(
      * @throws IllegalArgumentException if the key alias password is wrong or the key cannot
      * load.
      */
-    private fun getKeyPair(alias: String?, password: CharArray): KeyPair? {
+    private fun getKeyPair(alias: String, password: CharArray): KeyPair? {
         return try {
             val key = store.getKey(alias, password) as PrivateKey?
             if (key == null) {
