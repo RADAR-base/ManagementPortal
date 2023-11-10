@@ -155,16 +155,16 @@ class UserService @Autowired constructor(
         user.resetKey = passwordService.generateResetKey()
         user.resetDate = ZonedDateTime.now()
         user.activated = false
-        user.roles = userDto.roles?.let { getUserRoles(it, mutableSetOf()) }
+        user.roles = getUserRoles(userDto.roles, mutableSetOf())
         user = userRepository.save(user)
         log.debug("Created Information for User: {}", user)
         return user
     }
 
     @Throws(NotAuthorizedException::class)
-    private fun getUserRoles(roleDtos: Set<RoleDTO>?, oldRoles: MutableSet<Role>): MutableSet<Role>? {
+    private fun getUserRoles(roleDtos: Set<RoleDTO>?, oldRoles: MutableSet<Role>): MutableSet<Role> {
         if (roleDtos == null) {
-            return null
+            return mutableSetOf()
         }
         val roles = roleDtos.map { roleDto: RoleDTO ->
             val authority = getRoleAuthority(roleDto)
@@ -273,8 +273,8 @@ class UserService @Autowired constructor(
             user.langKey = userDto.langKey
             val managedRoles = user.roles
             val oldRoles = java.util.Set.copyOf(managedRoles)
-            managedRoles?.clear()
-            managedRoles?.addAll(getUserRoles(userDto.roles, oldRoles)!!)
+            managedRoles.clear()
+            managedRoles.addAll(getUserRoles(userDto.roles, oldRoles))
             user = userRepository.save(user)
             log.debug("Changed Information for User: {}", user)
             userMapper.userToUserDTO(user)
@@ -422,11 +422,11 @@ class UserService @Autowired constructor(
             )
 
         val managedRoles = user.roles
-        val oldRoles = managedRoles?.toMutableSet()
+        val oldRoles = managedRoles.toMutableSet()
 
-        managedRoles?.clear()
-        managedRoles?.addAll(roleDtos?.let { oldRoles?.let { oldroles -> getUserRoles(it, oldroles) } }!!)
-            ?: throw Exception("could not add rolser for user: $user")
+        managedRoles.clear()
+        roleDtos?.let { getUserRoles(it, oldRoles) }?.let { managedRoles.addAll(it) }
+            ?: throw Exception("could not add roles for user: $user")
         userRepository.save(user)
     }
 
