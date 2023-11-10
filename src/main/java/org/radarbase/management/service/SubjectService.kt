@@ -174,11 +174,11 @@ class SubjectService(
         )
     }
 
-    private fun updateParticipantRoles(subject: Subject, subjectDto: SubjectDTO): MutableSet<Role>? {
+    private fun updateParticipantRoles(subject: Subject, subjectDto: SubjectDTO): MutableSet<Role> {
         if (subjectDto.project == null || subjectDto.project!!.projectName == null) {
             return subject.user!!.roles
         }
-        val existingRoles = subject.user!!.roles?.map {
+        val existingRoles = subject.user!!.roles.map {
             // make participant inactive in projects that do not match the new project
             if (it.authority!!.name == RoleAuthority.PARTICIPANT.authority && it.project!!.projectName != subjectDto.project!!.projectName) {
                 return@map getProjectParticipantRole(it.project, RoleAuthority.INACTIVE_PARTICIPANT)
@@ -186,12 +186,12 @@ class SubjectService(
                 // do not modify other roles.
                 return@map it
             }
-        }?.toMutableSet()
+        }.toMutableSet()
 
         // Ensure that given project is present
         val newProjectRole =
             getProjectParticipantRole(projectMapper.projectDTOToProject(subjectDto.project), RoleAuthority.PARTICIPANT)
-        existingRoles?.add(newProjectRole)
+        existingRoles.add(newProjectRole)
 
         return existingRoles
 
