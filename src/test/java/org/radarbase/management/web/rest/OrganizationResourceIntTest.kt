@@ -176,7 +176,6 @@ internal open class OrganizationResourceIntTest(
 
     @Test
     @Throws(Exception::class)
-    //TODO this is covered by not using a nullable type
     fun checkGroupNameIsRequired() {
         val orgDto: OrganizationDTO = organizationMapper.organizationToOrganizationDTO(organization)
         orgDto.name = null
