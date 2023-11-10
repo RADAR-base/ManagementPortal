@@ -203,6 +203,18 @@ jobs:
             org.opencontainers.image.vendor=RADAR-base
             org.opencontainers.image.licenses=Apache-2.0
 
+      - name: Trigger downstream repo (appserver)
+        if: github.event_name != 'pull_request' #only after a merge
+        uses: convictional/trigger-workflow-and-wait@v1.6.1
+        with:
+          owner: RADAR-base
+          repo: RADAR-Appserver
+          github_token: ${{ secrets.GITHUB_PERSONAL_ACCESS_TOKEN }} #token with repo access to app_server
+          workflow_file_name: downstream.yml
+          ref: dev
+          propagate_failure: false
+          wait_workflow: false
+
 #      # placeholder for testing
 #      - name: End to end tests (docker image)
 #        id: e2e-prod-docker
