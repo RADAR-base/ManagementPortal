@@ -113,7 +113,7 @@ class JwtAuthenticationFilter @JvmOverloads constructor(
             ?.removePrefix(AUTHORIZATION_BEARER_HEADER)
             ?.trim { it <= ' ' }
         if (authHeader == null) {
-            return httpRequest.cookies.find { it.name == "ory_kratos_session" }
+            return httpRequest.cookies?.find { it.name == "ory_kratos_session" }
                 ?.value
         }
 
