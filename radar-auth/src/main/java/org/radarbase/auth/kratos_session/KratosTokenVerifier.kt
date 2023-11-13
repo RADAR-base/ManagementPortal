@@ -46,7 +46,7 @@ class KratosTokenVerifier : TokenVerifier {
     override suspend fun verify(token: String): RadarToken = try {
         val cookie = "ory_kratos_session=" + token
 
-        val kratosSession: KratosDTO
+        val kratosSession: KratosSessionDTO
 
         runBlocking {
             withContext(Dispatchers.IO) {
@@ -58,7 +58,7 @@ class KratosTokenVerifier : TokenVerifier {
 
                 if (response.status.isSuccess()) {
                     logger.debug(response.body())
-                    kratosSession = response.body<KratosDTO>()
+                    kratosSession = response.body<KratosSessionDTO>()
                 } else {
                     throw TokenValidationException("couldn't get kratos session")
                 }
@@ -66,19 +66,19 @@ class KratosTokenVerifier : TokenVerifier {
         }
 
         DataRadarToken(
-            roles = kratosSession.identity.metadata_public.parseRoles(),
-            scopes = kratosSession.identity.metadata_public.scope.toSet(),
-            sources = kratosSession.identity.metadata_public.sources,
+            roles = kratosSession.identity.metadata_public?.parseRoles() ?: emptySet(),
+            scopes = kratosSession.identity.metadata_public?.scope?.toSet() ?: emptySet(),
+            sources = kratosSession.identity.metadata_public?.sources ?: emptyList(),
             grantType = "session",
             subject = kratosSession.identity.id,
             issuedAt = kratosSession.issued_at,
             expiresAt = kratosSession.expires_at,
-            audience = kratosSession.identity.metadata_public.aud,
+            audience = kratosSession.identity.metadata_public?.aud ?: emptyList(),
             token = token,
             issuer = kratosSession.authentication_methods.first().provider,
             type = "type",
             clientId = "kratosSession",
-            username = kratosSession.identity.metadata_public.mp_login
+            username = kratosSession.identity.metadata_public?.mp_login
         )
     } catch (ex: Throwable) {
         throw ex
@@ -122,11 +122,11 @@ class KratosTokenVerifier : TokenVerifier {
 
     @Serializable
     data class AuthenticationMethod(
-        val method: String,
-        val aal: String,
+        val method: String? = null,
+        val aal: String? = null,
         @Serializable(with = InstantSerializer::class)
-        val completed_at: Instant,
-        val provider: String
+        val completed_at: Instant? = null,
+        val provider: String? = null
     )
 
     @Serializable
@@ -139,23 +139,23 @@ class KratosTokenVerifier : TokenVerifier {
 
     @Serializable
     class Identity (
-        val id: String,
-        val schema_id: String,
-        val schema_url: String,
-        val state: String,
+        val id: String? = null,
+        val schema_id: String? = null,
+        val schema_url: String? = null,
+        val state: String? = null,
         @Serializable(with = InstantSerializer::class)
-        val state_changed_at: Instant,
-        val traits: Traits?,
-        val metadata_public: Metadata,
+        val state_changed_at: Instant? = null,
+        val traits: Traits? = null,
+        val metadata_public: Metadata? = null,
         @Serializable(with = InstantSerializer::class)
-        val created_at: Instant,
+        val created_at: Instant? = null,
         @Serializable(with = InstantSerializer::class)
-        val updated_at: Instant,
+        val updated_at: Instant? = null,
     )
 
 
     @Serializable
-    class KratosDTO (
+    class KratosSessionDTO (
         val id: String,
         val active: Boolean,
         @Serializable(with = InstantSerializer::class)
@@ -173,17 +173,17 @@ class KratosTokenVerifier : TokenVerifier {
 
     @Serializable
     class Traits (
-        val name: String?,
-        val email: String
+        val name: String? = null,
+        val email: String? = null,
     )
 
     @Serializable
     class Metadata (
-        val roles: ArrayList<String>,
-        val authorities: ArrayList<String>,
-        val scope: ArrayList<String>,
-        val sources: ArrayList<String>,
-        val aud: ArrayList<String>,
+        val roles: List<String>,
+        val authorities: Set<String>,
+        val scope: List<String>,
+        val sources: List<String>,
+        val aud: List<String>,
         val mp_login: String?
     )
 }
