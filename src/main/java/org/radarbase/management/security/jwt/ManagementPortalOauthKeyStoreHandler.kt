@@ -7,8 +7,10 @@ import org.radarbase.auth.authentication.TokenValidator
 import org.radarbase.auth.jwks.JsonWebKeySet
 import org.radarbase.auth.jwks.JwkAlgorithmParser
 import org.radarbase.auth.jwks.JwksTokenVerifierLoader
+import org.radarbase.auth.kratos_session.KratosTokenVerifierLoader
 import org.radarbase.management.config.ManagementPortalProperties
 import org.radarbase.management.config.ManagementPortalProperties.Oauth
+import org.radarbase.management.security.jwt.ManagementPortalJwtAccessTokenConverter.Companion.RES_MANAGEMENT_PORTAL
 import org.radarbase.management.security.jwt.algorithm.EcdsaJwtAlgorithm
 import org.radarbase.management.security.jwt.algorithm.JwtAlgorithm
 import org.radarbase.management.security.jwt.algorithm.RsaJwtAlgorithm
@@ -220,10 +222,15 @@ class ManagementPortalOauthKeyStoreHandler @Autowired constructor(
     val tokenValidator: TokenValidator
         /** Get the default token validator.  */
         get() {
-            val jwksLoader = JwksTokenVerifierLoader(
-                "$managementPortalBaseUrl/oauth/token_key", "res_ManagementPortal", JwkAlgorithmParser()
+            val loaderList = listOf(
+                JwksTokenVerifierLoader(
+                    managementPortalBaseUrl + "/oauth/token_key",
+                    RES_MANAGEMENT_PORTAL,
+                    JwkAlgorithmParser()
+                ),
+                KratosTokenVerifierLoader(),
             )
-            return TokenValidator(java.util.List.of(jwksLoader))
+            return TokenValidator(loaderList)
         }
 
     companion object {
