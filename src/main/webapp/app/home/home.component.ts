@@ -68,7 +68,7 @@ export class HomeComponent {
     }
 
     redirect() {
-        window.location.href = "http://127.0.0.1:3000/login?return_to=http://127.0.0.1:8081";
+        window.location.href = "http://127.0.0.1:3000/login?return_to=http://127.0.0.1:8081/projects";
     }
     redirect_logout() {
         window.location.href = "http://127.0.0.1:4433//self-service/logout/api?return_to=http://127.0.0.1:8081";
