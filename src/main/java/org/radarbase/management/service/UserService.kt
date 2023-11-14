@@ -165,7 +165,7 @@ class UserService @Autowired constructor(
         user.password = passwordService.generateEncodedPassword()
         user.resetKey = passwordService.generateResetKey()
         user.resetDate = ZonedDateTime.now()
-        user.activated = true
+        user.activated = true //TODO autoactivation, desirable?
         user.roles = getUserRoles(userDto.roles, mutableSetOf())
 
         try{
@@ -178,7 +178,7 @@ class UserService @Autowired constructor(
         user = withContext(Dispatchers.IO) {
             userRepository.save(user)
         }
-        
+
         log.debug("Created Information for User: {}", user)
 
         return user
