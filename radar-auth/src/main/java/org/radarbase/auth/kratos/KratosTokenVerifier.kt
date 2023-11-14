@@ -1,31 +1,32 @@
 package org.radarbase.auth.kratos
 import org.radarbase.auth.authentication.TokenVerifier
 import org.radarbase.auth.exception.IdpException
-import org.radarbase.auth.token.DataRadarToken
+import org.radarbase.auth.exception.InsufficientAuthenticationLevelException
 import org.radarbase.auth.token.RadarToken
 import org.slf4j.LoggerFactory
 
+//TODO How to get initial access (i.e. admin account), how to regain access if lost 2fa credentials for admin, (backdoor?)
+//TODO Logout
+//TODO Better error screen for no AAL2, failed to make kratos user, failed to update kratos user
+//TODO Update identity on update user
+//TODO Delete identity on delete user
+//TODO Remove old login --> update unit tests, Testing kratos
 class KratosTokenVerifier(private val sessionService: SessionService) : TokenVerifier {
     @Throws(IdpException::class)
     override suspend fun verify(token: String): RadarToken = try {
         val kratosSession = sessionService.getSession(token)
 
-        DataRadarToken(
-            roles = kratosSession.identity.parseRoles(),
-            scopes = kratosSession.identity.metadata_public?.scope?.toSet() ?: emptySet(),
-            sources = kratosSession.identity.metadata_public?.sources ?: emptyList(),
-            grantType = "session",
-            subject = kratosSession.identity.id,
-            issuedAt = kratosSession.issued_at,
-            expiresAt = kratosSession.expires_at,
-            audience = kratosSession.identity.metadata_public?.aud ?: emptyList(),
-            token = token,
-            issuer = kratosSession.authentication_methods.first().provider,
-            type = "type",
-            clientId = "kratosSession",
-            username = kratosSession.identity.metadata_public?.mp_login
-        )
-
+        val radarToken =  kratosSession.toDataRadarToken()
+        if (radarToken.authenticatorLevel != RadarToken.AuthenticatorLevel.aal2)
+        {
+            val msg = "found a token of with aal: ${radarToken.authenticatorLevel}, which is insufficient for this" +
+                " action"
+            throw InsufficientAuthenticationLevelException(msg)
+        }
+        radarToken
+    } catch (ex: InsufficientAuthenticationLevelException) {
+        logger.warn(ex.message, ex)
+        throw ex
     } catch (ex: Throwable) {
         throw IdpException("could not verify token", ex)
     }
