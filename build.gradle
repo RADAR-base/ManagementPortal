@@ -151,9 +151,9 @@ ext.findbugAnnotationVersion = '3.0.2'
 dependencies {
     api group: 'com.auth0', name: 'java-jwt', version: oauth_jwt_version
     api(platform("org.jetbrains.kotlinx:kotlinx-coroutines-bom:$coroutines_version"))
-    api("org.jetbrains.kotlinx:kotlinx-coroutines-core")
-
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version")
     implementation("org.jetbrains.kotlin:kotlin-reflect:1.9.10")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:$coroutines_version")
 
     implementation("org.radarbase:radar-commons-kotlin:1.0.0")
 
