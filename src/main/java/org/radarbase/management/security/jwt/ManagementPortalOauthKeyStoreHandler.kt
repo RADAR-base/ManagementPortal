@@ -7,7 +7,7 @@ import org.radarbase.auth.authentication.TokenValidator
 import org.radarbase.auth.jwks.JsonWebKeySet
 import org.radarbase.auth.jwks.JwkAlgorithmParser
 import org.radarbase.auth.jwks.JwksTokenVerifierLoader
-import org.radarbase.auth.kratos_session.KratosTokenVerifierLoader
+import org.radarbase.auth.kratos.KratosTokenVerifierLoader
 import org.radarbase.management.config.ManagementPortalProperties
 import org.radarbase.management.config.ManagementPortalProperties.Oauth
 import org.radarbase.management.security.jwt.ManagementPortalJwtAccessTokenConverter.Companion.RES_MANAGEMENT_PORTAL
@@ -44,7 +44,7 @@ import kotlin.collections.Map.Entry
  */
 @Component
 class ManagementPortalOauthKeyStoreHandler @Autowired constructor(
-    environment: Environment, servletContext: ServletContext, managementPortalProperties: ManagementPortalProperties
+    environment: Environment, servletContext: ServletContext, private val managementPortalProperties: ManagementPortalProperties
 ) {
     private val password: CharArray
     private val store: KeyStore
@@ -228,7 +228,7 @@ class ManagementPortalOauthKeyStoreHandler @Autowired constructor(
                     RES_MANAGEMENT_PORTAL,
                     JwkAlgorithmParser()
                 ),
-                KratosTokenVerifierLoader(),
+                KratosTokenVerifierLoader(managementPortalProperties.identityServer.serverUrl),
             )
             return TokenValidator(loaderList)
         }
