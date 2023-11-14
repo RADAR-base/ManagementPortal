@@ -10,6 +10,8 @@ import java.util.List;
 @ConfigurationProperties(prefix = "managementportal", ignoreUnknownFields = false)
 public class ManagementPortalProperties {
 
+    private final IdentityServer identityServer = new IdentityServer();
+
     private final Mail mail = new Mail();
 
     private final Frontend frontend = new Frontend();
@@ -26,6 +28,10 @@ public class ManagementPortalProperties {
 
     public ManagementPortalProperties.Frontend getFrontend() {
         return frontend;
+    }
+
+    public IdentityServer getIdentityServer() {
+        return identityServer;
     }
 
     public ManagementPortalProperties.Mail getMail() {
@@ -258,6 +264,18 @@ public class ManagementPortalProperties {
 
         public void setEnablePublicKeyVerifiers(Boolean enablePublicKeyVerifiers) {
             this.enablePublicKeyVerifiers = enablePublicKeyVerifiers;
+        }
+    }
+
+    public static class IdentityServer {
+        private String serverUrl = null;
+
+        public String getServerUrl() {
+            return serverUrl;
+        }
+
+        public void setServerUrl(String serverUrl) {
+            this.serverUrl = serverUrl;
         }
     }
 

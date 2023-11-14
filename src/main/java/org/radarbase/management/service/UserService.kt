@@ -1,6 +1,5 @@
 package org.radarbase.management.service
 
-import KratosTokenVerifier
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
@@ -10,12 +9,9 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.json.Json
 import org.radarbase.auth.authorization.EntityDetails
 import org.radarbase.auth.authorization.Permission
-import org.radarbase.auth.authorization.Permission.Companion.ofScope
 import org.radarbase.auth.authorization.RoleAuthority
 import org.radarbase.management.config.ManagementPortalProperties
 import org.radarbase.management.domain.Role
@@ -42,7 +38,6 @@ import org.springframework.data.domain.Pageable
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.time.Duration
 import java.time.Period
 import java.time.ZonedDateTime
 import java.util.*
@@ -59,7 +54,8 @@ class UserService @Autowired constructor(
     private val userMapper: UserMapper,
     private val revisionService: RevisionService,
     private val managementPortalProperties: ManagementPortalProperties,
-    private val authService: AuthService
+    private val authService: AuthService,
+    private val identityService: IdentityService
 ) {
     @Autowired
     lateinit var roleService: RoleService
@@ -155,7 +151,7 @@ class UserService @Autowired constructor(
      * @return the newly created user
      */
     @Throws(NotAuthorizedException::class)
-    fun createUser(userDto: UserDTO): User {
+    suspend fun createUser(userDto: UserDTO): User {
         var user = User()
         user.setLogin(userDto.login)
         user.firstName = userDto.firstName
@@ -172,70 +168,19 @@ class UserService @Autowired constructor(
         user.activated = true
         user.roles = getUserRoles(userDto.roles, mutableSetOf())
 
-        val kratosBaseUrl = ("http://localhost:" + "4434")
-
-        val httpClient = HttpClient(CIO).config {
-            install(HttpTimeout) {
-                connectTimeoutMillis = Duration.ofSeconds(10).toMillis()
-                socketTimeoutMillis = Duration.ofSeconds(10).toMillis()
-                requestTimeoutMillis = Duration.ofSeconds(300).toMillis()
-            }
-            install(ContentNegotiation) {
-                json(Json {
-                    ignoreUnknownKeys = true
-                    coerceInputValues = true
-                })
-            }
+        try{
+            user.identity = identityService.saveAsIdentity(user)?.id
+        }
+        catch (e: Throwable) {
+            log.warn("could not save user ${user.login} as identity", e)
         }
 
-        runBlocking {
-            withContext(Dispatchers.IO) {
-                val response = httpClient.post {
-                    url("$kratosBaseUrl/admin/identities")
-                    contentType(ContentType.Application.Json)
-                    accept(ContentType.Application.Json)
-                    setBody<KratosTokenVerifier.Identity>(
-                        KratosTokenVerifier.Identity(
-                            schema_id = "subject",
-                            traits = KratosTokenVerifier.Traits(email = user.email),
-                            metadata_public = KratosTokenVerifier.Metadata(
-                                aud = emptyList(),
-                                sources = emptyList(), //empty at the time of creation
-                                roles = user.roles.mapNotNull { role: Role ->
-                                    val auth = role.authority?.name
-                                    when (role.role?.scope) {
-                                        RoleAuthority.Scope.GLOBAL -> auth
-                                        RoleAuthority.Scope.ORGANIZATION -> role.organization!!.name + ":" + auth
-                                        RoleAuthority.Scope.PROJECT -> role.project!!.projectName + ":" + auth
-                                        null -> null
-                                    }
-                                }.toList(),
-                                authorities = userDto.authorities ?: emptySet(),
-                                scope = Permission.scopes().filter { scope ->
-                                    val permission = ofScope(scope)
-                                    val auths = user
-                                        .roles
-                                        .mapNotNull { it.role }
-
-                                    return@filter authService.mayBeGranted(auths, permission)
-                                },
-                                mp_login = userDto.login
-                            )
-                        ),
-                    )
-                }
-
-                if (response.status.isSuccess()) {
-                    val kratosIdentity = response.body<KratosTokenVerifier.Identity>()
-                    log.debug("Set user ${userDto.login} login to kratos id: ${kratosIdentity.id}")
-                } else {
-                    throw Exception("couldn't create Kratos ID")
-                }
-            }
+        user = withContext(Dispatchers.IO) {
+            userRepository.save(user)
         }
-
-        user = userRepository.save(user)
+        
         log.debug("Created Information for User: {}", user)
+
         return user
     }
 

@@ -23,6 +23,10 @@ open class UserDTO {
     var roles: Set<RoleDTO>? = null
     var authorities: Set<String>? = null
     var accessToken: String? = null
+
+    /** Identifier for association with the identity service provider.
+     * Null if not linked to an external identity. */
+    var identity: String? = null
     override fun toString(): String {
         return ("UserDTO{"
                 + "login='" + login + '\''
