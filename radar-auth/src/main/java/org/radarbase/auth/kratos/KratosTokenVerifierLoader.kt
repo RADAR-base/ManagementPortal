@@ -1,14 +1,12 @@
-package org.radarbase.auth.kratos_session
-import KratosTokenVerifier
+package org.radarbase.auth.kratos
 import org.radarbase.auth.authentication.TokenVerifier
 import org.radarbase.auth.authentication.TokenVerifierLoader
-import org.radarbase.auth.jwks.JwkParser
 
-class KratosTokenVerifierLoader : TokenVerifierLoader {
+class KratosTokenVerifierLoader(private val serverUrl: String) : TokenVerifierLoader {
 
     override suspend fun fetch(): List<TokenVerifier> {
         return listOf(
-            KratosTokenVerifier()
+            KratosTokenVerifier(SessionService(serverUrl))
         )
     }
 
