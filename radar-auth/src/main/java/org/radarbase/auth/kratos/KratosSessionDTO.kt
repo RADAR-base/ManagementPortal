@@ -7,8 +7,6 @@ import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import org.radarbase.auth.authorization.AuthorityReference
 import org.radarbase.auth.authorization.RoleAuthority
-import org.radarbase.auth.token.DataRadarToken
-import org.radarbase.auth.token.RadarToken
 import java.time.Instant
 
 
@@ -20,7 +18,7 @@ class KratosSessionDTO(
     val expires_at: Instant,
     @Serializable(with = InstantSerializer::class)
     val authenticated_at: Instant,
-    val authenticator_assurance_level: RadarToken.AuthenticatorLevel,
+    val authenticator_assurance_level: String,
     val authentication_methods: ArrayList<AuthenticationMethod>,
     @Serializable(with = InstantSerializer::class)
     val issued_at: Instant,
@@ -98,25 +96,6 @@ class KratosSessionDTO(
         val aud: List<String>,
         val mp_login: String?
     )
-
-    fun toDataRadarToken() : DataRadarToken {
-        return DataRadarToken(
-            roles = this.identity.parseRoles(),
-            scopes = this.identity.metadata_public?.scope?.toSet() ?: emptySet(),
-            sources = this.identity.metadata_public?.sources ?: emptyList(),
-            grantType = "session",
-            subject = this.identity.id,
-            issuedAt = this.issued_at,
-            expiresAt = this.expires_at,
-            audience = this.identity.metadata_public?.aud ?: emptyList(),
-            token = this.id,
-            issuer = this.authentication_methods.first().provider,
-            type = "type",
-            clientId = "kratosSession",
-            username = this.identity.metadata_public?.mp_login,
-            authenticatorLevel = this.authenticator_assurance_level
-        )
-    }
 }
 
 object InstantSerializer : KSerializer<Instant> {

@@ -96,7 +96,7 @@ class UserResource(
     @PostMapping("/users")
     @Timed
     @Throws(URISyntaxException::class, NotAuthorizedException::class)
-    fun createUser(@RequestBody managedUserVm: ManagedUserVM): ResponseEntity<User?> {
+    suspend fun createUser(@RequestBody managedUserVm: ManagedUserVM): ResponseEntity<User?> {
         log.debug("REST request to save User : {}", managedUserVm)
         authService.checkPermission(Permission.USER_CREATE)
         return if (managedUserVm.id != null) {
