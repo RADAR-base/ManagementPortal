@@ -9,12 +9,13 @@
         <div *ngIf="principal.account$ | async as account; else unauthenticated">
             <div class="alert alert-success">
                 <span [translate]="'home.logged.message'"
-                    [translateParams]="{username: account.login}">
+                      [translateParams]="{username: account.login}">
                 </span>
             </div>
 
             <div class="card-columns ">
-                <div class="card mb-3" *ngFor="let organization of organizationService.organizations$ | async;" [routerLink]="['../organization', organization.name ]">
+                <div class="card mb-3" *ngFor="let organization of organizationService.organizations$ | async;"
+                     [routerLink]="['../organization', organization.name ]">
                     <div class="card-body text-center">
                         <h5 class="card-title" style="text-transform: uppercase"> {{organization.name}}</h5>
                         <h6 class="card-subtitle text-center mb-2 text-muted">{{organization.location}} </h6>
@@ -30,12 +31,12 @@
                         </button>
                     </footer>
 
+                </div>
             </div>
         </div>
-        </div>
+        <button (click)="redirect()">login</button>
+        <button (click)="redirect_logout()">logout</button>
         <ng-template #unauthenticated>
-            <button (click)="redirect()">login</button>
-            <button (click)="redirect_logout()">logout</button>
             <div class="alert alert-warning">
                 <span [translate]="'global.messages.info.authenticated.prefix'"></span>
                 <a class="alert-link" (click)="login()" [translate]="'global.messages.info.authenticated.link'"></a>

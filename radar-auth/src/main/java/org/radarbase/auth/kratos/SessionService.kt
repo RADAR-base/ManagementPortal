@@ -10,6 +10,7 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import org.radarbase.auth.exception.IdpException
 import org.slf4j.LoggerFactory
@@ -57,6 +58,35 @@ class SessionService(private val serverUrl: String) {
 
         return kratosSession
     }
+
+    /** Get a [KratosSessionDTO] for a given session token. Returns the generated [KratosSessionDTO] */
+    @Throws(IdpException::class)
+    suspend fun getLogoutUrl(token: String): String {
+        val cookie = "ory_kratos_session=" + token
+        val logOutResponse: LogoutResponse
+
+        withContext(Dispatchers.IO) {
+            val response = httpClient.get {
+                header("Cookie", cookie)
+                url("$serverUrl/self-service/logout/browser")
+                accept(ContentType.Application.Json)
+            }
+
+            if (response.status.isSuccess()) {
+                logOutResponse = response.body<LogoutResponse>()
+            } else {
+                throw IdpException("couldn't get logout url at " + serverUrl)
+            }
+        }
+
+        return logOutResponse.logout_url ?: throw IdpException("could not get logoutUrl")
+    }
+
+    @Serializable
+    class LogoutResponse (
+        val logout_url: String?,
+        val logout_token: String?,
+    )
 
     companion object {
         private val log = LoggerFactory.getLogger(SessionService::class.java)
