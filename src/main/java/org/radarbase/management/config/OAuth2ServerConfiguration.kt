@@ -51,21 +51,17 @@ import java.util.*
 import javax.sql.DataSource
 
 @Configuration
-class OAuth2ServerConfiguration {
-    @Autowired
-    private val dataSource: DataSource? = null
-
-    @Autowired
-    private val passwordEncoder: PasswordEncoder? = null
+class OAuth2ServerConfiguration(
+    @Autowired private val dataSource: DataSource,
+    @Autowired private val passwordEncoder: PasswordEncoder
+) {
 
     @Configuration
     @Order(-20)
-    protected class LoginConfig : WebSecurityConfigurerAdapter() {
-        @Autowired
-        private val authenticationManager: AuthenticationManager? = null
-
-        @Autowired
-        private val jwtAuthenticationFilter: JwtAuthenticationFilter? = null
+    protected class LoginConfig(
+        @Autowired private val authenticationManager: AuthenticationManager,
+        @Autowired private val jwtAuthenticationFilter: JwtAuthenticationFilter
+    ) : WebSecurityConfigurerAdapter() {
 
         @Throws(Exception::class)
         override fun configure(http: HttpSecurity) {
@@ -89,22 +85,22 @@ class OAuth2ServerConfiguration {
     }
 
     @Configuration
-    class JwtAuthenticationFilterConfiguration {
-        @Autowired
-        private val authenticationManager: AuthenticationManager? = null
-
-        @Autowired
-        private val userRepository: UserRepository? = null
-
-        @Autowired
-        private val keyStoreHandler: ManagementPortalOauthKeyStoreHandler? = null
+    class JwtAuthenticationFilterConfiguration(
+        @Autowired private val authenticationManager: AuthenticationManager,
+        @Autowired private val userRepository: UserRepository,
+        @Autowired private val keyStoreHandler: ManagementPortalOauthKeyStoreHandler,
+        @Autowired private val managementPortalProperties: ManagementPortalProperties
+    ) {
+        init {
+            managementPortalProperties.identityServer.serverUrl = "http://localhost:4434"
+        }
 
         @Bean
         fun jwtAuthenticationFilter(): JwtAuthenticationFilter {
             return JwtAuthenticationFilter(
-                keyStoreHandler!!.tokenValidator,
-                authenticationManager!!,
-                userRepository!!,
+                keyStoreHandler.tokenValidator,
+                authenticationManager,
+                userRepository,
                 true
             )
         }
