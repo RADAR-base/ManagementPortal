@@ -6,10 +6,7 @@ import org.radarbase.auth.token.RadarToken
 import org.slf4j.LoggerFactory
 
 //TODO How to get initial access (i.e. admin account), how to regain access if lost 2fa credentials for admin, (backdoor?)
-//TODO Logout
-//TODO Better error screen for no AAL2, failed to make kratos user, failed to update kratos user
-//TODO Update identity on update user
-//TODO Delete identity on delete user
+//TODO Better error screen for no AAL2
 //TODO Remove old login --> update unit tests, Testing kratos
 class KratosTokenVerifier(private val sessionService: SessionService) : TokenVerifier {
     @Throws(IdpException::class)
