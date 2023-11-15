@@ -74,6 +74,7 @@ open class SecurityConfiguration
             .antMatchers("/swagger-ui.html")
             .antMatchers("/api-docs{,.json,.yml}")
             .antMatchers("/api/register")
+            .antMatchers("/api/logout-url")
             .antMatchers("/api/profile-info")
             .antMatchers("/api/activate")
             .antMatchers("/api/account/reset_password/init")

@@ -7,9 +7,10 @@ import {
     Principal,
     Project, OrganizationService,
 } from '../shared';
-import { of, Subscription } from "rxjs";
+import {Observable, of, Subscription} from "rxjs";
 import { EventManager } from "../shared/util/event-manager.service";
 import { switchMap } from "rxjs/operators";
+import {SessionService} from "../shared/session/session.service";
 
 @Component({
     selector: 'jhi-home',
@@ -24,17 +25,19 @@ export class HomeComponent {
     modalRef: NgbModalRef;
     // projects: Project[];
     subscriptions: Subscription;
+    logoutUrl;
 
     constructor(
             public principal: Principal,
             private loginModalService: LoginModalService,
             public projectService: ProjectService,
             public organizationService: OrganizationService,
-
-            // private eventManager: EventManager,
-            // private userService: UserService,
+            private sessionService: SessionService,
     ) {
         this.subscriptions = new Subscription();
+        sessionService.logoutUrl$.subscribe(
+            url => this.logoutUrl = url
+        )
     }
 
     // ngOnInit() {
@@ -70,7 +73,8 @@ export class HomeComponent {
     redirect() {
         window.location.href = "http://127.0.0.1:3000/login?return_to=http://127.0.0.1:8081/projects";
     }
+
     redirect_logout() {
-        window.location.href = "http://127.0.0.1:4433//self-service/logout/api?return_to=http://127.0.0.1:8081";
+        window.location.href = this.logoutUrl
     }
 }
