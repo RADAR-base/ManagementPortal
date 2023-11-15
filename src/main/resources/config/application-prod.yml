@@ -106,6 +106,8 @@ managementportal:
   catalogueServer:
     enableAutoImport: false
     serverUrl:
+  identityServer:
+    serverUrl: http://localhost:4434
 
 # ===================================================================
 # JHipster specific properties
