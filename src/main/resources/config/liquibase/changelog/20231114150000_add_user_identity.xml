@@ -27,7 +27,7 @@
     <changeSet id="20231114150000-2" author="bastiaan@thehyve.nl">
         <addColumn tableName="radar_user_aud">
             <column name="identity" type="varchar(255)"/>
-            <column name="identity_mod" type="varchar(255)"/>
+            <column name="identity_mod" type="BOOLEAN"/>
         </addColumn>
     </changeSet>
 </databaseChangeLog>
