@@ -7,5 +7,5 @@
   "screenshotsFolder": "src/test/javascript/e2e/cypress/screenshots",
   "pluginsFile": false,
   "fixturesFolder": false,
-  "baseUrl": "http://localhost:9000"
+  "baseUrl": "http://localhost:8081"
 }

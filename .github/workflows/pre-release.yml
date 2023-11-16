@@ -51,14 +51,12 @@ jobs:
         run: |
           yarn install
 
-      - name: Run full end to end tests
+      - name: Run full production end to end tests
         run: |
-          cp src/test/resources/config/keystore.p12 src/main/resources/config/keystore.p12
+          docker-compose -f src/main/docker/postgresql.yml up -d
           ./gradlew bootRun &>mp.log </dev/null &
-          yarn run wait-for-managementportal
-          ./gradlew generateOpenApiSpec
-          yarn e2e
-          ./gradlew --stop
+          yarn run e2e-prod
+          docker-compose -f src/main/docker/postgresql.yml down -v
 
       - name: Upload screenshots of failed e2e tests
         if: always()
