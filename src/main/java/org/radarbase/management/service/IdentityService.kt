@@ -145,7 +145,7 @@ class IdentityService(
     fun createIdentity(user: User): KratosSessionDTO.Identity {
         try {
             return KratosSessionDTO.Identity(
-                schema_id = "subject",
+                schema_id = "user",
                 traits = KratosSessionDTO.Traits(email = user.email),
                 metadata_public = KratosSessionDTO.Metadata(
                     aud = emptyList(),
