@@ -59,10 +59,15 @@ class SessionResource(managementPortalProperties: ManagementPortalProperties) {
     @Timed
     @Throws(IdpException::class)
     suspend fun getLogoutUrl(@CookieValue("ory_kratos_session") sessionToken: String?): ResponseEntity<String> {
+        // sometimes the last character is '=' and gets cut off. //TODO better fix..
+        var innerToken = sessionToken
+        while (innerToken?.length != 428)
+            innerToken += '='
+
         return try {
             ResponseEntity
                 .ok()
-                .body(sessionService.getLogoutUrl(sessionToken!!))
+                .body(sessionService.getLogoutUrl(innerToken))
         } catch (e: Throwable) {
             ResponseEntity.badRequest()
                 .headers(e.message?.let {
