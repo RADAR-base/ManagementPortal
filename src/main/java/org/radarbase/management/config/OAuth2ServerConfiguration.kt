@@ -91,10 +91,6 @@ class OAuth2ServerConfiguration(
         @Autowired private val keyStoreHandler: ManagementPortalOauthKeyStoreHandler,
         @Autowired private val managementPortalProperties: ManagementPortalProperties
     ) {
-        init {
-            managementPortalProperties.identityServer.serverUrl = "http://localhost:4434"
-        }
-
         @Bean
         fun jwtAuthenticationFilter(): JwtAuthenticationFilter {
             return JwtAuthenticationFilter(

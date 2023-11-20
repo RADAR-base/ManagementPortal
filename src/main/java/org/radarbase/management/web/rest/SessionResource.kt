@@ -32,7 +32,8 @@ class SessionResource(managementPortalProperties: ManagementPortalProperties) {
     private lateinit var sessionService: SessionService
 
     init {
-        sessionService = SessionService(managementPortalProperties.identityServer.serverUrl)
+        sessionService = SessionService(managementPortalProperties.identityServer.publicUrl())
+        log.debug("kratos serverUrl set to ${managementPortalProperties.identityServer.publicUrl()}")
     }
 
     private val httpClient = HttpClient(CIO).config {

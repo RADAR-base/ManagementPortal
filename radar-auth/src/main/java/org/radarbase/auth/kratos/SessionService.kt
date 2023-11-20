@@ -41,18 +41,21 @@ class SessionService(private val serverUrl: String) {
 
         val cookie = "ory_kratos_session=" + token
 
+        val address = "$serverUrl/sessions/whoami"
+        log.debug("requesting logout url at $address")
+
         withContext(Dispatchers.IO) {
             val response = httpClient.get {
                 header("Cookie", cookie)
-                url("$serverUrl/sessions/whoami")
+                url(address)
                 accept(ContentType.Application.Json)
             }
 
             if (response.status.isSuccess()) {
                 kratosSession = response.body<KratosSessionDTO>()
-                log.debug("session retrieved: ${kratosSession}")
+                log.debug("session retrieved: {}", kratosSession)
             } else {
-                throw IdpException("couldn't get kratos session ${token} at " + serverUrl)
+                throw IdpException("couldn't get kratos session $token at $address")
             }
         }
 
@@ -64,18 +67,19 @@ class SessionService(private val serverUrl: String) {
     suspend fun getLogoutUrl(token: String): String {
         val cookie = "ory_kratos_session=" + token
         val logOutResponse: LogoutResponse
-
+        val address = "$serverUrl/self-service/logout/browser"
+        log.debug("requesting logout url at $address")
         withContext(Dispatchers.IO) {
             val response = httpClient.get {
                 header("Cookie", cookie)
-                url("$serverUrl/self-service/logout/browser")
+                url(address)
                 accept(ContentType.Application.Json)
             }
 
             if (response.status.isSuccess()) {
                 logOutResponse = response.body<LogoutResponse>()
             } else {
-                throw IdpException("couldn't get logout url at " + serverUrl)
+                throw IdpException("couldn't get logout url at $address")
             }
         }
 

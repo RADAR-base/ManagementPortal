@@ -270,12 +270,39 @@ public class ManagementPortalProperties {
     public static class IdentityServer {
         private String serverUrl = null;
 
+        private long adminPort = 4434;
+        private long publicPort = 4433;
+
         public String getServerUrl() {
             return serverUrl;
         }
 
         public void setServerUrl(String serverUrl) {
             this.serverUrl = serverUrl;
+        }
+
+        public long getPublicPort() {
+            return publicPort;
+        }
+
+        public void setPublicPort(long publicPort) {
+            this.publicPort = publicPort;
+        }
+
+        public long getAdminPort() {
+            return adminPort;
+        }
+
+        public void setAdminPort(long adminPort) {
+            this.adminPort = adminPort;
+        }
+
+        public String publicUrl() {
+            return serverUrl + ":" + this.publicPort;
+        }
+
+        public String adminUrl() {
+            return serverUrl + ":" + this.adminPort;
         }
     }
 
