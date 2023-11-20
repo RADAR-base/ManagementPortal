@@ -311,7 +311,7 @@ class UserService @Autowired constructor(
                 identityService.updateAssociatedIdentity(user)
             }
             catch (e: Throwable) {
-                log.warn("could not delete user ${user.login} with identity ${user.identity} from IDP", e)
+                log.warn("could not update user ${user.login} with identity ${user.identity} from IDP", e)
             }
 
             userMapper.userToUserDTO(user)
@@ -365,7 +365,28 @@ class UserService @Autowired constructor(
             user.password = encryptedPassword
             log.debug("Changed password for User: {}", user)
         }
+    }
 
+    /**
+     * Change the admin user's password. Should only be called in application startup
+     * @param email the new admin email
+     */
+    @Transactional
+    suspend fun addAdminEmail(email: String): UserDTO {
+        // find the admin user
+        val user = userRepository.findOneByLogin("admin")
+            ?: throw Exception("No admin user found")
+
+        // add the email
+        user.email = email
+        log.debug("Set admin email to: {}", email)
+
+        // there is no identity for this user, so we create it and save it to the IDP
+        val id = identityService.saveAsIdentity(user)
+        // then save the identifier and update our database
+        user.identity = id?.id
+        return userMapper.userToUserDTO(user)
+            ?: throw Exception("Admin user could not be converted to DTO")
     }
 
     /**

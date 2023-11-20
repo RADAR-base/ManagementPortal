@@ -142,7 +142,7 @@ class IdentityService(
      * @return the newly created DTO object
      */
     @Throws(IdpException::class)
-    fun createIdentity(user: User): KratosSessionDTO.Identity {
+    private fun createIdentity(user: User): KratosSessionDTO.Identity {
         try {
             return KratosSessionDTO.Identity(
                 schema_id = "user",

@@ -196,6 +196,8 @@ public class ManagementPortalProperties {
 
     public static class Oauth {
 
+        private Boolean requireAal2 = true;
+
         private String clientsFile;
 
         private String signingKeyAlias;
@@ -265,11 +267,19 @@ public class ManagementPortalProperties {
         public void setEnablePublicKeyVerifiers(Boolean enablePublicKeyVerifiers) {
             this.enablePublicKeyVerifiers = enablePublicKeyVerifiers;
         }
+
+        public Boolean getRequireAal2() {
+            return requireAal2;
+        }
+
+        public void setRequireAal2(Boolean requireAal2) {
+            this.requireAal2 = requireAal2;
+        }
     }
 
     public static class IdentityServer {
         private String serverUrl = null;
-
+        private String adminEmail = null;
         private long adminPort = 4434;
         private long publicPort = 4433;
 
@@ -303,6 +313,14 @@ public class ManagementPortalProperties {
 
         public String adminUrl() {
             return serverUrl + ":" + this.adminPort;
+        }
+
+        public String getAdminEmail() {
+            return adminEmail;
+        }
+
+        public void setAdminEmail(String adminEmail) {
+            this.adminEmail = adminEmail;
         }
     }
 
