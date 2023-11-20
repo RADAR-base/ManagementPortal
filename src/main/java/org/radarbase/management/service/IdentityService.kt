@@ -47,6 +47,14 @@ class IdentityService(
         }
     }
 
+    lateinit var adminUrl: String
+    lateinit var publicUrl: String
+
+    init {
+        adminUrl = managementPortalProperties.identityServer.adminUrl()
+        publicUrl = managementPortalProperties.identityServer.publicUrl()
+    }
+
     /** Save a [User] to the IDP as an identity. Returns the generated [KratosSessionDTO.Identity] */
     @Throws(IdpException::class)
     suspend fun saveAsIdentity(user: User): KratosSessionDTO.Identity? {
@@ -55,7 +63,7 @@ class IdentityService(
         withContext(Dispatchers.IO) {
             val identity = createIdentity(user)
             val response = httpClient.post {
-                url("${managementPortalProperties.identityServer}/admin/identities")
+                url("${adminUrl}/admin/identities")
                 contentType(ContentType.Application.Json)
                 accept(ContentType.Application.Json)
                 setBody(identity)
@@ -67,7 +75,7 @@ class IdentityService(
                 log.debug("saved identity for user ${user.login} to IDP as ${kratosIdentity.id}")
             } else {
                 throw IdpException(
-                    "couldn't save Kratos ID to server at " + managementPortalProperties.identityServer.serverUrl
+                    "couldn't save Kratos ID to server at " + adminUrl
                 )
             }
         }
@@ -85,7 +93,7 @@ class IdentityService(
         withContext(Dispatchers.IO) {
             val identity = createIdentity(user)
             val response = httpClient.put {
-                url("${managementPortalProperties.identityServer}/admin/identities/${user.identity}")
+                url("${adminUrl}/admin/identities/${user.identity}")
                 contentType(ContentType.Application.Json)
                 accept(ContentType.Application.Json)
                 setBody(identity)
@@ -97,7 +105,7 @@ class IdentityService(
                 log.debug("Updated identity for user ${user.login} to IDP as ${kratosIdentity.id}")
             } else {
                 throw IdpException(
-                    "Couldn't update identity to server at " + managementPortalProperties.identityServer.serverUrl
+                    "Couldn't update identity to server at $adminUrl"
                 )
             }
         }
@@ -112,7 +120,7 @@ class IdentityService(
             userIdentity ?: throw IdpException("user with ID ${userIdentity} could not be deleted from the IDP. No identity was set")
 
             val response = httpClient.delete {
-                url("${managementPortalProperties.identityServer}/admin/identities/${userIdentity}")
+                url("${adminUrl}/admin/identities/${userIdentity}")
                 contentType(ContentType.Application.Json)
                 accept(ContentType.Application.Json)
             }

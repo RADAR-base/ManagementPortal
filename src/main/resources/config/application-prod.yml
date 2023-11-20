@@ -107,7 +107,9 @@ managementportal:
     enableAutoImport: false
     serverUrl:
   identityServer:
-    serverUrl: http://localhost:4434
+    serverUrl: http://kratos
+    adminport: 4434
+    publicport: 4433
 
 # ===================================================================
 # JHipster specific properties

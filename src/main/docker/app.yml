@@ -12,12 +12,14 @@ services:
             - SPRING_DATASOURCE_PASSWORD=radarbase
             - SPRING_LIQUIBASE_CONTEXTS=dev #includes testing_data, remove for production builds
             - MANAGEMENTPORTAL_FRONTEND_CLIENT_SECRET=secret
+            - MANAGEMENTPORTAL_IDENTITYSERVER_SERVERURL=http://kratos
+            - MANAGEMENTPORTAL_OAUTH_CLIENTS_FILE=/mp-includes/config/oauth_client_details.csv
             - JHIPSTER_SLEEP=10 # gives time for the database to boot before the application
             - JAVA_OPTS=-Xmx512m  # maximum heap size for the JVM running ManagementPortal, increase this as necessary
         ports:
             - "8080:8080"
         networks:
-            - kratos-net
+            - all-net
             - mp-net
         volumes:
             - ./etc:/mp-includes
@@ -48,9 +50,28 @@ services:
         ports:
             - "3000:3000"
         networks:
-            - kratos-net
+            - all-net
         volumes:
             - /tmp/ui-node/logs:/root/.npm/_logs
+
+    kratos:
+      depends_on:
+        - kratos-migrate
+      image: oryd/kratos:v1.0.0
+      ports:
+        - "4433:4433" # public
+        - "4434:4434" # admin, should be closed in production
+      restart: unless-stopped
+      environment:
+        - DSN=postgres://kratos:secret@postgresd-kratos/kratos?sslmode=disable&max_conns=20&max_idle_conns=4
+      command: serve -c /etc/config/kratos/kratos.yml --dev --watch-courier
+      volumes:
+        - type: bind
+          source: ./etc/config/kratos
+          target: /etc/config/kratos
+      networks:
+        - all-net
+        - kratos-net
 
     kratos-migrate:
         image:
@@ -63,24 +84,6 @@ services:
               target: /etc/config/kratos
         command: -c /etc/config/kratos/kratos.yml migrate sql -e --yes
         restart: on-failure
-        networks:
-            - kratos-net
-
-    kratos:
-        depends_on:
-            - kratos-migrate
-        image: oryd/kratos:v1.0.0
-        ports:
-            - "4433:4433" # public
-            - "4434:4434" # admin, should be closed in production
-        restart: unless-stopped
-        environment:
-            - DSN=postgres://kratos:secret@postgresd-kratos/kratos?sslmode=disable&max_conns=20&max_idle_conns=4
-        command: serve -c /etc/config/kratos/kratos.yml --dev --watch-courier
-        volumes:
-            - type: bind
-              source: ./etc/config/kratos
-              target: /etc/config/kratos
         networks:
             - kratos-net
 
@@ -102,5 +105,6 @@ services:
             - kratos-net
 
 networks:
-    kratos-net:
+    all-net:
     mp-net:
+    kratos-net:

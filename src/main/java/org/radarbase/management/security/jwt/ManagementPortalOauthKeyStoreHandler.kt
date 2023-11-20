@@ -228,7 +228,7 @@ class ManagementPortalOauthKeyStoreHandler @Autowired constructor(
                     RES_MANAGEMENT_PORTAL,
                     JwkAlgorithmParser()
                 ),
-                KratosTokenVerifierLoader(managementPortalProperties.identityServer.serverUrl),
+                KratosTokenVerifierLoader(managementPortalProperties.identityServer.publicUrl()),
             )
             return TokenValidator(loaderList)
         }

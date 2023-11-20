@@ -29,4 +29,4 @@ managementportal:
   oauth:
     clientsFile: src/main/docker/etc/config/oauth_client_details.csv
   identityServer:
-    serverUrl: http://localhost:4434
+    serverUrl: http://kratos
