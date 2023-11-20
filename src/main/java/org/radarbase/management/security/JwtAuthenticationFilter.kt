@@ -1,5 +1,6 @@
 package org.radarbase.management.security
 
+import io.ktor.http.*
 import org.radarbase.auth.authentication.TokenValidator
 import org.radarbase.auth.authorization.AuthorityReference
 import org.radarbase.auth.authorization.RoleAuthority
@@ -26,6 +27,7 @@ import javax.servlet.ServletException
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 import javax.servlet.http.HttpSession
+
 
 /**
  * Authentication filter using given validator.
@@ -113,11 +115,31 @@ class JwtAuthenticationFilter @JvmOverloads constructor(
             ?.removePrefix(AUTHORIZATION_BEARER_HEADER)
             ?.trim { it <= ' ' }
         if (authHeader == null) {
-            return httpRequest.cookies?.find { it.name == "ory_kratos_session" }
+            return parseCookies(httpRequest.getHeader(HttpHeaders.COOKIE)).find { it.name == "ory_kratos_session" }
                 ?.value
         }
 
         return authHeader
+    }
+
+    /**
+     * Custom cookie parser as the httprequest.cookies method cuts off '='.
+     */
+    fun parseCookies(cookieHeader: String?): List<Cookie> {
+        val result: List<Cookie> = listOf()
+        if (cookieHeader != null) {
+            val cookiesRaw = cookieHeader.split("; ".toRegex()).dropLastWhile { it.isEmpty() }
+                .toTypedArray()
+            return cookiesRaw.map{
+                val parts = it.split("=".toRegex(), limit = 2).toTypedArray()
+                var value = if (parts.size > 1) parts[1] else ""
+                if (value.length >= 2 && value.startsWith("\"") && value.endsWith("\"")) {
+                    value = value.substring(1, value.length - 1)
+                }
+                Cookie(name = parts[0], value = parts[1])
+            }.toList()
+        }
+        return result
     }
 
     @Throws(IOException::class)
