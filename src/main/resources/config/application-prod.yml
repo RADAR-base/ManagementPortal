@@ -107,7 +107,7 @@ managementportal:
     enableAutoImport: false
     serverUrl:
   identityServer:
-    serverUrl: http://kratos
+    serverUrl: http://localhost
     adminport: 4434
     publicport: 4433
 
