@@ -75,6 +75,6 @@ export class HomeComponent {
     }
 
     redirect_logout() {
-        window.location.href = this.logoutUrl
+        window.location.href = this.logoutUrl + "&return_to=http://127.0.0.1:8081"
     }
 }
