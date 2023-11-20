@@ -116,9 +116,7 @@ managementportal:
         # The line below can be uncommented to add some hidden fields for UI testing
         #hiddenSubjectFields: [person_name, date_of_birth, group]
     identityServer:
-        serverUrl: http://kratos
-        adminport: 4434
-        publicport: 4433
+        serverUrl: http://localhost
 
 # ===================================================================
 # JHipster specific properties
