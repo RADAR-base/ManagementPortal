@@ -28,5 +28,7 @@ spring:
 managementportal:
   oauth:
     clientsFile: src/main/docker/etc/config/oauth_client_details.csv
+    require-aal2: false
   identityServer:
+    adminEmail: bastiaan@thehyve.nl
     serverUrl: http://localhost
