@@ -42,7 +42,7 @@ class SessionService(private val serverUrl: String) {
         val cookie = "ory_kratos_session=" + token
 
         val address = "$serverUrl/sessions/whoami"
-        log.debug("requesting logout url at $address")
+        log.debug("requesting session at $address")
 
         withContext(Dispatchers.IO) {
             val response = httpClient.get {
@@ -65,7 +65,7 @@ class SessionService(private val serverUrl: String) {
     /** Get a [KratosSessionDTO] for a given session token. Returns the generated [KratosSessionDTO] */
     @Throws(IdpException::class)
     suspend fun getLogoutUrl(token: String): String {
-        val cookie = "ory_kratos_session=" + token
+        val cookie = "ory_kratos_session=$token"
         val logOutResponse: LogoutResponse
         val address = "$serverUrl/self-service/logout/browser"
         log.debug("requesting logout url at $address")

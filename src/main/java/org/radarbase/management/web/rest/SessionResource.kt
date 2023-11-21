@@ -15,12 +15,13 @@ import org.radarbase.auth.kratos.SessionService
 import org.radarbase.management.config.ManagementPortalProperties
 import org.radarbase.management.web.rest.util.HeaderUtil
 import org.slf4j.LoggerFactory
+import org.springframework.http.HttpHeaders
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.CookieValue
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import java.time.Duration
+import javax.servlet.http.HttpServletRequest
 
 
 /**
@@ -58,16 +59,14 @@ class SessionResource(managementPortalProperties: ManagementPortalProperties) {
     @GetMapping("/logout-url")
     @Timed
     @Throws(IdpException::class)
-    suspend fun getLogoutUrl(@CookieValue("ory_kratos_session") sessionToken: String?): ResponseEntity<String> {
-        // sometimes the last character is '=' and gets cut off. //TODO better fix..
-        var innerToken = sessionToken
-        while (innerToken?.length != 428)
-            innerToken += '='
+    suspend fun getLogoutUrl(httpRequest: HttpServletRequest): ResponseEntity<String> {
+        val sessionToken = HeaderUtil.parseCookies(httpRequest.getHeader(HttpHeaders.COOKIE)).find { it.name == "ory_kratos_session" }
+            ?.value ?: throw IdpException("no ory_kratos_session could be parsed from the headers")
 
         return try {
             ResponseEntity
                 .ok()
-                .body(sessionService.getLogoutUrl(innerToken))
+                .body(sessionService.getLogoutUrl(sessionToken))
         } catch (e: Throwable) {
             ResponseEntity.badRequest()
                 .headers(e.message?.let {
