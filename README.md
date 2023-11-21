@@ -220,8 +220,9 @@ The code grant flow for OAuth2 clients can also be the following:
 Organizational user management and authorization for the managementportal is performed by [Ory Kratos](https://www.ory.sh/docs/kratos/ory-kratos-intro). The flow for adding users to the portal is as follows:
 
 1. Navigate to the [User management view](http://127.0.0.1:8081/#/user-management) and create a user.
-2. The new user can then [verify](http://127.0.0.1:3000/verification) their email, [reset their password](http://127.0.0.1:3000/recovery) and [add two-factor authentication](http://127.0.0.1:3000/settings?#totp) at the kratos self-service node
-3. Use these credentials to log in to managementportal.
+2. The new user then [resets their password](http://127.0.0.1:3000/recovery) at the kratos self-service node
+3. Adds [add two-factor authentication](http://127.0.0.1:3000/settings?#totp) at the kratos self-service node
+3. And uses these credentials to log in to the managementportal.
 
 ```mermaid
 sequenceDiagram
@@ -235,9 +236,7 @@ sequenceDiagram
     #== User Registration ==
     colleague -->> researcher: Request account (email required)
     researcher -->> mp: Create user
-    mp -->> kratos: Create kratos identity
-    colleague -->> radar: Verify email
-    radar -->> kratos:  
+    mp -->> kratos: Create kratos identity 
     colleague -->> radar: Reset password
     radar -->> kratos: 
     colleague -->> radar: Activate 2-FA
