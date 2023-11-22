@@ -196,7 +196,7 @@ class JwtAuthenticationFilter @JvmOverloads constructor(
          * @return set of authority references.
          */
         val User.authorityReferences: Set<AuthorityReference>
-            get() = roles?.mapTo(HashSet()) { role: Role? ->
+            get() = roles.mapTo(HashSet()) { role: Role? ->
                 val auth = role?.role
                 val referent = when (auth?.scope) {
                     RoleAuthority.Scope.GLOBAL -> null

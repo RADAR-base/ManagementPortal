@@ -4,7 +4,7 @@ apply plugin: 'com.github.node-gradle.node'
 ext.logbackLoglevel = 'TRACE'
 
 dependencies {
-    implementation "org.springframework.boot:spring-boot-devtools"
+    //implementation "org.springframework.boot:spring-boot-devtools"
 }
 
 def profiles = 'dev,api-docs'
