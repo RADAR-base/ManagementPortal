@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional
  * Authenticate a user from the database.
  */
 @Component("userDetailsService")
-open class DomainUserDetailsService(
+class DomainUserDetailsService(
     private val userRepository: UserRepository
 ) : UserDetailsService {
     @Transactional
@@ -32,7 +32,7 @@ open class DomainUserDetailsService(
             )
         }
         val grantedAuthorities =
-            user.authorities!!.map { authority -> SimpleGrantedAuthority(authority) }
+            user.authorities.map { authority -> SimpleGrantedAuthority(authority) }
         return User(
             lowercaseLogin,
             user.password,
