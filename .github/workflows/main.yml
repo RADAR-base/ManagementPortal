@@ -207,11 +207,11 @@ jobs:
         # if: github.event_name != 'pull_request' #only after a merge
         uses: convictional/trigger-workflow-and-wait@v1.6.1
         with:
-          owner: RADAR-base
+          owner: yatharthranjan
           repo: RADAR-Appserver
           github_token: ${{ secrets.APPSERVER_REPO_PERSONAL_ACCESS_TOKEN }} #token with repo access to app_server
           workflow_file_name: downstream.yml
-          ref: downstream-e2e-testing
+          ref: origin/downstream-e2e-testing
           propagate_failure: false
           wait_workflow: false
 
