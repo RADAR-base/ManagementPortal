@@ -112,7 +112,7 @@ class KratosSessionDTO(
             token = this.id,
             issuer = this.authentication_methods.first().provider,
             type = "type",
-            clientId = "kratosSession",
+            clientId = "ManagementPortalapp",
             username = this.identity.metadata_public?.mp_login,
             authenticatorLevel = this.authenticator_assurance_level
         )
