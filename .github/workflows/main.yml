@@ -211,7 +211,7 @@ jobs:
           repo: RADAR-Appserver
           github_token: ${{ secrets.APPSERVER_REPO_PERSONAL_ACCESS_TOKEN }} #token with repo access to app_server
           workflow_file_name: downstream.yml
-          ref: origin/downstream-e2e-testing
+          ref: downstream_e2e_testing
           propagate_failure: false
           wait_workflow: false
 
