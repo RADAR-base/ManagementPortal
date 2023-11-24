@@ -1,0 +1,15 @@
+# Docker stack containing all the "required" interacting components to run managementportal
+# Intended to use alongside local executables of managementportal (e.g. in an  Intellij) for development/debug purposes
+
+version: '2'
+services:
+  managementportal-postgresql:
+    extends:
+      file: ../postgresql.yml
+      service: managementportal-postgresql
+
+## smtp server, uncomment if needed
+#  managementportal-smtp:
+#    extends:
+#      file: ../smtp.yml
+#      service: smtp

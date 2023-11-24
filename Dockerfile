@@ -1,3 +1,5 @@
+#this dockerfile is used in the github actions workflows
+
 # Build stage
 FROM --platform=$BUILDPLATFORM eclipse-temurin:17-jdk as builder
 

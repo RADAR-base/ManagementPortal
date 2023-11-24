@@ -204,26 +204,16 @@ jobs:
             org.opencontainers.image.licenses=Apache-2.0
 
       - name: Trigger downstream repo (appserver)
-        # if: github.event_name != 'pull_request' #only after a merge
+        if: github.event_name != 'pull_request' #only after a merge
         uses: convictional/trigger-workflow-and-wait@v1.6.1
         with:
-          owner: yatharthranjan
+          owner: RADAR-base
           repo: RADAR-Appserver
           github_token: ${{ secrets.APPSERVER_REPO_PERSONAL_ACCESS_TOKEN }} #token with repo access to app_server
-          workflow_file_name: downstream.yml
-          ref: downstream_e2e_testing
+          workflow_file_name: main.yml
+          ref: master #change for testing against a specific downstream branch
           propagate_failure: false
           wait_workflow: false
-
-#      # placeholder for testing
-#      - name: End to end tests (docker image)
-#        id: e2e-prod-docker
-#        run: |
-#          cp src/test/resources/config/keystore.p12 src/main/docker/etc/config
-#          ./gradlew -Pprod buildDocker -x test -x javadocJar
-#          docker-compose -f src/main/docker/app.yml up -d
-#          yarn run e2e-prod
-#          docker-compose -f src/main/docker/app.yml down -v
 
       # Temp fix
       # https://github.com/docker/build-push-action/issues/252
