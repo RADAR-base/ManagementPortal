@@ -5,6 +5,7 @@ services:
 
     managementportal-app:
         image: managementportal
+#        image: radarbase/management-portal
         environment:
             - SPRING_PROFILES_ACTIVE=prod,api-docs
             - SPRING_DATASOURCE_URL=jdbc:postgresql://managementportal-postgresql:5432/managementportal
