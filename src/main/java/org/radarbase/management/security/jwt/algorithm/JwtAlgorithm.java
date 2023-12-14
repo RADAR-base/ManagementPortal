@@ -1,7 +1,7 @@
 package org.radarbase.management.security.jwt.algorithm;
 
 import com.auth0.jwt.algorithms.Algorithm;
-import org.radarbase.auth.security.jwk.JavaWebKey;
+import org.radarbase.auth.jwks.JsonWebKey;
 
 /**
  * Encodes a signing and verification algorithm for JWT.
@@ -20,7 +20,7 @@ public interface JwtAlgorithm {
 
     /**
      * JavaWebKey for given algorithm for token verification.
-     * @return instance of {@link JavaWebKey}
+     * @return instance of {@link JsonWebKey}
      */
-    JavaWebKey getJwk();
+    JsonWebKey getJwk();
 }

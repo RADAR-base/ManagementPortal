@@ -20,6 +20,10 @@ public class ManagementPortalProperties {
 
     private final CatalogueServer catalogueServer = new CatalogueServer();
 
+    private final Account account = new Account();
+
+    private final SiteSettings siteSettings = new SiteSettings();
+
     public ManagementPortalProperties.Frontend getFrontend() {
         return frontend;
     }
@@ -42,6 +46,26 @@ public class ManagementPortalProperties {
 
     public Common getCommon() {
         return common;
+    }
+
+    public Account getAccount() {
+        return account;
+    }
+
+    public SiteSettings getSiteSettings() {
+        return siteSettings;
+    }
+
+    public static class Account {
+        private boolean enableExposeToken = false;
+
+        public boolean getEnableExposeToken() {
+            return enableExposeToken;
+        }
+
+        public void setEnableExposeToken(boolean enableExposeToken) {
+            this.enableExposeToken = enableExposeToken;
+        }
     }
 
     public static class Common {
@@ -257,6 +281,19 @@ public class ManagementPortalProperties {
 
         public void setEnableAutoImport(boolean enableAutoImport) {
             this.enableAutoImport = enableAutoImport;
+        }
+    }
+
+    public static class SiteSettings {
+
+        private List<String> hiddenSubjectFields;
+
+        public void setHiddenSubjectFields(List<String> hiddenSubjectFields) {
+            this.hiddenSubjectFields = hiddenSubjectFields;
+        }
+
+        public List<String> getHiddenSubjectFields() {
+            return hiddenSubjectFields;
         }
     }
 }

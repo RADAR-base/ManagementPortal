@@ -21,7 +21,6 @@ import javax.persistence.criteria.Subquery;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.BiConsumer;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class UserFilter implements Specification<User> {
@@ -52,16 +51,16 @@ public class UserFilter implements Specification<User> {
     private void filterRoles(PredicateBuilder predicates, Join<User, Role> roleJoin,
             CriteriaQuery<?> query) {
         Stream<RoleAuthority> authoritiesFiltered = Stream.of(RoleAuthority.values())
-                .filter(java.util.function.Predicate.not(RoleAuthority::isPersonal));
+                .filter(r -> !r.isPersonal);
         boolean allowNoRole = true;
 
         if (predicates.isValidValue(authority)) {
             String authorityUpper = authority.toUpperCase(Locale.ROOT);
             authoritiesFiltered = authoritiesFiltered
-                    .filter(r -> r != null && r.authority().contains(authorityUpper));
+                    .filter(r -> r != null && r.getAuthority().contains(authorityUpper));
             allowNoRole = false;
         }
-        List<RoleAuthority> authoritiesAllowed = authoritiesFiltered.collect(Collectors.toList());
+        List<RoleAuthority> authoritiesAllowed = authoritiesFiltered.toList();
         if (authoritiesAllowed.isEmpty()) {
             CriteriaBuilder builder = predicates.getCriteriaBuilder();
             // never match
@@ -125,11 +124,11 @@ public class UserFilter implements Specification<User> {
 
         Stream<RoleAuthority> authorityStream = authorities.stream();
         if (scope != null) {
-            authorityStream = authorityStream.filter(r -> r.scope() == scope);
+            authorityStream = authorityStream.filter(r -> r.getScope() == scope);
         }
         List<String> authorityNames = authorityStream
-                .map(RoleAuthority::authority)
-                .collect(Collectors.toList());
+                .map(RoleAuthority::getAuthority)
+                .toList();
 
         if (!authorityNames.isEmpty()) {
             predicates.in(roleJoin.get("authority").get("name"), authorityNames);

@@ -9,23 +9,26 @@ jar {
 }
 
 // custom tasks for creating source/javadoc jars
-task sourcesJar(type: Jar, dependsOn: classes) {
+tasks.register('sourcesJar', Jar) {
     archiveClassifier.set('sources')
     from sourceSets.main.allSource
     manifest.from sharedManifest
+    dependsOn(classes)
 }
 
 if (!project.hasProperty("projectLanguage") || projectLanguage == "java") {
-    task javadocJar(type: Jar, dependsOn: javadoc) {
+    tasks.register('javadocJar', Jar) {
         archiveClassifier.set('javadoc')
         from javadoc.destinationDir
         manifest.from sharedManifest
+        dependsOn(javadoc)
     }
 } else if (projectLanguage == "kotlin") {
-    task javadocJar(type: Jar, dependsOn: dokkaJavadoc) {
+    tasks.register('javadocJar', Jar) {
         from("$buildDir/dokka/javadoc")
         archiveClassifier.set("javadoc")
         manifest.from sharedManifest
+        dependsOn(dokkaJavadoc)
     }
 }
 

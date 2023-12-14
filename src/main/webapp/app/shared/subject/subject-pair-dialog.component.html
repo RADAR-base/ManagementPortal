@@ -5,31 +5,69 @@
             [translate]="'managementPortalApp.subject.home.pairAppLabel'">
         </h4>
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
-                (click)="clear()">&times;</button>
+                (click)="clear()">&times;
+        </button>
     </div>
     <div class="modal-body">
         <div class="form-group">
-            <label for="login" class="form-control-label"
-                [translate]="'managementPortalApp.subject.login'">
-            </label>
-            <input id="login" type="text" class="form-control" name="login" #loginInput="ngModel"
-                   [(ngModel)]="subject.login" required minlength=1 maxlength=50 pattern="^[_'.@A-Za-z0-9- ]*$" [disabled]="subject.id">
+            <div *ngIf="(siteSettings$ | async).hiddenSubjectFields as hiddenFields">
+                <div>
+                    <label for="login" class="form-control-label"
+                           [translate]="'managementPortalApp.subject.login'">
+                    </label>
+                    <input id="login" type="text" class="form-control" name="login" #loginInput="ngModel"
+                           [(ngModel)]="subject.login" [disabled]="subject.id" >
+                </div>
+
+                <div *ngIf="subject.externalId" >
+                    <label for="externalId" class="form-control-label"
+                           [translate]="'managementPortalApp.subject.externalId'">
+                    </label>
+                    <input id="externalId" type="text" class="form-control" name="externalId" #loginInput="ngModel"
+                           [(ngModel)]="subject.externalId" [disabled]="subject.id" >
+                </div>
+
+                <div *ngIf="!hiddenFields.has(HideableSubjectField.NAME) && subject.personName" >
+                    <label for="name" class="form-control-label"
+                           [translate]="'managementPortalApp.subject.personName'">
+                    </label>
+                    <input id="name" type="text" class="form-control" name="name" #loginInput="ngModel"
+                           [(ngModel)]="subject.personName" [disabled]="subject.id">
+                </div>
+
+                <div *ngIf="!hiddenFields.has(HideableSubjectField.DATEOFBIRTH) && subject.dateOfBirth" >
+                    <label for="dateOfBirth" class="form-control-label"
+                           [translate]="'managementPortalApp.subject.dateOfBirth'">
+                    </label>
+                    <input id="dateOfBirth" type="text" class="form-control" name="dateOfBirth" #loginInput="ngModel"
+                           [(ngModel)]="subject.dateOfBirth" [disabled]="subject.id">
+                </div>
+            </div>
         </div>
 
         <div class="form-group">
             <label [translate]="'managementPortalApp.subject.clientApp'" for="field_clientApp"></label>
-            <select class="form-control" id="field_clientApp" name="client" [(ngModel)]="selectedClient" (change)="unsetPairing()" required>
+            <select class="form-control" id="field_clientApp" name="client" [(ngModel)]="selectedClient"
+                    (change)="unsetPairing()" required>
                 <option [ngValue]="null" selected></option>
-                <option [ngValue]="clientOption" *ngFor="let clientOption of oauthClients; trackBy: trackOAuthClientById">{{clientOption.clientId}}</option>
+                <option [ngValue]="clientOption"
+                        *ngFor="let clientOption of oauthClients; trackBy: trackOAuthClientById">{{clientOption.clientId}}</option>
             </select>
         </div>
 
         <div class="form-group">
-            <button type="button" class="btn btn-primary" (click)="generateQRCode(false)" [disabled]="selectedClient === null">
-                <span class="fa fa-hourglass-start"></span>&nbsp;<span [translate]="'managementPortalApp.subject.generateToken'"></span>
+            <button type="button" class="btn btn-primary" (click)="generateQRCode(false)"
+                    [disabled]="selectedClient === null">
+                <span class="fa fa-hourglass-start"></span>&nbsp;<span
+                    [translate]="'managementPortalApp.subject.generateToken'"></span>
             </button>
-            <button *ngIf="allowPersistentToken" type="button" class="btn btn-default" (click)="generateQRCode(true)" [disabled]="selectedClient === null">
-                <span class="fa fa-save"></span> <span [translate]="'managementPortalApp.subject.generatePersistentToken'"></span>
+            <button *ngIf="allowPersistentToken" type="button" class="btn btn-default" (click)="generateQRCode(true)"
+                    [disabled]="selectedClient === null">
+                <span class="fa fa-save"></span> <span
+                    [translate]="'managementPortalApp.subject.generatePersistentToken'"></span>
+            </button>
+            <button type="button" class="btn btn-default" data-dismiss="modal" (click)="exportHtmlToPDF()">
+                <span class="fa fa-print"></span><span>Print</span>
             </button>
         </div>
 
@@ -43,7 +81,7 @@
         <div class="form-group" *ngIf="pairInfo !== null">
             <table class="table table-striped">
                 <tbody>
-                <tr >
+                <tr>
                     <th><span [translate]="'managementPortalApp.subject.baseUrl'"></span></th>
                     <td>{{pairInfo.baseUrl}}</td>
                 </tr>

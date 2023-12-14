@@ -9,10 +9,12 @@
 
 package org.radarbase.management.client
 
-import com.fasterxml.jackson.annotation.JsonProperty
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class MPRole(
-    @JsonProperty("projectName")
+    @SerialName("projectName")
     val projectId: String? = null,
     val authorityName: String
 )

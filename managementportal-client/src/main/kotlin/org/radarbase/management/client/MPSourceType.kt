@@ -9,6 +9,9 @@
 
 package org.radarbase.management.client
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class MPSourceType(
     var id: Long,
     val producer: String,

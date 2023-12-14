@@ -12,6 +12,7 @@ package org.radarbase.management.service.mapper;
 import org.mapstruct.IterableMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingConstants;
 import org.mapstruct.Named;
 import org.radarbase.management.domain.Group;
 import org.radarbase.management.service.dto.GroupDTO;
@@ -19,7 +20,7 @@ import org.radarbase.management.service.dto.GroupDTO;
 import java.util.Collection;
 import java.util.List;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface GroupMapper {
     @Named("groupToGroupDTO")
     @Mapping(target = "id", ignore = true)

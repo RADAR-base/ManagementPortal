@@ -75,3 +75,148 @@ jobs:
           yarn e2e
           ./gradlew --stop
 
+      - name: Upload screenshots of failed e2e tests
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          path: src/test/javascript/e2e/cypress/screenshots
+          if-no-files-found: ignore
+          retention-days: 5
+
+      - name: Has SNAPSHOT version
+        id: is-snapshot
+        if: github.ref == 'refs/heads/dev'
+        run: grep "version =\\? \\?'.*-SNAPSHOT'" build.gradle
+
+      - name: Install gpg secret key
+        if: steps.is-snapshot.outcome == 'success'
+        run: |
+          cat <(echo -e "${{ secrets.OSSRH_GPG_SECRET_KEY }}") | gpg --batch --import
+          gpg --list-secret-keys --keyid-format LONG
+
+      - name: Publish to Maven Central
+        if: steps.is-snapshot.outcome == 'success'
+        env:
+          OSSRH_USER: ${{ secrets.OSSRH_USER }}
+          OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
+        run: ./gradlew -Psigning.gnupg.keyName=${{ secrets.OSSRH_GPG_SECRET_KEY_ID }} -Psigning.gnupg.executable=gpg -Psigning.gnupg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} publish
+
+  # Check that the docker image builds correctly
+  docker:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v3
+
+      - name: Check whether unity activation requests should be done
+        id: docker_check_secret
+        run: |
+          echo "IS_DOCKER_SECRET_SET: ${{ secrets.DOCKERHUB_USERNAME != '' && secrets.DOCKERHUB_TOKEN != '' }}"
+          echo "IS_DOCKER_SECRET_SET=${{ secrets.DOCKERHUB_USERNAME != ''  && secrets.DOCKERHUB_TOKEN != '' }}" >> $GITHUB_OUTPUT
+
+      - name: Login to Docker Hub
+        if: steps.docker_check_secret.outputs.IS_DOCKER_SECRET_SET == 'true'
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "dir=.yarn/cache" >> $GITHUB_OUTPUT
+
+      - name: Cache Docker layers
+        id: cache-buildx
+        uses: actions/cache@v3
+        with:
+          path: |
+            ${{ steps.yarn-cache-dir-path.outputs.dir }}
+            /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ hashFiles('Dockerfile', '**/*.gradle', 'gradle.properties', 'src/main/**', 'radar-auth/src/**', 'yarn.lock', '*.json', '.yarnrc.yml') }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+
+      - name: Cache parameters
+        id: cache-parameters
+        run: |
+          if [ "${{ steps.cache-buildx.outputs.cache-hit }}" = "true" ]; then
+            echo "cache-to=" >> $GITHUB_OUTPUT
+          else
+            echo "cache-to=type=local,dest=/tmp/.buildx-cache-new,mode=max" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Use Node.js 16
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      - name: Prime yarn cache
+        run: yarn install --mode=skip-build
+
+      # Add Docker labels and tags
+      - name: Docker meta
+        id: docker_meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ env.DOCKER_IMAGE }}
+
+      # Setup docker build environment
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Docker build parameters
+        id: docker_params
+        run: |
+          if [ "${{ github.event_name == 'pull_request' }}" = "true" ]; then
+            echo "push=false" >> $GITHUB_OUTPUT
+            echo "load=true" >> $GITHUB_OUTPUT
+            echo "platforms=linux/amd64" >> $GITHUB_OUTPUT
+          else
+            echo "push=true" >> $GITHUB_OUTPUT
+            echo "load=false" >> $GITHUB_OUTPUT
+            echo "platforms=linux/amd64,linux/arm64" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Build docker
+        uses: docker/build-push-action@v3
+        with:
+          # Do not load context from Github but from local path
+          context: .
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: ${{ steps.cache-parameters.outputs.cache-to }}
+          load: ${{ steps.docker_params.outputs.load }}
+          push: ${{ steps.docker_params.outputs.push }}
+          platforms: ${{ steps.docker_params.outputs.platforms }}
+          tags: ${{ steps.docker_meta.outputs.tags }}
+          # Use runtime labels from docker_meta as well as fixed labels
+          labels: |
+            ${{ steps.docker_meta.outputs.labels }}
+            maintainer=Joris Borgdorff <joris@thehyve.nl>
+            org.opencontainers.image.authors=Joris Borgdorff <joris@thehyve.nl>
+            org.opencontainers.image.vendor=RADAR-base
+            org.opencontainers.image.licenses=Apache-2.0
+
+      # Temp fix
+      # https://github.com/docker/build-push-action/issues/252
+      # https://github.com/moby/buildkit/issues/1896
+      - name: Move docker build cache
+        if: steps.cache-buildx.outputs.cache-hit != 'true'
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+
+      - name: Pull docker image
+        if: steps.docker_params.outputs.load == 'false'
+        run: docker pull ${{ env.DOCKER_IMAGE }}:${{ steps.docker_meta.outputs.version }}
+
+      - name: Inspect docker image
+        run: docker image inspect ${{ env.DOCKER_IMAGE }}:${{ steps.docker_meta.outputs.version }}
+
+      - name: Check docker image
+        run: docker run --rm ${{ env.DOCKER_IMAGE }}:${{ steps.docker_meta.outputs.version }} curl --help

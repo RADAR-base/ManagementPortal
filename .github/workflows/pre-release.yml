@@ -57,6 +57,14 @@ jobs:
           yarn e2e
           ./gradlew --stop
 
+      - name: Upload screenshots of failed e2e tests
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          path: src/test/javascript/e2e/cypress/screenshots
+          if-no-files-found: ignore
+          retention-days: 5
+
       - name: Generate github pages
         run: ./gradlew ghPages
         if: startsWith(github.ref, 'refs/tags/')

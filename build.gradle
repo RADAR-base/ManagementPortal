@@ -1,5 +1,6 @@
-import org.gradle.internal.os.OperatingSystem
-import java.util.concurrent.TimeUnit
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 buildscript {
     repositories {
@@ -14,11 +15,14 @@ buildscript {
 plugins {
     id 'application'
     id 'org.springframework.boot' version "${spring_boot_version}"
-    id "com.github.node-gradle.node" version "3.5.0"
-    id "io.spring.dependency-management" version "1.1.0"
-    id 'de.undercouch.download' version '5.3.0' apply false
-    id "io.github.gradle-nexus.publish-plugin" version "1.1.0"
-    id("com.github.ben-manes.versions") version "0.43.0"
+    id "com.github.node-gradle.node" version "3.6.0"
+    id "io.spring.dependency-management" version "1.1.3"
+    id 'de.undercouch.download' version '5.5.0' apply false
+    id "io.github.gradle-nexus.publish-plugin" version "1.3.0"
+    id("com.github.ben-manes.versions") version "0.47.0"
+    id 'org.jetbrains.kotlin.jvm' version "1.9.10"
+    id 'org.jetbrains.kotlin.plugin.serialization' version '1.9.10' apply false
+    id 'org.jetbrains.dokka' version "1.8.20"
 }
 
 apply plugin: 'org.springframework.boot'
@@ -28,7 +32,7 @@ apply plugin: 'io.spring.dependency-management'
 
 allprojects {
     group 'org.radarbase'
-    version '2.0.0' // project version
+    version '2.1.0' // project version
 
     // The comment on the previous line is only there to identify the project version line easily
     // with a sed command, to auto-update the version number with the prepare-release-branch.sh
@@ -38,14 +42,16 @@ allprojects {
     apply plugin: 'java-library'
     apply plugin: 'idea'
 
-    ext.codacyVersion = '4.0.5'
     ext.githubRepoName = 'RADAR-base/ManagementPortal'
     ext.githubUrl = 'https://github.com/RADAR-base/ManagementPortal'
-    ext.issueUrl = "https://github.com/$githubRepoName/issues"
     ext.website = 'https://radar-base.org'
 
     repositories {
         mavenCentral()
+
+        // This repo is used temporarily when we use an internal SNAPSHOT library version.
+        // When we publish the library, we comment out the repository again to speed up dependency resolution.
+//        maven { url = "https://oss.sonatype.org/content/repositories/snapshots" }
     }
 
     idea {
@@ -60,9 +66,6 @@ allprojects {
         })
     }
 }
-
-sourceCompatibility = JavaVersion.VERSION_17
-targetCompatibility = JavaVersion.VERSION_17
 
 description = 'MangementPortal application to manage studies and participants'
 
@@ -93,41 +96,21 @@ springBoot {
     buildInfo()
 }
 
-if (OperatingSystem.current().isWindows()) {
 
-    configurations {
-        runtime.extendsFrom(compileClasspath, runtimeOnly)
-    }
+bootRun {
+    sourceResources sourceSets.main
+}
 
-    task copyToLib(type: Copy) {
-        into "$buildDir/output/lib"
-        from configurations.runtime
-    }
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
 
-
-    task pathingJar(type: Jar) {
-        dependsOn configurations.runtime
-        archiveAppendix.set('pathing')
-
-        doFirst {
-            manifest {
-                attributes 'Class-Path': configurations.runtime.files.collect {
-                    it.toURI().toURL().toString().replaceFirst(/file:\/+/, '/').replaceAll(' ', '%20')
-                }.join(' ')
-            }
-        }
-    }
-
-    bootRun {
-        sourceResources sourceSets.main
-        dependsOn pathingJar
-        doFirst {
-            classpath = files("$buildDir/classes/java/main", "$buildDir/resources/main", pathingJar.archivePath)
-        }
-    }
-} else {
-    bootRun {
-        sourceResources sourceSets.main
+tasks.withType(KotlinCompile).configureEach {
+    compilerOptions {
+        jvmTarget = JvmTarget.JVM_17
+        apiVersion = KotlinVersion.KOTLIN_1_8
+        languageVersion = KotlinVersion.KOTLIN_1_8
     }
 }
 
@@ -174,13 +157,13 @@ dependencies {
     implementation "com.fasterxml.jackson.core:jackson-databind"
     implementation "com.hazelcast:hazelcast:${hazelcast_version}"
     implementation "com.hazelcast:hazelcast-spring:${hazelcast_version}"
-    runtimeOnly "com.hazelcast:hazelcast-hibernate53"
+    runtimeOnly "com.hazelcast:hazelcast-hibernate53:${hazelcast_hibernate_version}"
     runtimeOnly("com.zaxxer:HikariCP:${hikaricp_version}")
     implementation group: 'com.google.code.findbugs', name: 'jsr305', version: findbugAnnotationVersion
     implementation("org.liquibase:liquibase-core:${liquibase_version}")
     runtimeOnly "com.mattbertolini:liquibase-slf4j:${liquibase_slf4j_version}"
-    implementation "org.springframework.boot:spring-boot-starter-actuator"
-    implementation "org.springframework.boot:spring-boot-autoconfigure"
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("org.springframework.boot:spring-boot-autoconfigure")
     implementation "org.springframework.boot:spring-boot-starter-mail"
     runtimeOnly "org.springframework.boot:spring-boot-starter-logging"
     runtimeOnly ("org.springframework.boot:spring-boot-starter-data-jpa") {
@@ -199,13 +182,20 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web") {
         exclude module: 'spring-boot-starter-tomcat'
     }
-    implementation "org.springframework.boot:spring-boot-starter-undertow"
+    implementation ("org.springframework.boot:spring-boot-starter-undertow")
+    // Fix vulnerabilities
+    runtimeOnly("io.undertow:undertow-websockets-jsr:2.2.25.Final")
+    runtimeOnly("io.undertow:undertow-servlet:2.2.25.Final")
+    runtimeOnly("io.undertow:undertow-core:2.2.25.Final")
+
     implementation "org.springframework.boot:spring-boot-starter-thymeleaf"
+    runtimeOnly("org.thymeleaf:thymeleaf-spring5:${thymeleaf_version}")
+    runtimeOnly("org.thymeleaf:thymeleaf:${thymeleaf_version}")
     implementation("org.springframework:spring-context-support")
     implementation("org.springframework.session:spring-session-hazelcast")
 
     implementation('org.springframework.security.oauth:spring-security-oauth2:2.5.2.RELEASE')
-    implementation('org.springframework.security:spring-security-web:5.7.5')
+    implementation('org.springframework.security:spring-security-web:5.7.8')
     implementation "org.springdoc:springdoc-openapi-ui:${springdoc_version}"
     runtimeOnly("javax.inject:javax.inject:1")
     implementation project(':radar-auth')
@@ -231,9 +221,8 @@ dependencies {
     testImplementation "com.mattbertolini:liquibase-slf4j:${liquibase_slf4j_version}"
     testImplementation "org.hamcrest:hamcrest-library"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
-    implementation project(':security')
 
-    annotationProcessor group: 'org.springframework.boot', name: 'spring-boot-configuration-processor'
+    annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 }
 
 dependencyManagement {
@@ -250,24 +239,26 @@ clean {
     delete "target"
 }
 
-task cleanResources(type: Delete) {
+tasks.register('cleanResources', Delete) {
     delete 'build/resources'
 }
 
 wrapper {
-    gradleVersion '8.0.2'
+    gradleVersion '8.3'
 }
 
-task stage(dependsOn: 'bootWar') {
+tasks.register('stage') {
+    dependsOn 'bootWar'
 }
 
-task ghPagesJavadoc(type: Copy, dependsOn: javadoc) {
+tasks.register('ghPagesJavadoc', Copy) {
     from javadoc.destinationDir
     into file("$rootDir/public/management-portal-javadoc")
+    dependsOn tasks.named('javadoc')
 }
 
-task ghPagesOpenApiSpec(type: Copy) {
-    from file("$buildDir/swagger-spec")
+tasks.register('ghPagesOpenApiSpec', Copy) {
+    from file(layout.buildDirectory.dir("swagger-spec"))
     into file("$rootDir/public/apidoc")
 }
 
@@ -275,7 +266,7 @@ compileJava.dependsOn processResources
 processResources.dependsOn cleanResources, bootBuildInfo
 bootBuildInfo.mustRunAfter cleanResources
 
-task downloadDependencies {
+tasks.register('downloadDependencies') {
     description "Pre-downloads dependencies"
     configurations.compileClasspath.files
     configurations.runtimeClasspath.files
@@ -293,45 +284,6 @@ nexusPublishing {
     }
 }
 
-class TimingsListener implements TaskExecutionListener, BuildListener {
-    private long startTime
-    private timings = []
-
-    @Override
-    void beforeExecute(Task task) {
-        startTime = System.nanoTime()
-    }
-
-    @Override
-    void afterExecute(Task task, TaskState taskState) {
-        def ms = TimeUnit.MILLISECONDS.convert(System.nanoTime() - startTime, TimeUnit.NANOSECONDS);
-        timings.add([ms, task.path])
-        task.project.logger.warn "${task.path} took ${ms}ms"
-    }
-
-    @Override
-    void buildFinished(BuildResult result) {
-        println "Task timings:"
-        for (timing in timings) {
-            if (timing[0] >= 50) {
-                printf "%7sms  %s\n", timing
-            }
-        }
-    }
-
-    @Override
-    void projectsEvaluated(Gradle gradle) {}
-
-    @Override
-    void projectsLoaded(Gradle gradle) {}
-
-    @Override
-    void settingsEvaluated(Settings settings) {}
-}
-if (project.hasProperty('dev')) {
-    gradle.addListener new TimingsListener()
-}
-
 def isNonStable = { String version ->
     def stableKeyword = ["RELEASE", "FINAL", "GA"].any { version.toUpperCase().contains(it) }
     def regex = /^[0-9,.v-]+(-r)?$/
@@ -339,7 +291,15 @@ def isNonStable = { String version ->
 }
 
 tasks.named("dependencyUpdates").configure {
+    doFirst {
+        allprojects {
+            repositories.removeAll {
+                it instanceof MavenArtifactRepository && it.url.toString().contains("snapshot")
+            }
+        }
+    }
     rejectVersionIf {
-        isNonStable(it.candidate.version)
+        it.currentVersion.split('\\.')[0] != it.candidate.version.split('\\.')[0]
+            || isNonStable(it.candidate.version)
     }
 }

@@ -1,19 +1,19 @@
 package org.radarbase.management.service;
 
 import org.radarbase.auth.authorization.RoleAuthority;
-import org.radarbase.auth.config.Constants;
-import org.radarbase.auth.exception.NotAuthorizedException;
-import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.config.ManagementPortalProperties;
 import org.radarbase.management.domain.Role;
 import org.radarbase.management.domain.User;
 import org.radarbase.management.repository.UserRepository;
 import org.radarbase.management.repository.filters.UserFilter;
+import org.radarbase.management.security.Constants;
+import org.radarbase.management.security.NotAuthorizedException;
 import org.radarbase.management.security.SecurityUtils;
 import org.radarbase.management.service.dto.RoleDTO;
 import org.radarbase.management.service.dto.UserDTO;
 import org.radarbase.management.service.mapper.UserMapper;
 import org.radarbase.management.web.rest.errors.ConflictException;
+import org.radarbase.management.web.rest.errors.InvalidRequestException;
 import org.radarbase.management.web.rest.errors.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,10 +36,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.radarbase.auth.authorization.Permission.ROLE_UPDATE;
-import static org.radarbase.auth.authorization.RadarAuthorization.checkGlobalPermission;
-import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnOrganization;
-import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnOrganizationAndProject;
-import static org.radarbase.auth.authorization.RadarAuthorization.checkPermissionOnProject;
 import static org.radarbase.auth.authorization.RoleAuthority.INACTIVE_PARTICIPANT;
 import static org.radarbase.auth.authorization.RoleAuthority.PARTICIPANT;
 import static org.radarbase.management.service.RoleService.getRoleAuthority;
@@ -75,7 +71,7 @@ public class UserService {
     private ManagementPortalProperties managementPortalProperties;
 
     @Autowired
-    private RadarToken token;
+    private AuthService authService;
 
     /**
      * Activate a user with the given activation key.
@@ -195,7 +191,7 @@ public class UserService {
         var roles = roleDtos.stream()
                 .map(roleDto -> {
                     RoleAuthority authority = getRoleAuthority(roleDto);
-                    return switch (authority.scope()) {
+                    return switch (authority.getScope()) {
                         case GLOBAL -> roleService.getGlobalRole(authority);
                         case ORGANIZATION -> roleService.getOrganizationRole(authority,
                                 roleDto.getOrganizationId());
@@ -227,22 +223,19 @@ public class UserService {
 
     private void checkAuthorityForRoleChange(Role role)
             throws NotAuthorizedException {
-        switch (role.getRole().scope()) {
-            case GLOBAL -> checkGlobalPermission(token, ROLE_UPDATE);
-            case ORGANIZATION -> checkPermissionOnOrganization(token, ROLE_UPDATE,
-                    role.getOrganization().getName());
-            case PROJECT -> {
-                if (role.getProject().getOrganization() != null) {
-                    checkPermissionOnOrganizationAndProject(token, ROLE_UPDATE,
-                            role.getProject().getOrganization().getName(),
-                            role.getProject().getProjectName());
-                } else {
-                    checkPermissionOnProject(token, ROLE_UPDATE,
-                            role.getProject().getProjectName());
+        authService.checkPermission(ROLE_UPDATE, e -> {
+            switch (role.getRole().getScope()) {
+                case GLOBAL -> { }
+                case ORGANIZATION -> e.organization(role.getOrganization().getName());
+                case PROJECT -> {
+                    if (role.getProject().getOrganization() != null) {
+                        e.organization(role.getProject().getOrganization().getName());
+                    }
+                    e.project(role.getProject().getProjectName());
                 }
+                default -> throw new IllegalStateException("Unknown authority scope.");
             }
-            default -> throw new IllegalStateException("Unknown authority scope.");
-        }
+        });
     }
 
     /**
@@ -282,23 +275,18 @@ public class UserService {
      * Update all information for a specific user, and return the modified user.
      *
      * @param userDto user to update
-     * @param updateProperties should update the user properties
      * @return updated user
      */
     @Transactional
-    public Optional<UserDTO> updateUser(
-            UserDTO userDto, boolean updateProperties) throws NotAuthorizedException {
+    public Optional<UserDTO> updateUser(UserDTO userDto) throws NotAuthorizedException {
         Optional<User> userOpt = userRepository.findById(userDto.getId());
         if (userOpt.isPresent()) {
             User user = userOpt.get();
-            if (updateProperties) {
-                user.setLogin(userDto.getLogin());
-                user.setFirstName(userDto.getFirstName());
-                user.setLastName(userDto.getLastName());
-                user.setEmail(userDto.getEmail());
-                user.setActivated(userDto.isActivated());
-                user.setLangKey(userDto.getLangKey());
-            }
+            user.setFirstName(userDto.getFirstName());
+            user.setLastName(userDto.getLastName());
+            user.setEmail(userDto.getEmail());
+            user.setActivated(userDto.isActivated());
+            user.setLangKey(userDto.getLangKey());
             Set<Role> managedRoles = user.getRoles();
             Set<Role> oldRoles = Set.copyOf(managedRoles);
             managedRoles.clear();
@@ -328,7 +316,11 @@ public class UserService {
      * @param password the new password
      */
     public void changePassword(String password) {
-        changePassword(SecurityUtils.getCurrentUserLogin(), password);
+        String currentUser = SecurityUtils.getCurrentUserLogin()
+                        .orElseThrow(() -> new InvalidRequestException(
+                                "Cannot change password of unknown user", null,
+                                ERR_ENTITY_NOT_FOUND));
+        changePassword(currentUser, password);
     }
 
     /**
@@ -372,9 +364,9 @@ public class UserService {
      * @return the currently authenticated user, or null if no user is currently authenticated
      */
     @Transactional(readOnly = true)
-    public User getUserWithAuthorities() {
-        return userRepository.findOneWithRolesByLogin(SecurityUtils.getCurrentUserLogin())
-                .orElse(null);
+    public Optional<User> getUserWithAuthorities() {
+        return SecurityUtils.getCurrentUserLogin()
+                .flatMap(currentUser -> userRepository.findOneWithRolesByLogin(currentUser));
     }
 
 
@@ -389,7 +381,7 @@ public class UserService {
         ZonedDateTime cutoff = ZonedDateTime.now().minus(Period.ofDays(3));
 
         List<String> authorities = Arrays.asList(
-                PARTICIPANT.authority(), INACTIVE_PARTICIPANT.authority());
+                PARTICIPANT.getAuthority(), INACTIVE_PARTICIPANT.getAuthority());
 
         userRepository.findAllByActivatedAndAuthoritiesNot(false, authorities).stream()
                 .filter(user -> revisionService.getAuditInfo(user).getCreatedAt().isBefore(cutoff))

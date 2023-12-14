@@ -11,8 +11,8 @@ public class AuthorityDTO {
     }
 
     public AuthorityDTO(RoleAuthority role) {
-        this.name = role.authority();
-        this.scope = role.scope().name();
+        this.name = role.getAuthority();
+        this.scope = role.getScope().name();
     }
 
     public String getName() {

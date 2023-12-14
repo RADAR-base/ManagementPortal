@@ -1,6 +1,5 @@
 package org.radarbase.management.service;
 
-import org.radarbase.management.domain.Subject;
 import org.radarbase.management.domain.User;
 import org.radarbase.management.service.dto.ClientDetailsDTO;
 import org.radarbase.management.service.mapper.ClientDetailsMapper;
@@ -158,14 +157,11 @@ public class OAuthClientService {
      * method bypasses the usual authorization code flow mechanism, so it should only be used where
      * appropriate, e.g., for subject impersonation.
      *
-     * @param clientId    oauth client id.
-     * @param subject     subject-id of the token.
+     * @param clientId oauth client id.
+     * @param user user of the token.
      * @return Created {@link OAuth2AccessToken} instance.
      */
-    public OAuth2AccessToken createAccessToken(Subject subject, String clientId) {
-        // add the user's authorities
-        User user = subject.getUser();
-
+    public OAuth2AccessToken createAccessToken(User user, String clientId) {
         Set<GrantedAuthority> authorities = user.getAuthorities().stream()
                 .map(a -> new SimpleGrantedAuthority(a.getName()))
                 .collect(Collectors.toSet());

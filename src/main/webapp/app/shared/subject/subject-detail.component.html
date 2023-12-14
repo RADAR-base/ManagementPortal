@@ -22,28 +22,36 @@
                   <a [routerLink]="['/project', subject.project?.projectName ]" >{{subject.project?.projectName}}</a>
             </span>
         </dd>
-        <dt><span [translate]="'managementPortalApp.subject.group'"></span></dt>
-        <dd>
-            <span>{{subject.group || '-'}}</span>
-        </dd>
-        <dt><span [translate]="'managementPortalApp.subject.sources'"></span></dt>
-        <dd>
-            <span *ngFor="let sources of subject.sources; let last = last">
-                <a [routerLink]="['/source', sources?.sourceName ]">{{sources.sourceTypeModel}}: {{sources.sourceName}}</a>{{last ? '' : ', '}}
-            </span>
-        </dd>
 
-        <dt><span [translate]="'managementPortalApp.subject.attributeData'"></span></dt>
-        <dd>
-            <div *ngFor="let entry of subject.attributes | keyvalue; trackBy: trackKey">
-                <span class="form-control-static">{{entry.key}}: {{entry.value}}</span>
+        <div *ngIf="(siteSettings$ | async).hiddenSubjectFields as hiddenFields">
+            <div *ngIf="!hiddenFields.has(HideableSubjectField.GROUP)">
+                <dt><span [translate]="'managementPortalApp.subject.group'"></span></dt>
+                <dd>
+                    <span>{{subject.group || '-'}}</span>
+                </dd>
             </div>
-        </dd>
+            <dt><span [translate]="'managementPortalApp.subject.sources'"></span></dt>
+            <dd>
+                <span *ngFor="let sources of subject.sources; let last = last">
+                    <a [routerLink]="['/source', sources?.sourceName ]">{{sources.sourceTypeModel}}: {{sources.sourceName}}</a>{{last ? '' : ', '}}
+                </span>
+            </dd>
 
-        <dt><span [translate]="'managementPortalApp.subject.personName'"></span></dt>
-        <dd>{{subject.personName}}</dd>
-        <dt><span [translate]="'managementPortalApp.subject.dateOfBirth'"></span></dt>
-        <dd>{{subject.dateOfBirth | date:'yyyy-MM-dd' }}</dd>
+            <dt><span [translate]="'managementPortalApp.subject.attributeData'"></span></dt>
+            <dd>
+                <div *ngFor="let entry of subject.attributes | keyvalue; trackBy: trackKey">
+                    <span class="form-control-static">{{entry.key}}: {{entry.value}}</span>
+                </div>
+            </dd>
+            <div *ngIf="!hiddenFields.has(HideableSubjectField.NAME)">
+                <dt><span [translate]="'managementPortalApp.subject.personName'"></span></dt>
+                <dd>{{subject.personName}}"</dd>
+            </div>
+            <div *ngIf="!hiddenFields.has(HideableSubjectField.DATEOFBIRTH)">
+                <dt><span [translate]="'managementPortalApp.subject.dateOfBirth'"></span></dt>
+                <dd>{{subject.dateOfBirth | date:'yyyy-MM-dd' }}</dd>
+            </div>
+        </div>
         <dt><span [translate]="'managementPortalApp.subject.enrollmentDate'"></span></dt>
         <dd>{{subject.enrollmentDate | date:'yyyy-MM-dd HH:mm' }}</dd>
         <dt><span [translate]="'managementPortalApp.subject.createdBy'"></span></dt>

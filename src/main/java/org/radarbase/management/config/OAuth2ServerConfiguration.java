@@ -66,25 +66,22 @@ public class OAuth2ServerConfiguration {
     @Configuration
     @Order(-20)
     protected static class LoginConfig extends WebSecurityConfigurerAdapter {
-
         @Autowired
         private AuthenticationManager authenticationManager;
 
         @Autowired
-        private UserRepository userRepository;
-
-        @Autowired
-        private ManagementPortalOauthKeyStoreHandler keyStoreHandler;
+        private JwtAuthenticationFilter jwtAuthenticationFilter;
 
         @Override
         protected void configure(HttpSecurity http) throws Exception {
             http
                     .formLogin().loginPage("/login").permitAll()
                     .and()
-                    .addFilterBefore(jwtAuthenticationFilter(),
+                    .addFilterAfter(jwtAuthenticationFilter,
                             UsernamePasswordAuthenticationFilter.class)
                     .requestMatchers()
                         .antMatchers("/login", "/oauth/authorize", "/oauth/confirm_access")
+
                     .and()
                     .authorizeRequests().anyRequest().authenticated();
         }
@@ -94,6 +91,20 @@ public class OAuth2ServerConfiguration {
             auth.parentAuthenticationManager(authenticationManager);
         }
 
+    }
+
+    @Configuration
+    public static class JwtAuthenticationFilterConfiguration {
+        @Autowired
+        private AuthenticationManager authenticationManager;
+
+        @Autowired
+        private UserRepository userRepository;
+
+        @Autowired
+        private ManagementPortalOauthKeyStoreHandler keyStoreHandler;
+
+        @Bean
         public JwtAuthenticationFilter jwtAuthenticationFilter() {
             return new JwtAuthenticationFilter(
                     keyStoreHandler.getTokenValidator(),
@@ -137,6 +148,7 @@ public class OAuth2ServerConfiguration {
             )
                     .skipUrlPattern(HttpMethod.GET, "/management/health")
                     .skipUrlPattern(HttpMethod.GET, "/api/meta-token/*")
+                    .skipUrlPattern(HttpMethod.GET, "/api/sitesettings")
                     .skipUrlPattern(HttpMethod.GET, "/images/**")
                     .skipUrlPattern(HttpMethod.GET, "/css/**")
                     .skipUrlPattern(HttpMethod.GET, "/js/**")
@@ -171,10 +183,11 @@ public class OAuth2ServerConfiguration {
                         .antMatchers("/api/register")
                             .hasAnyAuthority(RoleAuthority.SYS_ADMIN_AUTHORITY)
                         .antMatchers("/api/profile-info").permitAll()
+                        .antMatchers("/api/sitesettings").permitAll()
                         .antMatchers("/api/**").authenticated()
-                        // Allow management/health endpoint to all to allow kubernetes to be able to
-                        // detect the health of the service
-                        .antMatchers("/management/health").permitAll()
+                    // Allow management/health endpoint to all to allow kubernetes to be able to
+                    // detect the health of the service
+                    .antMatchers("/management/health").permitAll()
                         .antMatchers("/management/**")
                             .hasAnyAuthority(RoleAuthority.SYS_ADMIN_AUTHORITY)
                         .antMatchers("/v2/api-docs/**").permitAll()
@@ -195,9 +208,8 @@ public class OAuth2ServerConfiguration {
             @Override
             public void publishAuthenticationSuccess(Authentication authentication) {
                 // OAuth2AuthenticationProcessingFilter publishes an authentication success audit
-                // event for EVERY successful OAuth request to our API resoruces, this is way too
+                // event for EVERY successful OAuth request to our API resources, this is way too
                 // much so we override the event publisher to not publish these events.
-
             }
         }
 

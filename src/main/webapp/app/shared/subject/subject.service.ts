@@ -1,15 +1,16 @@
-import { Injectable } from '@angular/core';
-import { HttpClient, HttpResponse } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import {Injectable} from '@angular/core';
+import {HttpClient, HttpResponse} from '@angular/common/http';
+import {Observable} from 'rxjs';
 
-import { Subject } from './subject.model';
-import { createRequestOption } from '../model/request.utils';
+import {Subject} from './subject.model';
+import {createRequestOption} from '../model/request.utils';
 
 @Injectable({ providedIn: 'root' })
 export class SubjectService {
 
     private resourceUrl = 'api/subjects';
     private projectResourceUrl = 'api/projects';
+
 
     constructor(private http: HttpClient) {
     }

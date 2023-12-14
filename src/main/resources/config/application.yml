@@ -107,12 +107,16 @@ info:
 #
 # ===================================================================
 managementportal:
+    account:
+        enableExposeToken: false
     mail: # specific JHipster mail property, for standard properties see MailProperties
         from: ManagementPortal@localhost
     oauth:
         keyStorePassword: radarbase
         signingKeyAlias: radarbase-managementportal-ec
         enablePublicKeyVerifiers: false
+    siteSettings:
+        hiddenSubjectFields: []
 
 # ===================================================================
 # JHipster specific properties

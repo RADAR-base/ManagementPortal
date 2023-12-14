@@ -6,11 +6,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockitoAnnotations;
 import org.radarbase.auth.authentication.OAuthHelper;
-import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.ManagementPortalTestApp;
 import org.radarbase.management.domain.Organization;
 import org.radarbase.management.repository.OrganizationRepository;
 import org.radarbase.management.repository.ProjectRepository;
+import org.radarbase.management.service.AuthService;
 import org.radarbase.management.service.OrganizationService;
 import org.radarbase.management.service.mapper.OrganizationMapper;
 import org.radarbase.management.web.rest.errors.ExceptionTranslator;
@@ -68,12 +68,11 @@ class OrganizationResourceIntTest {
     @Autowired
     private ExceptionTranslator exceptionTranslator;
 
-    @Autowired
-    private RadarToken token;
-
     private MockMvc restOrganizationMockMvc;
 
     private Organization organization;
+    @Autowired
+    private AuthService authService;
 
     @BeforeEach
     public void setUp() throws ServletException {
@@ -81,7 +80,7 @@ class OrganizationResourceIntTest {
         var orgResource = new OrganizationResource();
         ReflectionTestUtils
             .setField(orgResource, "organizationService", organizationService);
-        ReflectionTestUtils.setField(orgResource, "token", token);
+        ReflectionTestUtils.setField(orgResource, "authService", authService);
 
         var filter = OAuthHelper.createAuthenticationFilter();
         filter.init(new MockFilterConfig());

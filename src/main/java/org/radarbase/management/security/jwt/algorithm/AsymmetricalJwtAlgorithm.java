@@ -3,7 +3,8 @@ package org.radarbase.management.security.jwt.algorithm;
 import java.security.KeyPair;
 import java.util.Base64;
 
-import org.radarbase.auth.security.jwk.JavaWebKey;
+import org.radarbase.auth.jwks.JsonWebKey;
+import org.radarbase.auth.jwks.MPJsonWebKey;
 
 public abstract class AsymmetricalJwtAlgorithm implements JwtAlgorithm {
 
@@ -30,10 +31,10 @@ public abstract class AsymmetricalJwtAlgorithm implements JwtAlgorithm {
     }
 
     @Override
-    public JavaWebKey getJwk() {
-        return new JavaWebKey()
-                .alg(this.getAlgorithm().getName())
-                .kty(this.getKeyType())
-                .value(this.getVerifierKeyEncodedString());
+    public JsonWebKey getJwk() {
+        return new MPJsonWebKey(
+                this.getAlgorithm().getName(),
+                this.getKeyType(),
+                this.getVerifierKeyEncodedString());
     }
 }
