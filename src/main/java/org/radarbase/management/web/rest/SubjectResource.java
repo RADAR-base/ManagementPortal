@@ -8,8 +8,7 @@ import org.radarbase.management.domain.Project;
 import org.radarbase.management.domain.Source;
 import org.radarbase.management.domain.SourceType;
 import org.radarbase.management.domain.Subject;
-import org.radarbase.auth.config.Constants;
-import org.radarbase.auth.exception.NotAuthorizedException;
+
 import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.domain.*;
 import org.radarbase.management.domain.enumeration.DataGroupingType;
@@ -68,6 +67,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.radarbase.auth.authorization.Permission.SUBJECT_CREATE;
 import static org.radarbase.auth.authorization.Permission.SUBJECT_DELETE;
 import static org.radarbase.auth.authorization.Permission.SUBJECT_READ;
 import static org.radarbase.auth.authorization.Permission.SUBJECT_UPDATE;
@@ -88,6 +88,9 @@ import static tech.jhipster.web.util.ResponseUtil.wrapOrNotFound;
 public class SubjectResource {
 
     private static final Logger log = LoggerFactory.getLogger(SubjectResource.class);
+
+    @Autowired
+    private RadarToken token;
 
     @Autowired
     private SubjectService subjectService;
@@ -236,9 +239,10 @@ public class SubjectResource {
     public ResponseEntity<List<String>> getAllExternalIds(
             @Valid SubjectCriteria subjectCriteria
     ) throws NotAuthorizedException {
-        if (!token.isClientCredentials() && token.hasAuthority(PARTICIPANT)) {
-            throw new NotAuthorizedException("Cannot list subjects as a participant.");
-        }
+
+        authService.checkScope(SUBJECT_READ);
+
+
         String projectName = subjectCriteria.getProjectName();
 
 
@@ -618,7 +622,7 @@ public class SubjectResource {
     public ResponseEntity<List<DataLogDTO>> getSubjectDataLog(
             @PathVariable String login) throws NotAuthorizedException {
 
-        checkPermission(token, SUBJECT_READ);
+        authService.checkScope(SUBJECT_READ);
         List<DataLogDTO> dataLogDTOList = new ArrayList<DataLogDTO>();
 
         for(DataGroupingType groupingType :  DataGroupingType.values()) {
