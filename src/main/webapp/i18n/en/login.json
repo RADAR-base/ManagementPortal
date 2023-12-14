@@ -1,11 +1,13 @@
 {
     "login": {
         "title": "Sign in",
+        "opt-title": "Two-factor authentication",
         "form": {
             "password": "Password",
             "password.placeholder": "Your password",
             "rememberme": "Remember me",
-            "button": "Sign in"
+            "button": "Sign in",
+            "opt.button": "Submit"
         },
         "messages": {
             "error": {

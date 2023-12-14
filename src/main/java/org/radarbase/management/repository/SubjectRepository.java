@@ -103,4 +103,8 @@ public interface SubjectRepository extends JpaRepository<Subject, Long>,
             @Param("sourceId") UUID sourceId);
 
 
+    @Query("select subject.externalId from Subject subject")
+    List<String> findAllExternalIds();
+
+
 }

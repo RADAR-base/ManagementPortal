@@ -11,6 +11,7 @@ import { SubjectPairPopupComponent } from './subject-pair-dialog.component';
 import { SubjectRevisionListComponent } from './subject-revision-list.component';
 import { SubjectRevisionComponent } from './subject-revision.component';
 import { ResolvePagingParams } from '../commons';
+import { SubjectDataViewerPopupComponent } from './data-viewer/data-viewer.component';
 
 export const subjectRoute: Routes = [
     {
@@ -96,6 +97,17 @@ export const subjectPopupRoute: Routes = [
         canActivate: [UserRouteAccessService],
         outlet: 'popup',
     },
+        {
+            path: 'subject/:login/dataViewer',
+            component: SubjectDataViewerPopupComponent,
+            data: {
+                authorities: [SYSTEM_ADMIN, ORGANIZATION_ADMIN, PROJECT_ADMIN],
+                pageTitle: 'managementPortalApp.subject.home.title',
+            },
+            canActivate: [UserRouteAccessService],
+            outlet: 'popup',
+        },
+
     {
         path: 'subject/:login/discontinue',
         component: SubjectDeletePopupComponent,

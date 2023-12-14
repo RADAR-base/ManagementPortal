@@ -55,7 +55,7 @@
                 </td>
                 <td>
                     <div *ngFor="let entry of revision.entity.attributes | keyvalue; trackBy: trackKey">
-                        <span class="form-control-static">{{entry.key}}: {{entry.value}}</span>
+                        <span class="form-control-static">{{entry.key}}: {{getLabelName(entry.value)}}</span>
                     </div>
                 </td>
             </tr>

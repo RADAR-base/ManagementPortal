@@ -20,6 +20,9 @@ export class JhiLoginModalComponent implements AfterViewInit {
     rememberMe: boolean;
     username: string;
     credentials: any;
+    showOTPForm: boolean;
+    optCode:string;
+    errorMessage:string;
 
     constructor(
             private eventManager: EventManager,
@@ -29,6 +32,8 @@ export class JhiLoginModalComponent implements AfterViewInit {
             private authService: AuthService,
     ) {
         this.credentials = {};
+        this.errorMessage = null;
+        this.showOTPForm = false;
     }
 
     ngAfterViewInit() {
@@ -41,6 +46,7 @@ export class JhiLoginModalComponent implements AfterViewInit {
             password: null,
             rememberMe: true,
         };
+        this.errorMessage = null;
         this.authenticationError = false;
         this.activeModal.dismiss('cancel');
     }
@@ -81,5 +87,41 @@ export class JhiLoginModalComponent implements AfterViewInit {
     async requestResetPassword() {
         this.activeModal.dismiss('to state requestReset');
         await this.router.navigate(['/reset', 'request']);
+    }
+
+    shouldShowOTPForm(): boolean {
+            return this.showOTPForm;
+    }
+
+    getOTPCode() {
+         let credentials = {
+            userName: this.username,
+            password: this.password,
+         };
+        this.loginService.requestOtpCode(credentials).subscribe(
+            () => {
+            this.authenticationError = false;
+            this.showOTPForm = true;
+            },
+            error => {
+            this.authenticationError = true;
+            this.errorMessage = "<strong>Failed to sign in!</strong> Please check your credentials and try again."
+            }
+        );
+    }
+
+    submitOPTCode() {
+      let credentials = {
+                userName: this.username,
+                password: this.password,
+                code:this.optCode
+      };
+      this.loginService.submitOptCode(credentials).subscribe(data => {
+        this.login();
+      },error => {
+        this.authenticationError = true;
+        this.errorMessage = "Wrong OTP code entered"
+
+      });
     }
 }

@@ -43,9 +43,22 @@ export class SubjectService {
         return this.http.get(`${this.resourceUrl}/${encodeURIComponent(login)}/revisions`, {params, observe: 'response'});
     }
 
+
+    findDataLogs(login: string, req?: any): Observable<HttpResponse<any>> {
+        const params = createRequestOption(req);
+        return this.http.get(`${this.resourceUrl}/${encodeURIComponent(login)}/datalogs`, {params, observe: 'response'});
+    }
+
+    findAllExternalIds(
+    ): Observable<HttpResponse<any>> {
+        return this.http.get(this.resourceUrl + "/externalId", {
+            observe: 'response',
+        });
+    }
+
     query(
-        filterParams: SubjectFilterParams,
-        paginationParams: SubjectPaginationParams,
+        filterParams?: SubjectFilterParams,
+        paginationParams?: SubjectPaginationParams,
     ): Observable<HttpResponse<any>> {
         return this.http.get(this.resourceUrl, {
             params: createRequestOption({ ...paginationParams, ...filterParams }),

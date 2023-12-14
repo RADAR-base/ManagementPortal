@@ -19,22 +19,27 @@ describe('Subject e2e test', () => {
 
     it('should be able to create new subject', () => {
         cy.get('jhi-subjects button.create-subject').click();
-        cy.get('jhi-subject-dialog input[name=externalLink]').type('https://radar-base-test.org');
         cy.get('jhi-subject-dialog input[name=externalId]').type('test-subject-1');
-        cy.get('jhi-subject-dialog input[name=personName]').type('Test Subject 1');
-        cy.get('jhi-subject-dialog input[name=dateOfBirth]').type('1980-01-01');
-        cy.get('jhi-subject-dialog select#field_group').select('Test Group B');
-        cy.get('jhi-subject-dialog jhi-dictionary-mapper select').first().select('Human-readable-identifier');
-        cy.get('jhi-subject-dialog jhi-dictionary-mapper input').first().type('Test Subject 1');
-        cy.contains('jhi-subject-dialog jhi-dictionary-mapper button', 'Add').click()
+
+        cy.get('jhi-subject-dialog select#field_group_1').select("I have felt like I could read other people's thoughts");
+        cy.get('jhi-subject-dialog select#field_group_2').select("I have felt like other people were reading my thoughts");
+
         cy.contains('jhi-subject-dialog button.btn-primary', 'Save').click();
-        cy.get('jhi-subjects .subject-row').should('have.length', 21);
+        cy.get('jhi-subjects .subject-row').should('have.length', 20);
+    });
+
+    it('should not be able to create a new subject without providing Participant Id', () => {
+        cy.get('jhi-subjects button.create-subject').click();
+
+        cy.contains('jhi-subject-dialog button.btn-primary', 'Save').click();
+        cy.get('#creation-error-message').should("exist");
     });
 
     it('should be able to edit a subject', () => {
         cy.get('app-load-more a.load-more-limited').click();
         cy.contains('jhi-subjects .subject-row', 'test-subject-1').first().contains('button', 'Edit').click();
-        cy.get('jhi-subject-dialog input[name=externalLink]').clear().type('https://radar-base-test-edited.org');
+        cy.get('jhi-subject-dialog select#field_group_1').select("I have felt like I am not real");
+
         cy.contains('jhi-subject-dialog button.btn-primary', 'Save').click();
         cy.get('jhi-subjects .subject-row').should('have.length', 29);
     });
@@ -49,12 +54,7 @@ describe('Subject e2e test', () => {
                 .should('have.text', 'Subject Id')
 
         cy.contains('jhi-subjects .subject-row', 'test-subject-1').first().find('.subject-row__content .subject-row__external-id .subject-row__field-label')
-                .should('have.text', 'External Id')
-
-        cy.contains('jhi-subjects .subject-row', 'test-subject-1').first().find('.subject-row__content .subject-row__external-id a')
-                .should('have.text',' test-subject-1 ')
-                .invoke('attr', 'href')
-                .should('eq', 'https://radar-base-test-edited.org')
+                .should('have.text', 'Participant Id')
 
         cy.contains('jhi-subjects .subject-row', 'test-subject-1').first().find('.subject-row__content .subject-row__status .subject-row__field-label')
                 .should('have.text', 'Status')
@@ -62,20 +62,9 @@ describe('Subject e2e test', () => {
         cy.contains('jhi-subjects .subject-row', 'test-subject-1').first().find('.subject-row__content .subject-row__status span.badge')
                 .should('have.text','ACTIVATED')
 
-        cy.contains('jhi-subjects .subject-row', 'test-subject-1').first().find('.subject-row__content .subject-row__sources .subject-row__field-label')
-                .should('have.text', 'Sources')
 
-        cy.contains('jhi-subjects .subject-row', 'test-subject-1').first().find('.subject-row__content .subject-row__attribute-data .subject-row__field-label')
-                .should('have.text', 'Attributes')
 
-        cy.contains('jhi-subjects .subject-row', 'test-subject-1').first().find('.subject-row__content .subject-row__attribute-data div span')
-                .should('have.text','Human-readable-identifier: Test Subject 1')
 
-        cy.contains('jhi-subjects .subject-row', 'test-subject-1').first().find('.subject-row__content .subject-row__group .subject-row__field-label')
-                .should('have.text', 'Group')
-
-        cy.contains('jhi-subjects .subject-row', 'test-subject-1').first().find('.subject-row__content .subject-row__group .subject-row__field-value')
-                .should('have.text','Test Group B')
     })
 
     it('should be able to filter subjects by subject id', () => {
@@ -89,46 +78,11 @@ describe('Subject e2e test', () => {
 
     it('should be able to filter subjects by subject external id', () => {
         cy.get('#field-subject-external-id').type('test-subject-1');
-        cy.contains('app-filter-badge', 'External Id: test-subject-1').should('exist');
+        cy.contains('app-filter-badge', 'Participant Id: test-subject-1').should('exist');
         cy.get('jhi-subjects .subject-row').should('have.length', 1);
         cy.get('#field-subject-external-id').clear();
-        cy.contains('app-filter-badge', 'External Id: test-subject-1').should('not.exist');
+        cy.contains('app-filter-badge', 'Participant Id: test-subject-1').should('not.exist');
         cy.get('jhi-subjects .subject-row').should('have.length', 20);
-    });
-
-    it('should be able to filter subjects by human readable id', () => {
-        cy.get('#advanced-filter').click();
-        cy.get('#field-human-readable-id').type('Test');
-        cy.contains('app-filter-badge', 'Human Readable ID: Test').should('exist');
-        cy.get('jhi-subjects .subject-row').should('have.length', 1);
-        cy.get('#field-human-readable-id').clear();
-        cy.contains('app-filter-badge', 'Human Readable ID: Test').should('not.exist');
-        cy.get('jhi-subjects .subject-row').should('have.length', 20);
-        cy.get('#advanced-filter').click();
-    });
-
-    it('should be able to filter subjects by person name', () => {
-        cy.get('#advanced-filter').click();
-        cy.get('#field-person-name').type('Test');
-        cy.contains('app-filter-badge', 'Name: Test').should('exist');
-        cy.get('jhi-subjects .subject-row').should('have.length', 1);
-        cy.get('#field-person-name').clear();
-        cy.contains('app-filter-badge', 'Name: Test').should('not.exist');
-        cy.get('jhi-subjects .subject-row').should('have.length', 20);
-        cy.get('#advanced-filter').click();
-    });
-
-    // TODO Filter by group
-
-    it('should be able to filter subjects by date of birth', () => {
-        cy.get('#advanced-filter').click();
-        cy.get('#field_date_of_birth').type('1980-01-01');
-        cy.contains('app-filter-badge', 'Date of Birth: 1980-01-01').should('exist');
-        cy.get('jhi-subjects .subject-row').should('have.length', 1);
-        cy.get('#field_date_of_birth').clear();
-        cy.contains('app-filter-badge', 'Date of Birth: 1980-01-01').should('not.exist');
-        cy.get('jhi-subjects .subject-row').should('have.length', 20);
-        cy.get('#advanced-filter').click();
     });
 
     // TODO Filter by Enrollment Date

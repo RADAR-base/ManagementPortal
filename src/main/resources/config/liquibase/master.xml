@@ -43,5 +43,9 @@
     <include file="classpath:config/liquibase/changelog/20211110160000_add_organization.xml" relativeToChangelogFile="false"/>
     <include file="classpath:config/liquibase/changelog/20211202145000_add_organization_demo_data.xml" relativeToChangelogFile="false"/>
     <include file="classpath:config/liquibase/changelog/20230908103500_expand_subject_demo_data_name_dob.xml" relativeToChangelogFile="false"/>
+    <include file="classpath:config/liquibase/changelog/20230726100400_add_two_factor_authentication.xml" relativeToChangelogFile="false"/>
+    <include file="classpath:config/liquibase/changelog/20230914100400_add_unique_constraint_two_factor_username.xml" relativeToChangelogFile="false"/>
+    <include file="classpath:config/liquibase/changelog/20230918100400_add_log_table.xml" relativeToChangelogFile="false"/>
+
     <!-- jhipster-needle-liquibase-add-constraints-changelog - JHipster will add liquibase constraints changelogs here -->
 </databaseChangeLog>

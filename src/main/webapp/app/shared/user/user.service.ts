@@ -41,4 +41,8 @@ export class UserService {
         const params = createRequestOption(req);
         return this.http.get<User[]>(this.resourceUrl, {params});
     }
+
+    unlockUser(login:string): Observable<any> {
+        return this.http.put(`${this.resourceUrl}/${encodeURIComponent(login)}/unlock`,{ observe: 'response'});
+    }
 }

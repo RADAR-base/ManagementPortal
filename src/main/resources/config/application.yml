@@ -76,6 +76,7 @@ spring:
                         non_contextual_creation: true
     main:
         allow-circular-references: true
+        allow-bean-definition-overriding: true
     messages:
         basename: i18n/messages
     thymeleaf:
@@ -137,5 +138,9 @@ jhipster:
 # More documentation is available at:
 # https://jhipster.github.io/common-application-properties/
 # ===================================================================
+
+mf:
+  enable: true
+
 
 application:

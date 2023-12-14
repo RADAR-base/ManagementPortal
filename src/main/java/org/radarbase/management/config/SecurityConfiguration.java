@@ -93,6 +93,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/activate")
                 .antMatchers("/api/account/reset_password/init")
                 .antMatchers("/api/account/reset_password/finish")
+                .antMatchers("/api/mf-authenticate/code")
+                .antMatchers("/api/mf-authenticate")
                 .antMatchers("/test/**")
                 .antMatchers("/management/health")
                 .antMatchers(HttpMethod.GET, "/api/meta-token/**");

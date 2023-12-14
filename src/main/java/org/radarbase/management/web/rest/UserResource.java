@@ -38,6 +38,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import tech.jhipster.web.util.ResponseUtil;
+import uk.ac.herc.common.security.mf.MfService;
 
 import java.net.URISyntaxException;
 import java.util.List;
@@ -51,6 +52,9 @@ import static org.radarbase.auth.authorization.Permission.USER_CREATE;
 import static org.radarbase.auth.authorization.Permission.USER_DELETE;
 import static org.radarbase.auth.authorization.Permission.USER_READ;
 import static org.radarbase.auth.authorization.Permission.USER_UPDATE;
+import static org.radarbase.auth.authorization.RadarAuthorization.checkAuthority;
+import static org.radarbase.auth.authorization.RadarAuthorization.checkPermission;
+import static org.radarbase.auth.authorization.RoleAuthority.SYS_ADMIN;
 import static org.radarbase.management.web.rest.errors.EntityName.USER;
 
 /**
@@ -95,6 +99,12 @@ public class UserResource {
 
     @Autowired
     private SubjectRepository subjectRepository;
+
+    @Autowired
+    private RadarToken token;
+
+    @Autowired
+    private MfService mfService;
 
     @Autowired
     private ManagementPortalProperties managementPortalProperties;
@@ -278,5 +288,13 @@ public class UserResource {
         authService.checkPermission(ROLE_UPDATE, e -> e.user(login));
         userService.updateRoles(login, roleDtos);
         return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/users/{login:" + Constants.ENTITY_ID_REGEX + "}/unlock")
+    @Timed
+    public ResponseEntity<Void>  unlockUser(@PathVariable String login) throws NotAuthorizedException {
+        checkAuthority(token, SYS_ADMIN);
+        mfService.unlockUser(login);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

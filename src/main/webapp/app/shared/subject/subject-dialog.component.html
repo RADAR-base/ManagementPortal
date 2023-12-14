@@ -15,23 +15,15 @@
                    [(ngModel)]="subject.id" readonly />
         </div>
 
+
         <div class="form-group">
             <label class="form-control-label"
-                for="field_externalLink"
-                [translate]="'managementPortalApp.subject.externalLink'">
-            </label>
-            <input type="text" class="form-control" name="externalLink" id="field_externalLink"
-                [(ngModel)]="subject.externalLink"
-             />
-        </div>
-        <div class="form-group">
-            <label class="form-control-label"
-                for="field_externalId"
-                [translate]="'managementPortalApp.subject.externalId'">
+                   for="field_externalId"
+                   [translate]="'managementPortalApp.subject.externalId'">
             </label>
             <input type="text" class="form-control" name="externalId" id="field_externalId"
-                [(ngModel)]="subject.externalId"
-             />
+                   [(ngModel)]="subject.externalId"    [disabled]="!!subject.id"
+            />
         </div>
         <div class="form-group" *ngIf="!isInProject">
             <label class="form-control-label"
@@ -41,7 +33,7 @@
             <select class="form-control"
                     id="field_project"
                     name="project"
-                    [(ngModel)]="projectName"
+                    [(ngModel)]="project.projectName"
                     (ngModelChange)="onProjectChange($event)"
                     required
             >
@@ -51,51 +43,73 @@
                 </option>
             </select>
         </div>
-        <div *ngIf="(siteSettings$ | async).hiddenSubjectFields as hiddenFields">
-            <div *ngIf="!hiddenFields.has(HideableSubjectField.GROUP)" class="form-group">
-                <label class="form-control-label"
-                    for="field_group"
-                    [translate]="'managementPortalApp.subject.group'">
-                </label>
-                <select class="form-control"
-                    id="field_group"
-                    name="group"
-                    [(ngModel)]="groupName"
-                >
-                    <option [ngValue]="null">-</option>
-                    <option *ngFor="let g of groups$ | async" [ngValue]="g.name">
-                        {{g.name}}
-                    </option>
-                </select>
-            </div>
-            <div *ngIf="!hiddenFields.has(HideableSubjectField.NAME)" class="form-group">
-                <label class="form-control-label"
-                       [translate]="'managementPortalApp.subject.personName'"
-                       for="field_person_name">
-                </label>
-                <input type="text" class="form-control" name="personName" id="field_person_name" [(ngModel)]="subject.personName"/>
-            </div>
 
-            <div *ngIf="!hiddenFields.has(HideableSubjectField.DATEOFBIRTH)" class="form-group">
-                <label class="form-control-label"
-                       [translate]="'managementPortalApp.subject.dateOfBirth'"
-                       for="field_date_of_birth">
-                </label>
-                <div class="input-group">
-                    <input [(ngModel)]="dateOfBirth"
-                           id="field_date_of_birth"
-                           class="form-control"
-                           name="dateOfBirth"
-                           placeholder="yyyy-mm-dd"
-                           ngbDatepicker
-                           #dateOfBirthDatePicker="ngbDatepicker">
-                    <div class="input-group-append">
-                        <button class="btn btn-outline-secondary calendar" (click)="dateOfBirthDatePicker.toggle()" type="button"></button>
-                    </div>
-                </div>
+        <div class="form-group">
+            <label class="form-control-label"
+                   for="field_group_1"
+                 >
+                Delusion 1
+            </label>
+            <select class="form-control"
+                    id="field_group_1"
+                    name="delusion1"
+                    [(ngModel)]="delusion1.key"
+                    (ngModelChange)="onDelusion1Change($event)"
+            >
+
+                <option *ngFor="let g of getDelusionsChoice1()" [ngValue]="g.key">
+                    {{g.label}}
+                </option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label class="form-control-label"
+                   for="field_group_2"
+            >
+                Delusion 2
+            </label>
+            <select class="form-control"
+                    id="field_group_2"
+                    name="delusion2"
+                    [(ngModel)]="delusion2.key"
+                    (ngModelChange)="onDelusion2Change($event)"
+            >
+
+                <option *ngFor="let g of getDelusionsChoice2()" [ngValue]="g.key">
+                    {{g.label}}
+                </option>
+            </select>
+        </div>
+
+
+        <div class=" ">
+            <div *ngIf="creationError"
+                 class="alert alert-danger"
+                 id="creation-error-message"
+                >
+                <label>Please, provide a Participant Id</label>
             </div>
         </div>
-        <jhi-dictionary-mapper [attributes]='subject.attributes' [options]="options" [eventPrefix]='attributeComponentEventPrefix'></jhi-dictionary-mapper>
+
+        <div class=" ">
+            <div *ngIf="IDNameError"
+                 class="alert alert-danger"
+                 id="ID-error-message"
+                >
+                <label>The ID format is not correct, please try again!</label>
+            </div>
+        </div>
+
+        <div class=" ">
+            <div *ngIf="IDUniqueError"
+                 class="alert alert-danger"
+                 id="ID-error-message"
+                >
+                <label>The ID already exists, please try another one!</label>
+            </div>
+        </div>
+
     </div>
     <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal" (click)="clear()">

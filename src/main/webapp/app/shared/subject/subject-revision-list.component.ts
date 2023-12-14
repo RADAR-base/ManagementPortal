@@ -6,6 +6,9 @@ import { SubjectService } from './subject.service';
 import { HttpResponse } from '@angular/common/http';
 import { parseLinks } from '../util/parse-links-util';
 
+import { delusions } from 'content/jsons/delusions';
+import { Delusion } from '../model/delusion.model';
+
 @Component({
     selector: 'jhi-subject-revision-list',
     templateUrl: './subject-revision-list.component.html',
@@ -24,6 +27,7 @@ export class SubjectRevisionListComponent implements OnInit, OnDestroy {
     routeData: any;
     previousPage: any;
     private subscription: any;
+    delusions: Delusion[] = delusions;
 
     constructor(
             private subjectService: SubjectService,
@@ -61,6 +65,11 @@ export class SubjectRevisionListComponent implements OnInit, OnDestroy {
     trackKey(index: number, item: any) {
         return item.key;
     }
+
+    getLabelName(key:string){
+        return this.delusions.find(o=>o.key==key)?.label
+    }
+
 
     load(id) {
         this.subjectService.findRevisions(id, {

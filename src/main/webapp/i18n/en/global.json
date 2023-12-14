@@ -44,6 +44,8 @@
             "language": "Language"
         },
         "form": {
+            "opt": "Enter the OTP code that was sent to your email.",
+            "opt.placeholder": "OPT Code",
             "username": "Username",
             "username.placeholder": "Your username",
             "newpassword": "New password",
@@ -115,7 +117,8 @@
             "save": "Save",
             "view": "View",
             "close": "Close",
-            "refresh": "Refresh"
+            "refresh": "Refresh",
+            "unlock": "Unlock"
         },
         "detail": {
             "field": "Field",
