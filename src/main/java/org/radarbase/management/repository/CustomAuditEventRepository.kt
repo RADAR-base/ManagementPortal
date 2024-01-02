@@ -19,7 +19,7 @@ import java.time.ZoneId
  * An implementation of Spring Boot's AuditEventRepository.
  */
 @Repository
-open class CustomAuditEventRepository(
+class CustomAuditEventRepository(
     @Autowired private val auditEventConverter: AuditEventConverter,
     @Autowired private val persistenceAuditEventRepository: PersistenceAuditEventRepository
 ) : AuditEventRepository {

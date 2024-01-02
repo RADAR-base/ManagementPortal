@@ -25,7 +25,7 @@ import javax.servlet.ServletContext
  * Configuration of web application with Servlet 3.0 APIs.
  */
 @Configuration
-open class WebConfigurer : ServletContextInitializer, WebServerFactoryCustomizer<ConfigurableServletWebServerFactory> {
+class WebConfigurer : ServletContextInitializer, WebServerFactoryCustomizer<ConfigurableServletWebServerFactory> {
     @Autowired
     private val env: Environment? = null
 
@@ -100,7 +100,7 @@ open class WebConfigurer : ServletContextInitializer, WebServerFactoryCustomizer
     }
 
     @Bean
-    open fun passwordEncoder(): PasswordEncoder {
+    fun passwordEncoder(): PasswordEncoder {
         return BCryptPasswordEncoder()
     }
 

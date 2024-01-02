@@ -52,7 +52,7 @@ import javax.validation.constraints.NotNull
 
 @Service
 @Transactional(isolation = Isolation.REPEATABLE_READ, readOnly = true)
-open class RevisionService(@param:Autowired private val revisionEntityRepository: CustomRevisionEntityRepository) :
+class RevisionService(@param:Autowired private val revisionEntityRepository: CustomRevisionEntityRepository) :
     ApplicationContextAware {
     @PersistenceContext
     private val entityManager: EntityManager? = null

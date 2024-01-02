@@ -9,7 +9,7 @@ import tech.jhipster.config.JHipsterProperties
 import tech.jhipster.config.logging.LoggingUtils
 
 @Configuration
-open class LoggingConfiguration(
+class LoggingConfiguration(
     @Value("\${spring.application.name}") appName: String,
     @Value("\${server.port}") serverPort: String,
     jHipsterProperties: JHipsterProperties,
