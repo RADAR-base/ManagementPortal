@@ -45,7 +45,7 @@ class ProjectService(
     }
 
     /**
-     * Get all the projects.
+     * Get all projects for which the user has READ permission.
      *
      * @return the list of entities
      */
