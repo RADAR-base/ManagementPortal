@@ -27,7 +27,7 @@ import javax.annotation.PostConstruct
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
-open class SecurityConfiguration
+class SecurityConfiguration
 /** Security configuration constructor.  */ @Autowired constructor(
     private val authenticationManagerBuilder: AuthenticationManagerBuilder,
     private val userDetailsService: UserDetailsService,
@@ -51,12 +51,12 @@ open class SecurityConfiguration
     }
 
     @Bean
-    open fun logoutSuccessHandler(): LogoutSuccessHandler {
+    fun logoutSuccessHandler(): LogoutSuccessHandler {
         return AjaxLogoutSuccessHandler()
     }
 
     @Bean
-    open fun http401UnauthorizedEntryPoint(): Http401UnauthorizedEntryPoint {
+    fun http401UnauthorizedEntryPoint(): Http401UnauthorizedEntryPoint {
         return Http401UnauthorizedEntryPoint()
     }
 
@@ -99,7 +99,7 @@ open class SecurityConfiguration
     }
 
     @Bean
-    open fun securityEvaluationContextExtension(): SecurityEvaluationContextExtension {
+    fun securityEvaluationContextExtension(): SecurityEvaluationContextExtension {
         return SecurityEvaluationContextExtension()
     }
 }

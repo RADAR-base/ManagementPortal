@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional
  */
 @Service
 @Transactional
-open class OrganizationService(
+class OrganizationService(
     @Autowired private val organizationRepository: OrganizationRepository,
     @Autowired private val projectRepository: ProjectRepository,
     @Autowired private val organizationMapper: OrganizationMapper,
@@ -46,7 +46,7 @@ open class OrganizationService(
      * @return the list of entities
      */
     @Transactional(readOnly = true)
-    open fun findAll(): List<OrganizationDTO> {
+    fun findAll(): List<OrganizationDTO> {
         val organizationsOfUser: List<Organization>
         val referents = authService.referentsByScope(Permission.ORGANIZATION_READ)
         organizationsOfUser = if (referents.global) {
@@ -71,7 +71,7 @@ open class OrganizationService(
      * @return the entity
      */
     @Transactional(readOnly = true)
-    open fun findByName(name: String): OrganizationDTO? {
+    fun findByName(name: String): OrganizationDTO? {
         log.debug("Request to get Organization by name: {}", name)
         return organizationRepository.findOneByName(name)?.let { organizationMapper.organizationToOrganizationDTO(it) }
     }
@@ -82,7 +82,7 @@ open class OrganizationService(
      * @return the list of projects
      */
     @Transactional(readOnly = true)
-    open fun findAllProjectsByOrganizationName(organizationName: String): List<ProjectDTO> {
+    fun findAllProjectsByOrganizationName(organizationName: String): List<ProjectDTO> {
         val referents = authService.referentsByScope(Permission.ORGANIZATION_READ)
         if (referents.isEmpty()) {
             return emptyList()

@@ -41,7 +41,7 @@ import javax.servlet.ServletException
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(classes = [ManagementPortalTestApp::class])
 @WithMockUser
-internal open class OrganizationResourceIntTest(
+internal class OrganizationResourceIntTest(
     @Autowired private val organizationResource: OrganizationResource,
 
     @Autowired private val organizationService: OrganizationService,

@@ -22,9 +22,9 @@ import tech.jhipster.config.JHipsterConstants
 
 @Configuration
 @Profile(JHipsterConstants.SPRING_PROFILE_API_DOCS)
-open class OpenApiConfiguration {
+class OpenApiConfiguration {
     @Bean
-    open fun customOpenAPI(): OpenAPI {
+    fun customOpenAPI(): OpenAPI {
         return OpenAPI()
             .components(
                 Components()

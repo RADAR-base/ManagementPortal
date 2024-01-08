@@ -11,13 +11,13 @@ import org.springframework.web.servlet.i18n.LocaleChangeInterceptor
 import tech.jhipster.config.locale.AngularCookieLocaleResolver
 
 @Configuration
-open class LocaleConfiguration : WebMvcConfigurer, EnvironmentAware {
+class LocaleConfiguration : WebMvcConfigurer, EnvironmentAware {
     override fun setEnvironment(environment: Environment) {
         // unused
     }
 
     @Bean(name = ["localeResolver"])
-    open fun localeResolver(): LocaleResolver {
+    fun localeResolver(): LocaleResolver {
         val cookieLocaleResolver = AngularCookieLocaleResolver()
         cookieLocaleResolver.cookieName = "NG_TRANSLATE_LANG_KEY"
         return cookieLocaleResolver

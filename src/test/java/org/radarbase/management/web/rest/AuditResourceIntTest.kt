@@ -38,7 +38,7 @@ import javax.servlet.ServletException
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(classes = [ManagementPortalTestApp::class])
 @Transactional
-internal open class AuditResourceIntTest(
+internal class AuditResourceIntTest(
     @Autowired private val auditEventRepository: PersistenceAuditEventRepository,
     @Autowired private val auditEventConverter: AuditEventConverter,
     @Autowired private val jacksonMessageConverter: MappingJackson2HttpMessageConverter,

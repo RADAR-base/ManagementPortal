@@ -26,7 +26,7 @@ import java.util.*
  */
 @Service
 @Transactional
-open class SourceService(
+class SourceService(
     @Autowired private val sourceRepository: SourceRepository,
     @Autowired private val sourceMapper: SourceMapper,
     @Autowired private val projectRepository: ProjectRepository,
@@ -53,7 +53,7 @@ open class SourceService(
      * @return the list of entities
      */
     @Transactional(readOnly = true)
-    open fun findAll(): List<SourceDTO> {
+    fun findAll(): List<SourceDTO> {
         return sourceRepository
             .findAll()
             .filterNotNull()
@@ -67,7 +67,7 @@ open class SourceService(
      * @return the list of entities
      */
     @Transactional(readOnly = true)
-    open fun findAll(pageable: Pageable?): Page<SourceDTO>? {
+    fun findAll(pageable: Pageable?): Page<SourceDTO>? {
         log.debug("Request to get SourceData with pagination")
         // somehow the compiler does not understand what's going on here, so we suppress the warning
         @Suppress("UNNECESSARY_SAFE_CALL")
@@ -87,7 +87,7 @@ open class SourceService(
      * @return the entity
      */
     @Transactional(readOnly = true)
-    open fun findOneByName(sourceName: String): SourceDTO? {
+    fun findOneByName(sourceName: String): SourceDTO? {
         log.debug("Request to get Source : {}", sourceName)
         return sourceRepository.findOneBySourceName(sourceName)
             .let { source: Source? -> source?.let { sourceMapper.sourceToSourceDTO(it) } }
@@ -100,7 +100,7 @@ open class SourceService(
      * @return the entity
      */
     @Transactional(readOnly = true)
-    open fun findOneById(id: Long): Optional<SourceDTO> {
+    fun findOneById(id: Long): Optional<SourceDTO> {
         log.debug("Request to get Source by id: {}", id)
         return Optional.ofNullable(sourceRepository.findById(id).orElse(null))
             .map { source: Source? -> source?.let { sourceMapper.sourceToSourceDTO(it) } }
@@ -112,7 +112,7 @@ open class SourceService(
      * @param id the id of the entity
      */
     @Transactional
-    open fun delete(id: Long) {
+    fun delete(id: Long) {
         log.info("Request to delete Source : {}", id)
         val sourceHistory = sourceRepository.findRevisions(id)
         val sources = sourceHistory.content
@@ -210,7 +210,7 @@ open class SourceService(
      */
     @Transactional
     @Throws(NotAuthorizedException::class)
-    open fun updateSource(sourceDto: SourceDTO): SourceDTO? {
+    fun updateSource(sourceDto: SourceDTO): SourceDTO? {
         val existingSourceOpt = sourceDto.id?.let { sourceRepository.findById(it) } ?: return null
 
         val existingSource = existingSourceOpt.get()

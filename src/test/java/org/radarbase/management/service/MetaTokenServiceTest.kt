@@ -28,7 +28,7 @@ import java.util.*
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(classes = [ManagementPortalTestApp::class])
 @Transactional
-internal open class MetaTokenServiceTest(
+internal class MetaTokenServiceTest(
     @Autowired private val metaTokenService: MetaTokenService,
     @Autowired private val metaTokenRepository: MetaTokenRepository,
     @Autowired private val subjectService: SubjectService,

@@ -10,10 +10,10 @@ import tech.jhipster.config.JHipsterConstants
 
 @Configuration
 @EnableAspectJAutoProxy
-open class LoggingAspectConfiguration {
+class LoggingAspectConfiguration {
     @Bean
     @Profile(JHipsterConstants.SPRING_PROFILE_DEVELOPMENT)
-    open fun loggingAspect(env: Environment?): LoggingAspect {
+    fun loggingAspect(env: Environment?): LoggingAspect {
         return LoggingAspect(env!!)
     }
 }
