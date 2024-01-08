@@ -87,7 +87,7 @@ class SourceService(
      * @return the entity
      */
     @Transactional(readOnly = true)
-    open fun findOneByName(sourceName: String?): Optional<SourceDTO> {
+    fun findOneByName(sourceName: String): SourceDTO? {
         log.debug("Request to get Source : {}", sourceName)
         return sourceRepository.findOneBySourceName(sourceName)
             .let { source: Source? -> source?.let { sourceMapper.sourceToSourceDTO(it) } }
@@ -116,8 +116,8 @@ class SourceService(
         log.info("Request to delete Source : {}", id)
         val sourceHistory = sourceRepository.findRevisions(id)
         val sources = sourceHistory.content
-            .map { obj: Revision<Int, Source> -> obj.entity }
-            .filter{ it.isAssigned
+            .mapNotNull { obj -> obj.entity }
+            .filter{ it.assigned
                 ?: false }
             .toList()
         if (sources.isEmpty()) {
@@ -173,9 +173,8 @@ class SourceService(
     ): List<MinimalSourceDetailsDTO> {
         return sourceRepository
             .findAllSourcesByProjectIdAndAssigned(projectId, assigned)
-            ?.map { source -> sourceMapper.sourceToMinimalSourceDetailsDTO(source) }
-            ?.toList()
-            ?: listOf()
+            .map { source -> sourceMapper.sourceToMinimalSourceDetailsDTO(source) }
+            .toList()
     }
 
     /**
@@ -210,11 +209,9 @@ class SourceService(
      */
     @Transactional
     @Throws(NotAuthorizedException::class)
-    open fun updateSource(sourceDto: SourceDTO): SourceDTO? {
-        val existingSourceOpt = sourceRepository.findById(sourceDto.id)
-        if (existingSourceOpt.isEmpty) {
-            return null
-        }
+    fun updateSource(sourceDto: SourceDTO): SourceDTO? {
+        val existingSourceOpt = sourceDto.id?.let { sourceRepository.findById(it) } ?: return null
+
         val existingSource = existingSourceOpt.get()
         authService.checkPermission(Permission.SOURCE_UPDATE, { e: EntityDetails ->
             e.source = existingSource.sourceName
@@ -229,8 +226,8 @@ class SourceService(
         })
 
         // if the source is being transferred to another project.
-        if (existingSource.project!!.id != sourceDto.project.id) {
-            if (existingSource.isAssigned!!) {
+        if (existingSource.project?.id != sourceDto.project?.id) {
+            if (existingSource.assigned!!) {
                 throw InvalidRequestException(
                     "Cannot transfer an assigned source", EntityName.SOURCE,
                     "error.sourceIsAssigned"
@@ -248,9 +245,9 @@ class SourceService(
                     "Cannot transfer a source to a project which doesn't have compatible "
                             + "source-type", IdentifierGenerator.ENTITY_NAME, "error.invalidTransfer"
                 )
-            }
+
             // set old source-type, ensures compatibility
-            sourceDto.sourceType = sourceTypeMapper.sourceTypeToSourceTypeDTO(existingSource.sourceType)
+            sourceDto.sourceType = existingSource.sourceType?.let { sourceTypeMapper.sourceTypeToSourceTypeDTO(it) }
         }
         return save(sourceDto)
     }
