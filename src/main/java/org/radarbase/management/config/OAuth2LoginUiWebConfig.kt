@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.SessionAttributes
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.util.HtmlUtils
+import java.net.URLEncoder
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.function.Function
@@ -26,6 +27,32 @@ import javax.servlet.http.HttpServletResponse
 class OAuth2LoginUiWebConfig {
     @Autowired
     private val clientDetailsService: ClientDetailsService? = null
+
+//    /**
+//     * Login form for OAuth2 auhorization flows.
+//     * @param request the servlet request
+//     * @param response the servlet response
+//     * @return a ModelAndView to render the form
+//     */
+//    @RequestMapping("/login")
+//    fun getLogin(request: HttpServletRequest, response: HttpServletResponse?): ModelAndView {
+//        val model = TreeMap<String, Any?>()
+//        if (request.parameterMap.containsKey("error")) {
+//            model["loginError"] = true
+//        }
+//        return ModelAndView("login", model)
+//    }
+
+    @RequestMapping("/oauth2/authorize")
+    fun redirect_authorize(request: HttpServletRequest): String {
+        val returnString = URLEncoder.encode(request.requestURL.toString().replace("oauth2", "oauth") + "?" + request.parameterMap.map{ param -> param.key + "=" + param.value.first()}.joinToString("&"), "UTF-8")
+        return "redirect:http://127.0.0.1:3000/login?return_to=$returnString"
+    }
+
+    @RequestMapping("/oauth2/token")
+    fun redirect_token(request: HttpServletRequest): String {
+        return "redirect:/oauth/token"
+    }
 
     /**
      * Login form for OAuth2 auhorization flows.
