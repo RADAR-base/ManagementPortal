@@ -26,9 +26,10 @@ public abstract class ClientDetailsMapperDecorator implements ClientDetailsMappe
     public ClientDetailsDTO clientDetailsToClientDetailsDTO(ClientDetails details) {
         ClientDetailsDTO clientDetailsDto = delegate.clientDetailsToClientDetailsDTO(details);
         // collect the scopes that are auto-approve and set them in our DTO
-        clientDetailsDto.setAutoApproveScopes(details.getScope().stream()
-                .filter(details::isAutoApprove)
-                .collect(Collectors.toSet()));
+        clientDetailsDto.setAutoApproveScopes(details
+                .getScope()
+                .stream()
+                .filter(details::isAutoApprove).collect(Collectors.toSet()));
         return clientDetailsDto;
     }
 
@@ -37,8 +38,6 @@ public abstract class ClientDetailsMapperDecorator implements ClientDetailsMappe
         if (Objects.isNull(details)) {
             return null;
         }
-        return details.stream()
-                .map(this::clientDetailsToClientDetailsDTO)
-                .toList();
+        return details.stream().map(this::clientDetailsToClientDetailsDTO).toList();
     }
 }

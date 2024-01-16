@@ -32,30 +32,30 @@ jobs:
           distribution: temurin
           java-version: 17
 
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+
       - name: Cache
         uses: actions/cache@v3
         with:
           path: |
             ${{ steps.yarn-cache-dir-path.outputs.dir }}
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-java-${{ hashFiles('**/build.gradle', '**/gradle.properties', '**/yarn.lock') }}
+          key: ${{ runner.os }}-rc-node-${{ hashFiles('**/build.gradle', '**/gradle.properties', '**/yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-java-
+            ${{ runner.os }}-rc-node-
+            ${{ runner.os }}-node-
 
       # Compile the code
       - name: Install dependencies
         run: |
           yarn install
 
-      - name: Run full end to end tests
+      - name: Run full production end to end tests
         run: |
-          cp src/test/resources/config/keystore.p12 src/main/resources/config/keystore.p12
+          docker-compose -f src/main/docker/postgresql.yml up -d
           ./gradlew bootRun &>mp.log </dev/null &
-          yarn run wait-for-managementportal
-          ./gradlew generateOpenApiSpec
-          yarn e2e
-          ./gradlew --stop
+          yarn run e2e-prod
+          docker-compose -f src/main/docker/postgresql.yml down -v
 
       - name: Upload screenshots of failed e2e tests
         if: always()
