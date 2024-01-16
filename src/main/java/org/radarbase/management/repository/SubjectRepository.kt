@@ -125,4 +125,7 @@ interface SubjectRepository : JpaRepository<Subject, Long?>, RevisionRepository<
         @Param("login") login: String?,
         @Param("sourceId") sourceId: UUID?
     ): Source?
+
+    @Query("select subject.externalId from Subject subject")
+    fun findAllExternalIds(): List<String?>?
 }

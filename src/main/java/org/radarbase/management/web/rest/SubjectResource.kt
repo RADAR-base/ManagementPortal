@@ -1,14 +1,18 @@
 package org.radarbase.management.web.rest
 
+
+import org.radarbase.management.domain.enumeration.DataGroupingType;
 import io.micrometer.core.annotation.Timed
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import org.radarbase.auth.authorization.EntityDetails
 import org.radarbase.auth.authorization.Permission
+import org.radarbase.management.domain.ConnectDataLog
 import org.radarbase.management.domain.Project
 import org.radarbase.management.domain.Source
 import org.radarbase.management.domain.Subject
+import org.radarbase.management.repository.ConnectDataLogRepository
 import org.radarbase.management.repository.ProjectRepository
 import org.radarbase.management.repository.SubjectRepository
 import org.radarbase.management.security.Constants
@@ -20,6 +24,7 @@ import org.radarbase.management.service.RevisionService
 import org.radarbase.management.service.SourceService
 import org.radarbase.management.service.SourceTypeService
 import org.radarbase.management.service.SubjectService
+import org.radarbase.management.service.dto.DataLogDTO
 import org.radarbase.management.service.dto.MinimalSourceDetailsDTO
 import org.radarbase.management.service.dto.RevisionDTO
 import org.radarbase.management.service.dto.SubjectDTO
@@ -53,8 +58,11 @@ import tech.jhipster.web.util.ResponseUtil
 import java.io.Serializable
 import java.net.URISyntaxException
 import java.util.*
+import java.util.stream.Collector
+import java.util.stream.Collectors
 import java.util.stream.Stream
 import javax.validation.Valid
+import kotlin.collections.ArrayList
 
 /**
  * REST controller for managing Subject.
@@ -70,7 +78,8 @@ class SubjectResource(
     @Autowired private val eventRepository: AuditEventRepository,
     @Autowired private val revisionService: RevisionService,
     @Autowired private val sourceService: SourceService,
-    @Autowired private val authService: AuthService
+    @Autowired private val authService: AuthService,
+    @Autowired private val connectDataLogRepository: ConnectDataLogRepository
 ) {
 
     /**
@@ -575,5 +584,45 @@ class SubjectResource(
 
     companion object {
         private val log = LoggerFactory.getLogger(SubjectResource::class.java)
+    }
+    @GetMapping("/subjects/{login:" + Constants.ENTITY_ID_REGEX + "}/datalogs")
+    @Timed
+    @Throws (
+        NotAuthorizedException::class
+    )
+    fun getSubjectDataLog(@PathVariable login: String) : ResponseEntity<List<DataLogDTO>> {
+
+        authService.checkScope(Permission.SUBJECT_READ)
+        val dataLogDTOList = ArrayList<DataLogDTO>();
+
+        for(groupingType in DataGroupingType.values()) {
+
+            val connectDataLog = connectDataLogRepository.findDataLogsByUserIdAndDataGroupingType(login, groupingType.toString()).orElse(null);
+
+
+            if(connectDataLog != null) {
+                val dataLogDTO = DataLogDTO();
+
+                dataLogDTO.time = connectDataLog.time;
+                dataLogDTO.groupingType = connectDataLog.dataGroupingType;
+
+                dataLogDTOList.add(dataLogDTO);
+
+            }
+        }
+        return ResponseEntity.ok(dataLogDTOList);
+    }
+
+
+    @GetMapping("/subjects/externalId")    @Timed
+    @Throws (
+        NotAuthorizedException::class
+    )
+    fun getAllExternalIds( subjectCriteria: SubjectCriteria) :  ResponseEntity<List<String?>>  {
+        authService.checkScope(Permission.SUBJECT_READ)
+
+        val allExternalIds = subjectRepository.findAllExternalIds();
+
+        return ResponseEntity.ok(allExternalIds);
     }
 }
