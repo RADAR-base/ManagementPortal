@@ -1,0 +1,62 @@
+# Docker stack containing all the "required" interacting components to run app-config
+# Intended to use alongside local executables of app-config (e.g. in an  Intellij instance) for development/debug purposes
+version: "3.8"
+
+networks:
+  db:
+    driver: bridge
+    internal: true
+  mp:
+    driver: bridge
+    internal: true
+  ory:
+    driver: bridge
+    internal: true
+
+services:
+  managementportal-postgresql:
+    extends:
+      file: ../postgres.yml
+      service: managementportal-postgresql
+    networks:
+      - db
+
+
+  kratos-selfservice-ui-node:
+    extends:
+      file: ../ory_stack.yml
+      service: kratos-selfservice-ui-node
+    networks:
+      - ory
+      - default
+
+  kratos:
+    extends:
+      file: ../ory_stack.yml
+      service: kratos
+    networks:
+      - ory
+      - mp
+      - default
+
+  kratos-migrate:
+    extends:
+      file: ../ory_stack.yml
+      service: kratos-migrate
+    networks:
+      - ory
+
+  postgresd-kratos:
+    extends:
+      file: ../ory_stack.yml
+      service: postgresd-kratos
+    networks:
+      - ory
+
+  mailslurper:
+    extends:
+      file: ../ory_stack.yml
+      service: mailslurper
+    networks:
+      - ory
+      - default

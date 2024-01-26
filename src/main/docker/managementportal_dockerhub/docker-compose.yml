@@ -1,4 +1,4 @@
-# start the dockerstack using a locally built docker image of app-config.
+# start the dockerstack using a prebuilt image pulled from dockerhub.
 version: "3.8"
 
 include:
@@ -9,6 +9,7 @@ services:
     extends:
       file: ../managementportal.yml
       service: managementportal-app
+    image: managementportal
     depends_on:
       - kratos
     networks:
