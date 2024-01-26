@@ -279,9 +279,9 @@ public class ManagementPortalProperties {
 
     public static class IdentityServer {
         private String serverUrl = null;
+
+        private String serverAdminUrl = null;
         private String adminEmail = null;
-        private long adminPort = 4434;
-        private long publicPort = 4433;
 
         public String getServerUrl() {
             return serverUrl;
@@ -291,28 +291,12 @@ public class ManagementPortalProperties {
             this.serverUrl = serverUrl;
         }
 
-        public long getPublicPort() {
-            return publicPort;
-        }
-
-        public void setPublicPort(long publicPort) {
-            this.publicPort = publicPort;
-        }
-
-        public long getAdminPort() {
-            return adminPort;
-        }
-
-        public void setAdminPort(long adminPort) {
-            this.adminPort = adminPort;
-        }
-
         public String publicUrl() {
-            return serverUrl + ":" + this.publicPort;
+            return serverUrl;
         }
 
         public String adminUrl() {
-            return serverUrl + ":" + this.adminPort;
+            return serverAdminUrl;
         }
 
         public String getAdminEmail() {
@@ -321,6 +305,14 @@ public class ManagementPortalProperties {
 
         public void setAdminEmail(String adminEmail) {
             this.adminEmail = adminEmail;
+        }
+
+        public String getServerAdminUrl() {
+            return serverAdminUrl;
+        }
+
+        public void setServerAdminUrl(String serverAdminUrl) {
+            this.serverAdminUrl = serverAdminUrl;
         }
     }
 

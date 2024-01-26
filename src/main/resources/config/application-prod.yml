@@ -28,7 +28,7 @@ spring:
 #      hikari:
 #        data-source-properties:
 #          cachePrepStmts: true
-#          prepStmtCacheSize: 250
+#          prepStmtCacheSize: 25021
 #          prepStmtCacheSqlLimit: 2048
 #          useServerPrepStmts: true
   jpa:
@@ -105,11 +105,10 @@ managementportal:
     persistentMetaTokenTimeout: P31D #timeout should be specified as the ISO-8601 duration format {@code PnDTnHnMn.nS}.
   catalogueServer:
     enableAutoImport: false
-    serverUrl:
   identityServer:
-    serverUrl: http://localhost
-    adminport: 4434
-    publicport: 4433
+    adminEmail: bdegraaf1234@gmail.com
+    serverUrl: http://kratos
+    serverAdminUrl: http://kratos-admin
 
 # ===================================================================
 # JHipster specific properties
