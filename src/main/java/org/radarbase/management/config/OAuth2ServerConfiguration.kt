@@ -73,9 +73,11 @@ class OAuth2ServerConfiguration(
                     UsernamePasswordAuthenticationFilter::class.java
                 )
                 .requestMatchers()
-                .antMatchers("/login", "/oauth/authorize", "/oauth/confirm_access")
+                .antMatchers("/login", "/oauth/authorize", "/oauth/confirm_access", "/oauth/token")
                 .and()
                 .authorizeRequests().anyRequest().authenticated()
+
+            http.csrf().disable() //TODO review security implications
         }
 
         @Throws(Exception::class)
@@ -141,17 +143,19 @@ class OAuth2ServerConfiguration(
                 .exceptionHandling()
                 .authenticationEntryPoint(http401UnauthorizedEntryPoint)
                 .and()
-                .logout()
-                .invalidateHttpSession(true)
-                .logoutUrl("/api/logout")
-                .logoutSuccessHandler(logoutSuccessHandler)
-                .and()
-                .csrf()
-                .disable()
+                .csrf().disable()
                 .addFilterBefore(
                     jwtAuthenticationFilter(),
                     UsernamePasswordAuthenticationFilter::class.java
                 )
+                .authorizeRequests()
+                .antMatchers("/oauth/**").permitAll()
+                .and()
+                .logout().invalidateHttpSession(true)
+                .logoutUrl("/api/logout")
+                .logoutSuccessHandler(logoutSuccessHandler)
+                .and()
+                .csrf().disable()
                 .headers()
                 .frameOptions()
                 .disable()
@@ -159,8 +163,11 @@ class OAuth2ServerConfiguration(
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
                 .and()
+                .addFilterBefore(
+                    jwtAuthenticationFilter(),
+                    UsernamePasswordAuthenticationFilter::class.java
+                )
                 .authorizeRequests()
-                .antMatchers("/oauth/**").permitAll()
                 .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .antMatchers("/api/register")
                 .hasAnyAuthority(RoleAuthority.SYS_ADMIN_AUTHORITY)
