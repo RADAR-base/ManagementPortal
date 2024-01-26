@@ -10,7 +10,8 @@ selfservice:
   default_browser_return_url: http://127.0.0.1:3000/
   allowed_return_urls:
     - "http://127.0.0.1:3000/"
-    - "https://radar-k3s-test.thehyve.net/"
+    - "http://127.0.0.1:8080/"
+    - "http://127.0.0.1:8081/"
 
   methods:
     password:

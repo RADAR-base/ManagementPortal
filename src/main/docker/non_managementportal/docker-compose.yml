@@ -20,6 +20,7 @@ services:
       service: managementportal-postgresql
     networks:
       - db
+      - default
     ports:
       - "5432:5432"
 
