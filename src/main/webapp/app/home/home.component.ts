@@ -26,6 +26,7 @@ export class HomeComponent {
     // projects: Project[];
     subscriptions: Subscription;
     logoutUrl;
+    baseUrl = "https://radar-k3s-test.thehyve.net/managementportal/" // TODO this should be the management portal baseurl from the backend?
 
     constructor(
             public principal: Principal,
@@ -71,10 +72,10 @@ export class HomeComponent {
     }
 
     redirect() {
-        window.location.href = "http://127.0.0.1:3000/login?return_to=http://127.0.0.1:8081/projects";
+        window.location.href =  `https://radar-k3s-test.thehyve.net/kratos-ui/login?return_to=` + this.baseUrl;
     }
 
     redirect_logout() {
-        window.location.href = this.logoutUrl + "&return_to=http://127.0.0.1:8081"
+        window.location.href = this.logoutUrl + "&return_to=" + this.baseUrl;
     }
 }
