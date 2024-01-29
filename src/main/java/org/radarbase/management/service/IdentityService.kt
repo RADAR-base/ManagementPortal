@@ -62,13 +62,14 @@ class IdentityService(
 
         withContext(Dispatchers.IO) {
             val identity = createIdentity(user)
-            val response = httpClient.post {
+
+            val postRequestBuilder = HttpRequestBuilder().apply {
                 url("${adminUrl}/admin/identities")
                 contentType(ContentType.Application.Json)
                 accept(ContentType.Application.Json)
                 setBody(identity)
             }
-
+            val response = httpClient.post(postRequestBuilder)
 
             if (response.status.isSuccess()) {
                 kratosIdentity = response.body<KratosSessionDTO.Identity>()

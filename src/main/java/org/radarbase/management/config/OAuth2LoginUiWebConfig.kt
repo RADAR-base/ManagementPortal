@@ -1,31 +1,99 @@
 package org.radarbase.management.config
 
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
+import org.springframework.security.authentication.InsufficientAuthenticationException
+import org.springframework.security.core.Authentication
+import org.springframework.security.core.GrantedAuthority
+import org.springframework.security.oauth2.common.OAuth2AccessToken
+import org.springframework.security.oauth2.common.exceptions.InvalidClientException
 import org.springframework.security.oauth2.common.exceptions.OAuth2Exception
 import org.springframework.security.oauth2.common.util.OAuth2Utils
 import org.springframework.security.oauth2.provider.ClientDetailsService
+import org.springframework.security.oauth2.provider.endpoint.TokenEndpoint
 import org.springframework.security.oauth2.provider.request.DefaultOAuth2RequestFactory
 import org.springframework.stereotype.Controller
+import org.springframework.web.HttpRequestMethodNotSupportedException
+import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.SessionAttributes
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.util.HtmlUtils
+import java.net.URLEncoder
+import java.security.Principal
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.function.Function
 import java.util.stream.Collectors
 import java.util.stream.Stream
+import javax.servlet.RequestDispatcher
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
+import kotlin.collections.component1
+import kotlin.collections.component2
+import kotlin.collections.set
 
 /**
  * Created by dverbeec on 6/07/2017.
  */
 @Controller
 @SessionAttributes("authorizationRequest")
-class OAuth2LoginUiWebConfig {
+class OAuth2LoginUiWebConfig(
+    @Autowired private val tokenEndPoint: TokenEndpoint,
+) {
+
     @Autowired
     private val clientDetailsService: ClientDetailsService? = null
+
+    @RequestMapping("/oauth2/authorize")
+    fun redirect_authorize(request: HttpServletRequest): String {
+        val returnString = URLEncoder.encode(request.requestURL.toString().replace("oauth2", "oauth") + "?" + request.parameterMap.map{ param -> param.key + "=" + param.value.first()}.joinToString("&"), "UTF-8")
+        return "redirect:https://radar-k3s-test.thehyve.net/kratos-ui/login?return_to=$returnString"
+    }
+
+    @PostMapping(value = ["/oauth/token"],
+        consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE]
+    )
+    @Throws(
+        HttpRequestMethodNotSupportedException::class
+    )
+    fun postAccessToken(@RequestParam parameters: Map<String, String>, principal: Principal?):
+            ResponseEntity<OAuth2AccessToken> {
+        if (principal !is Authentication) {
+            throw InsufficientAuthenticationException(
+                "There is no client authentication. Try adding an appropriate authentication filter."
+            )
+        }
+
+        val clientId: String = parameters.get("client_id") ?: throw InvalidClientException("No client_id in request")
+        var radarPrincipal = RadarPrincipal(clientId, principal)
+
+        val token2 = this.tokenEndPoint.postAccessToken(radarPrincipal, parameters)// loadClientByClientId(clientId)
+        return getResponse(token2.body)
+    }
+
+    fun getResponse(accessToken: OAuth2AccessToken): ResponseEntity<OAuth2AccessToken> {
+        val headers = HttpHeaders()
+        headers["Cache-Control"] = "no-store"
+        headers["Pragma"] = "no-cache"
+        headers["Content-Type"] = "application/json"
+        return ResponseEntity(accessToken, headers, HttpStatus.OK)
+    }
+
+
+    @PostMapping(
+        "/oauth2/token",
+        consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE],
+        produces = [MediaType.APPLICATION_FORM_URLENCODED_VALUE]
+        )
+    fun redirect_token(request: HttpServletRequest, response: HttpServletResponse) {
+        var dispatcher: RequestDispatcher =  request.servletContext.getRequestDispatcher("/oauth/token/")
+        dispatcher.forward(request, response)
+    }
 
     /**
      * Login form for OAuth2 auhorization flows.
@@ -104,5 +172,37 @@ class OAuth2LoginUiWebConfig {
             }
         }
         return ModelAndView("error", model)
+    }
+
+    private class RadarPrincipal(private val name: String, private val auth: Authentication) : Principal, Authentication {
+
+        override fun getName(): String {
+            return name
+        }
+
+        override fun getAuthorities(): MutableCollection<out GrantedAuthority> {
+            return auth.authorities
+        }
+
+        override fun getCredentials(): Any {
+            return auth.credentials
+        }
+
+        override fun getDetails(): Any {
+            return auth.details
+        }
+
+        override fun getPrincipal(): Any {
+            return this
+        }
+
+        override fun isAuthenticated(): Boolean {
+            return auth.isAuthenticated
+        }
+
+        override fun setAuthenticated(isAuthenticated: Boolean) {
+            auth.isAuthenticated = isAuthenticated
+        }
+
     }
 }

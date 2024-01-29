@@ -17,6 +17,7 @@ spring:
   datasource:
     username: radarbase
     password: radarbase
+    url: jdbc:postgresql://localhost:5432/managementportal
   liquibase:
     contexts: dev
 
@@ -31,4 +32,5 @@ managementportal:
     require-aal2: false
   identityServer:
     adminEmail: bastiaan@thehyve.nl
-    serverUrl: http://localhost
+    serverUrl: http://127.0.0.1:4433
+    serverAdminUrl: http://127.0.0.1:4434

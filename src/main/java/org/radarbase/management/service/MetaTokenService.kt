@@ -39,7 +39,7 @@ import javax.validation.ConstraintViolationException
  */
 @Service
 @Transactional
-open class MetaTokenService {
+class MetaTokenService {
     @Autowired
     private val metaTokenRepository: MetaTokenRepository? = null
 
@@ -110,7 +110,7 @@ open class MetaTokenService {
      * @return fetched token as [MetaToken].
      */
     @Transactional(readOnly = true)
-    open fun getToken(tokenName: String): MetaToken {
+    fun getToken(tokenName: String): MetaToken {
         return metaTokenRepository!!.findOneByTokenName(tokenName)
             ?: throw NotFoundException(
                     "Meta token not found with tokenName",

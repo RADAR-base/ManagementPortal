@@ -61,9 +61,11 @@ class SessionResource(managementPortalProperties: ManagementPortalProperties) {
     @Throws(IdpException::class)
     suspend fun getLogoutUrl(httpRequest: HttpServletRequest): ResponseEntity<String> {
         val sessionToken = HeaderUtil.parseCookies(httpRequest.getHeader(HttpHeaders.COOKIE)).find { it.name == "ory_kratos_session" }
-            ?.value ?: throw IdpException("no ory_kratos_session could be parsed from the headers")
+            ?.value
 
         return try {
+            sessionToken ?: throw IdpException("no ory_kratos_session could be parsed from the headers")
+
             ResponseEntity
                 .ok()
                 .body(sessionService.getLogoutUrl(sessionToken))

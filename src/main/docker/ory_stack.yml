@@ -1,41 +1,6 @@
-version: '3.7'
+version: '3.8'
+
 services:
-
-    ## MP
-
-    managementportal-app:
-        image: managementportal
-#        image: radarbase/management-portal
-        environment:
-            - SPRING_PROFILES_ACTIVE=prod,api-docs
-            - SPRING_DATASOURCE_URL=jdbc:postgresql://managementportal-postgresql:5432/managementportal
-            - SPRING_DATASOURCE_USERNAME=radarbase
-            - SPRING_DATASOURCE_PASSWORD=radarbase
-            - SPRING_LIQUIBASE_CONTEXTS=dev #includes testing_data, remove for production builds
-            - MANAGEMENTPORTAL_FRONTEND_CLIENT_SECRET=secret
-            - MANAGEMENTPORTAL_IDENTITYSERVER_SERVERURL=http://kratos
-            - MANAGEMENTPORTAL_OAUTH_CLIENTS_FILE=/mp-includes/config/oauth_client_details.csv
-            - JHIPSTER_SLEEP=10 # gives time for the database to boot before the application
-            - JAVA_OPTS=-Xmx512m  # maximum heap size for the JVM running ManagementPortal, increase this as necessary
-        ports:
-            - "8080:8080"
-        networks:
-            - all-net
-            - mp-net
-        volumes:
-            - ./etc:/mp-includes
-
-
-    managementportal-postgresql:
-        extends:
-            file: postgresql.yml
-            service: managementportal-postgresql
-        networks:
-            - mp-net
-
-    ## ORY
-
-    # Kratos
     kratos-selfservice-ui-node:
         image:
             oryd/kratos-selfservice-ui-node
@@ -50,8 +15,6 @@ services:
             - CSRF_COOKIE_SECRET=unsafe_csrf_cookie_secret
         ports:
             - "3000:3000"
-        networks:
-            - all-net
         volumes:
             - /tmp/ui-node/logs:/root/.npm/_logs
 
@@ -70,9 +33,6 @@ services:
         - type: bind
           source: ./etc/config/kratos
           target: /etc/config/kratos
-      networks:
-        - all-net
-        - kratos-net
 
     kratos-migrate:
         image:
@@ -85,8 +45,6 @@ services:
               target: /etc/config/kratos
         command: -c /etc/config/kratos/kratos.yml migrate sql -e --yes
         restart: on-failure
-        networks:
-            - kratos-net
 
     postgresd-kratos:
         image: postgres:11.8
@@ -94,18 +52,9 @@ services:
             - POSTGRES_USER=kratos
             - POSTGRES_PASSWORD=secret
             - POSTGRES_DB=kratos
-        networks:
-            - kratos-net
 
     mailslurper:
         image: oryd/mailslurper:latest-smtps
         ports:
             - "4436:4436"
             - "4437:4437"
-        networks:
-            - kratos-net
-
-networks:
-    all-net:
-    mp-net:
-    kratos-net:

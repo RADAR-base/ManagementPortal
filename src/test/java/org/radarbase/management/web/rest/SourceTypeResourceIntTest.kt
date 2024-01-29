@@ -41,7 +41,7 @@ import javax.servlet.ServletException
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(classes = [ManagementPortalTestApp::class])
 @WithMockUser
-internal open class SourceTypeResourceIntTest(
+internal class SourceTypeResourceIntTest(
     @Autowired private val sourceTypeRepository: SourceTypeRepository,
     @Autowired private val sourceTypeMapper: SourceTypeMapper,
     @Autowired private val sourceTypeService: SourceTypeService,
@@ -84,7 +84,7 @@ internal open class SourceTypeResourceIntTest(
     @Test
     @Transactional
     @Throws(Exception::class)
-    open fun createSourceType() {
+    fun createSourceType() {
         val databaseSizeBeforeCreate = sourceTypeRepository.findAll().size
 
         // Create the SourceType
@@ -123,7 +123,7 @@ internal open class SourceTypeResourceIntTest(
     @Test
     @Transactional
     @Throws(Exception::class)
-    open fun createSourceTypeWithExistingId() {
+    fun createSourceTypeWithExistingId() {
         val databaseSizeBeforeCreate = sourceTypeRepository.findAll().size
 
         // Create the SourceType with an existing ID
@@ -146,7 +146,7 @@ internal open class SourceTypeResourceIntTest(
     @Test
     @Transactional
     @Throws(Exception::class)
-    open fun checkModelIsRequired() {
+    fun checkModelIsRequired() {
         val databaseSizeBeforeTest = sourceTypeRepository.findAll().size
         // set the field null
         sourceType.model = null
@@ -166,7 +166,7 @@ internal open class SourceTypeResourceIntTest(
     @Test
     @Transactional
     @Throws(Exception::class)
-    open fun checkSourceTypeIsRequired() {
+    fun checkSourceTypeIsRequired() {
         val databaseSizeBeforeTest = sourceTypeRepository.findAll().size
         // set the field null
         sourceType.sourceTypeScope = null
@@ -186,7 +186,7 @@ internal open class SourceTypeResourceIntTest(
     @Test
     @Transactional
     @Throws(Exception::class)
-    open fun checkVersionIsRequired() {
+    fun checkVersionIsRequired() {
         val databaseSizeBeforeTest = sourceTypeRepository.findAll().size
         // set the field null
         sourceType.catalogVersion(null)
@@ -206,7 +206,7 @@ internal open class SourceTypeResourceIntTest(
     @Throws(Exception::class)
     @Transactional
     @Test
-    open fun allSourceTypes() {
+    fun allSourceTypes() {
             // Initialize the database
             sourceTypeRepository.saveAndFlush(sourceType)
 
@@ -252,7 +252,7 @@ internal open class SourceTypeResourceIntTest(
     @Throws(Exception::class)
     @Transactional
     @Test
-    open fun allSourceTypesWithPagination() {
+    fun allSourceTypesWithPagination() {
             // Initialize the database
             sourceTypeRepository.saveAndFlush(sourceType)
 
@@ -298,7 +298,7 @@ internal open class SourceTypeResourceIntTest(
     @Test
     @Transactional
     @Throws(Exception::class)
-    open fun getSourceType() {
+    fun getSourceType() {
         // Initialize the database
         sourceTypeRepository.saveAndFlush(sourceType)
 
@@ -324,7 +324,7 @@ internal open class SourceTypeResourceIntTest(
     @Throws(Exception::class)
     @Transactional
     @Test
-    open fun nonExistingSourceType() {
+    fun nonExistingSourceType() {
             // Get the sourceType
             restSourceTypeMockMvc.perform(
                 MockMvcRequestBuilders.get(
@@ -338,7 +338,7 @@ internal open class SourceTypeResourceIntTest(
     @Test
     @Transactional
     @Throws(Exception::class)
-    open fun updateSourceType() {
+    fun updateSourceType() {
         // Initialize the database
         sourceTypeRepository.saveAndFlush(sourceType)
         val databaseSizeBeforeUpdate = sourceTypeRepository.findAll().size
@@ -371,7 +371,7 @@ internal open class SourceTypeResourceIntTest(
     @Test
     @Transactional
     @Throws(Exception::class)
-    open fun updateNonExistingSourceType() {
+    fun updateNonExistingSourceType() {
         val databaseSizeBeforeUpdate = sourceTypeRepository.findAll().size
 
         // Create the SourceType
@@ -393,7 +393,7 @@ internal open class SourceTypeResourceIntTest(
     @Test
     @Transactional
     @Throws(Exception::class)
-    open fun deleteSourceType() {
+    fun deleteSourceType() {
         // Initialize the database
         sourceTypeRepository.saveAndFlush(sourceType)
         val databaseSizeBeforeDelete = sourceTypeRepository.findAll().size
@@ -416,14 +416,14 @@ internal open class SourceTypeResourceIntTest(
     @Test
     @Transactional
     @Throws(Exception::class)
-    open fun equalsVerifier() {
+    fun equalsVerifier() {
         org.junit.jupiter.api.Assertions.assertTrue(TestUtil.equalsVerifier(SourceType::class.java))
     }
 
     @Test
     @Transactional
     @Throws(Exception::class)
-    open fun idempotentPutWithoutId() {
+    fun idempotentPutWithoutId() {
         val databaseSizeBeforeUpdate = sourceTypeRepository.findAll().size
         val sensorsSizeBeforeUpdate = sourceDataRepository.findAll().size
         sourceType.sourceData = setOf(SourceDataResourceIntTest.Companion.createEntity())
