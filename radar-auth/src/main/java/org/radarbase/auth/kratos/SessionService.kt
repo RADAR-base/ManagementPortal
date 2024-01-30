@@ -89,7 +89,6 @@ class SessionService(private val serverUrl: String) {
     @Serializable
     class LogoutResponse (
         val logout_url: String?,
-        val logout_token: String?,
     )
 
     companion object {
