@@ -53,6 +53,9 @@ class IdentityService(
     init {
         adminUrl = managementPortalProperties.identityServer.adminUrl()
         publicUrl = managementPortalProperties.identityServer.publicUrl()
+
+        log.debug("kratos serverUrl set to ${managementPortalProperties.identityServer.publicUrl()}")
+        log.debug("kratos serverAdminUrl set to ${managementPortalProperties.identityServer.adminUrl()}")
     }
 
     /** Save a [User] to the IDP as an identity. Returns the generated [KratosSessionDTO.Identity] */
