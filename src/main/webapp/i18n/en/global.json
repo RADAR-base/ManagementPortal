@@ -46,7 +46,7 @@
         "form": {
             "username": "Username",
             "username.placeholder": "Your username",
-            "newpassword": "New password",
+            "newpassword": "New password (Please use numbers, symbols, upper case and lower case letters)",
             "newpassword.placeholder": "New password",
             "confirmpassword": "New password confirmation",
             "confirmpassword.placeholder": "Confirm the new password",
@@ -62,7 +62,7 @@
             },
             "error": {
                 "dontmatch": "The password and its confirmation do not match!",
-                "weakpassword": "Password strength must be at least four bars. Add symbols and numbers to increase the strength."
+                "weakpassword": "Password strength must be at least four bars."
             },
             "validate": {
                 "newpassword": {
