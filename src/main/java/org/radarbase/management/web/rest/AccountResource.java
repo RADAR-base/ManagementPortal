@@ -34,6 +34,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
+import java.util.Optional;
+
 import static org.radarbase.management.security.JwtAuthenticationFilter.setRadarToken;
 import static org.radarbase.management.web.rest.errors.EntityName.USER;
 import static org.radarbase.management.web.rest.errors.ErrorConstants.ERR_ACCESS_DENIED;
@@ -204,11 +206,10 @@ public class AccountResource {
     @PostMapping(path = "/account/reset_password/init")
     @Timed
     public ResponseEntity<Void>  requestPasswordReset(@RequestBody String mail) {
-        User user = userService.requestPasswordReset(mail)
-                .orElseThrow(() -> new BadRequestException("email address not registered",
-                        USER, ERR_EMAIL_NOT_REGISTERED));
+        Optional<User> user = userService.requestPasswordReset(mail);
 
-        mailService.sendPasswordResetMail(user);
+        user.ifPresent(value -> mailService.sendPasswordResetMail(value));
+
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 

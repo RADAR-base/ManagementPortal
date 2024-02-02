@@ -46,7 +46,7 @@
         "form": {
             "username": "Gebruikersnaam",
             "username.placeholder": "Uw gebruikersnaam",
-            "newpassword": "Nieuw wachtwoord",
+            "newpassword": "Nieuw wachtwoord (gebruik hoofd- en kleine letters, nummers en symbolen)",
             "newpassword.placeholder": "Nieuw wachtwoord",
             "confirmpassword": "Nieuw wachtwoord bevestigen",
             "confirmpassword.placeholder": "Bevestig het nieuwe wachtwoord",
