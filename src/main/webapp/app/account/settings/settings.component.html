@@ -64,7 +64,7 @@
                         [translate]="'global.form.email'">
                     </label>
                     <input type="email" class="form-control" id="email" name="email" placeholder="{{'global.form.email.placeholder' | translate}}"
-                           [(ngModel)]="settingsAccount.email" minlength=5 maxlength=100 #emailInput="ngModel" required>
+                           [(ngModel)]="settingsAccount.email" minlength=5 maxlength=100 #emailInput="ngModel" required disabled>
                     <div *ngIf="emailInput.dirty && emailInput.invalid">
                         <small class="form-text text-danger"
                            *ngIf="emailInput.errors.required"

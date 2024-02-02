@@ -151,9 +151,16 @@ public class AccountResource {
     @Timed
     public ResponseEntity<Void> saveAccount(@Valid @RequestBody UserDTO userDto,
             Authentication authentication) throws NotAuthorizedException {
+
+        User currentUser = userService.getUserWithAuthorities()
+                .orElseThrow(() -> new RadarWebApplicationException(HttpStatus.FORBIDDEN,
+                        "Cannot get account without user", USER, ERR_ACCESS_DENIED));
+
+        UserDTO currentUserDto = userMapper.userToUserDTO(currentUser);
+
         authService.checkPermission(Permission.USER_UPDATE, e -> e.user(userDto.getLogin()));
         userService.updateUser(authentication.getName(), userDto.getFirstName(),
-                userDto.getLastName(), userDto.getEmail(), userDto.getLangKey());
+                userDto.getLastName(), currentUserDto.getEmail(), userDto.getLangKey());
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
