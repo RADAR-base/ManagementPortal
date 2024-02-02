@@ -1,8 +1,8 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 
 import { Principal } from '../../shared';
-import { Password } from './password.service';
 import { Subscription } from 'rxjs';
+import {PasswordResetInit} from "../password-reset/init/password-reset-init.service";
 
 @Component({
     selector: 'jhi-password',
@@ -19,8 +19,8 @@ export class PasswordComponent implements OnDestroy {
     private subscriptions = new Subscription();
 
     constructor(
-      private passwordService: Password,
-      public principal: Principal,
+        private passwordResetInit: PasswordResetInit,
+        public principal: Principal,
     ) {
     }
 
@@ -28,23 +28,15 @@ export class PasswordComponent implements OnDestroy {
         this.subscriptions.unsubscribe();
     }
 
-    changePassword() {
-        this.error = null;
-        this.success = null;
-        this.doNotMatch = null;
-        this.weakPassword = null;
-        if (this.passwordService.measureStrength(this.password) < 40) {
-            this.weakPassword = 'ERROR';
-        }
-        if (this.password !== this.confirmPassword) {
-            this.doNotMatch = 'ERROR';
-        }
 
-        if (this.weakPassword == null && this.doNotMatch == null) {
-            this.subscriptions.add(this.passwordService.save(this.password).subscribe(
-                () => this.success = 'OK',
-                () => this.error = 'ERROR',
-            ));
-        }
+    requestPasswordChange() {
+        this.principal.account$.subscribe(res => {
+            this.subscriptions.add(this.passwordResetInit.save(res.email).subscribe(() => {
+                this.success = 'OK';
+            }, (response) => {
+                this.success = null;
+                this.error = 'ERROR';
+            }));
+        })
     }
 }
