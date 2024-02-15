@@ -209,7 +209,7 @@ public class UserResource {
             UserFilter userFilter,
             @RequestParam(defaultValue = "true") boolean includeProvenance)
             throws NotAuthorizedException {
-        authService.checkPermission(USER_READ);
+        authService.checkScope(USER_READ);
 
         Page<UserDTO> page = userService.findUsers(userFilter, pageable, includeProvenance);
 
