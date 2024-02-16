@@ -92,9 +92,11 @@ public class OAuthClientsResource {
     @GetMapping("/oauth-clients")
     @Timed
     public ResponseEntity<List<ClientDetailsDTO>> getOAuthClients() throws NotAuthorizedException {
-        authService.checkPermission(OAUTHCLIENTS_READ);
-        return ResponseEntity.ok().body(clientDetailsMapper
-                .clientDetailsToClientDetailsDTO(oAuthClientService.findAllOAuthClients()));
+        authService.checkScope(OAUTHCLIENTS_READ);
+
+         var clients = clientDetailsMapper.clientDetailsToClientDetailsDTO(oAuthClientService.findAllOAuthClients());
+        return ResponseEntity.ok().body(clients);
+
     }
 
     /**

@@ -2,6 +2,7 @@ package org.radarbase.management.web.rest;
 
 import io.micrometer.core.annotation.Timed;
 import io.swagger.v3.oas.annotations.Parameter;
+import org.radarbase.auth.authorization.Permission;
 import org.radarbase.management.repository.ProjectRepository;
 import org.radarbase.management.security.Constants;
 import org.radarbase.management.security.NotAuthorizedException;
@@ -190,6 +191,7 @@ public class ProjectResource {
             @RequestParam(name = "minimized", required = false, defaultValue = "false") Boolean
                     minimized) throws NotAuthorizedException {
         log.debug("REST request to get Projects");
+        authService.checkScope(Permission.PROJECT_READ);
         Page<?> page = projectService.findAll(minimized, pageable);
         HttpHeaders headers = PaginationUtil
                 .generatePaginationHttpHeaders(page, "/api/projects");
