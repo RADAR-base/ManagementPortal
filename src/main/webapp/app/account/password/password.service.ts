@@ -23,13 +23,7 @@ export class Password {
 
         let force = 2 * p.length + passedMatches * 8;
 
-        // penality (short password)
         force = (p.length < 12) ? Math.min(force, 20) : force;
-        force = (passedMatches < 4) ? Math.min(force, 20) : force;
-
-        // penality (poor variety of characters)
-        force = (passedMatches === 1) ? Math.min(force, 10) : force;
-        force = (passedMatches === 2) ? Math.min(force, 30) : force;
 
         return force;
     }
