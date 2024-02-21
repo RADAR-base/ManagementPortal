@@ -22,10 +22,8 @@ class KratosTokenVerifier(private val sessionService: SessionService, private va
         }
         radarToken
     } catch (ex: InsufficientAuthenticationLevelException) {
-        logger.warn(ex.message, ex)
         throw ex
     } catch (ex: Throwable) {
-        logger.warn(ex.message, ex)
         throw IdpException("could not verify token", ex)
     }
 

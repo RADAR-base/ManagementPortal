@@ -46,7 +46,6 @@ class AuthService(
     ) {
         val token = token ?: throw NotAuthorizedException("User without authentication does not have permission.")
 
-        // entitydetails builder is null means we require global permission
         val entity = if (builder != null) entityDetailsBuilder(builder) else EntityDetails.global
 
         val hasPermission = runBlocking {

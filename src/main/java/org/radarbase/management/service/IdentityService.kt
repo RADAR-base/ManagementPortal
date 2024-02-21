@@ -79,7 +79,7 @@ class IdentityService(
                 log.debug("saved identity for user ${user.login} to IDP as ${kratosIdentity.id}")
             } else {
                 throw IdpException(
-                    "couldn't save Kratos ID to server at " + adminUrl
+                    "couldn't save Kratos ID to server at " + adminUrl,
                 )
             }
         }
@@ -92,7 +92,9 @@ class IdentityService(
     suspend fun updateAssociatedIdentity(user: User): KratosSessionDTO.Identity? {
         val kratosIdentity: KratosSessionDTO.Identity?
 
-        user.identity ?: throw IdpException("user ${user.login} could not be updated on the IDP. No identity was set")
+        user.identity ?: throw IdpException(
+            "user ${user.login} could not be updated on the IDP. No identity was set",
+        )
 
         withContext(Dispatchers.IO) {
             val identity = createIdentity(user)
@@ -121,7 +123,9 @@ class IdentityService(
     @Throws(IdpException::class)
     suspend fun deleteAssociatedIdentity(userIdentity: String?) {
         withContext(Dispatchers.IO) {
-            userIdentity ?: throw IdpException("user with ID ${userIdentity} could not be deleted from the IDP. No identity was set")
+            userIdentity ?: throw IdpException(
+                "user with ID ${userIdentity} could not be deleted from the IDP. No identity was set"
+            )
 
             val response = httpClient.delete {
                 url("${adminUrl}/admin/identities/${userIdentity}")
