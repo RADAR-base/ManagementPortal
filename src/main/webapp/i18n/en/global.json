@@ -48,7 +48,7 @@
             "opt.placeholder": "OPT Code",
             "username": "Username",
             "username.placeholder": "Your username",
-            "newpassword": "New password (Please use numbers, symbols, upper case and lower case letters)",
+            "newpassword": "New password (Please use a complex password, preferably generated with a password manager)",
             "newpassword.placeholder": "New password",
             "confirmpassword": "New password confirmation",
             "confirmpassword.placeholder": "Confirm the new password",
