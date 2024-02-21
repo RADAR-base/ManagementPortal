@@ -95,10 +95,7 @@ public class PasswordService {
 
     /** Check whether given password is too weak. */
     private boolean isPasswordWeak(String password) {
-        return password.length() < 8
-                || noneInRange(password, UPPER[0], UPPER[UPPER.length - 1])
-                || noneInRange(password, LOWER[0], LOWER[LOWER.length - 1])
-                || noneInRange(password, NUMERIC[0], NUMERIC[NUMERIC.length - 1]);
+        return password.length() < 12;
     }
 
     private boolean noneInRange(String str, int startInclusive, int endInclusive) {
