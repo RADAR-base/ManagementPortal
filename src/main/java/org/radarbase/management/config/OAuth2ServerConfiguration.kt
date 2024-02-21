@@ -76,7 +76,7 @@ class OAuth2ServerConfiguration(
                     UsernamePasswordAuthenticationFilter::class.java
                 )
                 .requestMatchers()
-                .antMatchers("/login", "/oauth/authorize", "/oauth/confirm_access", "/oauth/token")
+                .antMatchers("/login", "/oauth/authorize", "/oauth/confirm_access")
                 .and()
                 .authorizeRequests().anyRequest().authenticated()
 
