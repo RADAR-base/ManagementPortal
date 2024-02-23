@@ -33,6 +33,26 @@
                 </small>
             </div>
         </div>
+
+        <div class="form-group">
+            <label class="form-control-label" [translate]="'userManagement.kratosId'"></label>
+            <input type="text" class="form-control" name="kratosId" #kratosIdInput="ngModel"
+                   [(ngModel)]="user.identity" required minlength=36 maxlength=36 pattern="^[_'.@A-Za-z0-9- ]*$">
+
+            <div *ngIf="kratosIdInput.dirty && kratosIdInput.invalid">
+                <small class="form-text text-danger"
+                       *ngIf="kratosIdInput.errors.required"
+                       [translate]="'entity.validation.required'">
+                </small>
+
+                <small class="form-text text-danger"
+                       *ngIf="kratosIdInput.errors.maxlength"
+                       [translate]="'entity.validation.maxlength'"
+                       [translateParams]="{max: 36}">
+                </small>
+            </div>
+        </div>
+
         <div class="form-group">
             <label class="form-control-label" [translate]="'userManagement.firstName'"></label>
             <input type="text" class="form-control" name="firstName" #firstNameInput="ngModel"

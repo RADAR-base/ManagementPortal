@@ -11,6 +11,7 @@ import {Observable, of, Subscription} from "rxjs";
 import { EventManager } from "../shared/util/event-manager.service";
 import { switchMap } from "rxjs/operators";
 import {SessionService} from "../shared/session/session.service";
+import {environment} from "../../environments/environment";
 
 @Component({
     selector: 'jhi-home',
@@ -25,22 +26,14 @@ export class HomeComponent {
     modalRef: NgbModalRef;
     // projects: Project[];
     subscriptions: Subscription;
-    logoutUrl;
-    baseUrl = "http://127.0.0.1:8081/" // TODO this should be the management portal baseurl from the backend
-    // baseUrl = "http://127.0.0.1:8080/managementportal/" // For running with gradle bootrun
-    kratosUrl = "http://127.0.0.1:3000" // TODO this should be the kratos-ui url from config file (not implemented yet)
 
     constructor(
             public principal: Principal,
             private loginModalService: LoginModalService,
             public projectService: ProjectService,
             public organizationService: OrganizationService,
-            private sessionService: SessionService,
     ) {
         this.subscriptions = new Subscription();
-        sessionService.logoutUrl$.subscribe(
-            url => this.logoutUrl = url
-        )
     }
 
     // ngOnInit() {
@@ -70,14 +63,6 @@ export class HomeComponent {
     }
 
     login() {
-        this.modalRef = this.loginModalService.open();
-    }
-
-    redirect() {
-        window.location.href =  this.kratosUrl + `/login?return_to=` + this.baseUrl;
-    }
-
-    redirect_logout() {
-        window.location.href = this.logoutUrl + "&return_to=" + this.baseUrl;
+        window.location.href =  environment.KRATOS_URL + `/login?return_to=` + environment.BASE_URL;
     }
 }
