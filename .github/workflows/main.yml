@@ -35,16 +35,17 @@ jobs:
           distribution: temurin
           java-version: 17
 
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+
       - name: Cache
         uses: actions/cache@v3
         with:
           path: |
             ${{ steps.yarn-cache-dir-path.outputs.dir }}
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-java-${{ hashFiles('**/build.gradle', '**/gradle.properties', '**/yarn.lock', '.yarnrc.yml') }}
+          key: ${{ runner.os }}-node-${{ hashFiles('**/build.gradle', '**/gradle.properties', '**/yarn.lock', '.yarnrc.yml') }}
           restore-keys: |
-            ${{ runner.os }}-java-
+            ${{ runner.os }}-node-
 
       - name: Install Yarn dependencies
         run: yarn install
@@ -201,6 +202,16 @@ jobs:
             org.opencontainers.image.authors=Joris Borgdorff <joris@thehyve.nl>
             org.opencontainers.image.vendor=RADAR-base
             org.opencontainers.image.licenses=Apache-2.0
+
+#      # placeholder for testing
+#      - name: End to end tests (docker image)
+#        id: e2e-prod-docker
+#        run: |
+#          cp src/test/resources/config/keystore.p12 src/main/docker/etc/config
+#          ./gradlew -Pprod buildDocker -x test -x javadocJar
+#          docker-compose -f src/main/docker/app.yml up -d
+#          yarn run e2e-prod
+#          docker-compose -f src/main/docker/app.yml down -v
 
       # Temp fix
       # https://github.com/docker/build-push-action/issues/252

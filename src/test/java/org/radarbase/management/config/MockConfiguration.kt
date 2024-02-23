@@ -20,10 +20,10 @@ import java.time.Duration
 import java.time.Instant
 
 @Configuration
-open class MockConfiguration {
+class MockConfiguration {
     @Bean
     @Primary
-    open fun radarTokenMock(): RadarToken = DataRadarToken(
+    fun radarTokenMock(): RadarToken = DataRadarToken(
         subject = "admin",
         username = "admin",
         roles = setOf(AuthorityReference(RoleAuthority.SYS_ADMIN)),

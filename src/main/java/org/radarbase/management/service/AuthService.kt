@@ -10,7 +10,7 @@ import java.util.function.Consumer
 import javax.annotation.Nullable
 
 @Service
-open class AuthService(
+class AuthService(
     @Nullable
     private val token: RadarToken?,
     private val oracle: AuthorizationOracle,
@@ -21,7 +21,7 @@ open class AuthService(
      * @throws NotAuthorizedException if identity does not have scope
      */
     @Throws(NotAuthorizedException::class)
-    open fun checkScope(permission: Permission) {
+    fun checkScope(permission: Permission) {
         val token = token ?: throw NotAuthorizedException("User without authentication does not have permission.")
 
         if (!oracle.hasScope(token, permission)) {
@@ -39,13 +39,14 @@ open class AuthService(
      */
     @JvmOverloads
     @Throws(NotAuthorizedException::class)
-    open fun checkPermission(
+    fun checkPermission(
         permission: Permission,
         builder: Consumer<EntityDetails>? = null,
         scope: Permission.Entity = permission.entity,
     ) {
         val token = token ?: throw NotAuthorizedException("User without authentication does not have permission.")
 
+        // entitydetails builder is null means we require global permission
         val entity = if (builder != null) entityDetailsBuilder(builder) else EntityDetails.global
 
         val hasPermission = runBlocking {
@@ -59,12 +60,12 @@ open class AuthService(
         }
     }
 
-    open fun referentsByScope(permission: Permission): AuthorityReferenceSet {
+    fun referentsByScope(permission: Permission): AuthorityReferenceSet {
         val token = token ?: return AuthorityReferenceSet()
         return oracle.referentsByScope(token, permission)
     }
 
-    open fun mayBeGranted(role: RoleAuthority, permission: Permission): Boolean = with(oracle) {
+    fun mayBeGranted(role: RoleAuthority, permission: Permission): Boolean = with(oracle) {
         role.mayBeGranted(permission)
     }
 }
