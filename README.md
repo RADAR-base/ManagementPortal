@@ -21,7 +21,7 @@ Management Portal is an application which is used to manage clinical studies for
 - [Testing](#testing)
   * [Client tests](#client-tests)
   * [Other tests](#other-tests)
-- [Using Docker to simplify development (optional)](#using-docker-to-simplify-development--optional-)
+- [Using Docker to simplify development (optional)](#using-docker-to-simplify-development-optional)
 - [Documentation](#documentation)
 - [Client libraries](#client-libraries)
 
@@ -49,7 +49,7 @@ docker-compose files.
 3. Now, we can start the stack with `docker-compose -f src/main/docker/management-portal.yml up -d`.
 
 This will start a Postgres database and ManagementPortal. The default password for the `admin`
-account is `admin`.
+account is `admin`. An angular live development server to access the managementportal can be started using the `yarn start` command (see [Development](#development)).
 
 ### Build from source
 
@@ -68,7 +68,7 @@ You must install and configure the following dependencies on your machine to run
 main differences between the profiles. Configure the application using the property file at `src/main/resources/config/application-<profile>.yml`.Read more about configurations [here](#configuration)
     
 5. Run ManagementPortal by running `./gradlew bootRun -Pprod` or `./gradlew bootRun -Pdev`. Development mode will start an in
-memory database and ManagementPortal. 
+memory database and ManagementPortal. An angular live development server to access the managementportal can be started using the `yarn start` command (see [Development](#development)).
 6. You can log in to the application using `admin:admin`. Please don't forgot to change the password of `admin`, if you are using the application on production environment.
 
 
@@ -76,7 +76,6 @@ memory database and ManagementPortal.
 |----------------------------------|-----------------|-----------------------------------|
 | Database type                    | In-memory       | Postgres                          |
 | Demo data loaded                 | Yes             | No                                |
-| Context path of the application  | `/`             | `/managementportal`               |
 
 
 
@@ -249,6 +248,8 @@ auto-refreshes when files change on your hard drive.
 
 Then open <http://localhost:8081/> to start the interface and sign in with admin/admin.
 
+### Managing dependencies
+
 [Yarn][] is also used to manage CSS and JavaScript dependencies used in this application. You can upgrade dependencies by
 specifying a newer version in [package.json](package.json). You can also run `yarn update` and `yarn install` to manage dependencies.
 Add the `help` flag on any command to see how you can use it. For example, `yarn help update`.
@@ -294,7 +295,7 @@ To launch your application's tests, run:
 
 ### Client tests
 
-Unit tests are run by [Karma][] and written with [Jasmine][]. They're located in [src/test/javascript/](src/test/javascript/) and can be run with:
+Unit tests are run by [Karma][] and written with [Jasmine][]. They're located in `src/test/javascript/` and can be run with:
 
     yarn test
 
@@ -302,7 +303,7 @@ UI end-to-end tests are powered by [Cypress][], which is built on top of WebDriv
 and can be run by starting Spring Boot in one terminal (`./gradlew bootRun`) and running the tests (`yarn run e2e`) in a second one.
 ### Other tests
 
-Performance tests are run by [Gatling][] and written in Scala. They're located in [src/test/gatling](src/test/gatling) and can be run with:
+Performance tests are run by [Gatling][] and written in Scala. They're located in `src/test/gatling` and can be run with:
 
     ./gradlew gatlingRunAll
 

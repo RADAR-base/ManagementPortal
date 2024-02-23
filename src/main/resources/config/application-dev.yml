@@ -92,7 +92,7 @@ server:
 # ===================================================================
 managementportal:
     common:
-        baseUrl: http://localhost:8081 # Modify according to your server's URL
+        baseUrl: http://localhost:8080 # Modify according to your server's URL
         managementPortalBaseUrl: http://localhost:8080/managementportal
         privacyPolicyUrl: http://info.thehyve.nl/radar-cns-privacy-policy
         adminPassword: admin
