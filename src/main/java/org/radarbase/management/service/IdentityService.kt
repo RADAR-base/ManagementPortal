@@ -185,6 +185,46 @@ class IdentityService(
         }
     }
 
+    /**
+     * get a recovery link from the identityprovider in the response, which expires in 24 hours.
+     * @param user The user for whom the recovery link is requested.
+     * @return The recovery link obtained from the server response.
+     * @throws IdpException If there is an issue with the identity or if the recovery link cannot be obtained from the server.
+     */
+    @Throws(IdpException::class)
+    suspend fun getRecoveryLink(user: User): String {
+        val recoveryLink: String
+
+        user.identity ?: throw IdpException(
+            "user ${user.login} could not be recovered on the IDP. No identity was set",
+        )
+
+        withContext(Dispatchers.IO) {
+            val response = httpClient.post {
+                url("${adminUrl}/admin/recovery/link")
+                contentType(ContentType.Application.Json)
+                accept(ContentType.Application.Json)
+                setBody(
+                    mapOf(
+                        "expires_in" to "24h",
+                        "identity_id" to user.identity
+                    )
+                )
+            }
+
+            if (response.status.isSuccess()) {
+                recoveryLink = response.body<Map<String, String>>()["recovery_link"]!!
+                log.debug("recovery link for user ${user.login} is $recoveryLink")
+            } else {
+                throw IdpException(
+                    "couldn't get recovery link from server at $adminUrl"
+                )
+            }
+        }
+
+        return recoveryLink
+    }
+
     companion object {
         private val log = LoggerFactory.getLogger(IdentityService::class.java)
     }

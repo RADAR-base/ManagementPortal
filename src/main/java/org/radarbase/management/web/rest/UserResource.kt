@@ -121,9 +121,24 @@ class UserResource(
         } else {
             val newUser: User;
             newUser = userService.createUser(managedUserVm)
-            mailService.sendCreationEmail(
-                newUser, managementPortalProperties.common.activationKeyTimeoutInSeconds.toLong()
+//            mailService.sendCreationEmail(
+//                newUser, managementPortalProperties.common.activationKeyTimeoutInSeconds.toLong()
+//            )
+
+            val recoveryLink = userService.getRecoveryLink(newUser)
+
+            //TODO make a nicer email
+            mailService.sendEmail(
+                newUser.email,
+                "Account Activation",
+                "Please click the link to activate your account:\n\n" +
+                        "$recoveryLink \n\n" +
+                        "Please activate your account before the link expires in 24 hours, and activate 2FA to enable" +
+                        " access to the managementportal",
+                false,
+                false
             )
+
             ResponseEntity.created(ResourceUriService.getUri(newUser)).headers(
                 HeaderUtil.createAlert(
                     "userManagement.created", newUser.login
