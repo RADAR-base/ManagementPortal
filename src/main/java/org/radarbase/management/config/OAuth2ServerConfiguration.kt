@@ -79,8 +79,6 @@ class OAuth2ServerConfiguration(
                 .antMatchers("/login", "/oauth/authorize", "/oauth/confirm_access")
                 .and()
                 .authorizeRequests().anyRequest().authenticated()
-
-            http.csrf().disable() //TODO review security implications
         }
 
         @Throws(Exception::class)
@@ -147,7 +145,6 @@ class OAuth2ServerConfiguration(
                 .exceptionHandling()
                 .authenticationEntryPoint(http401UnauthorizedEntryPoint)
                 .and()
-                .csrf().disable()
                 .addFilterBefore(
                     jwtAuthenticationFilter(),
                     UsernamePasswordAuthenticationFilter::class.java
@@ -159,7 +156,6 @@ class OAuth2ServerConfiguration(
                 .logoutUrl("/api/logout")
                 .logoutSuccessHandler(logoutSuccessHandler)
                 .and()
-                .csrf().disable()
                 .headers()
                 .frameOptions()
                 .disable()
