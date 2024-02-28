@@ -93,35 +93,4 @@ export class JhiLoginModalComponent implements AfterViewInit {
             return this.showOTPForm;
     }
 
-    getOTPCode() {
-         let credentials = {
-            userName: this.username,
-            password: this.password,
-         };
-        this.loginService.requestOtpCode(credentials).subscribe(
-            () => {
-            this.authenticationError = false;
-            this.showOTPForm = true;
-            },
-            error => {
-            this.authenticationError = true;
-            this.errorMessage = "<strong>Failed to sign in!</strong> Please check your credentials and try again."
-            }
-        );
-    }
-
-    submitOPTCode() {
-      let credentials = {
-                userName: this.username,
-                password: this.password,
-                code:this.optCode
-      };
-      this.loginService.submitOptCode(credentials).subscribe(data => {
-        this.login();
-      },error => {
-        this.authenticationError = true;
-        this.errorMessage = "Wrong OTP code entered"
-
-      });
-    }
 }
