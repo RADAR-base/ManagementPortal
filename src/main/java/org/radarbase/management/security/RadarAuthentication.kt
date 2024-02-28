@@ -23,18 +23,18 @@ class RadarAuthentication(@param:Nonnull private val token: RadarToken) : Authen
 
     /** Instantiate authentication via a token.  */
     init {
-        authorities = token.roles!!.stream()
+        authorities = token.roles.stream()
             .map(AuthorityReference::authority)
             .distinct()
             .map { role: String? -> SimpleGrantedAuthority(role) }
             .collect(Collectors.toList())
     }
 
-    override fun getName(): String {
+    override fun getName(): String? {
         return if (token.isClientCredentials) {
-            token.clientId!!
+            token.clientId
         } else {
-            token.username!!
+            token.username
         }
     }
 

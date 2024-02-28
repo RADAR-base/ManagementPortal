@@ -5,10 +5,13 @@ import com.fasterxml.jackson.annotation.JsonSetter
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.csv.CsvMapper
+import kotlinx.coroutines.runBlocking
 import org.radarbase.auth.authorization.Permission.Companion.scopes
 import org.radarbase.management.service.UserService
+import org.radarbase.management.service.dto.UserDTO
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.event.ContextRefreshedEvent
 import org.springframework.context.event.EventListener
 import org.springframework.security.oauth2.provider.ClientDetails
@@ -20,6 +23,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.*
+import javax.transaction.Transactional
 
 /**
  * Loads security configs such as oauth-clients, and overriding admin password if specified.
@@ -36,6 +40,8 @@ class ManagementPortalSecurityConfigLoader {
     @Autowired
     private val userService: UserService? = null
 
+    private var isAdminIdCreated: Boolean = false
+
     /**
      * Resets the admin password to the value of managementportal.common.adminPassword value if
      * exists.
@@ -48,6 +54,29 @@ class ManagementPortalSecurityConfigLoader {
             userService!!.changePassword("admin", adminPassword)
         } else {
             logger.info("AdminPassword property is empty. Using default password...")
+        }
+    }
+
+    /**
+     * Resets the admin password to the value of managementportal.common.adminPassword value if
+     * exists.
+     */
+    @EventListener(ApplicationReadyEvent::class)
+    @Transactional
+    fun createAdminIdentity() {
+        try {
+            if (managementPortalProperties?.identityServer?.serverUrl != null && managementPortalProperties.identityServer.adminEmail != null && !isAdminIdCreated) {
+                logger.info("Overriding admin email to ${managementPortalProperties.identityServer.adminEmail}")
+                val dto: UserDTO =
+                    runBlocking { userService!!.addAdminEmail(managementPortalProperties.identityServer.adminEmail) }
+                isAdminIdCreated = true
+                runBlocking { userService?.updateUser(dto) }
+            } else if (!isAdminIdCreated) {
+                logger.warn("AdminEmail property is left empty, thus no admin identity could be created.")
+            }
+        }
+        catch (e: Throwable){
+            logger.error("could not update/create admin identity. This may result in an unstable state", e)
         }
     }
 

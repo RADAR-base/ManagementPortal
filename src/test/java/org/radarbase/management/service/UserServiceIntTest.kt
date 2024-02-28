@@ -74,18 +74,18 @@ class UserServiceIntTest(
 
     @Test
     @Throws(NotAuthorizedException::class)
-    fun assertThatOnlyActivatedUserCanRequestPasswordReset() {
+    suspend fun assertThatOnlyActivatedUserCanRequestPasswordReset() {
         val user = userService.createUser(userDto)
         val maybeUser = userService.requestPasswordReset(
             userDto.email!!
         )
         Assertions.assertThat(maybeUser).isNull()
-        userRepository.delete(user)
+        userRepository.delete(user) //TODO blocking calls and suspending tests resulting from userService.createUser
     }
 
     @Test
     @Throws(NotAuthorizedException::class)
-    fun assertThatResetKeyMustNotBeOlderThan24Hours() {
+    suspend fun assertThatResetKeyMustNotBeOlderThan24Hours() {
         val user = userService.createUser(userDto)
         val daysAgo = ZonedDateTime.now().minusHours(25)
         val resetKey = passwordService.generateResetKey()
@@ -103,7 +103,7 @@ class UserServiceIntTest(
 
     @Test
     @Throws(NotAuthorizedException::class)
-    fun assertThatResetKeyMustBeValid() {
+    suspend fun assertThatResetKeyMustBeValid() {
         val user = userService.createUser(userDto)
         val daysAgo = ZonedDateTime.now().minusHours(25)
         user.activated = true
@@ -120,7 +120,7 @@ class UserServiceIntTest(
 
     @Test
     @Throws(NotAuthorizedException::class)
-    fun assertThatUserCanResetPassword() {
+    suspend fun assertThatUserCanResetPassword() {
         val user = userService.createUser(userDto)
         val oldPassword = user.password
         val daysAgo = ZonedDateTime.now().minusHours(2)

@@ -187,7 +187,7 @@ class OAuthClientsResource(
     ): ResponseEntity<ClientPairInfoDTO> {
         authService.checkScope(Permission.SUBJECT_UPDATE)
         val currentUser =
-            userService.userWithAuthorities // We only allow this for actual logged in users for now, not for client_credentials
+            userService.getUserWithAuthorities() // We only allow this for actual logged in users for now, not for client_credentials
                 ?: throw AccessDeniedException(
                         "You must be a logged in user to access this resource"
                     )

@@ -149,7 +149,20 @@ if (project.hasProperty('prod')) {
 ext.findbugAnnotationVersion = '3.0.2'
 
 dependencies {
+    api group: 'com.auth0', name: 'java-jwt', version: oauth_jwt_version
+    api(platform("org.jetbrains.kotlinx:kotlinx-coroutines-bom:$coroutines_version"))
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version")
     implementation("org.jetbrains.kotlin:kotlin-reflect:1.9.10")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:$coroutines_version")
+
+    implementation("org.radarbase:radar-commons-kotlin:1.0.0")
+
+    implementation(platform("io.ktor:ktor-bom:$ktor_version"))
+    implementation("io.ktor:ktor-client-core")
+    implementation("io.ktor:ktor-client-cio")
+    implementation("io.ktor:ktor-client-content-negotiation")
+    implementation("io.ktor:ktor-serialization-kotlinx-json")
+
     implementation("tech.jhipster:jhipster-framework:${jhipster_server_version}")
     implementation("tech.jhipster:jhipster-dependencies:${jhipster_server_version}")
     implementation("io.micrometer:micrometer-core")

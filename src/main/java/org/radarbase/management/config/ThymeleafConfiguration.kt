@@ -7,10 +7,10 @@ import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver
 import java.nio.charset.StandardCharsets
 
 @Configuration
-class ThymeleafConfiguration {
+open class ThymeleafConfiguration {
     @Bean
     @Description("Thymeleaf template resolver serving HTML 5 emails")
-    fun emailTemplateResolver(): ClassLoaderTemplateResolver {
+    open fun emailTemplateResolver(): ClassLoaderTemplateResolver {
         val emailTemplateResolver = ClassLoaderTemplateResolver()
         emailTemplateResolver.prefix = "templates/"
         emailTemplateResolver.suffix = ".html"

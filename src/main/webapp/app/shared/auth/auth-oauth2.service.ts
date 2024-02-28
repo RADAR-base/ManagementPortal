@@ -3,13 +3,21 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 import { map, switchMap } from "rxjs/operators";
+import {SessionService} from "../session/session.service";
+import {environment} from "../../../environments/environment";
 
 @Injectable({ providedIn: 'root' })
 export class AuthServerProvider {
 
+    logoutUrl;
+
     constructor(
             private http: HttpClient,
+            private sessionService: SessionService,
     ) {
+        sessionService.logoutUrl$.subscribe(
+            url => this.logoutUrl = url
+        )
     }
 
     login(credentials): Observable<any> {
@@ -34,9 +42,8 @@ export class AuthServerProvider {
             );
     }
 
-    logout(): Observable<void> {
-        return this.http.post('api/logout', {observe: 'body'})
-          .pipe(map(() => {}));
+    logout() {
+        window.location.href = this.logoutUrl + "&return_to=" + environment.BASE_URL;
     }
 }
 

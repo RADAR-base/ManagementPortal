@@ -173,9 +173,8 @@ class SourceService(
     ): List<MinimalSourceDetailsDTO> {
         return sourceRepository
             .findAllSourcesByProjectIdAndAssigned(projectId, assigned)
-            ?.map { source -> sourceMapper.sourceToMinimalSourceDetailsDTO(source) }
-            ?.toList()
-            ?: listOf()
+            .map { source -> sourceMapper.sourceToMinimalSourceDetailsDTO(source) }
+            .toList()
     }
 
     /**

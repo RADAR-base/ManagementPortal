@@ -4,6 +4,7 @@ import { NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 
 import { LoginModalService } from '../../shared';
 import { Subscription } from "rxjs";
+import {environment} from "../../../environments/environment";
 
 @Component({
     selector: 'jhi-error',
@@ -33,6 +34,6 @@ export class ErrorComponent implements OnInit, OnDestroy {
     }
 
     login() {
-        this.modalRef = this.loginModalService.open();
+        window.location.href =  environment.KRATOS_URL + `/login?return_to=` + environment.BASE_URL;
     }
 }

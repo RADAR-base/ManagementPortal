@@ -3,7 +3,9 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  production: false,
+    KRATOS_URL: 'https://radar-k3s-test.thehyve.net/kratos-ui/',
+    BASE_URL: 'https://radar-k3s-test.thehyve.net/managementportal'
 };
 
 /*

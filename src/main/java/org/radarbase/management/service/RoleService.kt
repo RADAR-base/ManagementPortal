@@ -59,7 +59,7 @@ class RoleService(
      */
     @Transactional(readOnly = true)
     fun findAll(): List<RoleDTO> {
-        val optUser = userService.userWithAuthorities
+        val optUser = userService.getUserWithAuthorities()
             ?: // return an empty list if we do not have a current user (e.g. with client credentials
             // oauth2 grant)
             return emptyList()

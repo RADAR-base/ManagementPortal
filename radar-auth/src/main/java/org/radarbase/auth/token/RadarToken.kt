@@ -85,6 +85,12 @@ interface RadarToken {
     val clientId: String?
 
     /**
+     * the authenticator assurance level of the token
+     * @return default.
+     */
+    val authenticatorLevel: AuthenticatorLevel
+
+    /**
      * Whether the current credentials were obtained with a OAuth 2.0 client credentials flow.
      *
      * @return true if the client credentials flow was certainly used, false otherwise.
@@ -96,5 +102,10 @@ interface RadarToken {
 
     companion object {
         const val CLIENT_CREDENTIALS = "client_credentials"
+    }
+
+    enum class AuthenticatorLevel {
+        aal1,
+        aal2
     }
 }
