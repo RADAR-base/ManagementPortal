@@ -44,6 +44,7 @@ import kotlin.collections.set
 @SessionAttributes("authorizationRequest")
 class OAuth2LoginUiWebConfig(
     @Autowired private val tokenEndPoint: TokenEndpoint,
+    @Autowired private val managementPortalProperties: ManagementPortalProperties
 ) {
 
     @Autowired
@@ -52,7 +53,8 @@ class OAuth2LoginUiWebConfig(
     @RequestMapping("/oauth2/authorize")
     fun redirect_authorize(request: HttpServletRequest): String {
         val returnString = URLEncoder.encode(request.requestURL.toString().replace("oauth2", "oauth") + "?" + request.parameterMap.map{ param -> param.key + "=" + param.value.first()}.joinToString("&"), "UTF-8")
-        return "redirect:https://radar-k3s-test.thehyve.net/kratos-ui/login?return_to=$returnString"
+        val mpUrl = managementPortalProperties.common.baseUrl
+        return "redirect:$mpUrl/kratos-ui/login?return_to=$returnString"
     }
 
     @PostMapping(
