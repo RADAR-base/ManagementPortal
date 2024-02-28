@@ -136,9 +136,9 @@ object OAuthHelper {
      *
      * @return configured TokenValidator
      */
-    fun createTokenValidator(): TokenValidator {
+    private fun createTokenValidator(): TokenValidator {
         // Use tokenValidator with known JWTVerifier which signs.
-        return TokenValidator(verifiers!!)
+        return TokenValidator(verifiers)
     }
 
     private fun createAdminUser(): User {

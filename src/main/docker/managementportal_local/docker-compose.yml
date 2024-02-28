@@ -1,0 +1,17 @@
+# start the dockerstack using a locally built docker image of app-config.
+version: "3.8"
+
+include:
+  - "../non_managementportal/docker-compose.yml"
+
+services:
+  managementportal:
+    extends:
+      file: ../managementportal.yml
+      service: managementportal-app
+    depends_on:
+      - kratos
+    networks:
+      - db
+      - mp
+      - default

@@ -51,26 +51,25 @@ import java.util.*
 import javax.sql.DataSource
 
 @Configuration
-class OAuth2ServerConfiguration {
-    @Autowired
-    private val dataSource: DataSource? = null
-
-    @Autowired
-    private val passwordEncoder: PasswordEncoder? = null
+class OAuth2ServerConfiguration(
+    @Autowired private val dataSource: DataSource,
+    @Autowired private val passwordEncoder: PasswordEncoder
+) {
 
     @Configuration
     @Order(-20)
-    protected class LoginConfig : WebSecurityConfigurerAdapter() {
-        @Autowired
-        private val authenticationManager: AuthenticationManager? = null
-
-        @Autowired
-        private val jwtAuthenticationFilter: JwtAuthenticationFilter? = null
+    protected class LoginConfig(
+        @Autowired private val authenticationManager: AuthenticationManager,
+        @Autowired private val jwtAuthenticationFilter: JwtAuthenticationFilter
+    ) : WebSecurityConfigurerAdapter() {
 
         @Throws(Exception::class)
         override fun configure(http: HttpSecurity) {
             http
                 .formLogin().loginPage("/login").permitAll()
+                .and()
+                .authorizeRequests()
+                .antMatchers("/oauth/token").permitAll()
                 .and()
                 .addFilterAfter(
                     jwtAuthenticationFilter,
@@ -89,22 +88,18 @@ class OAuth2ServerConfiguration {
     }
 
     @Configuration
-    class JwtAuthenticationFilterConfiguration {
-        @Autowired
-        private val authenticationManager: AuthenticationManager? = null
-
-        @Autowired
-        private val userRepository: UserRepository? = null
-
-        @Autowired
-        private val keyStoreHandler: ManagementPortalOauthKeyStoreHandler? = null
-
+    class JwtAuthenticationFilterConfiguration(
+        @Autowired private val authenticationManager: AuthenticationManager,
+        @Autowired private val userRepository: UserRepository,
+        @Autowired private val keyStoreHandler: ManagementPortalOauthKeyStoreHandler,
+        @Autowired private val managementPortalProperties: ManagementPortalProperties
+    ) {
         @Bean
         fun jwtAuthenticationFilter(): JwtAuthenticationFilter {
             return JwtAuthenticationFilter(
-                keyStoreHandler!!.tokenValidator,
-                authenticationManager!!,
-                userRepository!!,
+                keyStoreHandler.tokenValidator,
+                authenticationManager,
+                userRepository,
                 true
             )
         }
@@ -133,8 +128,11 @@ class OAuth2ServerConfiguration {
                 keyStoreHandler.tokenValidator, authenticationManager, userRepository
             )
                 .skipUrlPattern(HttpMethod.GET, "/management/health")
+                .skipUrlPattern(HttpMethod.POST, "/oauth/token")
                 .skipUrlPattern(HttpMethod.GET, "/api/meta-token/*")
                 .skipUrlPattern(HttpMethod.GET, "/api/sitesettings")
+                .skipUrlPattern(HttpMethod.GET, "/api/logout-url")
+                .skipUrlPattern(HttpMethod.GET, "/oauth2/authorize")
                 .skipUrlPattern(HttpMethod.GET, "/images/**")
                 .skipUrlPattern(HttpMethod.GET, "/css/**")
                 .skipUrlPattern(HttpMethod.GET, "/js/**")
@@ -147,17 +145,17 @@ class OAuth2ServerConfiguration {
                 .exceptionHandling()
                 .authenticationEntryPoint(http401UnauthorizedEntryPoint)
                 .and()
-                .logout()
-                .invalidateHttpSession(true)
-                .logoutUrl("/api/logout")
-                .logoutSuccessHandler(logoutSuccessHandler)
-                .and()
-                .csrf()
-                .disable()
                 .addFilterBefore(
                     jwtAuthenticationFilter(),
                     UsernamePasswordAuthenticationFilter::class.java
                 )
+                .authorizeRequests()
+                .antMatchers("/oauth/**").permitAll()
+                .and()
+                .logout().invalidateHttpSession(true)
+                .logoutUrl("/api/logout")
+                .logoutSuccessHandler(logoutSuccessHandler)
+                .and()
                 .headers()
                 .frameOptions()
                 .disable()
@@ -165,16 +163,21 @@ class OAuth2ServerConfiguration {
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
                 .and()
+                .addFilterBefore(
+                    jwtAuthenticationFilter(),
+                    UsernamePasswordAuthenticationFilter::class.java
+                )
                 .authorizeRequests()
-                .antMatchers("/oauth/**").permitAll()
                 .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .antMatchers("/api/register")
                 .hasAnyAuthority(RoleAuthority.SYS_ADMIN_AUTHORITY)
                 .antMatchers("/api/profile-info").permitAll()
                 .antMatchers("/api/sitesettings").permitAll()
+                .antMatchers("/api/logout-url").permitAll()
                 .antMatchers("/api/**")
                 .authenticated() // Allow management/health endpoint to all to allow kubernetes to be able to
                 // detect the health of the service
+                .antMatchers("/oauth/token").permitAll()
                 .antMatchers("/management/health").permitAll()
                 .antMatchers("/management/**")
                 .hasAnyAuthority(RoleAuthority.SYS_ADMIN_AUTHORITY)

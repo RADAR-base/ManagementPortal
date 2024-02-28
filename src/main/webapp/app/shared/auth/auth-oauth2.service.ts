@@ -3,13 +3,21 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { first, tap } from 'rxjs/operators';
 import { map, switchMap } from "rxjs/operators";
+import {SessionService} from "../session/session.service";
+import {environment} from "../../../environments/environment";
 
 @Injectable({ providedIn: 'root' })
 export class AuthServerProvider {
 
+    logoutUrl;
+
     constructor(
             private http: HttpClient,
+            private sessionService: SessionService,
     ) {
+        sessionService.logoutUrl$.subscribe(
+            url => this.logoutUrl = url
+        )
     }
 
     login(credentials): Observable<any> {
@@ -34,20 +42,8 @@ export class AuthServerProvider {
             );
     }
 
-    requestOtpCode(credentials) :Observable<any> {
-        const headers = new HttpHeaders().append('Accept', 'application/json');
-        return this.http.post('api/mf-authenticate/code',credentials, {headers, observe: 'body'})
-    }
-
-    submitOPTCode(credentials) {
-        const body = new HttpParams().append('userName', 'admin');
-        const headers = new HttpHeaders().append('Accept', 'application/json');
-        return this.http.post('api/mf-authenticate', credentials, {headers, observe: 'body'});
-    }
-
-    logout(): Observable<void> {
-        return this.http.post('api/logout', {observe: 'body'})
-          .pipe(map(() => {}));
+    logout() {
+        window.location.href = this.logoutUrl + "&return_to=" + environment.BASE_URL;
     }
 }
 

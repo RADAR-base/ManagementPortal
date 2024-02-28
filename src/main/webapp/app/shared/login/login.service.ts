@@ -41,7 +41,7 @@ export class LoginService {
     }
 
     logout() {
-        this.authServerProvider.logout().subscribe();
+        this.authServerProvider.logout();
         this.principal.authenticate(null);
     }
 }

@@ -32,7 +32,7 @@ class DomainUserDetailsService(
             )
         }
         val grantedAuthorities =
-            user.authorities!!.map { authority -> SimpleGrantedAuthority(authority) }
+            user.authorities.map { authority -> SimpleGrantedAuthority(authority) }
         return User(
             lowercaseLogin,
             user.password,
