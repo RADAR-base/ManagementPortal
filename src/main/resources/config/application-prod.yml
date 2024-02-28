@@ -107,7 +107,7 @@ managementportal:
     enableAutoImport: false
   identityServer:
     adminEmail: bdegraaf1234@gmail.com
-    serverUrl: http://kratos
+    serverUrl: https://radar-k3s-test.thehyve.net/kratos
     serverAdminUrl: http://kratos-admin
 
 # ===================================================================

@@ -68,16 +68,17 @@ class OAuth2ServerConfiguration(
             http
                 .formLogin().loginPage("/login").permitAll()
                 .and()
+                .authorizeRequests()
+                .antMatchers("/oauth/token").permitAll()
+                .and()
                 .addFilterAfter(
                     jwtAuthenticationFilter,
                     UsernamePasswordAuthenticationFilter::class.java
                 )
                 .requestMatchers()
-                .antMatchers("/login", "/oauth/authorize", "/oauth/confirm_access", "/oauth/token")
+                .antMatchers("/login", "/oauth/authorize", "/oauth/confirm_access")
                 .and()
                 .authorizeRequests().anyRequest().authenticated()
-
-            http.csrf().disable() //TODO review security implications
         }
 
         @Throws(Exception::class)
@@ -127,6 +128,7 @@ class OAuth2ServerConfiguration(
                 keyStoreHandler.tokenValidator, authenticationManager, userRepository
             )
                 .skipUrlPattern(HttpMethod.GET, "/management/health")
+                .skipUrlPattern(HttpMethod.POST, "/oauth/token")
                 .skipUrlPattern(HttpMethod.GET, "/api/meta-token/*")
                 .skipUrlPattern(HttpMethod.GET, "/api/sitesettings")
                 .skipUrlPattern(HttpMethod.GET, "/api/logout-url")
@@ -143,7 +145,6 @@ class OAuth2ServerConfiguration(
                 .exceptionHandling()
                 .authenticationEntryPoint(http401UnauthorizedEntryPoint)
                 .and()
-                .csrf().disable()
                 .addFilterBefore(
                     jwtAuthenticationFilter(),
                     UsernamePasswordAuthenticationFilter::class.java
@@ -155,7 +156,6 @@ class OAuth2ServerConfiguration(
                 .logoutUrl("/api/logout")
                 .logoutSuccessHandler(logoutSuccessHandler)
                 .and()
-                .csrf().disable()
                 .headers()
                 .frameOptions()
                 .disable()
@@ -177,6 +177,7 @@ class OAuth2ServerConfiguration(
                 .antMatchers("/api/**")
                 .authenticated() // Allow management/health endpoint to all to allow kubernetes to be able to
                 // detect the health of the service
+                .antMatchers("/oauth/token").permitAll()
                 .antMatchers("/management/health").permitAll()
                 .antMatchers("/management/**")
                 .hasAnyAuthority(RoleAuthority.SYS_ADMIN_AUTHORITY)

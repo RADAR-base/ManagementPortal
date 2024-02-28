@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-    KRATOS_URL: 'https://radar-k3s-test.thehyve.net/kratos',
+    KRATOS_URL: 'https://radar-k3s-test.thehyve.net/kratos-ui/',
     BASE_URL: 'https://radar-k3s-test.thehyve.net/managementportal'
 };
 

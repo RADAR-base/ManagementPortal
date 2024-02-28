@@ -1,5 +1,6 @@
 package org.radarbase.management.config
 
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
@@ -9,7 +10,6 @@ import org.springframework.security.authentication.InsufficientAuthenticationExc
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.oauth2.common.OAuth2AccessToken
-import org.springframework.security.oauth2.common.exceptions.InvalidClientException
 import org.springframework.security.oauth2.common.exceptions.OAuth2Exception
 import org.springframework.security.oauth2.common.util.OAuth2Utils
 import org.springframework.security.oauth2.provider.ClientDetailsService
@@ -55,6 +55,16 @@ class OAuth2LoginUiWebConfig(
         return "redirect:https://radar-k3s-test.thehyve.net/kratos-ui/login?return_to=$returnString"
     }
 
+    @PostMapping(
+        "/oauth2/token",
+        consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE],
+        produces = [MediaType.APPLICATION_FORM_URLENCODED_VALUE]
+    )
+    fun redirect_token(@RequestParam parameters: Map<String, String>, request: HttpServletRequest, response: HttpServletResponse) {
+        var dispatcher: RequestDispatcher =  request.servletContext.getRequestDispatcher("/oauth/token/")
+        dispatcher.forward(request, response)
+    }
+
     @PostMapping(value = ["/oauth/token"],
         consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE]
     )
@@ -69,10 +79,13 @@ class OAuth2LoginUiWebConfig(
             )
         }
 
-        val clientId: String = parameters.get("client_id") ?: throw InvalidClientException("No client_id in request")
+        val grant_type = parameters.get("grant_type")
+        logger.debug("Token request of grant type $grant_type received")
+
+        val clientId: String = parameters.get("client_id") ?: principal.name
         var radarPrincipal = RadarPrincipal(clientId, principal)
 
-        val token2 = this.tokenEndPoint.postAccessToken(radarPrincipal, parameters)// loadClientByClientId(clientId)
+        val token2 = this.tokenEndPoint.postAccessToken(radarPrincipal, parameters)
         return getResponse(token2.body)
     }
 
@@ -82,17 +95,6 @@ class OAuth2LoginUiWebConfig(
         headers["Pragma"] = "no-cache"
         headers["Content-Type"] = "application/json"
         return ResponseEntity(accessToken, headers, HttpStatus.OK)
-    }
-
-
-    @PostMapping(
-        "/oauth2/token",
-        consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE],
-        produces = [MediaType.APPLICATION_FORM_URLENCODED_VALUE]
-        )
-    fun redirect_token(request: HttpServletRequest, response: HttpServletResponse) {
-        var dispatcher: RequestDispatcher =  request.servletContext.getRequestDispatcher("/oauth/token/")
-        dispatcher.forward(request, response)
     }
 
     /**
@@ -204,5 +206,11 @@ class OAuth2LoginUiWebConfig(
             auth.isAuthenticated = isAuthenticated
         }
 
+    }
+
+    companion object {
+        private val logger = LoggerFactory.getLogger(
+            OAuth2LoginUiWebConfig::class.java
+        )
     }
 }

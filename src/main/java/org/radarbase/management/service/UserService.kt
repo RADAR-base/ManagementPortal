@@ -13,6 +13,7 @@ import kotlinx.coroutines.withContext
 import org.radarbase.auth.authorization.EntityDetails
 import org.radarbase.auth.authorization.Permission
 import org.radarbase.auth.authorization.RoleAuthority
+import org.radarbase.auth.exception.IdpException
 import org.radarbase.management.config.ManagementPortalProperties
 import org.radarbase.management.domain.Role
 import org.radarbase.management.domain.User
@@ -165,7 +166,7 @@ class UserService @Autowired constructor(
         user.password = passwordService.generateEncodedPassword()
         user.resetKey = passwordService.generateResetKey()
         user.resetDate = ZonedDateTime.now()
-        user.activated = false //TODO autoactivation, desirable?
+        user.activated = true
         user.roles = getUserRoles(userDto.roles, mutableSetOf())
 
         try{
@@ -500,6 +501,11 @@ class UserService @Autowired constructor(
         catch (e: Throwable){
             log.warn(e.message, e)
         }
+    }
+
+    @Throws(IdpException::class)
+    suspend fun getRecoveryLink(user: User): String {
+        return identityService.getRecoveryLink(user)
     }
 
     companion object {

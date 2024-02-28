@@ -55,7 +55,7 @@ class SessionService(private val serverUrl: String) {
                 kratosSession = response.body<KratosSessionDTO>()
                 log.debug("session retrieved: {}", kratosSession)
             } else {
-                throw IdpException("couldn't get kratos session $token at $address")
+                throw IdpException("couldn't get kratos session $token at $address", token = token)
             }
         }
 
@@ -79,17 +79,16 @@ class SessionService(private val serverUrl: String) {
             if (response.status.isSuccess()) {
                 logOutResponse = response.body<LogoutResponse>()
             } else {
-                throw IdpException("couldn't get logout url at $address")
+                throw IdpException("couldn't get logout url at $address", token)
             }
         }
 
-        return logOutResponse.logout_url ?: throw IdpException("could not get logoutUrl")
+        return logOutResponse.logout_url ?: throw IdpException("could not get logoutUrl", token)
     }
 
     @Serializable
     class LogoutResponse (
         val logout_url: String?,
-        val logout_token: String?,
     )
 
     companion object {

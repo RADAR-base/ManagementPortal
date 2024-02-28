@@ -53,6 +53,9 @@ class IdentityService(
     init {
         adminUrl = managementPortalProperties.identityServer.adminUrl()
         publicUrl = managementPortalProperties.identityServer.publicUrl()
+
+        log.debug("kratos serverUrl set to ${managementPortalProperties.identityServer.publicUrl()}")
+        log.debug("kratos serverAdminUrl set to ${managementPortalProperties.identityServer.adminUrl()}")
     }
 
     /** Save a [User] to the IDP as an identity. Returns the generated [KratosSessionDTO.Identity] */
@@ -76,7 +79,7 @@ class IdentityService(
                 log.debug("saved identity for user ${user.login} to IDP as ${kratosIdentity.id}")
             } else {
                 throw IdpException(
-                    "couldn't save Kratos ID to server at " + adminUrl
+                    "couldn't save Kratos ID to server at " + adminUrl,
                 )
             }
         }
@@ -89,7 +92,9 @@ class IdentityService(
     suspend fun updateAssociatedIdentity(user: User): KratosSessionDTO.Identity? {
         val kratosIdentity: KratosSessionDTO.Identity?
 
-        user.identity ?: throw IdpException("user ${user.login} could not be updated on the IDP. No identity was set")
+        user.identity ?: throw IdpException(
+            "user ${user.login} could not be updated on the IDP. No identity was set",
+        )
 
         withContext(Dispatchers.IO) {
             val identity = createIdentity(user)
@@ -118,7 +123,9 @@ class IdentityService(
     @Throws(IdpException::class)
     suspend fun deleteAssociatedIdentity(userIdentity: String?) {
         withContext(Dispatchers.IO) {
-            userIdentity ?: throw IdpException("user with ID ${userIdentity} could not be deleted from the IDP. No identity was set")
+            userIdentity ?: throw IdpException(
+                "user with ID ${userIdentity} could not be deleted from the IDP. No identity was set"
+            )
 
             val response = httpClient.delete {
                 url("${adminUrl}/admin/identities/${userIdentity}")
@@ -176,6 +183,46 @@ class IdentityService(
             log.error(message)
             throw IdpException(message, e)
         }
+    }
+
+    /**
+     * get a recovery link from the identityprovider in the response, which expires in 24 hours.
+     * @param user The user for whom the recovery link is requested.
+     * @return The recovery link obtained from the server response.
+     * @throws IdpException If there is an issue with the identity or if the recovery link cannot be obtained from the server.
+     */
+    @Throws(IdpException::class)
+    suspend fun getRecoveryLink(user: User): String {
+        val recoveryLink: String
+
+        user.identity ?: throw IdpException(
+            "user ${user.login} could not be recovered on the IDP. No identity was set",
+        )
+
+        withContext(Dispatchers.IO) {
+            val response = httpClient.post {
+                url("${adminUrl}/admin/recovery/link")
+                contentType(ContentType.Application.Json)
+                accept(ContentType.Application.Json)
+                setBody(
+                    mapOf(
+                        "expires_in" to "24h",
+                        "identity_id" to user.identity
+                    )
+                )
+            }
+
+            if (response.status.isSuccess()) {
+                recoveryLink = response.body<Map<String, String>>()["recovery_link"]!!
+                log.debug("recovery link for user ${user.login} is $recoveryLink")
+            } else {
+                throw IdpException(
+                    "couldn't get recovery link from server at $adminUrl"
+                )
+            }
+        }
+
+        return recoveryLink
     }
 
     companion object {

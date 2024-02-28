@@ -18,7 +18,9 @@ class JwtTokenVerifier(
     private val verifier: JWTVerifier,
 ) : TokenVerifier {
     override suspend fun verify(token: String): RadarToken = try {
-        val jwt = verifier.verify(token)
+        logger.debug("Attempting to verify JWT header {} and payload {}", token.split(".")[0], token.split(".")[1])
+
+         val jwt = verifier.verify(token)
 
         // Do not print full token with signature to avoid exposing valid token in logs.
         logger.debug("Verified JWT header {} and payload {}", jwt.header, jwt.payload)
