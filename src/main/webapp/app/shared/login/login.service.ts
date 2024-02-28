@@ -32,14 +32,6 @@ export class LoginService {
         );
     }
 
-    requestOtpCode(credentials):  Observable<any> {
-        return this.authServerProvider.requestOtpCode(credentials);
-    }
-
-    submitOptCode(credentials): Observable<any> {
-        return this.authServerProvider.submitOPTCode(credentials);
-    }
-
     logout() {
         this.authServerProvider.logout();
         this.principal.authenticate(null);
