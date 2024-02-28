@@ -48,7 +48,7 @@
             "opt.placeholder": "OPT Code",
             "username": "Username",
             "username.placeholder": "Your username",
-            "newpassword": "New password",
+            "newpassword": "New password (Please use a complex password, preferably generated with a password manager)",
             "newpassword.placeholder": "New password",
             "confirmpassword": "New password confirmation",
             "confirmpassword.placeholder": "Confirm the new password",
@@ -64,18 +64,18 @@
             },
             "error": {
                 "dontmatch": "The password and its confirmation do not match!",
-                "weakpassword": "Password strength must be at least four bars. Add symbols and numbers to increase the strength."
+                "weakpassword": "Password strength must be at least four bars."
             },
             "validate": {
                 "newpassword": {
                     "required": "Your password is required.",
-                    "minlength": "Your password is required to be at least 8 characters.",
+                    "minlength": "Your password is required to be at least 12 characters.",
                     "maxlength": "Your password cannot be longer than 100 characters.",
                     "strength": "Password strength:"
                 },
                 "confirmpassword": {
                     "required": "Your confirmation password is required.",
-                    "minlength": "Your confirmation password is required to be at least 8 characters.",
+                    "minlength": "Your confirmation password is required to be at least 12 characters.",
                     "maxlength": "Your confirmation password cannot be longer than 100 characters."
                 },
                 "email": {

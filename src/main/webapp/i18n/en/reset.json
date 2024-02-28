@@ -8,7 +8,7 @@
             "messages": {
                 "info": "Enter the email address you used to register",
                 "success": "Check your emails for details on how to reset your password.",
-                "notfound": "<strong>No activated account found with this email!</strong> Please check and try again or contact system admin."
+                "notfound": "Check your emails for details on how to reset your password."
             }
         },
         "finish" : {
