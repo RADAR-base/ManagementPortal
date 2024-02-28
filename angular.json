@@ -87,7 +87,8 @@
           },
           "defaultConfiguration": "development",
           "options": {
-            "proxyConfig": "proxy.conf.json",
+              "disableHostCheck": true,
+              "proxyConfig": "proxy.conf.json",
             "port": 8081
           }
         },
@@ -136,9 +137,7 @@
           },
           "configurations": {
             "production": {
-              "devServerTarget": "management-portal:serve:production",
-              "watch": false,
-              "headless": true
+              "devServerTarget": "management-portal:serve:production"
             }
           }
         }

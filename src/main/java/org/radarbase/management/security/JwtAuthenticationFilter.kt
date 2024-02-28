@@ -1,22 +1,20 @@
 package org.radarbase.management.security
 
+import io.ktor.http.*
 import org.radarbase.auth.authentication.TokenValidator
 import org.radarbase.auth.authorization.AuthorityReference
 import org.radarbase.auth.authorization.RoleAuthority
 import org.radarbase.auth.exception.TokenValidationException
 import org.radarbase.auth.token.RadarToken
-import org.radarbase.management.config.OAuth2ServerConfiguration
 import org.radarbase.management.domain.Role
 import org.radarbase.management.domain.User
 import org.radarbase.management.repository.UserRepository
+import org.radarbase.management.web.rest.util.HeaderUtil.parseCookies
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
-import org.springframework.security.authentication.AnonymousAuthenticationToken
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.core.Authentication
-import org.springframework.security.core.GrantedAuthority
-import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.oauth2.provider.OAuth2Authentication
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher
@@ -30,6 +28,7 @@ import javax.servlet.ServletException
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 import javax.servlet.http.HttpSession
+
 
 /**
  * Authentication filter using given validator.
@@ -111,11 +110,18 @@ class JwtAuthenticationFilter @JvmOverloads constructor(
         }
     }
 
-    private fun tokenFromHeader(httpRequest: HttpServletRequest): String? =
-        httpRequest.getHeader(HttpHeaders.AUTHORIZATION)
+    private fun tokenFromHeader(httpRequest: HttpServletRequest): String? {
+        val authHeader = httpRequest.getHeader(HttpHeaders.AUTHORIZATION)
             ?.takeIf { it.startsWith(AUTHORIZATION_BEARER_HEADER) }
             ?.removePrefix(AUTHORIZATION_BEARER_HEADER)
             ?.trim { it <= ' ' }
+        if (authHeader == null) {
+            return parseCookies(httpRequest.getHeader(HttpHeaders.COOKIE)).find { it.name == "ory_kratos_session" }
+                ?.value
+        }
+
+        return authHeader
+    }
 
     @Throws(IOException::class)
     private fun validateToken(
@@ -152,8 +158,8 @@ class JwtAuthenticationFilter @JvmOverloads constructor(
     ): RadarToken? {
         val userName = token.username ?: return token
         val user = userRepository.findOneByLogin(userName)
-        return if (user.isPresent) {
-            token.copyWithRoles(user.get().authorityReferences)
+        return if (user != null) {
+            token.copyWithRoles(user.authorityReferences)
         } else {
             session?.removeAttribute(TOKEN_ATTRIBUTE)
             httpResponse.returnUnauthorized(httpRequest, "User not found")
@@ -190,15 +196,17 @@ class JwtAuthenticationFilter @JvmOverloads constructor(
          * @return set of authority references.
          */
         val User.authorityReferences: Set<AuthorityReference>
-            get() = roles.mapTo(HashSet()) { role: Role ->
-                val auth = role.role
-                val referent = when (auth.scope) {
+            get() = roles.mapTo(HashSet()) { role: Role? ->
+                val auth = role?.role
+                val referent = when (auth?.scope) {
                     RoleAuthority.Scope.GLOBAL -> null
-                    RoleAuthority.Scope.ORGANIZATION -> role.organization.name
-                    RoleAuthority.Scope.PROJECT -> role.project.projectName
+                    RoleAuthority.Scope.ORGANIZATION -> role.organization?.name
+                    RoleAuthority.Scope.PROJECT -> role.project?.projectName
+                    null -> null
                 }
-                AuthorityReference(auth, referent)
-            }
+                AuthorityReference(auth!!, referent)
+            } ?: setOf()
+
 
 
         @get:JvmStatic

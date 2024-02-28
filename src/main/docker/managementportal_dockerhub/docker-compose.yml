@@ -1,0 +1,18 @@
+# start the dockerstack using a prebuilt image pulled from dockerhub.
+version: "3.8"
+
+include:
+  - "../non_managementportal/docker-compose.yml"
+
+services:
+  managementportal:
+    extends:
+      file: ../managementportal.yml
+      service: managementportal-app
+    image: managementportal
+    depends_on:
+      - kratos
+    networks:
+      - db
+      - mp
+      - default

@@ -13,6 +13,7 @@ Management Portal is an application which is used to manage clinical studies for
 - [Configuration](#configuration)
   * [Environment Variables](#environment-variables)
   * [OAuth Clients](#oauth-clients)
+  * [User management by Ory](#user-management)
   * [UI Customization](#ui-customization)
 - [Development](#development)
   * [Managing dependencies](#managing-dependencies)
@@ -21,7 +22,7 @@ Management Portal is an application which is used to manage clinical studies for
 - [Testing](#testing)
   * [Client tests](#client-tests)
   * [Other tests](#other-tests)
-- [Using Docker to simplify development (optional)](#using-docker-to-simplify-development--optional-)
+- [Using Docker to simplify development (optional)](#using-docker-to-simplify-development-optional)
 - [Documentation](#documentation)
 - [Client libraries](#client-libraries)
 
@@ -48,8 +49,8 @@ docker-compose files.
    ```
 3. Now, we can start the stack with `docker-compose -f src/main/docker/management-portal.yml up -d`.
 
-This will start a Postgres database and ManagementPortal. The default password for the `admin`
-account is `admin`.
+This will start a Postgres database, ManagementPortal and the [kratos identity provider stack](https://www.ory.sh/docs/kratos/ory-kratos-intro). The default password for the `admin`
+account is `admin`. An angular live development server to access the managementportal can be started using the `yarn start` command (see [Development](#development)).
 
 ### Build from source
 
@@ -68,15 +69,15 @@ You must install and configure the following dependencies on your machine to run
 main differences between the profiles. Configure the application using the property file at `src/main/resources/config/application-<profile>.yml`.Read more about configurations [here](#configuration)
     
 5. Run ManagementPortal by running `./gradlew bootRun -Pprod` or `./gradlew bootRun -Pdev`. Development mode will start an in
-memory database and ManagementPortal. 
+memory database and ManagementPortal. An angular live development server to access the managementportal can be started using the `yarn start` command (see [Development](#development)).
 6. You can log in to the application using `admin:admin`. Please don't forgot to change the password of `admin`, if you are using the application on production environment.
+7. The identity server stack can be started in docker by using the docker compose command `docker-compose -f .\src\main\docker\app.yml up -d kratos kratos-selfservice-ui-node kratos-migrate postgresd-kratos mailslurper`
 
 
 |                                  | Development     | Production                        |
 |----------------------------------|-----------------|-----------------------------------|
 | Database type                    | In-memory       | Postgres                          |
 | Demo data loaded                 | Yes             | No                                |
-| Context path of the application  | `/`             | `/managementportal`               |
 
 
 
@@ -89,6 +90,8 @@ Management Portal comes with a set of default values for its configuration. You 
 the `application.yml` and `application-prod.yml` (or `application-dev.yml` when running the
 development profile) before building the application, or override the defaults using environment
 variables.
+
+
 
 ### Environment Variables
 
@@ -109,12 +112,15 @@ for other options on overriding the default configuration.
 | `MANAGEMENTPORTAL_FRONTEND_CLIENT_SECRET`                   | None, you need to override this                     | OAuth client secret for the frontend                                                                                                                                                                                                        |
 | `MANAGEMENTPORTAL_FRONTEND_ACCESS_TOKEN_VALIDITY_SECONDS`   | `14400`                                             | Frontend access token validity period in seconds                                                                                                                                                                                            |
 | `MANAGEMENTPORTAL_FRONTEND_REFRESH_TOKEN_VALIDITY_SECONDS`  | `259200`                                            | Frontend refresh token validity period in seconds                                                                                                                                                                                           |
+| `MANAGEMENTPORTAL_OAUTH_REQUIREAAL2`                        | `true`                                              | Whether to require AAL2 (2-FA or equivalent) level authentication for access to the managementportal.                                                                                                                                       |
 | `MANAGEMENTPORTAL_OAUTH_CLIENTS_FILE`                       | `/mp-includes/config/oauth_client_details.csv`      | Location of the OAuth clients file                                                                                                                                                                                                          |
 | `MANAGEMENTPORTAL_OAUTH_KEY_STORE_PASSWORD`                 | `radarbase`                                         | Password for the JWT keystore                                                                                                                                                                                                               |
 | `MANAGEMENTPORTAL_OAUTH_SIGNING_KEY_ALIAS`                  | `radarbase-managementportal-ec`                     | Alias in the keystore of the keypair to use for signing                                                                                                                                                                                     |
 | `MANAGEMENTPORTAL_OAUTH_ENABLE_PUBLIC_KEY_VERIFIERS`        | `false`                                             | Whether to use additional verifiers using public-keys and deprecated verifier implementation. If you set this to `true`, also set `RADAR_IS_CONFIG_LOCATION` and provide yaml file with public keys. Read more at radar-auth documentation. |
 | `MANAGEMENTPORTAL_CATALOGUE_SERVER_ENABLE_AUTO_IMPORT`      | `false`                                             | Whether to enable or disable auto import of sources from the catalogue server                                                                                                                                                               |
 | `MANAGEMENTPORTAL_CATALOGUE_SERVER_SERVER_URL`              | None                                                | URL to the catalogue server                                                                                                                                                                                                                 |
+| `MANAGEMENTPORTAL_IDENTITYSERVER_SERVERURL`                 | None                                                | URL to the identity server. Does not include portnumbers, which are defined separately                                                                                                                                                      |
+| `MANAGEMENTPORTAL_IDENTITYSERVER_ADMINEMAIL`                | None                                                | Email-address to be linked to the admin account.                                                                                                                                                                                            |
 | `MANAGEMENTPORTAL_COMMON_BASE_URL`                          | None                                                | Resolvable baseUrl of the hosted platform                                                                                                                                                                                                   |
 | `MANAGEMENTPORTAL_COMMON_MANAGEMENT_PORTAL_BASE_URL`        | None                                                | Resolvable baseUrl of this managementportal  instance                                                                                                                                                                                       |
 | `MANAGEMENTPORTAL_COMMON_PRIVACY_POLICY_URL`                | None                                                | Resolvable URL to the common privacy policy url                                                                                                                                                                                             |
@@ -215,6 +221,34 @@ The code grant flow for OAuth2 clients can also be the following:
     ```
    Now the app can use the access token flow.
 
+### User management
+Organizational user management and authorization for the managementportal is performed by [Ory Kratos](https://www.ory.sh/docs/kratos/ory-kratos-intro). The flow for adding users to the portal is as follows:
+
+1. Navigate to the [User management view](http://127.0.0.1:8081/#/user-management) and create a user.
+2. The new user then [resets their password](http://127.0.0.1:3000/recovery) at the kratos self-service node
+3. Adds [add two-factor authentication](http://127.0.0.1:3000/settings?#totp) at the kratos self-service node
+4. And uses these credentials to log in to the managementportal.
+
+```mermaid
+sequenceDiagram
+    participant radar as Kratos self-service node
+    actor colleague as User
+    actor researcher as Admin
+    participant mp as ManagementPortal
+    participant kratos as Kratos
+
+
+    #== User Registration ==
+    colleague -->> researcher: Request account (email required)
+    researcher -->> mp: Create user
+    mp -->> kratos: Create kratos identity 
+    colleague -->> radar: Reset password
+    radar -->> kratos: 
+    colleague -->> radar: Activate 2-FA
+    radar -->> kratos: 
+    colleague -->> mp: Login (2-FA required)
+```
+
 ### UI Customization
 
 You can customize ManagementPortal web app by replacing images located in `src/main/webapp/content/images` with your logos:
@@ -247,7 +281,9 @@ auto-refreshes when files change on your hard drive.
     ./gradlew
     yarn start
 
-Then open <http://localhost:8081/> to start the interface and sign in with admin/admin.
+Then open <http://localhost:8081/> to start the interface and sign in with the email linked to the admin account (.
+
+### Managing dependencies
 
 [Yarn][] is also used to manage CSS and JavaScript dependencies used in this application. You can upgrade dependencies by
 specifying a newer version in [package.json](package.json). You can also run `yarn update` and `yarn install` to manage dependencies.
@@ -294,7 +330,7 @@ To launch your application's tests, run:
 
 ### Client tests
 
-Unit tests are run by [Karma][] and written with [Jasmine][]. They're located in [src/test/javascript/](src/test/javascript/) and can be run with:
+Unit tests are run by [Karma][] and written with [Jasmine][]. They're located in `src/test/javascript/` and can be run with:
 
     yarn test
 
@@ -302,7 +338,7 @@ UI end-to-end tests are powered by [Cypress][], which is built on top of WebDriv
 and can be run by starting Spring Boot in one terminal (`./gradlew bootRun`) and running the tests (`yarn run e2e`) in a second one.
 ### Other tests
 
-Performance tests are run by [Gatling][] and written in Scala. They're located in [src/test/gatling](src/test/gatling) and can be run with:
+Performance tests are run by [Gatling][] and written in Scala. They're located in `src/test/gatling` and can be run with:
 
     ./gradlew gatlingRunAll
 
@@ -333,6 +369,7 @@ Then run:
     docker-compose -f src/main/docker/app.yml up -d
 
 For more information refer to [Using Docker and Docker-Compose][], this page also contains information on the docker-compose sub-generator (`yo jhipster:docker-compose`), which is able to generate docker configurations for one or several JHipster applications.
+
 ## Documentation
 
 Please find the links for some of the documentation per category/component

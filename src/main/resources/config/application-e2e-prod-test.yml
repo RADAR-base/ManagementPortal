@@ -1,0 +1,36 @@
+# ===================================================================
+# Spring Boot configuration for the "dev" profile.
+#
+# This configuration overrides the application.yml file.
+#
+# More information on profiles: https://jhipster.github.io/profiles/
+# More information on configuration properties: https://jhipster.github.io/common-application-properties/
+# ===================================================================
+
+# ===================================================================
+# Standard Spring Boot properties.
+# Full reference is available at:
+# http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
+# ===================================================================
+
+spring:
+  datasource:
+    username: radarbase
+    password: radarbase
+    url: jdbc:postgresql://localhost:5432/managementportal
+  liquibase:
+    contexts: dev
+
+
+# ===================================================================
+# ManagementPortal specific properties
+#
+# ===================================================================
+managementportal:
+  oauth:
+    clientsFile: src/main/docker/etc/config/oauth_client_details.csv
+    require-aal2: false
+  identityServer:
+    adminEmail: bastiaan@thehyve.nl
+    serverUrl: http://127.0.0.1:4433
+    serverAdminUrl: http://127.0.0.1:4434

@@ -1,6 +1,6 @@
 {
   "name": "management-portal",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Description for ManagementPortal",
   "private": true,
   "cacheDirectories": [
