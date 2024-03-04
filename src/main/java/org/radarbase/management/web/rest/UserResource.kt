@@ -205,11 +205,12 @@ class UserResource(
     @Throws(NotAuthorizedException::class)
     fun getUsers(
         @PageableDefault(page = 0, size = Int.MAX_VALUE) pageable: Pageable?,
-        userFilter: UserFilter?,
+        userFilter: UserFilter,
         @RequestParam(defaultValue = "true") includeProvenance: Boolean
     ): ResponseEntity<List<UserDTO>> {
-        authService.checkPermission(Permission.USER_READ)
-        val page = userService.findUsers(userFilter!!, pageable, includeProvenance)
+        authService.checkScope(Permission.USER_READ)
+
+        val page = userService.findUsers(userFilter, pageable, includeProvenance)
         return ResponseEntity(
             page!!.content, PaginationUtil.generatePaginationHttpHeaders(page, "/api/users"), HttpStatus.OK
         )
