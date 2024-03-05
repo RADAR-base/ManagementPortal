@@ -49,17 +49,14 @@ tasks.addRule("Pattern: gatlingRun<ID>") { String taskName ->
             final def sourceSet = sourceSets.gatling
 
             classpath sourceSet.output + files(manifestJar.archiveFile) + files("${gatlingSrc}/resources")
-            main = "io.gatling.app.Gatling"
+            mainClass.set("io.gatling.app.Gatling")
 
             environment GATLING_HOME:''
 
             def className = taskName - 'gatlingRun'
 
-            args '-df', "${gatlingSrc}/data"
             args '-rf', "${project.buildDir.absolutePath}/reports/gatling"
-            args '-bdf', "${gatlingSrc}/bodies"
             args '-sf', gatlingSimulations
-            args '-m'
             args '-s', className
         }
     }

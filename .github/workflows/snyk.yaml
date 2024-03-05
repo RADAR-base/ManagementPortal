@@ -48,4 +48,5 @@ jobs:
           --fail-on=upgradable
           --org=radar-base
           --policy-path=.snyk
-          --severity-threshold=high          
+          --severity-threshold=high
+
