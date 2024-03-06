@@ -153,11 +153,11 @@ dependencies {
     implementation("tech.jhipster:jhipster-framework:${jhipster_server_version}")
     implementation("tech.jhipster:jhipster-dependencies:${jhipster_server_version}")
     implementation("io.micrometer:micrometer-core:${micrometer_version}")
-    runtimeOnly "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jackson_version}"
-    implementation "com.fasterxml.jackson.datatype:jackson-datatype-hibernate5:${jackson_version}"
-    implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-csv:${jackson_version}"
-    implementation "com.fasterxml.jackson.core:jackson-annotations:${jackson_version}"
-    implementation "com.fasterxml.jackson.core:jackson-databind:${jackson_version}"
+    runtimeOnly "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
+    implementation "com.fasterxml.jackson.datatype:jackson-datatype-hibernate5"
+    implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-csv"
+    implementation "com.fasterxml.jackson.core:jackson-annotations"
+    implementation "com.fasterxml.jackson.core:jackson-databind"
     implementation "com.hazelcast:hazelcast:${hazelcast_version}"
     implementation "com.hazelcast:hazelcast-spring:${hazelcast_version}"
     runtimeOnly "com.hazelcast:hazelcast-hibernate53:${hazelcast_hibernate_version}"
@@ -165,41 +165,41 @@ dependencies {
     implementation group: 'com.google.code.findbugs', name: 'jsr305', version: findbugAnnotationVersion
     implementation("org.liquibase:liquibase-core:${liquibase_version}")
     runtimeOnly "com.mattbertolini:liquibase-slf4j:${liquibase_slf4j_version}"
-    implementation("org.springframework.boot:spring-boot-starter-actuator:3.0.0")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-autoconfigure")
     implementation "org.springframework.boot:spring-boot-starter-mail"
-    runtimeOnly "org.springframework.boot:spring-boot-starter-logging:3.2.2"
+    runtimeOnly "org.springframework.boot:spring-boot-starter-logging"
     runtimeOnly ("org.springframework.boot:spring-boot-starter-data-jpa") {
         exclude group: 'org.hibernate', module: 'hibernate-entitymanager'
     }
-    implementation "org.hibernate:hibernate-core"
+    implementation "org.springframework.security:spring-security-data"
+
+    implementation("org.springframework.boot:spring-boot-starter-web") {
+        exclude module: 'spring-boot-starter-tomcat'
+    }
+    runtimeOnly "org.springframework.boot:spring-boot-starter-security"
+    implementation ("org.springframework.boot:spring-boot-starter-undertow")
+
     implementation "org.hibernate:hibernate-core"
     implementation "org.hibernate:hibernate-envers"
-    implementation 'org.hibernate:hibernate-validator:8.0.0.Final'
+    implementation "org.hibernate:hibernate-validator:${hibernate_validator_version}"
 
     runtimeOnly "org.postgresql:postgresql:${postgresql_version}"
     runtimeOnly "org.hsqldb:hsqldb:${hsqldb_version}"
 
-    runtimeOnly "org.springframework.boot:spring-boot-starter-security"
-    implementation "org.springframework.security:spring-security-data"
-
-    implementation("org.springframework.boot:spring-boot-starter-web:3.1.9") {
-        exclude module: 'spring-boot-starter-tomcat'
-    }
-    implementation ("org.springframework.boot:spring-boot-starter-undertow")
     // Fix vulnerabilities
     runtimeOnly("io.undertow:undertow-websockets-jsr:2.2.25.Final")
     runtimeOnly("io.undertow:undertow-servlet:2.2.25.Final")
     runtimeOnly("io.undertow:undertow-core:2.2.25.Final")
 
     implementation "org.springframework.boot:spring-boot-starter-thymeleaf"
-    runtimeOnly("org.thymeleaf:thymeleaf-spring5:${thymeleaf_version}")
     runtimeOnly("org.thymeleaf:thymeleaf:${thymeleaf_version}")
+    runtimeOnly("org.thymeleaf:thymeleaf-spring5:${thymeleaf_version}")
     implementation("org.springframework:spring-context-support")
     implementation("org.springframework.session:spring-session-hazelcast")
 
     implementation('org.springframework.security.oauth:spring-security-oauth2:2.5.2.RELEASE')
-    implementation('org.springframework.security:spring-security-web:5.8.10')
+    implementation('org.springframework.security:spring-security-web:5.7.8')
     implementation "org.springdoc:springdoc-openapi-ui:${springdoc_version}"
     runtimeOnly("javax.inject:javax.inject:1")
     implementation project(':radar-auth')
