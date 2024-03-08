@@ -2,7 +2,7 @@ package org.radarbase.management.web.rest;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
-import com.codahale.metrics.annotation.Timed;
+import io.micrometer.core.annotation.Timed;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.radarbase.auth.authorization.AuthoritiesConstants;

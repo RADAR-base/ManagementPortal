@@ -56,13 +56,12 @@ spring:
                 track_entities_changed_in_revision: true
     mail:
         host: localhost
+    main:
+        allow-circular-references: true
     messages:
         basename: i18n/messages
-    mvc:
-        favicon:
-            enabled: false
     thymeleaf:
-        mode: XHTML
+        mode: HTML
 
 liquibase:
     contexts: test
@@ -108,6 +107,6 @@ managementportal:
         persistentMetaTokenTimeout: P31D
     common:
         baseUrl: http://localhost:8080
-        managementPortalBaseUrl: http://localhost:8080
+        managementPortalBaseUrl: http://localhost:8080/managementportal
         privacyPolicyUrl: http://info.thehyve.nl/radar-cns-privacy-policy
         activationKeyTimeoutInSeconds: 86400

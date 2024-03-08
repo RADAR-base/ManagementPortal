@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory
 import scala.concurrent.duration._
 
 import scala.util.Random
+import scala.language.postfixOps
 
 abstract class ManagementPortalSimulation extends Simulation {
     val context: LoggerContext = LoggerFactory.getILoggerFactory.asInstanceOf[LoggerContext]

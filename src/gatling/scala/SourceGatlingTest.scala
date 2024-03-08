@@ -4,6 +4,7 @@ import io.gatling.core.structure.ScenarioBuilder
 import io.gatling.http.Predef._
 
 import scala.concurrent.duration._
+import scala.language.postfixOps
 
 /**
   * Performance test for the Source entity.

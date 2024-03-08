@@ -1,7 +1,6 @@
 package org.radarbase.management.web.rest;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -70,7 +69,7 @@ class AccountResourceIntTest {
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        doNothing().when(mockMailService).sendActivationEmail(anyObject());
+        //doNothing().when(mockMailService).sendActivationEmail(anyObject());
 
         AccountResource accountResource = new AccountResource();
         ReflectionTestUtils.setField(accountResource, "userService", userService);

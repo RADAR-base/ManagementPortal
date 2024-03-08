@@ -1,7 +1,5 @@
 package org.radarbase.management.web.rest.errors;
 
-import java.util.List;
-
 import org.radarbase.auth.exception.NotAuthorizedException;
 import org.radarbase.management.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
@@ -23,11 +21,15 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
 
 /**
  * Controller advice to translate the server side exceptions to client-friendly json structures.
  */
 @ControllerAdvice
+@SuppressWarnings("PMD.CouplingBetweenObjects")
 public class ExceptionTranslator {
 
     private static final Logger logger = LoggerFactory.getLogger(ExceptionTranslator.class);
@@ -72,7 +74,8 @@ public class ExceptionTranslator {
         List<FieldError> fieldErrors = result.getFieldErrors();
         ErrorVM dto = new ErrorVM(ErrorConstants.ERR_VALIDATION);
         for (FieldError fieldError : fieldErrors) {
-            dto.add(fieldError.getObjectName(), fieldError.getField(), fieldError.getCode());
+            dto.add(fieldError.getObjectName(), fieldError.getField(),
+                    fieldError.getCode() + ": " + fieldError.getDefaultMessage());
         }
         return dto;
     }
@@ -172,6 +175,12 @@ public class ExceptionTranslator {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorVM processNoSuchClientException(NoSuchClientException ex) {
         return new ErrorVM(ErrorConstants.ERR_NO_SUCH_CLIENT, ex.getMessage());
+    }
+
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<ErrorVM> responseStatusResponse(ResponseStatusException ex) {
+        return ResponseEntity.status(ex.getStatus())
+                .body(new ErrorVM(null, ex.getMessage()));
     }
 
     /**
