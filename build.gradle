@@ -149,10 +149,10 @@ if (project.hasProperty('prod')) {
 ext.findbugAnnotationVersion = '3.0.2'
 
 dependencies {
-    implementation("org.jetbrains.kotlin:kotlin-reflect:1.9.10")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:${kotlin_version}")
     implementation("tech.jhipster:jhipster-framework:${jhipster_server_version}")
     implementation("tech.jhipster:jhipster-dependencies:${jhipster_server_version}")
-    implementation("io.micrometer:micrometer-core")
+    implementation("io.micrometer:micrometer-core:${micrometer_version}")
     runtimeOnly "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
     implementation "com.fasterxml.jackson.datatype:jackson-datatype-hibernate5"
     implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-csv"
@@ -172,29 +172,29 @@ dependencies {
     runtimeOnly ("org.springframework.boot:spring-boot-starter-data-jpa") {
         exclude group: 'org.hibernate', module: 'hibernate-entitymanager'
     }
-    implementation "org.hibernate:hibernate-core"
-    implementation "org.hibernate:hibernate-core"
-    implementation "org.hibernate:hibernate-envers"
-    implementation 'org.hibernate:hibernate-validator:8.0.0.Final'
-
-    runtimeOnly "org.postgresql:postgresql:${postgresql_version}"
-    runtimeOnly "org.hsqldb:hsqldb:${hsqldb_version}"
-
-    runtimeOnly "org.springframework.boot:spring-boot-starter-security"
     implementation "org.springframework.security:spring-security-data"
 
     implementation("org.springframework.boot:spring-boot-starter-web") {
         exclude module: 'spring-boot-starter-tomcat'
     }
+    runtimeOnly "org.springframework.boot:spring-boot-starter-security"
     implementation ("org.springframework.boot:spring-boot-starter-undertow")
+
+    implementation "org.hibernate:hibernate-core"
+    implementation "org.hibernate:hibernate-envers"
+    implementation "org.hibernate:hibernate-validator:${hibernate_validator_version}"
+
+    runtimeOnly "org.postgresql:postgresql:${postgresql_version}"
+    runtimeOnly "org.hsqldb:hsqldb:${hsqldb_version}"
+
     // Fix vulnerabilities
     runtimeOnly("io.undertow:undertow-websockets-jsr:2.2.25.Final")
     runtimeOnly("io.undertow:undertow-servlet:2.2.25.Final")
     runtimeOnly("io.undertow:undertow-core:2.2.25.Final")
 
     implementation "org.springframework.boot:spring-boot-starter-thymeleaf"
-    runtimeOnly("org.thymeleaf:thymeleaf-spring5:${thymeleaf_version}")
     runtimeOnly("org.thymeleaf:thymeleaf:${thymeleaf_version}")
+    runtimeOnly("org.thymeleaf:thymeleaf-spring5:${thymeleaf_version}")
     implementation("org.springframework:spring-context-support")
     implementation("org.springframework.session:spring-session-hazelcast")
 
