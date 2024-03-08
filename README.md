@@ -46,7 +46,7 @@ docker-compose files.
    ```shell
    keytool -genkeypair -alias radarbase-managementportal-ec -keyalg EC -validity 3650 -keysize 256 -sigalg SHA256withECDSA -storetype PKCS12 -keystore src/main/docker/etc/config/keystore.p12 -storepass radarbase -keypass radarbase
    ```
-3. Now, we can start the stack with `docker-compose -f src/main/docker/management-portal.yml up -d`.
+3. Now, we can start the stack with `docker-compose -f src/main/docker/mp_dockerhub/docker-compose.yml up -d`.
 
 This will start a Postgres database and ManagementPortal. The default password for the `admin`
 account is `admin`. An angular live development server to access the managementportal can be started using the `yarn start` command (see [Development](#development)).
@@ -76,8 +76,6 @@ memory database and ManagementPortal. An angular live development server to acce
 |----------------------------------|-----------------|-----------------------------------|
 | Database type                    | In-memory       | Postgres                          |
 | Demo data loaded                 | Yes             | No                                |
-
-
 
 
 The docker image can be pulled by running `docker pull radarbase/management-portal:latest`.
@@ -276,6 +274,7 @@ will generate few files:
 To optimize the ManagementPortal application for production, run:
 
     ./gradlew -Pprod clean bootWar
+
 ### Hosting in production
 The latest Meta-QR code implementation requires REST resources on `api/meta-token/*` should definitely be rate-limited by upstream servers.
 
@@ -331,7 +330,7 @@ To achieve this, first build a docker image of your app by running:
 
 Then run:
 
-    docker-compose -f src/main/docker/app.yml up -d
+    docker-compose -f src/main/docker/mp_local/docker-compose.yml up -d
 
 For more information refer to [Using Docker and Docker-Compose][], this page also contains information on the docker-compose sub-generator (`yo jhipster:docker-compose`), which is able to generate docker configurations for one or several JHipster applications.
 ## Documentation

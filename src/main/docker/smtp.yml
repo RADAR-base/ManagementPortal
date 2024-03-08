@@ -1,12 +1,4 @@
----
-version: '2.1'
-
-networks:
-  mail:
-    driver: bridge
-    internal: true
-
-
+version: '2'
 services:
   smtp:
     image: namshi/smtp:latest
@@ -16,4 +8,4 @@ services:
       - /var/spool/exim
     restart: always
     env_file:
-      - ./etc/smtp.env
+      - ./etc/smtp.env # generate by filling in ./etc/smpt.env.template

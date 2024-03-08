@@ -1,0 +1,25 @@
+# Docker stack to run managementport using only dockerhub images
+
+version: '2.1'
+
+networks:
+  mail:
+    driver: bridge
+    internal: true
+
+services:
+  managementportal-app:
+    extends:
+      file: ../management-portal.yml
+      service: managementportal-app
+
+  managementportal-postgresql:
+    extends:
+      file: ../postgresql.yml
+      service: postgresql
+
+## smtp server, uncomment if needed
+#  managementportal-smtp:
+#    extends:
+#      file: ../smtp.yml
+#      service: smtp

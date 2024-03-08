@@ -1,0 +1,17 @@
+# Docker stack to run managementport using a locally built docker image built using the command
+# ./gradlew bootWar -Pprod buildDocker
+
+version: '2'
+services:
+  managementportal-app:
+    extends:
+      file: ../management-portal.yml
+      service: managementportal-app
+    image: managementportal
+    environment:
+      - SPRING_LIQUIBASE_CONTEXTS=dev #includes testing_data, remove for production builds
+
+  managementportal-postgresql:
+    extends:
+      file: ../postgresql.yml
+      service: postgresql
