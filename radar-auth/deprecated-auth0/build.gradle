@@ -14,7 +14,7 @@ dependencies {
         // declare dependencies in superpackage
         transitive = false
     }
-    implementation 'org.bouncycastle:bcprov-jdk15on:1.65'
+    implementation 'org.bouncycastle:bcprov-jdk15on:1.67'
 }
 
 shadowJar {

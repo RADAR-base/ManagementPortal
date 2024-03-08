@@ -44,8 +44,8 @@ public class AlgorithmLoader {
                 new ECTokenValidationAlgorithm(),
                 new RSATokenValidationAlgorithm()),
                 Arrays.asList(
-                new DeprecatedEcTokenValidationAlgorithm(),
-                new RSATokenValidationAlgorithm()));
+                    new DeprecatedEcTokenValidationAlgorithm(),
+                    new RSATokenValidationAlgorithm()));
     }
 
     private Algorithm algorithmFromPublicKey(String publicKey) {

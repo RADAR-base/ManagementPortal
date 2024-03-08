@@ -10,8 +10,14 @@
 package org.radarbase.management.client
 
 import com.github.tomakehurst.wiremock.WireMockServer
-import com.github.tomakehurst.wiremock.client.WireMock.*
-import org.apache.http.entity.ContentType
+import com.github.tomakehurst.wiremock.client.WireMock.aResponse
+import com.github.tomakehurst.wiremock.client.WireMock.equalTo
+import com.github.tomakehurst.wiremock.client.WireMock.get
+import com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor
+import com.github.tomakehurst.wiremock.client.WireMock.post
+import com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor
+import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
+import com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers
 import org.hamcrest.Matchers.hasSize
@@ -35,7 +41,7 @@ class MPClientTest {
             post(urlEqualTo("/oauth/token"))
                 .willReturn(aResponse()
                     .withStatus(HTTP_OK)
-                    .withHeader("content-type", ContentType.APPLICATION_JSON.toString())
+                    .withHeader("content-type", "application/json")
                     .withBody("{\"access_token\":\"abcdef\"}")))
 
         client = MPClient(
@@ -87,7 +93,7 @@ class MPClientTest {
                 .withHeader("Authorization", equalTo("Bearer abcdef"))
                 .willReturn(aResponse()
                     .withStatus(HTTP_OK)
-                    .withHeader("content-type", ContentType.APPLICATION_JSON.toString())
+                    .withHeader("content-type", "application/json")
                     .withBody(body)))
 
         val clients = client.requestClients()
@@ -163,7 +169,7 @@ class MPClientTest {
                 .withHeader("Authorization", equalTo("Bearer abcdef"))
                 .willReturn(aResponse()
                     .withStatus(HTTP_OK)
-                    .withHeader("content-type", ContentType.APPLICATION_JSON.toString())
+                    .withHeader("content-type", "application/json")
                     .withBody(body)))
 
         val projects = client.requestProjects()
@@ -186,9 +192,9 @@ class MPClientTest {
                 description = "d2",
                 organization = "Mixed",
                 location = "here",
-                startDate = ZonedDateTime.of(2021, 6, 7, 2, 2, 0, 0, ZoneId.of("UTC")),
+                startDate = ZonedDateTime.of(2021, 6, 7, 2, 2, 0, 0, ZoneId.of("Z")),
                 projectStatus = "ONGOING",
-                endDate = ZonedDateTime.of(2022, 6, 7, 2, 2, 0, 0, ZoneId.of("UTC")),
+                endDate = ZonedDateTime.of(2022, 6, 7, 2, 2, 0, 0, ZoneId.of("Z")),
                 attributes = mapOf(
                     "External-project-id" to "p2a",
                     "Human-readable-project-name" to "P2",
