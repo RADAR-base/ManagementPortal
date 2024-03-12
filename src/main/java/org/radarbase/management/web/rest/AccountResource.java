@@ -1,6 +1,6 @@
 package org.radarbase.management.web.rest;
 
-import com.codahale.metrics.annotation.Timed;
+import io.micrometer.core.annotation.Timed;
 import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.config.ManagementPortalProperties;
 import org.radarbase.management.domain.User;
@@ -30,8 +30,6 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
-import javax.ws.rs.core.Response;
-import java.security.Principal;
 import java.util.Optional;
 
 import static org.radarbase.management.security.JwtAuthenticationFilter.TOKEN_ATTRIBUTE;
@@ -90,8 +88,8 @@ public class AccountResource {
      */
     @PostMapping("/login")
     @Timed
-    public ResponseEntity<UserDTO> login(HttpSession session, Authentication authentication) {
-        log.debug("Logging in user to session with principal {}", authentication.getPrincipal());
+    public ResponseEntity<UserDTO> login(HttpSession session) {
+        log.debug("Logging in user to session with principal {}", token.getUsername());
         RadarToken sessionToken = new SessionRadarToken(token);
         session.setAttribute(TOKEN_ATTRIBUTE, sessionToken);
         return getAccount();
@@ -125,7 +123,7 @@ public class AccountResource {
     public ResponseEntity<UserDTO> getAccount() {
         return Optional.ofNullable(userService.getUserWithAuthorities())
                 .map(user -> new ResponseEntity<>(userMapper.userToUserDTO(user), HttpStatus.OK))
-                .orElseThrow(() -> new RadarWebApplicationException(Response.Status.FORBIDDEN,
+                .orElseThrow(() -> new RadarWebApplicationException(HttpStatus.FORBIDDEN,
                         "Cannot get account without user", USER, ERR_ACCESS_DENIED));
     }
 
@@ -141,7 +139,7 @@ public class AccountResource {
     public ResponseEntity<Void> saveAccount(@Valid @RequestBody UserDTO userDto,
             Authentication authentication) {
         if (authentication.getPrincipal() == null) {
-            throw new RadarWebApplicationException(Response.Status.FORBIDDEN,
+            throw new RadarWebApplicationException(HttpStatus.FORBIDDEN,
                     "Cannot update account without user", USER, ERR_ACCESS_DENIED);
         }
 

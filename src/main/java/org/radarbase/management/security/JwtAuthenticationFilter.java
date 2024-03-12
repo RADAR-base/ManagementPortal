@@ -38,7 +38,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final List<AntPathRequestMatcher> ignoreUrls;
 
     public JwtAuthenticationFilter(TokenValidator validator,
-            AuthenticationManager authenticationManager) {
+                                   AuthenticationManager authenticationManager) {
         this.validator = validator;
         this.authenticationManager = authenticationManager;
         this.ignoreUrls = new ArrayList<>();
@@ -59,7 +59,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(@Nonnull HttpServletRequest httpRequest,
-            @Nonnull HttpServletResponse httpResponse, @Nonnull FilterChain chain)
+                                    @Nonnull HttpServletResponse httpResponse, @Nonnull FilterChain chain)
             throws IOException, ServletException {
         if (CorsUtils.isPreFlightRequest(httpRequest)) {
             logger.debug("Skipping JWT check for preflight request");

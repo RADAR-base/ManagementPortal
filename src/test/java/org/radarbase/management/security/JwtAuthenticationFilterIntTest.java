@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockitoAnnotations;
+import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.ManagementPortalTestApp;
 import org.radarbase.management.service.ProjectService;
 import org.radarbase.auth.authentication.OAuthHelper;
@@ -21,7 +22,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -37,7 +37,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class JwtAuthenticationFilterIntTest {
 
     @Autowired
-    private HttpServletRequest servletRequest;
+    private RadarToken radarToken;
 
     @Autowired
     private ProjectService projectService;
@@ -57,10 +57,10 @@ class JwtAuthenticationFilterIntTest {
 
     @BeforeEach
     public void setUp() throws ServletException {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
         ProjectResource projectResource = new ProjectResource();
         ReflectionTestUtils.setField(projectResource, "projectService", projectService);
-        ReflectionTestUtils.setField(projectResource, "servletRequest", servletRequest);
+        ReflectionTestUtils.setField(projectResource, "token", radarToken);
 
         JwtAuthenticationFilter filter = OAuthHelper.createAuthenticationFilter();
         filter.init(new MockFilterConfig());

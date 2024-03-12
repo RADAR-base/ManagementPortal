@@ -1,8 +1,8 @@
 package org.radarbase.management.web.rest.errors;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.ws.rs.core.Response.Status;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -41,7 +41,7 @@ public class RadarWebApplicationException extends ResponseStatusException {
      * @param entityName Entity related to the exception
      * @param errorCode  error code defined in MP if relevant.
      */
-    public RadarWebApplicationException(Status status, String message, String entityName,
+    public RadarWebApplicationException(HttpStatus status, String message, String entityName,
             String errorCode) {
         this(status, message, entityName, errorCode, emptyMap());
     }
@@ -49,15 +49,15 @@ public class RadarWebApplicationException extends ResponseStatusException {
 
     /**
      * A base parameterized exception, which can be translated on the client side.
-     * @param status {@link javax.ws.rs.core.Response.Status} code.
+     * @param status {@link HttpStatus} code.
      * @param message message to client.
      * @param entityName entityRelated from {@link EntityName}
      * @param errorCode errorCode from {@link ErrorConstants}
      * @param params map of optional information.
      */
-    public RadarWebApplicationException(Status status, String message, String entityName,
+    public RadarWebApplicationException(HttpStatus status, String message, String entityName,
             String errorCode, Map<String, String> params) {
-        super(status.getStatusCode(), message, null);
+        super(status, message, null);
         // add default timestamp first, so a timestamp key in the paramMap will overwrite it
         this.paramMap.put("timestamp",
                 new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)

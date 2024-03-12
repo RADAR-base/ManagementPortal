@@ -48,6 +48,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Autowired
     private AuthenticationManagerBuilder authenticationManagerBuilder;
 
+    private final PasswordEncoder passwordEncoder;
+
     @Autowired
     private UserDetailsService userDetailsService;
 
@@ -55,14 +57,22 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private ApplicationEventPublisher applicationEventPublisher;
 
     @Autowired
-    private ManagementPortalOauthKeyStoreHandler keyStoreHandler;
+    public SecurityConfiguration(AuthenticationManagerBuilder authenticationManagerBuilder,
+            UserDetailsService userDetailsService,
+            ApplicationEventPublisher applicationEventPublisher,
+            PasswordEncoder passwordEncoder) {
+        this.authenticationManagerBuilder = authenticationManagerBuilder;
+        this.userDetailsService = userDetailsService;
+        this.applicationEventPublisher = applicationEventPublisher;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     @PostConstruct
     public void init() {
         try {
             authenticationManagerBuilder
                     .userDetailsService(userDetailsService)
-                    .passwordEncoder(passwordEncoder())
+                    .passwordEncoder(passwordEncoder)
                     .and()
                     .authenticationProvider(new RadarAuthenticationProvider())
                     .authenticationEventPublisher(
@@ -80,11 +90,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Bean
     public Http401UnauthorizedEntryPoint http401UnauthorizedEntryPoint() {
         return new Http401UnauthorizedEntryPoint();
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
     }
 
     @Override

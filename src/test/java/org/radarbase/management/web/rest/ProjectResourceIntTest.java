@@ -17,12 +17,12 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.List;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.Assertions;
 import org.mockito.MockitoAnnotations;
+import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.ManagementPortalTestApp;
 import org.radarbase.management.domain.Project;
 import org.radarbase.management.domain.enumeration.ProjectStatus;
@@ -100,7 +100,7 @@ class ProjectResourceIntTest {
     private ExceptionTranslator exceptionTranslator;
 
     @Autowired
-    private HttpServletRequest servletRequest;
+    private RadarToken radarToken;
 
     private MockMvc restProjectMockMvc;
 
@@ -108,11 +108,11 @@ class ProjectResourceIntTest {
 
     @BeforeEach
     public void setUp() throws ServletException {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
         ProjectResource projectResource = new ProjectResource();
         ReflectionTestUtils.setField(projectResource, "projectRepository", projectRepository);
         ReflectionTestUtils.setField(projectResource, "projectService", projectService);
-        ReflectionTestUtils.setField(projectResource, "servletRequest", servletRequest);
+        ReflectionTestUtils.setField(projectResource, "token", radarToken);
 
         JwtAuthenticationFilter filter = OAuthHelper.createAuthenticationFilter();
         filter.init(new MockFilterConfig());

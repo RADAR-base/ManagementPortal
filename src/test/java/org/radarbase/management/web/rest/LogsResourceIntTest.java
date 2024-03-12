@@ -30,7 +30,7 @@ class LogsResourceIntTest {
 
     @BeforeEach
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
 
         LogsResource logsResource = new LogsResource();
         this.restLogsMockMvc = MockMvcBuilders

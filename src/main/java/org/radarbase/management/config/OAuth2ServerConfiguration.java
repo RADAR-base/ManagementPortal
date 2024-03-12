@@ -107,9 +107,6 @@ public class OAuth2ServerConfiguration {
         private LogoutSuccessHandler logoutSuccessHandler;
 
         @Autowired
-        private CorsFilter corsFilter;
-
-        @Autowired
         private AuthenticationManager authenticationManager;
 
         public JwtAuthenticationFilter jwtAuthenticationFilter() {
@@ -131,7 +128,6 @@ public class OAuth2ServerConfiguration {
                     .and()
                     .csrf()
                     .disable()
-                    .addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
                     .addFilterBefore(jwtAuthenticationFilter(),
                             UsernamePasswordAuthenticationFilter.class)
                     .headers()
