@@ -2,20 +2,13 @@ import { login } from '../util/login';
 import * as navBarPage from '../util/nav-bar';
 
 describe('Project e2e test', () => {
-    before(() => {
-        login();
-        cy.visit('./');
-    });
-
     beforeEach(() => {
-        cy.wait(100);
-        Cypress.Cookies.preserveOnce('oAtkn');
+        login();
+        navBarPage.clickOnAdminMenu();
+        navBarPage.clickOnEntity('project');
     });
 
     it('should load Projects', () => {
-        navBarPage.clickOnAdminMenu();
-        navBarPage.clickOnEntity('project');
-
         cy.get('h2 span').first().should('have.text', 'Projects');
     });
 

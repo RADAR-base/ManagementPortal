@@ -37,6 +37,9 @@
             "styles": [
               "src/main/webapp/content/scss/global.scss"
             ],
+            "allowedCommonJsDependencies": [
+              "qrcode"
+            ],
             "scripts": []
           },
           "configurations": {
@@ -85,7 +88,7 @@
           "defaultConfiguration": "development",
           "options": {
             "proxyConfig": "proxy.conf.json",
-            "port": 9000
+            "port": 8081
           }
         },
         "test": {

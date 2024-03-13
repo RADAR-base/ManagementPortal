@@ -1,21 +1,14 @@
 import { login } from '../util/login';
-import * as navBarPage from '../util/nav-bar';
+import { clickOnEntity, clickOnEntityMenu } from "../util/nav-bar";
 
 describe('Subject e2e test', () => {
-    before(() => {
-        login();
-        cy.visit('./');
-    });
-
     beforeEach(() => {
-        cy.wait(100);
-        Cypress.Cookies.preserveOnce('oAtkn');
+        login();
+        clickOnEntityMenu();
+        clickOnEntity('subject');
     });
 
     it('should load Subjects', () => {
-        navBarPage.clickOnEntityMenu();
-        navBarPage.clickOnEntity('subject');
-
         cy.get('h4 span').first().should('have.text', 'Subjects');
     });
 

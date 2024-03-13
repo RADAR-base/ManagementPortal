@@ -1,21 +1,14 @@
 import { login } from '../util/login';
-import * as navBarPage from '../util/nav-bar';
+import { clickOnAdminMenu, clickOnEntity } from "../util/nav-bar";
 
 describe('OAuth Clients e2e test', () => {
-    before(() => {
-        login();
-        cy.visit('./');
-    });
-
     beforeEach(() => {
-        cy.wait(100);
-        Cypress.Cookies.preserveOnce('oAtkn');
+        login();
+        clickOnAdminMenu();
+        clickOnEntity('oauth-client');
     });
 
     it('should load OAuth clients', () => {
-        navBarPage.clickOnAdminMenu();
-        cy.get('[routerLink="oauth-client"]').first().click();
-
         cy.get('h4 span').first().should('have.text', 'OAuth Clients');
     });
 

@@ -1,13 +1,9 @@
 import * as navBarPage from '../util/nav-bar';
+import { login } from "../util/login";
 
 describe('account', () => {
-    before(() => {
-        cy.visit('./');
-    });
-
     beforeEach(() => {
-        cy.wait(100);
-        Cypress.Cookies.preserveOnce('oAtkn');
+        cy.visit('./');
     });
 
     it('should fail to login with bad password', () => {
@@ -28,26 +24,19 @@ describe('account', () => {
     });
 
     it('should login successfully with admin account', () => {
-        cy.get('.modal-content h1').first().should('have.text', 'Sign in');
-
-        cy.get('#username').type('admin');
-        cy.get('#password').type('admin');
-        cy.get('button[type=submit]').click();
-
-        cy.wait(1000);
-
-        cy.get('.alert-success span').should('exist');
+        login('admin', 'admin')
     });
 
     it('should be able to update settings', () => {
+        login('admin', 'admin')
         navBarPage.clickOnAccountMenu();
         cy.get('[routerLink="settings"]').click();
 
         cy.get('h2').first()
             .should('have.text', 'User settings for [admin]');
 
+        cy.get('#email').type('.com');
         cy.get('button[type=submit]').click();
-
         cy.get('.alert-success').first()
             .should('have.text', 'Settings saved!');
     });
