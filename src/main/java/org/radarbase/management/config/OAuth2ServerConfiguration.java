@@ -144,9 +144,9 @@ public class OAuth2ServerConfiguration {
                     .antMatchers("/api/**").authenticated()
                     // Allow management/health endpoint to all to allow kubernetes to be able to
                     // detect the health of the service
+                    .antMatchers("/v2/**").permitAll()
                     .antMatchers("/management/health").permitAll()
                     .antMatchers("/management/**").hasAnyAuthority(AuthoritiesConstants.SYS_ADMIN)
-                    .antMatchers("/v2/api-docs/**").permitAll()
                     .antMatchers("/swagger-resources/configuration/ui").permitAll()
                     .antMatchers("/swagger-ui/index.html")
                     .hasAnyAuthority(AuthoritiesConstants.SYS_ADMIN);

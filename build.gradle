@@ -201,9 +201,7 @@ dependencies {
     implementation("org.springframework.security.oauth:spring-security-oauth2:2.5.2.RELEASE")
     implementation("org.springframework.security:spring-security-oauth2-resource-server:5.8.10")
     implementation("org.springframework.security:spring-security-oauth2-jose")
-    implementation("io.springfox:springfox-swagger2:${springfox_version}") {
-        exclude module: 'mapstruct'
-    }
+    implementation "org.springdoc:springdoc-openapi-ui:${springdoc_version}"
     implementation("javax.inject:javax.inject:1")
     implementation "io.springfox:springfox-bean-validators:${springfox_version}"
     implementation "org.postgresql:postgresql:${postgresql_version}"

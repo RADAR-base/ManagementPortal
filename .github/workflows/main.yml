@@ -71,7 +71,6 @@ jobs:
           cp src/test/resources/config/keystore.p12 src/main/resources/config/keystore.p12
           ./gradlew bootRun &>mp.log </dev/null &
           yarn run wait-for-managementportal
-          ./gradlew generateOpenApiSpec
           yarn e2e
           ./gradlew --stop
 
