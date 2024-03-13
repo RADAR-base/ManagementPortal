@@ -2,6 +2,16 @@
 version: v1.25.0
 # ignores vulnerabilities until expiry date; change duration by modifying expiry date
 ignore:
+  SNYK-JAVA-ORGECLIPSEJETTY-5958847:
+    - '*':
+        reason: Only used in tests
+        expires: 2025-05-07T10:08:57.000Z
+        created: 2024-05-08T10:08:57.000Z
+  SNYK-JAVA-IONETTY-5953332:
+    - '*':
+        reason: Only used in load tests
+        expires: 2025-05-07T10:08:57.000Z
+        created: 2024-05-08T10:08:57.000Z
   SNYK-JAVA-ORGYAML-2806360:
     - '*':
         reason: Not using YAML for user-facing code

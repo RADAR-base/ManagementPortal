@@ -18,6 +18,8 @@ management:
                 enabled: false
 
 spring:
+    main:
+        allow-circular-references: true
     application:
         name: ManagementPortal
     profiles:

@@ -199,7 +199,7 @@ dependencies {
     implementation("org.springframework.session:spring-session-hazelcast")
 
     implementation("org.springframework.security.oauth:spring-security-oauth2:2.5.2.RELEASE")
-    implementation("org.springframework.security:spring-security-oauth2-resource-server")
+    implementation("org.springframework.security:spring-security-oauth2-resource-server:5.8.10")
     implementation("org.springframework.security:spring-security-oauth2-jose")
     implementation("io.springfox:springfox-swagger2:${springfox_version}") {
         exclude module: 'mapstruct'
@@ -207,7 +207,6 @@ dependencies {
     implementation("javax.inject:javax.inject:1")
     implementation "io.springfox:springfox-bean-validators:${springfox_version}"
     implementation "org.postgresql:postgresql:${postgresql_version}"
-    implementation "com.h2database:h2"
     implementation project(path: ':radar-auth', configuration: 'shadow')
     implementation "org.springframework.data:spring-data-envers"
     runtimeOnly("jakarta.xml.bind:jakarta.xml.bind-api:${javax_xml_bind_version}")
@@ -216,7 +215,7 @@ dependencies {
     runtimeOnly("javax.activation:activation:${javax_activation}")
     runtimeOnly 'org.javassist:javassist:3.29.2-GA'
 
-    testImplementation "com.jayway.jsonpath:json-path"
+    testImplementation "com.jayway.jsonpath:json-path:2.8.0"
     testImplementation ("org.springframework.boot:spring-boot-starter-test") {
         exclude group: "com.vaadin.external.google", module:"android-json"
         exclude group: "junit", module: "junit"
