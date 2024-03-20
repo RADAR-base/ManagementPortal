@@ -28,7 +28,7 @@ import java.time.Instant
 import java.time.format.DateTimeParseException
 import java.util.*
 import java.util.function.Consumer
-import javax.validation.ConstraintViolationException
+import jakarta.validation.ConstraintViolationException
 
 /**
  * Created by nivethika.

@@ -25,10 +25,10 @@ import javax.persistence.JoinTable
 import javax.persistence.ManyToMany
 import javax.persistence.SequenceGenerator
 import javax.persistence.Table
-import javax.validation.constraints.Email
-import javax.validation.constraints.NotNull
-import javax.validation.constraints.Pattern
-import javax.validation.constraints.Size
+import jakarta.validation.constraints.Email
+import jakarta.validation.constraints.NotNull
+import jakarta.validation.constraints.Pattern
+import jakarta.validation.constraints.Size
 
 /**
  * A user.

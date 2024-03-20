@@ -5,7 +5,7 @@ import org.radarbase.management.domain.enumeration.ProjectStatus
 import java.io.Serializable
 import java.time.ZonedDateTime
 import java.util.*
-import javax.validation.constraints.NotNull
+import jakarta.validation.constraints.NotNull
 
 /**
  * A DTO for the Project entity.

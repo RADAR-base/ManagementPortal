@@ -1,7 +1,7 @@
 package org.radarbase.management.web.rest.vm
 
 import org.radarbase.management.service.dto.UserDTO
-import javax.validation.constraints.Size
+import jakarta.validation.constraints.Size
 
 /**
  * View Model extending the UserDTO, which is meant to be used in the user management UI.

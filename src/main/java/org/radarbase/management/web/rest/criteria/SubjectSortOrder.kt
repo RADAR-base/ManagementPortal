@@ -10,7 +10,7 @@ package org.radarbase.management.web.rest.criteria
 
 import org.springframework.data.domain.Sort
 import java.util.*
-import javax.validation.constraints.NotNull
+import jakarta.validation.constraints.NotNull
 
 class SubjectSortOrder @JvmOverloads constructor(
     @NotNull val sortBy: SubjectSortBy,

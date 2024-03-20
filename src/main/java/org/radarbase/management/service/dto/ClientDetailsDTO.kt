@@ -1,6 +1,6 @@
 package org.radarbase.management.service.dto
 
-import javax.validation.constraints.NotNull
+import jakarta.validation.constraints.NotNull
 
 /**
  * Created by dverbeec on 7/09/2017.

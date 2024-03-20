@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RestController
 import tech.jhipster.web.util.ResponseUtil
 import java.net.URISyntaxException
 import java.util.*
-import javax.validation.Valid
+import jakarta.validation.Valid
 
 /**
  * REST controller for managing Role.

@@ -54,7 +54,7 @@ import java.io.Serializable
 import java.net.URISyntaxException
 import java.util.*
 import java.util.stream.Stream
-import javax.validation.Valid
+import jakarta.validation.Valid
 
 /**
  * REST controller for managing Subject.

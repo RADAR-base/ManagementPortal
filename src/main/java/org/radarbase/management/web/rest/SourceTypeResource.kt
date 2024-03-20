@@ -35,7 +35,7 @@ import tech.jhipster.web.util.ResponseUtil
 import java.net.URISyntaxException
 import java.util.*
 import java.util.stream.Collectors
-import javax.validation.Valid
+import jakarta.validation.Valid
 
 /**
  * REST controller for managing SourceType.

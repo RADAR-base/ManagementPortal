@@ -48,7 +48,7 @@ import javax.persistence.EntityManager
 import javax.persistence.NoResultException
 import javax.persistence.NonUniqueResultException
 import javax.persistence.PersistenceContext
-import javax.validation.constraints.NotNull
+import jakarta.validation.constraints.NotNull
 
 @Service
 @Transactional(isolation = Isolation.REPEATABLE_READ, readOnly = true)

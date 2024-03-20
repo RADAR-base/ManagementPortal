@@ -25,8 +25,8 @@ import javax.persistence.MapKeyColumn
 import javax.persistence.PrePersist
 import javax.persistence.SequenceGenerator
 import javax.persistence.Table
-import javax.validation.constraints.NotNull
-import javax.validation.constraints.Pattern
+import jakarta.validation.constraints.NotNull
+import jakarta.validation.constraints.Pattern
 
 /**
  * A Source.

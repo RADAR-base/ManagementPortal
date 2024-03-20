@@ -3,7 +3,7 @@ package org.radarbase.management.service.dto
 import com.fasterxml.jackson.annotation.JsonInclude
 import java.io.Serializable
 import java.util.*
-import javax.validation.constraints.NotNull
+import jakarta.validation.constraints.NotNull
 
 /**
  * A DTO for the Organization entity.

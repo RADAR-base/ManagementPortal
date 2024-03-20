@@ -15,7 +15,7 @@ import javax.persistence.JoinColumn
 import javax.persistence.MapKeyColumn
 import javax.persistence.SequenceGenerator
 import javax.persistence.Table
-import javax.validation.constraints.NotNull
+import jakarta.validation.constraints.NotNull
 
 /**
  * Persist AuditEvent managed by the Spring Boot actuator.

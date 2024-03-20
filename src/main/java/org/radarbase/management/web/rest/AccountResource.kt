@@ -33,7 +33,7 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpSession
-import javax.validation.Valid
+import jakarta.validation.Valid
 
 /**
  * REST controller for managing the current user's account.

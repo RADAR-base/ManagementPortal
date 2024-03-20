@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import java.net.URISyntaxException
 import java.util.*
-import javax.validation.Valid
+import jakarta.validation.Valid
 
 /**
  * REST controller for managing Organization.
