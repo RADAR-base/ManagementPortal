@@ -13,24 +13,24 @@ buildscript {
 }
 
 plugins {
-    id 'application'
-    id 'org.springframework.boot' version "${spring_boot_version}"
-    id "com.github.node-gradle.node" version "3.6.0"
-    id "io.spring.dependency-management" version "1.1.3"
-    id 'de.undercouch.download' version '5.5.0' apply false
-    id "io.github.gradle-nexus.publish-plugin" version "1.3.0"
+    id("application")
+    id("org.springframework.boot") version "${spring_boot_version}"
+    id("com.github.node-gradle.node") version "3.6.0"
+    id("io.spring.dependency-management") version "1.1.3"
+    id("de.undercouch.download") version "5.5.0" apply false
+    id("io.github.gradle-nexus.publish-plugin") version "1.3.0"
     id("com.github.ben-manes.versions") version "0.47.0"
-    id 'org.jetbrains.kotlin.jvm' version "1.9.10"
-    id "org.jetbrains.kotlin.kapt" version "1.9.10"
-    id 'org.jetbrains.kotlin.plugin.serialization' version '1.9.10' apply false
-    id 'org.jetbrains.dokka' version "1.8.20"
-    id "org.jetbrains.kotlin.plugin.allopen" version "1.9.10"
+    id("org.jetbrains.kotlin.jvm") version "1.9.10"
+    id("org.jetbrains.kotlin.kapt") version "1.9.10"
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.9.10" apply false
+    id("org.jetbrains.dokka") version "1.8.20"
+    id("org.jetbrains.kotlin.plugin.allopen") version "1.9.10"
 }
 
-apply plugin: 'org.springframework.boot'
-apply plugin: 'war'
-apply plugin: 'com.github.node-gradle.node'
-apply plugin: 'io.spring.dependency-management'
+apply(plugin = "org.springframework.boot")
+apply(plugin = "war")
+apply(plugin = "com.github.node-gradle.node")
+apply(plugin = "io.spring.dependency-management")
 
 allprojects {
     group 'org.radarbase'
@@ -40,9 +40,9 @@ allprojects {
     // with a sed command, to auto-update the version number with the prepare-release-branch.sh
     // script, do not remove it.
 
-    apply plugin: 'java'
-    apply plugin: 'java-library'
-    apply plugin: 'idea'
+    apply(plugin = "java")
+    apply(plugin = "java-library")
+    apply(plugin = "idea")
 
     ext.githubRepoName = 'RADAR-base/ManagementPortal'
     ext.githubUrl = 'https://github.com/RADAR-base/ManagementPortal'
@@ -111,7 +111,7 @@ java {
 tasks.withType(KotlinCompile).configureEach {
     compilerOptions {
         jvmTarget = JvmTarget.JVM_17
-        apiVersion = KotlinVersion.KOTLIN_1_8
+        apiVersion = KotlinVersion.
         languageVersion = KotlinVersion.KOTLIN_1_8
     }
 }
@@ -132,17 +132,17 @@ test {
     useJUnitPlatform()
 }
 
-apply from: 'gradle/liquibase.gradle'
-apply from: 'gradle/gatling.gradle'
-apply from: 'gradle/mapstruct.gradle'
-apply from: 'gradle/docker.gradle'
-apply from: 'gradle/style.gradle'
-apply from: 'gradle/openapi.gradle'
+apply(from = "gradle/liquibase.gradle")
+apply(from = "gradle/gatling.gradle")
+apply(from = "gradle/mapstruct.gradle")
+apply(from = "gradle/docker.gradle")
+apply(from = "gradle/style.gradle")
+apply(from = "gradle/openapi.gradle")
 
 if (project.hasProperty('prod')) {
-    apply from: 'gradle/profile_prod.gradle'
+    apply(from = "gradle/profile_prod.gradle")
 } else {
-    apply from: 'gradle/profile_dev.gradle'
+    apply(from = "gradle/profile_dev.gradle")
 }
 
 //ext.moduleDescription = 'Management Portal application'
@@ -153,81 +153,81 @@ dependencies {
     implementation("tech.jhipster:jhipster-framework:${jhipster_server_version}")
     implementation("tech.jhipster:jhipster-dependencies:${jhipster_server_version}")
     implementation("io.micrometer:micrometer-core:${micrometer_version}")
-    runtimeOnly "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
-    implementation "com.fasterxml.jackson.datatype:jackson-datatype-hibernate5"
-    implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-csv"
-    implementation "com.fasterxml.jackson.core:jackson-annotations"
-    implementation "com.fasterxml.jackson.core:jackson-databind"
-    implementation "com.hazelcast:hazelcast:${hazelcast_version}"
-    implementation "com.hazelcast:hazelcast-spring:${hazelcast_version}"
-    runtimeOnly "com.hazelcast:hazelcast-hibernate53:${hazelcast_hibernate_version}"
+    runtimeOnly("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-hibernate5")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv")
+    implementation("com.fasterxml.jackson.core:jackson-annotations")
+    implementation("com.fasterxml.jackson.core:jackson-databind")
+    implementation("com.hazelcast:hazelcast:${hazelcast_version}")
+    implementation("com.hazelcast:hazelcast-spring:${hazelcast_version}")
+    runtimeOnly("com.hazelcast:hazelcast-hibernate53:${hazelcast_hibernate_version}")
     runtimeOnly("com.zaxxer:HikariCP:${hikaricp_version}")
-    implementation group: 'com.google.code.findbugs', name: 'jsr305', version: findbugAnnotationVersion
+    implementation("com.google.code.findbugs:jsr305:${findbugAnnotationVersion}")
     implementation("org.liquibase:liquibase-core:${liquibase_version}")
-    runtimeOnly "com.mattbertolini:liquibase-slf4j:${liquibase_slf4j_version}"
+    runtimeOnly("com.mattbertolini:liquibase-slf4j:${liquibase_slf4j_version}")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-autoconfigure")
-    implementation "org.springframework.boot:spring-boot-starter-mail"
-    runtimeOnly "org.springframework.boot:spring-boot-starter-logging"
-    runtimeOnly ("org.springframework.boot:spring-boot-starter-data-jpa") {
-        exclude group: 'org.hibernate', module: 'hibernate-entitymanager'
+    implementation("org.springframework.boot:spring-boot-starter-mail")
+    runtimeOnly("org.springframework.boot:spring-boot-starter-logging")
+    runtimeOnly("org.springframework.boot:spring-boot-starter-data-jpa") {
+        exclude group: "org.hibernate", module: "hibernate-entitymanager"
     }
-    implementation "org.springframework.security:spring-security-data"
+    implementation("org.springframework.security:spring-security-data")
 
     implementation("org.springframework.boot:spring-boot-starter-web") {
-        exclude module: 'spring-boot-starter-tomcat'
+        exclude module: "spring-boot-starter-tomcat"
     }
-    runtimeOnly "org.springframework.boot:spring-boot-starter-security"
-    implementation ("org.springframework.boot:spring-boot-starter-undertow")
+    runtimeOnly("org.springframework.boot:spring-boot-starter-security")
+    implementation("org.springframework.boot:spring-boot-starter-undertow")
 
-    implementation "org.hibernate:hibernate-core"
-    implementation "org.hibernate:hibernate-envers"
-    implementation "org.hibernate:hibernate-validator:${hibernate_validator_version}"
+    implementation("org.hibernate:hibernate-core")
+    implementation("org.hibernate:hibernate-envers")
+    implementation("org.hibernate:hibernate-validator:${hibernate_validator_version}")
 
-    runtimeOnly "org.postgresql:postgresql:${postgresql_version}"
-    runtimeOnly "org.hsqldb:hsqldb:${hsqldb_version}"
+    runtimeOnly("org.postgresql:postgresql:${postgresql_version}")
+    runtimeOnly("org.hsqldb:hsqldb:${hsqldb_version}")
 
     // Fix vulnerabilities
     runtimeOnly("io.undertow:undertow-websockets-jsr:2.2.25.Final")
     runtimeOnly("io.undertow:undertow-servlet:2.2.25.Final")
     runtimeOnly("io.undertow:undertow-core:2.2.25.Final")
 
-    implementation "org.springframework.boot:spring-boot-starter-thymeleaf"
+    implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
     runtimeOnly("org.thymeleaf:thymeleaf:${thymeleaf_version}")
     runtimeOnly("org.thymeleaf:thymeleaf-spring5:${thymeleaf_version}")
     implementation("org.springframework:spring-context-support")
     implementation("org.springframework.session:spring-session-hazelcast")
 
-    implementation('org.springframework.security.oauth:spring-security-oauth2:2.5.2.RELEASE')
-    implementation('org.springframework.security:spring-security-web:5.7.8')
-    implementation "org.springdoc:springdoc-openapi-ui:${springdoc_version}"
+    implementation("org.springframework.security.oauth:spring-security-oauth2:2.5.2.RELEASE")
+    implementation("org.springframework.security:spring-security-web:5.7.8")
+    implementation("org.springdoc:springdoc-openapi-ui:${springdoc_version}")
     runtimeOnly("javax.inject:javax.inject:1")
-    implementation project(':radar-auth')
-    implementation "org.springframework.data:spring-data-envers"
+    implementation(project(":radar-auth"))
+    implementation("org.springframework.data:spring-data-envers")
 
-    implementation "org.mockito:mockito-core:$mockito_version"
-    implementation "org.mockito.kotlin:mockito-kotlin:${mockito_kotlin_version}"
+    implementation("org.mockito:mockito-core:$mockito_version")
+    implementation("org.mockito.kotlin:mockito-kotlin:${mockito_kotlin_version}")
 
     runtimeOnly("jakarta.xml.bind:jakarta.xml.bind-api:${javax_xml_bind_version}")
     runtimeOnly("org.glassfish.jaxb:jaxb-core:${javax_jaxb_core_version}")
     runtimeOnly("org.glassfish.jaxb:jaxb-runtime:${javax_jaxb_runtime_version}")
     runtimeOnly("javax.activation:activation:${javax_activation}")
-    runtimeOnly 'org.javassist:javassist:3.29.2-GA'
+    runtimeOnly("org.javassist:javassist:3.29.2-GA")
 
-    testImplementation "com.jayway.jsonpath:json-path"
-    testImplementation ("org.springframework.boot:spring-boot-starter-test") {
+    testimplementation("com.jayway.jsonpath:json-path")
+    testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude group: "com.vaadin.external.google", module:"android-json"
         exclude group: "junit", module: "junit"
         exclude group: "org.junit.vintage", module: "junit-vintage-engine"
     }
-    testImplementation "org.springframework.security:spring-security-test"
-    testImplementation "org.springframework.boot:spring-boot-test"
-    testImplementation "org.assertj:assertj-core:${assertj_version}"
-    testImplementation "org.junit.jupiter:junit-jupiter-api"
-    testImplementation "org.mockito.kotlin:mockito-kotlin:${mockito_kotlin_version}"
-    testImplementation "com.mattbertolini:liquibase-slf4j:${liquibase_slf4j_version}"
-    testImplementation "org.hamcrest:hamcrest-library"
-    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
+    testimplementation("org.springframework.security:spring-security-test")
+    testimplementation("org.springframework.boot:spring-boot-test")
+    testimplementation("org.assertj:assertj-core:${assertj_version}")
+    testimplementation("org.junit.jupiter:junit-jupiter-api")
+    testimplementation("org.mockito.kotlin:mockito-kotlin:${mockito_kotlin_version}")
+    testimplementation("com.mattbertolini:liquibase-slf4j:${liquibase_slf4j_version}")
+    testimplementation("org.hamcrest:hamcrest-library")
+    testruntimeOnly("org.junit.jupiter:junit-jupiter-engine")
 
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 }
@@ -286,7 +286,7 @@ tasks.register('downloadDependencies') {
 }
 
 ext.projectLanguage = "java"
-apply from: 'gradle/artifacts.gradle'
+apply(from = "gradle/artifacts.gradle")
 
 nexusPublishing {
     repositories {

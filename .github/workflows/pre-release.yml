@@ -41,7 +41,7 @@ jobs:
         with:
           path: |
             ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-rc-node-${{ hashFiles('**/build.gradle', '**/gradle.properties', '**/yarn.lock') }}
+          key: ${{ runner.os }}-rc-node-${{ hashFiles('**/build.gradle.kts', '**/gradle.properties', '**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-rc-node-
             ${{ runner.os }}-node-

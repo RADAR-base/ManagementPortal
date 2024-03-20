@@ -43,7 +43,7 @@ jobs:
         with:
           path: |
             ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-node-${{ hashFiles('**/build.gradle', '**/gradle.properties', '**/yarn.lock', '.yarnrc.yml') }}
+          key: ${{ runner.os }}-node-${{ hashFiles('**/build.gradle.kts', '**/gradle.properties', '**/yarn.lock', '.yarnrc.yml') }}
           restore-keys: |
             ${{ runner.os }}-node-
 
@@ -87,7 +87,7 @@ jobs:
       - name: Has SNAPSHOT version
         id: is-snapshot
         if: github.ref == 'refs/heads/dev'
-        run: grep "version =\\? \\?'.*-SNAPSHOT'" build.gradle
+        run: grep "version =\\? \\?'.*-SNAPSHOT'" build.gradle.kts
 
       - name: Install gpg secret key
         if: steps.is-snapshot.outcome == 'success'
