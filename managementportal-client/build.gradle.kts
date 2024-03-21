@@ -12,16 +12,12 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat
  *
  * See the file LICENSE in the root of this repository.
  */
-plugins {
-    "maven-publish"
-}
-
 description = "Kotlin ManagementPortal client"
 
 dependencies {
-    api("org.jetbrains.kotlin:kotlin-stdlib:1.9.10")
-    implementation("org.jetbrains.kotlin:kotlin-reflect:1.9.10")
-    implementation("org.radarbase:radar-commons-kotlin:1.0.0")
+    api("org.jetbrains.kotlin:kotlin-stdlib:${Versions.kotlin}")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:${Versions.kotlin}")
+    implementation("org.radarbase:radar-commons-kotlin:${Versions.radarCommons}")
 
     api(platform("org.jetbrains.kotlinx:kotlinx-coroutines-bom:${Versions.coroutines}"))
     api(platform("io.ktor:ktor-bom:${Versions.ktor}"))

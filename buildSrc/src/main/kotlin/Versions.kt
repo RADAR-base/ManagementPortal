@@ -12,6 +12,7 @@ object Versions {
     const val springdoc = "1.6.15"
     const val springBoot = "3.1.9"
     const val springFramework = "5.3.27"
+    const val springDependencyManagement = "1.1.3"
     const val springData = "2021.2.5"
     const val thymeleaf = "3.1.2.RELEASE"
     const val springSession = "2021.2.0"
@@ -40,6 +41,9 @@ object Versions {
     const val hibernateOrm = "6.4.4.Final"
     const val hibernateValidator = "8.0.0.Final"
     const val findbugAnnotation = "3.0.2"
+    const val dokka = "1.8.20"
+    const val undercouch = "5.6.0"
+
 
     const val wrapper = "8.4"
 }

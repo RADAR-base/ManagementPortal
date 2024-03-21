@@ -12,33 +12,27 @@ buildscript {
     repositories {
         mavenCentral()
     }
-
-    dependencies {
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:${Versions.springBoot}")
-    }
 }
 
 plugins {
     application
     idea
     war
-    id("org.springframework.boot") version "${Versions.springBoot}"
+    java
+    `java-library`
+    `maven-publish`
+    id("org.springframework.boot") version Versions.springBoot
     id("com.github.node-gradle.node") version "3.6.0"
-    id("io.spring.dependency-management") version "1.1.3"
+    id("io.spring.dependency-management") version Versions.springDependencyManagement
     id("de.undercouch.download") version "5.5.0" apply false
     id("io.github.gradle-nexus.publish-plugin") version "1.3.0"
     id("com.github.ben-manes.versions") version "0.47.0"
-    id("org.jetbrains.kotlin.jvm") version "1.9.10"
-    id("org.jetbrains.kotlin.kapt") version "1.9.10"
-    id("org.jetbrains.kotlin.plugin.serialization") version "1.9.10" apply false
-    id("org.jetbrains.dokka") version "1.8.20"
-    id("org.jetbrains.kotlin.plugin.allopen") version "1.9.10"
+    id("org.jetbrains.kotlin.jvm") version Versions.kotlin
+    id("org.jetbrains.kotlin.kapt") version Versions.kotlin
+    id("org.jetbrains.kotlin.plugin.serialization") version Versions.kotlin apply false
+    id("org.jetbrains.dokka") version Versions.dokka
+    id("org.jetbrains.kotlin.plugin.allopen") version Versions.kotlin
 }
-
-apply(plugin = "org.springframework.boot")
-apply(plugin = "war")
-apply(plugin = "com.github.node-gradle.node")
-apply(plugin = "io.spring.dependency-management")
 
 allprojects {
     group = "org.radarbase"
@@ -48,7 +42,6 @@ allprojects {
     // with a sed command, to auto-update the version number with the prepare-release-branch.sh
     // script, do not remove it.
 
-    apply(plugin = "java")
     apply(plugin = "java-library")
     apply(plugin = "idea")
     apply(plugin = "org.jetbrains.dokka")
@@ -152,7 +145,6 @@ apply(from = "gradle/mapstruct.gradle")
 apply(from = "gradle/docker.gradle")
 apply(from = "gradle/style.gradle")
 apply(from = "gradle/openapi.gradle")
-
 if (project.hasProperty("prod")) {
     apply(from = "gradle/profile_prod.gradle")
 } else {
@@ -170,11 +162,11 @@ dependencies {
     implementation("tech.jhipster:jhipster-framework:${Versions.jhipsterServer}")
     implementation("tech.jhipster:jhipster-dependencies:${Versions.jhipsterServer}")
     implementation("io.micrometer:micrometer-core:${Versions.micrometer}")
-    runtimeOnly("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-hibernate5")
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv")
-    implementation("com.fasterxml.jackson.core:jackson-annotations")
-    implementation("com.fasterxml.jackson.core:jackson-databind")
+    runtimeOnly("com.fasterxml.jackson.datatype:jackson-datatype-jsr310") // version set via BOM
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-hibernate5") // version set via BOM
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv") // version set via BOM
+    implementation("com.fasterxml.jackson.core:jackson-annotations") // version set via BOM
+    implementation("com.fasterxml.jackson.core:jackson-databind") // version set via BOM
     implementation("com.hazelcast:hazelcast:${Versions.hazelcast}")
     implementation("com.hazelcast:hazelcast-spring:${Versions.hazelcast}")
     runtimeOnly("com.hazelcast:hazelcast-hibernate53:${Versions.hazelcastHibernate}")
@@ -182,20 +174,20 @@ dependencies {
     implementation("com.google.code.findbugs:jsr305:${Versions.findbugAnnotation}")
     implementation("org.liquibase:liquibase-core:${Versions.liquibase}")
     runtimeOnly("com.mattbertolini:liquibase-slf4j:${Versions.liquibaseSlf4j}")
-    implementation("org.springframework.boot:spring-boot-starter-actuator")
-    implementation("org.springframework.boot:spring-boot-autoconfigure")
-    implementation("org.springframework.boot:spring-boot-starter-mail")
-    runtimeOnly("org.springframework.boot:spring-boot-starter-logging")
+    implementation("org.springframework.boot:spring-boot-starter-actuator") // version set via dependency-management plugin
+    implementation("org.springframework.boot:spring-boot-autoconfigure") // version set via dependency-management plugin
+    implementation("org.springframework.boot:spring-boot-starter-mail") // version set via dependency-management plugin
+    runtimeOnly("org.springframework.boot:spring-boot-starter-logging") // version set via dependency-management plugin
     runtimeOnly("org.springframework.boot:spring-boot-starter-data-jpa") {
         exclude(group ="org.hibernate", module = "hibernate-entitymanager")
-    }
-    implementation("org.springframework.security:spring-security-data")
+    } // version set via dependency-management plugin
+    implementation("org.springframework.security:spring-security-data") // version set via BOM
 
     implementation("org.springframework.boot:spring-boot-starter-web") {
         exclude(module = "spring-boot-starter-tomcat")
-    }
-    runtimeOnly("org.springframework.boot:spring-boot-starter-security")
-    implementation("org.springframework.boot:spring-boot-starter-undertow")
+    } // version set via dependency-management plugin
+    runtimeOnly("org.springframework.boot:spring-boot-starter-security") // version set via dependency-management plugin
+    implementation("org.springframework.boot:spring-boot-starter-undertow") // version set via dependency-management plugin
 
     implementation("org.hibernate:hibernate-core")
     implementation("org.hibernate:hibernate-envers")
@@ -213,7 +205,7 @@ dependencies {
     runtimeOnly("org.thymeleaf:thymeleaf:${Versions.thymeleaf}")
     runtimeOnly("org.thymeleaf:thymeleaf-spring5:${Versions.thymeleaf}")
     implementation("org.springframework:spring-context-support")
-    implementation("org.springframework.session:spring-session-hazelcast")
+    implementation("org.springframework.session:spring-session-hazelcast") // version set via BOM
 
     implementation("org.springframework.security.oauth:spring-security-oauth2:2.5.2.RELEASE")
     implementation("org.springframework.security:spring-security-web:5.7.8")
@@ -258,8 +250,8 @@ allOpen {
 dependencyManagement {
     imports {
         mavenBom("com.fasterxml.jackson:jackson-bom:${Versions.jackson}")
-        mavenBom("org.springframework:spring-framework-bom:${Versions.springFramework}")
-        mavenBom("org.springframework.boot:spring-boot-dependencies:${Versions.springBoot}")
+        // We do ot need this, right?
+//        mavenBom("org.springframework:spring-framework-bom:${Versions.springFramework}")
         mavenBom("org.springframework.data:spring-data-bom:${Versions.springData}")
         mavenBom("org.springframework.session:spring-session-bom:${Versions.springSession}")
     }
