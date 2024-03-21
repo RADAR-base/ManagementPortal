@@ -7,7 +7,7 @@ import org.radarbase.management.security.NotAuthorizedException
 import org.springframework.stereotype.Service
 import java.util.*
 import java.util.function.Consumer
-import javax.annotation.Nullable
+import jakarta.annotation.Nullable
 
 @Service
 class AuthService(

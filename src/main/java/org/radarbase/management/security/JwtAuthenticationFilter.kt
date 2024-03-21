@@ -20,7 +20,7 @@ import org.springframework.web.cors.CorsUtils
 import org.springframework.web.filter.OncePerRequestFilter
 import java.io.IOException
 import java.time.Instant
-import javax.annotation.Nonnull
+import jakarta.annotation.Nonnull
 import javax.servlet.FilterChain
 import javax.servlet.ServletException
 import javax.servlet.http.HttpServletRequest

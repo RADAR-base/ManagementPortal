@@ -19,7 +19,7 @@ class LocaleConfiguration : WebMvcConfigurer, EnvironmentAware {
     @Bean(name = ["localeResolver"])
     fun localeResolver(): LocaleResolver {
         val cookieLocaleResolver = AngularCookieLocaleResolver()
-        cookieLocaleResolver.cookieName = "NG_TRANSLATE_LANG_KEY"
+        cookieLocaleResolver.setCookieName("NG_TRANSLATE_LANG_KEY")
         return cookieLocaleResolver
     }
 

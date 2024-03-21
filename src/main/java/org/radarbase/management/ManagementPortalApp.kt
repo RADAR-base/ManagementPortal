@@ -14,7 +14,7 @@ import tech.jhipster.config.DefaultProfileUtil
 import tech.jhipster.config.JHipsterConstants
 import java.net.InetAddress
 import java.net.UnknownHostException
-import javax.annotation.PostConstruct
+import jakarta.annotation.PostConstruct
 
 @ComponentScan(
     "org.radarbase.management.config",

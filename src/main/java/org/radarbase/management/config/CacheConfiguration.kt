@@ -22,7 +22,7 @@ import org.springframework.session.hazelcast.Hazelcast4IndexedSessionRepository
 import org.springframework.session.hazelcast.Hazelcast4PrincipalNameExtractor
 import tech.jhipster.config.JHipsterConstants
 import tech.jhipster.config.JHipsterProperties
-import javax.annotation.PreDestroy
+import jakarta.annotation.PreDestroy
 
 @Configuration
 @EnableCaching

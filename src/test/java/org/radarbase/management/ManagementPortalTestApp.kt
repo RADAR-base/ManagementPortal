@@ -13,7 +13,7 @@ import org.springframework.core.env.Profiles
 import tech.jhipster.config.JHipsterConstants
 import java.net.InetAddress
 import java.net.UnknownHostException
-import javax.annotation.PostConstruct
+import jakarta.annotation.PostConstruct
 
 /**
  * This is the application configuration that excludes CommandLineRunner(i.e the sourceTypeLoader).

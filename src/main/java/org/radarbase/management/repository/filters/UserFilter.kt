@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.data.jpa.domain.Specification
 import java.util.function.BiConsumer
 import java.util.stream.Stream
-import javax.annotation.Nonnull
+import jakarta.annotation.Nonnull
 import javax.persistence.criteria.CriteriaBuilder
 import javax.persistence.criteria.CriteriaQuery
 import javax.persistence.criteria.From

@@ -31,7 +31,7 @@ import java.security.interfaces.ECPrivateKey
 import java.security.interfaces.RSAPrivateKey
 import java.util.*
 import java.util.AbstractMap.SimpleImmutableEntry
-import javax.annotation.Nonnull
+import jakarta.annotation.Nonnull
 import javax.servlet.ServletContext
 import kotlin.collections.Map.Entry
 

@@ -5,7 +5,7 @@ import org.springframework.data.domain.AuditorAware
 import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Component
 import java.util.*
-import javax.annotation.Nonnull
+import jakarta.annotation.Nonnull
 
 /**
  * Implementation of AuditorAware based on Spring Security.

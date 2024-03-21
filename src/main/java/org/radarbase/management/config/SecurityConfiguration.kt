@@ -22,7 +22,7 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.data.repository.query.SecurityEvaluationContextExtension
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler
 import tech.jhipster.security.AjaxLogoutSuccessHandler
-import javax.annotation.PostConstruct
+import jakarta.annotation.PostConstruct
 
 @Configuration
 @EnableWebSecurity

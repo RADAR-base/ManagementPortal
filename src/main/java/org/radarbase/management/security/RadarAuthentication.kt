@@ -15,7 +15,7 @@ import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import java.security.Principal
 import java.util.stream.Collectors
-import javax.annotation.Nonnull
+import jakarta.annotation.Nonnull
 
 class RadarAuthentication(@param:Nonnull private val token: RadarToken) : Authentication, Principal {
     private val authorities: List<GrantedAuthority>

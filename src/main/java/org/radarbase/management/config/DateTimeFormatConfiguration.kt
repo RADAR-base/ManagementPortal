@@ -9,7 +9,7 @@ import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeFormatterBuilder
 import java.time.format.ResolverStyle
 import java.time.temporal.ChronoField
-import javax.annotation.Nonnull
+import jakarta.annotation.Nonnull
 
 @Configuration
 class DateTimeFormatConfiguration : WebMvcConfigurer {
