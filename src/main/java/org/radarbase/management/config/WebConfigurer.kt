@@ -1,5 +1,6 @@
 package org.radarbase.management.config
 
+import jakarta.servlet.ServletContext
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.web.server.MimeMappings
@@ -18,8 +19,7 @@ import tech.jhipster.web.filter.CachingHttpHeadersFilter
 import java.io.File
 import java.nio.file.Paths
 import java.util.*
-import javax.servlet.DispatcherType
-import javax.servlet.ServletContext
+import jakarta.servlet.DispatcherType
 
 /**
  * Configuration of web application with Servlet 3.0 APIs.
@@ -50,7 +50,7 @@ class WebConfigurer : ServletContextInitializer, WebServerFactoryCustomizer<Conf
      * Customize the Servlet engine: Mime types, the document root, the cache.
      */
     override fun customize(factory: ConfigurableServletWebServerFactory) {
-        val mappings = MimeMappings(MimeMappings.DEFAULT)
+        val mappings = MimeMappings.DEFAULT
         // IE issue, see https://github.com/jhipster/generator-jhipster/pull/711
         mappings.add("html", "text/html;charset=utf-8")
         // CloudFoundry issue, see https://github.com/cloudfoundry/gorouter/issues/64

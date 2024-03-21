@@ -37,7 +37,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.test.web.servlet.setup.StandaloneMockMvcBuilder
 import org.springframework.transaction.annotation.Transactional
 import java.util.stream.Collectors
-import javax.servlet.ServletException
+import jakarta.servlet.ServletException
 
 /**
  * Test class for the UserResource REST controller.

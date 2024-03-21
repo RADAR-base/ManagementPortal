@@ -21,11 +21,11 @@ import org.springframework.web.filter.OncePerRequestFilter
 import java.io.IOException
 import java.time.Instant
 import jakarta.annotation.Nonnull
-import javax.servlet.FilterChain
-import javax.servlet.ServletException
-import javax.servlet.http.HttpServletRequest
-import javax.servlet.http.HttpServletResponse
-import javax.servlet.http.HttpSession
+import jakarta.servlet.FilterChain
+import jakarta.servlet.ServletException
+import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletResponse
+import jakarta.servlet.http.HttpSession
 
 /**
  * Authentication filter using given validator.
@@ -50,7 +50,7 @@ class JwtAuthenticationFilter @JvmOverloads constructor(
      */
     fun skipUrlPattern(method: HttpMethod, vararg antPatterns: String?): JwtAuthenticationFilter {
         for (pattern in antPatterns) {
-            ignoreUrls.add(AntPathRequestMatcher(pattern, method.name))
+            ignoreUrls.add(AntPathRequestMatcher(pattern, method.name()))
         }
         return this
     }

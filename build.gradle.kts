@@ -21,13 +21,14 @@ plugins {
     java
     `java-library`
     `maven-publish`
+    kotlin("jvm") version Versions.kotlin
+    kotlin("plugin.spring") version Versions.kotlin
     id("org.springframework.boot") version Versions.springBoot
-    id("com.github.node-gradle.node") version "3.6.0" apply false
     id("io.spring.dependency-management") version Versions.springDependencyManagement
+    id("com.github.node-gradle.node") version "3.6.0" apply false
     id("de.undercouch.download") version "5.5.0" apply false
     id("io.github.gradle-nexus.publish-plugin") version "1.3.0"
     id("com.github.ben-manes.versions") version "0.47.0"
-    id("org.jetbrains.kotlin.jvm") version Versions.kotlin
     id("org.jetbrains.kotlin.kapt") version Versions.kotlin
     id("org.jetbrains.kotlin.plugin.serialization") version Versions.kotlin apply false
     id("org.jetbrains.dokka") version Versions.dokka
@@ -178,9 +179,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-autoconfigure") // version set via dependency-management plugin
     implementation("org.springframework.boot:spring-boot-starter-mail") // version set via dependency-management plugin
     runtimeOnly("org.springframework.boot:spring-boot-starter-logging") // version set via dependency-management plugin
-    runtimeOnly("org.springframework.boot:spring-boot-starter-data-jpa") {
-        exclude(group ="org.hibernate", module = "hibernate-entitymanager")
-    } // version set via dependency-management plugin
+    runtimeOnly("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.security:spring-security-data") // version set via BOM
 
     implementation("org.springframework.boot:spring-boot-starter-web") {
@@ -189,7 +188,7 @@ dependencies {
     runtimeOnly("org.springframework.boot:spring-boot-starter-security") // version set via dependency-management plugin
     implementation("org.springframework.boot:spring-boot-starter-undertow") // version set via dependency-management plugin
 
-    implementation("org.hibernate:hibernate-core")
+    implementation("org.hibernate:hibernate-core:6.4.4.Final")
     implementation("org.hibernate:hibernate-envers")
     implementation("org.hibernate:hibernate-validator:${Versions.hibernateValidator}")
 
@@ -208,7 +207,7 @@ dependencies {
     implementation("org.springframework.session:spring-session-hazelcast") // version set via BOM
 
     implementation("org.springframework.security.oauth:spring-security-oauth2:2.5.2.RELEASE")
-    implementation("org.springframework.security:spring-security-web:5.7.8")
+//    implementation("org.springframework.security:spring-security-web:5.7.8")
     implementation("org.springdoc:springdoc-openapi-ui:${Versions.springdoc}")
     runtimeOnly("javax.inject:javax.inject:1")
     implementation(project(":radar-auth"))

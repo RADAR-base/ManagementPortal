@@ -24,11 +24,12 @@ import jakarta.servlet.http.HttpServletResponse
 @Controller
 @SessionAttributes("authorizationRequest")
 class OAuth2LoginUiWebConfig {
+
     @Autowired
     private val clientDetailsService: ClientDetailsService? = null
 
     /**
-     * Login form for OAuth2 auhorization flows.
+     * Login form for OAuth2 authorization flows.
      * @param request the servlet request
      * @param response the servlet response
      * @return a ModelAndView to render the form

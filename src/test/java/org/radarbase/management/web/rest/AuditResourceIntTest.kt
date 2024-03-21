@@ -28,7 +28,7 @@ import org.springframework.test.web.servlet.setup.StandaloneMockMvcBuilder
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import javax.servlet.ServletException
+import jakarta.servlet.ServletException
 
 /**
  * Test class for the AuditResource REST controller.

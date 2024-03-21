@@ -40,7 +40,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.test.web.servlet.setup.StandaloneMockMvcBuilder
 import java.util.*
-import javax.servlet.ServletException
+import jakarta.servlet.ServletException
 
 /**
  * Test class for the GroupResource REST controller.

@@ -34,7 +34,7 @@ import java.time.Instant
 import java.time.ZoneId
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
-import javax.servlet.ServletException
+import jakarta.servlet.ServletException
 
 /**
  * Test class for the ProjectResource REST controller.

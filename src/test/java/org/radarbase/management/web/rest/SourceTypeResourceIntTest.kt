@@ -31,7 +31,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.test.web.servlet.setup.StandaloneMockMvcBuilder
 import org.springframework.transaction.annotation.Transactional
-import javax.servlet.ServletException
+import jakarta.servlet.ServletException
 
 /**
  * Test class for the SourceTypeResource REST controller.

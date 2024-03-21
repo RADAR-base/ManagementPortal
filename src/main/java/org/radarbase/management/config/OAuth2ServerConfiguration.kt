@@ -1,5 +1,6 @@
 package org.radarbase.management.config
 
+import jakarta.servlet.Filter
 import org.radarbase.auth.authorization.RoleAuthority
 import org.radarbase.management.repository.UserRepository
 import org.radarbase.management.security.ClaimsTokenEnhancer
@@ -13,17 +14,19 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.autoconfigure.orm.jpa.JpaProperties
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Primary
 import org.springframework.core.annotation.Order
 import org.springframework.http.HttpMethod
 import org.springframework.orm.jpa.vendor.Database
+import org.springframework.security.authentication.AuthenticationEventPublisher
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.DefaultAuthenticationEventPublisher
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
+import org.springframework.security.config.annotation.web.invoke
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.core.Authentication
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
@@ -31,11 +34,8 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer
-import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer
-import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer
-import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer
 import org.springframework.security.oauth2.provider.approval.ApprovalStore
 import org.springframework.security.oauth2.provider.approval.JdbcApprovalStore
 import org.springframework.security.oauth2.provider.client.JdbcClientDetailsService
@@ -45,6 +45,7 @@ import org.springframework.security.oauth2.provider.token.DefaultTokenServices
 import org.springframework.security.oauth2.provider.token.TokenEnhancer
 import org.springframework.security.oauth2.provider.token.TokenEnhancerChain
 import org.springframework.security.oauth2.provider.token.TokenStore
+import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler
 import java.util.*
@@ -52,39 +53,45 @@ import javax.sql.DataSource
 
 @Configuration
 class OAuth2ServerConfiguration {
-    @Autowired
-    private val dataSource: DataSource? = null
 
-    @Autowired
-    private val passwordEncoder: PasswordEncoder? = null
+    @Bean
+    fun passwordEncoder(): PasswordEncoder {
+        return BCryptPasswordEncoder()
+    }
 
     @Configuration
     @Order(-20)
-    protected class LoginConfig : WebSecurityConfigurerAdapter() {
+    protected class LoginConfig {
         @Autowired
         private val authenticationManager: AuthenticationManager? = null
 
         @Autowired
         private val jwtAuthenticationFilter: JwtAuthenticationFilter? = null
 
-        @Throws(Exception::class)
-        override fun configure(http: HttpSecurity) {
-            http
-                .formLogin().loginPage("/login").permitAll()
-                .and()
-                .addFilterAfter(
-                    jwtAuthenticationFilter,
-                    UsernamePasswordAuthenticationFilter::class.java
-                )
-                .requestMatchers()
-                .antMatchers("/login", "/oauth/authorize", "/oauth/confirm_access")
-                .and()
-                .authorizeRequests().anyRequest().authenticated()
+        @Bean
+        @Throws(java.lang.Exception::class)
+        fun filterChain(http: HttpSecurity): SecurityFilterChain {
+            // @formatter:off
+            http {
+                formLogin {
+                    loginPage = "/login"
+                    permitAll()
+                }
+                addFilterAfter<UsernamePasswordAuthenticationFilter>(jwtAuthenticationFilter as Filter)
+                authorizeHttpRequests {
+                    authorize("/login", permitAll)
+                    authorize("/oauth/authorize", permitAll)
+                    authorize("/oauth/confirm_access", permitAll)
+                    authorize(anyRequest, authenticated)
+                }
+            }
+            // @formatter:on
+            return http.build()
         }
 
-        @Throws(Exception::class)
-        override fun configure(auth: AuthenticationManagerBuilder) {
-            auth.parentAuthenticationManager(authenticationManager)
+        @Autowired
+        fun buildAuthenticationManager(authenticationManagerBuilder: AuthenticationManagerBuilder) {
+            authenticationManagerBuilder.parentAuthenticationManager(authenticationManager)
         }
     }
 
@@ -110,15 +117,7 @@ class OAuth2ServerConfiguration {
         }
     }
 
-    @Bean
-    fun jdbcClientDetailsService(): JdbcClientDetailsService {
-        val clientDetailsService = JdbcClientDetailsService(dataSource)
-        clientDetailsService.setPasswordEncoder(passwordEncoder)
-        return clientDetailsService
-    }
-
     @Configuration
-    @EnableResourceServer
     protected class ResourceServerConfiguration(
         @Autowired private val keyStoreHandler: ManagementPortalOauthKeyStoreHandler,
         @Autowired private val tokenStore: TokenStore,
@@ -126,7 +125,7 @@ class OAuth2ServerConfiguration {
         @Autowired private val logoutSuccessHandler: LogoutSuccessHandler,
         @Autowired private val authenticationManager: AuthenticationManager,
         @Autowired private val userRepository: UserRepository
-    ) : ResourceServerConfigurerAdapter() {
+    ) {
 
         fun jwtAuthenticationFilter(): JwtAuthenticationFilter {
             return JwtAuthenticationFilter(
@@ -141,61 +140,57 @@ class OAuth2ServerConfiguration {
                 .skipUrlPattern(HttpMethod.GET, "/radar-baseRR.png")
         }
 
-        @Throws(Exception::class)
-        override fun configure(http: HttpSecurity) {
-            http
-                .exceptionHandling()
-                .authenticationEntryPoint(http401UnauthorizedEntryPoint)
-                .and()
-                .logout()
-                .invalidateHttpSession(true)
-                .logoutUrl("/api/logout")
-                .logoutSuccessHandler(logoutSuccessHandler)
-                .and()
-                .csrf()
-                .disable()
-                .addFilterBefore(
-                    jwtAuthenticationFilter(),
-                    UsernamePasswordAuthenticationFilter::class.java
-                )
-                .headers()
-                .frameOptions()
-                .disable()
-                .and()
-                .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
-                .and()
-                .authorizeRequests()
-                .antMatchers("/oauth/**").permitAll()
-                .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                .antMatchers("/api/register")
-                .hasAnyAuthority(RoleAuthority.SYS_ADMIN_AUTHORITY)
-                .antMatchers("/api/profile-info").permitAll()
-                .antMatchers("/api/sitesettings").permitAll()
-                .antMatchers("/api/**")
-                .authenticated() // Allow management/health endpoint to all to allow kubernetes to be able to
-                // detect the health of the service
-                .antMatchers("/management/health").permitAll()
-                .antMatchers("/management/**")
-                .hasAnyAuthority(RoleAuthority.SYS_ADMIN_AUTHORITY)
-                .antMatchers("/v2/api-docs/**").permitAll()
-                .antMatchers("/swagger-resources/configuration/ui").permitAll()
-                .antMatchers("/swagger-ui/index.html")
-                .hasAnyAuthority(RoleAuthority.SYS_ADMIN_AUTHORITY)
+        @Bean
+        @Throws(java.lang.Exception::class)
+        fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+            // @formatter:off
+            http {
+                csrf { disable() }
+                authorizeRequests {
+                    authorize("/api/register", hasAnyAuthority(RoleAuthority.SYS_ADMIN_AUTHORITY))
+                    authorize("/management/**", hasAnyAuthority(RoleAuthority.SYS_ADMIN_AUTHORITY))
+                    authorize("/swagger-ui/index.html", hasAnyAuthority(RoleAuthority.SYS_ADMIN_AUTHORITY))
+                    authorize(HttpMethod.OPTIONS, "/**", permitAll)
+                    authorize("/management/health", permitAll)
+                    authorize("/api/sitesettings", permitAll)
+                    authorize("/images/**", permitAll)
+                    authorize("/css/**", permitAll)
+                    authorize("/js/**", permitAll)
+                    authorize("/oauth2/**", permitAll)
+                    authorize("/api/profile-info", permitAll)
+                    authorize("/v2/api-docs/**", permitAll)
+                    authorize("/radar-baseRR.png", permitAll)
+                    authorize("/swagger-resources/configuration/ui", permitAll)
+                    authorize(anyRequest, authenticated)
+                }
+                sessionManagement {
+                    sessionCreationPolicy = SessionCreationPolicy.ALWAYS
+                }
+                headers {
+                    frameOptions { disable() }
+                }
+                logout {
+                    invalidateHttpSession = true
+                    logoutUrl = "/api/logout"
+                    logoutSuccessHandler = logoutSuccessHandler
+                }
+                exceptionHandling {
+                    authenticationEntryPoint = http401UnauthorizedEntryPoint
+                }
+                addFilterBefore<UsernamePasswordAuthenticationFilter>(jwtAuthenticationFilter())
+            }
+            return http.build()
+            // @formatter:on
         }
 
-        @Throws(Exception::class)
-        override fun configure(resources: ResourceServerSecurityConfigurer) {
-            resources.resourceId("res_ManagementPortal")
-                .tokenStore(tokenStore)
-                .eventPublisher(CustomEventPublisher())
-        }
-
-        protected class CustomEventPublisher : DefaultAuthenticationEventPublisher() {
-            override fun publishAuthenticationSuccess(authentication: Authentication) {
-                // OAuth2AuthenticationProcessingFilter publishes an authentication success audit
-                // event for EVERY successful OAuth request to our API resources, this is way too
-                // much so we override the event publisher to not publish these events.
+        @Bean
+        fun authenticationEventPublisher(applicationEventPublisher: ApplicationEventPublisher?): AuthenticationEventPublisher {
+            return object : DefaultAuthenticationEventPublisher(applicationEventPublisher) {
+                override fun publishAuthenticationSuccess(authentication: Authentication) {
+                    // OAuth2AuthenticationProcessingFilter publishes an authentication success audit
+                    // event for EVERY successful OAuth request to our API resources, this is way too
+                    // much, so we override the event publisher to not publish these events.
+                }
             }
         }
     }

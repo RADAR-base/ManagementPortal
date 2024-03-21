@@ -4,7 +4,7 @@ import org.radarbase.auth.token.RadarToken
 import org.radarbase.management.security.JwtAuthenticationFilter.Companion.radarToken
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
-import javax.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletRequest
 
 @Component
 class RadarTokenLoader {
