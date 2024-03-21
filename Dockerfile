@@ -19,8 +19,8 @@ COPY .yarn /code/.yarn
 RUN yarn install --network-timeout 1000000
 
 COPY gradle gradle
-COPY gradlew build.gradle gradle.properties settings.gradle /code/
-COPY radar-auth/build.gradle radar-auth/
+COPY gradlew build.gradle.kts gradle.properties.kts settings.gradle.kts /code/
+COPY radar-auth/build.gradle.kts radar-auth/
 
 RUN ./gradlew downloadDependencies
 

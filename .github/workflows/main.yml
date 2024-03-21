@@ -43,7 +43,7 @@ jobs:
         with:
           path: |
             ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-node-${{ hashFiles('**/build.gradle.kts', '**/gradle.properties', '**/yarn.lock', '.yarnrc.yml') }}
+          key: ${{ runner.os }}-node-${{ hashFiles('**/build.gradle.kts', '**/gradle.properties.kts', '**/yarn.lock', '.yarnrc.yml') }}
           restore-keys: |
             ${{ runner.os }}-node-
 
@@ -136,7 +136,7 @@ jobs:
           path: |
             ${{ steps.yarn-cache-dir-path.outputs.dir }}
             /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ hashFiles('Dockerfile', '**/*.gradle', 'gradle.properties', 'src/main/**', 'radar-auth/src/**', 'yarn.lock', '*.json', '.yarnrc.yml') }}
+          key: ${{ runner.os }}-buildx-${{ hashFiles('Dockerfile', '**/*.gradle', 'gradle.properties.kts', 'src/main/**', 'radar-auth/src/**', 'yarn.lock', '*.json', '.yarnrc.yml') }}
           restore-keys: |
             ${{ runner.os }}-buildx-
 

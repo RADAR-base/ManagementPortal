@@ -12,7 +12,7 @@ sourceSets {
 }
 
 dependencies {
-    gatlingImplementation "io.gatling.highcharts:gatling-charts-highcharts:${gatling_version}"
+    gatlingImplementation "io.gatling.highcharts:gatling-charts-highcharts:${Versions.gatling}"
 }
 
 //noinspection GroovyAssignabilityCheck

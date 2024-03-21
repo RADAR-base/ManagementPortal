@@ -12,6 +12,7 @@ keystore.p12
 src/main/resources/config/keystore.p12
 src/main/docker/etc/config/keystore.p12
 /src/main/docker/etc/smtp.env
+buildSrc/build/
 ######################
 # Patch files
 ######################

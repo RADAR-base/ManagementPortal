@@ -15,26 +15,26 @@ targetCompatibility = JavaVersion.VERSION_11
 description = 'Library for authentication and authorization of JWT tokens issued by the RADAR platform'
 
 dependencies {
-    api group: 'com.auth0', name: 'java-jwt', version: oauth_jwt_version
-    api(platform("org.jetbrains.kotlinx:kotlinx-coroutines-bom:$coroutines_version"))
-    api("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version")
+    api ("com.auth0:java-jwt:${Versions.oauthJwt}")
+    api(platform("org.jetbrains.kotlinx:kotlinx-coroutines-bom:${Versions.coroutines}"))
+    api("org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutines}")
 
-    implementation("org.radarbase:radar-commons-kotlin:$radar_commons_version")
+    implementation("org.radarbase:radar-commons-kotlin:${Versions.radarCommons}")
 
-    implementation(platform("io.ktor:ktor-bom:$ktor_version"))
-    implementation("io.ktor:ktor-client-core:$ktor_version")
-    implementation("io.ktor:ktor-client-cio:$ktor_version")
-    implementation("io.ktor:ktor-client-content-negotiation:$ktor_version")
-    implementation("io.ktor:ktor-serialization-kotlinx-json:$ktor_version")
+    implementation(platform("io.ktor:ktor-bom:${Versions.ktor}"))
+    implementation("io.ktor:ktor-client-core:${Versions.ktor}")
+    implementation("io.ktor:ktor-client-cio:${Versions.ktor}")
+    implementation("io.ktor:ktor-client-content-negotiation:${Versions.ktor}")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:${Versions.ktor}")
 
-    implementation group: 'org.slf4j', name: 'slf4j-api', version: slf4j_version
+    implementation ("org.slf4j:slf4j-api:${Versions.slf4j}")
 
-    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: junit_version
-    testImplementation group: 'com.github.tomakehurst', name: 'wiremock', version: wiremock_version
-    testImplementation group: 'org.hamcrest', name: 'hamcrest', version: hamcrest_version
+    testImplementation ("org.junit.jupiter:junit-jupiter-api:${Versions.junit}")
+    testImplementation ("com.github.tomakehurst:wiremock:${Versions.wiremock}")
+    testImplementation ("org.hamcrest:hamcrest:${Versions.hamcrest}")
 
-    testRuntimeOnly group: 'ch.qos.logback', name: 'logback-classic', version: logback_version
-    testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: junit_version
+    testRuntimeOnly ("ch.qos.logback:logback-classic:${Versions.logback}")
+    testRuntimeOnly ("org.junit.jupiter:junit-jupiter-engine:${Versions.junit}")
 
 }
 
