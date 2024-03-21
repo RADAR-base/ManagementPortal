@@ -22,7 +22,7 @@ plugins {
     `java-library`
     `maven-publish`
     id("org.springframework.boot") version Versions.springBoot
-    id("com.github.node-gradle.node") version "3.6.0"
+    id("com.github.node-gradle.node") version "3.6.0" apply false
     id("io.spring.dependency-management") version Versions.springDependencyManagement
     id("de.undercouch.download") version "5.5.0" apply false
     id("io.github.gradle-nexus.publish-plugin") version "1.3.0"

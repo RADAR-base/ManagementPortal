@@ -34,16 +34,6 @@ dependencies {
 
 }
 
-// TODO Should this be different from the management-portal application itself?
-// If not, consider moving this to the buildSrc build logic.
-tasks.withType<KotlinCompile>().configureEach {
-    compilerOptions {
-        jvmTarget = JvmTarget.JVM_11
-        apiVersion = KotlinVersion.KOTLIN_1_8
-        languageVersion = KotlinVersion.KOTLIN_1_8
-    }
-}
-
 tasks.test {
     testLogging {
         exceptionFormat = TestExceptionFormat.FULL
