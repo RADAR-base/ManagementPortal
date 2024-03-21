@@ -1,6 +1,8 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+
 
 /*
  * Copyright (c) 2020. The Hyve
@@ -11,14 +13,8 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
  * See the file LICENSE in the root of this repository.
  */
 plugins {
-    id 'org.jetbrains.kotlin.jvm'
-    id 'org.jetbrains.kotlin.plugin.serialization'
-    id 'org.jetbrains.dokka'
-    id 'maven-publish'
+    "maven-publish"
 }
-
-sourceCompatibility = JavaVersion.VERSION_11
-targetCompatibility = JavaVersion.VERSION_11
 
 description = "Kotlin ManagementPortal client"
 
@@ -46,28 +42,32 @@ dependencies {
     testRuntimeOnly ("org.junit.jupiter:junit-jupiter-engine:${Versions.junit}")
 }
 
-tasks.withType(KotlinCompile).configureEach {
+// TODO Should this be different from the management-portal application itself?
+// If not, consider moving this to the buildSrc build logic
+tasks.withType<KotlinCompile>().configureEach {
     compilerOptions {
-        jvmTarget = JvmTarget.JVM_11
-        apiVersion = KotlinVersion.KOTLIN_1_7
-        languageVersion = KotlinVersion.KOTLIN_1_9
+        jvmTarget = JvmTarget.JVM_17
+        apiVersion = KotlinVersion.KOTLIN_1_8
+        languageVersion = KotlinVersion.KOTLIN_1_8
     }
 }
 
-tasks.register('ghPagesJavadoc', Copy) {
-    from file("$buildDir/dokka/javadoc")
-    into file("$rootDir/public/managementportal-client-javadoc")
-    dependsOn(dokkaJavadoc)
+tasks.register<Copy>("ghPagesJavadoc") {
+    from(layout.buildDirectory.file("dokka/javadoc"))
+    into(layout.buildDirectory.file("public/managementportal-client-javadoc"))
+    dependsOn(tasks.dokkaJavadoc)
 }
 
-test {
+tasks.test {
     testLogging {
-        exceptionFormat = 'full'
+        exceptionFormat = TestExceptionFormat.FULL
     }
     useJUnitPlatform()
 }
 
-ext.projectLanguage = "kotlin"
-ext.publishToMavenCentral = true
+extra.apply {
+    set("projectLanguage", "kotlin")
+    set("publishToMavenCentral", "true")
+}
 
-apply from: "$rootDir/gradle/publishing.gradle"
+apply(from = "$rootDir/gradle/publishing.gradle")

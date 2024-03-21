@@ -51,6 +51,7 @@ allprojects {
     apply(plugin = "java")
     apply(plugin = "java-library")
     apply(plugin = "idea")
+    apply(plugin = "org.jetbrains.dokka")
 
     extra.apply {
         set("githubRepoName", "RADAR-base/ManagementPortal")
@@ -161,7 +162,7 @@ if (project.hasProperty("prod")) {
 extra.apply {
     //set("moduleDescription", "Management Portal application")
     set("findbugAnnotation", "3.0.2")
-    set("projectLanguage", "java")
+    set("projectLanguage", "kotlin")
 }
 
 dependencies {
@@ -280,12 +281,12 @@ tasks.register("stage") {
     dependsOn("bootWar")
 }
 
-// TODO fix this
-//tasks.register("ghPagesJavadoc", Copy::class) {
-//    from(tasks.javadoc.destinationDir)
-//    into(file("$rootDir/public/management-portal-javadoc"))
-//    dependsOn(tasks.javadoc)
-//}
+tasks.register<Copy>("ghPagesJavadoc") {
+    from(layout.buildDirectory.file("dokka/javadoc"))
+    into(layout.projectDirectory.file("public/management-portal-javadoc"))
+    dependsOn(tasks.dokkaJavadoc)
+}
+
 
 tasks.register("ghPagesOpenApiSpec", Copy::class) {
     from(file(layout.buildDirectory.dir("swagger-spec")))

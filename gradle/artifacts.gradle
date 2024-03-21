@@ -16,20 +16,11 @@ tasks.register('sourcesJar', Jar) {
     dependsOn(classes)
 }
 
-if (!project.hasProperty("projectLanguage") || projectLanguage == "java") {
-    tasks.register('javadocJar', Jar) {
-        archiveClassifier.set('javadoc')
-        from javadoc.destinationDir
-        manifest.from sharedManifest
-        dependsOn(javadoc)
-    }
-} else if (projectLanguage == "kotlin") {
-    tasks.register('javadocJar', Jar) {
-        from("$buildDir/dokka/javadoc")
-        archiveClassifier.set("javadoc")
-        manifest.from sharedManifest
-        dependsOn(dokkaJavadoc)
-    }
+tasks.register('javadocJar', Jar) {
+    from("$buildDir/dokka/javadoc")
+    archiveClassifier.set("javadoc")
+    manifest.from sharedManifest
+    dependsOn(dokkaJavadoc)
 }
 
 assemble.dependsOn(javadocJar, sourcesJar)
