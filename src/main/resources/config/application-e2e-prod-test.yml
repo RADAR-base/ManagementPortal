@@ -19,3 +19,8 @@ spring:
     password: radarbase
   liquibase:
     contexts: dev
+
+managementportal:
+  oauth:
+    clientsFile: src/main/docker/etc/config/oauth_client_details.csv
+
