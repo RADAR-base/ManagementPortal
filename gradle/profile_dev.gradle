@@ -12,6 +12,10 @@ if (project.hasProperty('no-liquibase')) {
     profiles += ',no-liquibase'
 }
 
+if (project.hasProperty('e2e-prod-test')) {
+    profiles += ',e2e-prod-test'
+}
+
 bootRun {
     args = []
     systemProperty "spring.profiles.active", profiles

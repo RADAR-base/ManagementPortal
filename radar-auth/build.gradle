@@ -17,21 +17,21 @@ description = 'Library for authentication and authorization of JWT tokens issued
 dependencies {
     api group: 'com.auth0', name: 'java-jwt', version: oauth_jwt_version
     api(platform("org.jetbrains.kotlinx:kotlinx-coroutines-bom:$coroutines_version"))
-    api("org.jetbrains.kotlinx:kotlinx-coroutines-core")
+    api("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version")
 
-    implementation("org.radarbase:radar-commons-kotlin:1.0.0")
+    implementation("org.radarbase:radar-commons-kotlin:$radar_commons_version")
 
     implementation(platform("io.ktor:ktor-bom:$ktor_version"))
-    implementation("io.ktor:ktor-client-core")
-    implementation("io.ktor:ktor-client-cio")
-    implementation("io.ktor:ktor-client-content-negotiation")
-    implementation("io.ktor:ktor-serialization-kotlinx-json")
+    implementation("io.ktor:ktor-client-core:$ktor_version")
+    implementation("io.ktor:ktor-client-cio:$ktor_version")
+    implementation("io.ktor:ktor-client-content-negotiation:$ktor_version")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:$ktor_version")
 
     implementation group: 'org.slf4j', name: 'slf4j-api', version: slf4j_version
 
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: junit_version
-    testImplementation group: 'com.github.tomakehurst', name: 'wiremock', version: '2.27.2'
-    testImplementation group: 'org.hamcrest', name: 'hamcrest', version: '2.2'
+    testImplementation group: 'com.github.tomakehurst', name: 'wiremock', version: wiremock_version
+    testImplementation group: 'org.hamcrest', name: 'hamcrest', version: hamcrest_version
 
     testRuntimeOnly group: 'ch.qos.logback', name: 'logback-classic', version: logback_version
     testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: junit_version

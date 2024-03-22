@@ -12,9 +12,5 @@ task buildDocker(type: Exec, dependsOn: bootWar) {
             include "*.war*"
         }
     }
-    if (OperatingSystem.current().isWindows()) {
-        commandLine 'cmd', '/c', 'docker', 'image', 'build', '-f', 'build/docker/Dockerfile', '-t', 'managementportal', 'build/docker/'
-    } else {
-        commandLine 'docker', 'image', 'build', '-f', 'build/docker/Dockerfile', '-t', 'managementportal', 'build/docker/'
-    }
+    commandLine 'docker', 'image', 'build', '-f', 'build/docker/Dockerfile', '-t', 'managementportal', 'build/docker/'
 }
