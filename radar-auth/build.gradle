@@ -5,23 +5,22 @@ plugins {
 apply plugin: 'maven-publish'
 
 ext {
-    jacksonVersion = '2.11.4'
-    jacksonYamlVersion = '2.11.4'
+    jacksonVersion = '2.13.4'
+    jacksonYamlVersion = '2.13.4'
     okhttpVersion = '4.9.1'
-    oauthJwtVersion = '3.12.0'
+    oauthJwtVersion = '3.19.1'
     commonsCodecVersion = '1.15'
     slf4jVersion = '1.7.30'
     junitVersion ='5.6.3'
 }
 
-sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
 
 description = 'Library for authentication and authorization of JWT tokens issued by the RADAR platform'
 
 repositories {
-    jcenter()
-    mavenLocal()
+    mavenCentral()
 }
 
 configurations {
@@ -40,10 +39,10 @@ dependencies {
     shadow group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: jacksonYamlVersion
 
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: junitVersion
-    testImplementation group: 'com.github.tomakehurst', name: 'wiremock', version: '2.27.2'
+    testImplementation group: 'com.github.tomakehurst', name: 'wiremock', version: '3.0.0'
     testImplementation group: 'com.github.stefanbirkner', name: 'system-rules', version: '1.19.0'
 
-    testRuntimeOnly group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
+    testRuntimeOnly group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.13'
     testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: junitVersion
 
 }

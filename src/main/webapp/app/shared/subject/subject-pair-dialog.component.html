@@ -35,7 +35,8 @@
 
         <div class="form-group" *ngIf="pairInfo !== null">
             <div class="text-center">
-                <qrcode style="display: inline-block;" [qrdata]="pairInfo.tokenUrl" [size]="400"></qrcode>
+                <qr-code style="display: inline-block;" [value]="pairInfo.tokenUrl" size="400"
+                         errorCorrectionLevel="M"></qr-code>
             </div>
         </div>
 

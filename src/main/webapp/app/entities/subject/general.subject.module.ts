@@ -1,6 +1,6 @@
 import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { QRCodeModule } from 'angularx-qrcode';
+import { QrCodeModule } from 'ng-qrcode';
 import { ManagementPortalSharedModule } from '../../shared';
 import { ManagementPortalSharedSubjectModule } from '../../shared/subject/subject.module';
 import {
@@ -20,7 +20,7 @@ const ENTITY_STATES = [
         ManagementPortalSharedModule,
         ManagementPortalSharedSubjectModule,
         RouterModule.forRoot(ENTITY_STATES, {useHash: true}),
-        QRCodeModule,
+        QrCodeModule,
     ],
     declarations: [
         GeneralSubjectComponent,

@@ -1,28 +1,9 @@
 package org.radarbase.management.web.rest;
 
-import static org.radarbase.auth.authorization.Permission.SOURCETYPE_CREATE;
-import static org.radarbase.auth.authorization.Permission.SOURCETYPE_DELETE;
-import static org.radarbase.auth.authorization.Permission.SOURCETYPE_READ;
-import static org.radarbase.auth.authorization.Permission.SOURCETYPE_UPDATE;
-import static org.radarbase.auth.authorization.RadarAuthorization.checkPermission;
-import static org.radarbase.management.security.SecurityUtils.getJWT;
-import static org.radarbase.management.web.rest.errors.EntityName.SOURCE_TYPE;
-
-import java.net.URISyntaxException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-
-import com.codahale.metrics.annotation.Timed;
-import io.github.jhipster.web.util.ResponseUtil;
+import io.micrometer.core.annotation.Timed;
 import org.radarbase.auth.config.Constants;
 import org.radarbase.auth.exception.NotAuthorizedException;
+import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.domain.SourceType;
 import org.radarbase.management.repository.SourceTypeRepository;
 import org.radarbase.management.service.ResourceUriService;
@@ -51,6 +32,24 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import tech.jhipster.web.util.ResponseUtil;
+
+import javax.validation.Valid;
+import java.net.URISyntaxException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static org.radarbase.auth.authorization.Permission.SOURCETYPE_CREATE;
+import static org.radarbase.auth.authorization.Permission.SOURCETYPE_DELETE;
+import static org.radarbase.auth.authorization.Permission.SOURCETYPE_READ;
+import static org.radarbase.auth.authorization.Permission.SOURCETYPE_UPDATE;
+import static org.radarbase.auth.authorization.RadarAuthorization.checkPermission;
+import static org.radarbase.management.web.rest.errors.EntityName.SOURCE_TYPE;
 
 /**
  * REST controller for managing SourceType.
@@ -58,17 +57,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api")
 public class SourceTypeResource {
-
     private static final Logger log = LoggerFactory.getLogger(SourceTypeResource.class);
+
+    @Autowired
+    private RadarToken token;
 
     @Autowired
     private SourceTypeService sourceTypeService;
 
     @Autowired
     private SourceTypeRepository sourceTypeRepository;
-
-    @Autowired
-    private HttpServletRequest servletRequest;
 
     /**
      * POST  /source-types : Create a new sourceType.
@@ -83,7 +81,7 @@ public class SourceTypeResource {
     public ResponseEntity<SourceTypeDTO> createSourceType(@Valid @RequestBody
             SourceTypeDTO sourceTypeDto) throws URISyntaxException, NotAuthorizedException {
         log.debug("REST request to save SourceType : {}", sourceTypeDto);
-        checkPermission(getJWT(servletRequest), SOURCETYPE_CREATE);
+        checkPermission(token, SOURCETYPE_CREATE);
         if (sourceTypeDto.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(SOURCE_TYPE,
                     "idexists", "A new sourceType cannot already have an ID")).build();
@@ -127,7 +125,7 @@ public class SourceTypeResource {
         if (sourceTypeDto.getId() == null) {
             return createSourceType(sourceTypeDto);
         }
-        checkPermission(getJWT(servletRequest), SOURCETYPE_UPDATE);
+        checkPermission(token, SOURCETYPE_UPDATE);
         SourceTypeDTO result = sourceTypeService.save(sourceTypeDto);
         return ResponseEntity.ok()
                 .headers(
@@ -146,7 +144,7 @@ public class SourceTypeResource {
     public ResponseEntity<List<SourceTypeDTO>> getAllSourceTypes(
             @PageableDefault(page = 0, size = Integer.MAX_VALUE) Pageable pageable)
             throws NotAuthorizedException {
-        checkPermission(getJWT(servletRequest), SOURCETYPE_READ);
+        checkPermission(token, SOURCETYPE_READ);
         Page<SourceTypeDTO> page = sourceTypeService.findAll(pageable);
         HttpHeaders headers = PaginationUtil
                 .generatePaginationHttpHeaders(page, "/api/source-types");
@@ -163,7 +161,7 @@ public class SourceTypeResource {
     @Timed
     public ResponseEntity<List<SourceTypeDTO>> getSourceTypes(@PathVariable String producer)
             throws NotAuthorizedException {
-        checkPermission(getJWT(servletRequest), SOURCETYPE_READ);
+        checkPermission(token, SOURCETYPE_READ);
         return ResponseEntity.ok(sourceTypeService.findByProducer(producer));
     }
 
@@ -180,7 +178,7 @@ public class SourceTypeResource {
     @Timed
     public ResponseEntity<List<SourceTypeDTO>> getSourceTypes(@PathVariable String producer,
             @PathVariable String model) throws NotAuthorizedException {
-        checkPermission(getJWT(servletRequest), SOURCETYPE_READ);
+        checkPermission(token, SOURCETYPE_READ);
         return ResponseEntity.ok(sourceTypeService.findByProducerAndModel(producer, model));
     }
 
@@ -198,7 +196,7 @@ public class SourceTypeResource {
     public ResponseEntity<SourceTypeDTO> getSourceTypes(@PathVariable String producer,
             @PathVariable String model, @PathVariable String version)
             throws NotAuthorizedException {
-        checkPermission(getJWT(servletRequest), SOURCETYPE_READ);
+        checkPermission(token, SOURCETYPE_READ);
         return ResponseUtil.wrapOrNotFound(Optional.ofNullable(
                 sourceTypeService.findByProducerAndModelAndVersion(producer, model, version)));
     }
@@ -218,7 +216,7 @@ public class SourceTypeResource {
     public ResponseEntity<Void> deleteSourceType(@PathVariable String producer,
             @PathVariable String model, @PathVariable String version)
             throws NotAuthorizedException {
-        checkPermission(getJWT(servletRequest), SOURCETYPE_DELETE);
+        checkPermission(token, SOURCETYPE_DELETE);
         SourceTypeDTO sourceTypeDto = sourceTypeService
                 .findByProducerAndModelAndVersion(producer, model, version);
         if (Objects.isNull(sourceTypeDto)) {

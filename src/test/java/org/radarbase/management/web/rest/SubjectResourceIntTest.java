@@ -32,11 +32,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockitoAnnotations;
+import org.radarbase.auth.token.RadarToken;
 import org.radarbase.management.ManagementPortalTestApp;
 import org.radarbase.management.domain.Subject;
 import org.radarbase.management.repository.ProjectRepository;
@@ -105,20 +105,20 @@ class SubjectResourceIntTest {
     private ProjectRepository projectRepository;
 
     @Autowired
-    private HttpServletRequest servletRequest;
+    private RadarToken radarToken;
 
     private MockMvc restSubjectMockMvc;
 
     @BeforeEach
     public void setUp() throws ServletException {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
         SubjectResource subjectResource = new SubjectResource();
         ReflectionTestUtils.setField(subjectResource, "subjectService", subjectService);
         ReflectionTestUtils.setField(subjectResource, "subjectRepository", subjectRepository);
         ReflectionTestUtils.setField(subjectResource, "subjectMapper", subjectMapper);
         ReflectionTestUtils.setField(subjectResource, "projectRepository", projectRepository);
         ReflectionTestUtils.setField(subjectResource, "sourceTypeService", sourceTypeService);
-        ReflectionTestUtils.setField(subjectResource, "servletRequest", servletRequest);
+        ReflectionTestUtils.setField(subjectResource, "token", radarToken);
         ReflectionTestUtils.setField(subjectResource, "sourceService", sourceService);
 
         JwtAuthenticationFilter filter = OAuthHelper.createAuthenticationFilter();

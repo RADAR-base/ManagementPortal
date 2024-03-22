@@ -5,7 +5,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import io.github.jhipster.config.JHipsterProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,44 +31,24 @@ class ProfileInfoResourceIntTest {
     @Mock
     private Environment environment;
 
-    @Mock
-    private JHipsterProperties jHipsterProperties;
-
     private MockMvc restProfileMockMvc;
 
     @BeforeEach
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
-        String[] mockProfile = {"test"};
-        JHipsterProperties.Ribbon ribbon = new JHipsterProperties.Ribbon();
-        ribbon.setDisplayOnActiveProfiles(mockProfile);
-        when(jHipsterProperties.getRibbon()).thenReturn(ribbon);
-
+        MockitoAnnotations.openMocks(this);
         String[] activeProfiles = {"test"};
         when(environment.getDefaultProfiles()).thenReturn(activeProfiles);
         when(environment.getActiveProfiles()).thenReturn(activeProfiles);
 
         ProfileInfoResource profileInfoResource = new ProfileInfoResource();
         ReflectionTestUtils.setField(profileInfoResource, "env", environment);
-        ReflectionTestUtils.setField(profileInfoResource, "jHipsterProperties", jHipsterProperties);
         this.restProfileMockMvc = MockMvcBuilders
                 .standaloneSetup(profileInfoResource)
                 .build();
     }
 
     @Test
-    void getProfileInfoWithRibbon() throws Exception {
-        restProfileMockMvc.perform(get("/api/profile-info"))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
-    }
-
-    @Test
-    void getProfileInfoWithoutRibbon() throws Exception {
-        JHipsterProperties.Ribbon ribbon = new JHipsterProperties.Ribbon();
-        ribbon.setDisplayOnActiveProfiles(null);
-        when(jHipsterProperties.getRibbon()).thenReturn(ribbon);
-
+    void getProfileInfo() throws Exception {
         restProfileMockMvc.perform(get("/api/profile-info"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));

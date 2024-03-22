@@ -2,6 +2,7 @@
 import io.gatling.core.Predef._
 import io.gatling.core.structure.ScenarioBuilder
 import io.gatling.http.Predef._
+import scala.language.postfixOps
 
 import scala.concurrent.duration._
 

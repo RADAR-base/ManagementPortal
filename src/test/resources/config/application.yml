@@ -28,13 +28,13 @@ spring:
         type: none
     datasource:
         type: com.zaxxer.hikari.HikariDataSource
-        url: jdbc:h2:mem:ManagementPortal;DB_CLOSE_DELAY=-1
+        url: jdbc:hsqldb:mem:ManagementPortal;DB_CLOSE_DELAY=-1
         name:
         username:
         password:
     jpa:
-        database-platform: io.github.jhipster.domain.util.FixedH2Dialect
-        database: H2
+        database-platform: org.hibernate.dialect.HSQLDialect
+        database: HSQL
         open-in-view: false
         show-sql: false
         hibernate:
@@ -56,13 +56,12 @@ spring:
                 track_entities_changed_in_revision: true
     mail:
         host: localhost
+    main:
+        allow-circular-references: true
     messages:
         basename: i18n/messages
-    mvc:
-        favicon:
-            enabled: false
     thymeleaf:
-        mode: XHTML
+        mode: HTML
 
 liquibase:
     contexts: test
@@ -84,13 +83,10 @@ jhipster:
         queue-capacity: 10000
     security:
         authentication:
-            oauth:
-                client-id: ManagementPortalapp
-                client-secret: my-secret-token-to-change-in-production
+            jwt:
+                secret: my-secret-token-to-change-in-production
                 # Token is valid 30 minutes
                 token-validity-in-seconds: 1800
-    metrics: # DropWizard Metrics configuration, used by MetricsConfiguration
-        jmx.enabled: true
 
 # ===================================================================
 # Application specific properties

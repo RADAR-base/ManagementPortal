@@ -19,6 +19,7 @@ public final class ErrorConstants {
     public static final String ERR_SOURCE_TYPE_IN_USE = "error.sourceTypeInUse";
     public static final String ERR_SOURCE_TYPE_NOT_FOUND = "error.sourceTypeNotFound";
     public static final String ERR_INVALID_AUTHORITY = "error.invalidAuthority";
+    public static final String ERR_EMAIL_EXISTS = "error.emailexists";
     public static final String ERR_PROJECT_ID_NOT_FOUND = "error.projectIdNotFound";
     public static final String ERR_PROJECT_NAME_NOT_FOUND = "error.projectNameNotFound";
     public static final String ERR_REVISIONS_NOT_FOUND = "error.revisionsNotFound";
@@ -32,6 +33,10 @@ public final class ErrorConstants {
             + ".noValidPrivacyPolicyUrl";
     public static final String ERR_NO_SUCH_CLIENT = "error.noSuchClient";
     public static final String ERR_PROJECT_NOT_EMPTY = "error.projectNotEmpty";
+    public static final String ERR_PASSWORD_TOO_LONG = "error.longPassword";
+    public static final String ERR_PASSWORD_TOO_WEAK = "error.weakPassword";
+
+    public static final String ERR_EMAIL_NOT_REGISTERED = "error.emailNotRegistered";
 
     private ErrorConstants() {
     }

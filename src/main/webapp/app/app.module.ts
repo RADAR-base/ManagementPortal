@@ -26,8 +26,8 @@ import {
 } from './layouts';
 
 import { LANGUAGES, ManagementPortalSharedModule } from './shared';
-import { AuthInterceptor } from './blocks/interceptor/auth.interceptor';
-import { AuthExpiredInterceptor } from './blocks/interceptor/auth-expired.interceptor';
+// import { AuthInterceptor } from './blocks/interceptor/auth.interceptor';
+// import { AuthExpiredInterceptor } from './blocks/interceptor/auth-expired.interceptor';
 import { ErrorHandlerInterceptor } from './blocks/interceptor/errorhandler.interceptor';
 import { NotificationInterceptor } from './blocks/interceptor/notification.interceptor';
 
@@ -61,16 +61,6 @@ import { NotificationInterceptor } from './blocks/interceptor/notification.inter
     ],
     providers: [
         PaginationConfig,
-        {
-            provide: HTTP_INTERCEPTORS,
-            useClass: AuthInterceptor,
-            multi: true,
-        },
-        {
-            provide: HTTP_INTERCEPTORS,
-            useClass: AuthExpiredInterceptor,
-            multi: true,
-        },
         {
             provide: HTTP_INTERCEPTORS,
             useClass: ErrorHandlerInterceptor,

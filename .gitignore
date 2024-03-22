@@ -165,3 +165,4 @@ Desktop.ini
 !/libs/**/*.jar
 
 /public
+/.yarn/cache/

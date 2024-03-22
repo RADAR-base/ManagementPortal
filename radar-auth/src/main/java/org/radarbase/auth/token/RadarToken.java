@@ -49,6 +49,11 @@ public interface RadarToken {
     String getSubject();
 
     /**
+     * Get the token username.
+     */
+    String getUsername();
+
+    /**
      * Get the date this token was issued.
      * @return date this token was issued or null
      */
