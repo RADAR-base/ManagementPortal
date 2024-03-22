@@ -20,6 +20,7 @@ import java.io.File
 import java.nio.file.Paths
 import java.util.*
 import jakarta.servlet.DispatcherType
+import jakarta.servlet.Filter
 
 /**
  * Configuration of web application with Servlet 3.0 APIs.
@@ -90,13 +91,13 @@ class WebConfigurer : ServletContextInitializer, WebServerFactoryCustomizer<Conf
         disps: EnumSet<DispatcherType>
     ) {
         log.debug("Registering Caching HTTP Headers Filter")
-        val cachingHttpHeadersFilter = servletContext.addFilter(
+        val filterRegistration = servletContext.addFilter(
             "cachingHttpHeadersFilter",
-            CachingHttpHeadersFilter(jHipsterProperties)
+            CachingHttpHeadersFilter(jHipsterProperties) as Filter
         )
-        cachingHttpHeadersFilter.addMappingForUrlPatterns(disps, true, "/content/*")
-        cachingHttpHeadersFilter.addMappingForUrlPatterns(disps, true, "/app/*")
-        cachingHttpHeadersFilter.setAsyncSupported(true)
+        filterRegistration.addMappingForUrlPatterns(disps, true, "/content/*")
+        filterRegistration.addMappingForUrlPatterns(disps, true, "/app/*")
+        filterRegistration.setAsyncSupported(true)
     }
 
     @Bean

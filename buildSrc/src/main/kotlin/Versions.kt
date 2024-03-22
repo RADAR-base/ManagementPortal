@@ -2,7 +2,7 @@
 object Versions {
 
     const val assertj = "3.23.1"
-    const val jhipsterServer = "7.9.3"
+    const val jhipsterServer = "8.2.0"
     const val hazelcast = "5.2.5"
     const val hazelcastHibernate = "5.1.0"
     const val hikaricp = "5.0.1"

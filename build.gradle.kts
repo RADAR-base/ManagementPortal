@@ -152,6 +152,10 @@ if (project.hasProperty("prod")) {
     apply(from = "gradle/profile_dev.gradle")
 }
 
+kapt {
+    correctErrorTypes = true
+}
+
 extra.apply {
     //set("moduleDescription", "Management Portal application")
     set("findbugAnnotation", "3.0.2")
@@ -182,13 +186,12 @@ dependencies {
     runtimeOnly("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.security:spring-security-data") // version set via BOM
 
-    implementation("org.springframework.boot:spring-boot-starter-web") {
-        exclude(module = "spring-boot-starter-tomcat")
-    } // version set via dependency-management plugin
+    implementation("org.springframework.boot:spring-boot-starter-web")
     runtimeOnly("org.springframework.boot:spring-boot-starter-security") // version set via dependency-management plugin
     implementation("org.springframework.boot:spring-boot-starter-undertow") // version set via dependency-management plugin
 
-    implementation("org.hibernate:hibernate-core:6.4.4.Final")
+    implementation("org.hibernate:hibernate-core")
+    implementation("org.hibernate.orm:hibernate-core")
     implementation("org.hibernate:hibernate-envers")
     implementation("org.hibernate:hibernate-validator:${Versions.hibernateValidator}")
 
@@ -207,7 +210,6 @@ dependencies {
     implementation("org.springframework.session:spring-session-hazelcast") // version set via BOM
 
     implementation("org.springframework.security.oauth:spring-security-oauth2:2.5.2.RELEASE")
-//    implementation("org.springframework.security:spring-security-web:5.7.8")
     implementation("org.springdoc:springdoc-openapi-ui:${Versions.springdoc}")
     runtimeOnly("javax.inject:javax.inject:1")
     implementation(project(":radar-auth"))

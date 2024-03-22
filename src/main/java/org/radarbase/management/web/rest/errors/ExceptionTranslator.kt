@@ -132,7 +132,7 @@ class ExceptionTranslator {
         exception: RadarWebApplicationException
     ): ResponseEntity<RadarWebApplicationExceptionVM?> {
         return ResponseEntity
-            .status(exception.status)
+            .status(exception.statusCode)
             .headers(
                 HeaderUtil.createExceptionAlert(
                     exception.entityName,
@@ -180,7 +180,7 @@ class ExceptionTranslator {
 
     @ExceptionHandler(ResponseStatusException::class)
     fun responseStatusResponse(ex: ResponseStatusException): ResponseEntity<ErrorVM> {
-        return ResponseEntity.status(ex.status)
+        return ResponseEntity.status(ex.statusCode)
             .body(ErrorVM(null, ex.message))
     }
 

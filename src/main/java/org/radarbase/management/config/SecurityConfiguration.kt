@@ -1,5 +1,7 @@
 package org.radarbase.management.config
 
+import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletResponse
 import org.radarbase.management.security.Http401UnauthorizedEntryPoint
 import org.radarbase.management.security.RadarAuthenticationProvider
 import org.springframework.beans.factory.BeanInitializationException
@@ -15,12 +17,12 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.invoke
 import org.springframework.security.config.http.SessionCreationPolicy
+import org.springframework.security.core.Authentication
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.data.repository.query.SecurityEvaluationContextExtension
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler
-import tech.jhipster.security.AjaxLogoutSuccessHandler
 
 
 @Configuration
@@ -48,7 +50,15 @@ class SecurityConfiguration {
 
     @Bean
     fun logoutSuccessHandler(): LogoutSuccessHandler {
-        return AjaxLogoutSuccessHandler()
+        return object : LogoutSuccessHandler {
+            override fun onLogoutSuccess(
+                request: javax.servlet.http.HttpServletRequest?,
+                response: javax.servlet.http.HttpServletResponse?,
+                authentication: Authentication?
+            ) {
+                response.status = HttpServletResponse.SC_OK
+            }
+        }
     }
 
     @Bean
