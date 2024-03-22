@@ -13,7 +13,7 @@ describe('Project view: Generate QR code', () => {
             .should('have.text', 'Pair an application');
         cy.get('#field_clientApp').select('pRMT');
         cy.get('button').contains('Generate QR code').click();
-        cy.get('qrcode').should('have.length', 1);
+        cy.get('qr-code').should('have.length', 1);
         cy.get('button.close').click();
     });
 });
