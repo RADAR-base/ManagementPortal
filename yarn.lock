@@ -7314,10 +7314,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jasmine-core@npm:~3.8.0":
-  version: 3.8.0
-  resolution: "jasmine-core@npm:3.8.0"
-  checksum: 6490373bd96d4d2a3c74214d307f8c37394370b1e892b9f203d4c5eda56941d53f84aabee0e65538b6921a190710618f1e73af44bd1d93e6c6e6c3f5c4bbfab6
+"jasmine-core@npm:~5.1.2":
+  version: 5.1.2
+  resolution: "jasmine-core@npm:5.1.2"
+  checksum: 42e8db69879b64392d797b2e35b108782b73c70302787903af49fec27cb12daf795f1e3b7e8c30ef5d4ab501f37aa347590f6b472fc336568e9ada2d06e9726f
   languageName: node
   linkType: hard
 
@@ -7980,7 +7980,7 @@ __metadata:
     bootstrap: ^4.6.1
     cypress: 8.3.0
     font-awesome: 4.7.0
-    jasmine-core: ~3.8.0
+    jasmine-core: ~5.1.2
     jquery: 3.5.0
     karma: ~6.3.16
     karma-chrome-launcher: ^3.1.0
