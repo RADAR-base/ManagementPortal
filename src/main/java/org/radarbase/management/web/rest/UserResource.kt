@@ -96,7 +96,7 @@ class UserResource(
     @PostMapping("/users")
     @Timed
     @Throws(URISyntaxException::class, NotAuthorizedException::class)
-    fun createUser(@RequestBody managedUserVm: ManagedUserVM): ResponseEntity<User?> {
+    suspend fun createUser(@RequestBody managedUserVm: ManagedUserVM): ResponseEntity<User?> {
         log.debug("REST request to save User : {}", managedUserVm)
         authService.checkPermission(Permission.USER_CREATE)
         return if (managedUserVm.id != null) {
@@ -119,10 +119,23 @@ class UserResource(
                 )
             ).body(null)
         } else {
-            val newUser = userService.createUser(managedUserVm)
-            mailService.sendCreationEmail(
-                newUser, managementPortalProperties.common.activationKeyTimeoutInSeconds.toLong()
+            val newUser: User;
+            newUser = userService.createUser(managedUserVm)
+
+            val recoveryLink = userService.getRecoveryLink(newUser)
+
+            //TODO make a nicer email
+            mailService.sendEmail(
+                newUser.email,
+                "Account Activation",
+                "Please click the link to activate your account:\n\n" +
+                        "$recoveryLink \n\n" +
+                        "Please activate your account before the link expires in 24 hours, and activate 2FA to enable" +
+                        " access to the managementportal",
+                false,
+                false
             )
+
             ResponseEntity.created(ResourceUriService.getUri(newUser)).headers(
                 HeaderUtil.createAlert(
                     "userManagement.created", newUser.login
@@ -142,7 +155,7 @@ class UserResource(
     @PutMapping("/users")
     @Timed
     @Throws(NotAuthorizedException::class)
-    fun updateUser(@RequestBody managedUserVm: ManagedUserVM): ResponseEntity<UserDTO> {
+    suspend fun updateUser(@RequestBody managedUserVm: ManagedUserVM): ResponseEntity<UserDTO> {
         log.debug("REST request to update User : {}", managedUserVm)
         authService.checkPermission(Permission.USER_UPDATE, { e: EntityDetails -> e.user(managedUserVm.login) })
         var existingUser = managedUserVm.email?.let { userRepository.findOneByEmail(it) }
@@ -164,9 +177,8 @@ class UserResource(
                 "Subject cannot be the user to request " + "this changes", EntityName.USER, "error.invalidsubjectstate"
             )
         }
-        val updatedUser: UserDTO? = userService.updateUser(
-            managedUserVm
-        )
+        val updatedUser: UserDTO?
+        updatedUser = userService.updateUser(managedUserVm)
         return ResponseEntity.ok().headers(
             HeaderUtil.createAlert("userManagement.updated", managedUserVm.login)
         ).body(
@@ -232,7 +244,7 @@ class UserResource(
     @Throws(
         NotAuthorizedException::class
     )
-    fun deleteUser(@PathVariable login: String): ResponseEntity<Void> {
+    suspend fun deleteUser(@PathVariable login: String): ResponseEntity<Void> {
         log.debug("REST request to delete User: {}", login)
         authService.checkPermission(Permission.USER_DELETE, { e: EntityDetails -> e.user(login) })
         userService.deleteUser(login)
@@ -254,8 +266,7 @@ class UserResource(
         log.debug("REST request to read User roles: {}", login)
         authService.checkPermission(Permission.ROLE_READ, { e: EntityDetails -> e.user(login) })
         return ResponseUtil.wrapOrNotFound(
-            Optional.ofNullable(userService.getUserWithAuthoritiesByLogin(login)
-                .let { obj: UserDTO? -> obj?.roles })
+            Optional.ofNullable(userService.getUserWithAuthoritiesByLogin(login).let { obj: UserDTO? -> obj?.roles })
         )
     }
 
@@ -270,7 +281,7 @@ class UserResource(
     @Throws(
         NotAuthorizedException::class
     )
-    fun putUserRoles(
+    suspend fun putUserRoles(
         @PathVariable login: String?, @RequestBody roleDtos: Set<RoleDTO>?
     ): ResponseEntity<Void> {
         log.debug("REST request to update User roles: {} to {}", login, roleDtos)

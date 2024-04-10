@@ -135,7 +135,7 @@ class AccountResource(
     @PostMapping("/account")
     @Timed
     @Throws(NotAuthorizedException::class)
-    fun saveAccount(
+    suspend fun saveAccount(
         @RequestBody @Valid userDto: UserDTO,
         authentication: Authentication
     ): ResponseEntity<Void> {
