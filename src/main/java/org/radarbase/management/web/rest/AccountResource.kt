@@ -113,7 +113,7 @@ class AccountResource(
          * (Internal Server Error) if the user couldn't be returned
          */
         get() {
-            val currentUser = userService.userWithAuthorities
+            val currentUser = userService.getUserWithAuthorities()
                 ?: throw RadarWebApplicationException(
                         HttpStatus.FORBIDDEN,
                         "Cannot get account without user", EntityName.Companion.USER, ErrorConstants.ERR_ACCESS_DENIED

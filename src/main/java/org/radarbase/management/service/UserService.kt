@@ -412,13 +412,14 @@ class UserService @Autowired constructor(
         return userMapper.userToUserDTO(userRepository.findOneWithRolesByLogin(login))
     }
 
-    @get:Transactional(readOnly = true)
-    val userWithAuthorities: User?
-        /**
-         * Get the current user.
-         * @return the currently authenticated user, or null if no user is currently authenticated
-         */
-        get() = SecurityUtils.currentUserLogin?.let { userRepository.findOneWithRolesByLogin(it) }
+    @Transactional(readOnly = true)
+    /**
+     * Get the current user.
+     * @return the currently authenticated user, or null if no user is currently authenticated
+     */
+    fun getUserWithAuthorities(): User? {
+        return SecurityUtils.currentUserLogin?.let { userRepository.findOneWithRolesByLogin(it) }
+    }
 
     /**
      * Not activated users should be automatically deleted after 3 days.
