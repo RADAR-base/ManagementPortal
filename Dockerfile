@@ -39,7 +39,9 @@ FROM eclipse-temurin:17-jre
 
 ENV SPRING_OUTPUT_ANSI_ENABLED=ALWAYS \
     JHIPSTER_SLEEP=0 \
-    JAVA_OPTS=""
+    JAVA_OPTS="" \
+    BASE_URL="https://localhost/managementportal" \
+    KRATOS_URL="https://localhost/kratos-ui/"
 
 # Add the war and changelogs files from build stage
 COPY --from=builder /code/build/libs/*.war /app.war

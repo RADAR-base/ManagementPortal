@@ -68,4 +68,8 @@ class AuthService(
     fun mayBeGranted(role: RoleAuthority, permission: Permission): Boolean = with(oracle) {
         role.mayBeGranted(permission)
     }
+
+    fun mayBeGranted(authorities: Collection<RoleAuthority>, permission: Permission): Boolean {
+        return authorities.any{ mayBeGranted(it, permission) }
+    }
 }

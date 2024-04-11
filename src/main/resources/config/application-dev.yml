@@ -115,6 +115,9 @@ managementportal:
     siteSettings:
         # The line below can be uncommented to add some hidden fields for UI testing
         #hiddenSubjectFields: [person_name, date_of_birth, group]
+    identityServer:
+        serverUrl: http://localhost:4433
+        serverAdminUrl: http://localhost:4434
 
 # ===================================================================
 # JHipster specific properties

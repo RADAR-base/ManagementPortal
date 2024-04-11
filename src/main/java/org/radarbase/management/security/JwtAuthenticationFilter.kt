@@ -1,5 +1,6 @@
 package org.radarbase.management.security
 
+import io.ktor.http.*
 import org.radarbase.auth.authentication.TokenValidator
 import org.radarbase.auth.authorization.AuthorityReference
 import org.radarbase.auth.authorization.RoleAuthority
@@ -8,6 +9,7 @@ import org.radarbase.auth.token.RadarToken
 import org.radarbase.management.domain.Role
 import org.radarbase.management.domain.User
 import org.radarbase.management.repository.UserRepository
+import org.radarbase.management.web.rest.util.HeaderUtil.parseCookies
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
@@ -26,6 +28,7 @@ import javax.servlet.ServletException
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 import javax.servlet.http.HttpSession
+
 
 /**
  * Authentication filter using given validator.
@@ -107,11 +110,14 @@ class JwtAuthenticationFilter @JvmOverloads constructor(
         }
     }
 
-    private fun tokenFromHeader(httpRequest: HttpServletRequest): String? =
-        httpRequest.getHeader(HttpHeaders.AUTHORIZATION)
+    private fun tokenFromHeader(httpRequest: HttpServletRequest): String? {
+        return httpRequest.getHeader(HttpHeaders.AUTHORIZATION)
             ?.takeIf { it.startsWith(AUTHORIZATION_BEARER_HEADER) }
             ?.removePrefix(AUTHORIZATION_BEARER_HEADER)
             ?.trim { it <= ' ' }
+            ?: parseCookies(httpRequest.getHeader(HttpHeaders.COOKIE)).find { it.name == "ory_kratos_session" }
+                ?.value
+    }
 
     @Throws(IOException::class)
     private fun validateToken(

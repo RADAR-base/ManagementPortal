@@ -7,9 +7,11 @@ import {
     Principal,
     Project, OrganizationService,
 } from '../shared';
-import { of, Subscription } from "rxjs";
+import {Observable, of, Subscription} from "rxjs";
 import { EventManager } from "../shared/util/event-manager.service";
 import { switchMap } from "rxjs/operators";
+import {SessionService} from "../shared/session/session.service";
+import {environment} from "../../environments/environment";
 
 @Component({
     selector: 'jhi-home',
@@ -30,9 +32,6 @@ export class HomeComponent {
             private loginModalService: LoginModalService,
             public projectService: ProjectService,
             public organizationService: OrganizationService,
-
-            // private eventManager: EventManager,
-            // private userService: UserService,
     ) {
         this.subscriptions = new Subscription();
     }
@@ -64,6 +63,6 @@ export class HomeComponent {
     }
 
     login() {
-        this.modalRef = this.loginModalService.open();
+        window.location.href =  environment.KRATOS_URL + `/login?return_to=` + environment.BASE_URL;
     }
 }

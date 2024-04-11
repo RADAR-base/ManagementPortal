@@ -153,6 +153,12 @@ dependencies {
     implementation("tech.jhipster:jhipster-framework:${jhipster_server_version}")
     implementation("tech.jhipster:jhipster-dependencies:${jhipster_server_version}")
     implementation("io.micrometer:micrometer-core:${micrometer_version}")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:$coroutines_version")
+    implementation(platform("io.ktor:ktor-bom:$ktor_version"))
+    implementation("io.ktor:ktor-client-core")
+    implementation("io.ktor:ktor-client-cio")
+    implementation("io.ktor:ktor-client-content-negotiation")
+    implementation("io.ktor:ktor-serialization-kotlinx-json")
     runtimeOnly "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
     implementation "com.fasterxml.jackson.datatype:jackson-datatype-hibernate5"
     implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-csv"
@@ -227,6 +233,7 @@ dependencies {
     testImplementation "org.mockito.kotlin:mockito-kotlin:${mockito_kotlin_version}"
     testImplementation "com.mattbertolini:liquibase-slf4j:${liquibase_slf4j_version}"
     testImplementation "org.hamcrest:hamcrest-library"
+    testImplementation "org.testcontainers:testcontainers:${testcontainers_version}"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
 
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")

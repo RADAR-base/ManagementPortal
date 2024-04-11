@@ -105,7 +105,10 @@ managementportal:
     persistentMetaTokenTimeout: P31D #timeout should be specified as the ISO-8601 duration format {@code PnDTnHnMn.nS}.
   catalogueServer:
     enableAutoImport: false
-    serverUrl:
+  identityServer:
+    adminEmail: bdegraaf1234@gmail.com
+    serverUrl: https://radar-k3s-test.thehyve.net/kratos
+    serverAdminUrl: http://kratos-admin
 
 # ===================================================================
 # JHipster specific properties
