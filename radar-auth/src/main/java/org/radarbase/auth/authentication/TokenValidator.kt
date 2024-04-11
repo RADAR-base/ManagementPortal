@@ -24,7 +24,7 @@ constructor(
     /** Loaders for token verifiers to use in the token authenticator. */
     verifierLoaders: List<TokenVerifierLoader>,
     /** Minimum fetch timeout before a token is attempted to be fetched again. */
-    fetchTimeout: Duration = Duration.ofMinutes(1),
+    fetchTimeout: Duration = Duration.ofMillis(1),
     /** Maximum time that the token verifier does not need to be fetched. */
     maxAge: Duration = Duration.ofDays(1),
 ) {
