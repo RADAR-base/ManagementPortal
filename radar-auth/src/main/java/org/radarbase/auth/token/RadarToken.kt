@@ -1,6 +1,8 @@
 package org.radarbase.auth.token
 
 import org.radarbase.auth.authorization.AuthorityReference
+import org.radarbase.auth.token.RadarToken.AuthenticatorLevel.aal1
+import org.radarbase.auth.token.RadarToken.AuthenticatorLevel.aal2
 import java.time.Instant
 
 /**
@@ -104,6 +106,12 @@ interface RadarToken {
         const val CLIENT_CREDENTIALS = "client_credentials"
     }
 
+    /**
+     * Authenticator assurance level, commonly referred to as MFA. AAL1 means no MFA, AAL2 means MFA
+     *
+     * @property aal1 Represents the first level of authenticator assurance (e.g. password based).
+     * @property aal2 Represents the second level of authenticator assurance (i.e. MFA).
+     */
     enum class AuthenticatorLevel {
         aal1,
         aal2
