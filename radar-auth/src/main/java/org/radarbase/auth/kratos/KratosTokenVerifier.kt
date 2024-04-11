@@ -12,9 +12,9 @@ class KratosTokenVerifier(private val sessionService: SessionService, private va
         val kratosSession = sessionService.getSession(token)
 
         val radarToken =  kratosSession.toDataRadarToken()
-        if (radarToken.authenticatorLevel != RadarToken.AuthenticatorLevel.aal2 && requireAal2)
+        if (radarToken.authenticatorAssuranceLevel != RadarToken.AuthenticatorAssuranceLevel.aal2 && requireAal2)
         {
-            val msg = "found a token of with aal: ${radarToken.authenticatorLevel}, which is insufficient for this" +
+            val msg = "found a token of with aal: ${radarToken.authenticatorAssuranceLevel}, which is insufficient for this" +
                 " action"
             throw InsufficientAuthenticationLevelException(msg)
         }

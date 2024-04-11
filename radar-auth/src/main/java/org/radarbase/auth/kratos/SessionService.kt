@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory
 import java.time.Duration
 
 /**
- * Service class for managing identities.
+ * Service class for handling Kratos sessions but may be extended in the future.
  */
 class SessionService(private val serverUrl: String) {
     private val httpClient = HttpClient(CIO).config {

@@ -124,7 +124,6 @@ class UserResource(
 
             val recoveryLink = userService.getRecoveryLink(newUser)
 
-            //TODO make a nicer email
             mailService.sendEmail(
                 newUser.email,
                 "Account Activation",
