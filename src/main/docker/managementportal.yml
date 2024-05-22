@@ -2,12 +2,22 @@ version: '2'
 services:
     managementportal-app:
         image: radarbase/management-portal
+        build:
+            context: ../../../
+            dockerfile: ./Dockerfile
+            args:
+                - KRATOS_URL=http://localhost:3000
+                - BASE_URL=http://localhost:8080/managementportal
         environment:
             - SPRING_PROFILES_ACTIVE=prod,api-docs
             - SPRING_DATASOURCE_URL=jdbc:postgresql://managementportal-postgresql:5432/managementportal
             - SPRING_DATASOURCE_USERNAME=radarbase
             - SPRING_DATASOURCE_PASSWORD=radarbase
             - MANAGEMENTPORTAL_FRONTEND_CLIENT_SECRET=secret
+            - MANAGEMENTPORTAL_IDENTITYSERVER_ADMINEMAIL=mpgxvii@gmail.com
+            - MANAGEMENTPORTAL_IDENTITYSERVER_SERVERURL=http://kratos:4433
+            - MANAGEMENTPORTAL_IDENTITYSERVER_SERVERADMINURL=http://kratos:4434
+            - MANAGEMENTPORTAL_OAUTH_REQUIREAAL2=false
             - JHIPSTER_SLEEP=10 # gives time for the database to boot before the application
             - JAVA_OPTS=-Xmx512m  # maximum heap size for the JVM running ManagementPortal, increase this as necessary
         ports:
