@@ -25,12 +25,10 @@ bootRun {
 task setEnvVars {
     doLast {
         def kratosUrl = System.getenv('KRATOS_URL')
-        def baseUrl = System.getenv('BASE_URL')
         def envProdFileContent = """
         export const environment = {
           production: true,
-          KRATOS_URL: '${kratosUrl}',
-          BASE_URL: '${baseUrl}'
+          KRATOS_URL: '${kratosUrl}'
         };
         """
         file('src/main/webapp/environments/environment.prod.ts').text = envProdFileContent
