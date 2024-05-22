@@ -13,7 +13,6 @@ RUN curl -sL https://deb.nodesource.com/setup_16.x | bash \
 WORKDIR /code
 
 ENV GRADLE_OPTS="-Dorg.gradle.daemon=false -Dorg.gradle.project.prod=true -Dorg.gradle.vfs.watch=false"
-ARG BASE_URL
 ARG KRATOS_URL
 
 COPY package.json yarn.lock .yarnrc.yml /code/
