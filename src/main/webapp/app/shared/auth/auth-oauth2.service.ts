@@ -43,7 +43,7 @@ export class AuthServerProvider {
     }
 
     logout() {
-        window.location.href = this.logoutUrl + `&return_to=${window.location.href.split('?')[0]}`;
+        window.location.href = this.logoutUrl + `&return_to=${window.location.href}`;
     }
 }
 

@@ -63,6 +63,6 @@ export class HomeComponent {
     }
 
     login() {
-        window.location.href =  environment.KRATOS_URL + `/login?return_to=${window.location.href.split('?')[0]}`;
+        window.location.href =  environment.KRATOS_URL + `/login?return_to=${window.location.href}`;
     }
 }
