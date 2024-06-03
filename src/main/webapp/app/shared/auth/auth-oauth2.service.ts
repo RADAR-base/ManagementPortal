@@ -43,7 +43,7 @@ export class AuthServerProvider {
     }
 
     logout() {
-        window.location.href = this.logoutUrl + "&return_to=" + environment.BASE_URL;
+        window.location.href = this.logoutUrl + `&return_to=${window.location.href}`;
     }
 }
 

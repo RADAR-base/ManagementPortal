@@ -22,7 +22,21 @@ bootRun {
     systemProperty "spring.profiles.active", profiles
 }
 
+task setEnvVars {
+    doLast {
+        def kratosUrl = System.getenv('KRATOS_URL')
+        def envProdFileContent = """
+        export const environment = {
+          production: true,
+          KRATOS_URL: '${kratosUrl}'
+        };
+        """
+        file('src/main/webapp/environments/environment.prod.ts').text = envProdFileContent
+    }
+}
+
 task webpack(type: YarnTask, dependsOn: 'yarn_install') {
+    dependsOn setEnvVars
     args = ["build:prod"]
 }
 

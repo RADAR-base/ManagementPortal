@@ -65,7 +65,7 @@ export class NavbarComponent {
     }
 
     login() {
-        window.location.href =  environment.KRATOS_URL + `/login?return_to=` + environment.BASE_URL;
+        window.location.href =  environment.KRATOS_URL + `/login?return_to=${window.location.href}`;
     }
 
     logout() {
