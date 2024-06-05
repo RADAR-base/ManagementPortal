@@ -194,9 +194,9 @@ dependencies {
     runtimeOnly "org.hsqldb:hsqldb:${hsqldb_version}"
 
     // Fix vulnerabilities
-    runtimeOnly("io.undertow:undertow-websockets-jsr:2.2.25.Final")
-    runtimeOnly("io.undertow:undertow-servlet:2.2.25.Final")
-    runtimeOnly("io.undertow:undertow-core:2.2.25.Final")
+    runtimeOnly("io.undertow:undertow-websockets-jsr:${undertow_version}")
+    runtimeOnly("io.undertow:undertow-servlet:${undertow_version}")
+    runtimeOnly("io.undertow:undertow-core:${undertow_version}")
 
     implementation "org.springframework.boot:spring-boot-starter-thymeleaf"
     runtimeOnly("org.thymeleaf:thymeleaf:${thymeleaf_version}")
