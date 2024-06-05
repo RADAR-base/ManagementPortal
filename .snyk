@@ -2,25 +2,48 @@
 version: v1.25.0
 # ignores vulnerabilities until expiry date; change duration by modifying expiry date
 ignore:
-  SNYK-JAVA-ORGECLIPSEJETTY-5958847:
-    - '*':
-        reason: Only used in tests
-        expires: 2025-05-07T10:08:57.000Z
-        created: 2024-05-08T10:08:57.000Z
-  SNYK-JAVA-IONETTY-5953332:
-    - '*':
-        reason: Only used in load tests
-        expires: 2025-05-07T10:08:57.000Z
-        created: 2024-05-08T10:08:57.000Z
   SNYK-JAVA-ORGYAML-2806360:
     - '*':
         reason: Not using YAML for user-facing code
-        expires: 2024-05-07T10:09:27.027Z
-        created: 2023-05-08T10:09:27.030Z
-  SNYK-JAVA-ORGSPRINGFRAMEWORKBOOT-5441321:
+        expires: 2025-01-01T00:00:00.000Z
+  SNYK-JAVA-ORGYAML-6056527:
     - '*':
-        reason: Not hosting in CloudFoundry
-        expires: 2024-05-07T10:09:52.346Z
-        created: 2023-05-08T10:09:52.353Z
+        reason: Not using YAML for user-facing code
+        expires: 2025-01-01T00:00:00.000Z
+  SNYK-JAVA-CHQOSLOGBACK-6094942:
+    - '*':
+        reason: Pending spring security update
+        expires: 2025-01-01T00:00:00.000Z
+  SNYK-JAVA-CHQOSLOGBACK-6097492:
+    - '*':
+        reason: Pending spring security update
+        expires: 2025-01-01T00:00:00.000Z
+  SNYK-JAVA-CHQOSLOGBACK-6094943:
+    - '*':
+        reason: Pending spring security update
+        expires: 2025-01-01T00:00:00.000Z
+  SNYK-JAVA-CHQOSLOGBACK-6097493:
+    - '*':
+        reason: Pending spring security update
+        expires: 2025-01-01T00:00:00.000Z
+  SNYK-JAVA-ORGSPRINGFRAMEWORK-6444790:
+    - '*':
+        reason: Pending spring security update
+        expires: 2025-01-01T00:00:00.000Z
+  SNYK-JAVA-ORGSPRINGFRAMEWORK-6261586:
+    - '*':
+        reason: Pending spring security update
+        expires: 2025-01-01T00:00:00.000Z
+  SNYK-JAVA-ORGSPRINGFRAMEWORKSECURITY-6457293:
+    - '*':
+        reason: Pending spring security update
+        expires: 2025-01-01T00:00:00.000Z
+  SNYK-JAVA-ORGJBOSSXNIO-6403375:
+    - '*':
+        reason: Pending spring security update
+        expires: 2025-01-01T00:00:00.000Z
+  SNYK-JAVA-COMNIMBUSDS-6247633:
+    - '*':
+        reason: Pending spring security update
+        expires: 2025-01-01T00:00:00.000Z
 patch: {}
-severityThreshold: high
