@@ -196,7 +196,7 @@ public class ManagementPortalProperties {
 
     public static class Oauth {
 
-        private Boolean requireAal2 = true;
+        private Boolean requireAal2 = false;
 
         private String clientsFile;
 
