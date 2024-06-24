@@ -35,6 +35,7 @@ spring:
         show-sql: true
         properties:
             hibernate.id.new_generator_mappings: true
+            hibernate.enable_lazy_load_no_trans: true
             hibernate.cache.use_second_level_cache: true
             hibernate.cache.use_query_cache: false
             hibernate.generate_statistics: true

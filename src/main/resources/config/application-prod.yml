@@ -45,6 +45,7 @@ spring:
             hibernate.cache.hazelcast.instance_name: ManagementPortal
             hibernate.cache.use_minimal_puts: true
             hibernate.cache.hazelcast.use_lite_member: true
+            hibernate.enable_lazy_load_no_trans: true
     mail:
         host: smtp
         port: 25
