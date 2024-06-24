@@ -1,9 +1,17 @@
 import * as navBarPage from '../util/nav-bar';
 import { login } from "../util/login";
+import { gen } from "../../support/commands"
 
 describe('account', () => {
+    const email = gen.email()
+    const password = gen.password()
+
+    before(() => {
+        cy.registerApi({ email, password, fields: { "traits.website": "website" } })
+      });
+
     beforeEach(() => {
-        cy.visit('./');
+        cy.visit('/');
     });
 
     it('should fail to login with bad password', () => {
