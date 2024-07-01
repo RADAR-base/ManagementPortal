@@ -1,5 +1,8 @@
 version: '3.8'
 
+volumes:
+    pgdata:
+
 services:
     kratos-selfservice-ui-node:
         image:
@@ -27,7 +30,7 @@ services:
         - "4434:4434" # admin, should be closed in production
       restart: unless-stopped
       environment:
-        - DSN=postgres://kratos:secret@postgresd-kratos/kratos?sslmode=disable&max_conns=20&max_idle_conns=4
+        - DSN=postgres://ory:secret@postgresd-ory/kratos?sslmode=disable&max_conns=20&max_idle_conns=4
       command: serve -c /etc/config/kratos/kratos.yml --dev --watch-courier
       volumes:
         - type: bind
@@ -38,7 +41,7 @@ services:
         image:
             oryd/kratos:v1.0.0
         environment:
-            - DSN=postgres://kratos:secret@postgresd-kratos/kratos?sslmode=disable&max_conns=20&max_idle_conns=4
+            - DSN=postgres://ory:secret@postgresd-ory/kratos?sslmode=disable&max_conns=20&max_idle_conns=4
         volumes:
             - type: bind
               source: ./etc/config/kratos
@@ -46,12 +49,46 @@ services:
         command: -c /etc/config/kratos/kratos.yml migrate sql -e --yes
         restart: on-failure
 
-    postgresd-kratos:
+    postgresd-ory:
         image: postgres:11.8
         environment:
-            - POSTGRES_USER=kratos
+            - POSTGRES_USER=ory
             - POSTGRES_PASSWORD=secret
-            - POSTGRES_DB=kratos
+            - $POSTGRES_MULTIPLE_DATABASES=kratos,hydra
+        volumes:
+            - pgdata:/var/lib/postgresql/data
+            - ./etc/postgres/init-user-db.sh:/docker-entrypoint-initdb.d/init-user-db.sh
+
+    hydra-migrate:
+      image: oryd/hydra:v2.1.1
+      environment:
+        - DSN=postgres://ory:secret@postgresd-ory/hydra?sslmode=disable&max_conns=20&max_idle_conns=4
+      command: migrate sql -e --yes
+      restart: on-failure
+
+    hydra:
+      image: oryd/hydra:v2.1.1
+      depends_on:
+        - hydra-migrate
+      ports:
+        - "4444:4444" # Public port
+        - "4445:4445" # Admin port (should be closed in production)
+        - "5555:5555" # Port for hydra token user
+      command:
+        # serve all --dangerous-force-http
+        serve all --dev
+      restart: on-failure # TODO figure out why we need this (incorporate health check into hydra migrate command?)
+      environment:
+        - DSN=postgres://ory:secret@postgresd-ory/hydra?sslmode=disable&max_conns=20&max_idle_conns=4
+        - LOG_LEAK_SENSITIVE_VALUES=true
+        - URLS_SELF_ISSUER=http://127.0.0.1:4444
+        - URLS_SELF_PUBLIC=http://127.0.0.1:4444
+        - URLS_CONSENT=http://127.0.0.1:3000/consent
+        - URLS_LOGIN=http://127.0.0.1:3000/login
+        - URLS_LOGOUT=http://127.0.0.1:3000/logout
+        - SECRETS_SYSTEM=youReallyNeedToChangeThis
+        - OIDC_SUBJECT_IDENTIFIERS_SUPPORTED_TYPES=public,pairwise
+        - OIDC_SUBJECT_IDENTIFIERS_PAIRWISE_SALT=youReallyNeedToChangeThis
 
     mailslurper:
         image: oryd/mailslurper:latest-smtps
