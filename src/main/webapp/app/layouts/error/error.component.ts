@@ -15,6 +15,7 @@ export class ErrorComponent implements OnInit, OnDestroy {
     error403: boolean;
     modalRef: NgbModalRef;
     private routeSubscription: Subscription;
+    private loginUrl = 'oauth/login';
 
     constructor(
             private loginModalService: LoginModalService,
@@ -34,6 +35,5 @@ export class ErrorComponent implements OnInit, OnDestroy {
     }
 
     login() {
-        window.location.href =  environment.KRATOS_URL + `/login?return_to=${window.location.href}`;
-    }
+        window.location.href =  this.loginUrl;
 }
