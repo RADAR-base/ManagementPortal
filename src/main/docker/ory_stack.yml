@@ -54,7 +54,7 @@ services:
         environment:
             - POSTGRES_USER=ory
             - POSTGRES_PASSWORD=secret
-            - $POSTGRES_MULTIPLE_DATABASES=kratos,hydra
+            - POSTGRES_MULTIPLE_DATABASES=kratos,hydra
         volumes:
             - pgdata:/var/lib/postgresql/data
             - ./etc/postgres/init-user-db.sh:/docker-entrypoint-initdb.d/init-user-db.sh

@@ -13,6 +13,9 @@ networks:
     driver: bridge
     internal: true
 
+volumes:
+    pgdata:
+
 services:
   managementportal-postgresql:
     extends:

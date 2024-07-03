@@ -1,4 +1,5 @@
-#!/bin/bash
+#! /bin/bash
+
  set -e
  set -u
  export PGPASSWORD="$POSTGRES_PASSWORD"
@@ -14,10 +15,11 @@
    else
      echo "Database $database does not exist"
      echo "  Creating database '$database' for user '$PGUSER'"
-     psql -U $PGUSER -v ON_ERROR_STOP=1  <<-EOSQL
+
+     psql -U $PGUSER -v ON_ERROR_STOP=1 <<-EOSQL
      CREATE DATABASE "$database";
      GRANT ALL PRIVILEGES ON DATABASE $database TO $PGUSER;
- EOSQL
+EOSQL
    fi
  }
 
