@@ -2,12 +2,12 @@ dsn: memory
 
 serve:
   public:
-    base_url: http://127.0.0.1:4433/
+    base_url: http://localhost:4433/
   admin:
     base_url: http://kratos:4434/
 
 selfservice:
-  default_browser_return_url: http://127.0.0.1:3000/
+  default_browser_return_url: http://localhost:3000/
   allowed_return_urls:
     - "http://127.0.0.1:3000/"
     - "http://127.0.0.1:8080/"
@@ -43,34 +43,34 @@ selfservice:
 
   flows:
     error:
-      ui_url: http://127.0.0.1:3000/error
+      ui_url: http://localhost:3000/error
 
     settings:
-      ui_url: http://127.0.0.1:3000/settings
+      ui_url: http://localhost:3000/settings
 
     recovery:
       enabled: true
-      ui_url: http://127.0.0.1:3000/recovery
+      ui_url: http://localhost:3000/recovery
       use: link
 
     verification:
       # our current flow necessitates that users reset their password after they activate an account in managementportal,
       # this works as verification
-      ui_url: http://127.0.0.1:3000/verification
+      ui_url: http://localhost:3000/verification
       enabled: true
       use: link
       after:
-        default_browser_return_url: http://127.0.0.1:3000
+        default_browser_return_url: http://localhost:3000
 
     logout:
       after:
-        default_browser_return_url: http://127.0.0.1:3000/login
+        default_browser_return_url: http://localhost:3000/login
 
     login:
-      ui_url: http://127.0.0.1:3000/login
+      ui_url: http://localhost:3000/login
 
     registration:
-      ui_url: http://127.0.0.1:3000/registration
+      ui_url: http://localhost:3000/registration
       after:
         password:
           hooks:
