@@ -36,4 +36,5 @@ export class ErrorComponent implements OnInit, OnDestroy {
 
     login() {
         window.location.href =  this.loginUrl;
+    }
 }
