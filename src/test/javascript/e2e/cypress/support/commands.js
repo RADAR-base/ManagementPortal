@@ -9,8 +9,7 @@ export const gen = {
     identity: () => ({ email: email(), password: password() }),
     identityWithWebsite: () => ({
       email: email(),
-      password: password(),
-      fields: { "traits.website": "https://www.ory.sh" },
+      password: password()
     }),
   }
 
@@ -25,31 +24,29 @@ const mergeFields = (form, fields) => {
     return { ...result, ...fields }
   }
 
-Cypress.Commands.add(
-  "registerApi",
-  ({ email = gen.email(), password = gen.password(), fields = {} } = {}) =>
-    cy
-      .request({
-        url: APP_URL + "/self-service/registration/",
-      })
-      .then(({ body }) => {
-        const form = body.ui
-        return cy.request({
-          method: form.method,
-          body: mergeFields(form, {
-            ...fields,
-            "traits.email": email,
-            password,
-            method: "password",
-          }),
-          url: form.action,
-        })
-      })
-      .then(({ body }) => {
-        expect(body.identity.traits.email).to.contain(email)
-        return body
-      }),
-)
+  Cypress.Commands.add('createUser', (email, password) => {
+    return cy.request({
+      method: 'POST',
+      url: APP_URL + '/admin/identities',
+      body: {
+        schema_id: 'user',
+        traits: {
+          email: email,
+          name: 'Test User'
+        },
+        credentials: {
+          password: {
+            config: {
+              password: password
+            }
+          }
+        }
+      },
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+  });
 
 Cypress.Commands.add("submitPasswordForm", () => {
     cy.get('[name="method"][value="password"]').click()

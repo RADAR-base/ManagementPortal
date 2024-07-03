@@ -7,11 +7,12 @@ describe('account', () => {
     const password = gen.password()
 
     before(() => {
-        cy.registerApi({ email, password, fields: { "traits.website": "website" } })
+        console.log("Registering..")
+        // cy.createUser('admin-email-here@radar-base.net', 'secret123')
       });
 
     beforeEach(() => {
-        cy.visit('/');
+        cy.visit('/managementportal');
     });
 
     it('should fail to login with bad password', () => {
@@ -21,8 +22,8 @@ describe('account', () => {
         navBarPage.clickOnAccountMenu();
         navBarPage.clickOnSignIn();
 
-        cy.get('#username').type('admin');
-        cy.get('#password').type('foo');
+        cy.get('input[name=identifier]').type('admin-email-here@radar-base.net')
+        cy.get('input[name=password]').type('secret123')
         cy.get('button[type=submit]').click();
 
         let msg = 'Failed to sign in! Please check your credentials and try again.';
