@@ -8,12 +8,13 @@ import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.servlet.view.RedirectView
 
 @RestController
+@RequestMapping("/api")
 class LoginEndpoint
     @Autowired
     constructor(
         @Autowired private val managementPortalProperties: ManagementPortalProperties,
     ) {
-        @GetMapping("/oauth/login")
+        @GetMapping("/redirect/login")
         fun loginRedirect(): RedirectView {
             val redirectView = RedirectView()
             redirectView.url = managementPortalProperties.identityServer.loginUrl +
@@ -21,7 +22,7 @@ class LoginEndpoint
             return redirectView
         }
 
-        @GetMapping("/oauth/account")
+        @GetMapping("/redirect/account")
         fun settingsRedirect(): RedirectView {
             val redirectView = RedirectView()
             redirectView.url = managementPortalProperties.identityServer.loginUrl + "/settings"
