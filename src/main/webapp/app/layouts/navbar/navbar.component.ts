@@ -33,6 +33,9 @@ export class NavbarComponent {
     projects: Project[];
     organizations: Organization[];
 
+    private loginUrl = 'oauth/login';
+    private settingsUrl = 'oauth/settings';
+
     constructor(
         private loginService: LoginService,
         public languageHelper: JhiLanguageHelper,
@@ -65,7 +68,7 @@ export class NavbarComponent {
     }
 
     login() {
-        window.location.href =  environment.KRATOS_URL + `/login?return_to=${window.location.href}`;
+        window.location.href =  this.loginUrl;
     }
 
     logout() {
@@ -79,6 +82,6 @@ export class NavbarComponent {
     }
 
     redirectToProfile() {
-        window.location.href =  environment.KRATOS_URL + '/settings';
+        window.location.href =  this.settingsUrl;
     }
 }
