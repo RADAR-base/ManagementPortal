@@ -5,8 +5,6 @@ services:
         build:
             context: ../../../
             dockerfile: ./Dockerfile
-            args:
-                - KRATOS_URL=http://localhost:3000
         environment:
             - SPRING_PROFILES_ACTIVE=prod,api-docs
             - SPRING_DATASOURCE_URL=jdbc:postgresql://managementportal-postgresql:5432/managementportal
