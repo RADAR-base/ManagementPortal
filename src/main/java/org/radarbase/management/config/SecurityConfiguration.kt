@@ -77,6 +77,7 @@ class SecurityConfiguration
             .antMatchers("/api/logout-url")
             .antMatchers("/api/profile-info")
             .antMatchers("/api/activate")
+            .antMatchers("/api/redirect/**")
             .antMatchers("/api/account/reset_password/init")
             .antMatchers("/api/account/reset_password/finish")
             .antMatchers("/test/**")
