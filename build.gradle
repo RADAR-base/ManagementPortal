@@ -34,7 +34,7 @@ apply plugin: 'io.spring.dependency-management'
 
 allprojects {
     group 'org.radarbase'
-    version '2.1.1-SNAPSHOT' // project version
+    version '2.1.2-SNAPSHOT' // project version
 
     // The comment on the previous line is only there to identify the project version line easily
     // with a sed command, to auto-update the version number with the prepare-release-branch.sh
@@ -149,23 +149,16 @@ if (project.hasProperty('prod')) {
 ext.findbugAnnotationVersion = '3.0.2'
 
 dependencies {
-    api group: 'com.auth0', name: 'java-jwt', version: oauth_jwt_version
-    api(platform("org.jetbrains.kotlinx:kotlinx-coroutines-bom:$coroutines_version"))
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version")
-    implementation("org.jetbrains.kotlin:kotlin-reflect:1.9.10")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:${kotlin_version}")
+    implementation("tech.jhipster:jhipster-framework:${jhipster_server_version}")
+    implementation("tech.jhipster:jhipster-dependencies:${jhipster_server_version}")
+    implementation("io.micrometer:micrometer-core:${micrometer_version}")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:$coroutines_version")
-
-    implementation("org.radarbase:radar-commons-kotlin:1.0.0")
-
     implementation(platform("io.ktor:ktor-bom:$ktor_version"))
     implementation("io.ktor:ktor-client-core")
     implementation("io.ktor:ktor-client-cio")
     implementation("io.ktor:ktor-client-content-negotiation")
     implementation("io.ktor:ktor-serialization-kotlinx-json")
-
-    implementation("tech.jhipster:jhipster-framework:${jhipster_server_version}")
-    implementation("tech.jhipster:jhipster-dependencies:${jhipster_server_version}")
-    implementation("io.micrometer:micrometer-core")
     runtimeOnly "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
     implementation "com.fasterxml.jackson.datatype:jackson-datatype-hibernate5"
     implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-csv"
@@ -185,29 +178,29 @@ dependencies {
     runtimeOnly ("org.springframework.boot:spring-boot-starter-data-jpa") {
         exclude group: 'org.hibernate', module: 'hibernate-entitymanager'
     }
-    implementation "org.hibernate:hibernate-core"
-    implementation "org.hibernate:hibernate-core"
-    implementation "org.hibernate:hibernate-envers"
-    implementation 'org.hibernate:hibernate-validator:8.0.0.Final'
-
-    runtimeOnly "org.postgresql:postgresql:${postgresql_version}"
-    runtimeOnly "org.hsqldb:hsqldb:${hsqldb_version}"
-
-    runtimeOnly "org.springframework.boot:spring-boot-starter-security"
     implementation "org.springframework.security:spring-security-data"
 
     implementation("org.springframework.boot:spring-boot-starter-web") {
         exclude module: 'spring-boot-starter-tomcat'
     }
+    runtimeOnly "org.springframework.boot:spring-boot-starter-security"
     implementation ("org.springframework.boot:spring-boot-starter-undertow")
+
+    implementation "org.hibernate:hibernate-core"
+    implementation "org.hibernate:hibernate-envers"
+    implementation "org.hibernate:hibernate-validator:${hibernate_validator_version}"
+
+    runtimeOnly "org.postgresql:postgresql:${postgresql_version}"
+    runtimeOnly "org.hsqldb:hsqldb:${hsqldb_version}"
+
     // Fix vulnerabilities
-    runtimeOnly("io.undertow:undertow-websockets-jsr:2.2.25.Final")
-    runtimeOnly("io.undertow:undertow-servlet:2.2.25.Final")
-    runtimeOnly("io.undertow:undertow-core:2.2.25.Final")
+    runtimeOnly("io.undertow:undertow-websockets-jsr:${undertow_version}")
+    runtimeOnly("io.undertow:undertow-servlet:${undertow_version}")
+    runtimeOnly("io.undertow:undertow-core:${undertow_version}")
 
     implementation "org.springframework.boot:spring-boot-starter-thymeleaf"
-    runtimeOnly("org.thymeleaf:thymeleaf-spring5:${thymeleaf_version}")
     runtimeOnly("org.thymeleaf:thymeleaf:${thymeleaf_version}")
+    runtimeOnly("org.thymeleaf:thymeleaf-spring5:${thymeleaf_version}")
     implementation("org.springframework:spring-context-support")
     implementation("org.springframework.session:spring-session-hazelcast")
 
@@ -240,6 +233,7 @@ dependencies {
     testImplementation "org.mockito.kotlin:mockito-kotlin:${mockito_kotlin_version}"
     testImplementation "com.mattbertolini:liquibase-slf4j:${liquibase_slf4j_version}"
     testImplementation "org.hamcrest:hamcrest-library"
+    testImplementation "org.testcontainers:testcontainers:${testcontainers_version}"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
 
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")

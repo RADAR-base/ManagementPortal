@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { first, tap } from 'rxjs/operators';
+
 import { map, switchMap } from "rxjs/operators";
 import {SessionService} from "../session/session.service";
 import {environment} from "../../../environments/environment";
@@ -43,7 +43,7 @@ export class AuthServerProvider {
     }
 
     logout() {
-        window.location.href = this.logoutUrl + "&return_to=" + environment.BASE_URL;
+        window.location.href = this.logoutUrl + `&return_to=${window.location.href}`;
     }
 }
 

@@ -22,15 +22,9 @@ spring:
     type: com.zaxxer.hikari.HikariDataSource
     driverClassName: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/managementportal
-#      name: managementportal
-#      username: radarbase
-#      password: radarbase
-#      hikari:
-#        data-source-properties:
-#          cachePrepStmts: true
-#          prepStmtCacheSize: 25021
-#          prepStmtCacheSqlLimit: 2048
-#          useServerPrepStmts: true
+    name: managementportal
+    username: radarbase
+    password: radarbase
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     database: POSTGRESQL
@@ -109,6 +103,7 @@ managementportal:
     adminEmail: bdegraaf1234@gmail.com
     serverUrl: https://radar-k3s-test.thehyve.net/kratos
     serverAdminUrl: http://kratos-admin
+    loginUrl: http://localhost:3000
 
 # ===================================================================
 # JHipster specific properties

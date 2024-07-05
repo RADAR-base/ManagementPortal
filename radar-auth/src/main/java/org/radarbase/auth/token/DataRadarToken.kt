@@ -83,7 +83,7 @@ data class DataRadarToken(
      * the authenticator assurance level of the token
      * @return default.
      */
-    override val authenticatorLevel: RadarToken.AuthenticatorLevel = RadarToken.AuthenticatorLevel.aal1,
+    override val authenticatorAssuranceLevel: RadarToken.AuthenticatorAssuranceLevel = RadarToken.AuthenticatorAssuranceLevel.aal1,
 
     /**
      * Client that the token is associated to.

@@ -112,14 +112,15 @@ for other options on overriding the default configuration.
 | `MANAGEMENTPORTAL_FRONTEND_CLIENT_SECRET`                   | None, you need to override this                     | OAuth client secret for the frontend                                                                                                                                                                                                        |
 | `MANAGEMENTPORTAL_FRONTEND_ACCESS_TOKEN_VALIDITY_SECONDS`   | `14400`                                             | Frontend access token validity period in seconds                                                                                                                                                                                            |
 | `MANAGEMENTPORTAL_FRONTEND_REFRESH_TOKEN_VALIDITY_SECONDS`  | `259200`                                            | Frontend refresh token validity period in seconds                                                                                                                                                                                           |
-| `MANAGEMENTPORTAL_OAUTH_REQUIREAAL2`                        | `true`                                              | Whether to require AAL2 (2-FA or equivalent) level authentication for access to the managementportal.                                                                                                                                       |
+| `MANAGEMENTPORTAL_OAUTH_REQUIREAAL2`                        | `false`                                              | Whether to require AAL2 (2-FA or equivalent) level authentication for access to the managementportal.                                                                                                                                       |
 | `MANAGEMENTPORTAL_OAUTH_CLIENTS_FILE`                       | `/mp-includes/config/oauth_client_details.csv`      | Location of the OAuth clients file                                                                                                                                                                                                          |
 | `MANAGEMENTPORTAL_OAUTH_KEY_STORE_PASSWORD`                 | `radarbase`                                         | Password for the JWT keystore                                                                                                                                                                                                               |
 | `MANAGEMENTPORTAL_OAUTH_SIGNING_KEY_ALIAS`                  | `radarbase-managementportal-ec`                     | Alias in the keystore of the keypair to use for signing                                                                                                                                                                                     |
 | `MANAGEMENTPORTAL_OAUTH_ENABLE_PUBLIC_KEY_VERIFIERS`        | `false`                                             | Whether to use additional verifiers using public-keys and deprecated verifier implementation. If you set this to `true`, also set `RADAR_IS_CONFIG_LOCATION` and provide yaml file with public keys. Read more at radar-auth documentation. |
 | `MANAGEMENTPORTAL_CATALOGUE_SERVER_ENABLE_AUTO_IMPORT`      | `false`                                             | Whether to enable or disable auto import of sources from the catalogue server                                                                                                                                                               |
 | `MANAGEMENTPORTAL_CATALOGUE_SERVER_SERVER_URL`              | None                                                | URL to the catalogue server                                                                                                                                                                                                                 |
-| `MANAGEMENTPORTAL_IDENTITYSERVER_SERVERURL`                 | None                                                | URL to the identity server. Does not include portnumbers, which are defined separately                                                                                                                                                      |
+| `MANAGEMENTPORTAL_IDENTITYSERVER_SERVERURL`                 | None                                                | URL to the identity server.                                                                                                                                                                                                                 |
+| `MANAGEMENTPORTAL_IDENTITYSERVER_SERVERADMINURL`            | None                                                | Admin URL to the identity server.                                                                                                                                                                                                           |
 | `MANAGEMENTPORTAL_IDENTITYSERVER_ADMINEMAIL`                | None                                                | Email-address to be linked to the admin account.                                                                                                                                                                                            |
 | `MANAGEMENTPORTAL_COMMON_BASE_URL`                          | None                                                | Resolvable baseUrl of the hosted platform                                                                                                                                                                                                   |
 | `MANAGEMENTPORTAL_COMMON_MANAGEMENT_PORTAL_BASE_URL`        | None                                                | Resolvable baseUrl of this managementportal  instance                                                                                                                                                                                       |
@@ -225,28 +226,29 @@ The code grant flow for OAuth2 clients can also be the following:
 Organizational user management and authorization for the managementportal is performed by [Ory Kratos](https://www.ory.sh/docs/kratos/ory-kratos-intro). The flow for adding users to the portal is as follows:
 
 1. Navigate to the [User management view](http://127.0.0.1:8081/#/user-management) and create a user.
-2. The new user then [resets their password](http://127.0.0.1:3000/recovery) at the kratos self-service node
+2. The new user then [resets their password](http://127.0.0.1:3000/recovery) at the kratos self-service node using the link they receive via email.
 3. Adds [add two-factor authentication](http://127.0.0.1:3000/settings?#totp) at the kratos self-service node
 4. And uses these credentials to log in to the managementportal.
 
 ```mermaid
 sequenceDiagram
-    participant radar as Kratos self-service node
-    actor colleague as User
+    participant kratosUi as Kratos self-service node
+    actor user as User
     actor researcher as Admin
-    participant mp as ManagementPortal
+    participant managementPortal as ManagementPortal
     participant kratos as Kratos
 
 
     #== User Registration ==
-    colleague -->> researcher: Request account (email required)
-    researcher -->> mp: Create user
-    mp -->> kratos: Create kratos identity 
-    colleague -->> radar: Reset password
-    radar -->> kratos: 
-    colleague -->> radar: Activate 2-FA
-    radar -->> kratos: 
-    colleague -->> mp: Login (2-FA required)
+    user -->> researcher: Request account (email required)
+    researcher -->> managementPortal: Create user
+    managementPortal -->> kratos: Create kratos identity
+    kratos -->> user: Send password reset email
+    user -->> kratosUi: Reset password
+    kratosUi -->> kratos: 
+    user -->> kratosUi: Activate 2-FA
+    kratosUi -->> kratos: 
+    user -->> managementPortal: Login (2-FA required)
 ```
 
 ### UI Customization
@@ -281,7 +283,8 @@ auto-refreshes when files change on your hard drive.
     ./gradlew
     yarn start
 
-Then open <http://localhost:8081/> to start the interface and sign in with the email linked to the admin account (.
+Then open <http://localhost:8081/> to start the interface and sign in with the email linked to the admin account (defined in the configuration file under `adminEmail`)
+Note that auto-refresh only works if you visit localhost:8081, NOT if you visit localhost:8081/managementportal
 
 ### Managing dependencies
 

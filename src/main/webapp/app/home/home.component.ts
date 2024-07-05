@@ -26,6 +26,7 @@ export class HomeComponent {
     modalRef: NgbModalRef;
     // projects: Project[];
     subscriptions: Subscription;
+    private loginUrl = 'api/redirect/login';
 
     constructor(
             public principal: Principal,
@@ -63,6 +64,6 @@ export class HomeComponent {
     }
 
     login() {
-        window.location.href =  environment.KRATOS_URL + `/login?return_to=` + environment.BASE_URL;
+        window.location.href =  this.loginUrl
     }
 }
