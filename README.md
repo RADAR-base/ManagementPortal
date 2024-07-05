@@ -283,7 +283,8 @@ auto-refreshes when files change on your hard drive.
     ./gradlew
     yarn start
 
-Then open <http://localhost:8081/> to start the interface and sign in with the email linked to the admin account (defined in the configuration file under `adminEmail`).
+Then open <http://localhost:8081/> to start the interface and sign in with the email linked to the admin account (defined in the configuration file under `adminEmail`)
+Note that auto-refresh only works if you visit localhost:8081, NOT if you visit localhost:8081/managementportal
 
 ### Managing dependencies
 

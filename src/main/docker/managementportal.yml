@@ -1,7 +1,6 @@
 version: '2'
 services:
     managementportal-app:
-        image: radarbase/management-portal
         build:
             context: ../../../
             dockerfile: ./Dockerfile
@@ -13,9 +12,10 @@ services:
             - MANAGEMENTPORTAL_FRONTEND_CLIENT_SECRET=secret
             - MANAGEMENTPORTAL_IDENTITYSERVER_ADMINEMAIL=admin-email-here@radar-base.net
             - MANAGEMENTPORTAL_IDENTITYSERVER_SERVERURL=http://kratos:4433
+            - MANAGEMENTPORTAL_IDENTITYSERVER_LOGINURL=http://localhost:3000
             - MANAGEMENTPORTAL_IDENTITYSERVER_SERVERADMINURL=http://kratos:4434
             - JHIPSTER_SLEEP=10 # gives time for the database to boot before the application
-            - JAVA_OPTS=-Xmx512m  # maximum heap size for the JVM running ManagementPortal, increase this as necessary
+            - JAVA_OPTS=-Xmx512m -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 #enables remote debugging
         ports:
             - "8080:8080"
         volumes:

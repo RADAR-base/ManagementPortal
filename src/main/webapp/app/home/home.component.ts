@@ -26,7 +26,7 @@ export class HomeComponent {
     modalRef: NgbModalRef;
     // projects: Project[];
     subscriptions: Subscription;
-    private loginUrl = 'oauth/login';
+    private loginUrl = 'api/redirect/login';
 
     constructor(
             public principal: Principal,
