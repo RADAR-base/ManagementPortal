@@ -14,7 +14,7 @@
     "@angular/localize": "^16.0.6",
     "@angular/platform-browser": "^12.2.12",
     "@angular/platform-browser-dynamic": "^12.2.12",
-    "@angular/router": "^12.2.12",
+    "@angular/router": "^18.0.6",
     "@ng-bootstrap/ng-bootstrap": "^10.0.0",
     "@ngx-translate/core": "13.0.0",
     "@ngx-translate/http-loader": "6.0.0",
