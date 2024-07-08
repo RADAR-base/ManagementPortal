@@ -34,7 +34,7 @@ import org.radarbase.management.service.ResourceUriService
 
 @RestController
 @RequestMapping("/api/kratos")
-class LoginEndpoint
+class KratosEndpoint
     @Autowired
     constructor(
         @Autowired private val subjectService: SubjectService,
@@ -57,10 +57,10 @@ class LoginEndpoint
             val projectDto = projectService.findOneByName(projectName!!) 
             // TODO: Add permission
             // authService.checkPermission(Permission.SUBJECT_CREATE, { e: EntityDetails -> e.project(projectName) })
-            val subjectDto = SubjectDTO(
-            externalId = webhookDTO.identity_id,
-            project = projectDto
-            )
+            val subjectDto = SubjectDTO()
+            subjectDto.externalId = webhookDTO.identity_id
+            subjectDto.project = projectDto
+
             if (!subjectDto.externalId.isNullOrEmpty()
                 && subjectRepository.findOneByProjectNameAndExternalId(
                     projectName, subjectDto.externalId
