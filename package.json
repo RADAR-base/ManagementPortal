@@ -7,7 +7,7 @@
     "node_modules"
   ],
   "dependencies": {
-    "@angular/animations": "^12.2.12",
+    "@angular/animations": "^18.1.1",
     "@angular/common": "^12.2.12",
     "@angular/core": "^12.2.12",
     "@angular/forms": "^12.2.12",
