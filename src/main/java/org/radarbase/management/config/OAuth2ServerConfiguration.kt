@@ -1,5 +1,7 @@
 package org.radarbase.management.config
 
+import java.util.*
+import javax.sql.DataSource
 import org.radarbase.auth.authorization.RoleAuthority
 import org.radarbase.management.repository.UserRepository
 import org.radarbase.management.security.ClaimsTokenEnhancer
@@ -47,8 +49,6 @@ import org.springframework.security.oauth2.provider.token.TokenEnhancerChain
 import org.springframework.security.oauth2.provider.token.TokenStore
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler
-import java.util.*
-import javax.sql.DataSource
 
 @Configuration
 class OAuth2ServerConfiguration(
@@ -130,8 +130,7 @@ class OAuth2ServerConfiguration(
                 .skipUrlPattern(HttpMethod.POST, "/oauth/token")
                 .skipUrlPattern(HttpMethod.GET, "/api/meta-token/*")
                 .skipUrlPattern(HttpMethod.GET, "/api/sitesettings")
-                .skipUrlPattern(HttpMethod.GET, "/api/redirect/login")
-                .skipUrlPattern(HttpMethod.GET, "/api/redirect/account")
+                .skipUrlPattern(HttpMethod.GET, "/api/redirect/**")
                 .skipUrlPattern(HttpMethod.GET, "/api/logout-url")
                 .skipUrlPattern(HttpMethod.GET, "/oauth2/authorize")
                 .skipUrlPattern(HttpMethod.GET, "/images/**")

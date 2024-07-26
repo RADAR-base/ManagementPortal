@@ -33,8 +33,8 @@ export class NavbarComponent {
     projects: Project[];
     organizations: Organization[];
 
-    private loginUrl = 'oauth/login';
-    private settingsUrl = 'oauth/settings';
+    private loginUrl = 'api/redirect/login';
+    private settingsUrl = 'api/redirect/account';
 
     constructor(
         private loginService: LoginService,
