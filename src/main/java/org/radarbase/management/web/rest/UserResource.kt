@@ -121,13 +121,9 @@ class UserResource(
         } else {
             val newUser: User;
             newUser = userService.createUser(managedUserVm)
-//            mailService.sendCreationEmail(
-//                newUser, managementPortalProperties.common.activationKeyTimeoutInSeconds.toLong()
-//            )
 
             val recoveryLink = userService.getRecoveryLink(newUser)
 
-            //TODO make a nicer email
             mailService.sendEmail(
                 newUser.email,
                 "Account Activation",

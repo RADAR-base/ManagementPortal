@@ -20,7 +20,7 @@ class KratosSessionDTO(
     val expires_at: Instant,
     @Serializable(with = InstantSerializer::class)
     val authenticated_at: Instant,
-    val authenticator_assurance_level: RadarToken.AuthenticatorLevel,
+    val authenticator_assurance_level: RadarToken.AuthenticatorAssuranceLevel,
     val authentication_methods: ArrayList<AuthenticationMethod>,
     @Serializable(with = InstantSerializer::class)
     val issued_at: Instant,
@@ -114,7 +114,7 @@ class KratosSessionDTO(
             type = "type",
             clientId = "ManagementPortalapp",
             username = this.identity.metadata_public?.mp_login,
-            authenticatorLevel = this.authenticator_assurance_level
+            authenticatorAssuranceLevel = this.authenticator_assurance_level
         )
     }
 }

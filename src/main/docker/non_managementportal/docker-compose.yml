@@ -21,8 +21,6 @@ services:
     networks:
       - db
       - default
-    ports:
-      - "5432:5432"
 
   kratos-selfservice-ui-node:
     extends:

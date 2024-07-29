@@ -111,16 +111,12 @@ class JwtAuthenticationFilter @JvmOverloads constructor(
     }
 
     private fun tokenFromHeader(httpRequest: HttpServletRequest): String? {
-        val authHeader = httpRequest.getHeader(HttpHeaders.AUTHORIZATION)
+        return httpRequest.getHeader(HttpHeaders.AUTHORIZATION)
             ?.takeIf { it.startsWith(AUTHORIZATION_BEARER_HEADER) }
             ?.removePrefix(AUTHORIZATION_BEARER_HEADER)
             ?.trim { it <= ' ' }
-        if (authHeader == null) {
-            return parseCookies(httpRequest.getHeader(HttpHeaders.COOKIE)).find { it.name == "ory_kratos_session" }
+            ?: parseCookies(httpRequest.getHeader(HttpHeaders.COOKIE)).find { it.name == "ory_kratos_session" }
                 ?.value
-        }
-
-        return authHeader
     }
 
     @Throws(IOException::class)
@@ -205,7 +201,7 @@ class JwtAuthenticationFilter @JvmOverloads constructor(
                     null -> null
                 }
                 AuthorityReference(auth!!, referent)
-            } ?: setOf()
+            }
 
 
 
