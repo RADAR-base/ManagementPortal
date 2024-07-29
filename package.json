@@ -6,6 +6,9 @@
   "cacheDirectories": [
     "node_modules"
   ],
+  "workspaces": [
+    "packages/*"
+  ],
   "dependencies": {
     "@angular/animations": "^12.2.12",
     "@angular/common": "^12.2.12",
