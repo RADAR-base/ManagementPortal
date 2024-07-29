@@ -569,17 +569,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@angular/router@npm:^12.2.12":
-  version: 12.2.12
-  resolution: "@angular/router@npm:12.2.12"
+"@angular/router@npm:^18.1.2":
+  version: 18.1.2
+  resolution: "@angular/router@npm:18.1.2"
   dependencies:
-    tslib: ^2.2.0
+    tslib: ^2.3.0
   peerDependencies:
-    "@angular/common": 12.2.12
-    "@angular/core": 12.2.12
-    "@angular/platform-browser": 12.2.12
-    rxjs: ^6.5.3 || ^7.0.0
-  checksum: 1087d56eb371a7bd67dfd0e7c0afae50d9863c9e6e5cea37baf30dd1a769f170389589db598360d42371623172422407734db4105d5898bd894b3968b19b8e09
+    "@angular/common": 18.1.2
+    "@angular/core": 18.1.2
+    "@angular/platform-browser": 18.1.2
+    rxjs: ^6.5.3 || ^7.4.0
+  checksum: 30a1984613c7777ed1827482a0ccdc4157cac7625c84640dc00d9a614e4bb3748a404641ec17cb5b88d6deeb6fea629f268ea890d8014d1b06ede698ac9c9383
   languageName: node
   linkType: hard
 
@@ -7623,7 +7623,7 @@ __metadata:
     "@angular/localize": ^16.0.6
     "@angular/platform-browser": ^12.2.12
     "@angular/platform-browser-dynamic": ^12.2.12
-    "@angular/router": ^12.2.12
+    "@angular/router": ^18.1.2
     "@cypress/schematic": 1.5.0
     "@ng-bootstrap/ng-bootstrap": ^10.0.0
     "@ngx-translate/core": 13.0.0
