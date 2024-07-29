@@ -6,7 +6,7 @@ RUN curl -sL https://deb.nodesource.com/setup_16.x | bash \
      && apt-get update && apt-get install -y \
         nodejs \
      && rm -rf /var/lib/apt/lists/* \
-     && npm install -g yarn
+     && npm install -g yarn@latest
 
 ## installing the node and java packages before adding the src directory
 ## will allow us to re-use these image layers when only the souce code changes
@@ -16,7 +16,8 @@ ENV GRADLE_OPTS="-Dorg.gradle.daemon=false -Dorg.gradle.project.prod=true -Dorg.
 
 COPY package.json yarn.lock .yarnrc.yml /code/
 COPY .yarn /code/.yarn
-RUN yarn install --network-timeout 1000000
+
+RUN yarn install --immutable
 
 COPY gradle gradle
 COPY gradlew build.gradle gradle.properties settings.gradle /code/
