@@ -40,8 +40,8 @@ class KratosEndpoint
     constructor(
         @Autowired private val subjectService: SubjectService,
         @Autowired private val subjectRepository: SubjectRepository,
-        @Autowired private val projectService: ProjectService, 
-        @Autowired private val authService: AuthService,   
+        @Autowired private val projectService: ProjectService,
+        @Autowired private val authService: AuthService,
     ) {
         /**
          * POST  /subjects : Create a new subject.
@@ -80,6 +80,6 @@ class KratosEndpoint
         }
 
         companion object {
-            private val logger = LoggerFactory.getLogger(TokenKeyEndpoint::class.java)
+            private val logger = LoggerFactory.getLogger(KratosEndpoint::class.java)
         }
     }
