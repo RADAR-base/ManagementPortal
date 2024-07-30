@@ -77,6 +77,6 @@ class KratosEndpoint
         }
 
         companion object {
-            private val logger = LoggerFactory.getLogger(TokenKeyEndpoint::class.java)
+            private val logger = LoggerFactory.getLogger(KratosEndpoint::class.java)
         }
     }
