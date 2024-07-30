@@ -56,9 +56,8 @@ class KratosEndpoint
             val projectName = webhookDTO.project_id
             val projectDto = projectService.findOneByName(projectName!!) 
             // TODO: Add permission
-            // authService.checkPermission(Permission.SUBJECT_CREATE, { e: EntityDetails -> e.project(projectName) })
             val subjectDto = SubjectDTO()
-            subjectDto.externalId = webhookDTO.identity_id
+            subjectDto.login = webhookDTO.identity_id
             subjectDto.project = projectDto
 
             if (!subjectDto.externalId.isNullOrEmpty()
