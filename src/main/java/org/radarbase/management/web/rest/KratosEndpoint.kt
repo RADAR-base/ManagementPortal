@@ -31,7 +31,6 @@ import org.radarbase.management.web.rest.errors.BadRequestException
 import org.radarbase.management.web.rest.errors.EntityName
 import org.radarbase.management.web.rest.errors.ErrorConstants
 import org.radarbase.management.service.ResourceUriService
-import org.radarbase.management.service.AuthService
 
 @RestController
 @RequestMapping("/api/kratos")
