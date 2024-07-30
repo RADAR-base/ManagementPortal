@@ -9,5 +9,9 @@
   "fixturesFolder": false,
   "baseUrl": "http://localhost:8081",
   "experimentalSessionAndOrigin": true,
-  "chromeWebSecurity": false
+  "chromeWebSecurity": false,
+  "env": {
+      "username": "admin-email-here@radar-base.net",
+      "secret": "secret123"
+  }
 }
