@@ -31,6 +31,7 @@ import org.radarbase.management.web.rest.errors.BadRequestException
 import org.radarbase.management.web.rest.errors.EntityName
 import org.radarbase.management.web.rest.errors.ErrorConstants
 import org.radarbase.management.service.ResourceUriService
+import org.radarbase.management.service.AuthService
 
 @RestController
 @RequestMapping("/api/kratos")
@@ -39,7 +40,8 @@ class KratosEndpoint
     constructor(
         @Autowired private val subjectService: SubjectService,
         @Autowired private val subjectRepository: SubjectRepository,
-        @Autowired private val projectService: ProjectService,    
+        @Autowired private val projectService: ProjectService, 
+        @Autowired private val authService: AuthService,   
     ) {
         /**
          * POST  /subjects : Create a new subject.
@@ -54,8 +56,9 @@ class KratosEndpoint
         @Throws(URISyntaxException::class, NotAuthorizedException::class)
         fun createSubject(@RequestBody webhookDTO: KratosSubjectWebhookDTO): ResponseEntity<SubjectDTO> {
             val projectName = webhookDTO.project_id
+            authService.checkPermission(Permission.SUBJECT_CREATE, { e: EntityDetails -> e.project(projectName) })
+
             val projectDto = projectService.findOneByName(projectName!!) 
-            // TODO: Add permission
             val subjectDto = SubjectDTO()
             subjectDto.login = webhookDTO.identity_id
             subjectDto.project = projectDto
@@ -77,6 +80,6 @@ class KratosEndpoint
         }
 
         companion object {
-            private val logger = LoggerFactory.getLogger(KratosEndpoint::class.java)
+            private val logger = LoggerFactory.getLogger(TokenKeyEndpoint::class.java)
         }
     }
