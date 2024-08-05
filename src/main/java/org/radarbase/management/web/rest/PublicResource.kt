@@ -13,18 +13,17 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
-/**
- * GET  /lite-projects : get all the projects.
- *
- * @return the ResponseEntity with status 200 (OK) and the list of ProjectLiteDTO
- */
-
 @RestController
 @RequestMapping("/api/public")
 class PublicResource(
     @Autowired private val projectService: ProjectService
 ) {
 
+    /**
+     * GET  /public/projects : get all the projects for public endpoint.
+     *
+     * @return the ResponseEntity with status 200 (OK) and the list of PublicProjectDTO
+     */
     @GetMapping("projects")
     @Timed
     fun getProjectsInfo(
@@ -33,7 +32,7 @@ class PublicResource(
         log.debug("REST request to get Projects for public endpoint")
         val page = projectService.getPublicProjects(pageable)
         val headers = PaginationUtil
-            .generatePaginationHttpHeaders(page, "/api/lite-projects")
+            .generatePaginationHttpHeaders(page, "/api/public/projects")
         return ResponseEntity(page.content, headers, HttpStatus.OK)
     }
 

@@ -72,7 +72,7 @@ class ProjectService(
     /**
      *Get all the projects for the public endpoint.
      *
-     *@return the list of ProjectLiteDTO
+     *@return the list of PublicProjectDTOs
      */
     @Transactional(readOnly = true)
     fun getPublicProjects(pageable: Pageable): Page<*> {
