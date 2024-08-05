@@ -8,7 +8,7 @@ import org.mapstruct.Named
 import org.radarbase.management.domain.Project
 import org.radarbase.management.service.dto.MinimalProjectDetailsDTO
 import org.radarbase.management.service.dto.ProjectDTO
-import org.radarbase.management.service.dto.ProjectLiteDTO
+import org.radarbase.management.service.dto.PublicProjectDTO
 import org.radarbase.management.service.mapper.decorator.ProjectMapperDecorator
 
 /**
@@ -49,7 +49,7 @@ interface ProjectMapper {
     fun projectToMinimalProjectDetailsDTO(project: Project): MinimalProjectDetailsDTO
     fun projectsToMinimalProjectDetailsDTOs(projects: List<Project>): List<MinimalProjectDetailsDTO>
 
-    fun projectToProjectLiteDTO(project: Project): ProjectLiteDTO
+    fun projectToPublicProjectDTO(project: Project): PublicProjectDTO
 
     @Mapping(target = "description", ignore = true)
     @Mapping(target = "roles", ignore = true)
