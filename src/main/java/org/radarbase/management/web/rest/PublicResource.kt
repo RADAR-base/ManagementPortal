@@ -20,24 +20,24 @@ import org.springframework.web.bind.annotation.RestController
  */
 
 @RestController
-@RequestMapping("/api")
-class ProjectLiteResource(
+@RequestMapping("/api/public")
+class PublicResource(
     @Autowired private val projectService: ProjectService
 ) {
 
-    @GetMapping("lite-projects")
+    @GetMapping("projects")
     @Timed
     fun getProjectsInfo(
         @PageableDefault(size = Int.MAX_VALUE) pageable: Pageable,
     ): ResponseEntity<*> {
         log.debug("REST request to get Projects for public endpoint")
-        val page = projectService.findProjectsForPublicEndpoint(pageable)
+        val page = projectService.getPublicProjects(pageable)
         val headers = PaginationUtil
             .generatePaginationHttpHeaders(page, "/api/lite-projects")
         return ResponseEntity(page.content, headers, HttpStatus.OK)
     }
 
     companion object {
-        private val log = LoggerFactory.getLogger(ProjectLiteResource::class.java)
+        private val log = LoggerFactory.getLogger(PublicResource::class.java)
     }
 }

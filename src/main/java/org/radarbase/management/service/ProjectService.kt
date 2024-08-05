@@ -75,9 +75,9 @@ class ProjectService(
      *@return the list of ProjectLiteDTO
      */
     @Transactional(readOnly = true)
-    fun findProjectsForPublicEndpoint(pageable: Pageable): Page<*> {
+    fun getPublicProjects(pageable: Pageable): Page<*> {
         val projects: Page<Project> = projectRepository.findAllWithEagerRelationships(pageable)
-        return projects.map { project: Project -> projectMapper.projectToProjectLiteDTO(project) }
+        return projects.map { project: Project -> projectMapper.projectToPublicProjectDTO(project) }
     }
 
     /**
