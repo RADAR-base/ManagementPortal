@@ -70,6 +70,17 @@ class ProjectService(
     }
 
     /**
+     *Get all the projects for the public endpoint.
+     *
+     *@return the list of ProjectLiteDTO
+     */
+    @Transactional(readOnly = true)
+    fun findProjectsForPublicEndpoint(pageable: Pageable): Page<*> {
+        val projects: Page<Project> = projectRepository.findAllWithEagerRelationships(pageable)
+        return projects.map { project: Project -> projectMapper.projectToProjectLiteDTO(project) }
+    }
+
+    /**
      * Get one project by id.
      *
      * @param id the id of the entity
