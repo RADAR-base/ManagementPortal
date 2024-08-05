@@ -242,6 +242,7 @@ class OAuth2ServerConfiguration(
         fun accessTokenConverter(): ManagementPortalJwtAccessTokenConverter {
             logger.debug("loading token converter from keystore configurations")
             return ManagementPortalJwtAccessTokenConverter(
+                keyStoreHandler.tokenValidator,
                 keyStoreHandler.algorithmForSigning,
                 keyStoreHandler.verifiers,
                 keyStoreHandler.refreshTokenVerifiers

@@ -52,6 +52,7 @@ class ManagementPortalOauthKeyStoreHandler @Autowired constructor(
     private val oauthConfig: Oauth
     private val verifierPublicKeyAliasList: List<String>
     private val managementPortalBaseUrl: String
+    private val authServerUrl: String
     val verifiers: MutableList<JWTVerifier>
     val refreshTokenVerifiers: MutableList<JWTVerifier>
 
@@ -79,6 +80,8 @@ class ManagementPortalOauthKeyStoreHandler @Autowired constructor(
         // No need to check audience with a refresh token: it can be used
         // to refresh tokens intended for other resources.
         refreshTokenVerifiers = algorithms.map { algo: Algorithm -> JWT.require(algo).build() }.toMutableList()
+        authServerUrl = managementPortalProperties.authServer.serverAdminUrl
+        tokenValidator.refresh()
     }
 
     @Nonnull
@@ -228,7 +231,11 @@ class ManagementPortalOauthKeyStoreHandler @Autowired constructor(
                     RES_MANAGEMENT_PORTAL,
                     JwkAlgorithmParser()
                 ),
-                KratosTokenVerifierLoader(managementPortalProperties.identityServer.publicUrl(), requireAal2 = managementPortalProperties.oauth.requireAal2),
+                JwksTokenVerifierLoader(
+                    authServerUrl + "/admin/keys/hydra.jwt.access-token",
+                    RES_MANAGEMENT_PORTAL,
+                    JwkAlgorithmParser()
+                ),
             )
             return TokenValidator(loaderList)
         }
