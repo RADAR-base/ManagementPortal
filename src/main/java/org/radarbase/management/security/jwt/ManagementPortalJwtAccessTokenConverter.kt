@@ -25,6 +25,7 @@ import java.nio.charset.StandardCharsets
 import java.time.Instant
 import java.util.*
 import java.util.stream.Stream
+import org.radarbase.auth.exception.TokenValidationException
 
 /**
  * Implementation of [JwtAccessTokenConverter] for the RADAR-base ManagementPortal platform.
@@ -231,17 +232,13 @@ open class ManagementPortalJwtAccessTokenConverter(
         } catch (ex: JsonProcessingException) {
             throw InvalidTokenException("Invalid token", ex)
         }
-        for (verifier in verifierToUse) {
-            try {
-                validator.validateBlocking(token)
-                return claims
-            } catch (sve: SignatureVerificationException) {
-                logger.warn("Client presented a token with an incorrect signature")
-            } catch (ex: JWTVerificationException) {
-                logger.debug(
-                    "Verifier {} with implementation {} did not accept token: {}",
-                    verifier, verifier.javaClass, ex.message
-                )
+        try {
+            validator.validateBlocking(token)
+            Companion.logger.debug("Using token from header")
+            return claims
+        } catch (ex: TokenValidationException) {
+            ex.message?.let {
+                Companion.logger.info("Failed to validate token from header: {}", it)
             }
         }
         throw InvalidTokenException("No registered validator could authenticate this token")
