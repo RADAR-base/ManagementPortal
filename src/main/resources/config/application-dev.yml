@@ -116,9 +116,14 @@ managementportal:
         # The line below can be uncommented to add some hidden fields for UI testing
         #hiddenSubjectFields: [person_name, date_of_birth, group]
     identityServer:
+        adminEmail: admin-email-here@gmail.com
         serverUrl: http://localhost:4433
-        serverAdminUrl: http://localhost:4434
+        serverAdminUrl: http://kratos-admin
         loginUrl: http://localhost:3000
+    authServer:
+        serverUrl: http://localhost:4444
+        serverAdminUrl: http://localhost:4445
+
 
 # ===================================================================
 # JHipster specific properties
