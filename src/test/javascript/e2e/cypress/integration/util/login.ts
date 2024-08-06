@@ -1,5 +1,5 @@
 export function login() {
-    cy.login('admin-email-here@radar-base.net', 'secret123');
+    cy.login(Cypress.env('username'), Cypress.env('secret'));
     cy.wait(2000);
     cy.visit('managementportal/');
 }
