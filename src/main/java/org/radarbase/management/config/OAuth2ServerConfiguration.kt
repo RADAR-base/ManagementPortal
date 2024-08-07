@@ -131,6 +131,7 @@ class OAuth2ServerConfiguration(
                 .skipUrlPattern(HttpMethod.GET, "/api/meta-token/*")
                 .skipUrlPattern(HttpMethod.GET, "/api/sitesettings")
                 .skipUrlPattern(HttpMethod.GET, "/api/redirect/**")
+                .skipUrlPattern(HttpMethod.GET, "/api/kratos/**")
                 .skipUrlPattern(HttpMethod.GET, "/api/logout-url")
                 .skipUrlPattern(HttpMethod.GET, "/oauth2/authorize")
                 .skipUrlPattern(HttpMethod.GET, "/images/**")

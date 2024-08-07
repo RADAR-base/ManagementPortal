@@ -78,6 +78,7 @@ class SecurityConfiguration
             .antMatchers("/api/profile-info")
             .antMatchers("/api/activate")
             .antMatchers("/api/redirect/**")
+            .antMatchers("/api/kratos/**")
             .antMatchers("/api/account/reset_password/init")
             .antMatchers("/api/account/reset_password/finish")
             .antMatchers("/test/**")
