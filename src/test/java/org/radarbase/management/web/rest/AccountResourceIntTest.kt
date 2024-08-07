@@ -122,7 +122,7 @@ internal class AccountResourceIntTest(
         user.email = "john.doe@jhipster.com"
         user.langKey = "en"
         user.roles = roles
-        whenever(mockUserService.getUserWithAuthorities()).doReturn(user)
+        whenever(mockUserService.userWithAuthorities).doReturn(user)
         restUserMockMvc.perform(MockMvcRequestBuilders.post("/api/login")
             .with { request: MockHttpServletRequest ->
                 request.radarToken = token
@@ -160,7 +160,7 @@ internal class AccountResourceIntTest(
         user.email = "john.doe@jhipster.com"
         user.langKey = "en"
         user.roles = roles
-        whenever(mockUserService.getUserWithAuthorities()).doReturn(user)
+        whenever(mockUserService.userWithAuthorities).doReturn(user)
         restUserMockMvc.perform(
             MockMvcRequestBuilders.get("/api/account")
                 .accept(MediaType.APPLICATION_JSON)
@@ -182,7 +182,7 @@ internal class AccountResourceIntTest(
     @Test
     @Throws(Exception::class)
     fun testGetUnknownAccount() {
-        whenever(mockUserService.getUserWithAuthorities()).doReturn(null)
+        whenever(mockUserService.userWithAuthorities).doReturn(null)
         restUserMockMvc.perform(
             MockMvcRequestBuilders.get("/api/account")
                 .accept(MediaType.APPLICATION_JSON)
