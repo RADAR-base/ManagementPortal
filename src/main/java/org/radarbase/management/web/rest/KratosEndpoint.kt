@@ -12,6 +12,7 @@ import org.radarbase.management.service.ResourceUriService
 import org.radarbase.management.service.SubjectService
 import org.radarbase.management.service.dto.KratosSubjectWebhookDTO
 import org.radarbase.management.service.dto.SubjectDTO
+import org.radarbase.management.service.mapper.SubjectMapper
 import org.radarbase.management.web.rest.errors.BadRequestException
 import org.radarbase.management.web.rest.errors.EntityName
 import org.radarbase.management.web.rest.util.HeaderUtil
@@ -36,6 +37,7 @@ class KratosEndpoint
         @Autowired private val authService: AuthService,
         @Autowired private val identityService: IdentityService,
         @Autowired private val managementPortalProperties: ManagementPortalProperties,
+        @Autowired private val subjectMapper: SubjectMapper,
     ) {
         private var sessionService: SessionService = SessionService(managementPortalProperties.identityServer.publicUrl())
 
@@ -55,7 +57,7 @@ class KratosEndpoint
         ): ResponseEntity<SubjectDTO> {
             val kratosSession = sessionService.getSession(webhookDTO.session_token!!)
             val kratosIdentity = kratosSession.identity
-            
+
             if (kratosIdentity.id == webhookDTO.identity_id) {
                 val projectName = webhookDTO.project_id
                 val projectDto = projectService.findOneByName(projectName!!)
@@ -75,15 +77,14 @@ class KratosEndpoint
                         "subjectExists",
                     )
                 }
-                val resultDto = subjectService.createSubject(subjectDto)
-                val subject = subjectService.findOneByLogin(resultDto!!.login)
-                kratosIdentity.metadata_public = identityService.createIdentityMetadata(subject.user!!)
+                val subject = subjectMapper.subjectDTOToSubject(subjectService.createSubject(subjectDto))
+                kratosIdentity.metadata_public = identityService.createIdentityMetadata(subject!!.user!!)
                 identityService.updateAssociatedIdentity(kratosIdentity)
                 return ResponseEntity
                     .created(ResourceUriService.getUri(subjectDto))
                     .headers(
                         HeaderUtil.createEntityCreationAlert(EntityName.SUBJECT, subject.user!!.login),
-                    ).body(resultDto)
+                    ).body(subjectDto)
             } else {
                 throw NotAuthorizedException("Not authorized to create subject")
             }
