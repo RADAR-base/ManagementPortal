@@ -58,66 +58,31 @@ class IdentityService(
         log.debug("kratos serverAdminUrl set to ${managementPortalProperties.identityServer.adminUrl()}")
     }
 
-    /** Save a [User] to the IDP as an identity. Returns the generated [KratosSessionDTO.Identity] */
-    @Throws(IdpException::class)
-    suspend fun saveAsIdentity(user: User): KratosSessionDTO.Identity? {
-        val kratosIdentity: KratosSessionDTO.Identity?
+        /** Update a [User] as to the IDP as an identity. Returns the updated [KratosSessionDTO.Identity] */
+        @Throws(IdpException::class)
+        suspend fun updateAssociatedIdentity(identity: KratosSessionDTO.Identity): KratosSessionDTO.Identity? {
+            val updatedIdentity: KratosSessionDTO.Identity?
 
-        withContext(Dispatchers.IO) {
-            val identity = createIdentity(user)
-
-            val postRequestBuilder = HttpRequestBuilder().apply {
-                url("${adminUrl}/admin/identities")
-                contentType(ContentType.Application.Json)
-                accept(ContentType.Application.Json)
-                setBody(identity)
+            withContext(Dispatchers.IO) {
+                val response = httpClient.put {
+                    url("${adminUrl}/admin/identities/${identity.id}")
+                    contentType(ContentType.Application.Json)
+                    accept(ContentType.Application.Json)
+                    setBody(identity)
+                }
+    
+                if (response.status.isSuccess()) {
+                    updatedIdentity = response.body<KratosSessionDTO.Identity>()
+                    log.debug("Updated identity for ${updatedIdentity.id}")
+                } else {
+                    throw IdpException(
+                        "Couldn't update identity to server at $adminUrl"
+                    )
+                }
             }
-            val response = httpClient.post(postRequestBuilder)
-
-            if (response.status.isSuccess()) {
-                kratosIdentity = response.body<KratosSessionDTO.Identity>()
-                log.debug("saved identity for user ${user.login} to IDP as ${kratosIdentity.id}")
-            } else {
-                throw IdpException(
-                    "couldn't save Kratos ID to server at " + adminUrl,
-                )
-            }
+    
+            return updatedIdentity
         }
-
-        return kratosIdentity
-    }
-
-    /** Update a [User] as to the IDP as an identity. Returns the updated [KratosSessionDTO.Identity] */
-    @Throws(IdpException::class)
-    suspend fun updateAssociatedIdentity(user: User): KratosSessionDTO.Identity? {
-        val kratosIdentity: KratosSessionDTO.Identity?
-
-        user.identity ?: throw IdpException(
-            "user ${user.login} could not be updated on the IDP. No identity was set",
-        )
-
-        withContext(Dispatchers.IO) {
-            val identity = createIdentity(user)
-            val response = httpClient.put {
-                url("${adminUrl}/admin/identities/${user.identity}")
-                contentType(ContentType.Application.Json)
-                accept(ContentType.Application.Json)
-                setBody(identity)
-            }
-
-
-            if (response.status.isSuccess()) {
-                kratosIdentity = response.body<KratosSessionDTO.Identity>()
-                log.debug("Updated identity for user ${user.login} to IDP as ${kratosIdentity.id}")
-            } else {
-                throw IdpException(
-                    "Couldn't update identity to server at $adminUrl"
-                )
-            }
-        }
-
-        return kratosIdentity
-    }
 
     /** Delete a [User] as to the IDP as an identity. */
     @Throws(IdpException::class)
@@ -150,12 +115,9 @@ class IdentityService(
      * @return the newly created DTO object
      */
     @Throws(IdpException::class)
-    private fun createIdentity(user: User): KratosSessionDTO.Identity {
+    public fun createIdentityMetadata(user: User): KratosSessionDTO.Metadata {
         try {
-            return KratosSessionDTO.Identity(
-                schema_id = "user",
-                traits = KratosSessionDTO.Traits(email = user.email),
-                metadata_public = KratosSessionDTO.Metadata(
+                return KratosSessionDTO.Metadata(
                     aud = emptyList(),
                     sources = emptyList(), //empty at the time of creation
                     roles = user.roles.mapNotNull { role: Role ->
@@ -176,53 +138,12 @@ class IdentityService(
                     },
                     mp_login = user.login
                 )
-            )
         }
         catch (e: Throwable){
             val message = "could not convert user ${user.login} to identity"
             log.error(message)
             throw IdpException(message, e)
         }
-    }
-
-    /**
-     * get a recovery link from the identityprovider in the response, which expires in 24 hours.
-     * @param user The user for whom the recovery link is requested.
-     * @return The recovery link obtained from the server response.
-     * @throws IdpException If there is an issue with the identity or if the recovery link cannot be obtained from the server.
-     */
-    @Throws(IdpException::class)
-    suspend fun getRecoveryLink(user: User): String {
-        val recoveryLink: String
-
-        user.identity ?: throw IdpException(
-            "user ${user.login} could not be recovered on the IDP. No identity was set",
-        )
-
-        withContext(Dispatchers.IO) {
-            val response = httpClient.post {
-                url("${adminUrl}/admin/recovery/link")
-                contentType(ContentType.Application.Json)
-                accept(ContentType.Application.Json)
-                setBody(
-                    mapOf(
-                        "expires_in" to "24h",
-                        "identity_id" to user.identity
-                    )
-                )
-            }
-
-            if (response.status.isSuccess()) {
-                recoveryLink = response.body<Map<String, String>>()["recovery_link"]!!
-                log.debug("recovery link for user ${user.login} is $recoveryLink")
-            } else {
-                throw IdpException(
-                    "couldn't get recovery link from server at $adminUrl"
-                )
-            }
-        }
-
-        return recoveryLink
     }
 
     companion object {

@@ -83,7 +83,7 @@ class SubjectService(
         val project = projectMapper.projectDTOToProject(subjectDto.project)
         val projectParticipantRole = getProjectParticipantRole(project, RoleAuthority.PARTICIPANT)
         val roles = user!!.roles
-        roles?.add(projectParticipantRole)
+        roles.add(projectParticipantRole)
 
         // Set group
         subject.group = getSubjectGroup(project, subjectDto.group)
@@ -107,6 +107,9 @@ class SubjectService(
             subject.enrollmentDate = ZonedDateTime.now()
         }
         sourceRepository.saveAll(subject.sources)
+        log.info("Created subject")
+        log.info(subject.toString())
+        log.info(subject.user!!.toString())
         return subjectMapper.subjectToSubjectReducedProjectDTO(subjectRepository.save(subject))
     }
 

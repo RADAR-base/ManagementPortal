@@ -59,21 +59,21 @@ class RoleService(
      */
     @Transactional(readOnly = true)
     fun findAll(): List<RoleDTO> {
-        val optUser = userService.getUserWithAuthorities()
+        val optUser = userService.userWithAuthorities
             ?: // return an empty list if we do not have a current user (e.g. with client credentials
             // oauth2 grant)
             return emptyList()
         val currentUserAuthorities = optUser.authorities
-        return if (currentUserAuthorities.contains(RoleAuthority.SYS_ADMIN.authority)) {
+        return if (currentUserAuthorities?.contains(RoleAuthority.SYS_ADMIN.authority) == true) {
             log.debug("Request to get all Roles")
             roleRepository.findAll().filterNotNull().map { role: Role -> roleMapper.roleToRoleDTO(role) }.toList()
-        } else (if (currentUserAuthorities.contains(RoleAuthority.PROJECT_ADMIN.authority)) {
+        } else (if (currentUserAuthorities?.contains(RoleAuthority.PROJECT_ADMIN.authority) == true) {
             log.debug("Request to get project admin's project Projects")
-            optUser.roles.asSequence().filter { role: Role? ->
+            optUser.roles?.asSequence()?.filter { role: Role? ->
                 (RoleAuthority.PROJECT_ADMIN.authority == role?.authority?.name)
-            }.mapNotNull { r: Role -> r.project?.projectName }.distinct()
-                .flatMap { name: String -> roleRepository.findAllRolesByProjectName(name) }
-                .map { role -> roleMapper.roleToRoleDTO(role) }.toList()
+            }?.mapNotNull { r: Role -> r.project?.projectName }?.distinct()
+                ?.flatMap { name: String -> roleRepository.findAllRolesByProjectName(name) }
+                ?.map { role -> roleMapper.roleToRoleDTO(role) }?.toList()
         } else {
             emptyList()
         }) as List<RoleDTO>

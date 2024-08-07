@@ -46,41 +46,20 @@ class KratosSessionDTO(
 
     @Serializable
     class Identity(
-        val id: String? = null,
+        var id: String? = null,
         val schema_id: String? = null,
         val schema_url: String? = null,
         val state: String? = null,
         @Serializable(with = InstantSerializer::class)
         val state_changed_at: Instant? = null,
         val traits: Traits? = null,
-        val metadata_public: Metadata? = null,
+        var metadata_public: Metadata? = null,
         @Serializable(with = InstantSerializer::class)
         val created_at: Instant? = null,
         @Serializable(with = InstantSerializer::class)
         val updated_at: Instant? = null,
     )
-    {
-
-
-        fun parseRoles(): Set<AuthorityReference> = buildSet {
-            if (metadata_public?.authorities?.isNotEmpty() == true) {
-                for (roleValue in metadata_public.authorities) {
-                    val authority = RoleAuthority.valueOfAuthorityOrNull(roleValue)
-                    if (authority?.scope == RoleAuthority.Scope.GLOBAL) {
-                        add(AuthorityReference(authority))
-                    }
-                }
-            }
-            if (metadata_public?.roles?.isNotEmpty() == true) {
-                for (roleValue in metadata_public.roles) {
-                    val role = RoleAuthority.valueOfAuthorityOrNull(roleValue)
-                    if (role?.scope == RoleAuthority.Scope.GLOBAL) {
-                        add(AuthorityReference(role))
-                    }
-                }
-            }
-        }
-    }
+    {}
 
 
     @Serializable
@@ -101,7 +80,7 @@ class KratosSessionDTO(
 
     fun toDataRadarToken() : DataRadarToken {
         return DataRadarToken(
-            roles = this.identity.parseRoles(),
+            roles = emptySet(),
             scopes = this.identity.metadata_public?.scope?.toSet() ?: emptySet(),
             sources = this.identity.metadata_public?.sources ?: emptyList(),
             grantType = "session",

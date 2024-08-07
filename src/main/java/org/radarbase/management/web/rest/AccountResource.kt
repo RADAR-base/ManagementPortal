@@ -113,7 +113,7 @@ class AccountResource(
          * (Internal Server Error) if the user couldn't be returned
          */
         get() {
-            val currentUser = userService.getUserWithAuthorities()
+            val currentUser = userService.userWithAuthorities
                 ?: throw RadarWebApplicationException(
                         HttpStatus.FORBIDDEN,
                         "Cannot get account without user", EntityName.Companion.USER, ErrorConstants.ERR_ACCESS_DENIED
@@ -135,7 +135,7 @@ class AccountResource(
     @PostMapping("/account")
     @Timed
     @Throws(NotAuthorizedException::class)
-    suspend fun saveAccount(
+    fun saveAccount(
         @RequestBody @Valid userDto: UserDTO,
         authentication: Authentication
     ): ResponseEntity<Void> {
