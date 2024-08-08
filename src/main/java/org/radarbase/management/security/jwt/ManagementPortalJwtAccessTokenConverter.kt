@@ -8,6 +8,7 @@ import com.auth0.jwt.exceptions.SignatureVerificationException
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.radarbase.management.security.jwt.ManagementPortalJwtAccessTokenConverter
+import org.radarbase.auth.authentication.TokenValidator
 import org.slf4j.LoggerFactory
 import org.springframework.security.oauth2.common.DefaultExpiringOAuth2RefreshToken
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken
@@ -33,6 +34,7 @@ import java.util.stream.Stream
  * are significantly smaller than RSA signatures.
  */
 open class ManagementPortalJwtAccessTokenConverter(
+    validator: TokenValidator,
     algorithm: Algorithm,
     verifiers: MutableList<JWTVerifier>,
     private val refreshTokenVerifiers: List<JWTVerifier>
@@ -59,6 +61,7 @@ open class ManagementPortalJwtAccessTokenConverter(
             field = jwtClaimsSetVerifier
         }
     private var algorithm: Algorithm? = null
+    private var validator: TokenValidator
     private val verifiers: MutableList<JWTVerifier>
 
     /**
@@ -72,6 +75,7 @@ open class ManagementPortalJwtAccessTokenConverter(
         accessToken.setIncludeGrantType(true)
         tokenConverter = accessToken
         this.verifiers = verifiers
+        this.validator = validator
         setAlgorithm(algorithm)
     }
 
@@ -229,7 +233,7 @@ open class ManagementPortalJwtAccessTokenConverter(
         }
         for (verifier in verifierToUse) {
             try {
-                verifier.verify(token)
+                validator.validateBlocking(token)
                 return claims
             } catch (sve: SignatureVerificationException) {
                 logger.warn("Client presented a token with an incorrect signature")

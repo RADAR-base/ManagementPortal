@@ -117,6 +117,7 @@ managementportal:
     keyStorePassword: radarbase
     signingKeyAlias: radarbase-managementportal-ec
     enablePublicKeyVerifiers: false
+    requireAal2: false
   siteSettings:
     hiddenSubjectFields: [ ]
 

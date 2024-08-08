@@ -103,6 +103,7 @@ managementportal:
     adminEmail: bdegraaf1234@gmail.com
     serverUrl: https://radar-k3s-test.thehyve.net/kratos
     serverAdminUrl: http://kratos-admin
+    loginUrl: http://localhost:3000
 
 # ===================================================================
 # JHipster specific properties

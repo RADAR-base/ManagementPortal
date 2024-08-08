@@ -112,7 +112,7 @@ for other options on overriding the default configuration.
 | `MANAGEMENTPORTAL_FRONTEND_CLIENT_SECRET`                   | None, you need to override this                     | OAuth client secret for the frontend                                                                                                                                                                                                        |
 | `MANAGEMENTPORTAL_FRONTEND_ACCESS_TOKEN_VALIDITY_SECONDS`   | `14400`                                             | Frontend access token validity period in seconds                                                                                                                                                                                            |
 | `MANAGEMENTPORTAL_FRONTEND_REFRESH_TOKEN_VALIDITY_SECONDS`  | `259200`                                            | Frontend refresh token validity period in seconds                                                                                                                                                                                           |
-| `MANAGEMENTPORTAL_OAUTH_REQUIREAAL2`                        | `true`                                              | Whether to require AAL2 (2-FA or equivalent) level authentication for access to the managementportal.                                                                                                                                       |
+| `MANAGEMENTPORTAL_OAUTH_REQUIREAAL2`                        | `false`                                              | Whether to require AAL2 (2-FA or equivalent) level authentication for access to the managementportal.                                                                                                                                       |
 | `MANAGEMENTPORTAL_OAUTH_CLIENTS_FILE`                       | `/mp-includes/config/oauth_client_details.csv`      | Location of the OAuth clients file                                                                                                                                                                                                          |
 | `MANAGEMENTPORTAL_OAUTH_KEY_STORE_PASSWORD`                 | `radarbase`                                         | Password for the JWT keystore                                                                                                                                                                                                               |
 | `MANAGEMENTPORTAL_OAUTH_SIGNING_KEY_ALIAS`                  | `radarbase-managementportal-ec`                     | Alias in the keystore of the keypair to use for signing                                                                                                                                                                                     |
@@ -283,7 +283,8 @@ auto-refreshes when files change on your hard drive.
     ./gradlew
     yarn start
 
-Then open <http://localhost:8081/> to start the interface and sign in with the email linked to the admin account (defined in the configuration file under `adminEmail`).
+Then open <http://localhost:8081/> to start the interface and sign in with the email linked to the admin account (defined in the configuration file under `adminEmail`)
+Note that auto-refresh only works if you visit localhost:8081, NOT if you visit localhost:8081/managementportal
 
 ### Managing dependencies
 
