@@ -109,13 +109,20 @@ class IdentityService(
         }
     }
 
+    public suspend fun updateKratosIdentityMetadata(identity: KratosSessionDTO.Identity, user: User): KratosSessionDTO.Identity? {
+        val newIdentity = identity.copy(
+            metadata_public = getIdentityMetadata(user)
+        )
+        return updateAssociatedIdentity(newIdentity)
+    }
+
     /**
      * Convert a [User] to a [KratosSessionDTO.Identity] object.
      * @param user The object to convert
      * @return the newly created DTO object
      */
     @Throws(IdpException::class)
-    public fun createIdentityMetadata(user: User): KratosSessionDTO.Metadata {
+    public fun getIdentityMetadata(user: User): KratosSessionDTO.Metadata {
         try {
                 return KratosSessionDTO.Metadata(
                     aud = emptyList(),

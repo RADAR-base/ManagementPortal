@@ -113,6 +113,16 @@ class SubjectService(
         return subjectMapper.subjectToSubjectReducedProjectDTO(subjectRepository.save(subject))
     }
 
+    fun createSubject(
+        id: String,
+        projectDto: ProjectDTO
+    ): SubjectDTO? {
+        return createSubject(SubjectDTO().apply {
+            login = id
+            project = projectDto
+        })
+    }
+
     private fun getSubjectGroup(project: Project?, groupName: String?): Group? {
         return if (project == null || groupName == null) {
             null
