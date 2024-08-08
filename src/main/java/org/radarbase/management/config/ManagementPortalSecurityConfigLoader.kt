@@ -67,9 +67,6 @@ class ManagementPortalSecurityConfigLoader {
         try {
             if (!isAdminIdCreated && managementPortalProperties?.identityServer?.serverUrl != null && managementPortalProperties.identityServer.adminEmail != null) {
                 logger.info("Overriding admin email to ${managementPortalProperties.identityServer.adminEmail}")
-                val dto: UserDTO =
-                    runBlocking { userService!!.addAdminEmail(managementPortalProperties.identityServer.adminEmail) }
-                runBlocking { userService?.updateUser(dto) }
                 isAdminIdCreated = true
             } else if (!isAdminIdCreated) {
                 logger.warn("AdminEmail property is left empty, thus no admin identity could be created.")
