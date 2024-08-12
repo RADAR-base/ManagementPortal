@@ -48,6 +48,7 @@ import java.util.function.Consumer
 import java.util.function.Function
 import java.util.function.Predicate
 import javax.annotation.Nonnull
+import org.radarbase.management.service.dto.SubjectDTO.SubjectStatus
 
 /**
  * Created by nivethika on 26-5-17.
@@ -76,7 +77,7 @@ class SubjectService(
      * @return the newly created subject
      */
     @Transactional
-    fun createSubject(subjectDto: SubjectDTO): SubjectDTO? {
+    fun createSubject(subjectDto: SubjectDTO, activated: Boolean? = true): SubjectDTO? {
         val subject = subjectMapper.subjectDTOToSubject(subjectDto) ?: throw NullPointerException()
         //assign roles
         val user = subject.user
@@ -95,7 +96,7 @@ class SubjectService(
         user.langKey = "en"
         user.resetDate = ZonedDateTime.now()
         // default subject is activated.
-        user.activated = true
+        user.activated = activated!!
         //set if any devices are set as assigned
         if (subject.sources.isNotEmpty()) {
             subject.sources.forEach(Consumer { s: Source ->
@@ -107,9 +108,6 @@ class SubjectService(
             subject.enrollmentDate = ZonedDateTime.now()
         }
         sourceRepository.saveAll(subject.sources)
-        log.info("Created subject")
-        log.info(subject.toString())
-        log.info(subject.user!!.toString())
         return subjectMapper.subjectToSubjectReducedProjectDTO(subjectRepository.save(subject))
     }
 
@@ -120,7 +118,7 @@ class SubjectService(
         return createSubject(SubjectDTO().apply {
             login = id
             project = projectDto
-        })
+        }, activated = false)
     }
 
     private fun getSubjectGroup(project: Project?, groupName: String?): Group? {
@@ -185,6 +183,12 @@ class SubjectService(
         return subjectMapper.subjectToSubjectReducedProjectDTO(
             subjectRepository.save(subjectFromDb)
         )
+    }
+
+    fun activateSubject(login: String): SubjectDTO? {
+        val subject = findOneByLogin(login)
+        subject.user!!.activated = true
+        return subjectMapper.subjectToSubjectReducedProjectDTO(subjectRepository.save(subject))
     }
 
     private fun updateParticipantRoles(subject: Subject, subjectDto: SubjectDTO): MutableSet<Role> {

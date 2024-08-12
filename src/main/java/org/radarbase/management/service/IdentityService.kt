@@ -23,6 +23,8 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Duration
+import org.radarbase.management.service.dto.UserDTO
+import org.radarbase.management.service.dto.RoleDTO
 
 /**
  * Service class for managing identities.
@@ -109,7 +111,7 @@ class IdentityService(
         }
     }
 
-    public suspend fun updateKratosIdentityMetadata(identity: KratosSessionDTO.Identity, user: User): KratosSessionDTO.Identity? {
+    public suspend fun updateIdentityMetadataWithRoles(identity: KratosSessionDTO.Identity, user: UserDTO): KratosSessionDTO.Identity? {
         val newIdentity = identity.copy(
             metadata_public = getIdentityMetadata(user)
         )
@@ -122,25 +124,23 @@ class IdentityService(
      * @return the newly created DTO object
      */
     @Throws(IdpException::class)
-    public fun getIdentityMetadata(user: User): KratosSessionDTO.Metadata {
+    public fun getIdentityMetadata(user: UserDTO): KratosSessionDTO.Metadata {
         try {
                 return KratosSessionDTO.Metadata(
                     aud = emptyList(),
                     sources = emptyList(), //empty at the time of creation
-                    roles = user.roles.mapNotNull { role: Role ->
-                        val auth = role.authority?.name
-                        when (role.role?.scope) {
-                            RoleAuthority.Scope.GLOBAL -> auth
-                            RoleAuthority.Scope.ORGANIZATION -> role.organization!!.name + ":" + auth
-                            RoleAuthority.Scope.PROJECT -> role.project!!.projectName + ":" + auth
-                            null -> null
+                    roles = user.roles.orEmpty().mapNotNull { role ->
+                        val auth = role.authorityName
+                        when {
+                            role.projectName != null -> "${role.projectName}:$auth"
+                            role.organizationName != null -> "${role.organizationName}:$auth"
+                            else -> auth
                         }
                     }.toList(),
-                    authorities = user.authorities,
+                    authorities = user.authorities.orEmpty(),
                     scope = Permission.scopes().filter { scope ->
                         val permission = Permission.ofScope(scope)
-                        val auths = user.roles.mapNotNull { it.role }
-
+                        val auths = user.roles?.map { RoleAuthority.valueOfAuthority(it.authorityName!!) } ?: emptyList()
                         return@filter authService.mayBeGranted(auths, permission)
                     },
                     mp_login = user.login

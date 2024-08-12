@@ -1,8 +1,8 @@
 package org.radarbase.management.web.rest
 
 import io.micrometer.core.annotation.Timed
-import org.radarbase.auth.kratos.SessionService
 import org.radarbase.auth.kratos.KratosSessionDTO
+import org.radarbase.auth.kratos.SessionService
 import org.radarbase.management.config.ManagementPortalProperties
 import org.radarbase.management.repository.SubjectRepository
 import org.radarbase.management.security.NotAuthorizedException
@@ -10,8 +10,8 @@ import org.radarbase.management.service.*
 import org.radarbase.management.service.dto.KratosSubjectWebhookDTO
 import org.radarbase.management.service.dto.SubjectDTO
 import org.radarbase.management.service.mapper.SubjectMapper
-import org.radarbase.management.web.rest.errors.BadRequestException
 import org.radarbase.management.web.rest.errors.EntityName
+import org.radarbase.management.web.rest.errors.NotFoundException
 import org.radarbase.management.web.rest.util.HeaderUtil
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -27,7 +27,7 @@ class KratosEndpoint
         @Autowired private val subjectService: SubjectService,
         @Autowired private val subjectRepository: SubjectRepository,
         @Autowired private val projectService: ProjectService,
-        @Autowired private val authService: AuthService,
+        @Autowired private val userService: UserService,
         @Autowired private val identityService: IdentityService,
         @Autowired private val managementPortalProperties: ManagementPortalProperties,
         @Autowired private val subjectMapper: SubjectMapper,
@@ -45,33 +45,55 @@ class KratosEndpoint
         @PostMapping("/subjects")
         @Timed
         @Throws(URISyntaxException::class, NotAuthorizedException::class)
-        suspend fun createSubject(@RequestBody webhookDTO: KratosSubjectWebhookDTO): ResponseEntity<SubjectDTO> {
-            val id = webhookDTO.identity_id!!
-            val projectId = webhookDTO.project_id!!
-            if (projectId == null) {
-                throw NotAuthorizedException("Cannot create subject without project") 
-            }
-            val token = webhookDTO.session_token!!
-            val kratosIdentity = sessionService.getSession(token).identity
+        suspend fun createSubject(
+            @RequestBody webhookDTO: KratosSubjectWebhookDTO,
+        ): ResponseEntity<Void> {
+            val kratosIdentity = webhookDTO.identity ?: throw IllegalArgumentException("Identity is required")
+            val id = kratosIdentity.id ?: throw IllegalArgumentException("Identity ID is required")
+            val projectId =
+                webhookDTO.payload?.get("project_id")
+                    ?: throw NotAuthorizedException("Cannot create subject without project")
+            val projectDto =
+                projectService.findOneByName(projectId)
+                    ?: throw NotFoundException("Project not found: $projectId", EntityName.PROJECT, "projectNotFound")
+            val subjectDto =
+                subjectService.createSubject(id, projectDto)
+                    ?: throw IllegalStateException("Failed to create subject for ID: $id")
+            val user =
+                userService.getUserWithAuthoritiesByLogin(subjectDto.login!!)
+                    ?: throw NotFoundException("User not found with login: ${subjectDto.login}", EntityName.USER, "userNotFound")
 
-            if (!hasPermission(kratosIdentity, id)) {
-                throw NotAuthorizedException("Not authorized to create subject")
-            }
-
-            val projectDto = projectService.findOneByName(projectId)
-            val subjectDto = subjectService.createSubject(id, projectDto)
-            val user = subjectMapper.subjectDTOToSubject(subjectDto)?.user
-            val identityDto = identityService.updateKratosIdentityMetadata(kratosIdentity, user!!)
-
+            identityService.updateIdentityMetadataWithRoles(kratosIdentity, user)
             return ResponseEntity
-                .created(ResourceUriService.getUri(subjectDto!!))
+                .created(ResourceUriService.getUri(subjectDto))
                 .headers(HeaderUtil.createEntityCreationAlert(EntityName.SUBJECT, id))
-                .body(subjectDto)
+                .build()
         }
 
-        private fun hasPermission(kratosIdentity: KratosSessionDTO.Identity, identityId: String?): Boolean {
-            return kratosIdentity.id == identityId
+        @PostMapping("/subjects/activate")
+        @Timed
+        @Throws(URISyntaxException::class, NotAuthorizedException::class)
+        suspend fun activateSubject(
+            @RequestBody webhookDTO: KratosSubjectWebhookDTO,
+        ): ResponseEntity<Void> {
+            val id = webhookDTO.identity?.id ?: throw IllegalArgumentException("Subject ID is required")
+            val token = webhookDTO.cookies?.get("ory_kratos_session")
+                ?: throw IllegalArgumentException("Session token is required")
+            val kratosIdentity = sessionService.getSession(token).identity
+            if (!hasPermission(kratosIdentity, id)) {
+                throw NotAuthorizedException("Not authorized to activate subject")
+            }
+            subjectService.activateSubject(id)
+            return ResponseEntity
+                .ok()
+                .headers(HeaderUtil.createEntityUpdateAlert(EntityName.SUBJECT, id))
+                .build()
         }
+
+        private fun hasPermission(
+            kratosIdentity: KratosSessionDTO.Identity,
+            identityId: String?,
+        ): Boolean = kratosIdentity.id == identityId
 
         companion object {
             private val logger = LoggerFactory.getLogger(KratosEndpoint::class.java)

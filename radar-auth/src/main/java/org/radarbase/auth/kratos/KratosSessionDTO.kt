@@ -70,12 +70,12 @@ class KratosSessionDTO(
 
     @Serializable
     class Metadata (
-        val roles: List<String>,
-        val authorities: Set<String>,
-        val scope: List<String>,
-        val sources: List<String>,
-        val aud: List<String>,
-        val mp_login: String?
+        val roles: List<String> = emptyList(),
+        val authorities: Set<String> = emptySet(),
+        val scope: List<String> = emptyList(),
+        val sources: List<String> = emptyList(),
+        val aud: List<String> = emptyList(),
+        val mp_login: String? = null,
     )
 
     fun toDataRadarToken() : DataRadarToken {

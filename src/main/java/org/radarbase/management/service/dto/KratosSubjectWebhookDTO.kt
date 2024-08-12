@@ -7,22 +7,20 @@ import java.io.Serializable
 import java.time.LocalDate
 import java.time.ZonedDateTime
 import java.util.*
+import org.radarbase.auth.kratos.KratosSessionDTO
 
 /**
  * A DTO for the Subject entity.
  */
 class KratosSubjectWebhookDTO : Serializable {
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    var identity_id: String? = null
+    var identity: KratosSessionDTO.Identity? = null
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    var flow_id: String? = null
+    var payload: Map<String, String>? = null
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    var session_token: String? = null
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    var project_id: String? = null
+    var cookies: Map<String, String>? = null
 
     companion object {
         private const val serialVersionUID = 1L
