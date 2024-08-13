@@ -22,10 +22,10 @@ services:
       - db
       - default
 
-  kratos-selfservice-ui-node:
+  radar-self-enrolment-ui:
     extends:
       file: ../ory_stack.yml
-      service: kratos-selfservice-ui-node
+      service: radar-self-enrolment-ui
     networks:
       - ory
       - default
@@ -60,3 +60,26 @@ services:
     networks:
       - ory
       - default
+
+  postgresd-hydra:
+    extends:
+      file: ../ory_stack.yml
+      service: postgresd-hydra
+    networks:
+      - ory
+
+  hydra-migrate:
+    extends:
+      file: ../ory_stack.yml
+      service: hydra-migrate
+    networks:
+      - ory
+
+  hydra:
+    extends:
+      file: ../ory_stack.yml
+      service: hydra
+    networks:
+      - ory
+      - default
+
