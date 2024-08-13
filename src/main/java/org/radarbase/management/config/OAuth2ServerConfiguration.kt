@@ -129,6 +129,7 @@ class OAuth2ServerConfiguration(
                 .skipUrlPattern(HttpMethod.GET, "/management/health")
                 .skipUrlPattern(HttpMethod.POST, "/oauth/token")
                 .skipUrlPattern(HttpMethod.GET, "/api/meta-token/*")
+                .skipUrlPattern(HttpMethod.GET, "/api/public/projects")
                 .skipUrlPattern(HttpMethod.GET, "/api/sitesettings")
                 .skipUrlPattern(HttpMethod.GET, "/api/redirect/**")
                 .skipUrlPattern(HttpMethod.GET, "/api/kratos/**")
@@ -174,6 +175,7 @@ class OAuth2ServerConfiguration(
                 .hasAnyAuthority(RoleAuthority.SYS_ADMIN_AUTHORITY)
                 .antMatchers("/api/profile-info").permitAll()
                 .antMatchers("/api/sitesettings").permitAll()
+                .antMatchers("/api/public/projects").permitAll()
                 .antMatchers("/api/logout-url").permitAll()
                 .antMatchers("/api/**")
                 .authenticated() // Allow management/health endpoint to all to allow kubernetes to be able to
