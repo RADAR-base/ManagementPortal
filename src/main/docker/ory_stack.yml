@@ -1,5 +1,8 @@
 version: '3.8'
 
+volumes:
+  pgdata:
+
 services:
     radar-self-enrolment-ui:
         image:
@@ -21,7 +24,7 @@ services:
         - "4434:4434" # admin, should be closed in production
       restart: unless-stopped
       environment:
-        - DSN=postgres://kratos:secret@postgresd-kratos/kratos?sslmode=disable&max_conns=20&max_idle_conns=4
+        - DSN=postgres://ory:secret@postgresd-ory/kratos?sslmode=disable&max_conns=20&max_idle_conns=4
         - SELFSERVICE_FLOWS_REGISTRATION_AFTER_PASSWORD_HOOKS_0_HOOK=web_hook
         - SELFSERVICE_FLOWS_REGISTRATION_AFTER_PASSWORD_HOOKS_0_CONFIG_METHOD=POST
         - SELFSERVICE_FLOWS_REGISTRATION_AFTER_PASSWORD_HOOKS_0_CONFIG_URL=http://managementportal-app:8080/managementportal/api/kratos/subjects
@@ -42,7 +45,7 @@ services:
         image:
             oryd/kratos:v1.0.0
         environment:
-            - DSN=postgres://kratos:secret@postgresd-kratos/kratos?sslmode=disable&max_conns=20&max_idle_conns=4
+            - DSN=postgres://ory:secret@postgresd-ory/kratos?sslmode=disable&max_conns=20&max_idle_conns=4
         volumes:
             - type: bind
               source: ./etc/config/kratos
@@ -50,12 +53,15 @@ services:
         command: -c /etc/config/kratos/kratos.yml migrate sql -e --yes
         restart: on-failure
 
-    postgresd-kratos:
+    postgresd-ory:
         image: postgres:11.8
         environment:
-            - POSTGRES_USER=kratos
+            - POSTGRES_USER=ory
             - POSTGRES_PASSWORD=secret
-            - POSTGRES_DB=kratos
+            - POSTGRES_MULTIPLE_DATABASES=kratos,hydra
+        volumes:
+            - pgdata:/var/lib/postgresql/data
+            - ./etc/postgres/init-user-db.sh:/docker-entrypoint-initdb.d/init-user-db.sh
 
     mailslurper:
         image: oryd/mailslurper:latest-smtps
@@ -66,7 +72,7 @@ services:
     hydra-migrate:
         image: oryd/hydra:v2.2.0
         environment:
-          - DSN=postgres://hydra:secret@postgresd-hydra/hydra?sslmode=disable&max_conns=20&max_idle_conns=4
+          - DSN=postgres://ory:secret@postgresd-ory/hydra?sslmode=disable&max_conns=20&max_idle_conns=4
         command: migrate sql -e --yes
         restart: on-failure
 
@@ -82,7 +88,7 @@ services:
           serve all --dev
         restart: on-failure # TODO figure out why we need this (incorporate health check into hydra migrate command?)
         environment:
-          - DSN=postgres://hydra:secret@postgresd-hydra/hydra?sslmode=disable&max_conns=20&max_idle_conns=4
+          - DSN=postgres://ory:secret@postgresd-ory/hydra?sslmode=disable&max_conns=20&max_idle_conns=4
           - LOG_LEAK_SENSITIVE_VALUES=true
           - URLS_SELF_ISSUER=http://localhost:4444
           - URLS_SELF_PUBLIC=http://localhost:4444
@@ -99,10 +105,3 @@ services:
           - SERVE_ADMIN_CORS_ENABLED=true
           - OAUTH2_ALLOWED_TOP_LEVEL_CLAIMS=scope,roles,authorities,sources,user_name
           - OAUTH2_MIRROR_TOP_LEVEL_CLAIMS=false
-
-    postgresd-hydra:
-        image: postgres:11.8
-        environment:
-          - POSTGRES_USER=hydra
-          - POSTGRES_PASSWORD=secret
-          - POSTGRES_DB=hydra
