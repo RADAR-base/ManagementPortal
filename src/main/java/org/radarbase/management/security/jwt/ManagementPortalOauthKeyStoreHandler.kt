@@ -7,7 +7,6 @@ import org.radarbase.auth.authentication.TokenValidator
 import org.radarbase.auth.jwks.JsonWebKeySet
 import org.radarbase.auth.jwks.JwkAlgorithmParser
 import org.radarbase.auth.jwks.JwksTokenVerifierLoader
-import org.radarbase.auth.kratos.KratosTokenVerifierLoader
 import org.radarbase.management.config.ManagementPortalProperties
 import org.radarbase.management.config.ManagementPortalProperties.Oauth
 import org.radarbase.management.security.jwt.ManagementPortalJwtAccessTokenConverter.Companion.RES_MANAGEMENT_PORTAL
@@ -52,7 +51,6 @@ class ManagementPortalOauthKeyStoreHandler @Autowired constructor(
     private val oauthConfig: Oauth
     private val verifierPublicKeyAliasList: List<String>
     private val managementPortalBaseUrl: String
-    private val authServerUrl: String
     val verifiers: MutableList<JWTVerifier>
     val refreshTokenVerifiers: MutableList<JWTVerifier>
 
@@ -80,7 +78,6 @@ class ManagementPortalOauthKeyStoreHandler @Autowired constructor(
         // No need to check audience with a refresh token: it can be used
         // to refresh tokens intended for other resources.
         refreshTokenVerifiers = algorithms.map { algo: Algorithm -> JWT.require(algo).build() }.toMutableList()
-        authServerUrl = managementPortalProperties.authServer.serverAdminUrl
         tokenValidator.refresh()
     }
 
@@ -231,11 +228,13 @@ class ManagementPortalOauthKeyStoreHandler @Autowired constructor(
                     RES_MANAGEMENT_PORTAL,
                     JwkAlgorithmParser()
                 ),
-                JwksTokenVerifierLoader(
-                    authServerUrl + "/admin/keys/hydra.jwt.access-token",
-                    RES_MANAGEMENT_PORTAL,
-                    JwkAlgorithmParser()
-                ),
+                managementPortalProperties.authServer.let {
+                    JwksTokenVerifierLoader(
+                        it.serverAdminUrl + "/admin/keys/hydra.jwt.access-token",
+                        RES_MANAGEMENT_PORTAL,
+                        JwkAlgorithmParser()
+                    )
+                },
             )
             return TokenValidator(loaderList)
         }
