@@ -10,7 +10,7 @@ services:
             - ORY_SDK_URL=http://kratos:4433/
             - HYDRA_ADMIN_URL=http://hydra:4445
         ports:
-            - "3000:4455"
+            - "3000:3000"
         volumes:
             - /tmp/ui-node/logs:/root/.npm/_logs
 
