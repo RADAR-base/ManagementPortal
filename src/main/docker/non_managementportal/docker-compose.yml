@@ -13,6 +13,9 @@ networks:
     driver: bridge
     internal: true
 
+volumes:
+    pgdata:
+
 services:
   managementportal-postgresql:
     extends:
@@ -46,10 +49,10 @@ services:
     networks:
       - ory
 
-  postgresd-kratos:
+  postgresd-ory:
     extends:
       file: ../ory_stack.yml
-      service: postgresd-kratos
+      service: postgresd-ory
     networks:
       - ory
 
@@ -60,13 +63,6 @@ services:
     networks:
       - ory
       - default
-
-  postgresd-hydra:
-    extends:
-      file: ../ory_stack.yml
-      service: postgresd-hydra
-    networks:
-      - ory
 
   hydra-migrate:
     extends:
