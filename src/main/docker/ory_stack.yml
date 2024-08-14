@@ -5,8 +5,7 @@ volumes:
 
 services:
     radar-self-enrolment-ui:
-        image:
-            mpgxvii/radar-self-enrolment-ui:latest
+        image: ghcr.io/radar-base/radar-self-enrolment-ui:dev
         environment:
             - ORY_SDK_URL=http://kratos:4433/
             - HYDRA_ADMIN_URL=http://hydra:4445
