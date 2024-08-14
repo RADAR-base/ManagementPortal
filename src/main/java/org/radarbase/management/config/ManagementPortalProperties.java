@@ -196,7 +196,7 @@ public class ManagementPortalProperties {
 
     public static class Oauth {
 
-        private Boolean requireAal2 = true;
+        private Boolean requireAal2 = false;
 
         private String clientsFile;
 
@@ -279,9 +279,9 @@ public class ManagementPortalProperties {
 
     public static class IdentityServer {
         private String serverUrl = null;
-
         private String serverAdminUrl = null;
         private String adminEmail = null;
+        private String loginUrl = null;
 
         public String getServerUrl() {
             return serverUrl;
@@ -313,6 +313,14 @@ public class ManagementPortalProperties {
 
         public void setServerAdminUrl(String serverAdminUrl) {
             this.serverAdminUrl = serverAdminUrl;
+        }
+
+        public String getLoginUrl() {
+            return loginUrl;
+        }
+
+        public void setLoginUrl(String loginUrl) {
+            this.loginUrl = loginUrl;
         }
     }
 

@@ -127,6 +127,8 @@ Desktop.ini
 # Directories
 ######################
 /bin/
+/bin/**
+**/bin/**
 /deploy/
 .jhipster/
 

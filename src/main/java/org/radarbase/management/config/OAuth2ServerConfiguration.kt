@@ -1,5 +1,7 @@
 package org.radarbase.management.config
 
+import java.util.*
+import javax.sql.DataSource
 import org.radarbase.auth.authorization.RoleAuthority
 import org.radarbase.management.repository.UserRepository
 import org.radarbase.management.security.ClaimsTokenEnhancer
@@ -47,8 +49,6 @@ import org.springframework.security.oauth2.provider.token.TokenEnhancerChain
 import org.springframework.security.oauth2.provider.token.TokenStore
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler
-import java.util.*
-import javax.sql.DataSource
 
 @Configuration
 class OAuth2ServerConfiguration(
@@ -129,7 +129,9 @@ class OAuth2ServerConfiguration(
                 .skipUrlPattern(HttpMethod.GET, "/management/health")
                 .skipUrlPattern(HttpMethod.POST, "/oauth/token")
                 .skipUrlPattern(HttpMethod.GET, "/api/meta-token/*")
+                .skipUrlPattern(HttpMethod.GET, "/api/public/projects")
                 .skipUrlPattern(HttpMethod.GET, "/api/sitesettings")
+                .skipUrlPattern(HttpMethod.GET, "/api/redirect/**")
                 .skipUrlPattern(HttpMethod.GET, "/api/logout-url")
                 .skipUrlPattern(HttpMethod.GET, "/oauth2/authorize")
                 .skipUrlPattern(HttpMethod.GET, "/images/**")
@@ -172,6 +174,7 @@ class OAuth2ServerConfiguration(
                 .hasAnyAuthority(RoleAuthority.SYS_ADMIN_AUTHORITY)
                 .antMatchers("/api/profile-info").permitAll()
                 .antMatchers("/api/sitesettings").permitAll()
+                .antMatchers("/api/public/projects").permitAll()
                 .antMatchers("/api/logout-url").permitAll()
                 .antMatchers("/api/**")
                 .authenticated() // Allow management/health endpoint to all to allow kubernetes to be able to
