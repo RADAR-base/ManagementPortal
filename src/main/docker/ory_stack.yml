@@ -1,18 +1,14 @@
 version: '3.8'
 
+volumes:
+  pgdata:
+
 services:
-    kratos-selfservice-ui-node:
-        image:
-            oryd/kratos-selfservice-ui-node
+    radar-self-enrolment-ui:
+        image: ghcr.io/radar-base/radar-self-enrolment-ui:feat-consent-module
         environment:
-            - LOG_LEAK_SENSITIVE_VALUES=true
-            - KRATOS_PUBLIC_URL=http://kratos:4433
-            - KRATOS_ADMIN_URL=http://kratos:4434
-            - SECURITY_MODE=standalone
-            - KRATOS_BROWSER_URL=http://127.0.0.1:4433
-            - COOKIE_SECRET=unsafe_cookie_secret
-            - CSRF_COOKIE_NAME=radar
-            - CSRF_COOKIE_SECRET=unsafe_csrf_cookie_secret
+            - ORY_SDK_URL=http://kratos:4433/
+            - HYDRA_ADMIN_URL=http://hydra:4445
         ports:
             - "3000:3000"
         volumes:
@@ -28,6 +24,16 @@ services:
       restart: unless-stopped
       environment:
         - DSN=postgres://kratos:secret@postgresd-kratos/kratos?sslmode=disable&max_conns=20&max_idle_conns=4
+        - SELFSERVICE_FLOWS_REGISTRATION_AFTER_PASSWORD_HOOKS_0_HOOK=web_hook
+        - SELFSERVICE_FLOWS_REGISTRATION_AFTER_PASSWORD_HOOKS_0_CONFIG_METHOD=POST
+        - SELFSERVICE_FLOWS_REGISTRATION_AFTER_PASSWORD_HOOKS_0_CONFIG_URL=http://managementportal:8080/managementportal/api/kratos/subjects
+        - SELFSERVICE_FLOWS_REGISTRATION_AFTER_PASSWORD_HOOKS_0_CONFIG_BODY=/etc/config/kratos/webhook_body.jsonnet
+        - SELFSERVICE_FLOWS_REGISTRATION_AFTER_PASSWORD_HOOKS_0_CONFIG_RESPONSE_IGNORE=true
+        - SELFSERVICE_FLOWS_REGISTRATION_AFTER_PASSWORD_HOOKS_1_HOOK=session
+        - SELFSERVICE_FLOWS_VERIFICATION_AFTER_HOOKS_0_HOOK=web_hook
+        - SELFSERVICE_FLOWS_VERIFICATION_AFTER_HOOKS_0_CONFIG_METHOD=POST
+        - SELFSERVICE_FLOWS_VERIFICATION_AFTER_HOOKS_0_CONFIG_URL=http://managementportal:8080/managementportal/api/kratos/subjects/activate
+        - SELFSERVICE_FLOWS_VERIFICATION_AFTER_HOOKS_0_CONFIG_BODY=/etc/config/kratos/webhook_body.jsonnet
       command: serve -c /etc/config/kratos/kratos.yml --dev --watch-courier
       volumes:
         - type: bind
@@ -38,7 +44,7 @@ services:
         image:
             oryd/kratos:v1.0.0
         environment:
-            - DSN=postgres://kratos:secret@postgresd-kratos/kratos?sslmode=disable&max_conns=20&max_idle_conns=4
+            - DSN=postgres://ory:secret@postgresd-ory/kratos?sslmode=disable&max_conns=20&max_idle_conns=4
         volumes:
             - type: bind
               source: ./etc/config/kratos
@@ -46,15 +52,55 @@ services:
         command: -c /etc/config/kratos/kratos.yml migrate sql -e --yes
         restart: on-failure
 
-    postgresd-kratos:
+    postgresd-ory:
         image: postgres:11.8
         environment:
-            - POSTGRES_USER=kratos
+            - POSTGRES_USER=ory
             - POSTGRES_PASSWORD=secret
-            - POSTGRES_DB=kratos
+            - POSTGRES_MULTIPLE_DATABASES=kratos,hydra
+        volumes:
+            - pgdata:/var/lib/postgresql/data
+            - ./etc/postgres/init-user-db.sh:/docker-entrypoint-initdb.d/init-user-db.sh
 
     mailslurper:
         image: oryd/mailslurper:latest-smtps
         ports:
             - "4436:4436"
             - "4437:4437"
+
+    hydra-migrate:
+        image: oryd/hydra:v2.2.0
+        environment:
+          - DSN=postgres://ory:secret@postgresd-ory/hydra?sslmode=disable&max_conns=20&max_idle_conns=4
+        command: migrate sql -e --yes
+        restart: on-failure
+
+    hydra:
+        image: oryd/hydra:v2.2.0
+        depends_on:
+          - hydra-migrate
+        ports:
+          - "4444:4444" # Public port
+          - "4445:4445" # Admin port
+          - "5555:5555" # Port for hydra token user
+        command:
+          serve all --dev
+        restart: on-failure # TODO figure out why we need this (incorporate health check into hydra migrate command?)
+        environment:
+          - DSN=postgres://ory:secret@postgresd-ory/hydra?sslmode=disable&max_conns=20&max_idle_conns=4
+          - LOG_LEAK_SENSITIVE_VALUES=true
+          - URLS_SELF_ISSUER=http://localhost:4444
+          - URLS_SELF_PUBLIC=http://localhost:4444
+          - URLS_CONSENT=http://localhost:3000/consent
+          - URLS_LOGIN=http://localhost:3000/login
+          - URLS_LOGOUT=http://localhost:3000/logout
+          - URLS_IDENTITY_PROVIDER_PUBLICURL=http://localhost:4433
+          - URLS_IDENTITY_PROVIDER_URL=http://localhost:4434
+          - SECRETS_SYSTEM=youReallyNeedToChangeThis
+          - OIDC_SUBJECT_IDENTIFIERS_SUPPORTED_TYPES=public,pairwise
+          - OIDC_SUBJECT_IDENTIFIERS_PAIRWISE_SALT=youReallyNeedToChangeThis
+          - STRATEGIES_ACCESS_TOKEN=jwt
+          - SERVE_PUBLIC_CORS_ENABLED=true
+          - SERVE_ADMIN_CORS_ENABLED=true
+          - OAUTH2_ALLOWED_TOP_LEVEL_CLAIMS=scope,roles,authorities,sources,user_name
+          - OAUTH2_MIRROR_TOP_LEVEL_CLAIMS=false
