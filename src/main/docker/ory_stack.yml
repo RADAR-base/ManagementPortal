@@ -23,17 +23,17 @@ services:
         - "4434:4434" # admin, should be closed in production
       restart: unless-stopped
       environment:
-        - DSN=postgres://ory:secret@postgresd-ory/kratos?sslmode=disable&max_conns=20&max_idle_conns=4
+        - DSN=postgres://kratos:secret@postgresd-kratos/kratos?sslmode=disable&max_conns=20&max_idle_conns=4
         - SELFSERVICE_FLOWS_REGISTRATION_AFTER_PASSWORD_HOOKS_0_HOOK=web_hook
         - SELFSERVICE_FLOWS_REGISTRATION_AFTER_PASSWORD_HOOKS_0_CONFIG_METHOD=POST
-        - SELFSERVICE_FLOWS_REGISTRATION_AFTER_PASSWORD_HOOKS_0_CONFIG_URL=http://managementportal-app:8080/managementportal/api/kratos/subjects
-        - SELFSERVICE_FLOWS_REGISTRATION_AFTER_PASSWORD_HOOKS_0_CONFIG_BODY=file:///etc/config/kratos/webhook_body.jsonnet
+        - SELFSERVICE_FLOWS_REGISTRATION_AFTER_PASSWORD_HOOKS_0_CONFIG_URL=http://managementportal:8080/managementportal/api/kratos/subjects
+        - SELFSERVICE_FLOWS_REGISTRATION_AFTER_PASSWORD_HOOKS_0_CONFIG_BODY=/etc/config/kratos/webhook_body.jsonnet
         - SELFSERVICE_FLOWS_REGISTRATION_AFTER_PASSWORD_HOOKS_0_CONFIG_RESPONSE_IGNORE=true
         - SELFSERVICE_FLOWS_REGISTRATION_AFTER_PASSWORD_HOOKS_1_HOOK=session
         - SELFSERVICE_FLOWS_VERIFICATION_AFTER_HOOKS_0_HOOK=web_hook
         - SELFSERVICE_FLOWS_VERIFICATION_AFTER_HOOKS_0_CONFIG_METHOD=POST
-        - SELFSERVICE_FLOWS_VERIFICATION_AFTER_HOOKS_0_CONFIG_URL=http://managementportal-app:8080/managementportal/api/kratos/subjects/activate
-        - SELFSERVICE_FLOWS_VERIFICATION_AFTER_HOOKS_0_CONFIG_BODY=file:///etc/config/kratos/webhook_body.jsonnet
+        - SELFSERVICE_FLOWS_VERIFICATION_AFTER_HOOKS_0_CONFIG_URL=http://managementportal:8080/managementportal/api/kratos/subjects/activate
+        - SELFSERVICE_FLOWS_VERIFICATION_AFTER_HOOKS_0_CONFIG_BODY=/etc/config/kratos/webhook_body.jsonnet
       command: serve -c /etc/config/kratos/kratos.yml --dev --watch-courier
       volumes:
         - type: bind
