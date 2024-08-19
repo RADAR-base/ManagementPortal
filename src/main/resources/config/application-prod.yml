@@ -105,8 +105,9 @@ managementportal:
     serverAdminUrl: http://kratos-admin
     loginUrl: http://localhost:3000
   authServer:
-    serverUrl: http://localhost:4444
-    serverAdminUrl: http://localhost:4445
+    serverUrl: http://hydra:4444
+    serverAdminUrl: http://hydra:4445
+    loginUrl:  http://localhost:4444
 
 # ===================================================================
 # JHipster specific properties

@@ -6,7 +6,6 @@ import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
-import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
@@ -68,7 +67,7 @@ class LoginEndpoint
         }
 
         private fun buildAuthUrl(config: ManagementPortalProperties, mpUrl: String): String {
-            return "${config.authServer.serverUrl}/oauth2/auth?" +
+            return "${config.authServer.loginUrl}/oauth2/auth?" +
                     "client_id=${config.frontend.clientId}&" +
                     "response_type=code&" +
                     "state=${Instant.now()}&" +
@@ -104,9 +103,5 @@ class LoginEndpoint
             } else {
                 throw IdpException("Unable to get access token")
             }
-        }
-
-        companion object {
-            private val logger = LoggerFactory.getLogger(LoginEndpoint::class.java)
         }
     }

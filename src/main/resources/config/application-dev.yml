@@ -123,6 +123,7 @@ managementportal:
     authServer:
         serverUrl: http://localhost:4444
         serverAdminUrl: http://localhost:4445
+        loginUrl:  http://localhost:4444
 
 
 # ===================================================================
