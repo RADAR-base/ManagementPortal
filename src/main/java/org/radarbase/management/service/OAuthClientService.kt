@@ -28,7 +28,7 @@ import java.util.*
  * The service layer to handle OAuthClient and Token related functions.
  * Created by nivethika on 03/08/2018.
  */
-@Service
+//@Service
 class OAuthClientService(
     @Autowired private val clientDetailsService: JdbcClientDetailsService,
     @Autowired private val clientDetailsMapper: ClientDetailsMapper,

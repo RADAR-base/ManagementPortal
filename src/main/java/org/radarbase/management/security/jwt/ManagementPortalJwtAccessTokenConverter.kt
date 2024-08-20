@@ -36,9 +36,9 @@ import org.radarbase.auth.exception.TokenValidationException
  */
 open class ManagementPortalJwtAccessTokenConverter(
     validator: TokenValidator,
-    algorithm: Algorithm,
-    verifiers: MutableList<JWTVerifier>,
-    private val refreshTokenVerifiers: List<JWTVerifier>
+//    algorithm: Algorithm,
+//    verifiers: MutableList<JWTVerifier>,
+//    private val refreshTokenVerifiers: List<JWTVerifier>
 ) : JwtAccessTokenConverter {
     private val jsonParser = ObjectMapper().readerFor(
         MutableMap::class.java
@@ -63,7 +63,7 @@ open class ManagementPortalJwtAccessTokenConverter(
         }
     private var algorithm: Algorithm? = null
     private var validator: TokenValidator
-    private val verifiers: MutableList<JWTVerifier>
+    //private val verifiers: MutableList<JWTVerifier>
 
     /**
      * Default constructor.
@@ -75,9 +75,9 @@ open class ManagementPortalJwtAccessTokenConverter(
         val accessToken = DefaultAccessTokenConverter()
         accessToken.setIncludeGrantType(true)
         tokenConverter = accessToken
-        this.verifiers = verifiers
+        //this.verifiers = verifiers
         this.validator = validator
-        setAlgorithm(algorithm)
+        //setAlgorithm(algorithm)
     }
 
     override fun convertAccessToken(
@@ -102,9 +102,9 @@ open class ManagementPortalJwtAccessTokenConverter(
 
     override fun setAlgorithm(algorithm: Algorithm) {
         this.algorithm = algorithm
-        if (verifiers.isEmpty()) {
-            verifiers.add(JWT.require(algorithm).withAudience(RES_MANAGEMENT_PORTAL).build())
-        }
+//        if (verifiers.isEmpty()) {
+//            verifiers.add(JWT.require(algorithm).withAudience(RES_MANAGEMENT_PORTAL).build())
+//        }
     }
 
     /**
@@ -212,7 +212,7 @@ open class ManagementPortalJwtAccessTokenConverter(
 
     override fun decode(token: String): Map<String, Any> {
         val jwt = JWT.decode(token)
-        val verifierToUse: List<JWTVerifier>
+//        val verifierToUse: List<JWTVerifier>
         val claims: MutableMap<String, Any>
         try {
             val decodedPayload = String(
@@ -227,18 +227,18 @@ open class ManagementPortalJwtAccessTokenConverter(
             if (jwtClaimsSetVerifier != null) {
                 jwtClaimsSetVerifier!!.verify(claims)
             }
-            verifierToUse =
-                if (claims[JwtAccessTokenConverter.ACCESS_TOKEN_ID] != null) refreshTokenVerifiers else verifiers
+//            verifierToUse =
+//                if (claims[JwtAccessTokenConverter.ACCESS_TOKEN_ID] != null) refreshTokenVerifiers else verifiers
         } catch (ex: JsonProcessingException) {
             throw InvalidTokenException("Invalid token", ex)
         }
         try {
             validator.validateBlocking(token)
-            Companion.logger.debug("Using token from header")
+            logger.debug("Using token from header")
             return claims
         } catch (ex: TokenValidationException) {
             ex.message?.let {
-                Companion.logger.info("Failed to validate token from header: {}", it)
+                logger.info("Failed to validate token from header: {}", it)
             }
         }
         throw InvalidTokenException("No registered validator could authenticate this token")

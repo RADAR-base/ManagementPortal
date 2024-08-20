@@ -1,8 +1,13 @@
 package org.radarbase.management.config
 
+import com.auth0.jwt.JWT
+import org.radarbase.auth.authentication.TokenValidator
 import java.util.*
 import javax.sql.DataSource
 import org.radarbase.auth.authorization.RoleAuthority
+import org.radarbase.auth.jwks.JwkAlgorithmParser
+import org.radarbase.auth.jwks.JwksTokenVerifierLoader
+import org.radarbase.auth.jwt.JwtTokenVerifier
 import org.radarbase.management.repository.UserRepository
 import org.radarbase.management.security.ClaimsTokenEnhancer
 import org.radarbase.management.security.Http401UnauthorizedEntryPoint
@@ -53,9 +58,8 @@ import org.springframework.security.web.authentication.logout.LogoutSuccessHandl
 @Configuration
 class OAuth2ServerConfiguration(
     @Autowired private val dataSource: DataSource,
-    @Autowired private val passwordEncoder: PasswordEncoder
+    @Autowired private val passwordEncoder: PasswordEncoder,
 ) {
-
     @Configuration
     @Order(-20)
     protected class LoginConfig(
@@ -91,12 +95,25 @@ class OAuth2ServerConfiguration(
     class JwtAuthenticationFilterConfiguration(
         @Autowired private val authenticationManager: AuthenticationManager,
         @Autowired private val userRepository: UserRepository,
-        @Autowired private val keyStoreHandler: ManagementPortalOauthKeyStoreHandler
+        @Autowired private val managementPortalProperties: ManagementPortalProperties,
+        //@Autowired private val keyStoreHandler: ManagementPortalOauthKeyStoreHandler
     ) {
+        val tokenValidator: TokenValidator
+            /** Get the default token validator.  */
+            get() {
+                val loaderList = listOf(
+                    JwksTokenVerifierLoader(
+                        managementPortalProperties.authServer.serverAdminUrl + "/admin/keys/hydra.jwt.access-token",
+                        ManagementPortalJwtAccessTokenConverter.RES_MANAGEMENT_PORTAL,
+                        JwkAlgorithmParser()
+                    ),
+                )
+                return TokenValidator(loaderList)
+            }
         @Bean
         fun jwtAuthenticationFilter(): JwtAuthenticationFilter {
             return JwtAuthenticationFilter(
-                keyStoreHandler.tokenValidator,
+                tokenValidator,
                 authenticationManager,
                 userRepository,
                 true
@@ -114,17 +131,32 @@ class OAuth2ServerConfiguration(
     @Configuration
     @EnableResourceServer
     protected class ResourceServerConfiguration(
-        @Autowired private val keyStoreHandler: ManagementPortalOauthKeyStoreHandler,
-        @Autowired private val tokenStore: TokenStore,
+        //@Autowired private val keyStoreHandler: ManagementPortalOauthKeyStoreHandler,
+        //@Autowired private val tokenStore: TokenStore,
+        @Autowired private val managementPortalProperties: ManagementPortalProperties,
         @Autowired private val http401UnauthorizedEntryPoint: Http401UnauthorizedEntryPoint,
         @Autowired private val logoutSuccessHandler: LogoutSuccessHandler,
         @Autowired private val authenticationManager: AuthenticationManager,
         @Autowired private val userRepository: UserRepository
     ) : ResourceServerConfigurerAdapter() {
+        val tokenValidator: TokenValidator
+            /** Get the default token validator.  */
+            get() {
+                val loaderList = listOf(
+                    JwksTokenVerifierLoader(
+                        managementPortalProperties.authServer.serverAdminUrl + "/admin/keys/hydra.jwt.access-token",
+                        ManagementPortalJwtAccessTokenConverter.RES_MANAGEMENT_PORTAL,
+                        JwkAlgorithmParser()
+                    ),
+                )
+                return TokenValidator(loaderList).apply {
+                    refresh()
+                }
+            }
 
         fun jwtAuthenticationFilter(): JwtAuthenticationFilter {
             return JwtAuthenticationFilter(
-                keyStoreHandler.tokenValidator, authenticationManager, userRepository
+                tokenValidator, authenticationManager, userRepository
             )
                 .skipUrlPattern(HttpMethod.GET, "/management/health")
                 .skipUrlPattern(HttpMethod.POST, "/oauth/token")
@@ -192,7 +224,7 @@ class OAuth2ServerConfiguration(
         @Throws(Exception::class)
         override fun configure(resources: ResourceServerSecurityConfigurer) {
             resources.resourceId("res_ManagementPortal")
-                .tokenStore(tokenStore)
+                //.tokenStore(tokenStore)
                 .eventPublisher(CustomEventPublisher())
         }
 
@@ -212,64 +244,79 @@ class OAuth2ServerConfiguration(
         @Autowired @Qualifier("authenticationManagerBean") private val authenticationManager: AuthenticationManager,
         @Autowired private val dataSource: DataSource,
         @Autowired private val jdbcClientDetailsService: JdbcClientDetailsService,
-        @Autowired private val keyStoreHandler: ManagementPortalOauthKeyStoreHandler
+        @Autowired private val managementPortalProperties: ManagementPortalProperties,
+        //@Autowired private val keyStoreHandler: ManagementPortalOauthKeyStoreHandler
     ) : AuthorizationServerConfigurerAdapter() {
 
-        @Bean
-        protected fun authorizationCodeServices(): AuthorizationCodeServices {
-            return JdbcAuthorizationCodeServices(dataSource)
+        val tokenValidator: TokenValidator
+            get() {
+                val loaderList = listOf(
+                    JwksTokenVerifierLoader(
+                        managementPortalProperties.authServer.serverAdminUrl + "/admin/keys/hydra.jwt.access-token",
+                        ManagementPortalJwtAccessTokenConverter.RES_MANAGEMENT_PORTAL,
+                        JwkAlgorithmParser()
+                    ),
+                )
+                return TokenValidator(loaderList).apply {
+                    refresh()
+                }
         }
 
-        @Bean
-        fun approvalStore(): ApprovalStore {
-            return if (jpaProperties.database == Database.POSTGRESQL) {
-                PostgresApprovalStore(dataSource)
-            } else {
-                // to have compatibility for other databases including H2
-                JdbcApprovalStore(dataSource)
-            }
-        }
+//        @Bean
+//        protected fun authorizationCodeServices(): AuthorizationCodeServices {
+//            return JdbcAuthorizationCodeServices(dataSource)
+//        }
 
-        @Bean
-        fun tokenEnhancer(): TokenEnhancer {
-            return ClaimsTokenEnhancer()
-        }
+//        @Bean
+//        fun approvalStore(): ApprovalStore {
+//            return if (jpaProperties.database == Database.POSTGRESQL) {
+//                PostgresApprovalStore(dataSource)
+//            } else {
+//                // to have compatibility for other databases including H2
+//                JdbcApprovalStore(dataSource)
+//            }
+//        }
 
-        @Bean
-        fun tokenStore(): TokenStore {
-            return ManagementPortalJwtTokenStore(accessTokenConverter())
-        }
+//        @Bean
+//        fun tokenEnhancer(): TokenEnhancer {
+//            return ClaimsTokenEnhancer()
+//        }
+
+//        @Bean
+//        fun tokenStore(): TokenStore {
+//            return ManagementPortalJwtTokenStore(accessTokenConverter())
+//        }
 
         @Bean
         fun accessTokenConverter(): ManagementPortalJwtAccessTokenConverter {
             logger.debug("loading token converter from keystore configurations")
             return ManagementPortalJwtAccessTokenConverter(
-                keyStoreHandler.tokenValidator,
-                keyStoreHandler.algorithmForSigning,
-                keyStoreHandler.verifiers,
-                keyStoreHandler.refreshTokenVerifiers
+                tokenValidator,
+//                JWT.require(JwtTokenVerifier.DEFAULT_ALGORITHM)
+//                    .build(),
+//                keyStoreHandler.refreshTokenVerifiers
             )
         }
 
-        @Bean
-        @Primary
-        fun tokenServices(tokenStore: TokenStore?): DefaultTokenServices {
-            val defaultTokenServices = DefaultTokenServices()
-            defaultTokenServices.setTokenStore(tokenStore)
-            defaultTokenServices.setSupportRefreshToken(true)
-            defaultTokenServices.setReuseRefreshToken(false)
-            return defaultTokenServices
-        }
+//        @Bean
+//        @Primary
+//        fun tokenServices(tokenStore: TokenStore?): DefaultTokenServices {
+//            val defaultTokenServices = DefaultTokenServices()
+//            defaultTokenServices.setTokenStore(tokenStore)
+//            defaultTokenServices.setSupportRefreshToken(true)
+//            defaultTokenServices.setReuseRefreshToken(false)
+//            return defaultTokenServices
+//        }
 
         override fun configure(endpoints: AuthorizationServerEndpointsConfigurer) {
             val tokenEnhancerChain = TokenEnhancerChain()
             tokenEnhancerChain.setTokenEnhancers(
-                listOf(tokenEnhancer(), accessTokenConverter())
+                listOf(accessTokenConverter())//tokenEnhancer(), accessTokenConverter())
             )
             endpoints
-                .authorizationCodeServices(authorizationCodeServices())
-                .approvalStore(approvalStore())
-                .tokenStore(tokenStore())
+                //.authorizationCodeServices(authorizationCodeServices())
+                //.approvalStore(approvalStore())
+                //.tokenStore(tokenStore())
                 .tokenEnhancer(tokenEnhancerChain)
                 .reuseRefreshTokens(false)
                 .authenticationManager(authenticationManager)

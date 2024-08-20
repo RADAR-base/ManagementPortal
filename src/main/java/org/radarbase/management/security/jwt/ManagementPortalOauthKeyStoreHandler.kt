@@ -41,7 +41,7 @@ import kotlin.collections.Map.Entry
  * [org.springframework.security.oauth2.provider.token.store.KeyStoreKeyFactory]. However,
  * this class does not assume a specific key type, while the Spring factory assumes RSA keys.
  */
-@Component
+//@Component
 class ManagementPortalOauthKeyStoreHandler @Autowired constructor(
     environment: Environment, servletContext: ServletContext, private val managementPortalProperties: ManagementPortalProperties
 ) {
@@ -73,7 +73,7 @@ class ManagementPortalOauthKeyStoreHandler @Autowired constructor(
         logger.info("Using Management Portal base-url {}", managementPortalBaseUrl)
         val algorithms = loadAlgorithmsFromAlias().filter { obj: Algorithm? -> Objects.nonNull(obj) }.toList()
         verifiers = algorithms.map { algo: Algorithm? ->
-            JWT.require(algo).withAudience(ManagementPortalJwtAccessTokenConverter.RES_MANAGEMENT_PORTAL).build()
+            JWT.require(algo).withAudience(RES_MANAGEMENT_PORTAL).build()
         }.toMutableList()
         // No need to check audience with a refresh token: it can be used
         // to refresh tokens intended for other resources.

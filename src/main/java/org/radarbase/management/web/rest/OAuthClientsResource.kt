@@ -41,8 +41,8 @@ import javax.validation.Valid
 /**
  * Created by dverbeec on 5/09/2017.
  */
-@RestController
-@RequestMapping("/api")
+//@RestController
+//@RequestMapping("/api")
 class OAuthClientsResource(
     @Autowired private val oAuthClientService: OAuthClientService,
     @Autowired private val metaTokenService: MetaTokenService,

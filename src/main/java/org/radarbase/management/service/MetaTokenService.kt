@@ -37,8 +37,8 @@ import javax.validation.ConstraintViolationException
  * Service to delegate MetaToken handling.
  *
  */
-@Service
-@Transactional
+//@Service
+//@Transactional
 class MetaTokenService {
     @Autowired
     private val metaTokenRepository: MetaTokenRepository? = null
