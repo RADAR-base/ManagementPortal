@@ -64,6 +64,7 @@ class JwtAuthenticationFilter @JvmOverloads constructor(
         httpResponse: HttpServletResponse,
         chain: FilterChain,
     ) {
+        Companion.logger.warn("Request: {}", httpServletRequestToString(httpRequest))
         if (CorsUtils.isPreFlightRequest(httpRequest)) {
             Companion.logger.debug("Skipping JWT check for preflight request")
             chain.doFilter(httpRequest, httpResponse)
@@ -79,6 +80,7 @@ class JwtAuthenticationFilter @JvmOverloads constructor(
             var exMessage = "No token provided"
             if (stringToken != null) {
                 try {
+                    Companion.logger.warn("Validating token from header: {}", stringToken)
                     token = validator.validateBlocking(stringToken)
                     Companion.logger.debug("Using token from header")
                 } catch (ex: TokenValidationException) {
@@ -100,6 +102,33 @@ class JwtAuthenticationFilter @JvmOverloads constructor(
         chain.doFilter(httpRequest, httpResponse)
     }
 
+    private fun httpServletRequestToString(httpRequest: HttpServletRequest):String {
+        val buffer = StringBuffer()
+        buffer.append("Method: ${httpRequest.method}\n")
+        buffer.append("RequestURI: ${httpRequest.requestURI}\n")
+        buffer.append("QueryString: ${httpRequest.queryString}\n")
+        buffer.append("RequestURL: ${httpRequest.requestURL}\n")
+        buffer.append("Protocol: ${httpRequest.protocol}\n")
+        buffer.append("Scheme: ${httpRequest.scheme}\n")
+        buffer.append("ServerName: ${httpRequest.serverName}\n")
+        buffer.append("ServerPort: ${httpRequest.serverPort}\n")
+        buffer.append("RemoteAddr: ${httpRequest.remoteAddr}\n")
+        buffer.append("RemoteHost: ${httpRequest.remoteHost}\n")
+        buffer.append("RemotePort: ${httpRequest.remotePort}\n")
+        buffer.append("LocalAddr: ${httpRequest.localAddr}\n")
+        buffer.append("LocalName: ${httpRequest.localName}\n")
+        buffer.append("LocalPort: ${httpRequest.localPort}\n")
+        buffer.append("AuthType: ${httpRequest.authType}\n")
+        buffer.append("ContentType: ${httpRequest.contentType}\n")
+        buffer.append("ContentLength: ${httpRequest.contentLength}\n")
+        buffer.append("CharacterEncoding: ${httpRequest.characterEncoding}\n")
+        buffer.append("Cookies: ${httpRequest.cookies}\n")
+        buffer.append("Headers: ${httpRequest.headerNames.toList().map { it to httpRequest.getHeaders(it).toList() }}\n")
+        buffer.append("Attributes: ${httpRequest.attributeNames.toList().map { it to httpRequest.getAttribute(it) }}\n")
+        buffer.append("Parameters: ${httpRequest.parameterMap.toList().map { it.first to it.second.toList() }}\n")
+        return buffer.toString()
+    }
+
     override fun shouldNotFilter(@Nonnull httpRequest: HttpServletRequest): Boolean {
         val shouldNotFilterUrl = ignoreUrls.find { it.matches(httpRequest) }
         return if (shouldNotFilterUrl != null) {
@@ -111,6 +140,7 @@ class JwtAuthenticationFilter @JvmOverloads constructor(
     }
 
     private fun tokenFromHeader(httpRequest: HttpServletRequest): String? {
+        Companion.logger.warn("Token from header: {}", httpRequest.getHeader(HttpHeaders.AUTHORIZATION))
         return httpRequest.getHeader(HttpHeaders.AUTHORIZATION)
             ?.takeIf { it.startsWith(AUTHORIZATION_BEARER_HEADER) }
             ?.removePrefix(AUTHORIZATION_BEARER_HEADER)
@@ -185,6 +215,7 @@ class JwtAuthenticationFilter @JvmOverloads constructor(
         private val logger = LoggerFactory.getLogger(JwtAuthenticationFilter::class.java)
         private const val AUTHORIZATION_BEARER_HEADER = "Bearer"
         private const val TOKEN_ATTRIBUTE = "jwt"
+        private const val TOKEN_COOKIE_NAME = "ory_kratos_session"
 
         /**
          * Authority references for given user. The user should have its roles mapped

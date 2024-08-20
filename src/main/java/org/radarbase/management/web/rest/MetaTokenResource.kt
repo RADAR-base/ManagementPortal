@@ -20,8 +20,8 @@ import org.springframework.web.bind.annotation.RestController
 import java.net.MalformedURLException
 import java.time.Duration
 
-@RestController
-@RequestMapping("/api")
+//@RestController
+//@RequestMapping("/api")
 class MetaTokenResource {
     @Autowired
     private val metaTokenService: MetaTokenService? = null
