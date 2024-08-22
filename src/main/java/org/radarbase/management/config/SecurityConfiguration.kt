@@ -75,7 +75,7 @@ class SecurityConfiguration
 
         @Bean
         fun jwtAuthenticationFilter(): JwtAuthenticationFilter =
-            JwtAuthenticationFilter(tokenValidator, authenticationManager(), userRepository)
+            JwtAuthenticationFilter(tokenValidator, authenticationManager())
                 .skipUrlPattern(HttpMethod.GET, "/management/health")
                 .skipUrlPattern(HttpMethod.POST, "/oauth/token")
                 .skipUrlPattern(HttpMethod.GET, "/api/meta-token/*")

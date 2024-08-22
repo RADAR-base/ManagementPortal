@@ -128,7 +128,7 @@ object OAuthHelper {
         Mockito.`when`(userRepository.findOneByLogin(ArgumentMatchers.anyString())).thenReturn(
             createAdminUser()
         )
-        return JwtAuthenticationFilter(createTokenValidator(), { auth: Authentication? -> auth }, userRepository)
+        return JwtAuthenticationFilter(createTokenValidator(), { auth: Authentication? -> auth })
     }
 
     /**
