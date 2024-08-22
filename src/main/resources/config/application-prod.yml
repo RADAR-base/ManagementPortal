@@ -89,7 +89,7 @@ managementportal:
     from: ManagementPortal@localhost
   frontend:
     clientId: ManagementPortalapp
-    clientSecret:
+    clientSecret: secret
     accessTokenValiditySeconds: 14400
     refreshTokenValiditySeconds: 259200
     sessionTimeout: 86400
