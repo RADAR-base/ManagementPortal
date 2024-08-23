@@ -159,11 +159,12 @@ dependencies {
     implementation("io.ktor:ktor-client-cio")
     implementation("io.ktor:ktor-client-content-negotiation")
     implementation("io.ktor:ktor-serialization-kotlinx-json")
-    runtimeOnly "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
-    implementation "com.fasterxml.jackson.datatype:jackson-datatype-hibernate5"
-    implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-csv"
+    implementation("com.fasterxml.jackson.core:jackson-core:${jackson_version}")
+    runtimeOnly("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jackson_version}")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-hibernate5:${jackson_version}")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv:${jackson_version}")
     implementation "com.fasterxml.jackson.core:jackson-annotations"
-    implementation "com.fasterxml.jackson.core:jackson-databind"
+    implementation("com.fasterxml.jackson.core:jackson-databind:${jackson_version}")
     implementation "com.hazelcast:hazelcast:${hazelcast_version}"
     implementation "com.hazelcast:hazelcast-spring:${hazelcast_version}"
     runtimeOnly "com.hazelcast:hazelcast-hibernate53:${hazelcast_hibernate_version}"
