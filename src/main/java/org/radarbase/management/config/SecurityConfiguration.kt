@@ -134,6 +134,9 @@ class SecurityConfiguration
                 )
                 .authorizeRequests()
                 .anyRequest().authenticated()
+                .and()
+                .logout().invalidateHttpSession(true)
+                .logoutUrl("/api/logout")
         }
 
         @Bean
