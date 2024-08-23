@@ -31,8 +31,8 @@ class JwtAuthenticationFilter(
     private val ignoreUrls: MutableList<AntPathRequestMatcher> = mutableListOf()
 
     fun skipUrlPattern(method: HttpMethod, vararg antPatterns: String?): JwtAuthenticationFilter {
-        antPatterns.forEach { pattern ->
-            pattern?.let { ignoreUrls.add(AntPathRequestMatcher(it, method.name)) }
+        for (pattern in antPatterns) {
+            ignoreUrls.add(AntPathRequestMatcher(pattern, method.name))
         }
         return this
     }
@@ -41,86 +41,57 @@ class JwtAuthenticationFilter(
     override fun doFilterInternal(
             httpRequest: HttpServletRequest,
             httpResponse: HttpServletResponse,
-            chain: FilterChain,
+            chain: FilterChain
     ) {
-        logger.debug("Processing request: ${httpRequest.requestURI}")
+        try {
+            if (CorsUtils.isPreFlightRequest(httpRequest)) {
+                logger.debug("Skipping JWT check for ${httpRequest.requestURI}")
+                chain.doFilter(httpRequest, httpResponse)
+                return
+            }
+            val stringToken = tokenFromHeader(httpRequest)
+            var token: RadarToken? = null
+            var exMessage = "No token provided"
 
-        if (CorsUtils.isPreFlightRequest(httpRequest)) {
-            logger.debug("Skipping JWT check for preflight request")
+            if (stringToken != null) {
+                try {
+                    logger.warn("Validating token from header: $stringToken")
+                    token = validator.validateBlocking(stringToken)
+                    val authentication = createAuthenticationFromToken(token)
+                    SecurityContextHolder.getContext().authentication = authentication
+                    logger.debug("JWT authentication successful")
+                } catch (ex: TokenValidationException) {
+                    exMessage = ex.message ?: exMessage
+                    logger.info("Failed to validate token from header: $exMessage")
+                }
+            }
+
+            if (token == null) {
+                val existingAuthentication = SecurityContextHolder.getContext().authentication
+                if (existingAuthentication != null &&
+                                existingAuthentication.isAuthenticated &&
+                                !existingAuthentication.isAnonymous
+                ) {
+                    logger.info("Existing authentication found: ${existingAuthentication}")
+                    chain.doFilter(httpRequest, httpResponse)
+                    return
+                }
+
+                val session = httpRequest.getSession(false)
+                token = session?.radarToken?.takeIf { Instant.now() < it.expiresAt }
+                if (token != null) {
+                    logger.debug("Using token from session")
+                    val authentication = createAuthenticationFromToken(token)
+                    SecurityContextHolder.getContext().authentication = authentication
+                }
+            }
+
+            if (!validateToken(token, httpRequest, httpResponse)) {
+                return
+            }
             chain.doFilter(httpRequest, httpResponse)
-            return
-        }
-
-        val existingAuthentication = SecurityContextHolder.getContext().authentication
-        val stringToken = tokenFromHeader(httpRequest)
-        var token: RadarToken? = null
-
-        if (stringToken != null) {
-            token = validateTokenFromHeader(stringToken, httpRequest)
-        }
-
-        if (token == null && existingAuthentication.isAnonymous) {
-            token = validateTokenFromSession(httpRequest.session)
-        }
-
-        if (!validateAndSetAuthentication(token, httpRequest, httpResponse)) {
-            return
-        }
-
-        chain.doFilter(httpRequest, httpResponse)
-    }
-
-    private fun validateTokenFromHeader(
-            tokenString: String,
-            httpRequest: HttpServletRequest
-    ): RadarToken? {
-        return try {
-            logger.debug("Validating token from header: ${tokenString}")
-            val token = validator.validateBlocking(tokenString)
-            val authentication = createAuthenticationFromToken(token)
-            SecurityContextHolder.getContext().authentication = authentication
-            logger.debug("JWT authentication successful")
-            token
-        } catch (ex: TokenValidationException) {
-            logger.warn("Token validation failed: ${ex.message}")
-            null
-        }
-    }
-
-    private fun validateTokenFromSession(session: HttpSession?): RadarToken? {
-        val token = session?.radarToken?.takeIf { Instant.now() < it.expiresAt }
-        if (token != null) {
-            logger.debug("Using token from session")
-            val authentication = createAuthenticationFromToken(token)
-            SecurityContextHolder.getContext().authentication = authentication
-        }
-        return token
-    }
-
-    private fun validateAndSetAuthentication(
-            token: RadarToken?,
-            httpRequest: HttpServletRequest,
-            httpResponse: HttpServletResponse
-    ): Boolean {
-        return if (token != null) {
-            httpRequest.radarToken = token
-            val authentication = createAuthenticationFromToken(token)
-            SecurityContextHolder.getContext().authentication = authentication
-            true
-        } else {
-            handleUnauthorized(httpRequest, httpResponse, "No valid token provided")
-            false
-        }
-    }
-
-    private fun handleUnauthorized(
-            httpRequest: HttpServletRequest,
-            httpResponse: HttpServletResponse,
-            message: String
-    ) {
-        if (!isOptional) {
-            logger.error("Unauthorized - ${message}")
-            httpResponse.returnUnauthorized(httpRequest, message)
+        } finally {
+            SecurityContextHolder.clearContext()
         }
     }
 
@@ -130,10 +101,12 @@ class JwtAuthenticationFilter(
     }
 
     override fun shouldNotFilter(@Nonnull httpRequest: HttpServletRequest): Boolean {
-        return ignoreUrls.any { it.matches(httpRequest) }.also { shouldSkip ->
-            if (shouldSkip) {
-                logger.debug("Skipping JWT check for ${httpRequest.requestURL}")
-            }
+        val shouldNotFilterUrl = ignoreUrls.find { it.matches(httpRequest) }
+        return if (shouldNotFilterUrl != null) {
+            logger.debug("Skipping JWT check for ${httpRequest.requestURI}")
+            true
+        } else {
+            false
         }
     }
 
@@ -142,29 +115,46 @@ class JwtAuthenticationFilter(
                 .getHeader(HttpHeaders.AUTHORIZATION)
                 ?.takeIf { it.startsWith(AUTHORIZATION_BEARER_HEADER) }
                 ?.removePrefix(AUTHORIZATION_BEARER_HEADER)
-                ?.trim()
+                ?.trim { it <= ' ' }
+    }
+
+    private fun validateToken(
+            token: RadarToken?,
+            httpRequest: HttpServletRequest,
+            httpResponse: HttpServletResponse,
+    ): Boolean {
+        return if (token != null) {
+            httpRequest.radarToken = token
+            val authentication = RadarAuthentication(token)
+            authenticationManager.authenticate(authentication)
+            SecurityContextHolder.getContext().authentication = authentication
+            true
+        } else if (isOptional) {
+            logger.debug("Skipping optional token check for ${httpRequest.requestURI}")
+            true
+        } else {
+            logger.error("Unauthorized - no valid token provided for ${httpRequest.requestURI}")
+            httpResponse.returnUnauthorized(httpRequest)
+            false
+        }
     }
 
     companion object {
-        private val logger = LoggerFactory.getLogger(JwtAuthenticationFilter::class.java)
-        private const val AUTHORIZATION_BEARER_HEADER = "Bearer"
-        private const val TOKEN_ATTRIBUTE = "jwt"
-
-        private fun HttpServletResponse.returnUnauthorized(
-                request: HttpServletRequest,
-                message: String?
-        ) {
+        private fun HttpServletResponse.returnUnauthorized(request: HttpServletRequest) {
             status = HttpServletResponse.SC_UNAUTHORIZED
             setHeader(HttpHeaders.WWW_AUTHENTICATE, AUTHORIZATION_BEARER_HEADER)
             outputStream.print(
                     """
                 {"error": "Unauthorized",
                 "status": "${HttpServletResponse.SC_UNAUTHORIZED}",
-                "message": "${message ?: "null"}",
                 "path": "${request.requestURI}"}
-                """.trimIndent()
+            """.trimIndent()
             )
         }
+
+        private val logger = LoggerFactory.getLogger(JwtAuthenticationFilter::class.java)
+        private const val AUTHORIZATION_BEARER_HEADER = "Bearer"
+        private const val TOKEN_ATTRIBUTE = "jwt"
 
         var HttpSession.radarToken: RadarToken?
             get() = getAttribute(TOKEN_ATTRIBUTE) as RadarToken?

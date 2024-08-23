@@ -76,6 +76,9 @@ class SecurityConfiguration
         @Bean
         fun jwtAuthenticationFilter(): JwtAuthenticationFilter =
             JwtAuthenticationFilter(tokenValidator, authenticationManager())
+                .skipUrlPattern(HttpMethod.GET, "/")
+                .skipUrlPattern(HttpMethod.GET, "/*.{js,ico,css,html}")
+                .skipUrlPattern(HttpMethod.GET, "/i18n/**")
                 .skipUrlPattern(HttpMethod.GET, "/management/health")
                 .skipUrlPattern(HttpMethod.POST, "/oauth/token")
                 .skipUrlPattern(HttpMethod.GET, "/api/meta-token/*")
@@ -103,10 +106,10 @@ class SecurityConfiguration
                 .antMatchers("/api-docs/**")
                 .antMatchers("/swagger-ui.html")
                 .antMatchers("/api-docs{,.json,.yml}")
-                .antMatchers("/api/login")
                 .antMatchers("/api/logout-url")
                 .antMatchers("/api/profile-info")
                 .antMatchers("/api/activate")
+                .antMatchers("/api/sitesettings")
                 .antMatchers("/api/redirect/**")
                 .antMatchers("/api/account/reset_password/init")
                 .antMatchers("/api/account/reset_password/finish")
