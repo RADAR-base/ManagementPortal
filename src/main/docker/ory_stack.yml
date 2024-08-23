@@ -23,7 +23,7 @@ services:
         - "4434:4434" # admin, should be closed in production
       restart: unless-stopped
       environment:
-        - DSN=postgres://kratos:secret@postgresd-kratos/kratos?sslmode=disable&max_conns=20&max_idle_conns=4
+        - DSN=postgres://ory:secret@postgresd-ory/kratos?sslmode=disable&max_conns=20&max_idle_conns=4
         - SELFSERVICE_FLOWS_REGISTRATION_AFTER_PASSWORD_HOOKS_0_HOOK=web_hook
         - SELFSERVICE_FLOWS_REGISTRATION_AFTER_PASSWORD_HOOKS_0_CONFIG_METHOD=POST
         - SELFSERVICE_FLOWS_REGISTRATION_AFTER_PASSWORD_HOOKS_0_CONFIG_URL=http://managementportal:8080/managementportal/api/kratos/subjects
