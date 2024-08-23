@@ -170,6 +170,18 @@ dependencies {
     implementation("tech.jhipster:jhipster-framework:${jhipster_server_version}")
     implementation("tech.jhipster:jhipster-dependencies:${jhipster_server_version}")
     implementation("io.micrometer:micrometer-core:${micrometer_version}")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:$coroutines_version")
+    implementation(platform("io.ktor:ktor-bom:$ktor_version"))
+    implementation("io.ktor:ktor-client-core")
+    implementation("io.ktor:ktor-client-cio")
+    implementation("io.ktor:ktor-client-content-negotiation")
+    implementation("io.ktor:ktor-serialization-kotlinx-json")
+    implementation("com.fasterxml.jackson.core:jackson-core:${jackson_version}")
+    runtimeOnly("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jackson_version}")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-hibernate5:${jackson_version}")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv:${jackson_version}")
+    implementation "com.fasterxml.jackson.core:jackson-annotations"
+    implementation("com.fasterxml.jackson.core:jackson-databind:${jackson_version}")
     implementation "com.hazelcast:hazelcast:${hazelcast_version}"
     implementation "com.hazelcast:hazelcast-spring:${hazelcast_version}"
     runtimeOnly "com.hazelcast:hazelcast-hibernate53:${hazelcast_hibernate_version}"
@@ -181,7 +193,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-autoconfigure")
     implementation "org.springframework.boot:spring-boot-starter-mail"
     runtimeOnly "org.springframework.boot:spring-boot-starter-logging"
-    runtimeOnly ("org.springframework.boot:spring-boot-starter-data-jpa") {
+    runtimeOnly("org.springframework.boot:spring-boot-starter-data-jpa") {
         exclude group: 'org.hibernate', module: 'hibernate-entitymanager'
     }
     implementation "org.springframework.security:spring-security-data"
@@ -190,7 +202,7 @@ dependencies {
         exclude module: 'spring-boot-starter-tomcat'
     }
     runtimeOnly "org.springframework.boot:spring-boot-starter-security"
-    implementation ("org.springframework.boot:spring-boot-starter-undertow")
+    implementation("org.springframework.boot:spring-boot-starter-undertow")
 
     implementation "org.hibernate:hibernate-core"
     implementation "org.hibernate:hibernate-envers"
