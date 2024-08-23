@@ -156,10 +156,14 @@ class JwtAuthenticationFilter(
         private const val AUTHORIZATION_BEARER_HEADER = "Bearer"
         private const val TOKEN_ATTRIBUTE = "jwt"
 
+        @get:JvmStatic
+        @set:JvmStatic
         var HttpSession.radarToken: RadarToken?
             get() = getAttribute(TOKEN_ATTRIBUTE) as RadarToken?
             set(value) = setAttribute(TOKEN_ATTRIBUTE, value)
 
+        @get:JvmStatic
+        @set:JvmStatic
         var HttpServletRequest.radarToken: RadarToken?
             get() = getAttribute(TOKEN_ATTRIBUTE) as RadarToken?
             set(value) = setAttribute(TOKEN_ATTRIBUTE, value)
