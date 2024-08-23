@@ -5,7 +5,7 @@ import org.radarbase.auth.jwks.JwkAlgorithmParser
 import org.radarbase.auth.jwks.JwksTokenVerifierLoader
 import org.radarbase.management.repository.UserRepository
 import org.radarbase.management.security.Http401UnauthorizedEntryPoint
-import org.radarbase.management.security.JwtAuthenticationFilter // Make sure to import this
+import org.radarbase.management.security.JwtAuthenticationFilter
 import org.radarbase.management.security.RadarAuthenticationProvider
 import org.springframework.beans.factory.BeanInitializationException
 import org.springframework.beans.factory.annotation.Autowired
