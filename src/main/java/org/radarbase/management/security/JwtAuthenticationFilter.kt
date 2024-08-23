@@ -72,7 +72,6 @@ class JwtAuthenticationFilter(
                                 existingAuthentication.isAuthenticated &&
                                 !existingAuthentication.isAnonymous
                 ) {
-                    logger.info("Existing authentication found: ${existingAuthentication}")
                     chain.doFilter(httpRequest, httpResponse)
                     return
                 }
