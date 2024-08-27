@@ -15,7 +15,6 @@ export class ErrorComponent implements OnInit, OnDestroy {
     error403: boolean;
     modalRef: NgbModalRef;
     private routeSubscription: Subscription;
-    private loginUrl = 'oauth/login';
 
     constructor(
             private loginModalService: LoginModalService,
@@ -35,6 +34,6 @@ export class ErrorComponent implements OnInit, OnDestroy {
     }
 
     login() {
-        window.location.href =  this.loginUrl;
+        window.location.href =  '';
     }
 }
