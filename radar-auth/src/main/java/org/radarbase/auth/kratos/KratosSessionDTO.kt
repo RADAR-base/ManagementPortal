@@ -46,14 +46,14 @@ class KratosSessionDTO(
 
     @Serializable
     class Identity(
-        val id: String? = null,
+        var id: String? = null,
         val schema_id: String? = null,
         val schema_url: String? = null,
         val state: String? = null,
         @Serializable(with = InstantSerializer::class)
         val state_changed_at: Instant? = null,
         val traits: Traits? = null,
-        val metadata_public: Metadata? = null,
+        var metadata_public: Metadata? = null,
         @Serializable(with = InstantSerializer::class)
         val created_at: Instant? = null,
         @Serializable(with = InstantSerializer::class)
@@ -63,16 +63,16 @@ class KratosSessionDTO(
 
 
         fun parseRoles(): Set<AuthorityReference> = buildSet {
-            if (metadata_public?.authorities?.isNotEmpty() == true) {
-                for (roleValue in metadata_public.authorities) {
+            metadata_public?.authorities?.takeIf { it.isNotEmpty() }?.let { authorities ->
+                for (roleValue in authorities) {
                     val authority = RoleAuthority.valueOfAuthorityOrNull(roleValue)
                     if (authority?.scope == RoleAuthority.Scope.GLOBAL) {
                         add(AuthorityReference(authority))
                     }
                 }
-            }
-            if (metadata_public?.roles?.isNotEmpty() == true) {
-                for (roleValue in metadata_public.roles) {
+            } 
+            metadata_public?.roles?.takeIf { it.isNotEmpty() }?.let { roles ->
+                for (roleValue in roles) {
                     val role = RoleAuthority.valueOfAuthorityOrNull(roleValue)
                     if (role?.scope == RoleAuthority.Scope.GLOBAL) {
                         add(AuthorityReference(role))
@@ -91,12 +91,12 @@ class KratosSessionDTO(
 
     @Serializable
     class Metadata (
-        val roles: List<String>,
-        val authorities: Set<String>,
-        val scope: List<String>,
-        val sources: List<String>,
-        val aud: List<String>,
-        val mp_login: String?
+        val roles: List<String> = emptyList(),
+        val authorities: Set<String> = emptySet(),
+        val scope: List<String> = emptyList(),
+        val sources: List<String> = emptyList(),
+        val aud: List<String> = emptyList(),
+        val mp_login: String? = null,
     )
 
     fun toDataRadarToken() : DataRadarToken {
