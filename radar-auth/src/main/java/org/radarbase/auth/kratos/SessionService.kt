@@ -20,19 +20,6 @@ import java.time.Duration
  * Service class for handling Kratos sessions but may be extended in the future.
  */
 class SessionService(private val serverUrl: String) {
-    private val httpClient = HttpClient(CIO).config {
-        install(HttpTimeout) {
-            connectTimeoutMillis = Duration.ofSeconds(10).toMillis()
-            socketTimeoutMillis = Duration.ofSeconds(10).toMillis()
-            requestTimeoutMillis = Duration.ofSeconds(300).toMillis()
-        }
-        install(ContentNegotiation) {
-            json(Json {
-                ignoreUnknownKeys = true
-                coerceInputValues = true
-            })
-        }
-    }
 
     /** Get a [KratosSessionDTO] for a given session token. Returns the generated [KratosSessionDTO] */
     @Throws(IdpException::class)
@@ -93,5 +80,19 @@ class SessionService(private val serverUrl: String) {
 
     companion object {
         private val log = LoggerFactory.getLogger(SessionService::class.java)
+
+        private val httpClient = HttpClient(CIO).config {
+            install(HttpTimeout) {
+                connectTimeoutMillis = Duration.ofSeconds(10).toMillis()
+                socketTimeoutMillis = Duration.ofSeconds(10).toMillis()
+                requestTimeoutMillis = Duration.ofSeconds(300).toMillis()
+            }
+            install(ContentNegotiation) {
+                json(Json {
+                    ignoreUnknownKeys = true
+                    coerceInputValues = true
+                })
+            }
+        }
     }
 }
