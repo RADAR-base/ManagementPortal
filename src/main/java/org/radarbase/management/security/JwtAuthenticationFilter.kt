@@ -74,20 +74,18 @@ class JwtAuthenticationFilter @JvmOverloads constructor(
             val stringToken = tokenFromHeader(httpRequest)
             var token: RadarToken? = null
             var exMessage = "No token provided"
-            if (stringToken != null) {
+            token = session?.radarToken
+                ?.takeIf { Instant.now() < it.expiresAt }
+            if (token != null) {
+                Companion.logger.debug("Using token from session")
+            }
+            else if (stringToken != null) {
                 try {
                     token = validator.validateBlocking(stringToken)
                     Companion.logger.debug("Using token from header")
                 } catch (ex: TokenValidationException) {
                     ex.message?.let { exMessage = it }
                     Companion.logger.info("Failed to validate token from header: {}", exMessage)
-                }
-            }
-            if (token == null) {
-                token = session?.radarToken
-                    ?.takeIf { Instant.now() < it.expiresAt }
-                if (token != null) {
-                    Companion.logger.debug("Using token from session")
                 }
             }
             if (!validateToken(token, httpRequest, httpResponse, session, exMessage)) {
