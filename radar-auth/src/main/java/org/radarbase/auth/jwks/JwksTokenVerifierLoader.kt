@@ -52,7 +52,7 @@ class JwksTokenVerifierLoader(
 
     private suspend fun fetchPublicKeyInfo(): JsonWebKeySet = withContext(Dispatchers.IO) {
         logger.info("Getting the JWT public key at {}", url)
-        val response = httpClient.request()
+        val response = httpClient(url).request()
 
         if (!response.status.isSuccess()) {
             throw TokenValidationException("Cannot fetch token keys (${response.status}) - ${response.bodyAsText()}")
@@ -78,7 +78,7 @@ class JwksTokenVerifierLoader(
 
         private val logger = LoggerFactory.getLogger(JwksTokenVerifierLoader::class.java)
 
-        private val httpClient = HttpClient(CIO).config {
+        private fun httpClient(url: String) = HttpClient(CIO).config {
             install(HttpTimeout) {
                 connectTimeoutMillis = Duration.ofSeconds(10).toMillis()
                 socketTimeoutMillis = Duration.ofSeconds(10).toMillis()
@@ -91,7 +91,7 @@ class JwksTokenVerifierLoader(
                 })
             }
             defaultRequest {
-                url(this@JwksTokenVerifierLoader.url)
+                url(url)
                 accept(ContentType.Application.Json)
             }
         }
