@@ -34,6 +34,7 @@ services:
         - SELFSERVICE_FLOWS_VERIFICATION_AFTER_HOOKS_0_CONFIG_METHOD=POST
         - SELFSERVICE_FLOWS_VERIFICATION_AFTER_HOOKS_0_CONFIG_URL=http://managementportal:8080/managementportal/api/kratos/subjects/activate
         - SELFSERVICE_FLOWS_VERIFICATION_AFTER_HOOKS_0_CONFIG_BODY=/etc/config/kratos/webhook_body.jsonnet
+        - SELFSERVICE_FLOWS_VERIFICATION_AFTER_HOOKS_0_CONFIG_RESPONSE_IGNORE=true
       command: serve -c /etc/config/kratos/kratos.yml --dev --watch-courier
       volumes:
         - type: bind
