@@ -252,35 +252,38 @@ class IdentityService
             }
 
         /**
-         * Get a recovery link from the identity provider, which expires in 24 hours.
-         * @param user The user for whom the recovery link is requested.
-         * @return The recovery link obtained from the server response.
-         * @throws IdpException If there is an issue with the identity or if the recovery link cannot be
-         * obtained.
+         * Sends a Kratos activation email to the specified user.
          */
         @Throws(IdpException::class)
-        suspend fun getRecoveryLink(user: User): String =
+        suspend fun sendActivationEmail(user: User): String =
             withContext(Dispatchers.IO) {
-                val identityId =
-                    user.identity
-                        ?: throw IdpException(
-                            "User ${user.login} could not be recovered on the IDP. No identity was set",
-                        )
-
-                val response =
-                    httpClient.post {
-                        url("$adminUrl/admin/recovery/link")
+                val flowResponse =
+                    httpClient.get {
+                        url("$publicUrl/self-service/verification/api")
                         contentType(ContentType.Application.Json)
                         accept(ContentType.Application.Json)
-                        setBody(mapOf("expires_in" to "24h", "identity_id" to identityId))
+                    }.body<KratosSessionDTO.Verification>()
+
+                val flowId = flowResponse.id
+
+                if (flowId == null) {
+                    throw IdpException("Failed to initiate verification flow for ${user.email}")
+                }
+
+                val activationResponse =
+                    httpClient.post {
+                        url("$publicUrl/self-service/verification?flow=$flowId")
+                        contentType(ContentType.Application.Json)
+                        accept(ContentType.Application.Json)
+                        setBody(mapOf("email" to user.email, "method" to "code"))
                     }
 
-                if (response.status.isSuccess()) {
-                    response.body<Map<String, String>>()["recovery_link"]!!.also {
-                        log.debug("Recovery link for user ${user.login} is $it")
-                    }
-                } else {
-                    throw IdpException("Couldn't get recovery link from server at $adminUrl")
+                if (!activationResponse.status.isSuccess()) {
+                    throw IdpException("Failed to trigger verification email for ${user.email}")
+                }
+
+                flowId.also {
+                    log.debug("Activation email sent for user ${user.login} with flow ID $it")
                 }
             }
 

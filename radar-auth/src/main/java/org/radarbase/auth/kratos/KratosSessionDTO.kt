@@ -45,6 +45,12 @@ class KratosSessionDTO(
     )
 
     @Serializable
+    data class  Verification(
+        val id: String? = null,
+        val type: String? = null
+    )
+
+    @Serializable
     data class Identity(
         var id: String? = null,
         val schema_id: String? = null,

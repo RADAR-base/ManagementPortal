@@ -502,8 +502,8 @@ class UserService @Autowired constructor(
     }
 
     @Throws(IdpException::class)
-    suspend fun getRecoveryLink(user: User): String {
-        return identityService.getRecoveryLink(user)
+    suspend fun sendActivationEmail(user: User): String {
+        return identityService.sendActivationEmail(user)
     }
 
     companion object {
