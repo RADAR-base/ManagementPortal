@@ -169,8 +169,8 @@ class UserService @Autowired constructor(
         user.activated = true
         user.roles = getUserRoles(userDto.roles, mutableSetOf())
 
-        try{
-            user.identity = identityService.saveAsIdentity(user)?.id
+        try {
+            identityService.saveAsIdentity(user)
         }
         catch (e: Throwable) {
             log.warn("could not save user ${user.login} as identity", e)
@@ -383,8 +383,7 @@ class UserService @Autowired constructor(
 
         // there is no identity for this user, so we create it and save it to the IDP
         val id = identityService.saveAsIdentity(user)
-        // then save the identifier and update our database
-        user.identity = id?.id
+
         return userMapper.userToUserDTO(user)
             ?: throw Exception("Admin user could not be converted to DTO")
     }
