@@ -55,11 +55,11 @@ constructor(
                 throw IllegalArgumentException("Cannot create non-subject users")
 
         val id = kratosIdentity.id ?: throw IllegalArgumentException("Identity ID is required")
-        val projectId =
-                webhookDTO.payload?.get("project_id")
+        val project =
+                kratosIdentity.traits.projects?.firstOrNull()
                         ?: throw NotAuthorizedException("Cannot create subject without project")
         val projectDto =
-                projectService.findOneByName(projectId)
+                projectService.findOneByName(project.id!!)
                         ?: throw NotFoundException(
                                 "Project not found: $projectId",
                                 EntityName.PROJECT,

@@ -45,7 +45,7 @@ selfservice:
       enabled: true
       use: code
       after:
-        default_browser_return_url: http://localhost:3000/consent
+        default_browser_return_url: http://localhost:3000/study-consent
 
     logout:
       after:
