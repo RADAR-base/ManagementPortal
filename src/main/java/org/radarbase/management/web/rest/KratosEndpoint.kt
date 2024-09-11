@@ -56,12 +56,12 @@ constructor(
 
         val id = kratosIdentity.id ?: throw IllegalArgumentException("Identity ID is required")
         val project =
-                kratosIdentity.traits.projects?.firstOrNull()
+                kratosIdentity.traits!!.projects?.firstOrNull()
                         ?: throw NotAuthorizedException("Cannot create subject without project")
         val projectDto =
                 projectService.findOneByName(project.id!!)
                         ?: throw NotFoundException(
-                                "Project not found: $projectId",
+                                "Project not found: ${project.id!!}",
                                 EntityName.PROJECT,
                                 "projectNotFound"
                         )
