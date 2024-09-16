@@ -28,23 +28,6 @@ class JwksTokenVerifierLoader(
     private val resourceName: String,
     private val algorithmParser: JwkParser,
 ) : TokenVerifierLoader {
-    private val httpClient = HttpClient(CIO).config {
-        install(HttpTimeout) {
-            connectTimeoutMillis = Duration.ofSeconds(10).toMillis()
-            socketTimeoutMillis = Duration.ofSeconds(10).toMillis()
-            requestTimeoutMillis = Duration.ofSeconds(30).toMillis()
-        }
-        install(ContentNegotiation) {
-            json(Json {
-                ignoreUnknownKeys = true
-                coerceInputValues = true
-            })
-        }
-        defaultRequest {
-            url(this@JwksTokenVerifierLoader.url)
-            accept(ContentType.Application.Json)
-        }
-    }
 
     override suspend fun fetch(): List<TokenVerifier> {
         val keySet = try {
@@ -69,7 +52,7 @@ class JwksTokenVerifierLoader(
 
     private suspend fun fetchPublicKeyInfo(): JsonWebKeySet = withContext(Dispatchers.IO) {
         logger.info("Getting the JWT public key at {}", url)
-        val response = httpClient.request()
+        val response = httpClient.request(url)
 
         if (!response.status.isSuccess()) {
             throw TokenValidationException("Cannot fetch token keys (${response.status}) - ${response.bodyAsText()}")
@@ -94,5 +77,22 @@ class JwksTokenVerifierLoader(
         }
 
         private val logger = LoggerFactory.getLogger(JwksTokenVerifierLoader::class.java)
+
+        private val httpClient = HttpClient(CIO).config {
+            install(HttpTimeout) {
+                connectTimeoutMillis = Duration.ofSeconds(10).toMillis()
+                socketTimeoutMillis = Duration.ofSeconds(10).toMillis()
+                requestTimeoutMillis = Duration.ofSeconds(30).toMillis()
+            }
+            install(ContentNegotiation) {
+                json(Json {
+                    ignoreUnknownKeys = true
+                    coerceInputValues = true
+                })
+            }
+            defaultRequest {
+                accept(ContentType.Application.Json)
+            }
+        }
     }
 }

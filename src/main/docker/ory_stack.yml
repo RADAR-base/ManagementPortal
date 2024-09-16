@@ -5,7 +5,7 @@ volumes:
 
 services:
     radar-self-enrolment-ui:
-        image: ghcr.io/radar-base/radar-self-enrolment-ui:feat-consent-module
+        image: ghcr.io/radar-base/radar-self-enrolment-ui:feat-initial-components
         environment:
             - ORY_SDK_URL=http://kratos:4433/
             - HYDRA_ADMIN_URL=http://hydra:4445
@@ -34,6 +34,7 @@ services:
         - SELFSERVICE_FLOWS_VERIFICATION_AFTER_HOOKS_0_CONFIG_METHOD=POST
         - SELFSERVICE_FLOWS_VERIFICATION_AFTER_HOOKS_0_CONFIG_URL=http://managementportal:8080/managementportal/api/kratos/subjects/activate
         - SELFSERVICE_FLOWS_VERIFICATION_AFTER_HOOKS_0_CONFIG_BODY=/etc/config/kratos/webhook_body.jsonnet
+        - SELFSERVICE_FLOWS_VERIFICATION_AFTER_HOOKS_0_CONFIG_RESPONSE_IGNORE=true
       command: serve -c /etc/config/kratos/kratos.yml --dev --watch-courier
       volumes:
         - type: bind
