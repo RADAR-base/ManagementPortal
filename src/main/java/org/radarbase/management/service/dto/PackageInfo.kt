@@ -4,5 +4,6 @@
  *
  * The names of the classes in this package should end in `DTO`.
  */
-package org.radarbase.management.service.dto
+@file:Suppress("ktlint:standard:no-empty-file")
 
+package org.radarbase.management.service.dto

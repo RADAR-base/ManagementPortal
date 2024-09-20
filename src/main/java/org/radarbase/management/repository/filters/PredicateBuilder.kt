@@ -18,7 +18,9 @@ import javax.persistence.criteria.Path
 import javax.persistence.criteria.Predicate
 import javax.persistence.criteria.Root
 
-class PredicateBuilder(val criteriaBuilder: CriteriaBuilder) {
+class PredicateBuilder(
+    val criteriaBuilder: CriteriaBuilder,
+) {
     private val predicates: MutableList<Predicate>
 
     init {
@@ -40,36 +42,37 @@ class PredicateBuilder(val criteriaBuilder: CriteriaBuilder) {
     /**
      * Build the predicates as an AND predicate.
      */
-    fun toAndPredicate(): Predicate? {
-        return if (predicates.size == 1) {
+    fun toAndPredicate(): Predicate? =
+        if (predicates.size == 1) {
             predicates[0]
         } else if (predicates.isNotEmpty()) {
             criteriaBuilder.and(*predicates.toTypedArray<Predicate>())
         } else {
             null
         }
-    }
 
     /**
      * Build the predicates as an AND predicate.
      */
-    fun toOrPredicate(): Predicate? {
-        return if (predicates.size == 1) {
+    fun toOrPredicate(): Predicate? =
+        if (predicates.size == 1) {
             predicates[0]
         } else if (!predicates.isEmpty()) {
             criteriaBuilder.or(*predicates.toTypedArray<Predicate>())
         } else {
             null
         }
-    }
 
     /**
      * Add an equal criteria to predicates if value is not null or empty.
      * @param path entity path
      * @param value value to compare with
      * @param <T> type of field.
-    </T> */
-    fun <T> equal(path: Supplier<Expression<T>?>, value: T) {
+     </T> */
+    fun <T> equal(
+        path: Supplier<Expression<T>?>,
+        value: T,
+    ) {
         if (isValidValue(value)) {
             add(criteriaBuilder.equal(path.get(), value))
         }
@@ -80,8 +83,11 @@ class PredicateBuilder(val criteriaBuilder: CriteriaBuilder) {
      * @param path entity path
      * @param value value to compare with
      * @param <T> type of field.
-    </T> */
-    fun <T> equal(path: Expression<T>?, value: T) {
+     </T> */
+    fun <T> equal(
+        path: Expression<T>?,
+        value: T,
+    ) {
         if (isValidValue(value)) {
             add(criteriaBuilder.equal(path, value))
         }
@@ -92,13 +98,16 @@ class PredicateBuilder(val criteriaBuilder: CriteriaBuilder) {
      * @param path entity path
      * @param value value to compare with
      */
-    fun likeLower(path: Supplier<Expression<String?>?>, value: String) {
+    fun likeLower(
+        path: Supplier<Expression<String?>?>,
+        value: String,
+    ) {
         if (isValidValue(value)) {
             add(
                 criteriaBuilder.like(
                     criteriaBuilder.lower(path.get()),
-                    "%" + value.trim { it <= ' ' }.lowercase() + "%"
-                )
+                    "%" + value.trim { it <= ' ' }.lowercase() + "%",
+                ),
             )
         }
     }
@@ -108,13 +117,16 @@ class PredicateBuilder(val criteriaBuilder: CriteriaBuilder) {
      * @param path entity path
      * @param value value to compare with
      */
-    fun likeLower(path: Expression<String?>?, value: String?) {
+    fun likeLower(
+        path: Expression<String?>?,
+        value: String?,
+    ) {
         if (isValidValue(value)) {
             add(
                 criteriaBuilder.like(
                     criteriaBuilder.lower(path),
-                    "%" + value!!.trim { it <= ' ' }.lowercase() + "%"
-                )
+                    "%" + value!!.trim { it <= ' ' }.lowercase() + "%",
+                ),
             )
         }
     }
@@ -126,8 +138,9 @@ class PredicateBuilder(val criteriaBuilder: CriteriaBuilder) {
      * @param attributeValue value to compare with using a like query.
      */
     fun attributeLike(
-        root: Root<*>, attributeKey: String?,
-        attributeValue: String?
+        root: Root<*>,
+        attributeKey: String?,
+        attributeValue: String?,
     ) {
         if (isValidValue(attributeValue)) {
             val attributesJoin = root.joinMap<Subject, String, String>("attributes", JoinType.LEFT)
@@ -136,18 +149,24 @@ class PredicateBuilder(val criteriaBuilder: CriteriaBuilder) {
                     criteriaBuilder.equal(attributesJoin.key(), attributeKey),
                     criteriaBuilder.like(
                         attributesJoin.value(),
-                        "%$attributeValue%"
-                    )
-                )
+                        "%$attributeValue%",
+                    ),
+                ),
             )
         }
     }
 
-    fun `in`(expr: Expression<*>, other: Expression<*>?) {
+    fun `in`(
+        expr: Expression<*>,
+        other: Expression<*>?,
+    ) {
         add(expr.`in`(other))
     }
 
-    fun `in`(expr: Expression<*>, other: Collection<*>?) {
+    fun `in`(
+        expr: Expression<*>,
+        other: Collection<*>?,
+    ) {
         add(expr.`in`(other))
     }
 
@@ -157,7 +176,8 @@ class PredicateBuilder(val criteriaBuilder: CriteriaBuilder) {
      * @param range range that should be matched.
      */
     fun <T : Comparable<T>?> range(
-        path: Path<out T>?, range: CriteriaRange<T>?
+        path: Path<out T>?,
+        range: CriteriaRange<T>?,
     ) {
         if (range == null || range.isEmpty) {
             return
@@ -187,12 +207,12 @@ class PredicateBuilder(val criteriaBuilder: CriteriaBuilder) {
         }
         return if (value is String) {
             !value.isBlank() && value != "null"
-        } else true
+        } else {
+            true
+        }
     }
 
-    fun newBuilder(): PredicateBuilder {
-        return PredicateBuilder(criteriaBuilder)
-    }
+    fun newBuilder(): PredicateBuilder = PredicateBuilder(criteriaBuilder)
 
     val isEmpty: Boolean
         get() = predicates.isEmpty()

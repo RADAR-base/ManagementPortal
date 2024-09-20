@@ -10,10 +10,10 @@ import org.springframework.context.annotation.ScopedProxyMode
 import javax.servlet.http.HttpServletRequest
 
 @Configuration
-class RadarTokenConfiguration @Autowired constructor(private val radarTokenLoader: RadarTokenLoader) {
+class RadarTokenConfiguration(
+    @Autowired private val radarTokenLoader: RadarTokenLoader,
+) {
     @Scope(value = "request", proxyMode = ScopedProxyMode.TARGET_CLASS)
     @Bean
-    fun radarToken(request: HttpServletRequest?): RadarToken? {
-        return radarTokenLoader.loadToken(request!!)
-    }
+    fun radarToken(request: HttpServletRequest?): RadarToken? = radarTokenLoader.loadToken(request!!)
 }

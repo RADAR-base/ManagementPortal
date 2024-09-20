@@ -1,5 +1,5 @@
 import * as navBarPage from '../util/nav-bar';
-import { login } from "../util/login";
+import {login} from "../util/login";
 
 describe('account', () => {
     beforeEach(() => {

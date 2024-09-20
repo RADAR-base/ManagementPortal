@@ -18,8 +18,12 @@ class SubjectCriteria {
     var groupId: Long? = null
     var humanReadableIdentifier: String? = null
     var last: SubjectCriteriaLast? = null
-    var page: @Min(0) Int = 0
-    var size: @Min(1) Int = 20
+    var page:
+        @Min(0)
+        Int = 0
+    var size:
+        @Min(1)
+        Int = 20
     var sort: List<String>? = null
     var personName: String? = null
     var projectName: String? = null
@@ -32,9 +36,11 @@ class SubjectCriteria {
         private set
 
     private fun parseSort(): List<SubjectSortOrder> {
-        val flatSort = sort?.flatMap { s: String ->
-            s.split(",")
-        }?.toList() ?: listOf()
+        val flatSort =
+            sort
+                ?.flatMap { s: String ->
+                    s.split(",")
+                }?.toList() ?: listOf()
         val parsedSort: MutableList<SubjectSortOrder> = ArrayList(flatSort.size)
         var hasDirection = true
         var previous: SubjectSortOrder? = null
@@ -57,15 +63,40 @@ class SubjectCriteria {
         return parsedSort
     }
 
-
     @get:NotNull
     val pageable: Pageable
         /** Get the criteria paging settings, excluding sorting.  */
         get() = PageRequest.of(page, size)
 
-    override fun toString(): String {
-        return ("SubjectCriteria{" + "authority=" + authority + ", dateOfBirth=" + dateOfBirth + ", enrollmentDate=" + enrollmentDate + ", groupId='" + groupId + '\'' + ", humanReadableIdentifier='" + humanReadableIdentifier + '\'' + ", last=" + last + ", page=" + page + ", sort=" + sort + ", personName='" + personName + '\'' + ", projectName='" + projectName + '\'' + ", externalId='" + externalId + '\'' + ", login='" + login + '\'' + '}')
-    }
+    override fun toString(): String =
+        (
+            "SubjectCriteria{" + "authority=" + authority + ", dateOfBirth=" + dateOfBirth + ", enrollmentDate=" + enrollmentDate +
+                ", groupId='" +
+                groupId +
+                '\'' +
+                ", humanReadableIdentifier='" +
+                humanReadableIdentifier +
+                '\'' +
+                ", last=" +
+                last +
+                ", page=" +
+                page +
+                ", sort=" +
+                sort +
+                ", personName='" +
+                personName +
+                '\'' +
+                ", projectName='" +
+                projectName +
+                '\'' +
+                ", externalId='" +
+                externalId +
+                '\'' +
+                ", login='" +
+                login +
+                '\'' +
+                '}'
+            )
 
     companion object {
         /**
@@ -73,9 +104,10 @@ class SubjectCriteria {
          * @param sort modifiable ordered sort collection.
          */
         private fun optimizeSortList(sort: MutableCollection<SubjectSortOrder>) {
-            val seenSortBy: EnumSet<SubjectSortBy>? = EnumSet.noneOf(
-                SubjectSortBy::class.java
-            )
+            val seenSortBy: EnumSet<SubjectSortBy>? =
+                EnumSet.noneOf(
+                    SubjectSortBy::class.java,
+                )
             var hasUnique = false
             val iterator = sort.iterator()
             while (iterator.hasNext()) {
@@ -92,16 +124,17 @@ class SubjectCriteria {
             }
         }
 
-        private fun getSubjectSortBy(param: String): SubjectSortBy {
-            return Arrays.stream<SubjectSortBy>(SubjectSortBy.values())
-                .filter { s: SubjectSortBy -> s.queryParam.equals(param, ignoreCase = true) }.findAny()
+        private fun getSubjectSortBy(param: String): SubjectSortBy =
+            Arrays
+                .stream<SubjectSortBy>(SubjectSortBy.values())
+                .filter { s: SubjectSortBy -> s.queryParam.equals(param, ignoreCase = true) }
+                .findAny()
                 .orElseThrow<BadRequestException> {
                     BadRequestException(
                         "Cannot convert sort parameter " + param + " to subject property",
                         EntityName.Companion.SUBJECT,
-                        ErrorConstants.ERR_VALIDATION
+                        ErrorConstants.ERR_VALIDATION,
                     )
                 }
-        }
     }
 }

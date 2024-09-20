@@ -1,4 +1,4 @@
-import { login } from '../util/login';
+import {login} from '../util/login';
 
 describe('Project view: Generate QR code', () => {
     beforeEach(() => {

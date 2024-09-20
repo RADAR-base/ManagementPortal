@@ -1,14 +1,14 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { DatePipe } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
-import { of } from 'rxjs';
+import {ComponentFixture, TestBed, waitForAsync} from '@angular/core/testing';
+import {DatePipe} from '@angular/common';
+import {ActivatedRoute} from '@angular/router';
+import {of} from 'rxjs';
 
-import { EventManager } from '../../shared/util/event-manager.service';
-import { ManagementPortalTestModule } from '../../shared/util/test/test.module';
-import { MockActivatedRoute } from '../../shared/util/test/mock-route.service';
-import { SourceDataDetailComponent } from './source-data-detail.component';
-import { SourceDataService } from './source-data.service';
-import { SourceData } from './source-data.model';
+import {EventManager} from '../../shared/util/event-manager.service';
+import {ManagementPortalTestModule} from '../../shared/util/test/test.module';
+import {MockActivatedRoute} from '../../shared/util/test/mock-route.service';
+import {SourceDataDetailComponent} from './source-data-detail.component';
+import {SourceDataService} from './source-data.service';
+import {SourceData} from './source-data.model';
 
 describe('Component Tests', () => {
 
@@ -41,16 +41,16 @@ describe('Component Tests', () => {
 
         describe('OnInit', () => {
             it('Should call load all on init', () => {
-            // GIVEN
+                // GIVEN
 
-            spyOn(service, 'find').and.returnValue(of(new SourceData(10)));
+                spyOn(service, 'find').and.returnValue(of(new SourceData(10)));
 
-            // WHEN
-            comp.ngOnInit();
+                // WHEN
+                comp.ngOnInit();
 
-            // THEN
-            expect(service.find).toHaveBeenCalledWith('testSourceData');
-            expect(comp.sourceData).toEqual(jasmine.objectContaining({id: 10}));
+                // THEN
+                expect(service.find).toHaveBeenCalledWith('testSourceData');
+                expect(comp.sourceData).toEqual(jasmine.objectContaining({id: 10}));
             });
         });
     });

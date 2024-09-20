@@ -1,7 +1,7 @@
-import { Component, Input } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
-import { Organization, Project, ProjectService } from '../../shared';
+import {Component, Input} from '@angular/core';
+import {BehaviorSubject, Observable} from 'rxjs';
+import {switchMap} from 'rxjs/operators';
+import {Organization, Project, ProjectService} from '../../shared';
 
 @Component({
     selector: 'jhi-projects',
@@ -9,13 +9,6 @@ import { Organization, Project, ProjectService } from '../../shared';
 })
 export class ProjectComponent {
     organization$ = new BehaviorSubject<Organization>(null);
-
-    @Input()
-    get organization() { return this.organization$.value; }
-    set organization(v: Organization) {
-        this.organization$.next(v);
-    }
-
     projects$: Observable<Project[]>;
 
     constructor(
@@ -24,6 +17,15 @@ export class ProjectComponent {
         this.projects$ = this.organization$.pipe(
             switchMap(organization => this.projectService.findByOrganization(organization?.id))
         );
+    }
+
+    @Input()
+    get organization() {
+        return this.organization$.value;
+    }
+
+    set organization(v: Organization) {
+        this.organization$.next(v);
     }
 
     trackId(index: number, item: Project) {

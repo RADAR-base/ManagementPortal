@@ -1,13 +1,12 @@
-import { DatePipe } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import {DatePipe} from '@angular/common';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 
-import { ITEMS_PER_PAGE } from '../../shared';
+import {ITEMS_PER_PAGE} from '../../shared';
 
-import { Audit } from './audit.model';
-import { AuditsService } from './audits.service';
-import { HttpResponse } from '@angular/common/http';
-import { parseLinks } from '../../shared/util/parse-links-util';
-import { Subscription } from 'rxjs';
+import {Audit} from './audit.model';
+import {AuditsService} from './audits.service';
+import {HttpResponse} from '@angular/common/http';
+import {Subscription} from 'rxjs';
 
 @Component({
     selector: 'jhi-audit',
@@ -27,7 +26,7 @@ export class AuditsComponent implements OnInit, OnDestroy {
     private subscriptions: Subscription = new Subscription();
 
     constructor(
-            private auditsService: AuditsService,
+        private auditsService: AuditsService,
     ) {
         this.itemsPerPage = ITEMS_PER_PAGE;
         this.page = 1;

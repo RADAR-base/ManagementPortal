@@ -50,12 +50,8 @@ class OAuthClientsResource(
     @Autowired private val subjectService: SubjectService,
     @Autowired private val userService: UserService,
     @Autowired private val eventRepository: AuditEventRepository,
-    @Autowired private val authService: AuthService
+    @Autowired private val authService: AuthService,
 ) {
-
-    @Throws(NotAuthorizedException::class)
-    @Timed
-    @GetMapping("/oauth-clients")
     /**
      * GET /api/oauth-clients.
      *
@@ -64,6 +60,9 @@ class OAuthClientsResource(
      *
      * @return the list of registered clients as a list of [ClientDetailsDTO]
      */
+    @Throws(NotAuthorizedException::class)
+    @Timed
+    @GetMapping("/oauth-clients")
     fun oAuthClients(): ResponseEntity<List<ClientDetailsDTO>> {
         authService.checkScope(Permission.OAUTHCLIENTS_READ)
         val clients = clientDetailsMapper.clientDetailsToClientDetailsDTO(oAuthClientService.findAllOAuthClients())
@@ -82,9 +81,11 @@ class OAuthClientsResource(
     @GetMapping("/oauth-clients/{id:" + Constants.ENTITY_ID_REGEX + "}")
     @Timed
     @Throws(
-        NotAuthorizedException::class
+        NotAuthorizedException::class,
     )
-    fun getOAuthClientById(@PathVariable("id") id: String?): ResponseEntity<ClientDetailsDTO> {
+    fun getOAuthClientById(
+        @PathVariable("id") id: String?,
+    ): ResponseEntity<ClientDetailsDTO> {
         authService.checkPermission(Permission.OAUTHCLIENTS_READ)
 
         val client = oAuthClientService.findOneByClientId(id)
@@ -106,19 +107,21 @@ class OAuthClientsResource(
     @PutMapping("/oauth-clients")
     @Timed
     @Throws(NotAuthorizedException::class)
-    fun updateOAuthClient(@RequestBody @Valid clientDetailsDto: ClientDetailsDTO?): ResponseEntity<ClientDetailsDTO> {
+    fun updateOAuthClient(
+        @RequestBody @Valid clientDetailsDto: ClientDetailsDTO?,
+    ): ResponseEntity<ClientDetailsDTO> {
         authService.checkPermission(Permission.OAUTHCLIENTS_UPDATE)
         // getOAuthClient checks if the id exists
         OAuthClientService.checkProtected(oAuthClientService.findOneByClientId(clientDetailsDto!!.clientId))
         val updated = oAuthClientService.updateOauthClient(clientDetailsDto)
-        return ResponseEntity.ok()
+        return ResponseEntity
+            .ok()
             .headers(
                 HeaderUtil.createEntityUpdateAlert(
                     EntityName.OAUTH_CLIENT,
-                    clientDetailsDto.clientId
-                )
-            )
-            .body(clientDetailsMapper.clientDetailsToClientDetailsDTO(updated))
+                    clientDetailsDto.clientId,
+                ),
+            ).body(clientDetailsMapper.clientDetailsToClientDetailsDTO(updated))
     }
 
     /**
@@ -133,14 +136,18 @@ class OAuthClientsResource(
     @DeleteMapping("/oauth-clients/{id:" + Constants.ENTITY_ID_REGEX + "}")
     @Timed
     @Throws(
-        NotAuthorizedException::class
+        NotAuthorizedException::class,
     )
-    fun deleteOAuthClient(@PathVariable id: String?): ResponseEntity<Void> {
+    fun deleteOAuthClient(
+        @PathVariable id: String?,
+    ): ResponseEntity<Void> {
         authService.checkPermission(Permission.OAUTHCLIENTS_DELETE)
         // getOAuthClient checks if the id exists
         OAuthClientService.checkProtected(oAuthClientService.findOneByClientId(id))
         oAuthClientService.deleteClientDetails(id)
-        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(EntityName.OAUTH_CLIENT, id))
+        return ResponseEntity
+            .ok()
+            .headers(HeaderUtil.createEntityDeletionAlert(EntityName.OAUTH_CLIENT, id))
             .build()
     }
 
@@ -157,10 +164,13 @@ class OAuthClientsResource(
     @PostMapping("/oauth-clients")
     @Timed
     @Throws(URISyntaxException::class, NotAuthorizedException::class)
-    fun createOAuthClient(@RequestBody clientDetailsDto: @Valid ClientDetailsDTO): ResponseEntity<ClientDetailsDTO> {
+    fun createOAuthClient(
+        @RequestBody clientDetailsDto: @Valid ClientDetailsDTO,
+    ): ResponseEntity<ClientDetailsDTO> {
         authService.checkPermission(Permission.OAUTHCLIENTS_CREATE)
         val created = oAuthClientService.createClientDetail(clientDetailsDto)
-        return ResponseEntity.created(ResourceUriService.getUri(clientDetailsDto))
+        return ResponseEntity
+            .created(ResourceUriService.getUri(clientDetailsDto))
             .headers(HeaderUtil.createEntityCreationAlert(EntityName.OAUTH_CLIENT, created.clientId))
             .body(clientDetailsMapper.clientDetailsToClientDetailsDTO(created))
     }
@@ -183,40 +193,48 @@ class OAuthClientsResource(
     fun getRefreshToken(
         @RequestParam login: String,
         @RequestParam(value = "clientId") clientId: String,
-        @RequestParam(value = "persistent", defaultValue = "false") persistent: Boolean?
+        @RequestParam(value = "persistent", defaultValue = "false") persistent: Boolean?,
     ): ResponseEntity<ClientPairInfoDTO> {
         authService.checkScope(Permission.SUBJECT_UPDATE)
         val currentUser =
             userService.getUserWithAuthorities() // We only allow this for actual logged in users for now, not for client_credentials
                 ?: throw AccessDeniedException(
-                        "You must be a logged in user to access this resource"
-                    )
+                    "You must be a logged in user to access this resource",
+                )
 
         // lookup the subject
         val subject = subjectService.findOneByLogin(login)
-        val projectName: String = subject.activeProject
-            ?.projectName
-            ?: throw NotFoundException(
-                    "Project for subject $login not found", EntityName.SUBJECT,
-                    ErrorConstants.ERR_SUBJECT_NOT_FOUND
+        val projectName: String =
+            subject.activeProject
+                ?.projectName
+                ?: throw NotFoundException(
+                    "Project for subject $login not found",
+                    EntityName.SUBJECT,
+                    ErrorConstants.ERR_SUBJECT_NOT_FOUND,
                 )
-
 
         // Users who can update a subject can also generate a refresh token for that subject
         authService.checkPermission(
             Permission.SUBJECT_UPDATE,
-            { e: EntityDetails -> e.project(projectName).subject(login) })
+            { e: EntityDetails -> e.project(projectName).subject(login) },
+        )
         val cpi = metaTokenService.createMetaToken(subject, clientId, persistent!!)
         // generate audit event
         eventRepository.add(
             AuditEvent(
-                currentUser.login, "PAIR_CLIENT_REQUEST",
-                "client_id=$clientId", "subject_login=$login"
-            )
+                currentUser.login,
+                "PAIR_CLIENT_REQUEST",
+                "client_id=$clientId",
+                "subject_login=$login",
+            ),
         )
         log.info(
-            "[{}] by {}: client_id={}, subject_login={}", "PAIR_CLIENT_REQUEST", currentUser
-                .login, clientId, login
+            "[{}] by {}: client_id={}, subject_login={}",
+            "PAIR_CLIENT_REQUEST",
+            currentUser
+                .login,
+            clientId,
+            login,
         )
         return ResponseEntity(cpi, HttpStatus.OK)
     }

@@ -31,8 +31,19 @@ class LogsResource {
          * @return the logger configurations
          */
         get() {
+            val noopLogMessages =
+                listOf(
+                    LoggerVM().apply {
+                        name = "During testing there is no logback impl. dependency present"
+                        level = "DEBUG"
+                    },
+                )
+            if (LoggerFactory.getILoggerFactory() !is LoggerContext) {
+                return noopLogMessages
+            }
             val context = LoggerFactory.getILoggerFactory() as LoggerContext
-            return context.getLoggerList()
+            return context
+                .getLoggerList()
                 .stream()
                 .map { logger: Logger -> LoggerVM(logger) }
                 .toList()
@@ -46,8 +57,12 @@ class LogsResource {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Timed
     @Secured(RoleAuthority.SYS_ADMIN_AUTHORITY)
-    fun changeLevel(@RequestBody jsonLogger: LoggerVM) {
-        val context = LoggerFactory.getILoggerFactory() as LoggerContext
-        context.getLogger(jsonLogger.name).setLevel(Level.valueOf(jsonLogger.level))
+    fun changeLevel(
+        @RequestBody jsonLogger: LoggerVM,
+    ) {
+        if (LoggerFactory.getILoggerFactory() is LoggerContext) {
+            val context = LoggerFactory.getILoggerFactory() as LoggerContext
+            context.getLogger(jsonLogger.name).setLevel(Level.valueOf(jsonLogger.level))
+        }
     }
 }

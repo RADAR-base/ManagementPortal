@@ -1,35 +1,34 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { combineLatest, Observable, Subject, Subscription } from 'rxjs';
-import { map, startWith } from 'rxjs/operators';
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {ActivatedRoute, Router} from '@angular/router';
+import {combineLatest, Observable, Subject, Subscription} from 'rxjs';
+import {map, startWith} from 'rxjs/operators';
 
-import { SourceType } from './source-type.model';
-import { SourceTypeService } from './source-type.service';
+import {SourceType} from './source-type.model';
+import {SourceTypeService} from './source-type.service';
 
 @Component({
     selector: 'jhi-source-type',
     templateUrl: './source-type.component.html',
 })
 export class SourceTypeComponent implements OnInit, OnDestroy {
-    private subscriptions = new Subscription();
     predicate: any;
     ascending: any;
-
-    private trigger$ = new Subject<void>();
     sourceTypes$: Observable<SourceType[]>;
+    private subscriptions = new Subscription();
+    private trigger$ = new Subject<void>();
 
     constructor(
-            private sourceTypeService: SourceTypeService,
-            private activatedRoute: ActivatedRoute,
-            private router: Router,
+        private sourceTypeService: SourceTypeService,
+        private activatedRoute: ActivatedRoute,
+        private router: Router,
     ) {
         this.sourceTypes$ = combineLatest([
-          this.sourceTypeService.sourceTypes$,
-          this.trigger$.pipe(startWith(undefined as void))
+            this.sourceTypeService.sourceTypes$,
+            this.trigger$.pipe(startWith(undefined as void))
         ]).pipe(
-          map(([types]) => SourceTypeComponent.sortByPredicate(
-            types, t => t[this.predicate], this.ascending
-          )),
+            map(([types]) => SourceTypeComponent.sortByPredicate(
+                types, t => t[this.predicate], this.ascending
+            )),
         );
     }
 
@@ -53,10 +52,10 @@ export class SourceTypeComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.subscriptions.add(this.activatedRoute.data.pipe(
-          map(data => {
-              const fallback = { page: 1, predicate: 'id', ascending: true };
-              return data['pagingParams'] || fallback;
-          }),
+            map(data => {
+                const fallback = {page: 1, predicate: 'id', ascending: true};
+                return data['pagingParams'] || fallback;
+            }),
         ).subscribe(params => {
             this.ascending = params.ascending;
             this.predicate = params.predicate;

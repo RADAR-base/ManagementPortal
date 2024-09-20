@@ -1,11 +1,11 @@
-import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { BehaviorSubject, combineLatest, Observable, Subscription } from 'rxjs';
+import {ChangeDetectionStrategy, Component, OnDestroy, OnInit} from '@angular/core';
+import {ActivatedRoute, Router} from '@angular/router';
+import {BehaviorSubject, combineLatest, Observable, Subscription} from 'rxjs';
 
-import { Account, Principal, Project, ProjectService } from '../../shared';
-import { EventManager } from '../../shared/util/event-manager.service';
-import { distinctUntilChanged, filter, map, pluck, shareReplay, startWith, switchMap } from 'rxjs/operators';
-import { SiteSettingsService} from "../../shared/subject";
+import {Account, Principal, Project, ProjectService} from '../../shared';
+import {EventManager} from '../../shared/util/event-manager.service';
+import {distinctUntilChanged, filter, map, pluck, shareReplay, startWith, switchMap} from 'rxjs/operators';
+import {SiteSettingsService} from "../../shared/subject";
 import {HideableSubjectField, SiteSettings} from "../../shared/subject/sitesettings.service";
 
 interface TabOptions {
@@ -20,23 +20,33 @@ interface TabOptions {
     styleUrls: ['project-detail.component.scss'],
 })
 export class ProjectDetailComponent implements OnInit, OnDestroy {
-    private subscription = new Subscription();
     project$: Observable<Project>
     tab$: Observable<TabOptions>;
     public siteSettings$: Observable<SiteSettings>;
-
+    protected readonly HideableSubjectField = HideableSubjectField;
+    private subscription = new Subscription();
     private _activeTab$ = new BehaviorSubject('subjects');
 
     constructor(
-            private eventManager: EventManager,
-            private projectService: ProjectService,
-            private activatedRoute: ActivatedRoute,
-            private siteSettingsService: SiteSettingsService,
-            private router: Router,
-            public principal: Principal,
+        private eventManager: EventManager,
+        private projectService: ProjectService,
+        private activatedRoute: ActivatedRoute,
+        private siteSettingsService: SiteSettingsService,
+        private router: Router,
+        public principal: Principal,
     ) {
         this.project$ = this.observeProject();
         this.tab$ = this.observeTab(this.project$);
+    }
+
+    private static firstAvailableTab(tab: string, available: string[]): string {
+        if (available.length === 0) {
+            return null;
+        } else if (available.includes(tab)) {
+            return tab;
+        } else {
+            return available[0];
+        }
     }
 
     ngOnInit() {
@@ -54,6 +64,14 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
         this._activeTab$.complete();
     }
 
+    previousState() {
+        window.history.back();
+    }
+
+    updateActiveTab(tab?: string) {
+        this._activeTab$.next(tab);
+    }
+
     private registerTabChange(): Subscription {
         return this.tab$.pipe(
             pluck('active'),
@@ -62,7 +80,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
             map((activeTab, index) => ({activeTab, index})),
         ).subscribe(({activeTab, index}) => this.router.navigate([], {
             relativeTo: this.activatedRoute,
-            queryParams: { tab: activeTab },
+            queryParams: {tab: activeTab},
             queryParamsHandling: "merge",
             // Don't store the first iteration, where the active tab is not in the URL yet.
             replaceUrl: index === 0,
@@ -104,24 +122,4 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
             return [];
         }
     }
-
-    private static firstAvailableTab(tab: string, available: string[]): string {
-        if (available.length === 0) {
-            return null;
-        } else if (available.includes(tab)) {
-            return tab;
-        } else {
-            return available[0];
-        }
-    }
-
-    previousState() {
-        window.history.back();
-    }
-
-    updateActiveTab(tab?: string) {
-        this._activeTab$.next(tab);
-    }
-
-    protected readonly HideableSubjectField = HideableSubjectField;
 }

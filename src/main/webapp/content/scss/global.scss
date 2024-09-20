@@ -1,4 +1,3 @@
-
 @import '~bootstrap/scss/bootstrap';
 @import '~font-awesome/css/font-awesome';
 @import "print";
@@ -16,12 +15,12 @@ Generic styles
 ========================================================================== */
 
 /* Error highlight on input fields */
-.ng-valid[required], .ng-valid.required  {
-  border-left: 5px solid green;
+.ng-valid[required], .ng-valid.required {
+    border-left: 5px solid green;
 }
 
-.ng-invalid:not(form)  {
-  border-left: 5px solid red;
+.ng-invalid:not(form) {
+    border-left: 5px solid red;
 }
 
 /* other generic styles */
@@ -51,7 +50,7 @@ Generic styles
 
 .break {
     white-space: normal;
-    word-break:break-all;
+    word-break: break-all;
 }
 
 .readonly {
@@ -67,14 +66,14 @@ table td[class*=col-], table th[class*=col-] {
 }
 
 .footer {
-    border-top: 1px solid rgba(0,0,0,.125);
+    border-top: 1px solid rgba(0, 0, 0, .125);
 }
 
 /* ==========================================================================
 make sure browsers use the pointer cursor for anchors, even with no href
 ========================================================================== */
 a:hover {
-  cursor: pointer;
+    cursor: pointer;
 }
 
 .hand {
@@ -87,7 +86,8 @@ Custom alerts for notification
 .alerts {
     .alert {
         text-overflow: ellipsis;
-        pre{
+
+        pre {
             background: none;
             border: none;
             font: inherit;
@@ -95,22 +95,28 @@ Custom alerts for notification
             padding: 0;
             margin: 0;
         }
+
         .popover pre {
             font-size: 10px;
         }
     }
+
     .toast {
         position: fixed;
         width: 100%;
+
         &.left {
             left: 5px;
         }
+
         &.right {
             right: 5px;
         }
+
         &.top {
             top: 55px;
         }
+
         &.bottom {
             bottom: 55px;
         }
@@ -140,6 +146,7 @@ entity tables helpers
         }
     }
 }
+
 @include no-padding("left");
 @include no-padding("right");
 @include no-padding("top");
@@ -148,17 +155,19 @@ entity tables helpers
 
 /* bootstrap 3 input-group 100% width
    http://stackoverflow.com/questions/23436430/bootstrap-3-input-group-100-width */
-.width-min { width: 1% !important; }
+.width-min {
+    width: 1% !important;
+}
 
 /* Makes toolbar not wrap on smaller screens
    http://www.sketchingwithcss.com/samplechapter/cheatsheet.html#right */
 .flex-btn-group-container {
-   display: -webkit-flex;
-   display: flex;
-   -webkit-flex-direction: row;
-   flex-direction: row;
-   -webkit-justify-content: flex-end;
-   justify-content: flex-end;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-direction: row;
+    flex-direction: row;
+    -webkit-justify-content: flex-end;
+    justify-content: flex-end;
 }
 
 /* ==========================================================================
@@ -175,6 +184,7 @@ entity detail page css
         dt {
             margin-bottom: 15px;
         }
+
         dd {
             border-bottom: 1px solid #eee;
             padding-left: 180px;
@@ -191,12 +201,12 @@ ui bootstrap tweaks
 }
 
 .datetime-picker-dropdown > li.date-picker-menu div > table .btn-default,
-.uib-datepicker-popup  > li > div.uib-datepicker > table .btn-default {
+.uib-datepicker-popup > li > div.uib-datepicker > table .btn-default {
     border: 0;
 }
 
 .datetime-picker-dropdown > li.date-picker-menu div > table:focus,
-.uib-datepicker-popup  > li > div.uib-datepicker > table:focus {
+.uib-datepicker-popup > li > div.uib-datepicker > table:focus {
     outline: none;
 }
 
@@ -220,7 +230,7 @@ http://google.github.io/material-design-icons/
     font-family: 'Material Icons';
     font-weight: normal;
     font-style: normal;
-    font-size: 24px;  /* Preferred icon size */
+    font-size: 24px; /* Preferred icon size */
     display: inline-flex;
     line-height: 1;
     text-transform: none;
@@ -254,12 +264,14 @@ http://google.github.io/material-design-icons/
         font-size: 48px;
     }
 }
+
 /* jhipster-needle-scss-add-main JHipster will add new css style */
 
 .btn {
     .fa {
         margin-right: 4px;
     }
+
     white-space: nowrap;
 }
 

@@ -1,5 +1,5 @@
-import { Directive, ElementRef, Input, OnInit, Renderer2 } from '@angular/core';
-import { LangChangeEvent, TranslateService } from '@ngx-translate/core';
+import {Directive, ElementRef, Input, OnInit, Renderer2} from '@angular/core';
+import {LangChangeEvent, TranslateService} from '@ngx-translate/core';
 
 @Directive({
     selector: '[jhiActiveMenu]',

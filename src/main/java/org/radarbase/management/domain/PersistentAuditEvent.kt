@@ -34,7 +34,8 @@ class PersistentAuditEvent : Serializable {
 
     @JvmField
     @Column(nullable = false)
-    @NotNull var principal: String? = null
+    @NotNull
+    var principal: String? = null
 
     @JvmField
     @Column(name = "event_date")

@@ -7,34 +7,35 @@
  * See the file LICENSE in the root of this repository.
  */
 
-import { Component, EventEmitter, Input, Output } from "@angular/core";
+import {Component, EventEmitter, Input, Output} from "@angular/core";
 
 @Component({
-  selector: 'app-load-more',
-  template: `
-      <div class="subject-pagination">
-          <span class="none-loaded" *ngIf="shownItems === 0" [translate]="'managementPortalApp.subject.noSubjects'"></span>
-          <span *ngIf="totalItems && shownItems >= totalItems"
-                class="all-loaded"
-                [translate]="'managementPortalApp.subject.allLoaded'"
-                [translateParams]="{ total: shownItems }"
-          ></span>
-          <a *ngIf="totalItems === null || totalItems === undefined || shownItems < totalItems"
-             class="load-more"
-             [ngClass]="totalItems ? 'load-more-limited' : 'load-more-unlimited'"
-             (click)="load.next()"
-             [translate]="totalItems ? 'managementPortalApp.subject.loadMore' : 'managementPortalApp.subject.loadMorePartial'"
-             [translateParams]="{ shown: shownItems, total: totalItems }"
-          ></a>
-      </div>
-  `,
-  styleUrls: ['./load-more.component.scss']
+    selector: 'app-load-more',
+    template: `
+        <div class="subject-pagination">
+            <span class="none-loaded" *ngIf="shownItems === 0"
+                  [translate]="'managementPortalApp.subject.noSubjects'"></span>
+            <span *ngIf="totalItems && shownItems >= totalItems"
+                  class="all-loaded"
+                  [translate]="'managementPortalApp.subject.allLoaded'"
+                  [translateParams]="{ total: shownItems }"
+            ></span>
+            <a *ngIf="totalItems === null || totalItems === undefined || shownItems < totalItems"
+               class="load-more"
+               [ngClass]="totalItems ? 'load-more-limited' : 'load-more-unlimited'"
+               (click)="load.next()"
+               [translate]="totalItems ? 'managementPortalApp.subject.loadMore' : 'managementPortalApp.subject.loadMorePartial'"
+               [translateParams]="{ shown: shownItems, total: totalItems }"
+            ></a>
+        </div>
+    `,
+    styleUrls: ['./load-more.component.scss']
 })
 export class LoadMoreComponent {
-  @Input()
-  totalItems?: number
-  @Input()
-  shownItems: number
-  @Output()
-  load: EventEmitter<void> = new EventEmitter()
+    @Input()
+    totalItems?: number
+    @Input()
+    shownItems: number
+    @Output()
+    load: EventEmitter<void> = new EventEmitter()
 }

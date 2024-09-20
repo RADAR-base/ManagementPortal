@@ -20,6 +20,7 @@ public class ProfileInfoResource {
 
     /**
      * Get profile info.
+     *
      * @return profile info.
      */
     @GetMapping("/profile-info")

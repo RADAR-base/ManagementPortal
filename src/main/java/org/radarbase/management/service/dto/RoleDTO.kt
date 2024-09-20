@@ -13,13 +13,15 @@ class RoleDTO {
     var projectId: Long? = null
     var projectName: String? = null
     var authorityName: String? = null
-    override fun toString(): String {
-        return ("RoleDTO{" + "id=" + id
-                + ", organizationId=" + organizationId
-                + ", projectId=" + projectId
-                + ", authorityName='" + authorityName + '\''
-                + '}')
-    }
+
+    override fun toString(): String =
+        (
+            "RoleDTO{" + "id=" + id +
+                ", organizationId=" + organizationId +
+                ", projectId=" + projectId +
+                ", authorityName='" + authorityName + '\'' +
+                '}'
+            )
 
     override fun equals(other: Any?): Boolean {
         if (this === other) {
@@ -29,10 +31,13 @@ class RoleDTO {
             return false
         }
         val roleDto = other as RoleDTO
-        return id == roleDto.id && organizationId == roleDto.organizationId && organizationName == roleDto.organizationName && projectId == roleDto.projectId && projectName == roleDto.projectName && authorityName == roleDto.authorityName
+        return id == roleDto.id &&
+            organizationId == roleDto.organizationId &&
+            organizationName == roleDto.organizationName &&
+            projectId == roleDto.projectId &&
+            projectName == roleDto.projectName &&
+            authorityName == roleDto.authorityName
     }
 
-    override fun hashCode(): Int {
-        return if (id != null) id.hashCode() else 0
-    }
+    override fun hashCode(): Int = if (id != null) id.hashCode() else 0
 }

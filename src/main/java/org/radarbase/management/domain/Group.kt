@@ -32,7 +32,9 @@ import javax.validation.constraints.Size
 @Entity
 @Table(name = "radar_group")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-class Group : AbstractEntity(), Serializable {
+class Group :
+    AbstractEntity(),
+    Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
     @SequenceGenerator(name = "sequenceGenerator", initialValue = 1000, sequenceName = "hibernate_sequence")
@@ -40,7 +42,10 @@ class Group : AbstractEntity(), Serializable {
 
     @JvmField
     @Column(name = "name", length = 50, nullable = false)
-    @NotNull @Pattern(regexp = Constants.ENTITY_ID_REGEX) @Size(min = 1, max = 50) var name: String? = null
+    @NotNull
+    @Pattern(regexp = Constants.ENTITY_ID_REGEX)
+    @Size(min = 1, max = 50)
+    var name: String? = null
 
     @JvmField
     @JsonIgnore
@@ -48,6 +53,7 @@ class Group : AbstractEntity(), Serializable {
     @JoinColumn(name = "project_id", nullable = false)
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     var project: Project? = null
+
     override fun equals(other: Any?): Boolean {
         if (this === other) {
             return true
@@ -58,20 +64,21 @@ class Group : AbstractEntity(), Serializable {
         val group = other as Group
         return if (group.id == null || id == null) {
             false
-        } else id == group.id
+        } else {
+            id == group.id
+        }
     }
 
-    override fun hashCode(): Int {
-        return Objects.hashCode(id)
-    }
+    override fun hashCode(): Int = Objects.hashCode(id)
 
-    override fun toString(): String {
-        return ("Group{"
-                + "id=" + id + ", "
-                + "name=" + name + ", "
-                + "project='" + project?.projectName + "', "
-                + "}")
-    }
+    override fun toString(): String =
+        (
+            "Group{" +
+                "id=" + id + ", " +
+                "name=" + name + ", " +
+                "project='" + project?.projectName + "', " +
+                "}"
+            )
 
     companion object {
         private const val serialVersionUID = 1L

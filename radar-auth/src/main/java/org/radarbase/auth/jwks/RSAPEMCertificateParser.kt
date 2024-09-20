@@ -13,7 +13,8 @@ class RSAPEMCertificateParser : PEMCertificateParser {
     override val keyHeader: String
         get() = "-----BEGIN PUBLIC KEY-----"
 
-    override fun parseAlgorithm(publicKey: String): Algorithm = publicKey
-        .parsePublicKey<RSAPublicKey>(keyFactoryType)
-        .toAlgorithm()
+    override fun parseAlgorithm(publicKey: String): Algorithm =
+        publicKey
+            .parsePublicKey<RSAPublicKey>(keyFactoryType)
+            .toAlgorithm()
 }

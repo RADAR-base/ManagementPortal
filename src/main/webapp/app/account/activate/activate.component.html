@@ -3,16 +3,16 @@
         <div class="col-md-8 offset-md-2">
             <h1 [translate]="'activate.title'"></h1>
 
-            <div class="alert alert-success" *ngIf="success">
+            <div *ngIf="success" class="alert alert-success">
                 <span [innerHTML]="'activate.messages.success' | translate"></span>
-                <a class="alert-link" (click)="login()"
-                    [translate]="'global.messages.info.authenticated.link'">
+                <a (click)="login()" [translate]="'global.messages.info.authenticated.link'"
+                   class="alert-link">
                 </a>.
             </div>
 
             <div *ngIf="error"
-                class="alert alert-danger"
-                [innerHTML]="'activate.messages.error' | translate">
+                 [innerHTML]="'activate.messages.error' | translate"
+                 class="alert alert-danger">
             </div>
 
         </div>

@@ -19,19 +19,19 @@ import javax.sql.DataSource
 @Configuration
 @EnableJpaRepositories(
     basePackages = ["org.radarbase.management.repository"],
-    repositoryFactoryBeanClass = EnversRevisionRepositoryFactoryBean::class
+    repositoryFactoryBeanClass = EnversRevisionRepositoryFactoryBean::class,
 )
 @EnableJpaAuditing(auditorAwareRef = "springSecurityAuditorAware")
 @EnableTransactionManagement
 class DatabaseConfiguration {
     @Autowired
     private val env: Environment? = null
+
     @Bean
     fun liquibase(
         dataSource: DataSource,
-        liquibaseProperties: LiquibaseProperties
+        liquibaseProperties: LiquibaseProperties,
     ): SpringLiquibase {
-
         // Use liquibase.integration.spring.SpringLiquibase if you don't want Liquibase to start
         // asynchronously
         val liquibase = SpringLiquibase()
@@ -50,9 +50,7 @@ class DatabaseConfiguration {
     }
 
     @Bean
-    fun hibernate5Module(): Hibernate5Module {
-        return Hibernate5Module()
-    }
+    fun hibernate5Module(): Hibernate5Module = Hibernate5Module()
 
     companion object {
         private val log = LoggerFactory.getLogger(DatabaseConfiguration::class.java)

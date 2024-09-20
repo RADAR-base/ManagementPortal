@@ -17,76 +17,72 @@ import java.security.Principal
 import java.util.stream.Collectors
 import javax.annotation.Nonnull
 
-class RadarAuthentication(@param:Nonnull private val token: RadarToken) : Authentication, Principal {
-    private val authorities: List<GrantedAuthority>
-    private var isAuthenticated = true
+class RadarAuthentication(
+    @param:Nonnull private val token: RadarToken,
+) : Authentication,
+    Principal {
+        private val authorities: List<GrantedAuthority>
+        private var isAuthenticated = true
 
-    /** Instantiate authentication via a token.  */
-    init {
-        authorities = token.roles!!.stream()
-            .map(AuthorityReference::authority)
-            .distinct()
-            .map { role: String? -> SimpleGrantedAuthority(role) }
-            .collect(Collectors.toList())
-    }
-
-    override fun getName(): String {
-        return if (token.isClientCredentials) {
-            token.clientId!!
-        } else {
-            token.username!!
+        /** Instantiate authentication via a token.  */
+        init {
+            authorities =
+                token.roles
+                    .stream()
+                    .map(AuthorityReference::authority)
+                    .distinct()
+                    .map { role: String? -> SimpleGrantedAuthority(role) }
+                    .collect(Collectors.toList())
         }
-    }
 
-    override fun getAuthorities(): Collection<GrantedAuthority> {
-        return authorities
-    }
+        override fun getName(): String =
+            if (token.isClientCredentials) {
+                token.clientId!!
+            } else {
+                token.username!!
+            }
 
-    override fun getCredentials(): Any {
-        return token
-    }
+        override fun getAuthorities(): Collection<GrantedAuthority> = authorities
 
-    override fun getDetails(): Any? {
-        return null
-    }
+        override fun getCredentials(): Any = token
 
-    override fun getPrincipal(): Any? {
-        return if (token.isClientCredentials) {
-            null
-        } else {
-            this
+        override fun getDetails(): Any? = null
+
+        override fun getPrincipal(): Any? =
+            if (token.isClientCredentials) {
+                null
+            } else {
+                this
+            }
+
+        override fun isAuthenticated(): Boolean = isAuthenticated
+
+        @Throws(IllegalArgumentException::class)
+        override fun setAuthenticated(isAuthenticated: Boolean) {
+            this.isAuthenticated = isAuthenticated
         }
-    }
 
-    override fun isAuthenticated(): Boolean {
-        return isAuthenticated
-    }
-
-    @Throws(IllegalArgumentException::class)
-    override fun setAuthenticated(isAuthenticated: Boolean) {
-        this.isAuthenticated = isAuthenticated
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) {
-            return true
+        override fun equals(other: Any?): Boolean {
+            if (this === other) {
+                return true
+            }
+            if (other == null || javaClass != other.javaClass) {
+                return false
+            }
+            val that = other as RadarAuthentication
+            return isAuthenticated == that.isAuthenticated && token == that.token
         }
-        if (other == null || javaClass != other.javaClass) {
-            return false
+
+        override fun hashCode(): Int {
+            var result = token.hashCode()
+            result = 31 * result + if (isAuthenticated) 1 else 0
+            return result
         }
-        val that = other as RadarAuthentication
-        return isAuthenticated == that.isAuthenticated && token == that.token
-    }
 
-    override fun hashCode(): Int {
-        var result = token.hashCode()
-        result = 31 * result + if (isAuthenticated) 1 else 0
-        return result
+        override fun toString(): String =
+            (
+                "RadarAuthentication{" + "token=" + token +
+                    ", authenticated=" + isAuthenticated() +
+                    '}'
+                )
     }
-
-    override fun toString(): String {
-        return ("RadarAuthentication{" + "token=" + token
-                + ", authenticated=" + isAuthenticated()
-                + '}')
-    }
-}

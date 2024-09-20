@@ -24,15 +24,15 @@ import org.springframework.security.web.authentication.logout.LogoutSuccessHandl
 import tech.jhipster.security.AjaxLogoutSuccessHandler
 import javax.annotation.PostConstruct
 
+/** Security configuration constructor.  */
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
-class SecurityConfiguration
-/** Security configuration constructor.  */ @Autowired constructor(
-    private val authenticationManagerBuilder: AuthenticationManagerBuilder,
-    private val userDetailsService: UserDetailsService,
-    private val applicationEventPublisher: ApplicationEventPublisher,
-    private val passwordEncoder: PasswordEncoder
+class SecurityConfiguration(
+    @Autowired private val authenticationManagerBuilder: AuthenticationManagerBuilder,
+    @Autowired private val userDetailsService: UserDetailsService,
+    @Autowired private val applicationEventPublisher: ApplicationEventPublisher,
+    @Autowired private val passwordEncoder: PasswordEncoder,
 ) : WebSecurityConfigurerAdapter() {
     @PostConstruct
     fun init() {
@@ -43,7 +43,7 @@ class SecurityConfiguration
                 .and()
                 .authenticationProvider(RadarAuthenticationProvider())
                 .authenticationEventPublisher(
-                    DefaultAuthenticationEventPublisher(applicationEventPublisher)
+                    DefaultAuthenticationEventPublisher(applicationEventPublisher),
                 )
         } catch (e: Exception) {
             throw BeanInitializationException("Security configuration failed", e)
@@ -51,17 +51,14 @@ class SecurityConfiguration
     }
 
     @Bean
-    fun logoutSuccessHandler(): LogoutSuccessHandler {
-        return AjaxLogoutSuccessHandler()
-    }
+    fun logoutSuccessHandler(): LogoutSuccessHandler = AjaxLogoutSuccessHandler()
 
     @Bean
-    fun http401UnauthorizedEntryPoint(): Http401UnauthorizedEntryPoint {
-        return Http401UnauthorizedEntryPoint()
-    }
+    fun http401UnauthorizedEntryPoint(): Http401UnauthorizedEntryPoint = Http401UnauthorizedEntryPoint()
 
     override fun configure(web: WebSecurity) {
-        web.ignoring()
+        web
+            .ignoring()
             .antMatchers("/")
             .antMatchers("/*.{js,ico,css,html}")
             .antMatchers(HttpMethod.OPTIONS, "/**")
@@ -88,7 +85,8 @@ class SecurityConfiguration
     @Throws(Exception::class)
     public override fun configure(http: HttpSecurity) {
         http
-            .httpBasic().realmName("ManagementPortal")
+            .httpBasic()
+            .realmName("ManagementPortal")
             .and()
             .sessionManagement()
             .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
@@ -96,12 +94,8 @@ class SecurityConfiguration
 
     @Bean
     @Throws(Exception::class)
-    override fun authenticationManagerBean(): AuthenticationManager {
-        return super.authenticationManagerBean()
-    }
+    override fun authenticationManagerBean(): AuthenticationManager = super.authenticationManagerBean()
 
     @Bean
-    fun securityEvaluationContextExtension(): SecurityEvaluationContextExtension {
-        return SecurityEvaluationContextExtension()
-    }
+    fun securityEvaluationContextExtension(): SecurityEvaluationContextExtension = SecurityEvaluationContextExtension()
 }

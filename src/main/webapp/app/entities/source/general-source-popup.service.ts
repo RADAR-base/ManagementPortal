@@ -1,18 +1,18 @@
-import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { Source, SourceService } from '../../shared/source';
-import { Observable, of } from 'rxjs';
-import { map } from 'rxjs/operators';
+import {Injectable} from '@angular/core';
+import {Router} from '@angular/router';
+import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
+import {Source, SourceService} from '../../shared/source';
+import {Observable, of} from 'rxjs';
+import {map} from 'rxjs/operators';
 
 @Injectable()
 export class GeneralSourcePopupService {
     private isOpen = false;
 
     constructor(
-            private modalService: NgbModal,
-            private router: Router,
-            private sourceService: SourceService,
+        private modalService: NgbModal,
+        private router: Router,
+        private sourceService: SourceService,
     ) {
     }
 

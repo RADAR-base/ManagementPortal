@@ -14,52 +14,76 @@ import java.util.*
  * Spring Data JPA repository for the Source entity.
  */
 @RepositoryDefinition(domainClass = Source::class, idClass = Long::class)
-interface SourceRepository : JpaRepository<Source, Long>, RevisionRepository<Source, Long, Int> {
+interface SourceRepository :
+    JpaRepository<Source, Long>,
+    RevisionRepository<Source, Long, Int> {
     @Query(
-        value = "select source from Source source "
-                + "WHERE source.deleted = false", countQuery = "select count(source) from Source source "
-                + "WHERE source.deleted = false"
+        value =
+            "select source from Source source " +
+                "WHERE source.deleted = false",
+        countQuery =
+            "select count(source) from Source source " +
+                "WHERE source.deleted = false",
     )
     override fun findAll(pageable: Pageable): Page<Source>
 
     @Query(
-        value = "select source from Source source "
-                + "WHERE source.deleted = false "
-                + "AND source.project.id = :projectId", countQuery = "select count(source) from Source source "
-                + "WHERE source.deleted = false "
-                + "AND source.project.id = :projectId"
+        value =
+            "select source from Source source " +
+                "WHERE source.deleted = false " +
+                "AND source.project.id = :projectId",
+        countQuery =
+            "select count(source) from Source source " +
+                "WHERE source.deleted = false " +
+                "AND source.project.id = :projectId",
     )
-    fun findAllSourcesByProjectId(pageable: Pageable, @Param("projectId") projectId: Long): Page<Source>
+    fun findAllSourcesByProjectId(
+        pageable: Pageable,
+        @Param("projectId") projectId: Long,
+    ): Page<Source>
 
     @Query(
-        value = "select source from Source source "
-                + "WHERE source.deleted = false "
-                + "AND source.project.id = :projectId "
-                + "AND source.assigned = :assigned", countQuery = "select count(source) from Source source "
-                + "WHERE source.deleted = false "
-                + "AND source.project.id = :projectId "
-                + "AND source.assigned = :assigned"
+        value =
+            "select source from Source source " +
+                "WHERE source.deleted = false " +
+                "AND source.project.id = :projectId " +
+                "AND source.assigned = :assigned",
+        countQuery =
+            "select count(source) from Source source " +
+                "WHERE source.deleted = false " +
+                "AND source.project.id = :projectId " +
+                "AND source.assigned = :assigned",
     )
     fun findAllSourcesByProjectIdAndAssigned(
         @Param("projectId") projectId: Long?,
-        @Param("assigned") assigned: Boolean?
+        @Param("assigned") assigned: Boolean?,
     ): List<Source>
 
     @Query(
-        value = "select source from Source source "
-                + "WHERE source.deleted = false "
-                + "AND source.sourceId = :sourceId", countQuery = "select count(source) from Source source "
-                + "WHERE source.deleted = false "
-                + "AND source.sourceId = :sourceId"
+        value =
+            "select source from Source source " +
+                "WHERE source.deleted = false " +
+                "AND source.sourceId = :sourceId",
+        countQuery =
+            "select count(source) from Source source " +
+                "WHERE source.deleted = false " +
+                "AND source.sourceId = :sourceId",
     )
-    fun findOneBySourceId(@Param("sourceId") sourceId: UUID?): Source?
+    fun findOneBySourceId(
+        @Param("sourceId") sourceId: UUID?,
+    ): Source?
 
     @Query(
-        value = "select source from Source source "
-                + "WHERE source.deleted = false "
-                + "AND source.sourceName = :sourceName", countQuery = "select count(source) from Source source "
-                + "WHERE source.deleted = false "
-                + "AND source.sourceName = :sourceName"
+        value =
+            "select source from Source source " +
+                "WHERE source.deleted = false " +
+                "AND source.sourceName = :sourceName",
+        countQuery =
+            "select count(source) from Source source " +
+                "WHERE source.deleted = false " +
+                "AND source.sourceName = :sourceName",
     )
-    fun findOneBySourceName(@Param("sourceName") sourceName: String?): Source?
+    fun findOneBySourceName(
+        @Param("sourceName") sourceName: String?,
+    ): Source?
 }

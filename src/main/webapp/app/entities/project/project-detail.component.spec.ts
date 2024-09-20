@@ -1,14 +1,14 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { DatePipe } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
-import { of } from 'rxjs';
+import {ComponentFixture, TestBed, waitForAsync} from '@angular/core/testing';
+import {DatePipe} from '@angular/common';
+import {ActivatedRoute, Router} from '@angular/router';
+import {of} from 'rxjs';
 
-import { EventManager } from '../../shared/util/event-manager.service';
-import { ManagementPortalTestModule } from '../../shared/util/test/test.module';
-import { MockActivatedRoute, MockRouter } from '../../shared/util/test/mock-route.service';
-import { ProjectService } from '../../shared/project';
-import { ProjectDetailComponent } from './project-detail.component';
-import { filter, first } from 'rxjs/operators';
+import {EventManager} from '../../shared/util/event-manager.service';
+import {ManagementPortalTestModule} from '../../shared/util/test/test.module';
+import {MockActivatedRoute, MockRouter} from '../../shared/util/test/mock-route.service';
+import {ProjectService} from '../../shared/project';
+import {ProjectDetailComponent} from './project-detail.component';
+import {filter, first} from 'rxjs/operators';
 
 describe('Component Tests', () => {
 

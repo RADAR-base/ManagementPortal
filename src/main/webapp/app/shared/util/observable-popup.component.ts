@@ -1,8 +1,8 @@
-import { Directive, OnDestroy, OnInit } from '@angular/core';
-import { Observable, Subscription } from 'rxjs';
-import { NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { ActivatedRoute, Params } from '@angular/router';
-import { switchMap, take } from 'rxjs/operators';
+import {Directive, OnDestroy, OnInit} from '@angular/core';
+import {Observable, Subscription} from 'rxjs';
+import {NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
+import {ActivatedRoute, Params} from '@angular/router';
+import {switchMap, take} from 'rxjs/operators';
 
 @Directive()
 export abstract class ObservablePopupComponent implements OnInit, OnDestroy {

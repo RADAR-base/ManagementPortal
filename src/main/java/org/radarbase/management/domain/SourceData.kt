@@ -29,30 +29,35 @@ import javax.validation.constraints.Pattern
 @Table(name = "source_data")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @EntityListeners(
-    AbstractEntityListener::class
+    AbstractEntityListener::class,
 )
-class SourceData : AbstractEntity(), Serializable {
+class SourceData :
+    AbstractEntity(),
+    Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
     @SequenceGenerator(name = "sequenceGenerator", initialValue = 1000, sequenceName = "hibernate_sequence")
     override var id: Long? = null
 
-    //SourceData type e.g. ACCELEROMETER, TEMPERATURE.
+    // SourceData type e.g. ACCELEROMETER, TEMPERATURE.
     @JvmField
     @Column(name = "source_data_type", nullable = false)
-    @NotNull var sourceDataType: String? = null
+    @NotNull
+    var sourceDataType: String? = null
 
     // this will be the unique human readable identifier of
     @JvmField
     @Column(name = "source_data_name", nullable = false, unique = true)
-    @NotNull @Pattern(regexp = Constants.ENTITY_ID_REGEX) var sourceDataName: String? = null
+    @NotNull
+    @Pattern(regexp = Constants.ENTITY_ID_REGEX)
+    var sourceDataName: String? = null
 
-    //Default data frequency
+    // Default data frequency
     @JvmField
     @Column(name = "frequency")
     var frequency: String? = null
 
-    //Measurement unit.
+    // Measurement unit.
     @JvmField
     @Column(name = "unit")
     var unit: String? = null
@@ -92,6 +97,7 @@ class SourceData : AbstractEntity(), Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnoreProperties("sourceData") // avoids infinite recursion in JSON serialization
     var sourceType: SourceType? = null
+
     fun sourceDataType(sourceDataType: String?): SourceData {
         this.sourceDataType = sourceDataType
         return this
@@ -147,23 +153,24 @@ class SourceData : AbstractEntity(), Serializable {
         val sourceData = other as SourceData
         return if (sourceData.id == null || id == null) {
             false
-        } else id == sourceData.id
+        } else {
+            id == sourceData.id
+        }
     }
 
-    override fun hashCode(): Int {
-        return Objects.hashCode(id)
-    }
+    override fun hashCode(): Int = Objects.hashCode(id)
 
-    override fun toString(): String {
-        return ("SourceData{" + "id=" + id + ", sourceDataType='" + sourceDataType + '\''
-                + ", frequency='"
-                + frequency + '\'' + ", unit='" + unit + '\'' + ", processingState="
-                + processingState
-                + ", dataClass='" + dataClass + '\'' + ", keySchema='" + keySchema + '\''
-                + ", valueSchema='" + valueSchema + '\'' + ", topic='" + topic + '\''
-                + ", provider='"
-                + provider + '\'' + ", enabled=" + enabled + '}')
-    }
+    override fun toString(): String =
+        (
+            "SourceData{" + "id=" + id + ", sourceDataType='" + sourceDataType + '\'' +
+                ", frequency='" +
+                frequency + '\'' + ", unit='" + unit + '\'' + ", processingState=" +
+                processingState +
+                ", dataClass='" + dataClass + '\'' + ", keySchema='" + keySchema + '\'' +
+                ", valueSchema='" + valueSchema + '\'' + ", topic='" + topic + '\'' +
+                ", provider='" +
+                provider + '\'' + ", enabled=" + enabled + '}'
+            )
 
     companion object {
         private const val serialVersionUID = 1L

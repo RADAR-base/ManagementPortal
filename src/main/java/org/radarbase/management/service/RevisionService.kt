@@ -52,8 +52,9 @@ import javax.validation.constraints.NotNull
 
 @Service
 @Transactional(isolation = Isolation.REPEATABLE_READ, readOnly = true)
-class RevisionService(@param:Autowired private val revisionEntityRepository: CustomRevisionEntityRepository) :
-    ApplicationContextAware {
+class RevisionService(
+    @param:Autowired private val revisionEntityRepository: CustomRevisionEntityRepository,
+) : ApplicationContextAware {
     @PersistenceContext
     private val entityManager: EntityManager? = null
     private val dtoMapperMap: ConcurrentMap<Class<*>?, Function<Any, Any?>> = ConcurrentHashMap()
@@ -70,25 +71,31 @@ class RevisionService(@param:Autowired private val revisionEntityRepository: Cus
         val auditReader = auditReader
         return try {
             // find first revision of the entity
-            val firstRevision = auditReader.createQuery()
-                .forRevisionsOfEntity(entity.javaClass, false, true)
-                .add(AuditEntity.id().eq(entity.id))
-                .add(
-                    AuditEntity.revisionNumber().minimize()
-                        .computeAggregationInInstanceContext()
-                )
-                .singleResult as Array<*>
+            val firstRevision =
+                auditReader
+                    .createQuery()
+                    .forRevisionsOfEntity(entity.javaClass, false, true)
+                    .add(AuditEntity.id().eq(entity.id))
+                    .add(
+                        AuditEntity
+                            .revisionNumber()
+                            .minimize()
+                            .computeAggregationInInstanceContext(),
+                    ).singleResult as Array<*>
             val first = firstRevision[1] as CustomRevisionEntity
 
             // find last revision of the entity
-            val lastRevision = auditReader.createQuery()
-                .forRevisionsOfEntity(entity.javaClass, false, true)
-                .add(AuditEntity.id().eq(entity.id))
-                .add(
-                    AuditEntity.revisionNumber().maximize()
-                        .computeAggregationInInstanceContext()
-                )
-                .singleResult as Array<*>
+            val lastRevision =
+                auditReader
+                    .createQuery()
+                    .forRevisionsOfEntity(entity.javaClass, false, true)
+                    .add(AuditEntity.id().eq(entity.id))
+                    .add(
+                        AuditEntity
+                            .revisionNumber()
+                            .maximize()
+                            .computeAggregationInInstanceContext(),
+                    ).singleResult as Array<*>
             val last = lastRevision[1] as CustomRevisionEntity
 
             // now populate the result object and return it
@@ -96,23 +103,22 @@ class RevisionService(@param:Autowired private val revisionEntityRepository: Cus
                 .setCreatedAt(
                     ZonedDateTime.ofInstant(
                         first.timestamp!!.toInstant(),
-                        ZoneId.systemDefault()
-                    )
-                )
-                .setCreatedBy(first.auditor)
+                        ZoneId.systemDefault(),
+                    ),
+                ).setCreatedBy(first.auditor)
                 .setLastModifiedAt(
                     ZonedDateTime.ofInstant(
                         last.timestamp!!.toInstant(),
-                        ZoneId.systemDefault()
-                    )
-                )
-                .setLastModifiedBy(last.auditor)
+                        ZoneId.systemDefault(),
+                    ),
+                ).setLastModifiedBy(last.auditor)
         } catch (ex: NonUniqueResultException) {
             // should not happen since we call 'minimize'
             throw IllegalStateException(
-                "Query for revision returned a "
-                        + "non-unique result. Please report this to the administrator together with "
-                        + "the request issued.", ex
+                "Query for revision returned a " +
+                    "non-unique result. Please report this to the administrator together with " +
+                    "the request issued.",
+                ex,
             )
         } catch (ex: NoResultException) {
             // we did not find any auditing info, so we just return an empty object
@@ -129,18 +135,20 @@ class RevisionService(@param:Autowired private val revisionEntityRepository: Cus
      * @param clazz the entity class
      * @param <T> the entity class
      * @return the entity at the specified revision
-    </T> */
+     </T> */
     fun <T, R> findRevision(
         revisionNb: Int?,
         id: Long?,
         clazz: Class<T>?,
-        dtoMapper: Function<T, R>
+        dtoMapper: Function<T, R>,
     ): R? {
-        val value: T? = auditReader.createQuery()
-            .forRevisionsOfEntity(clazz, true, true)
-            .add(AuditEntity.id().eq(id))
-            .add(AuditEntity.revisionNumber().eq(revisionNb))
-            .singleResult as T
+        val value: T? =
+            auditReader
+                .createQuery()
+                .forRevisionsOfEntity(clazz, true, true)
+                .add(AuditEntity.id().eq(id))
+                .add(AuditEntity.revisionNumber().eq(revisionNb))
+                .singleResult as T
         return if (value != null) dtoMapper.apply(value) else null
     }
 
@@ -150,10 +158,10 @@ class RevisionService(@param:Autowired private val revisionEntityRepository: Cus
      * @param pageable Page information
      * @return the page of revisions [RevisionInfoDTO]
      */
-    fun getRevisions(pageable: Pageable): Page<RevisionInfoDTO> {
-        return revisionEntityRepository.findAll(pageable)
+    fun getRevisions(pageable: Pageable): Page<RevisionInfoDTO> =
+        revisionEntityRepository
+            .findAll(pageable)
             .map { rev -> RevisionInfoDTO.from(rev!!, getChangesForRevision(rev.id)) }
-    }
 
     /**
      * Get a page of revisions for a given entity.
@@ -162,45 +170,62 @@ class RevisionService(@param:Autowired private val revisionEntityRepository: Cus
      * @param entity the entity for which to get the revisions
      * @return the requested page of revisions for the given entity
      */
-    fun getRevisionsForEntity(pageable: Pageable, entity: AbstractEntity): Page<RevisionDTO> {
+    fun getRevisionsForEntity(
+        pageable: Pageable,
+        entity: AbstractEntity,
+    ): Page<RevisionDTO> {
         val auditReader = auditReader
-        val count = auditReader.createQuery()
-            .forRevisionsOfEntity(entity.javaClass, false, true)
-            .add(AuditEntity.id().eq(entity.id))
-            .addProjection(AuditEntity.revisionNumber().count())
-            .singleResult as Number
+        val count =
+            auditReader
+                .createQuery()
+                .forRevisionsOfEntity(entity.javaClass, false, true)
+                .add(AuditEntity.id().eq(entity.id))
+                .addProjection(AuditEntity.revisionNumber().count())
+                .singleResult as Number
 
         // find all revisions of the entity class that have the correct id
-        val query = auditReader.createQuery()
-            .forRevisionsOfEntity(entity.javaClass, false, true)
-            .add(AuditEntity.id().eq(entity.id))
+        val query =
+            auditReader
+                .createQuery()
+                .forRevisionsOfEntity(entity.javaClass, false, true)
+                .add(AuditEntity.id().eq(entity.id))
 
         // add the page sorting information to the query
         pageable.sort
-            .forEach(Consumer { order: Sort.Order ->
-                query.addOrder(
-                    if (order.direction.isAscending) AuditEntity.property(
-                        order.property
-                    ).asc() else AuditEntity.property(order.property).desc()
-                )
-            })
+            .forEach(
+                Consumer { order: Sort.Order ->
+                    query.addOrder(
+                        if (order.direction.isAscending) {
+                            AuditEntity
+                                .property(
+                                    order.property,
+                                ).asc()
+                        } else {
+                            AuditEntity.property(order.property).desc()
+                        },
+                    )
+                },
+            )
 
         // add the page constraints (offset and amount of results)
-        query.setFirstResult(Math.toIntExact(pageable.offset))
+        query
+            .setFirstResult(Math.toIntExact(pageable.offset))
             .setMaxResults(Math.toIntExact(pageable.pageSize.toLong()))
         val dtoMapper = getDtoMapper(entity.javaClass)
         val resultList = query.resultList as List<Array<*>?>
-        val revisionDtos = resultList
-            .map { objArray: Array<*>? ->
-                RevisionDTO(
-                    Revision.of(
-                        CustomRevisionMetadata((objArray!![1] as CustomRevisionEntity)),
-                        objArray[0]
-                    ),
-                    objArray[2] as RevisionType,
-                    objArray[0]?.let { dtoMapper.apply(it) }
-                )
-            }
+        val revisionDtos =
+            resultList
+                .filter { it != null }
+                .map { objArray: Array<*>? ->
+                    RevisionDTO(
+                        Revision.of(
+                            CustomRevisionMetadata((objArray!![1] as CustomRevisionEntity)),
+                            objArray[0]!!,
+                        ),
+                        objArray[2]!! as RevisionType,
+                        objArray[0]?.let { dtoMapper.apply(it) },
+                    )
+                }
         return PageImpl(revisionDtos, pageable, count.toLong())
     }
 
@@ -213,13 +238,16 @@ class RevisionService(@param:Autowired private val revisionEntityRepository: Cus
      */
     @Throws(NotFoundException::class)
     fun getRevision(revision: Int): RevisionInfoDTO {
-        val revisionEntity = revisionEntityRepository.findById(revision)
-            .orElse(null)
-            ?: throw NotFoundException(
-                "Revision not found with revision id", EntityName.REVISION,
-                ErrorConstants.ERR_REVISIONS_NOT_FOUND,
-                Collections.singletonMap("revision-id", revision.toString())
-            )
+        val revisionEntity =
+            revisionEntityRepository
+                .findById(revision)
+                .orElse(null)
+                ?: throw NotFoundException(
+                    "Revision not found with revision id",
+                    EntityName.REVISION,
+                    ErrorConstants.ERR_REVISIONS_NOT_FOUND,
+                    Collections.singletonMap("revision-id", revision.toString()),
+                )
         return RevisionInfoDTO.from(revisionEntity, getChangesForRevision(revision))
     }
 
@@ -237,13 +265,16 @@ class RevisionService(@param:Autowired private val revisionEntityRepository: Cus
         // show up in revisions where they were still around. However, clearing for every request
         // causes the revisions api to be quite slow, so we retrieve the changes manually using
         // the AuditReader.
-        val revisionEntity = revisionEntityRepository.findById(revision)
-            .orElse(null)
-            ?: throw NotFoundException(
-                "The requested revision could not be found.", EntityName.REVISION,
-                ErrorConstants.ERR_REVISIONS_NOT_FOUND,
-                Collections.singletonMap("revision-id", revision.toString())
-            )
+        val revisionEntity =
+            revisionEntityRepository
+                .findById(revision)
+                .orElse(null)
+                ?: throw NotFoundException(
+                    "The requested revision could not be found.",
+                    EntityName.REVISION,
+                    ErrorConstants.ERR_REVISIONS_NOT_FOUND,
+                    Collections.singletonMap("revision-id", revision.toString()),
+                )
         val auditReader = auditReader
         val result: MutableMap<RevisionType, MutableList<Any>> = HashMap(5)
         for (revisionType in RevisionType.values()) {
@@ -256,12 +287,17 @@ class RevisionService(@param:Autowired private val revisionEntityRepository: Cus
             for (revisionType in RevisionType.values()) {
                 result[revisionType]
                     ?.addAll(
-                        (listOf(auditReader.createQuery()
-                            .forEntitiesModifiedAtRevision(entityClass, revision)
-                            .add(AuditEntity.revisionType().eq(revisionType))
-                            .resultList
-                            .let { toDto(it) } as Collection<*>)
-                    ))
+                        (
+                            listOf(
+                                auditReader
+                                    .createQuery()
+                                    .forEntitiesModifiedAtRevision(entityClass, revision)
+                                    .add(AuditEntity.revisionType().eq(revisionType))
+                                    .resultList
+                                    .let { toDto(it) } as Collection<*>,
+                            )
+                            ),
+                    )
             }
         }
         return result
@@ -274,13 +310,11 @@ class RevisionService(@param:Autowired private val revisionEntityRepository: Cus
      * @param entity the entity to map to it's DTO form
      * @return the DTO form of the given entity
      */
-    private fun toDto(entity: Any?): Any? {
-        return if (entity != null) getDtoMapper(entity.javaClass).apply(entity) else null
-    }
+    private fun toDto(entity: Any?): Any? = if (entity != null) getDtoMapper(entity.javaClass).apply(entity) else null
 
-    private fun getDtoMapper(@NotNull entity: Class<*>?): Function<Any, Any?> {
-        return dtoMapperMap.computeIfAbsent(entity) { clazz: Class<*>? -> addMapperForClass(clazz) }
-    }
+    private fun getDtoMapper(
+        @NotNull entity: Class<*>?,
+    ): Function<Any, Any?> = dtoMapperMap.computeIfAbsent(entity) { clazz: Class<*>? -> addMapperForClass(clazz) }
 
     @Throws(BeansException::class)
     override fun setApplicationContext(applicationContext: ApplicationContext) {
@@ -306,21 +340,26 @@ class RevisionService(@param:Autowired private val revisionEntityRepository: Cus
     @Throws(AuditException::class, NonUniqueResultException::class)
     fun getLatestRevisionForEntity(
         clazz: Class<*>,
-        criteria: List<AuditCriterion?>
+        criteria: List<AuditCriterion?>,
     ): Optional<Any> {
-        val query = auditReader.createQuery()
-            .forRevisionsOfEntity(clazz, true, true)
-            .add(
-                AuditEntity.revisionNumber().maximize()
-                    .computeAggregationInInstanceContext()
-            )
+        val query =
+            auditReader
+                .createQuery()
+                .forRevisionsOfEntity(clazz, true, true)
+                .add(
+                    AuditEntity
+                        .revisionNumber()
+                        .maximize()
+                        .computeAggregationInInstanceContext(),
+                )
         criteria.forEach(Consumer { criterion: AuditCriterion? -> query.add(criterion) })
         return try {
             Optional.ofNullable(toDto(query.singleResult))
         } catch (ex: NoResultException) {
             log.debug(
-                "No entity of type " + clazz.getName() + " found in the revision history "
-                        + "with the given criteria", ex
+                "No entity of type " + clazz.getName() + " found in the revision history " +
+                    "with the given criteria",
+                ex,
             )
             Optional.empty()
         }
@@ -331,34 +370,41 @@ class RevisionService(@param:Autowired private val revisionEntityRepository: Cus
         val scanner = ClassPathScanningCandidateComponentProvider(true)
         scanner.addIncludeFilter(AnnotationTypeFilter(Mapper::class.java))
         // look only in the mapper package
-        return scanner.findCandidateComponents("org.radarbase.management.service.mapper").stream()
-            .flatMap(Function<BeanDefinition, Stream<out Function<Any, Any?>>> { bd: BeanDefinition ->
-                val mapper = beanFromDefinition(bd)
-                Arrays.stream(mapper.javaClass.getMethods()) // look for methods that return our entity's DTO, and take exactly one
-                    // argument of the same type as our entity
-                    .filter { m: Method ->
-                        m.genericReturnType.typeName.endsWith(
-                            clazz!!.getSimpleName() + "DTO"
-                        ) && m.genericParameterTypes.size == 1 && m.genericParameterTypes[0].typeName == clazz.getTypeName()
-                    }
-                    .map(Function { method: Method ->
-                        Function { obj: Any? ->
-                            if (obj == null) {
-                                return@Function null
-                            }
-                            try {
-                                return@Function method.invoke(mapper, obj)
-                            } catch (ex: IllegalAccessException) {
-                                log.error(ex.message, ex)
-                                return@Function null
-                            } catch (ex: InvocationTargetException) {
-                                log.error(ex.message, ex)
-                                return@Function null
-                            }
-                        }
-                    })
-            })
-            .findAny()
+        return scanner
+            .findCandidateComponents("org.radarbase.management.service.mapper")
+            .stream()
+            .flatMap(
+                Function<BeanDefinition, Stream<out Function<Any, Any?>>> { bd: BeanDefinition ->
+                    val mapper = beanFromDefinition(bd)
+                    Arrays
+                        .stream(mapper.javaClass.getMethods()) // look for methods that return our entity's DTO, and take exactly one
+                        // argument of the same type as our entity
+                        .filter { m: Method ->
+                            m.genericReturnType.typeName.endsWith(
+                                clazz!!.getSimpleName() + "DTO",
+                            ) &&
+                                m.genericParameterTypes.size == 1 &&
+                                m.genericParameterTypes[0].typeName == clazz.getTypeName()
+                        }.map(
+                            Function { method: Method ->
+                                Function { obj: Any? ->
+                                    if (obj == null) {
+                                        return@Function null
+                                    }
+                                    try {
+                                        return@Function method.invoke(mapper, obj)
+                                    } catch (ex: IllegalAccessException) {
+                                        log.error(ex.message, ex)
+                                        return@Function null
+                                    } catch (ex: InvocationTargetException) {
+                                        log.error(ex.message, ex)
+                                        return@Function null
+                                    }
+                                }
+                            },
+                        )
+                },
+            ).findAny()
             .orElse(Function { null })
     }
 
@@ -370,20 +416,21 @@ class RevisionService(@param:Autowired private val revisionEntityRepository: Cus
         } catch (ex: ClassNotFoundException) {
             // should not happen, we got the classname from the bean definition
             throw InvalidStateException(
-                ex.message, EntityName.REVISION, "error.classNotFound"
+                ex.message,
+                EntityName.REVISION,
+                "error.classNotFound",
             )
         }
     }
 
-    private fun classForEntityName(entityName: String): Class<*> {
-        return try {
+    private fun classForEntityName(entityName: String): Class<*> =
+        try {
             Class.forName(entityName)
         } catch (ex: ClassNotFoundException) {
             // this should not happen
             log.error("Unable to load class for modified entity", ex)
             throw InvalidStateException(ex.message, EntityName.REVISION, "error.classNotFound")
         }
-    }
 
     private val auditReader: AuditReader
         get() = AuditReaderFactory.get(entityManager)

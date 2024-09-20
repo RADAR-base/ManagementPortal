@@ -1,20 +1,20 @@
-import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import {Injectable} from '@angular/core';
+import {Router} from '@angular/router';
+import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 
-import { SourceType } from './source-type.model';
-import { SourceTypeService } from './source-type.service';
-import { Observable, of } from "rxjs";
-import { catchError, filter, map } from 'rxjs/operators';
+import {SourceType} from './source-type.model';
+import {SourceTypeService} from './source-type.service';
+import {Observable, of} from "rxjs";
+import {catchError, filter, map} from 'rxjs/operators';
 
-@Injectable({ providedIn: 'root' })
+@Injectable({providedIn: 'root'})
 export class SourceTypePopupService {
     private isOpen = false;
 
     constructor(
-            private modalService: NgbModal,
-            private router: Router,
-            private sourceTypeService: SourceTypeService,
+        private modalService: NgbModal,
+        private router: Router,
+        private sourceTypeService: SourceTypeService,
     ) {
     }
 
@@ -26,9 +26,9 @@ export class SourceTypePopupService {
 
         if (producer && model && version) {
             return this.sourceTypeService.find(producer, model, version).pipe(
-              filter(s => !!s),
-              map(sourceType => this.sourceTypeModalRef(component, sourceType)),
-              catchError(() => of(this.sourceTypeModalRef(component, {}))),
+                filter(s => !!s),
+                map(sourceType => this.sourceTypeModalRef(component, sourceType)),
+                catchError(() => of(this.sourceTypeModalRef(component, {}))),
             )
         } else {
             return of(this.sourceTypeModalRef(component, {}));

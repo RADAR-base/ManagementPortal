@@ -17,27 +17,36 @@ import org.springframework.stereotype.Component
  */
 @RepositoryDefinition(domainClass = User::class, idClass = Long::class)
 @Component
-interface UserRepository : JpaRepository<User, Long>, RevisionRepository<User, Long, Int>,
+interface UserRepository :
+    JpaRepository<User, Long>,
+    RevisionRepository<User, Long, Int>,
     JpaSpecificationExecutor<User> {
     fun findOneByActivationKey(activationKey: String): User?
+
     fun findAllByActivated(activated: Boolean): List<User>
 
     @Query(
-        "select user from User user "
-                + "left join fetch user.roles roles where "
-                + "roles.authority.name not in :authorities "
-                + "and user.activated= :activated"
+        "select user from User user " +
+            "left join fetch user.roles roles where " +
+            "roles.authority.name not in :authorities " +
+            "and user.activated= :activated",
     )
     fun findAllByActivatedAndAuthoritiesNot(
         @Param("activated") activated: Boolean,
-        @Param("authorities") authorities: List<String>
+        @Param("authorities") authorities: List<String>,
     ): List<User>
 
     fun findOneByResetKey(resetKey: String): User?
+
     fun findOneByEmail(email: String): User?
+
     fun findOneByLogin(login: String?): User?
 
     @EntityGraph(attributePaths = ["roles", "roles.authority.name"])
     fun findOneWithRolesByLogin(login: String): User?
-    fun findAllByLoginNot(pageable: Pageable, login: String): Page<User>
+
+    fun findAllByLoginNot(
+        pageable: Pageable,
+        login: String,
+    ): Page<User>
 }

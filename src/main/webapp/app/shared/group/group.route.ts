@@ -1,4 +1,4 @@
-import { Routes } from '@angular/router';
+import {Routes} from '@angular/router';
 import {UserRouteAccessService} from "../auth/user-route-access-service";
 import {GroupPopupComponent} from "./group-dialog.component";
 import {GroupDeletePopupComponent} from "./group-delete-dialog.component";

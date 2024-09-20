@@ -12,8 +12,6 @@ import org.radarbase.management.domain.Project
 import org.radarbase.management.domain.Source
 import org.radarbase.management.repository.ProjectRepository
 import org.radarbase.management.repository.SourceRepository
-import org.radarbase.management.service.AuthService
-import org.radarbase.management.service.SourceService
 import org.radarbase.management.service.SourceTypeService
 import org.radarbase.management.service.mapper.SourceMapper
 import org.radarbase.management.service.mapper.SourceTypeMapper
@@ -26,7 +24,6 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.mock.web.MockFilterConfig
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.junit.jupiter.SpringExtension
-import org.springframework.test.util.ReflectionTestUtils
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers
@@ -47,7 +44,6 @@ import javax.servlet.ServletException
 @WithMockUser
 internal class SourceResourceIntTest(
     @Autowired private val sourceResource: SourceResource,
-
     @Autowired private val sourceRepository: SourceRepository,
     @Autowired private val sourceMapper: SourceMapper,
     @Autowired private val sourceTypeService: SourceTypeService,
@@ -67,13 +63,18 @@ internal class SourceResourceIntTest(
         MockitoAnnotations.openMocks(this)
         val filter = OAuthHelper.createAuthenticationFilter()
         filter.init(MockFilterConfig())
-        restDeviceMockMvc = MockMvcBuilders.standaloneSetup(sourceResource)
-            .setCustomArgumentResolvers(pageableArgumentResolver)
-            .setControllerAdvice(exceptionTranslator)
-            .setMessageConverters(jacksonMessageConverter)
-            .addFilter<StandaloneMockMvcBuilder>(filter)
-            .defaultRequest<StandaloneMockMvcBuilder>(MockMvcRequestBuilders.get("/").with(OAuthHelper.bearerToken()))
-            .alwaysDo<StandaloneMockMvcBuilder>(MockMvcResultHandlers.print()).build()
+        restDeviceMockMvc =
+            MockMvcBuilders
+                .standaloneSetup(sourceResource)
+                .setCustomArgumentResolvers(pageableArgumentResolver)
+                .setControllerAdvice(exceptionTranslator)
+                .setMessageConverters(jacksonMessageConverter)
+                .addFilter<StandaloneMockMvcBuilder>(filter)
+                .defaultRequest<StandaloneMockMvcBuilder>(
+                    MockMvcRequestBuilders.get("/").with(OAuthHelper.bearerToken()),
+                )
+                .alwaysDo<StandaloneMockMvcBuilder>(MockMvcResultHandlers.print())
+                .build()
     }
 
     @BeforeEach
@@ -94,12 +95,13 @@ internal class SourceResourceIntTest(
 
         // Create the Source
         val sourceDto = sourceMapper.sourceToSourceDTO(source)
-        restDeviceMockMvc.perform(
-            MockMvcRequestBuilders.post("/api/sources")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(sourceDto))
-        )
-            .andExpect(MockMvcResultMatchers.status().isCreated())
+        restDeviceMockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .post("/api/sources")
+                    .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                    .content(TestUtil.convertObjectToJsonBytes(sourceDto)),
+            ).andExpect(MockMvcResultMatchers.status().isCreated())
 
         // Validate the Source in the database
         val sourceList = sourceRepository.findAll()
@@ -121,12 +123,13 @@ internal class SourceResourceIntTest(
         val sourceDto = sourceMapper.sourceToSourceDTO(source)
 
         // An entity with an existing ID cannot be created, so this API call must fail
-        restDeviceMockMvc.perform(
-            MockMvcRequestBuilders.post("/api/sources")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(sourceDto))
-        )
-            .andExpect(MockMvcResultMatchers.status().isBadRequest())
+        restDeviceMockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .post("/api/sources")
+                    .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                    .content(TestUtil.convertObjectToJsonBytes(sourceDto)),
+            ).andExpect(MockMvcResultMatchers.status().isBadRequest())
 
         // Validate the Alice in the database
         val sourceList = sourceRepository.findAll()
@@ -143,20 +146,23 @@ internal class SourceResourceIntTest(
 
         // Create the Source
         val sourceDto = sourceMapper.sourceToSourceDTO(source)
-        restDeviceMockMvc.perform(
-            MockMvcRequestBuilders.post("/api/sources")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(sourceDto))
-        )
-            .andExpect(MockMvcResultMatchers.status().isCreated())
+        restDeviceMockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .post("/api/sources")
+                    .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                    .content(TestUtil.convertObjectToJsonBytes(sourceDto)),
+            ).andExpect(MockMvcResultMatchers.status().isCreated())
         val sourceList = sourceRepository.findAll()
         Assertions.assertThat(sourceList).hasSize(databaseSizeBeforeTest + 1)
 
         // find our created source
-        val createdSource = sourceList.stream()
-            .filter { s: Source? -> s!!.sourceName == DEFAULT_SOURCE_NAME }
-            .findFirst()
-            .orElse(null)
+        val createdSource =
+            sourceList
+                .stream()
+                .filter { s: Source? -> s!!.sourceName == DEFAULT_SOURCE_NAME }
+                .findFirst()
+                .orElse(null)
         Assertions.assertThat(createdSource).isNotNull()
 
         // check source id
@@ -173,12 +179,13 @@ internal class SourceResourceIntTest(
 
         // Create the Source, which fails.
         val sourceDto = sourceMapper.sourceToSourceDTO(source)
-        restDeviceMockMvc.perform(
-            MockMvcRequestBuilders.post("/api/sources")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(sourceDto))
-        )
-            .andExpect(MockMvcResultMatchers.status().isBadRequest())
+        restDeviceMockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .post("/api/sources")
+                    .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                    .content(TestUtil.convertObjectToJsonBytes(sourceDto)),
+            ).andExpect(MockMvcResultMatchers.status().isBadRequest())
         val sourceList = sourceRepository.findAll()
         Assertions.assertThat(sourceList).hasSize(databaseSizeBeforeTest)
     }
@@ -187,29 +194,28 @@ internal class SourceResourceIntTest(
     @Transactional
     @Test
     fun allSources() {
-            // Initialize the database
-            sourceRepository.saveAndFlush(source)
+        // Initialize the database
+        sourceRepository.saveAndFlush(source)
 
-            // Get all the deviceList
-            restDeviceMockMvc.perform(MockMvcRequestBuilders.get("/api/sources?sort=id,desc"))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(
-                    MockMvcResultMatchers.jsonPath("$.[*].id").value<Iterable<Int?>>(
-                        Matchers.hasItem(
-                            source.id!!.toInt()
-                        )
-                    )
-                )
-                .andExpect(
-                    MockMvcResultMatchers.jsonPath("$.[*].sourceId").value(Matchers.everyItem(Matchers.notNullValue()))
-                )
-                .andExpect(
-                    MockMvcResultMatchers.jsonPath("$.[*].assigned").value<Iterable<Boolean?>>(
-                        Matchers.hasItem(DEFAULT_ASSIGNED)
-                    )
-                )
-        }
+        // Get all the deviceList
+        restDeviceMockMvc
+            .perform(MockMvcRequestBuilders.get("/api/sources?sort=id,desc"))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$.[*].id").value<Iterable<Int?>>(
+                    Matchers.hasItem(
+                        source.id!!.toInt(),
+                    ),
+                ),
+            ).andExpect(
+                MockMvcResultMatchers.jsonPath("$.[*].sourceId").value(Matchers.everyItem(Matchers.notNullValue())),
+            ).andExpect(
+                MockMvcResultMatchers.jsonPath("$.[*].assigned").value<Iterable<Boolean?>>(
+                    Matchers.hasItem(DEFAULT_ASSIGNED),
+                ),
+            )
+    }
 
     @Test
     @Transactional
@@ -219,7 +225,8 @@ internal class SourceResourceIntTest(
         sourceRepository.saveAndFlush(source)
 
         // Get the source
-        restDeviceMockMvc.perform(MockMvcRequestBuilders.get("/api/sources/{sourceName}", source.sourceName))
+        restDeviceMockMvc
+            .perform(MockMvcRequestBuilders.get("/api/sources/{sourceName}", source.sourceName))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(source.id!!.toInt()))
@@ -231,10 +238,11 @@ internal class SourceResourceIntTest(
     @Transactional
     @Test
     fun nonExistingSource() {
-            // Get the source
-            restDeviceMockMvc.perform(MockMvcRequestBuilders.get("/api/sources/{id}", Long.MAX_VALUE))
-                .andExpect(MockMvcResultMatchers.status().isNotFound())
-        }
+        // Get the source
+        restDeviceMockMvc
+            .perform(MockMvcRequestBuilders.get("/api/sources/{id}", Long.MAX_VALUE))
+            .andExpect(MockMvcResultMatchers.status().isNotFound())
+    }
 
     @Test
     @Transactional
@@ -250,12 +258,13 @@ internal class SourceResourceIntTest(
             .sourceId(UPDATED_SOURCE_PHYSICAL_ID)
             .assigned = UPDATED_ASSIGNED
         val sourceDto = sourceMapper.sourceToSourceDTO(updatedSource)
-        restDeviceMockMvc.perform(
-            MockMvcRequestBuilders.put("/api/sources")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(sourceDto))
-        )
-            .andExpect(MockMvcResultMatchers.status().isOk())
+        restDeviceMockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .put("/api/sources")
+                    .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                    .content(TestUtil.convertObjectToJsonBytes(sourceDto)),
+            ).andExpect(MockMvcResultMatchers.status().isOk())
 
         // Validate the Source in the database
         val sourceList = sourceRepository.findAll()
@@ -275,12 +284,13 @@ internal class SourceResourceIntTest(
         val sourceDto = sourceMapper.sourceToSourceDTO(source)
 
         // If the entity doesn't have an ID, it will be created instead of just being updated
-        restDeviceMockMvc.perform(
-            MockMvcRequestBuilders.put("/api/sources")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(sourceDto))
-        )
-            .andExpect(MockMvcResultMatchers.status().isCreated())
+        restDeviceMockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .put("/api/sources")
+                    .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                    .content(TestUtil.convertObjectToJsonBytes(sourceDto)),
+            ).andExpect(MockMvcResultMatchers.status().isCreated())
 
         // Validate the Source in the database
         val sourceList = sourceRepository.findAll()
@@ -296,11 +306,12 @@ internal class SourceResourceIntTest(
         val databaseSizeBeforeDelete = sourceRepository.findAll().size
 
         // Get the source
-        restDeviceMockMvc.perform(
-            MockMvcRequestBuilders.delete("/api/sources/{sourceName}", source.sourceName)
-                .accept(TestUtil.APPLICATION_JSON_UTF8)
-        )
-            .andExpect(MockMvcResultMatchers.status().isOk())
+        restDeviceMockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .delete("/api/sources/{sourceName}", source.sourceName)
+                    .accept(TestUtil.APPLICATION_JSON_UTF8),
+            ).andExpect(MockMvcResultMatchers.status().isOk())
 
         // Validate the database is empty
         val sourceList = sourceRepository.findAll()
@@ -311,7 +322,8 @@ internal class SourceResourceIntTest(
     @Transactional
     @Throws(Exception::class)
     fun equalsVerifier() {
-        org.junit.jupiter.api.Assertions.assertTrue(TestUtil.equalsVerifier(Source::class.java))
+        org.junit.jupiter.api.Assertions
+            .assertTrue(TestUtil.equalsVerifier(Source::class.java))
     }
 
     companion object {
@@ -329,8 +341,9 @@ internal class SourceResourceIntTest(
          * if they test an entity which requires the current entity.
          */
         fun createEntity(): Source {
-            val s = Source()
-                .sourceName(DEFAULT_SOURCE_NAME)
+            val s =
+                Source()
+                    .sourceName(DEFAULT_SOURCE_NAME)
 
             s.assigned = DEFAULT_ASSIGNED
             return s

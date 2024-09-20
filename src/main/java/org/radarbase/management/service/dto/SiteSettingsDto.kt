@@ -9,6 +9,7 @@ import java.util.*
  */
 class SiteSettingsDto : Serializable {
     var hiddenSubjectFields = listOf<String>()
+
     override fun equals(other: Any?): Boolean {
         if (this === other) {
             return true
@@ -20,14 +21,13 @@ class SiteSettingsDto : Serializable {
         return hiddenSubjectFields == that.hiddenSubjectFields
     }
 
-    override fun hashCode(): Int {
-        return Objects.hash(hiddenSubjectFields)
-    }
+    override fun hashCode(): Int = Objects.hash(hiddenSubjectFields)
 
-    override fun toString(): String {
-        return ("SiteSettingsDTO{"
-                + "hiddenSubjectProperties="
-                + hiddenSubjectFields
-                + '}')
-    }
+    override fun toString(): String =
+        (
+            "SiteSettingsDTO{" +
+                "hiddenSubjectProperties=" +
+                hiddenSubjectFields +
+                '}'
+            )
 }

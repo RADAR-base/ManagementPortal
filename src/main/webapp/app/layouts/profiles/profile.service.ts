@@ -1,19 +1,19 @@
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { first, map, switchMap, tap } from 'rxjs/operators';
+import {Injectable} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {first, map, switchMap, tap} from 'rxjs/operators';
 
-import { ProfileInfo } from './profile-info.model';
-import { BehaviorSubject, Observable, of } from 'rxjs';
+import {ProfileInfo} from './profile-info.model';
+import {BehaviorSubject, Observable, of} from 'rxjs';
 
 interface MinimalProfileInfo {
     activeProfiles: string[],
 }
 
-@Injectable({ providedIn: 'root' })
+@Injectable({providedIn: 'root'})
 export class ProfileService {
+    profileInfo$: Observable<ProfileInfo>
     private profileInfoUrl = 'api/profile-info';
     private _activeProfiles$: BehaviorSubject<MinimalProfileInfo | null> = new BehaviorSubject(null);
-    profileInfo$: Observable<ProfileInfo>
 
     constructor(private http: HttpClient) {
         this.profileInfo$ = this._activeProfiles$.pipe(

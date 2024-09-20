@@ -16,11 +16,13 @@ class SampleRateConfig {
 
     @JsonProperty
     val isConfigurable = false
-    override fun toString(): String {
-        return ("SampleRateConfig{interval=" + interval
-                + ", frequency=" + frequency
-                + ", dynamic=" + isDynamic
-                + ", configurable=" + isConfigurable
-                + '}')
-    }
+
+    override fun toString(): String =
+        (
+            "SampleRateConfig{interval=" + interval +
+                ", frequency=" + frequency +
+                ", dynamic=" + isDynamic +
+                ", configurable=" + isConfigurable +
+                '}'
+            )
 }

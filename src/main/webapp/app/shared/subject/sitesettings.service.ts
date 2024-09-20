@@ -6,9 +6,9 @@ import {map, mergeMap, shareReplay, tap} from "rxjs/operators";
 @Injectable({providedIn: 'root'})
 export class SiteSettingsService {
 
+    siteSettings$: Observable<SiteSettings>;
     private siteSettingsResourceUrl = 'api/sitesettings';
     private _siteSettings$ = new BehaviorSubject<SiteSettings>(null);
-    siteSettings$: Observable<SiteSettings>;
 
     constructor(private http: HttpClient) {
         this.siteSettings$ = this._siteSettings$.pipe(
@@ -17,28 +17,7 @@ export class SiteSettingsService {
         );
     }
 
-    private fetchSiteSettings() {
-        return this.http.get<SiteSettings>(this.siteSettingsResourceUrl).pipe(
-            map(s => this.checkAndClean(s)),
-            tap(s => this._siteSettings$.next(s)),
-        );
-    }
-
-    private checkAndClean(s: SiteSettings) : SiteSettings {
-        if (s != null &&
-            typeof s == 'object' &&
-            Array.isArray(s.hiddenSubjectFields)
-        ){
-            s.hiddenSubjectFields = this.ParseHideableSubjectFields(s.hiddenSubjectFields);
-            return s;
-        }
-
-        return {
-            hiddenSubjectFields: new Set<HideableSubjectField>()
-        }
-    }
-
-    ParseHideableSubjectFields(fields: Set<string>) : Set<HideableSubjectField> {
+    ParseHideableSubjectFields(fields: Set<string>): Set<HideableSubjectField> {
         var parsed = new Set<HideableSubjectField>()
 
         for (let fieldIndex in fields)
@@ -52,6 +31,27 @@ export class SiteSettingsService {
 
     isHideableSubjectField(value: string): value is HideableSubjectField {
         return Object.values(HideableSubjectField).includes(value as HideableSubjectField);
+    }
+
+    private fetchSiteSettings() {
+        return this.http.get<SiteSettings>(this.siteSettingsResourceUrl).pipe(
+            map(s => this.checkAndClean(s)),
+            tap(s => this._siteSettings$.next(s)),
+        );
+    }
+
+    private checkAndClean(s: SiteSettings): SiteSettings {
+        if (s != null &&
+            typeof s == 'object' &&
+            Array.isArray(s.hiddenSubjectFields)
+        ) {
+            s.hiddenSubjectFields = this.ParseHideableSubjectFields(s.hiddenSubjectFields);
+            return s;
+        }
+
+        return {
+            hiddenSubjectFields: new Set<HideableSubjectField>()
+        }
     }
 }
 

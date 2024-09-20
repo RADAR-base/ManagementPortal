@@ -1,8 +1,6 @@
 package org.radarbase.auth.authorization
 
 import org.radarbase.auth.token.RadarToken
-import java.util.*
-import java.util.function.Consumer
 
 interface AuthorizationOracle {
     /**
@@ -33,7 +31,10 @@ interface AuthorizationOracle {
      * check whether [identity] has access to a specific entity or global access.
      * @return true if identity has scope, false otherwise
      */
-    fun hasScope(identity: RadarToken, permission: Permission): Boolean
+    fun hasScope(
+        identity: RadarToken,
+        permission: Permission,
+    ): Boolean
 
     /**
      * Return a list of referents, per scope, that given [identity] has given [permission] on.
@@ -44,12 +45,10 @@ interface AuthorizationOracle {
      */
     fun referentsByScope(
         identity: RadarToken,
-        permission: Permission
+        permission: Permission,
     ): AuthorityReferenceSet
 
-    fun Collection<RoleAuthority>.mayBeGranted(permission: Permission): Boolean =
-        any { it.mayBeGranted(permission) }
+    fun Collection<RoleAuthority>.mayBeGranted(permission: Permission): Boolean = any { it.mayBeGranted(permission) }
 
     fun RoleAuthority.mayBeGranted(permission: Permission): Boolean
 }
-

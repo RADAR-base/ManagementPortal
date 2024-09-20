@@ -33,7 +33,7 @@ class RevisionResource {
     @Timed
     @Secured(RoleAuthority.SYS_ADMIN_AUTHORITY)
     fun getRevisions(
-        @PageableDefault(page = 0, size = Int.MAX_VALUE) pageable: Pageable?
+        @PageableDefault(page = 0, size = Int.MAX_VALUE) pageable: Pageable?,
     ): ResponseEntity<List<RevisionInfoDTO>> {
         log.debug("REST request to get page of revisions")
         val page = revisionService!!.getRevisions(pageable!!)
@@ -49,7 +49,9 @@ class RevisionResource {
     @GetMapping("/revisions/{id}")
     @Timed
     @Secured(RoleAuthority.SYS_ADMIN_AUTHORITY)
-    fun getRevision(@PathVariable("id") id: Int): ResponseEntity<RevisionInfoDTO> {
+    fun getRevision(
+        @PathVariable("id") id: Int,
+    ): ResponseEntity<RevisionInfoDTO> {
         log.debug("REST request to get single revision: {}", id.toString())
         return ResponseEntity.ok(revisionService!!.getRevision(id))
     }

@@ -1,9 +1,6 @@
-import { NgModule } from '@angular/core';
-import { Title } from '@angular/platform-browser';
-import {
-    FindLanguageFromKeyPipe,
-    ManagementPortalSharedLibsModule,
-} from './';
+import {NgModule} from '@angular/core';
+import {Title} from '@angular/platform-browser';
+import {FindLanguageFromKeyPipe, ManagementPortalSharedLibsModule,} from './';
 
 @NgModule({
     imports: [

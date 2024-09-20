@@ -1,14 +1,14 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { DatePipe } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
-import { of } from 'rxjs';
+import {ComponentFixture, TestBed, waitForAsync} from '@angular/core/testing';
+import {DatePipe} from '@angular/common';
+import {ActivatedRoute} from '@angular/router';
+import {of} from 'rxjs';
 
-import { EventManager } from '../../shared/util/event-manager.service';
-import { ManagementPortalTestModule } from '../../shared/util/test/test.module';
-import { MockActivatedRoute } from '../../shared/util/test/mock-route.service';
-import { ProjectService } from '../../shared/project';
-import { OrganizationDetailComponent } from './organization-detail.component';
-import { first } from 'rxjs/operators';
+import {EventManager} from '../../shared/util/event-manager.service';
+import {ManagementPortalTestModule} from '../../shared/util/test/test.module';
+import {MockActivatedRoute} from '../../shared/util/test/mock-route.service';
+import {ProjectService} from '../../shared/project';
+import {OrganizationDetailComponent} from './organization-detail.component';
+import {first} from 'rxjs/operators';
 
 describe('Component Tests', () => {
 
@@ -41,18 +41,18 @@ describe('Component Tests', () => {
 
         describe('OnInit', () => {
             it('Should call load all on init', waitForAsync(async () => {
-            // GIVEN
+                // GIVEN
 
-            spyOn(service, 'find').and.returnValue(of({id: 10, organization: {name: 'test'}}));
+                spyOn(service, 'find').and.returnValue(of({id: 10, organization: {name: 'test'}}));
 
-            // WHEN
-            comp.ngOnInit();
+                // WHEN
+                comp.ngOnInit();
 
-            // THEN
-            const org = await comp.organization$.pipe(first()).toPromise();
-            expect(org).toEqual(jasmine.objectContaining({id: 10, organization: {name: 'test'}}));
+                // THEN
+                const org = await comp.organization$.pipe(first()).toPromise();
+                expect(org).toEqual(jasmine.objectContaining({id: 10, organization: {name: 'test'}}));
 
-            expect(service.find).toHaveBeenCalledWith('testOrganization');
+                expect(service.find).toHaveBeenCalledWith('testOrganization');
 
             }));
         });

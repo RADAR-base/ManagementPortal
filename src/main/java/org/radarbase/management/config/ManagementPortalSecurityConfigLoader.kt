@@ -65,17 +65,19 @@ class ManagementPortalSecurityConfigLoader {
     @Transactional
     fun createAdminIdentity() {
         try {
-            if (!isAdminIdCreated && managementPortalProperties?.identityServer?.serverUrl != null && managementPortalProperties.identityServer.adminEmail != null) {
+            if (!isAdminIdCreated &&
+                managementPortalProperties?.identityServer?.serverUrl != null &&
+                managementPortalProperties.identityServer.adminEmail != null
+            ) {
                 logger.info("Overriding admin email to ${managementPortalProperties.identityServer.adminEmail}")
                 val dto: UserDTO =
-                    runBlocking { userService!!.addAdminEmail(managementPortalProperties.identityServer.adminEmail) }
+                    runBlocking { userService!!.addAdminEmail(managementPortalProperties.identityServer.adminEmail!!) }
                 runBlocking { userService?.updateUser(dto) }
                 isAdminIdCreated = true
             } else if (!isAdminIdCreated) {
                 logger.warn("AdminEmail property is left empty, thus no admin identity could be created.")
             }
-        }
-        catch (e: Throwable){
+        } catch (e: Throwable) {
             logger.error("could not update/create admin identity. This may result in an unstable state", e)
         }
     }
@@ -94,15 +96,18 @@ class ManagementPortalSecurityConfigLoader {
         details.refreshTokenValiditySeconds = frontend.refreshTokenValiditySeconds
         details.setResourceIds(
             listOf(
-                "res_ManagementPortal", "res_appconfig", "res_upload",
-                "res_restAuthorizer"
-            )
+                "res_ManagementPortal",
+                "res_appconfig",
+                "res_upload",
+                "res_restAuthorizer",
+            ),
         )
         details.setAuthorizedGrantTypes(
             mutableListOf(
-                "password", "refresh_token",
-                "authorization_code"
-            )
+                "password",
+                "refresh_token",
+                "authorization_code",
+            ),
         )
         details.setAdditionalInformation(Collections.singletonMap("protected", true))
         val allScopes = listOf(*scopes())
@@ -128,14 +133,17 @@ class ManagementPortalSecurityConfigLoader {
         // column order
         val columnOrder = getCsvFileColumnOrder(file) ?: return
         val mapper = CsvMapper()
-        val schema = mapper.schemaFor(CustomBaseClientDetails::class.java)
-            .withColumnReordering(true)
-            .sortedBy(*columnOrder)
-            .withColumnSeparator(SEPARATOR)
-            .withHeader()
-        val reader = mapper
-            .readerFor(CustomBaseClientDetails::class.java)
-            .with(schema)
+        val schema =
+            mapper
+                .schemaFor(CustomBaseClientDetails::class.java)
+                .withColumnReordering(true)
+                .sortedBy(*columnOrder)
+                .withColumnSeparator(SEPARATOR)
+                .withHeader()
+        val reader =
+            mapper
+                .readerFor(CustomBaseClientDetails::class.java)
+                .with(schema)
         try {
             Files.newInputStream(file).use { inputStream ->
                 reader.readValues<BaseClientDetails>(inputStream).use { iterator ->
@@ -167,8 +175,9 @@ class ManagementPortalSecurityConfigLoader {
             logger.info("OAuth client loaded: " + details.clientId)
         } catch (ex: Exception) {
             logger.error(
-                "Unable to load OAuth client " + details.clientId + ": "
-                        + ex.message, ex
+                "Unable to load OAuth client " + details.clientId + ": " +
+                    ex.message,
+                ex,
             )
         }
     }
@@ -176,7 +185,10 @@ class ManagementPortalSecurityConfigLoader {
     private fun getCsvFileColumnOrder(csvFile: Path): Array<String>? {
         try {
             Files.newBufferedReader(csvFile).use { bufferedReader ->
-                return bufferedReader.readLine().split(SEPARATOR.toString().toRegex()).dropLastWhile { it.isEmpty() }
+                return bufferedReader
+                    .readLine()
+                    .split(SEPARATOR.toString().toRegex())
+                    .dropLastWhile { it.isEmpty() }
                     .toTypedArray()
             }
         } catch (ex: Exception) {
@@ -193,9 +205,8 @@ class ManagementPortalSecurityConfigLoader {
     private class CustomBaseClientDetails : BaseClientDetails() {
         @JsonProperty("additional_information")
         private var additionalInformation: Map<String, Any> = LinkedHashMap()
-        override fun getAdditionalInformation(): Map<String, Any> {
-            return additionalInformation
-        }
+
+        override fun getAdditionalInformation(): Map<String, Any> = additionalInformation
 
         @JsonSetter("additional_information")
         fun setAdditionalInformation(additionalInformation: String) {
@@ -205,12 +216,16 @@ class ManagementPortalSecurityConfigLoader {
             }
             val mapper = ObjectMapper()
             try {
-                this.additionalInformation = mapper.readValue<Map<String, Any>>(additionalInformation,
-                    object : TypeReference<Map<String, Any>>() {})
+                this.additionalInformation =
+                    mapper.readValue<Map<String, Any>>(
+                        additionalInformation,
+                        object : TypeReference<Map<String, Any>>() {},
+                    )
             } catch (ex: Exception) {
                 logger.error(
-                    "Unable to parse additional_information field for client "
-                            + clientId + ": " + ex.message, ex
+                    "Unable to parse additional_information field for client " +
+                        clientId + ": " + ex.message,
+                    ex,
                 )
             }
         }

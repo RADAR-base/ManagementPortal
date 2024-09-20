@@ -16,10 +16,10 @@ class SourceDataDTO : Serializable {
 
     var sourceDataName: String? = null
 
-    //Default data frequency
+    // Default data frequency
     var frequency: String? = null
 
-    //Measurement unit.
+    // Measurement unit.
     var unit: String? = null
 
     // Define if the samples are RAW data or the result of some computation
@@ -46,29 +46,30 @@ class SourceDataDTO : Serializable {
         val sourceDataDto = other as SourceDataDTO
         return if (sourceDataDto.id == null || id == null) {
             false
-        } else id == sourceDataDto.id
+        } else {
+            id == sourceDataDto.id
+        }
     }
 
-    override fun hashCode(): Int {
-        return Objects.hashCode(id)
-    }
+    override fun hashCode(): Int = Objects.hashCode(id)
 
-    override fun toString(): String {
-        return ("SourceDataDTO{"
-                + "id=" + id
-                + ", sourceDataType='" + sourceDataType + '\''
-                + ", sourceDataName='" + sourceDataName + '\''
-                + ", frequency='" + frequency + '\''
-                + ", unit='" + unit + '\''
-                + ", processingState=" + processingState
-                + ", dataClass=" + dataClass
-                + ", keySchema='" + keySchema + '\''
-                + ", valueSchema='" + valueSchema + '\''
-                + ", topic='" + topic + '\''
-                + ", provider='" + provider + '\''
-                + ", enabled=" + isEnabled
-                + '}')
-    }
+    override fun toString(): String =
+        (
+            "SourceDataDTO{" +
+                "id=" + id +
+                ", sourceDataType='" + sourceDataType + '\'' +
+                ", sourceDataName='" + sourceDataName + '\'' +
+                ", frequency='" + frequency + '\'' +
+                ", unit='" + unit + '\'' +
+                ", processingState=" + processingState +
+                ", dataClass=" + dataClass +
+                ", keySchema='" + keySchema + '\'' +
+                ", valueSchema='" + valueSchema + '\'' +
+                ", topic='" + topic + '\'' +
+                ", provider='" + provider + '\'' +
+                ", enabled=" + isEnabled +
+                '}'
+            )
 
     companion object {
         private const val serialVersionUID = 1L

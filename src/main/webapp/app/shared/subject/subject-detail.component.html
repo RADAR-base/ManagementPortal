@@ -1,25 +1,24 @@
-
 <div *ngIf="subject">
-    <h2><span [translate]="'managementPortalApp.subject.detail.title'"></span>: {{subject.id}}</h2>
+    <h2><span [translate]="'managementPortalApp.subject.detail.title'"></span>: {{ subject.id }}</h2>
     <hr>
     <jhi-alert-error></jhi-alert-error>
     <dl class="row-md jh-entity-details">
         <dt><span [translate]="'managementPortalApp.subject.login'"></span></dt>
         <dd>
-            <span>{{subject.login}}</span>
+            <span>{{ subject.login }}</span>
         </dd>
         <dt><span [translate]="'managementPortalApp.subject.externalLink'"></span></dt>
         <dd>
-            <span>{{subject.externalLink}}</span>
+            <span>{{ subject.externalLink }}</span>
         </dd>
         <dt><span [translate]="'managementPortalApp.subject.externalId'"></span></dt>
         <dd>
-            <span>{{subject.externalId}}</span>
+            <span>{{ subject.externalId }}</span>
         </dd>
         <dt><span [translate]="'managementPortalApp.subject.project'"></span></dt>
         <dd>
             <span *ngIf="subject.project">
-                  <a [routerLink]="['/project', subject.project?.projectName ]" >{{subject.project?.projectName}}</a>
+                  <a [routerLink]="['/project', subject.project?.projectName ]">{{ subject.project?.projectName }}</a>
             </span>
         </dd>
 
@@ -27,77 +26,78 @@
             <div *ngIf="!hiddenFields.has(HideableSubjectField.GROUP)">
                 <dt><span [translate]="'managementPortalApp.subject.group'"></span></dt>
                 <dd>
-                    <span>{{subject.group || '-'}}</span>
+                    <span>{{ subject.group || '-' }}</span>
                 </dd>
             </div>
             <dt><span [translate]="'managementPortalApp.subject.sources'"></span></dt>
             <dd>
                 <span *ngFor="let sources of subject.sources; let last = last">
-                    <a [routerLink]="['/source', sources?.sourceName ]">{{sources.sourceTypeModel}}: {{sources.sourceName}}</a>{{last ? '' : ', '}}
+                    <a [routerLink]="['/source', sources?.sourceName ]">{{ sources.sourceTypeModel }}
+                        : {{ sources.sourceName }}</a>{{ last ? '' : ', ' }}
                 </span>
             </dd>
 
             <dt><span [translate]="'managementPortalApp.subject.attributeData'"></span></dt>
             <dd>
                 <div *ngFor="let entry of subject.attributes | keyvalue; trackBy: trackKey">
-                    <span class="form-control-static">{{entry.key}}: {{entry.value}}</span>
+                    <span class="form-control-static">{{ entry.key }}: {{ entry.value }}</span>
                 </div>
             </dd>
             <div *ngIf="!hiddenFields.has(HideableSubjectField.NAME)">
                 <dt><span [translate]="'managementPortalApp.subject.personName'"></span></dt>
-                <dd>{{subject.personName}}"</dd>
+                <dd>{{ subject.personName }}"</dd>
             </div>
             <div *ngIf="!hiddenFields.has(HideableSubjectField.DATEOFBIRTH)">
                 <dt><span [translate]="'managementPortalApp.subject.dateOfBirth'"></span></dt>
-                <dd>{{subject.dateOfBirth | date:'yyyy-MM-dd' }}</dd>
+                <dd>{{ subject.dateOfBirth | date:'yyyy-MM-dd' }}</dd>
             </div>
         </div>
         <dt><span [translate]="'managementPortalApp.subject.enrollmentDate'"></span></dt>
-        <dd>{{subject.enrollmentDate | date:'yyyy-MM-dd HH:mm' }}</dd>
+        <dd>{{ subject.enrollmentDate | date:'yyyy-MM-dd HH:mm' }}</dd>
         <dt><span [translate]="'managementPortalApp.subject.createdBy'"></span></dt>
-        <dd>{{subject.createdBy}}</dd>
+        <dd>{{ subject.createdBy }}</dd>
         <dt><span [translate]="'managementPortalApp.subject.createdDate'"></span></dt>
-        <dd>{{subject.createdDate | date:'yyyy-MM-dd HH:mm' }}</dd>
+        <dd>{{ subject.createdDate | date:'yyyy-MM-dd HH:mm' }}</dd>
         <dt><span [translate]="'managementPortalApp.subject.lastModifiedBy'"></span></dt>
-        <dd>{{subject.lastModifiedBy}}</dd>
+        <dd>{{ subject.lastModifiedBy }}</dd>
         <dt><span [translate]="'managementPortalApp.subject.lastModifiedDate'"></span></dt>
-        <dd>{{subject.lastModifiedDate | date:'yyyy-MM-dd HH:mm'}}</dd>
+        <dd>{{ subject.lastModifiedDate | date:'yyyy-MM-dd HH:mm' }}</dd>
 
     </dl>
 
     <div class="subject-detail__actions">
-        <button type="submit"
-                (click)="previousState()"
-                class="btn btn-info">
+        <button (click)="previousState()"
+                class="btn btn-info"
+                type="submit">
             <span class="fa fa-arrow-left"></span>
             <span [translate]="'entity.action.back'"></span>
         </button>
         <button *jhiHasAnyAuthority="['ROLE_SYS_ADMIN', 'ROLE_PROJECT_ADMIN']"
-            class="btn btn-dark"
-            [routerLink]="['/subject', subject.login, 'revisions']">
+                [routerLink]="['/subject', subject.login, 'revisions']"
+                class="btn btn-dark">
             <span class="fa fa-history"></span>
             <span [translate]="'revisions.title'"></span>
         </button>
         <button
-            type="button"
-            class="btn btn-warning"
-            [disabled]="subject.status != 'ACTIVATED'"
-            [routerLink]="['/', { outlets: { popup: 'subject/'+ subject.login + '/discontinue'} }]"
-            replaceUrl="true"
+                [disabled]="subject.status != 'ACTIVATED'"
+                [routerLink]="['/', { outlets: { popup: 'subject/'+ subject.login + '/discontinue'} }]"
+                class="btn btn-warning"
+                replaceUrl="true"
+                type="button"
         >
             <span class="fa fa-stop"></span>
-            <span class="hidden-md-down"
-                [translate]="'managementPortalApp.subject.discontinue.operation'">
+            <span [translate]="'managementPortalApp.subject.discontinue.operation'"
+                  class="hidden-md-down">
             </span>
         </button>
         <button *jhiHasAnyAuthority="['ROLE_SYS_ADMIN' ]"
-            class="btn btn-danger"
-            type="button"
-            [routerLink]="['/', { outlets: { popup: 'subject/'+ subject.login + '/delete'} }]"
-            replaceUrl="true"
+                [routerLink]="['/', { outlets: { popup: 'subject/'+ subject.login + '/delete'} }]"
+                class="btn btn-danger"
+                replaceUrl="true"
+                type="button"
         >
             <span class="fa fa-remove"></span>
-            <span class="hidden-md-down" [translate]="'entity.action.delete'"></span>
+            <span [translate]="'entity.action.delete'" class="hidden-md-down"></span>
         </button>
     </div>
 </div>

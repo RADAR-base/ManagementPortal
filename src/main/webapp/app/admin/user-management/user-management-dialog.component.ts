@@ -1,15 +1,15 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute, Params } from '@angular/router';
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {ActivatedRoute, Params} from '@angular/router';
 
-import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { JhiLanguageHelper, User, UserService } from '../../shared';
-import { EventManager } from '../../shared/util/event-manager.service';
-import { Role } from './role.model';
+import {NgbActiveModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
+import {JhiLanguageHelper, User, UserService} from '../../shared';
+import {EventManager} from '../../shared/util/event-manager.service';
+import {Role} from './role.model';
 
-import { UserModalService } from './user-modal.service';
-import { Observable, Subscription } from 'rxjs';
-import { ObservablePopupComponent } from '../../shared/util/observable-popup.component';
-import { switchMap } from 'rxjs/operators';
+import {UserModalService} from './user-modal.service';
+import {Observable, Subscription} from 'rxjs';
+import {ObservablePopupComponent} from '../../shared/util/observable-popup.component';
+import {switchMap} from 'rxjs/operators';
 
 @Component({
     selector: 'jhi-user-mgmt-dialog',
@@ -23,10 +23,10 @@ export class UserMgmtDialogComponent implements OnInit, OnDestroy {
     private subscriptions: Subscription = new Subscription();
 
     constructor(
-      public activeModal: NgbActiveModal,
-      public languageHelper: JhiLanguageHelper,
-      private userService: UserService,
-      private eventManager: EventManager,
+        public activeModal: NgbActiveModal,
+        public languageHelper: JhiLanguageHelper,
+        private userService: UserService,
+        private eventManager: EventManager,
     ) {
     }
 
@@ -53,13 +53,13 @@ export class UserMgmtDialogComponent implements OnInit, OnDestroy {
         this.isSaving = true;
         if (this.user.id) {
             this.userService.update(this.user).subscribe(
-              (response) => this.onSaveSuccess(response),
-              () => this.onSaveError()
+                (response) => this.onSaveSuccess(response),
+                () => this.onSaveError()
             );
         } else {
             this.userService.create(this.user).subscribe(
-              (response) => this.onSaveSuccess(response),
-              () => this.onSaveError()
+                (response) => this.onSaveSuccess(response),
+                () => this.onSaveError()
             );
         }
     }
@@ -82,21 +82,21 @@ export class UserMgmtDialogComponent implements OnInit, OnDestroy {
 export class UserDialogComponent extends ObservablePopupComponent {
 
     constructor(
-            private route: ActivatedRoute,
-            private userModalService: UserModalService,
+        private route: ActivatedRoute,
+        private userModalService: UserModalService,
     ) {
         super(route);
     }
 
     createModalRef(params: Params): Observable<NgbModalRef> {
         return this.route.url.pipe(
-          switchMap(url => {
-            if ('user-management-new-admin' === (url[0].path)) {
-                return this.userModalService.open(UserMgmtDialogComponent, null, true);
-            } else {
-                return this.userModalService.open(UserMgmtDialogComponent, params['login'], false);
-            }
-          })
+            switchMap(url => {
+                if ('user-management-new-admin' === (url[0].path)) {
+                    return this.userModalService.open(UserMgmtDialogComponent, null, true);
+                } else {
+                    return this.userModalService.open(UserMgmtDialogComponent, params['login'], false);
+                }
+            })
         );
     }
 }

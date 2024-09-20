@@ -7,44 +7,44 @@
         <div class="form-group">
             <label>
                 <span [translate]="'managementPortalApp.subject.subjectId'"></span>
-                <input class="form-control"
-                       type="text"
-                       id="field-subject-id"
+                <input (ngModelChange)='filters.subjectId.next($event)'
                        [ngModel]="filters.subjectId.value$ | async"
-                       (ngModelChange)='filters.subjectId.next($event)'>
+                       class="form-control"
+                       id="field-subject-id"
+                       type="text">
             </label>
         </div>
 
         <div class="form-group">
             <label>
                 <span [translate]="'managementPortalApp.subject.externalId'"></span>
-                <input class="form-control"
-                       type="text"
-                       id="field-subject-external-id"
+                <input (ngModelChange)='filters.externalId.next($event)'
                        [ngModel]="filters.externalId.value$ | async"
-                       (ngModelChange)='filters.externalId.next($event)'>
+                       class="form-control"
+                       id="field-subject-external-id"
+                       type="text">
             </label>
         </div>
 
         <div class="advanced-filter">
-            <span class="advanced-filter-header"
-                    id="advanced-filter"
-                    (click)="collapse.toggle()"
-                    [attr.aria-expanded]="!isAdvancedFilterCollapsed"
-                    aria-controls="collapseExample">
+            <span (click)="collapse.toggle()"
+                  [attr.aria-expanded]="!isAdvancedFilterCollapsed"
+                  aria-controls="collapseExample"
+                  class="advanced-filter-header"
+                  id="advanced-filter">
                 <span [translate]="'managementPortalApp.subject.filter.advancedFilter'"></span>
-                <span class="fa" [ngClass]="isAdvancedFilterCollapsed ? 'fa-chevron-down' : 'fa-chevron-up'"></span>
+                <span [ngClass]="isAdvancedFilterCollapsed ? 'fa-chevron-down' : 'fa-chevron-up'" class="fa"></span>
             </span>
-            <div #collapse="ngbCollapse" [(ngbCollapse)]="isAdvancedFilterCollapsed" >
-                <div *ngIf="siteSettings$ | async as siteSettings" >
+            <div #collapse="ngbCollapse" [(ngbCollapse)]="isAdvancedFilterCollapsed">
+                <div *ngIf="siteSettings$ | async as siteSettings">
                     <div class="form-group">
                         <label>
                             <span [translate]="'managementPortalApp.subject.humanReadableId'"></span>
-                            <input class="form-control"
-                                   id="field-human-readable-id"
+                            <input (ngModelChange)='filters.humanReadableId.next($event)'
                                    [ngModel]="filters.humanReadableId.value$ | async"
-                                   type="text"
-                                   (ngModelChange)='filters.humanReadableId.next($event)'>
+                                   class="form-control"
+                                   id="field-human-readable-id"
+                                   type="text">
                         </label>
                     </div>
                     <div *ngIf="!siteSettings.hiddenSubjectFields.has(HideableSubjectField.GROUP)" class="form-group">
@@ -52,87 +52,100 @@
 
                         <label>
                             <span [translate]="'managementPortalApp.subject.group'"></span>
-                            <select class="form-control"
-                                    id="field_group"
-                                    name="group"
+                            <select (ngModelChange)='filters.groupId.next($event)'
                                     [ngModel]="filters.groupId.value$ | async"
-                                    (ngModelChange)='filters.groupId.next($event)'>
+                                    class="form-control"
+                                    id="field_group"
+                                    name="group">
                                 <option [ngValue]="null">-</option>
                                 <option *ngFor="let g of groups$ | async" [ngValue]="g.id">
-                                    {{g.name}}
+                                    {{ g.name }}
                                 </option>
                             </select>
                         </label>
                     </div>
 
                     <div class="field-enrollment-date">
-                        <span class="field-enrollment-date__header" [translate]="'managementPortalApp.subject.enrollmentDate'"></span>
-                        <p *ngIf="enrollmentDateRangeError" class="error" [translate]="'managementPortalApp.subject.filter.error.invalidRange'"></p>
+                        <span [translate]="'managementPortalApp.subject.enrollmentDate'"
+                              class="field-enrollment-date__header"></span>
+                        <p *ngIf="enrollmentDateRangeError"
+                           [translate]="'managementPortalApp.subject.filter.error.invalidRange'"
+                           class="error"></p>
                         <div class="form-group">
                             <span [translate]="'managementPortalApp.subject.filter.from'"></span>
                             <div class="input-group">
-                                <input class="form-control"
-                                       placeholder="yyyy-mm-dd"
+                                <input #enrollmentFromDatePicker="ngbDatepicker"
+                                       (ngModelChange)='filters.enrollmentDateFrom.next($event)'
+                                       [maxDate]="filters.enrollmentDateTo.value$ | async"
+                                       [ngModel]="(enrollmentDate$ | async).from"
+                                       class="form-control"
                                        id="field_enrollment_date_from"
                                        name="enrollmentDateFrom"
-                                       [ngModel]="(enrollmentDate$ | async).from"
-                                       [maxDate]="filters.enrollmentDateTo.value$ | async"
                                        ngbDatepicker
-                                       #enrollmentFromDatePicker="ngbDatepicker"
-                                       (ngModelChange)='filters.enrollmentDateFrom.next($event)'>
+                                       placeholder="yyyy-mm-dd">
                                 <div class="input-group-append">
-                                    <button class="btn btn-outline-secondary calendar" (click)="enrollmentFromDatePicker.toggle()" type="button"></button>
+                                    <button (click)="enrollmentFromDatePicker.toggle()"
+                                            class="btn btn-outline-secondary calendar" type="button"></button>
                                 </div>
                             </div>
-                            <span *ngIf="filters.enrollmentDateFrom.error$ | async as errorCode" class="error" [translate]="'managementPortalApp.subject.filter.error.' + errorCode"></span>
+                            <span *ngIf="filters.enrollmentDateFrom.error$ | async as errorCode"
+                                  [translate]="'managementPortalApp.subject.filter.error.' + errorCode"
+                                  class="error"></span>
                         </div>
                         <div class="form-group">
                             <span [translate]="'managementPortalApp.subject.filter.to'"></span>
                             <div class="input-group">
-                                <input class="form-control"
-                                       placeholder="yyyy-mm-dd"
-                                       id="field_enrollment_date_to"
-                                       [ngModel]="(enrollmentDate$ | async).to"
+                                <input #enrollmentToDatePicker="ngbDatepicker"
+                                       (ngModelChange)='filters.enrollmentDateTo.next($event)'
                                        [minDate]="filters.enrollmentDateFrom.value$ | async"
+                                       [ngModel]="(enrollmentDate$ | async).to"
+                                       class="form-control"
+                                       id="field_enrollment_date_to"
                                        name="enrollmentDateTo"
                                        ngbDatepicker
-                                       #enrollmentToDatePicker="ngbDatepicker"
-                                       (ngModelChange)='filters.enrollmentDateTo.next($event)'>
+                                       placeholder="yyyy-mm-dd">
                                 <div class="input-group-append">
-                                    <button class="btn btn-outline-secondary calendar" (click)="enrollmentToDatePicker.toggle()" type="button"></button>
+                                    <button (click)="enrollmentToDatePicker.toggle()"
+                                            class="btn btn-outline-secondary calendar" type="button"></button>
                                 </div>
                             </div>
-                            <span *ngIf="filters.enrollmentDateTo.error$ | async as errorCode" class="error" [translate]="'managementPortalApp.subject.filter.error.' + errorCode"></span>
+                            <span *ngIf="filters.enrollmentDateTo.error$ | async as errorCode"
+                                  [translate]="'managementPortalApp.subject.filter.error.' + errorCode"
+                                  class="error"></span>
                         </div>
                     </div>
 
                     <div *ngIf="!siteSettings.hiddenSubjectFields.has(HideableSubjectField.NAME)" class="form-group">
                         <label>
                             <span [translate]="'managementPortalApp.subject.personName'"></span>
-                            <input class="form-control"
-                                   id="field-person-name"
+                            <input (ngModelChange)='filters.personName.next($event)'
                                    [ngModel]="filters.personName.value$ | async"
-                                   type="text"
-                                   (ngModelChange)='filters.personName.next($event)'>
+                                   class="form-control"
+                                   id="field-person-name"
+                                   type="text">
                         </label>
                     </div>
 
-                    <div *ngIf="!siteSettings.hiddenSubjectFields.has(HideableSubjectField.DATEOFBIRTH)" class="form-group">
+                    <div *ngIf="!siteSettings.hiddenSubjectFields.has(HideableSubjectField.DATEOFBIRTH)"
+                         class="form-group">
                         <span [translate]="'managementPortalApp.subject.dateOfBirth'"></span>
                         <div class="input-group">
-                            <input [ngModel]="filters.dateOfBirth.value$ | async"
-                                   id="field_date_of_birth"
+                            <input #dateOfBirthDatePicker="ngbDatepicker"
+                                   (ngModelChange)='filters.dateOfBirth.next($event)'
+                                   [ngModel]="filters.dateOfBirth.value$ | async"
                                    class="form-control"
+                                   id="field_date_of_birth"
                                    name="dateOfBirth"
-                                   placeholder="yyyy-mm-dd"
                                    ngbDatepicker
-                                   #dateOfBirthDatePicker="ngbDatepicker"
-                                   (ngModelChange)='filters.dateOfBirth.next($event)'>
+                                   placeholder="yyyy-mm-dd">
                             <div class="input-group-append">
-                                <button class="btn btn-outline-secondary calendar" (click)="dateOfBirthDatePicker.toggle()" type="button"></button>
+                                <button (click)="dateOfBirthDatePicker.toggle()"
+                                        class="btn btn-outline-secondary calendar" type="button"></button>
                             </div>
                         </div>
-                        <span *ngIf="filters.dateOfBirth.error$ | async as errorCode" class="error" [translate]="'managementPortalApp.subject.filter.error.' + errorCode"></span>
+                        <span *ngIf="filters.dateOfBirth.error$ | async as errorCode"
+                              [translate]="'managementPortalApp.subject.filter.error.' + errorCode"
+                              class="error"></span>
                     </div>
 
                 </div>
@@ -141,9 +154,9 @@
     </div>
     <section>
         <ng-container *ngIf="sortOrder$ | async as sortOrder">
-            <div ngbDropdown class="d-inline-block subject-sorting-action" id="field-sort-by">
+            <div class="d-inline-block subject-sorting-action" id="field-sort-by" ngbDropdown>
                 <button class="btn btn-outline-primary"
-                    ngbDropdownToggle
+                        ngbDropdownToggle
                 >
                     {{ 'managementPortalApp.subject.sorting.sortByLabel' | translate }}:
                     <span>
@@ -153,15 +166,15 @@
                 <div ngbDropdownMenu>
                     <span *ngFor="let k of sortingOptions">
                         <button
-                            [id]="'sort-by-'+k"
-                            ngbDropdownItem
-                            (click)="updateSortingSortBy(k)"
-                            [translate]="'managementPortalApp.subject.sorting.' + k">
+                                (click)="updateSortingSortBy(k)"
+                                [id]="'sort-by-'+k"
+                                [translate]="'managementPortalApp.subject.sorting.' + k"
+                                ngbDropdownItem>
                         </button>
                     </span>
                 </div>
             </div>
-            <div ngbDropdown class="d-inline-block subject-sorting-action"  id="field-order-by">
+            <div class="d-inline-block subject-sorting-action" id="field-order-by" ngbDropdown>
                 <button class="btn btn-outline-primary" ngbDropdownToggle>
                     {{ 'managementPortalApp.subject.sorting.sortOrderLabel' | translate }}:
                     <ng-container *ngIf="sortOrder.ascending; else descending">
@@ -173,196 +186,210 @@
                 </button>
                 <div ngbDropdownMenu>
                     <button
-                        ngbDropdownItem
-                        id="order-by-asc"
-                        (click)="updateSortAscending(true)"
-                        [translate]="'managementPortalApp.subject.sorting.asc'">
+                            (click)="updateSortAscending(true)"
+                            [translate]="'managementPortalApp.subject.sorting.asc'"
+                            id="order-by-asc"
+                            ngbDropdownItem>
                     </button>
                     <button
-                        ngbDropdownItem
-                        id="order-by-desc"
-                        (click)="updateSortAscending(false)"
-                        [translate]="'managementPortalApp.subject.sorting.desc'">
+                            (click)="updateSortAscending(false)"
+                            [translate]="'managementPortalApp.subject.sorting.desc'"
+                            id="order-by-desc"
+                            ngbDropdownItem>
                     </button>
                 </div>
             </div>
         </ng-container>
         <button
-                class="btn btn-primary float-right create-subject"
                 *ngIf='isProjectSpecific'
-                [routerLink]="['/', { outlets: { popup: ['project-subject-new' , project.projectName] } }]">
+                [routerLink]="['/', { outlets: { popup: ['project-subject-new' , project.projectName] } }]"
+                class="btn btn-primary float-right create-subject">
             <span class="fa fa-plus"></span>
             <span [translate]="'managementPortalApp.subject.home.createLabel'">
             </span>
         </button>
         <button
-                class="btn btn-primary float-right create-subject"
                 *ngIf='!isProjectSpecific'
-                [routerLink]="['/', { outlets: { popup: ['general-subject-new'] } }]">
+                [routerLink]="['/', { outlets: { popup: ['general-subject-new'] } }]"
+                class="btn btn-primary float-right create-subject">
             <span class="fa fa-plus"></span>
             <span [translate]="'managementPortalApp.subject.home.createLabel'">
             </span>
         </button>
-        <div class="applied-filters" *ngIf="formattedFilterResult$ | async as filterApplied">
-            <span>{{ 'managementPortalApp.subject.filter.filters' | translate}}: </span>
-            <app-filter-badge *ngFor="let filter of filterApplied | keyvalue; trackBy: trackKey" [text]="'managementPortalApp.subject.' + filter.key"
-                              (clear)="filters[filter.key].clear()" [value]="filter.value"></app-filter-badge>
-            <a class="link-primary mx-2" id="clear-filter"
-                    (click)="clearFilters()"
-                    [translate]="'managementPortalApp.subject.filter.clearButton'"></a>
+        <div *ngIf="formattedFilterResult$ | async as filterApplied" class="applied-filters">
+            <span>{{ 'managementPortalApp.subject.filter.filters' | translate }}: </span>
+            <app-filter-badge (clear)="filters[filter.key].clear()"
+                              *ngFor="let filter of filterApplied | keyvalue; trackBy: trackKey"
+                              [text]="'managementPortalApp.subject.' + filter.key"
+                              [value]="filter.value"></app-filter-badge>
+            <a (click)="clearFilters()" [translate]="'managementPortalApp.subject.filter.clearButton'"
+               class="link-primary mx-2"
+               id="clear-filter"></a>
         </div>
 
         <jhi-alert></jhi-alert>
         <div *ngIf="(siteSettings$ | async) as siteSettings">
             <div *ngIf="!siteSettings.hiddenSubjectFields.has(HideableSubjectField.GROUP)" class="subject-list-actions">
-                <button type="button"
-                        class="btn btn-light"
+                <button (click)="toggleSelectAll()"
                         [translate]="(allChecked$ | async) ? 'managementPortalApp.subject.clearSelectedItems' : 'managementPortalApp.subject.selectAll'"
-                        (click)="toggleSelectAll()"
-                ></button>
-                <button type="button"
-                        *ngIf="isProjectSpecific"
                         class="btn btn-light"
+                        type="button"
+                ></button>
+                <button (click)="addSelectedToGroup()"
+                        *ngIf="isProjectSpecific"
                         [disabled]="!(anyChecked$ | async)"
                         [translate]="'managementPortalApp.subject.addSelectedToGroup'"
-                        (click)="addSelectedToGroup()"
+                        class="btn btn-light"
+                        type="button"
                 ></button>
             </div>
             <div *ngIf="subjects$ | async as subjects" class="subjects">
-            <div *ngFor="let subject of subjects; trackBy: trackLogin" class="subject-row">
-                <div class="subject-row__select-row">
-                    <input *ngIf="!siteSettings.hiddenSubjectFields.has(HideableSubjectField.GROUP)" type="checkbox" [ngModel]="subject.checked" [disabled]="subject.status.toString() !== 'ACTIVATED'"
-                           (ngModelChange)="onItemChecked(subject.id, $event)">
-                </div>
-                <div class="subject-row__content">
-                    <div class="subject-row__subject-id">
-                        <span class="subject-row__field-label"
-                            [translate]="'managementPortalApp.subject.subjectId'">
-                        </span>
-                        <div>
-                            <a [routerLink]="['/subject', subject.login ]">{{subject.login}}</a>
-                        </div>
+                <div *ngFor="let subject of subjects; trackBy: trackLogin" class="subject-row">
+                    <div class="subject-row__select-row">
+                        <input (ngModelChange)="onItemChecked(subject.id, $event)"
+                               *ngIf="!siteSettings.hiddenSubjectFields.has(HideableSubjectField.GROUP)"
+                               [disabled]="subject.status.toString() !== 'ACTIVATED'" [ngModel]="subject.checked"
+                               type="checkbox">
                     </div>
-                    <div class="subject-row__external-id">
-                        <span class="subject-row__field-label"
-                            [translate]="'managementPortalApp.subject.externalId'">
+                    <div class="subject-row__content">
+                        <div class="subject-row__subject-id">
+                        <span [translate]="'managementPortalApp.subject.subjectId'"
+                              class="subject-row__field-label">
                         </span>
-                        <div>
-                            <a *ngIf="subject.externalLink && subject.externalId" target="_blank" [href]="subject.externalLink">
-                                {{subject.externalId}}
-                            </a>
-                            <span *ngIf="!subject.externalLink && subject.externalId">
-                                {{subject.externalId}}
+                            <div>
+                                <a [routerLink]="['/subject', subject.login ]">{{ subject.login }}</a>
+                            </div>
+                        </div>
+                        <div class="subject-row__external-id">
+                        <span [translate]="'managementPortalApp.subject.externalId'"
+                              class="subject-row__field-label">
+                        </span>
+                            <div>
+                                <a *ngIf="subject.externalLink && subject.externalId" [href]="subject.externalLink"
+                                   target="_blank">
+                                    {{ subject.externalId }}
+                                </a>
+                                <span *ngIf="!subject.externalLink && subject.externalId">
+                                {{ subject.externalId }}
                             </span>
-                            <ng-container *ngTemplateOutlet="!subject.externalId ? noneAvailable : undefined"></ng-container>
+                                <ng-container
+                                        *ngTemplateOutlet="!subject.externalId ? noneAvailable : undefined"></ng-container>
+                            </div>
                         </div>
-                    </div>
-                    <div class="subject-row__status">
-                        <span class="subject-row__field-label"
-                            [translate]="'managementPortalApp.subject.status.title'">
+                        <div class="subject-row__status">
+                        <span [translate]="'managementPortalApp.subject.status.title'"
+                              class="subject-row__field-label">
                         </span>
-                        <div [ngSwitch]="subject.status">
-                            <span class="badge badge-danger" *ngSwitchCase="'DEACTIVATED'">DEACTIVATED</span>
-                            <span class="badge badge-success" *ngSwitchCase="'ACTIVATED'">ACTIVATED</span>
-                            <span class="badge badge-warning" *ngSwitchCase="'DISCONTINUED'">DISCONTINUED</span>
-                            <span class="badge badge-danger" *ngSwitchCase="'INVALID'">INVALID</span>
+                            <div [ngSwitch]="subject.status">
+                                <span *ngSwitchCase="'DEACTIVATED'" class="badge badge-danger">DEACTIVATED</span>
+                                <span *ngSwitchCase="'ACTIVATED'" class="badge badge-success">ACTIVATED</span>
+                                <span *ngSwitchCase="'DISCONTINUED'" class="badge badge-warning">DISCONTINUED</span>
+                                <span *ngSwitchCase="'INVALID'" class="badge badge-danger">INVALID</span>
+                            </div>
                         </div>
-                    </div>
-                    <div *ngIf="!isProjectSpecific" class="subject-row__project">
-                        <span class="subject-row__field-label"
-                            [translate]="'managementPortalApp.subject.project'">
+                        <div *ngIf="!isProjectSpecific" class="subject-row__project">
+                        <span [translate]="'managementPortalApp.subject.project'"
+                              class="subject-row__field-label">
                         </span>
-                        <div>
-                            <ng-container *ngIf="!subject.roles || subject.roles.length === 0" [ngTemplateOutlet]="noneAvailable"></ng-container>
-                            <span *ngFor="let role of subject.roles; let last = last">
-                                <a  *ngIf="role.authorityName == 'ROLE_PARTICIPANT'"
-                                    class="badge badge-success"
-                                    [routerLink]="['/project', role.projectName ]">{{role.projectName}}</a>
-<!--                                <a  *ngIf="role.authorityName == 'ROLE_INACTIVE_PARTICIPANT'"-->
-<!--                                    class="badge badge-warning"-->
-<!--                                    [routerLink]="['/project', role.projectName ]">{{role.projectName}}</a>-->
+                            <div>
+                                <ng-container *ngIf="!subject.roles || subject.roles.length === 0"
+                                              [ngTemplateOutlet]="noneAvailable"></ng-container>
+                                <span *ngFor="let role of subject.roles; let last = last">
+                                <a *ngIf="role.authorityName == 'ROLE_PARTICIPANT'"
+                                   [routerLink]="['/project', role.projectName ]"
+                                   class="badge badge-success">{{ role.projectName }}</a>
+                                    <!--                                <a  *ngIf="role.authorityName == 'ROLE_INACTIVE_PARTICIPANT'"-->
+                                    <!--                                    class="badge badge-warning"-->
+                                    <!--                                    [routerLink]="['/project', role.projectName ]">{{role.projectName}}</a>-->
                             </span>
+                            </div>
                         </div>
-                    </div>
-                    <div class="subject-row__sources">
-                        <span class="subject-row__field-label"
-                            [translate]="'managementPortalApp.subject.sources'">
+                        <div class="subject-row__sources">
+                        <span [translate]="'managementPortalApp.subject.sources'"
+                              class="subject-row__field-label">
                         </span>
-                        <div>
-                            <ng-container *ngIf="!subject.sources || subject.sources.length === 0" [ngTemplateOutlet]="noneAvailable"></ng-container>
-                            <span *ngFor="let sources of subject.sources; let last = last">
-                                <a class="form-control-static" [routerLink]="['/source', sources.sourceName ]">{{sources.sourceTypeModel}}: {{sources.sourceName}}</a>{{last ? '' : ', '}}
+                            <div>
+                                <ng-container *ngIf="!subject.sources || subject.sources.length === 0"
+                                              [ngTemplateOutlet]="noneAvailable"></ng-container>
+                                <span *ngFor="let sources of subject.sources; let last = last">
+                                <a [routerLink]="['/source', sources.sourceName ]"
+                                   class="form-control-static">{{ sources.sourceTypeModel }}
+                                    : {{ sources.sourceName }}</a>{{ last ? '' : ', ' }}
                             </span>
+                            </div>
                         </div>
-                    </div>
-                    <div class="subject-row__attribute-data">
-                        <span class="subject-row__field-label"
-                            [translate]="'managementPortalApp.subject.attributeData'">
+                        <div class="subject-row__attribute-data">
+                        <span [translate]="'managementPortalApp.subject.attributeData'"
+                              class="subject-row__field-label">
                         </span>
-                        <div>
-                            <ng-container *ngIf="!subject.attributes || (subject.attributes | keyvalue).length === 0" [ngTemplateOutlet]="noneAvailable"></ng-container>
-                            <div *ngFor="let entry of subject.attributes | keyvalue; trackBy: trackKey">
-                                <span class="form-control-static">{{entry.key}}: {{entry.value}}</span>
+                            <div>
+                                <ng-container
+                                        *ngIf="!subject.attributes || (subject.attributes | keyvalue).length === 0"
+                                        [ngTemplateOutlet]="noneAvailable"></ng-container>
+                                <div *ngFor="let entry of subject.attributes | keyvalue; trackBy: trackKey">
+                                    <span class="form-control-static">{{ entry.key }}: {{ entry.value }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div *ngIf="!siteSettings.hiddenSubjectFields.has(HideableSubjectField.GROUP)"
+                             class="subject-row__group">
+                        <span [translate]="'managementPortalApp.subject.group'"
+                              class="subject-row__field-label">
+                        </span>
+                            <div class="subject-row__field-value">
+                                <span *ngIf="subject.group; else noneAvailable">{{ subject.group }}</span>
                             </div>
                         </div>
                     </div>
-                    <div *ngIf="!siteSettings.hiddenSubjectFields.has(HideableSubjectField.GROUP)" class="subject-row__group">
-                        <span class="subject-row__field-label"
-                              [translate]="'managementPortalApp.subject.group'">
-                        </span>
-                        <div class="subject-row__field-value">
-                            <span *ngIf="subject.group; else noneAvailable">{{ subject.group }}</span>
-                        </div>
+                    <div class="subject-row__actions">
+                        <button *ngIf='!isProjectSpecific' [disabled]="subject.status !== 'ACTIVATED'"
+                                [routerLink]="['/subject', subject.login ]"
+                                class="btn btn-info btn-sm"
+                                type="submit">
+                            <span class="fa fa-eye"></span>
+                            <span [translate]="'entity.action.view'" class="hidden-md-down"></span>
+                        </button>
+                        <button *ngIf='!isProjectSpecific' [disabled]="subject.status !== 'ACTIVATED'"
+                                [routerLink]="['/', { outlets: { popup: 'general-subject/'+ subject.login + '/edit'} }]"
+                                class="btn btn-primary btn-sm"
+                                replaceUrl="true"
+                                type="submit">
+                            <span class="fa fa-pencil"></span>
+                            <span [translate]="'entity.action.edit'" class="hidden-md-down"></span>
+                        </button>
+                        <button *ngIf='isProjectSpecific' [disabled]="subject.status !== 'ACTIVATED'"
+                                [routerLink]="['/', { outlets: { popup: 'project-subject/'+ project.projectName + '/' + subject.login + '/edit'} }]"
+                                class="btn btn-primary btn-sm"
+                                replaceUrl="true"
+                                type="submit">
+                            <span class="fa fa-pencil"></span>&nbsp;<span [translate]="'entity.action.edit'"></span>
+                        </button>
+                        <button [disabled]="subject.status !== 'ACTIVATED'"
+                                [routerLink]="['/', { outlets: { popup: 'subject/' + subject.login + '/pairApp' } }]"
+                                class="btn btn-success btn-sm"
+                                replaceUrl="true"
+                                type="submit">
+                            <span class="fa fa-qrcode"></span>
+                            <span [translate]="'managementPortalApp.subject.pairApp'"></span>
+                        </button>
+                        <button [disabled]="subject.status !== 'ACTIVATED'"
+                                [routerLink]="['/', { outlets: { popup: 'subject/' + subject.login + '/sources' } }]"
+                                class="btn btn-info btn-sm"
+                                replaceUrl="true"
+                                type="submit">
+                            <span class="fa fa-link"></span>
+                            <span [translate]="'managementPortalApp.subject.pairSources.button'"></span>
+                        </button>
                     </div>
                 </div>
-                <div class="subject-row__actions">
-                    <button *ngIf='!isProjectSpecific' [disabled]="subject.status !== 'ACTIVATED'"
-                            type="submit"
-                            [routerLink]="['/subject', subject.login ]"
-                            class="btn btn-info btn-sm">
-                        <span class="fa fa-eye"></span>
-                        <span class="hidden-md-down" [translate]="'entity.action.view'"></span>
-                    </button>
-                    <button *ngIf='!isProjectSpecific' [disabled]="subject.status !== 'ACTIVATED'"
-                            type="submit"
-                            [routerLink]="['/', { outlets: { popup: 'general-subject/'+ subject.login + '/edit'} }]"
-                            replaceUrl="true"
-                            class="btn btn-primary btn-sm">
-                        <span class="fa fa-pencil"></span>
-                        <span class="hidden-md-down" [translate]="'entity.action.edit'"></span>
-                    </button>
-                    <button *ngIf='isProjectSpecific' [disabled]="subject.status !== 'ACTIVATED'"
-                            type="submit"
-                            [routerLink]="['/', { outlets: { popup: 'project-subject/'+ project.projectName + '/' + subject.login + '/edit'} }]"
-                            replaceUrl="true"
-                            class="btn btn-primary btn-sm">
-                        <span class="fa fa-pencil"></span>&nbsp;<span [translate]="'entity.action.edit'"></span>
-                    </button>
-                    <button [disabled]="subject.status !== 'ACTIVATED'"
-                            type="submit"
-                            [routerLink]="['/', { outlets: { popup: 'subject/' + subject.login + '/pairApp' } }]"
-                            replaceUrl="true"
-                            class="btn btn-success btn-sm">
-                        <span class="fa fa-qrcode"></span>
-                        <span [translate]="'managementPortalApp.subject.pairApp'"></span>
-                    </button>
-                    <button [disabled]="subject.status !== 'ACTIVATED'"
-                            type="submit"
-                            [routerLink]="['/', { outlets: { popup: 'subject/' + subject.login + '/sources' } }]"
-                            replaceUrl="true"
-                            class="btn btn-info btn-sm">
-                        <span class="fa fa-link"></span>
-                        <span [translate]="'managementPortalApp.subject.pairSources.button'"></span>
-                    </button>
-                </div>
+                <app-load-more (load)="loadMore()" [shownItems]="subjects.length"
+                               [totalItems]="totalItems"></app-load-more>
             </div>
-            <app-load-more (load)="loadMore()" [shownItems]="subjects.length" [totalItems]="totalItems"></app-load-more>
-        </div>
         </div>
 
     </section>
 </div>
 
 <ng-template #noneAvailable>
-    <span class="none-available" [translate]="'global.attribute.noneAvailable'"></span>
+    <span [translate]="'global.attribute.noneAvailable'" class="none-available"></span>
 </ng-template>

@@ -31,7 +31,10 @@ class AutowireHelper private constructor() : ApplicationContextAware {
          * @param beansToAutowireInClass the beans which have the @Autowire annotation in the specified
          * {#classToAutowire}
          */
-        fun autowire(classToAutowire: Any, vararg beansToAutowireInClass: Any?) {
+        fun autowire(
+            classToAutowire: Any,
+            vararg beansToAutowireInClass: Any?,
+        ) {
             for (bean in beansToAutowireInClass) {
                 if (bean == null) {
                     applicationContext!!.autowireCapableBeanFactory.autowireBean(classToAutowire)

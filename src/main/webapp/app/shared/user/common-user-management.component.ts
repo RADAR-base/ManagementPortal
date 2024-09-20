@@ -1,10 +1,10 @@
-import { Component, Input, OnDestroy, OnInit, } from '@angular/core';
+import {Component, Input, OnDestroy, OnInit,} from '@angular/core';
 
-import { Project, User, UserService } from '..';
-import { EventManager } from '../util/event-manager.service';
-import { BehaviorSubject, combineLatest, Subject, Subscription } from 'rxjs';
-import { debounceTime, distinctUntilChanged, filter, first, map, pluck, startWith, switchMap, tap } from 'rxjs/operators';
-import { ActivatedRoute, Router } from '@angular/router';
+import {Project, User, UserService} from '..';
+import {EventManager} from '../util/event-manager.service';
+import {BehaviorSubject, combineLatest, Subject, Subscription} from 'rxjs';
+import {debounceTime, distinctUntilChanged, filter, first, map, pluck, startWith, switchMap, tap} from 'rxjs/operators';
+import {ActivatedRoute, Router} from '@angular/router';
 
 @Component({
     selector: 'jhi-common-user-mgmt',
@@ -16,26 +16,35 @@ export class CommonUserMgmtComponent implements OnInit, OnDestroy {
     readonly ascending$ = new BehaviorSubject(true);
 
     readonly project$ = new BehaviorSubject<Project>(null);
-    @Input()
-    get project(): Project { return this.project$.value; }
-    set project(v: Project) { this.project$.next(v) }
-
     readonly authority$ = new BehaviorSubject<string>('');
-    @Input()
-    get authority(): string { return this.authority$.value; }
-    set authority(v: string) { this.authority$.next(v); }
-
     readonly trigger$ = new Subject<void>();
-
     private subscriptions: Subscription = new Subscription();
 
     constructor(
-            private userService: UserService,
-            private eventManager: EventManager,
-            private activatedRoute: ActivatedRoute,
-            private router: Router,
+        private userService: UserService,
+        private eventManager: EventManager,
+        private activatedRoute: ActivatedRoute,
+        private router: Router,
     ) {
         this.subscriptions.add(this.registerRouteParams());
+    }
+
+    @Input()
+    get project(): Project {
+        return this.project$.value;
+    }
+
+    set project(v: Project) {
+        this.project$.next(v)
+    }
+
+    @Input()
+    get authority(): string {
+        return this.authority$.value;
+    }
+
+    set authority(v: string) {
+        this.authority$.next(v);
     }
 
     ngOnInit() {
@@ -45,6 +54,13 @@ export class CommonUserMgmtComponent implements OnInit, OnDestroy {
 
     ngOnDestroy() {
         this.subscriptions.unsubscribe();
+    }
+
+    trackIdentity(index, item: User) {
+        return item.id;
+    }
+
+    transition() {
     }
 
     private registerRouteParams() {
@@ -68,7 +84,7 @@ export class CommonUserMgmtComponent implements OnInit, OnDestroy {
             tap((sort) => {
                 return this.router.navigate([], {
                     relativeTo: this.activatedRoute,
-                    queryParams: { sort },
+                    queryParams: {sort},
                     queryParamsHandling: "merge",
                     replaceUrl: true,
                 })
@@ -93,12 +109,5 @@ export class CommonUserMgmtComponent implements OnInit, OnDestroy {
         return this.eventManager.subscribe('userListModification',
             () => this.trigger$.next(),
         );
-    }
-
-    trackIdentity(index, item: User) {
-        return item.id;
-    }
-
-    transition() {
     }
 }

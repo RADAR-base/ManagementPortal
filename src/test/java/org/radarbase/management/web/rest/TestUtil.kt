@@ -17,32 +17,38 @@ import java.time.format.DateTimeParseException
  * Utility class for testing REST controllers.
  */
 object TestUtil {
-    /* MediaType for JSON UTF8 */
-    val APPLICATION_JSON_UTF8 = MediaType(
-        MediaType.APPLICATION_JSON.type,
-        MediaType.APPLICATION_JSON.subtype, Charset.forName("utf8")
-    )
-    val APPLICATION_JSON_PATCH = MediaType(
-        "application",
-        "json-patch+json", Charset.forName("utf8")
-    )
+    // MediaType for JSON UTF8
+    val APPLICATION_JSON_UTF8 =
+        MediaType(
+            MediaType.APPLICATION_JSON.type,
+            MediaType.APPLICATION_JSON.subtype,
+            Charset.forName("utf8"),
+        )
+    val APPLICATION_JSON_PATCH =
+        MediaType(
+            "application",
+            "json-patch+json",
+            Charset.forName("utf8"),
+        )
     private val module = JavaTimeModule()
-    private val mapper = ObjectMapper()
-        .setSerializationInclusion(JsonInclude.Include.NON_NULL)
-        .registerModule(module)
+    private val mapper =
+        ObjectMapper()
+            .setSerializationInclusion(JsonInclude.Include.NON_NULL)
+            .registerModule(module)
 
     /**
      * Convert a JSON String to an object.
      *
      * @param json JSON String to convert.
-     * @param  objectClass Object class to form.
+     * @param objectClass Object class to form.
      *
      * @return the converted object instance.
      */
     @Throws(IOException::class)
-    fun <T : Any> convertJsonStringToObject(json: String?, objectClass: Class<T>?): Any {
-        return mapper.readValue(json, objectClass)
-    }
+    fun <T : Any> convertJsonStringToObject(
+        json: String?,
+        objectClass: Class<T>?,
+    ): Any = mapper.readValue(json, objectClass)
 
     /**
      * Convert an object to JSON byte array.
@@ -51,9 +57,7 @@ object TestUtil {
      * @return the JSON byte array
      */
     @Throws(IOException::class)
-    fun convertObjectToJsonBytes(`object`: Any?): ByteArray {
-        return mapper.writeValueAsBytes(`object`)
-    }
+    fun convertObjectToJsonBytes(`object`: Any?): ByteArray = mapper.writeValueAsBytes(`object`)
 
     /**
      * Create a byte array with a specific size filled with specified data.
@@ -62,7 +66,10 @@ object TestUtil {
      * @param data the data to put in the byte array
      * @return the JSON byte array
      */
-    fun createByteArray(size: Int, data: String): ByteArray {
+    fun createByteArray(
+        size: Int,
+        data: String,
+    ): ByteArray {
         val byteArray = ByteArray(size)
         for (i in 0 until size) {
             byteArray[i] = data.toByte(2)
@@ -76,9 +83,7 @@ object TestUtil {
      *
      * @param date the reference datetime against which the examined string is checked
      */
-    fun sameInstant(date: ZonedDateTime): ZonedDateTimeMatcher {
-        return ZonedDateTimeMatcher(date)
-    }
+    fun sameInstant(date: ZonedDateTime): ZonedDateTimeMatcher = ZonedDateTimeMatcher(date)
 
     /**
      * Verifies the equals/hashcode contract on the domain object.
@@ -115,8 +120,13 @@ object TestUtil {
      * A matcher that tests that the examined string represents the same instant as the reference
      * datetime.
      */
-    class ZonedDateTimeMatcher(private val date: ZonedDateTime) : TypeSafeDiagnosingMatcher<String?>() {
-        override fun matchesSafely(item: String?, mismatchDescription: Description): Boolean {
+    class ZonedDateTimeMatcher(
+        private val date: ZonedDateTime,
+    ) : TypeSafeDiagnosingMatcher<String?>() {
+        override fun matchesSafely(
+            item: String?,
+            mismatchDescription: Description,
+        ): Boolean {
             return try {
                 if (!date.isEqual(ZonedDateTime.parse(item))) {
                     mismatchDescription.appendText("was ").appendValue(item)
@@ -124,7 +134,9 @@ object TestUtil {
                 }
                 true
             } catch (e: DateTimeParseException) {
-                mismatchDescription.appendText("was ").appendValue(item)
+                mismatchDescription
+                    .appendText("was ")
+                    .appendValue(item)
                     .appendText(", which could not be parsed as a ZonedDateTime")
                 false
             }

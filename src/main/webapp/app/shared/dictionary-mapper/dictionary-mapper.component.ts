@@ -1,7 +1,7 @@
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { Subscription } from 'rxjs';
+import {Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {Subscription} from 'rxjs';
 
-import { EventManager } from '../util/event-manager.service';
+import {EventManager} from '../util/event-manager.service';
 
 @Component({
     selector: 'jhi-dictionary-mapper',
@@ -52,18 +52,18 @@ export class DictionaryMapperComponent implements OnInit, OnDestroy {
         return this.options.filter(o => !(o in this.attributes));
     }
 
-    private broadcastAttributes(): void {
-        this.eventManager.broadcast({
-            name: this.eventPrefix + 'ListModification',
-            content: this.attributes,
-        });
-    }
-
     isEmpty(obj: any) {
         return !obj || Object.keys(obj).length === 0;
     }
 
     trackKey(index: number, item: any) {
         return item.key;
+    }
+
+    private broadcastAttributes(): void {
+        this.eventManager.broadcast({
+            name: this.eventPrefix + 'ListModification',
+            content: this.attributes,
+        });
     }
 }

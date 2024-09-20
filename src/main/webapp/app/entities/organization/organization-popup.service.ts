@@ -1,21 +1,21 @@
-import { DatePipe } from '@angular/common';
-import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import {DatePipe} from '@angular/common';
+import {Injectable} from '@angular/core';
+import {Router} from '@angular/router';
+import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 
-import { copyOrganization, Organization, OrganizationService } from '../../shared';
-import { Observable, of } from 'rxjs';
-import { first, map, take } from 'rxjs/operators';
+import {copyOrganization, Organization, OrganizationService} from '../../shared';
+import {Observable, of} from 'rxjs';
+import {first, map} from 'rxjs/operators';
 
-@Injectable({ providedIn: 'root' })
+@Injectable({providedIn: 'root'})
 export class OrganizationPopupService {
     private isOpen = false;
 
     constructor(
-            private datePipe: DatePipe,
-            private modalService: NgbModal,
-            private router: Router,
-            private organizationService: OrganizationService,
+        private datePipe: DatePipe,
+        private modalService: NgbModal,
+        private router: Router,
+        private organizationService: OrganizationService,
     ) {
     }
 

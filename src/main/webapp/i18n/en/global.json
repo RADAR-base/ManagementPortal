@@ -90,15 +90,15 @@
             "projectName": "Project Name"
         },
         "ribbon": {
-            "dev":"Development"
+            "dev": "Development"
         },
-        "attribute" : {
-            "title" : "Attributes",
-            "key" : "Attribute Key",
-            "value" : "Attribute Value",
-            "add" : "Add",
-            "error" : {
-                "alreadyExist" : "This attribute key already exist in the list"
+        "attribute": {
+            "title": "Attributes",
+            "key": "Attribute Key",
+            "value": "Attribute Value",
+            "add": "Add",
+            "error": {
+                "alreadyExist": "This attribute key already exist in the list"
             },
             "noneAvailable": "—"
         }
@@ -152,7 +152,7 @@
         "nameexists": "A {{ entityName }} with the given name already exists"
     },
     "footer": "For more details, read the user guide <a target=\"_blank\" href=\"https://radar-base.atlassian.net/wiki/spaces/RAD/pages/2833055745/User+Guide+-+Management+Portal+2.0\">here.</a>",
-    "common" : {
+    "common": {
         "showMore": " More",
         "showLess": " Less"
     }

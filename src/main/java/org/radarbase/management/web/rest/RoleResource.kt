@@ -34,9 +34,8 @@ import javax.validation.Valid
 @RequestMapping("/api")
 class RoleResource(
     @Autowired private val roleService: RoleService,
-    @Autowired private val authService: AuthService
+    @Autowired private val authService: AuthService,
 ) {
-
     /**
      * POST  /Roles : Create a new role.
      *
@@ -49,23 +48,30 @@ class RoleResource(
     @Timed
     @Secured(RoleAuthority.SYS_ADMIN_AUTHORITY)
     @Throws(
-        URISyntaxException::class, NotAuthorizedException::class
+        URISyntaxException::class,
+        NotAuthorizedException::class,
     )
-    fun createRole(@RequestBody @Valid roleDto: RoleDTO): ResponseEntity<RoleDTO> {
+    fun createRole(
+        @RequestBody @Valid roleDto: RoleDTO,
+    ): ResponseEntity<RoleDTO> {
         log.debug("REST request to save Role : {}", roleDto)
         authService.checkPermission(Permission.ROLE_CREATE, { e: EntityDetails ->
             e.project = roleDto.projectName
         })
         if (roleDto.id != null) {
-            return ResponseEntity.badRequest().headers(
-                HeaderUtil.createFailureAlert(
-                    ENTITY_NAME,
-                    "idexists", "A new role cannot already have an ID"
-                )
-            ).body(null)
+            return ResponseEntity
+                .badRequest()
+                .headers(
+                    HeaderUtil.createFailureAlert(
+                        ENTITY_NAME,
+                        "idexists",
+                        "A new role cannot already have an ID",
+                    ),
+                ).body(null)
         }
         val result = roleService.save(roleDto)
-        return ResponseEntity.created(ResourceUriService.getUri(result))
+        return ResponseEntity
+            .created(ResourceUriService.getUri(result))
             .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, displayName(result)))
             .body(result)
     }
@@ -83,9 +89,12 @@ class RoleResource(
     @Timed
     @Secured(RoleAuthority.SYS_ADMIN_AUTHORITY)
     @Throws(
-        URISyntaxException::class, NotAuthorizedException::class
+        URISyntaxException::class,
+        NotAuthorizedException::class,
     )
-    fun updateRole(@RequestBody @Valid roleDto: RoleDTO): ResponseEntity<RoleDTO> {
+    fun updateRole(
+        @RequestBody @Valid roleDto: RoleDTO,
+    ): ResponseEntity<RoleDTO> {
         log.debug("REST request to update Role : {}", roleDto)
         if (roleDto.id == null) {
             return createRole(roleDto)
@@ -94,7 +103,8 @@ class RoleResource(
             e.project = roleDto.projectName
         })
         val result = roleService.save(roleDto)
-        return ResponseEntity.ok()
+        return ResponseEntity
+            .ok()
             .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, displayName(roleDto)))
             .body(result)
     }
@@ -138,21 +148,21 @@ class RoleResource(
      * (Not Found)
      */
     @GetMapping(
-        "/roles/{projectName:" + Constants.ENTITY_ID_REGEX + "}/{authorityName:"
-                + Constants.ENTITY_ID_REGEX + "}"
+        "/roles/{projectName:" + Constants.ENTITY_ID_REGEX + "}/{authorityName:" +
+            Constants.ENTITY_ID_REGEX + "}",
     )
     @Timed
     @Throws(
-        NotAuthorizedException::class
+        NotAuthorizedException::class,
     )
     fun getRole(
         @PathVariable projectName: String?,
-        @PathVariable authorityName: String?
+        @PathVariable authorityName: String?,
     ): ResponseEntity<RoleDTO> {
         log.debug("REST request to get all Roles")
         authService.checkPermission(Permission.ROLE_READ, { e: EntityDetails -> e.project(projectName) })
         return ResponseUtil.wrapOrNotFound(
-            Optional.ofNullable(roleService.findOneByProjectNameAndAuthorityName(projectName, authorityName))
+            Optional.ofNullable(roleService.findOneByProjectNameAndAuthorityName(projectName, authorityName)),
         )
     }
 
@@ -163,9 +173,7 @@ class RoleResource(
      * @param role The role to create a user-friendly display for
      * @return the display name
      */
-    private fun displayName(role: RoleDTO?): String {
-        return role?.projectName + ": " + role?.authorityName
-    }
+    private fun displayName(role: RoleDTO?): String = role?.projectName + ": " + role?.authorityName
 
     companion object {
         private val log = LoggerFactory.getLogger(RoleResource::class.java)

@@ -12,22 +12,23 @@
 <span><span [translate]="'metrics.jvm.threads.runnable'">Runnable</span> {{ threadStats.threadDumpRunnable }}</span>
 
 <ngb-progressbar
-        [value]="threadStats.threadDumpRunnable"
+        [animated]="false"
         [max]="threadStats.threadDumpAll"
         [striped]="true"
-        [animated]="false"
+        [value]="threadStats.threadDumpRunnable"
         type="success"
 >
     <span>{{ (threadStats.threadDumpRunnable * 100) / threadStats.threadDumpAll | number: '1.0-0' }}%</span>
 </ngb-progressbar>
 
-<span><span [translate]="'metrics.jvm.threads.timedwaiting'">Timed Waiting</span> ({{ threadStats.threadDumpTimedWaiting }})</span>
+<span><span
+        [translate]="'metrics.jvm.threads.timedwaiting'">Timed Waiting</span> ({{ threadStats.threadDumpTimedWaiting }})</span>
 
 <ngb-progressbar
-        [value]="threadStats.threadDumpTimedWaiting"
+        [animated]="false"
         [max]="threadStats.threadDumpAll"
         [striped]="true"
-        [animated]="false"
+        [value]="threadStats.threadDumpTimedWaiting"
         type="warning"
 >
     <span>{{ (threadStats.threadDumpTimedWaiting * 100) / threadStats.threadDumpAll | number: '1.0-0' }}%</span>
@@ -36,10 +37,10 @@
 <span><span [translate]="'metrics.jvm.threads.waiting'">Waiting</span> ({{ threadStats.threadDumpWaiting }})</span>
 
 <ngb-progressbar
-        [value]="threadStats.threadDumpWaiting"
+        [animated]="false"
         [max]="threadStats.threadDumpAll"
         [striped]="true"
-        [animated]="false"
+        [value]="threadStats.threadDumpWaiting"
         type="warning"
 >
     <span>{{ (threadStats.threadDumpWaiting * 100) / threadStats.threadDumpAll | number: '1.0-0' }}%</span>
@@ -48,10 +49,10 @@
 <span><span [translate]="'metrics.jvm.threads.blocked'">Blocked</span> ({{ threadStats.threadDumpBlocked }})</span>
 
 <ngb-progressbar
-        [value]="threadStats.threadDumpBlocked"
+        [animated]="false"
         [max]="threadStats.threadDumpAll"
         [striped]="true"
-        [animated]="false"
+        [value]="threadStats.threadDumpBlocked"
         type="success"
 >
     <span>{{ (threadStats.threadDumpBlocked * 100) / threadStats.threadDumpAll | number: '1.0-0' }}%</span>
@@ -59,6 +60,6 @@
 
 <div>Total: {{ threadStats.threadDumpAll }}</div>
 
-<button class="hand btn btn-primary btn-sm" (click)="open()" data-toggle="modal" data-target="#threadDump">
+<button (click)="open()" class="hand btn btn-primary btn-sm" data-target="#threadDump" data-toggle="modal">
     <span>Expand</span>
 </button>

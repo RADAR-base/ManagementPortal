@@ -11,7 +11,9 @@ class RadarTokenLoader {
     fun loadToken(httpServletRequest: HttpServletRequest): RadarToken? =
         httpServletRequest.radarToken
             ?.also { logger.debug("Using request RadarToken") }
-            ?: httpServletRequest.getSession(false)?.radarToken
+            ?: httpServletRequest
+                .getSession(false)
+                ?.radarToken
                 ?.also { logger.debug("Using session RadarToken") }
 
     companion object {

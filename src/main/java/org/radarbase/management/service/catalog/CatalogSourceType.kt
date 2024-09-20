@@ -45,14 +45,30 @@ class CatalogSourceType {
             return false
         }
         val that = other as CatalogSourceType
-        return assessmentType == that.assessmentType && appProvider == that.appProvider && vendor == that.vendor && model == that.model && version == that.version && name == that.name && doc == that.doc && scope == that.scope && properties == that.properties && data == that.data
+        return assessmentType == that.assessmentType &&
+            appProvider == that.appProvider &&
+            vendor == that.vendor &&
+            model == that.model &&
+            version == that.version &&
+            name == that.name &&
+            doc == that.doc &&
+            scope == that.scope &&
+            properties == that.properties &&
+            data == that.data
     }
 
-    override fun hashCode(): Int {
-        return Objects
+    override fun hashCode(): Int =
+        Objects
             .hash(
-                assessmentType, appProvider, vendor, model, version, name, doc, scope, properties,
-                data
+                assessmentType,
+                appProvider,
+                vendor,
+                model,
+                version,
+                name,
+                doc,
+                scope,
+                properties,
+                data,
             )
-    }
 }

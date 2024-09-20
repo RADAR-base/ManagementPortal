@@ -1,13 +1,13 @@
-import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ActivatedRoute } from '@angular/router';
+import {CUSTOM_ELEMENTS_SCHEMA} from '@angular/core';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
+import {ActivatedRoute} from '@angular/router';
 
-import { LoginModalService } from '../../../shared';
-import { ManagementPortalTestModule } from '../../../shared/util/test/test.module';
-import { MockActivatedRoute } from '../../../shared/util/test/mock-route.service';
-import { PasswordResetFinishComponent } from './password-reset-finish.component';
-import { PasswordResetFinish } from './password-reset-finish.service';
-import { Password } from '../../password/password.service';
+import {LoginModalService} from '../../../shared';
+import {ManagementPortalTestModule} from '../../../shared/util/test/test.module';
+import {MockActivatedRoute} from '../../../shared/util/test/mock-route.service';
+import {PasswordResetFinishComponent} from './password-reset-finish.component';
+import {PasswordResetFinish} from './password-reset-finish.service';
+import {Password} from '../../password/password.service';
 
 describe('Component Tests', () => {
 
@@ -37,7 +37,7 @@ describe('Component Tests', () => {
             comp = fixture.componentInstance;
         });
 
-        it('should define its initial state', function() {
+        it('should define its initial state', function () {
             comp.ngOnInit();
 
             expect(comp.keyMissing).toBeFalsy();

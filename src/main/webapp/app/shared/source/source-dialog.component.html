@@ -1,67 +1,72 @@
-<form name="editForm" role="form" novalidate (ngSubmit)="save()" #editForm="ngForm">
+<form #editForm="ngForm" (ngSubmit)="save()" name="editForm" novalidate role="form">
 
     <div class="modal-header">
-        <h4 class="modal-title" id="myDeviceLabel"
-            [translate]="'managementPortalApp.source.home.createOrEditLabel'">
+        <h4 [translate]="'managementPortalApp.source.home.createOrEditLabel'" class="modal-title"
+            id="myDeviceLabel">
         </h4>
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
-                (click)="clear()">&times;</button>
+        <button (click)="clear()" aria-hidden="true" class="close" data-dismiss="modal"
+                type="button">&times;
+        </button>
     </div>
     <div class="modal-body">
         <jhi-alert-error></jhi-alert-error>
-        <div class="form-group" [hidden]="!source.id">
-            <label for="id" [translate]="'global.field.id'"></label>
-            <input type="text" class="form-control" id="id" name="id"
-                   [(ngModel)]="source.id" readonly />
+        <div [hidden]="!source.id" class="form-group">
+            <label [translate]="'global.field.id'" for="id"></label>
+            <input [(ngModel)]="source.id" class="form-control" id="id" name="id"
+                   readonly type="text"/>
         </div>
         <div class="form-group">
-            <label class="form-control-label"
-                for="field_sourceName"
-                [translate]="'managementPortalApp.source.sourceName'">
+            <label [translate]="'managementPortalApp.source.sourceName'"
+                   class="form-control-label"
+                   for="field_sourceName">
             </label>
-            <input type="text" class="form-control" name="sourceName" id="field_sourceName"
-                   [(ngModel)]="source.sourceName"
-                   required pattern="[_'.@A-Za-z0-9- ]*" />
+            <input [(ngModel)]="source.sourceName" class="form-control" id="field_sourceName" name="sourceName"
+                   pattern="[_'.@A-Za-z0-9- ]*"
+                   required type="text"/>
             <div [hidden]="!(editForm.controls.sourceName?.dirty && editForm.controls.sourceName?.invalid)">
-                <small class="form-text text-danger"
-                    [hidden]="!editForm.controls.sourceName?.errors?.required"
-                    [translate]="'entity.validation.required'">
+                <small [hidden]="!editForm.controls.sourceName?.errors?.required"
+                       [translate]="'entity.validation.required'"
+                       class="form-text text-danger">
                 </small>
-                <small class="form-text text-danger"
-                    [hidden]="!editForm.controls.sourceName?.errors?.pattern"
-                    [translate]="'entity.validation.pattern'"
-                    [translateParams]="{pattern: 'alphanumerics, dash (-), underscore (_), space ( ) and period (.)'}">
+                <small [hidden]="!editForm.controls.sourceName?.errors?.pattern"
+                       [translateParams]="{pattern: 'alphanumerics, dash (-), underscore (_), space ( ) and period (.)'}"
+                       [translate]="'entity.validation.pattern'"
+                       class="form-text text-danger">
                 </small>
             </div>
         </div>
         <div class="form-group">
-            <label class="form-control-label"
-                for="field_expectedSourceName"
-                [translate]="'managementPortalApp.source.expectedSourceName'">
+            <label [translate]="'managementPortalApp.source.expectedSourceName'"
+                   class="form-control-label"
+                   for="field_expectedSourceName">
             </label>
-            <input type="text" class="form-control" name="expectedSourceName" id="field_expectedSourceName"
-                [(ngModel)]="source.expectedSourceName"
-             />
+            <input [(ngModel)]="source.expectedSourceName" class="form-control" id="field_expectedSourceName"
+                   name="expectedSourceName"
+                   type="text"
+            />
         </div>
 
         <div class="form-group">
             <label [translate]="'managementPortalApp.source.sourceType'" for="field_sourceType"></label>
-            <select class="form-control" id="field_sourceType" name="sourceType" [(ngModel)]="source.sourceType" required>
+            <select [(ngModel)]="source.sourceType" class="form-control" id="field_sourceType" name="sourceType"
+                    required>
                 <option [ngValue]="null"></option>
-                <option [ngValue]="sourceTypeOption.id === source.sourceType?.id ? source.sourceType : sourceTypeOption" *ngFor="let sourceTypeOption of sourceTypes; trackBy: trackSourceTypeById">{{sourceTypeOption.model}}</option>
+                <option *ngFor="let sourceTypeOption of sourceTypes; trackBy: trackSourceTypeById"
+                        [ngValue]="sourceTypeOption.id === source.sourceType?.id ? source.sourceType : sourceTypeOption">{{ sourceTypeOption.model }}
+                </option>
             </select>
         </div>
 
-        <jhi-dictionary-mapper [attributes]='source.attributes' [options]="options"
-                               [eventPrefix]='attributeComponentEventPrefix'></jhi-dictionary-mapper>
+        <jhi-dictionary-mapper [attributes]='source.attributes' [eventPrefix]='attributeComponentEventPrefix'
+                               [options]="options"></jhi-dictionary-mapper>
 
 
     </div>
     <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal" (click)="clear()">
+        <button (click)="clear()" class="btn btn-default" data-dismiss="modal" type="button">
             <span class="fa fa-ban"></span>&nbsp;<span [translate]="'entity.action.cancel'"></span>
         </button>
-        <button type="submit" [disabled]="editForm.form.invalid || isSaving" class="btn btn-primary">
+        <button [disabled]="editForm.form.invalid || isSaving" class="btn btn-primary" type="submit">
             <span class="fa fa-save"></span>&nbsp;<span [translate]="'entity.action.save'"></span>
         </button>
     </div>

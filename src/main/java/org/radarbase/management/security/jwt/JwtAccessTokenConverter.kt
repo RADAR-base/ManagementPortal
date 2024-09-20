@@ -9,7 +9,9 @@ import org.springframework.security.oauth2.provider.token.TokenEnhancer
 /**
  * Interface of a JwtAccessTokenConverter functions.
  */
-interface JwtAccessTokenConverter : TokenEnhancer, AccessTokenConverter {
+interface JwtAccessTokenConverter :
+    TokenEnhancer,
+    AccessTokenConverter {
     /**
      * Decodes and verifies a JWT token string and extracts claims into a Map.
      * @param token string to decode.
@@ -23,7 +25,10 @@ interface JwtAccessTokenConverter : TokenEnhancer, AccessTokenConverter {
      * @param authentication of the token.
      * @return JWT token string.
      */
-    fun encode(accessToken: OAuth2AccessToken, authentication: OAuth2Authentication): String
+    fun encode(
+        accessToken: OAuth2AccessToken,
+        authentication: OAuth2Authentication,
+    ): String
 
     /**
      * Checks whether a token is access-token or refresh-token.

@@ -10,11 +10,9 @@
   -->
 
 <databaseChangeLog
-    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd
-                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
 
     <property name="now" value="now()" dbms="mysql,hsqldb"/>
     <property name="now" value="current_timestamp" dbms="postgresql"/>
@@ -35,17 +33,17 @@
                 <constraints nullable="false"/>
             </column>
             <column name="attribute_key" type="varchar(255)">
-                <constraints nullable="false" />
+                <constraints nullable="false"/>
             </column>
             <column name="attribute_value" type="varchar(255)">
-                <constraints nullable="true" />
+                <constraints nullable="true"/>
             </column>
         </createTable>
         <addPrimaryKey columnNames="id, attribute_key" tableName="subject_metadata"/>
         <addForeignKeyConstraint baseColumnNames="id"
-            baseTableName="subject_metadata"
-            constraintName="fk_subject_metadata"
-            referencedColumnNames="id"
-            referencedTableName="subject"/>
+                                 baseTableName="subject_metadata"
+                                 constraintName="fk_subject_metadata"
+                                 referencedColumnNames="id"
+                                 referencedTableName="subject"/>
     </changeSet>
 </databaseChangeLog>

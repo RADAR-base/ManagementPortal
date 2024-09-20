@@ -15,7 +15,7 @@ import org.radarbase.management.service.mapper.decorator.SourceMapperDecorator
  */
 @Mapper(componentModel = "spring", uses = [SourceTypeMapper::class, ProjectMapper::class])
 @DecoratedWith(
-    SourceMapperDecorator::class
+    SourceMapperDecorator::class,
 )
 interface SourceMapper {
     @Mapping(source = "source.subject.user.login", target = "subjectLogin")
@@ -35,6 +35,7 @@ interface SourceMapper {
     @Mapping(source = "sourceType.catalogVersion", target = "sourceTypeCatalogVersion")
     @Mapping(source = "assigned", target = "assigned")
     fun sourceToMinimalSourceDetailsDTO(source: Source): MinimalSourceDetailsDTO
+
     fun sourcesToMinimalSourceDetailsDTOs(sources: List<Source>): List<MinimalSourceDetailsDTO>
 
     @Mapping(target = "sourceType", ignore = true)

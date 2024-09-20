@@ -73,10 +73,10 @@ selfservice:
             after:
                 password:
                     hooks:
-                        - hook: session
+                        -   hook: session
                 oidc:
                     hooks:
-                        - hook: session
+                        -   hook: session
 
 log:
     level: debug
@@ -94,8 +94,8 @@ hashers:
 identity:
     default_schema_id: user
     schemas:
-        - id: user
-          url: file:///etc/config/kratos/identities/identity.schema.user.json
+        -   id: user
+            url: file:///etc/config/kratos/identities/identity.schema.user.json
 
 courier:
     smtp:

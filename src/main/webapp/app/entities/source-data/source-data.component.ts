@@ -1,16 +1,16 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
-import { ActivatedRoute, Router } from '@angular/router';
-import { Observable, Subscription } from 'rxjs';
-import { map } from 'rxjs/operators';
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {HttpErrorResponse, HttpResponse} from '@angular/common/http';
+import {ActivatedRoute, Router} from '@angular/router';
+import {Observable, Subscription} from 'rxjs';
+import {map} from 'rxjs/operators';
 
-import { SourceData } from './source-data.model';
-import { SourceDataService } from './source-data.service';
-import { ITEMS_PER_PAGE } from '../../shared';
-import { PagingParams } from '../../shared/commons';
-import { AlertService } from '../../shared/util/alert.service';
-import { EventManager } from '../../shared/util/event-manager.service';
-import { parseLinks } from '../../shared/util/parse-links-util';
+import {SourceData} from './source-data.model';
+import {SourceDataService} from './source-data.service';
+import {ITEMS_PER_PAGE} from '../../shared';
+import {PagingParams} from '../../shared/commons';
+import {AlertService} from '../../shared/util/alert.service';
+import {EventManager} from '../../shared/util/event-manager.service';
+import {parseLinks} from '../../shared/util/parse-links-util';
 
 @Component({
     selector: 'jhi-source-data',
@@ -30,6 +30,7 @@ export class SourceDataComponent implements OnInit, OnDestroy {
     totalItems: number;
     routeData: any;
     previousPage: any;
+
     constructor(
         private sourceDataService: SourceDataService,
         private alertService: AlertService,
@@ -40,7 +41,7 @@ export class SourceDataComponent implements OnInit, OnDestroy {
         this.sourceData = [];
         this.itemsPerPage = ITEMS_PER_PAGE;
         this.pagingParams$ = this.activatedRoute.data.pipe(map(data => {
-            const fallback = { page: 1, predicate: 'id', ascending: true };
+            const fallback = {page: 1, predicate: 'id', ascending: true};
             return data['pagingParams'] || fallback;
         }));
         this.routeData = this.pagingParams$.subscribe(params => {
@@ -63,6 +64,7 @@ export class SourceDataComponent implements OnInit, OnDestroy {
             (res: HttpErrorResponse) => this.onError(res)
         );
     }
+
     ngOnInit() {
         this.loadAll();
         this.registerChangeInSourceData();
@@ -80,12 +82,9 @@ export class SourceDataComponent implements OnInit, OnDestroy {
     trackId(index: number, item: SourceData) {
         return item.id;
     }
+
     registerChangeInSourceData() {
         this.eventSubscriber = this.eventManager.subscribe('sourceDataListModification', () => this.loadAll());
-    }
-
-    private onError(error) {
-        this.alertService.error(error.message, null, null);
     }
 
     sort() {
@@ -96,13 +95,6 @@ export class SourceDataComponent implements OnInit, OnDestroy {
         return result;
     }
 
-    private onSuccess(data, headers) {
-        this.links = parseLinks(headers.get('link'));
-        this.totalItems = headers.get('X-Total-Count');
-        this.queryCount = this.totalItems;
-        this.sourceData = data;
-    }
-
     loadPage(page) {
         if (page !== this.previousPage) {
             this.previousPage = page;
@@ -111,12 +103,24 @@ export class SourceDataComponent implements OnInit, OnDestroy {
     }
 
     transition() {
-        this.router.navigate(['/source-data'], { queryParams:
-            {
-                page: this.page,
-                sort: this.predicate + ',' + (this.ascending ? 'asc' : 'desc')
-            }
+        this.router.navigate(['/source-data'], {
+            queryParams:
+                {
+                    page: this.page,
+                    sort: this.predicate + ',' + (this.ascending ? 'asc' : 'desc')
+                }
         });
         this.loadAll();
+    }
+
+    private onError(error) {
+        this.alertService.error(error.message, null, null);
+    }
+
+    private onSuccess(data, headers) {
+        this.links = parseLinks(headers.get('link'));
+        this.totalItems = headers.get('X-Total-Count');
+        this.queryCount = this.totalItems;
+        this.sourceData = data;
     }
 }

@@ -1,11 +1,11 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { Subscription } from 'rxjs';
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {ActivatedRoute} from '@angular/router';
+import {Subscription} from 'rxjs';
 
-import { Role } from '../../admin/user-management/role.model';
-import { EventManager } from '../../shared/util/event-manager.service';
+import {Role} from '../../admin/user-management/role.model';
+import {EventManager} from '../../shared/util/event-manager.service';
 
-import { RoleService } from './role.service';
+import {RoleService} from './role.service';
 
 @Component({
     selector: 'jhi-role-detail',
@@ -18,9 +18,9 @@ export class RoleDetailComponent implements OnInit, OnDestroy {
     private eventSubscriber: Subscription;
 
     constructor(
-            private eventManager: EventManager,
-            private roleService: RoleService,
-            private route: ActivatedRoute,
+        private eventManager: EventManager,
+        private roleService: RoleService,
+        private route: ActivatedRoute,
     ) {
     }
 

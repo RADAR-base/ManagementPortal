@@ -6,7 +6,6 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.MessageSource
 import org.springframework.mail.javamail.JavaMailSender
-import org.springframework.mail.javamail.JavaMailSenderImpl
 import org.springframework.mail.javamail.MimeMessageHelper
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
@@ -28,7 +27,6 @@ class MailService(
     @Autowired private val messageSource: MessageSource,
     @Autowired private val templateEngine: SpringTemplateEngine,
 ) {
-
     /**
      * Send an email.
      * @param to email address to send to
@@ -39,21 +37,30 @@ class MailService(
      */
     @Async
     fun sendEmail(
-        to: String?, subject: String?, content: String?, isMultipart: Boolean,
-        isHtml: Boolean
+        to: String?,
+        subject: String?,
+        content: String?,
+        isMultipart: Boolean,
+        isHtml: Boolean,
     ) {
         log.debug(
             "Send email[multipart '{}' and html '{}'] to '{}' with subject '{}' and content={}",
-            isMultipart, isHtml, to, subject, content
+            isMultipart,
+            isHtml,
+            to,
+            subject,
+            content,
         )
 
         // Prepare message using a Spring helper
         val mimeMessage = javaMailSender.createMimeMessage()
         try {
-            val message = MimeMessageHelper(
-                mimeMessage, isMultipart,
-                StandardCharsets.UTF_8.name()
-            )
+            val message =
+                MimeMessageHelper(
+                    mimeMessage,
+                    isMultipart,
+                    StandardCharsets.UTF_8.name(),
+                )
             message.setTo(to!!)
             message.setFrom(managementPortalProperties.mail.from)
             message.setSubject(subject!!)
@@ -77,7 +84,7 @@ class MailService(
         context.setVariable(USER, user)
         context.setVariable(
             BASE_URL,
-            managementPortalProperties.common.managementPortalBaseUrl
+            managementPortalProperties.common.managementPortalBaseUrl,
         )
         val content = templateEngine.process("activationEmail", context)
         val subject = messageSource.getMessage("email.activation.title", null, locale)
@@ -89,14 +96,17 @@ class MailService(
      * @param user the user
      */
     @Async
-    fun sendCreationEmail(user: User, duration: Long) {
+    fun sendCreationEmail(
+        user: User,
+        duration: Long,
+    ) {
         log.debug("Sending creation email to '{}'", user.email)
         val locale = Locale.forLanguageTag(user.langKey)
         val context = Context(locale)
         context.setVariable(USER, user)
         context.setVariable(
             BASE_URL,
-            managementPortalProperties.common.managementPortalBaseUrl
+            managementPortalProperties.common.managementPortalBaseUrl,
         )
         context.setVariable(EXPIRY, Duration.ofSeconds(duration).toHours())
         val content = templateEngine.process("creationEmail", context)
@@ -110,14 +120,17 @@ class MailService(
      * @param email the address to send to
      */
     @Async
-    fun sendCreationEmailForGivenEmail(user: User, email: String?) {
+    fun sendCreationEmailForGivenEmail(
+        user: User,
+        email: String?,
+    ) {
         log.debug("Sending creation email to '{}'", email)
         val locale = Locale.forLanguageTag(user.langKey)
         val context = Context(locale)
         context.setVariable(USER, user)
         context.setVariable(
             BASE_URL,
-            managementPortalProperties.common.managementPortalBaseUrl
+            managementPortalProperties.common.managementPortalBaseUrl,
         )
         val content = templateEngine.process("creationEmail", context)
         val subject = messageSource.getMessage("email.activation.title", null, locale)
@@ -136,7 +149,7 @@ class MailService(
         context.setVariable(USER, user)
         context.setVariable(
             BASE_URL,
-            managementPortalProperties.common.managementPortalBaseUrl
+            managementPortalProperties.common.managementPortalBaseUrl,
         )
         val content = templateEngine.process("passwordResetEmail", context)
         val subject = messageSource.getMessage("email.reset.title", null, locale)

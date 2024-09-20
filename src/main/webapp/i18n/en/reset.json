@@ -11,7 +11,7 @@
                 "notfound": "<strong>No activated account found with this email!</strong> Please check and try again or contact system admin."
             }
         },
-        "finish" : {
+        "finish": {
             "title": "Reset password",
             "form": {
                 "button": "Validate new password"

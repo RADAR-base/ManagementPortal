@@ -1,17 +1,18 @@
 // Borrowed from JHipster
 
-import { Injectable } from '@angular/core';
-import { Observable, Observer, Subscription } from 'rxjs';
-import { filter, share } from 'rxjs/operators';
+import {Injectable} from '@angular/core';
+import {Observable, Observer, Subscription} from 'rxjs';
+import {filter, share} from 'rxjs/operators';
 
 export class EventWithContent {
-    constructor(public name: string, public content: any) { }
+    constructor(public name: string, public content: any) {
+    }
 }
 
 /**
  * An utility class to manage RX events
  */
-@Injectable({ providedIn: 'root' })
+@Injectable({providedIn: 'root'})
 export class EventManager {
     observable: Observable<EventWithContent>;
     observer?: Observer<EventWithContent>;

@@ -7,22 +7,22 @@
  * See the file LICENSE in the root of this repository.
  */
 
-import { Component, Input } from '@angular/core';
+import {Component, Input} from '@angular/core';
 
-import { JvmMetrics } from '../../metrics.model';
+import {JvmMetrics} from '../../metrics.model';
 
 @Component({
-  selector: 'jhi-jvm-memory',
-  templateUrl: './jvm-memory.component.html',
+    selector: 'jhi-jvm-memory',
+    templateUrl: './jvm-memory.component.html',
 })
 export class JvmMemoryComponent {
-  /**
-   * object containing all jvm memory metrics
-   */
-  @Input() jvmMemoryMetrics?: { [key: string]: JvmMetrics };
+    /**
+     * object containing all jvm memory metrics
+     */
+    @Input() jvmMemoryMetrics?: { [key: string]: JvmMetrics };
 
-  /**
-   * boolean field saying if the metrics are in the process of being updated
-   */
-  @Input() updating?: boolean;
+    /**
+     * boolean field saying if the metrics are in the process of being updated
+     */
+    @Input() updating?: boolean;
 }

@@ -33,9 +33,8 @@ class GroupService(
     @Autowired private val groupRepository: GroupRepository,
     @Autowired private val projectRepository: ProjectRepository,
     @Autowired private val subjectRepository: SubjectRepository,
-    @Autowired private val groupMapper: GroupMapper
+    @Autowired private val groupMapper: GroupMapper,
 ) {
-
     /**
      * Get the group by name.
      * @param projectName project name
@@ -45,17 +44,20 @@ class GroupService(
      */
     @Throws(NotFoundException::class)
     @Transactional
-    fun getGroup(projectName: String, groupName: String): GroupDTO {
-        return groupMapper.groupToGroupDTOFull(
+    fun getGroup(
+        projectName: String,
+        groupName: String,
+    ): GroupDTO =
+        groupMapper.groupToGroupDTOFull(
             groupRepository.findByProjectNameAndName(
-                projectName, groupName
+                projectName,
+                groupName,
             ) ?: throw NotFoundException(
                 "Group $groupName not found in project $projectName",
                 EntityName.GROUP,
-                ErrorConstants.ERR_GROUP_NOT_FOUND
-            )
+                ErrorConstants.ERR_GROUP_NOT_FOUND,
+            ),
         )
-    }
 
     /**
      * Delete the group by name.
@@ -65,10 +67,17 @@ class GroupService(
      * @throws NotFoundException if the project or group is not found.
      */
     @Transactional
-    fun deleteGroup(projectName: String, groupName: String, unlinkSubjects: Boolean) {
-        val group = groupRepository.findByProjectNameAndName(projectName, groupName) ?: throw NotFoundException(
-            "Group $groupName not found in project $projectName", EntityName.GROUP, ErrorConstants.ERR_GROUP_NOT_FOUND
-        )
+    fun deleteGroup(
+        projectName: String,
+        groupName: String,
+        unlinkSubjects: Boolean,
+    ) {
+        val group =
+            groupRepository.findByProjectNameAndName(projectName, groupName) ?: throw NotFoundException(
+                "Group $groupName not found in project $projectName",
+                EntityName.GROUP,
+                ErrorConstants.ERR_GROUP_NOT_FOUND,
+            )
         if (!unlinkSubjects) {
             val subjectCount = subjectRepository.countByGroupId(group.id)
             if (subjectCount > 0) {
@@ -88,15 +97,21 @@ class GroupService(
      * @throws ConflictException if the group name already exists.
      */
     @Transactional
-    fun createGroup(projectName: String, groupDto: GroupDTO): GroupDTO {
-        val project = projectRepository.findOneWithGroupsByName(projectName) ?: throw NotFoundException(
-            "Project with name $projectName not found", EntityName.PROJECT, ErrorConstants.ERR_PROJECT_NAME_NOT_FOUND
-        )
+    fun createGroup(
+        projectName: String,
+        groupDto: GroupDTO,
+    ): GroupDTO {
+        val project =
+            projectRepository.findOneWithGroupsByName(projectName) ?: throw NotFoundException(
+                "Project with name $projectName not found",
+                EntityName.PROJECT,
+                ErrorConstants.ERR_PROJECT_NAME_NOT_FOUND,
+            )
         if (project.groups.stream().anyMatch { g: Group -> g.name == groupDto.name }) {
             throw ConflictException(
                 "Group " + groupDto.name + " already exists in project " + projectName,
                 EntityName.GROUP,
-                ErrorConstants.ERR_GROUP_EXISTS
+                ErrorConstants.ERR_GROUP_EXISTS,
             )
         }
         return try {
@@ -107,15 +122,13 @@ class GroupService(
             project.groups.add(group)
             projectRepository.save(project)
             groupDtoResult
-        } catch(e: Throwable) {
+        } catch (e: Throwable) {
             throw NotFoundException(
                 "Group ${groupDto.name} not found in project $projectName",
                 EntityName.GROUP,
-                ErrorConstants.ERR_GROUP_NOT_FOUND
+                ErrorConstants.ERR_GROUP_NOT_FOUND,
             )
         }
-
-
     }
 
     /**
@@ -124,9 +137,12 @@ class GroupService(
      * @throws NotFoundException if the project is not found.
      */
     fun listGroups(projectName: String): List<GroupDTO> {
-        val project = projectRepository.findOneWithGroupsByName(projectName) ?: throw NotFoundException(
-            "Project with name $projectName not found", EntityName.PROJECT, ErrorConstants.ERR_PROJECT_NAME_NOT_FOUND
-        )
+        val project =
+            projectRepository.findOneWithGroupsByName(projectName) ?: throw NotFoundException(
+                "Project with name $projectName not found",
+                EntityName.PROJECT,
+                ErrorConstants.ERR_PROJECT_NAME_NOT_FOUND,
+            )
         return groupMapper.groupToGroupDTOs(project.groups)
     }
 
@@ -143,14 +159,16 @@ class GroupService(
         projectName: String,
         groupName: String,
         subjectsToAdd: List<SubjectPatchValue>,
-        subjectsToRemove: List<SubjectPatchValue>
+        subjectsToRemove: List<SubjectPatchValue>,
     ) {
-
         groupRepository
 
-        val group = groupRepository.findByProjectNameAndName(projectName, groupName) ?: throw NotFoundException(
-            "Group $groupName not found in project $projectName", EntityName.GROUP, ErrorConstants.ERR_GROUP_NOT_FOUND
-        )
+        val group =
+            groupRepository.findByProjectNameAndName(projectName, groupName) ?: throw NotFoundException(
+                "Group $groupName not found in project $projectName",
+                EntityName.GROUP,
+                ErrorConstants.ERR_GROUP_NOT_FOUND,
+            )
 
         val entitiesToAdd = getSubjectEntities(projectName, subjectsToAdd)
         val entitiesToRemove = getSubjectEntities(projectName, subjectsToRemove)
@@ -165,7 +183,8 @@ class GroupService(
     }
 
     private fun getSubjectEntities(
-        projectName: String, subjectsToModify: List<SubjectPatchValue>
+        projectName: String,
+        subjectsToModify: List<SubjectPatchValue>,
     ): List<Subject> {
         val logins: MutableList<String> = ArrayList()
         val ids: MutableList<Long> = ArrayList()
@@ -180,11 +199,15 @@ class GroupService(
         for (s in subjectEntities) {
             val login = s.user!!.login
             s.activeProject ?: throw BadRequestException(
-                "Subject $login is not assigned to a project", EntityName.SUBJECT, ErrorConstants.ERR_VALIDATION
+                "Subject $login is not assigned to a project",
+                EntityName.SUBJECT,
+                ErrorConstants.ERR_VALIDATION,
             )
             if (projectName != s.activeProject!!.projectName) {
                 throw BadRequestException(
-                    "Subject $login belongs to a different project", EntityName.SUBJECT, ErrorConstants.ERR_VALIDATION
+                    "Subject $login belongs to a different project",
+                    EntityName.SUBJECT,
+                    ErrorConstants.ERR_VALIDATION,
                 )
             }
         }
@@ -192,7 +215,9 @@ class GroupService(
     }
 
     private fun extractSubjectIdentities(
-        subjectsToModify: List<SubjectPatchValue>, logins: MutableList<String>, ids: MutableList<Long>
+        subjectsToModify: List<SubjectPatchValue>,
+        logins: MutableList<String>,
+        ids: MutableList<Long>,
     ) {
         // Each item should specify either a login or an ID,
         // since having both will require an extra validation step
@@ -204,14 +229,17 @@ class GroupService(
             val id = item.id
             if (id == null && login == null) {
                 throw BadRequestException(
-                    "Subject identification must be specified", EntityName.GROUP, ErrorConstants.ERR_VALIDATION
+                    "Subject identification must be specified",
+                    EntityName.GROUP,
+                    ErrorConstants.ERR_VALIDATION,
                 )
             }
             if (id != null && login != null) {
                 throw BadRequestException(
-                    "Subject identification must be specify either ID or Login. " + "Do not provide both values to avoid potential confusion.",
+                    "Subject identification must be specify either ID or Login. " +
+                        "Do not provide both values to avoid potential confusion.",
                     EntityName.GROUP,
-                    ErrorConstants.ERR_VALIDATION
+                    ErrorConstants.ERR_VALIDATION,
                 )
             }
             if (id != null) {

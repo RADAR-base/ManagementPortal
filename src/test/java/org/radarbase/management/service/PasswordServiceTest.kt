@@ -23,6 +23,7 @@ import java.util.*
 internal class PasswordServiceTest {
     @Autowired
     private val passwordService: PasswordService? = null
+
     @Test
     fun encode() {
         Assertions.assertNotEquals("abc", passwordService!!.encode("abc"))
@@ -51,9 +52,10 @@ internal class PasswordServiceTest {
         Arrays.fill(tooLong, 'A'.code.toByte())
         Assertions.assertThrows(BadRequestException::class.java) {
             passwordService!!.checkPasswordStrength(
-                "aA1" + String(
-                    tooLong
-                )
+                "aA1" +
+                    String(
+                        tooLong,
+                    ),
             )
         }
         Assertions.assertThrows(BadRequestException::class.java) { passwordService!!.checkPasswordStrength("aAaaaaaaaaa") }

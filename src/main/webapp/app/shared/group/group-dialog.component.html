@@ -1,40 +1,42 @@
-<form name="editForm" role="form" novalidate (ngSubmit)="save()" #editForm="ngForm">
+<form #editForm="ngForm" (ngSubmit)="save()" name="editForm" novalidate role="form">
     <div class="modal-header">
-        <h4 class="modal-title" id="myGroupLabel"
-            [translate]="'managementPortalApp.group.home.createOrEditLabel'">
+        <h4 [translate]="'managementPortalApp.group.home.createOrEditLabel'" class="modal-title"
+            id="myGroupLabel">
         </h4>
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
-                (click)="clear()">&times;</button>
+        <button (click)="clear()" aria-hidden="true" class="close" data-dismiss="modal"
+                type="button">&times;
+        </button>
     </div>
     <div class="modal-body">
         <jhi-alert-error></jhi-alert-error>
-        <div class="form-group" [hidden]="!group.id">
-            <label for="id" [translate]="'global.field.id'"></label>
-            <input type="text" class="form-control" id="id" name="id"
-                   [(ngModel)]="group.id" readonly />
+        <div [hidden]="!group.id" class="form-group">
+            <label [translate]="'global.field.id'" for="id"></label>
+            <input [(ngModel)]="group.id" class="form-control" id="id" name="id"
+                   readonly type="text"/>
         </div>
 
         <div class="form-group">
-            <label class="form-control-label"
-                for="field_name"
-                [translate]="'managementPortalApp.group.name'">
+            <label [translate]="'managementPortalApp.group.name'"
+                   class="form-control-label"
+                   for="field_name">
             </label>
-            <input type="text" class="form-control" name="name" id="field_name" required pattern="[_'.@A-Za-z0-9- ]*"
-                [(ngModel)]="group.name"
-             />
+            <input [(ngModel)]="group.name" class="form-control" id="field_name" name="name"
+                   pattern="[_'.@A-Za-z0-9- ]*" required
+                   type="text"
+            />
         </div>
 
-        <div class="form-group" [hidden]="!group.projectName">
-            <label for="projectName" [translate]="'global.field.projectName'"></label>
-            <input type="text" class="form-control" id="projectName" name="projectName"
-                   [(ngModel)]="group.projectName" readonly />
+        <div [hidden]="!group.projectName" class="form-group">
+            <label [translate]="'global.field.projectName'" for="projectName"></label>
+            <input [(ngModel)]="group.projectName" class="form-control" id="projectName" name="projectName"
+                   readonly type="text"/>
         </div>
     </div>
     <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal" (click)="clear()">
+        <button (click)="clear()" class="btn btn-default" data-dismiss="modal" type="button">
             <span class="fa fa-ban"></span>&nbsp;<span [translate]="'entity.action.cancel'"></span>
         </button>
-        <button type="submit" [disabled]="editForm.form.invalid || isSaving" class="btn btn-primary">
+        <button [disabled]="editForm.form.invalid || isSaving" class="btn btn-primary" type="submit">
             <span class="fa fa-save"></span>&nbsp;<span [translate]="'entity.action.save'"></span>
         </button>
     </div>

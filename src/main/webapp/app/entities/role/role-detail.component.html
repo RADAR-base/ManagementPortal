@@ -1,22 +1,22 @@
-
 <div *ngIf="role">
-    <h2><span [translate]="'managementPortalApp.role.detail.title'"></span>: {{role.authorityName}} - {{role.projectName}}</h2>
+    <h2><span [translate]="'managementPortalApp.role.detail.title'"></span>: {{ role.authorityName }}
+        - {{ role.projectName }}</h2>
     <hr>
     <jhi-alert-error></jhi-alert-error>
     <dl class="row-md jh-entity-details">
         <dt><span [translate]="'managementPortalApp.role.authorityName'"></span></dt>
         <dd>
-            <span>{{role.authorityName}}</span>
+            <span>{{ role.authorityName }}</span>
         </dd>
         <dt><span [translate]="'managementPortalApp.role.project'"></span></dt>
         <dd>
-            <span>{{role.projectName}}</span>
+            <span>{{ role.projectName }}</span>
         </dd>
     </dl>
 
-    <button type="submit"
-            (click)="previousState()"
-            class="btn btn-info">
+    <button (click)="previousState()"
+            class="btn btn-info"
+            type="submit">
         <span class="fa fa-arrow-left"></span>&nbsp;<span [translate]="'entity.action.back'"></span>
     </button>
 </div>

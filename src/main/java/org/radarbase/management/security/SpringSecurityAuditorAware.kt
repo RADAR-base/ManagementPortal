@@ -14,9 +14,10 @@ import javax.annotation.Nonnull
 class SpringSecurityAuditorAware : AuditorAware<String> {
     @Autowired
     private val authentication: Optional<Authentication>? = null
+
     @Nonnull
-    override fun getCurrentAuditor(): Optional<String> {
-        return authentication!!.map { obj: Authentication -> obj.name }
+    override fun getCurrentAuditor(): Optional<String> =
+        authentication!!
+            .map { obj: Authentication -> obj.name }
             .filter { n: String -> n.isNotEmpty() }
-    }
 }

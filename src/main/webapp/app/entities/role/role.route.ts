@@ -1,9 +1,9 @@
-import { Routes } from '@angular/router';
+import {Routes} from '@angular/router';
 
-import { UserRouteAccessService } from '../../shared';
+import {UserRouteAccessService} from '../../shared';
 import {ORGANIZATION_ADMIN, PROJECT_ADMIN, SYSTEM_ADMIN} from '../../shared/constants/common.constants';
 
-import { RoleDetailComponent } from './role-detail.component';
+import {RoleDetailComponent} from './role-detail.component';
 
 export const roleRoute: Routes = [
     {

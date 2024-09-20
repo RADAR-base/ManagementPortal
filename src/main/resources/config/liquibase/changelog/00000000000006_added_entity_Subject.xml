@@ -10,11 +10,9 @@
   -->
 
 <databaseChangeLog
-    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd
-                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
 
     <property name="now" value="now()" dbms="mysql,hsqldb"/>
     <property name="now" value="current_timestamp" dbms="postgresql"/>
@@ -35,13 +33,13 @@
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="external_link" type="varchar(255)">
-                <constraints nullable="true" />
+                <constraints nullable="true"/>
             </column>
             <column name="external_id" type="varchar(255)">
-                <constraints nullable="true" />
+                <constraints nullable="true"/>
             </column>
             <column name="removed" type="boolean" valueBoolean="false">
-                <constraints nullable="true" />
+                <constraints nullable="true"/>
             </column>
             <column name="user_id" type="bigint">
                 <constraints unique="true" nullable="false"/>
@@ -58,11 +56,10 @@
         </createTable>
 
         <addForeignKeyConstraint baseColumnNames="user_id"
-                                                baseTableName="subject"
-                                                constraintName="fk_subject_user_id"
-                                                referencedColumnNames="id"
-                                                referencedTableName="radar_user"/>
-
+                                 baseTableName="subject"
+                                 constraintName="fk_subject_user_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="radar_user"/>
 
 
         <createTable tableName="subject_sources">
@@ -78,15 +75,15 @@
 
 
         <addForeignKeyConstraint baseColumnNames="subjects_id"
-                                                baseTableName="subject_sources"
-                                                constraintName="fk_subject_sources_subjects_id"
-                                                referencedColumnNames="id"
-                                                referencedTableName="subject"/>
+                                 baseTableName="subject_sources"
+                                 constraintName="fk_subject_sources_subjects_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="subject"/>
         <addForeignKeyConstraint baseColumnNames="sources_id"
-                                                baseTableName="subject_sources"
-                                                constraintName="fk_subject_sources_sources_id"
-                                                referencedColumnNames="id"
-                                                referencedTableName="radar_source"/>
+                                 baseTableName="subject_sources"
+                                 constraintName="fk_subject_sources_sources_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="radar_source"/>
 
     </changeSet>
 </databaseChangeLog>

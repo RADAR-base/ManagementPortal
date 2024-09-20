@@ -1,22 +1,22 @@
-import { DatePipe } from '@angular/common';
-import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import {DatePipe} from '@angular/common';
+import {Injectable} from '@angular/core';
+import {Router} from '@angular/router';
+import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 
-import { OAuthClient } from './oauth-client.model';
-import { OAuthClientService } from './oauth-client.service';
-import { Observable, of } from 'rxjs';
-import { map } from 'rxjs/operators';
+import {OAuthClient} from './oauth-client.model';
+import {OAuthClientService} from './oauth-client.service';
+import {Observable, of} from 'rxjs';
+import {map} from 'rxjs/operators';
 
-@Injectable({ providedIn: 'root' })
+@Injectable({providedIn: 'root'})
 export class OAuthClientPopupService {
     private isOpen = false;
 
     constructor(
-            private datePipe: DatePipe,
-            private modalService: NgbModal,
-            private router: Router,
-            private oauthClientService: OAuthClientService,
+        private datePipe: DatePipe,
+        private modalService: NgbModal,
+        private router: Router,
+        private oauthClientService: OAuthClientService,
     ) {
     }
 

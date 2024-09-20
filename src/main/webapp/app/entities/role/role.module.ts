@@ -1,11 +1,8 @@
-import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import {CUSTOM_ELEMENTS_SCHEMA, NgModule} from '@angular/core';
+import {RouterModule} from '@angular/router';
 
-import { ManagementPortalSharedModule } from '../../shared';
-import {
-    RoleDetailComponent,
-    roleRoute,
-} from './';
+import {ManagementPortalSharedModule} from '../../shared';
+import {RoleDetailComponent, roleRoute,} from './';
 
 const ENTITY_STATES = [
     ...roleRoute,

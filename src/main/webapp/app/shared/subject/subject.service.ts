@@ -5,7 +5,7 @@ import {Observable} from 'rxjs';
 import {Subject} from './subject.model';
 import {createRequestOption} from '../model/request.utils';
 
-@Injectable({ providedIn: 'root' })
+@Injectable({providedIn: 'root'})
 export class SubjectService {
 
     private resourceUrl = 'api/subjects';
@@ -40,7 +40,10 @@ export class SubjectService {
 
     findRevisions(login: string, req?: any): Observable<HttpResponse<any>> {
         const params = createRequestOption(req);
-        return this.http.get(`${this.resourceUrl}/${encodeURIComponent(login)}/revisions`, {params, observe: 'response'});
+        return this.http.get(`${this.resourceUrl}/${encodeURIComponent(login)}/revisions`, {
+            params,
+            observe: 'response'
+        });
     }
 
     query(
@@ -48,7 +51,7 @@ export class SubjectService {
         paginationParams: SubjectPaginationParams,
     ): Observable<HttpResponse<any>> {
         return this.http.get(this.resourceUrl, {
-            params: createRequestOption({ ...paginationParams, ...filterParams }),
+            params: createRequestOption({...paginationParams, ...filterParams}),
             observe: 'response',
         });
     }
@@ -64,7 +67,7 @@ export class SubjectService {
     ): Observable<HttpResponse<Subject[]>> {
         let url = `${this.projectResourceUrl}/${projectName}/subjects`;
         return this.http.get<Subject[]>(url, {
-            params: createRequestOption({ ...paginationParams, ...filterParams }),
+            params: createRequestOption({...paginationParams, ...filterParams}),
             observe: 'response',
         });
     }

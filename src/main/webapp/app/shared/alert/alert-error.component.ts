@@ -1,8 +1,8 @@
-import { Component, OnDestroy } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
-import { Subscription } from 'rxjs';
-import { AlertService } from '../util/alert.service';
-import { EventManager } from '../util/event-manager.service';
+import {Component, OnDestroy} from '@angular/core';
+import {TranslateService} from '@ngx-translate/core';
+import {Subscription} from 'rxjs';
+import {AlertService} from '../util/alert.service';
+import {EventManager} from '../util/event-manager.service';
 
 @Component({
     selector: 'jhi-alert-error',
@@ -31,7 +31,7 @@ export class JhiAlertErrorComponent implements OnDestroy {
             let i;
             const httpErrorResponse = response.content;
             switch (httpErrorResponse.status) {
-                    // connection refused, server not reachable
+                // connection refused, server not reachable
                 case 0:
                     this.addErrorAlert('Server not reachable', 'error.server.not.reachable');
                     break;
@@ -58,9 +58,9 @@ export class JhiAlertErrorComponent implements OnDestroy {
                             // convert 'something[14].other[4].id' to 'something[].other[].id' so translations can be written to it
                             const convertedField = fieldError.field.replace(/\[\d*]/g, '[]');
                             const fieldName = translateService.instant('managementPortalApp.' +
-                                    fieldError.objectName + '.' + convertedField);
+                                fieldError.objectName + '.' + convertedField);
                             this.addErrorAlert(
-                                    'Field ' + fieldName + ' cannot be empty', 'error.' + fieldError.message, {fieldName});
+                                'Field ' + fieldName + ' cannot be empty', 'error.' + fieldError.message, {fieldName});
                         }
                     } else if (httpErrorResponse.error !== '' && httpErrorResponse.error.message) {
                         this.addErrorAlert(httpErrorResponse.error.message, httpErrorResponse.error.message, httpErrorResponse.error.params);
@@ -93,16 +93,16 @@ export class JhiAlertErrorComponent implements OnDestroy {
     addErrorAlert(message, key?, data?) {
         key = key ? key : message;
         this.alerts.push(
-                this.alertService.addAlert(
-                        {
-                            type: 'danger',
-                            msg: key,
-                            params: data,
-                            timeout: 5000,
-                            scoped: true,
-                        },
-                        this.alerts,
-                ),
+            this.alertService.addAlert(
+                {
+                    type: 'danger',
+                    msg: key,
+                    params: data,
+                    timeout: 5000,
+                    scoped: true,
+                },
+                this.alerts,
+            ),
         );
     }
 }

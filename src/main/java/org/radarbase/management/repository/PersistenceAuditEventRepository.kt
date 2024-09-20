@@ -11,18 +11,23 @@ import java.time.LocalDateTime
  */
 interface PersistenceAuditEventRepository : JpaRepository<PersistentAuditEvent?, Long?> {
     fun findByPrincipal(principal: String?): List<PersistentAuditEvent?>?
+
     fun findByAuditEventDateAfter(after: LocalDateTime?): List<PersistentAuditEvent?>?
+
     fun findByPrincipalAndAuditEventDateAfter(
         principal: String?,
-        after: LocalDateTime?
+        after: LocalDateTime?,
     ): List<PersistentAuditEvent?>?
 
     fun findByPrincipalAndAuditEventDateAfterAndAuditEventType(
-        principle: String?, after: LocalDateTime?, type: String?
+        principle: String?,
+        after: LocalDateTime?,
+        type: String?,
     ): List<PersistentAuditEvent>
 
     fun findAllByAuditEventDateBetween(
         fromDate: LocalDateTime?,
-        toDate: LocalDateTime?, pageable: Pageable?
+        toDate: LocalDateTime?,
+        pageable: Pageable?,
     ): Page<PersistentAuditEvent>
 }

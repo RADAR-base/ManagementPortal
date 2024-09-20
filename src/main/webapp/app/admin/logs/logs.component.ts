@@ -1,11 +1,11 @@
-import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
+import {ChangeDetectionStrategy, Component, OnDestroy, OnInit} from '@angular/core';
 
-import { Log } from './log.model';
-import { LogsService } from './logs.service';
-import { BehaviorSubject, combineLatest, Observable, Subscription } from 'rxjs';
-import { debounceTime, distinctUntilChanged, map, share, shareReplay, startWith, switchMap, tap } from 'rxjs/operators';
-import { regularSortOrder, SortOrder, SortOrderImpl } from '../../shared/util/sort-util';
-import { ITEMS_PER_PAGE } from '../../shared';
+import {Log} from './log.model';
+import {LogsService} from './logs.service';
+import {BehaviorSubject, combineLatest, Observable, Subscription} from 'rxjs';
+import {debounceTime, distinctUntilChanged, map, shareReplay, switchMap} from 'rxjs/operators';
+import {regularSortOrder, SortOrder, SortOrderImpl} from '../../shared/util/sort-util';
+import {ITEMS_PER_PAGE} from '../../shared';
 
 @Component({
     selector: 'jhi-logs',
@@ -13,14 +13,13 @@ import { ITEMS_PER_PAGE } from '../../shared';
     templateUrl: './logs.component.html',
 })
 export class LogsComponent implements OnInit, OnDestroy {
-    private _loggers$: BehaviorSubject<Log[]> = new BehaviorSubject([]);
     loggerView$: Observable<Log[]>
     loggersFiltered$: Observable<Log[]>
     filter$ = new BehaviorSubject<string>('');
     sortOrder$: Observable<SortOrderImpl>;
     page$: BehaviorSubject<number> = new BehaviorSubject(0);
     itemsPerPage: number;
-
+    private _loggers$: BehaviorSubject<Log[]> = new BehaviorSubject([]);
     private _sortOrder$ = new BehaviorSubject<SortOrder>({predicate: '', ascending: true});
     private subscriptions = new Subscription();
 
@@ -40,24 +39,6 @@ export class LogsComponent implements OnInit, OnDestroy {
         this.loggerView$ = this.viewLoggers(this.loggersFiltered$);
     }
 
-    private filterLoggers(loggers$: Observable<Log[]>): Observable<Log[]> {
-        return combineLatest([
-            loggers$,
-            this.cleanedFilter$,
-        ]).pipe(
-            map(([loggers, filters]) => {
-                if (filters.length === 0) {
-                    return loggers;
-                } else {
-                    return loggers.filter(l => {
-                        const name: string = l.name.toLowerCase();
-                        return filters.every(f => name.includes(f));
-                    });
-                }
-            }),
-        );
-    }
-
     private get cleanedFilter$(): Observable<string[]> {
         return this.filter$.pipe(
             debounceTime(200),
@@ -70,18 +51,6 @@ export class LogsComponent implements OnInit, OnDestroy {
                 }
             }),
             distinctUntilChanged((a, b) => a.join(' ') === b.join(' ')),
-        );
-    }
-
-    private viewLoggers(loggers$: Observable<Log[]>): Observable<Log[]> {
-        return combineLatest([
-            loggers$,
-            this.sortOrder$,
-        ]).pipe(
-            map(([loggers, sortOrder]) => sortOrder.sort(loggers)),
-            switchMap(loggers => this.page$.pipe(
-                map(page => loggers.slice(0, (page + 1) * this.itemsPerPage)),
-            )),
         );
     }
 
@@ -124,5 +93,35 @@ export class LogsComponent implements OnInit, OnDestroy {
 
     trackByLoggerName(index: number, logger: Log): string {
         return logger.name;
+    }
+
+    private filterLoggers(loggers$: Observable<Log[]>): Observable<Log[]> {
+        return combineLatest([
+            loggers$,
+            this.cleanedFilter$,
+        ]).pipe(
+            map(([loggers, filters]) => {
+                if (filters.length === 0) {
+                    return loggers;
+                } else {
+                    return loggers.filter(l => {
+                        const name: string = l.name.toLowerCase();
+                        return filters.every(f => name.includes(f));
+                    });
+                }
+            }),
+        );
+    }
+
+    private viewLoggers(loggers$: Observable<Log[]>): Observable<Log[]> {
+        return combineLatest([
+            loggers$,
+            this.sortOrder$,
+        ]).pipe(
+            map(([loggers, sortOrder]) => sortOrder.sort(loggers)),
+            switchMap(loggers => this.page$.pipe(
+                map(page => loggers.slice(0, (page + 1) * this.itemsPerPage)),
+            )),
+        );
     }
 }

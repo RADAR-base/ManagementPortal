@@ -1,8 +1,8 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { combineLatest } from 'rxjs';
+import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
+import {combineLatest} from 'rxjs';
 
-import { JhiMetricsService } from './metrics.service';
-import { Metrics, Thread } from './metrics.model';
+import {JhiMetricsService} from './metrics.service';
+import {Metrics, Thread} from './metrics.model';
 
 @Component({
     selector: 'jhi-metrics',
@@ -13,7 +13,8 @@ export class JhiMetricsMonitoringComponent implements OnInit {
     threads?: Thread[];
     updatingMetrics = true;
 
-    constructor(private metricsService: JhiMetricsService, private changeDetector: ChangeDetectorRef) {}
+    constructor(private metricsService: JhiMetricsService, private changeDetector: ChangeDetectorRef) {
+    }
 
     ngOnInit(): void {
         this.refresh();

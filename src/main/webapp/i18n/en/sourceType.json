@@ -1,6 +1,6 @@
 {
     "managementPortalApp": {
-        "sourceType" : {
+        "sourceType": {
             "home": {
                 "title": "Source Types",
                 "createLabel": "Create a new Source Type",
@@ -23,7 +23,7 @@
             "sourceTypeScope": "Source Type Scope",
             "sourceData": "Source Data",
             "project": "Project",
-            "sourceRegistration" : "Source registration",
+            "sourceRegistration": "Source registration",
             "dynamicRegistration": "Dynamic source registration",
             "manualRegistration": "Manual Source registration",
             "name": "Name",

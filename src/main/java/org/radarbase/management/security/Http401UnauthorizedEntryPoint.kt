@@ -34,8 +34,9 @@ class Http401UnauthorizedEntryPoint : AuthenticationEntryPoint {
      */
     @Throws(IOException::class)
     override fun commence(
-        request: HttpServletRequest, response: HttpServletResponse,
-        arg2: AuthenticationException
+        request: HttpServletRequest,
+        response: HttpServletResponse,
+        arg2: AuthenticationException,
     ) {
         log.debug("Pre-authenticated entry point called. Rejecting access")
         response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Access Denied")

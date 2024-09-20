@@ -1,16 +1,16 @@
-import { Component, OnDestroy, ViewEncapsulation } from '@angular/core';
-import { ActivatedRoute, Params, Router } from '@angular/router';
+import {Component, OnDestroy, ViewEncapsulation} from '@angular/core';
+import {ActivatedRoute, Params, Router} from '@angular/router';
 
-import { NgbActiveModal, NgbModalRef, } from '@ng-bootstrap/ng-bootstrap';
+import {NgbActiveModal, NgbModalRef,} from '@ng-bootstrap/ng-bootstrap';
 
-import { AlertService } from '../../shared/util/alert.service';
-import { EventManager } from '../../shared/util/event-manager.service';
-import { SourceTypeService } from '../source-type';
-import { OrganizationPopupService } from './organization-popup.service';
+import {AlertService} from '../../shared/util/alert.service';
+import {EventManager} from '../../shared/util/event-manager.service';
+import {SourceTypeService} from '../source-type';
+import {OrganizationPopupService} from './organization-popup.service';
 
-import { copyOrganization, Organization, OrganizationService, ProjectService } from '../../shared';
-import { ObservablePopupComponent } from '../../shared/util/observable-popup.component';
-import { Observable, Subscription } from 'rxjs';
+import {copyOrganization, Organization, OrganizationService, ProjectService} from '../../shared';
+import {ObservablePopupComponent} from '../../shared/util/observable-popup.component';
+import {Observable, Subscription} from 'rxjs';
 
 @Component({
     selector: 'jhi-organization-dialog',
@@ -29,13 +29,13 @@ export class OrganizationDialogComponent implements OnDestroy {
     private subscriptions: Subscription = new Subscription();
 
     constructor(
-            public activeModal: NgbActiveModal,
-            private alertService: AlertService,
-            private organizationService: OrganizationService,
-            private sourceTypeService: SourceTypeService,
-            private eventManager: EventManager,
-            private router: Router,
-            private projectService: ProjectService,
+        public activeModal: NgbActiveModal,
+        private alertService: AlertService,
+        private organizationService: OrganizationService,
+        private sourceTypeService: SourceTypeService,
+        private eventManager: EventManager,
+        private router: Router,
+        private projectService: ProjectService,
     ) {
         this.isSaving = false;
         this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN', 'ROLE_PROJECT_ADMIN'];

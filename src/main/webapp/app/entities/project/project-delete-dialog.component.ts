@@ -1,14 +1,14 @@
-import { Component } from '@angular/core';
-import { ActivatedRoute, Params } from '@angular/router';
+import {Component} from '@angular/core';
+import {ActivatedRoute, Params} from '@angular/router';
 
-import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import {NgbActiveModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 
-import { ProjectPopupService } from './project-popup.service';
+import {ProjectPopupService} from './project-popup.service';
 
-import { Project, ProjectService } from '../../shared';
-import { EventManager } from '../../shared/util/event-manager.service';
-import { Observable } from 'rxjs';
-import { ObservablePopupComponent } from '../../shared/util/observable-popup.component';
+import {Project, ProjectService} from '../../shared';
+import {EventManager} from '../../shared/util/event-manager.service';
+import {Observable} from 'rxjs';
+import {ObservablePopupComponent} from '../../shared/util/observable-popup.component';
 
 @Component({
     selector: 'jhi-project-delete-dialog',
@@ -19,9 +19,9 @@ export class ProjectDeleteDialogComponent {
     project: Project;
 
     constructor(
-            private projectService: ProjectService,
-            public activeModal: NgbActiveModal,
-            private eventManager: EventManager,
+        private projectService: ProjectService,
+        public activeModal: NgbActiveModal,
+        private eventManager: EventManager,
     ) {
     }
 
@@ -46,8 +46,8 @@ export class ProjectDeleteDialogComponent {
 })
 export class ProjectDeletePopupComponent extends ObservablePopupComponent {
     constructor(
-            route: ActivatedRoute,
-            private projectPopupService: ProjectPopupService,
+        route: ActivatedRoute,
+        private projectPopupService: ProjectPopupService,
     ) {
         super(route);
     }

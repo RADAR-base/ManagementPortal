@@ -1,4 +1,4 @@
-import { MinimalProject } from '../project';
+import {MinimalProject} from '../project';
 
 export interface MinimalOrganization {
     id?: number;

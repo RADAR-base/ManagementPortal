@@ -1,4 +1,4 @@
-import { login } from '../util/login';
+import {login} from '../util/login';
 
 describe('Organization Permissions e2e test', () => {
     beforeEach(() => {

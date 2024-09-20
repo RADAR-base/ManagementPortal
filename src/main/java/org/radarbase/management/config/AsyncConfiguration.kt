@@ -17,7 +17,8 @@ import tech.jhipster.config.JHipsterProperties
 @EnableAsync
 @EnableScheduling
 class AsyncConfiguration(
-    @Autowired private val jHipsterProperties: JHipsterProperties) : AsyncConfigurer {
+    @Autowired private val jHipsterProperties: JHipsterProperties,
+) : AsyncConfigurer {
     @Bean(name = ["taskExecutor"])
     override fun getAsyncExecutor(): ExceptionHandlingAsyncTaskExecutor {
         log.debug("Creating Async Task Executor")
@@ -29,9 +30,8 @@ class AsyncConfiguration(
         return ExceptionHandlingAsyncTaskExecutor(executor)
     }
 
-    override fun getAsyncUncaughtExceptionHandler(): AsyncUncaughtExceptionHandler {
-        return SimpleAsyncUncaughtExceptionHandler()
-    }
+    override fun getAsyncUncaughtExceptionHandler(): AsyncUncaughtExceptionHandler =
+        SimpleAsyncUncaughtExceptionHandler()
 
     companion object {
         private val log = LoggerFactory.getLogger(AsyncConfiguration::class.java)

@@ -1,17 +1,11 @@
-import { Injectable } from '@angular/core';
-import {
-    ActivatedRouteSnapshot,
-    CanActivate,
-    CanActivateChild,
-    Router,
-    RouterStateSnapshot
-} from '@angular/router';
+import {Injectable} from '@angular/core';
+import {ActivatedRouteSnapshot, CanActivate, CanActivateChild, Router, RouterStateSnapshot} from '@angular/router';
 
-import { AuthService } from '../';
-import { StateStorageService } from './state-storage.service';
-import { Observable } from "rxjs";
+import {AuthService} from '../';
+import {StateStorageService} from './state-storage.service';
+import {Observable} from "rxjs";
 
-@Injectable({ providedIn: 'root' })
+@Injectable({providedIn: 'root'})
 export class UserRouteAccessService implements CanActivate, CanActivateChild {
 
     constructor(private router: Router,

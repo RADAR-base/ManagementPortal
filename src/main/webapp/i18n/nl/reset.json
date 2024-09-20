@@ -11,7 +11,7 @@
                 "notfound": "<strong>Geen geactiveerd account gevonden met deze e-mail!</strong> Controleer en probeer het opnieuw of neem contact op met systeembeheerder"
             }
         },
-        "finish" : {
+        "finish": {
             "title": "Reset wachtwoord",
             "form": {
                 "button": "Valideer nieuw wachtwoord"

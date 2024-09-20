@@ -1,26 +1,26 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
-import { Observable, Subscription } from 'rxjs';
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {TranslateService} from '@ngx-translate/core';
+import {Observable, Subscription} from 'rxjs';
 
-import { Account, AccountService, JhiLanguageHelper, Principal } from '../../shared';
-import { filter, switchMap, tap } from 'rxjs/operators';
+import {Account, AccountService, JhiLanguageHelper, Principal} from '../../shared';
+import {filter, switchMap, tap} from 'rxjs/operators';
 
 @Component({
     selector: 'jhi-settings',
     templateUrl: './settings.component.html',
 })
 export class SettingsComponent implements OnInit, OnDestroy {
-    private subscription: Subscription = new Subscription();
     error: string;
     success: string;
     settingsAccount?: Account;
     previousLangKey: String;
+    private subscription: Subscription = new Subscription();
 
     constructor(
-            private account: AccountService,
-            private principal: Principal,
-            public languageHelper: JhiLanguageHelper,
-            private translateService: TranslateService,
+        private account: AccountService,
+        private principal: Principal,
+        public languageHelper: JhiLanguageHelper,
+        private translateService: TranslateService,
     ) {
     }
 
@@ -30,15 +30,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
     ngOnDestroy() {
         this.subscription.unsubscribe();
-    }
-
-    private registerChangesToAccount(): Subscription {
-        return this.principal.account$.pipe(
-            filter(a => !!a),
-        ).subscribe(({activated, email, firstName, langKey, lastName, login}) => {
-            this.settingsAccount = { activated, email, firstName, langKey, lastName, login };
-            this.previousLangKey = this.settingsAccount.langKey;
-        });
     }
 
     save() {
@@ -66,5 +57,14 @@ export class SettingsComponent implements OnInit, OnDestroy {
                 }
             }),
         );
+    }
+
+    private registerChangesToAccount(): Subscription {
+        return this.principal.account$.pipe(
+            filter(a => !!a),
+        ).subscribe(({activated, email, firstName, langKey, lastName, login}) => {
+            this.settingsAccount = {activated, email, firstName, langKey, lastName, login};
+            this.previousLangKey = this.settingsAccount.langKey;
+        });
     }
 }

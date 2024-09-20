@@ -61,7 +61,7 @@
                 }
             },
             "error": {
-                "dontmatch" : "Het wachtwoord en zijn bevestiging komen niet overeen!",
+                "dontmatch": "Het wachtwoord en zijn bevestiging komen niet overeen!",
                 "weakpassword": "De wachtwoordsterkte moet tenminste vier streepjes zijn. Voeg symbolen en getallen toe om de sterkte te verbeteren."
             },
             "validate": {
@@ -90,15 +90,15 @@
             "projectName": "Projectnaam"
         },
         "ribbon": {
-            "dev":"Ontwikkeling"
+            "dev": "Ontwikkeling"
         },
-        "attribute" : {
-            "title" : "Eigenschappen",
-            "key" : "Eigenschap",
-            "value" : "Waarde",
-            "add" : "Toevoegen",
-            "error" : {
-                "alreadyExist" : "Deze eigenschap komt reeds voor in de lijst"
+        "attribute": {
+            "title": "Eigenschappen",
+            "key": "Eigenschap",
+            "value": "Waarde",
+            "add": "Toevoegen",
+            "error": {
+                "alreadyExist": "Deze eigenschap komt reeds voor in de lijst"
             },
             "noneAvailable": "–"
         }
@@ -152,7 +152,7 @@
         "nameexists": "Er bestaat reeds een {{ entityName }} met deze naam"
     },
     "footer": "Voor meer details, lees <a target=\"_blank\" href=\"https://radar-base.atlassian.net/wiki/spaces/RAD/pages/1913978881/User+Guide+for+Management+Portal\">de gebruikershandleiding</a>.",
-    "common" : {
+    "common": {
         "showMore": " Meer",
         "showLess": " Minder"
     }

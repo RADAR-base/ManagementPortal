@@ -1,19 +1,19 @@
-import { Component } from '@angular/core';
-import { HttpErrorResponse } from '@angular/common/http';
-import { ActivatedRoute, Params } from '@angular/router';
+import {Component} from '@angular/core';
+import {HttpErrorResponse} from '@angular/common/http';
+import {ActivatedRoute, Params} from '@angular/router';
 
-import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import {NgbActiveModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 
-import { AlertService } from '../../shared/util/alert.service';
-import { EventManager } from '../../shared/util/event-manager.service';
-import { ProjectService } from '../../shared/project';
-import { SourceDataService } from '../source-data';
-import { SourceTypePopupService } from './source-type-popup.service';
+import {AlertService} from '../../shared/util/alert.service';
+import {EventManager} from '../../shared/util/event-manager.service';
+import {ProjectService} from '../../shared/project';
+import {SourceDataService} from '../source-data';
+import {SourceTypePopupService} from './source-type-popup.service';
 
-import { SourceType } from './source-type.model';
-import { SourceTypeService } from './source-type.service';
-import { Observable } from 'rxjs';
-import { ObservablePopupComponent } from '../../shared/util/observable-popup.component';
+import {SourceType} from './source-type.model';
+import {SourceTypeService} from './source-type.service';
+import {Observable} from 'rxjs';
+import {ObservablePopupComponent} from '../../shared/util/observable-popup.component';
 
 @Component({
     selector: 'jhi-source-type-dialog',
@@ -26,12 +26,12 @@ export class SourceTypeDialogComponent {
     isSaving: boolean;
 
     constructor(
-            public activeModal: NgbActiveModal,
-            private alertService: AlertService,
-            private sourceTypeService: SourceTypeService,
-            private sourceDataService: SourceDataService,
-            public projectService: ProjectService,
-            private eventManager: EventManager,
+        public activeModal: NgbActiveModal,
+        private alertService: AlertService,
+        private sourceTypeService: SourceTypeService,
+        private sourceDataService: SourceDataService,
+        public projectService: ProjectService,
+        private eventManager: EventManager,
     ) {
         this.isSaving = false;
         this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN'];
@@ -45,12 +45,12 @@ export class SourceTypeDialogComponent {
         this.isSaving = true;
         if (this.sourceType.id !== undefined) {
             this.sourceTypeService.update(this.sourceType)
-                    .subscribe((res: SourceType) => this.onSaveSuccess(res),
-                            (res: HttpErrorResponse) => this.onSaveError(res));
+                .subscribe((res: SourceType) => this.onSaveSuccess(res),
+                    (res: HttpErrorResponse) => this.onSaveError(res));
         } else {
             this.sourceTypeService.create(this.sourceType)
-                    .subscribe((res: SourceType) => this.onSaveSuccess(res),
-                            (res: HttpErrorResponse) => this.onSaveError(res));
+                .subscribe((res: SourceType) => this.onSaveSuccess(res),
+                    (res: HttpErrorResponse) => this.onSaveError(res));
         }
     }
 
@@ -76,8 +76,8 @@ export class SourceTypeDialogComponent {
 })
 export class SourceTypePopupComponent extends ObservablePopupComponent {
     constructor(
-      route: ActivatedRoute,
-      private sourceTypePopupService: SourceTypePopupService,
+        route: ActivatedRoute,
+        private sourceTypePopupService: SourceTypePopupService,
     ) {
         super(route);
     }

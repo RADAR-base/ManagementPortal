@@ -1,4 +1,4 @@
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 
 import {
     Authority,
@@ -9,12 +9,12 @@ import {
     ProjectService,
     Scope
 } from '../../shared';
-import { AlertService } from '../../shared/util/alert.service';
-import { EventManager } from '../../shared/util/event-manager.service';
+import {AlertService} from '../../shared/util/alert.service';
+import {EventManager} from '../../shared/util/event-manager.service';
 
-import { Role } from './role.model';
-import { BehaviorSubject, combineLatest, Observable, Subscription } from "rxjs";
-import { distinctUntilChanged, map, skip, take } from "rxjs/operators";
+import {Role} from './role.model';
+import {BehaviorSubject, combineLatest, Observable, Subscription} from "rxjs";
+import {distinctUntilChanged, map, skip} from "rxjs/operators";
 
 @Component({
     selector: 'jhi-user-role',
@@ -22,11 +22,6 @@ import { distinctUntilChanged, map, skip, take } from "rxjs/operators";
 })
 export class RoleComponent implements OnInit, OnDestroy {
     roles$ = new BehaviorSubject<Role[]>([]);
-
-    @Input()
-    get roles(): Role[] { return this.roles$.value }
-    set roles(newValue: Role[]) { this.roles$.next(newValue || []); }
-
     selectedAuthority: Authority = null;
     selectedProject: Project = null;
     selectedOrganization: Organization = null;
@@ -38,75 +33,74 @@ export class RoleComponent implements OnInit, OnDestroy {
     authorities$: Observable<Authority[]>;
     projects$: Observable<Project[]>;
     organizations$: Observable<Organization[]>;
-
     subscriptions = new Subscription();
 
     constructor(
-                public authorityService: AuthorityService,
-                public projectService: ProjectService,
-                public organizationService: OrganizationService,
-                private alertService: AlertService,
-                private eventManager: EventManager
+        public authorityService: AuthorityService,
+        public projectService: ProjectService,
+        public organizationService: OrganizationService,
+        private alertService: AlertService,
+        private eventManager: EventManager
     ) {
         this.authorities$ = combineLatest([
-          authorityService.authorities$,
-          this.roles$,
-          ]).pipe(
-          map(([authorities, roles]) =>
-            authorities.filter(a => this.allowedAuthorityNames.has(a.name)
-              && (a.scope !== Scope.GLOBAL || !roles.some(r => r.authorityName === a.name)))
-          ),
+            authorityService.authorities$,
+            this.roles$,
+        ]).pipe(
+            map(([authorities, roles]) =>
+                authorities.filter(a => this.allowedAuthorityNames.has(a.name)
+                    && (a.scope !== Scope.GLOBAL || !roles.some(r => r.authorityName === a.name)))
+            ),
         );
         this.projects$ = combineLatest([
-          projectService.projects$,
-          this.roles$,
+            projectService.projects$,
+            this.roles$,
         ]).pipe(
-          map(([projects, roles]) => {
-              if (projects) {
-                  const mappedProjects = new Set(roles
-                    .filter(r => r.authorityName === 'ROLE_PROJECT_ADMIN')
-                    .map(r => r.projectId)
-                  )
-                  return projects.filter(p => !mappedProjects.has(p.id));
-              } else {
-                  return [];
-              }
-          }),
+            map(([projects, roles]) => {
+                if (projects) {
+                    const mappedProjects = new Set(roles
+                        .filter(r => r.authorityName === 'ROLE_PROJECT_ADMIN')
+                        .map(r => r.projectId)
+                    )
+                    return projects.filter(p => !mappedProjects.has(p.id));
+                } else {
+                    return [];
+                }
+            }),
         )
         this.organizations$ = combineLatest([
             organizationService.organizations$,
             this.roles$,
         ]).pipe(
-          map(([organizations, roles]) => {
-              if (organizations) {
-                  const mappedOrganizations = new Set(roles
-                    .filter(r => r.authorityName === 'ROLE_ORGANIZATION_ADMIN')
-                    .map(r => r.organizationId)
-                  );
-                  return organizations.filter(o => !mappedOrganizations.has(o.id))
-              } else {
-                  return [];
-              }
-            }
-          )
+            map(([organizations, roles]) => {
+                    if (organizations) {
+                        const mappedOrganizations = new Set(roles
+                            .filter(r => r.authorityName === 'ROLE_ORGANIZATION_ADMIN')
+                            .map(r => r.organizationId)
+                        );
+                        return organizations.filter(o => !mappedOrganizations.has(o.id))
+                    } else {
+                        return [];
+                    }
+                }
+            )
         );
     }
 
+    @Input()
+    get roles(): Role[] {
+        return this.roles$.value
+    }
+
+    set roles(newValue: Role[]) {
+        this.roles$.next(newValue || []);
+    }
+
     ngOnInit() {
-      this.subscriptions.add(this.registerRoleChanged());
+        this.subscriptions.add(this.registerRoleChanged());
     }
 
     ngOnDestroy() {
-      this.subscriptions.unsubscribe();
-    }
-
-    private registerRoleChanged(): Subscription {
-        return this.roles$.pipe(
-          distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)),
-          skip(1),
-        ).subscribe(roles => {
-          this.eventManager.broadcast({name: 'roleListModification', content: roles});
-        })
+        this.subscriptions.unsubscribe();
     }
 
     trackId(index: number, item: Role) {
@@ -117,7 +111,7 @@ export class RoleComponent implements OnInit, OnDestroy {
         if (!this.selectedAuthority) {
             return;
         }
-        const newRole: Role = { authorityName: this.selectedAuthority.name };
+        const newRole: Role = {authorityName: this.selectedAuthority.name};
         const scope = this.selectedAuthority.scope;
         if (scope === Scope.ORGANIZATION) {
             newRole.organizationId = this.selectedOrganization.id;
@@ -140,19 +134,28 @@ export class RoleComponent implements OnInit, OnDestroy {
         this.roles$.next(newRoles);
     }
 
+    trackEntityById(index: number, item: Project) {
+        return item.id;
+    }
+
+    private registerRoleChanged(): Subscription {
+        return this.roles$.pipe(
+            distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)),
+            skip(1),
+        ).subscribe(roles => {
+            this.eventManager.broadcast({name: 'roleListModification', content: roles});
+        })
+    }
+
     private matchRole(role: Role): (Role) => boolean {
         if (role.projectId) {
             return v => v.authorityName === role.authorityName
-              && v.projectId === role.projectId;
+                && v.projectId === role.projectId;
         } else if (role.organizationId) {
             return v => v.authorityName === role.authorityName
-              && v.organizationId === role.organizationId;
+                && v.organizationId === role.organizationId;
         } else {
             return v => v.authorityName === role.authorityName;
         }
-    }
-
-    trackEntityById(index: number, item: Project) {
-        return item.id;
     }
 }

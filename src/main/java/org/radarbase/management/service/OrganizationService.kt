@@ -24,9 +24,8 @@ class OrganizationService(
     @Autowired private val projectRepository: ProjectRepository,
     @Autowired private val organizationMapper: OrganizationMapper,
     @Autowired private val projectMapper: ProjectMapper,
-    @Autowired private val authService: AuthService
+    @Autowired private val authService: AuthService,
 ) {
-
     /**
      * Save an organization.
      *
@@ -49,18 +48,20 @@ class OrganizationService(
     fun findAll(): List<OrganizationDTO> {
         val organizationsOfUser: List<Organization>
         val referents = authService.referentsByScope(Permission.ORGANIZATION_READ)
-        organizationsOfUser = if (referents.global) {
-            organizationRepository.findAll()
-        } else {
-            val projectNames = referents.allProjects
-            val organizationsOfProject =
-                organizationRepository.findAllByProjectNames(projectNames)
-            val organizationsOfRole = referents.organizations
-                .mapNotNull { name: String -> organizationRepository.findOneByName(name) }
-            (organizationsOfRole + organizationsOfProject)
-                .distinct()
-                .toList()
-        }
+        organizationsOfUser =
+            if (referents.global) {
+                organizationRepository.findAll()
+            } else {
+                val projectNames = referents.allProjects
+                val organizationsOfProject =
+                    organizationRepository.findAllByProjectNames(projectNames)
+                val organizationsOfRole =
+                    referents.organizations
+                        .mapNotNull { name: String -> organizationRepository.findOneByName(name) }
+                (organizationsOfRole + organizationsOfProject)
+                    .distinct()
+                    .toList()
+            }
         return organizationMapper.organizationsToOrganizationDTOs(organizationsOfUser)
     }
 
@@ -87,18 +88,20 @@ class OrganizationService(
         if (referents.isEmpty()) {
             return emptyList()
         }
-        val projectStream: List<Project> = if (referents.global || referents.hasOrganization(organizationName)) {
-            projectRepository.findAllByOrganizationName(organizationName)
-        } else if (referents.hasAnyProjects()) {
-            projectRepository.findAllByOrganizationName(organizationName)
-                .filter { project: Project ->
-                    referents.hasAnyProject(
-                        project.projectName!!
-                    )
-                }
-        } else {
-            return listOf<ProjectDTO>()
-        }
+        val projectStream: List<Project> =
+            if (referents.global || referents.hasOrganization(organizationName)) {
+                projectRepository.findAllByOrganizationName(organizationName)
+            } else if (referents.hasAnyProjects()) {
+                projectRepository
+                    .findAllByOrganizationName(organizationName)
+                    .filter { project: Project ->
+                        referents.hasAnyProject(
+                            project.projectName!!,
+                        )
+                    }
+            } else {
+                return listOf<ProjectDTO>()
+            }
         return projectStream
             .mapNotNull { project: Project? -> projectMapper.projectToProjectDTO(project) }
             .toList()

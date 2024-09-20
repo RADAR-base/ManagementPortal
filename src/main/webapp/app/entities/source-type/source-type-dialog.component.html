@@ -1,157 +1,163 @@
-<form name="editForm" role="form" novalidate (ngSubmit)="save()" #editForm="ngForm">
+<form #editForm="ngForm" (ngSubmit)="save()" name="editForm" novalidate role="form">
 
     <div class="modal-header">
-        <h4 class="modal-title" id="mySourceTypeLabel"
-            [translate]="'managementPortalApp.sourceType.home.createOrEditLabel'">
+        <h4 [translate]="'managementPortalApp.sourceType.home.createOrEditLabel'" class="modal-title"
+            id="mySourceTypeLabel">
         </h4>
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
-                (click)="clear()">&times;</button>
+        <button (click)="clear()" aria-hidden="true" class="close" data-dismiss="modal"
+                type="button">&times;
+        </button>
     </div>
     <div class="modal-body">
         <jhi-alert-error></jhi-alert-error>
-        <div class="form-group" [hidden]="!sourceType.id">
-            <label for="id" [translate]="'global.field.id'"></label>
-            <input type="text" class="form-control" id="id" name="id"
-                   [(ngModel)]="sourceType.id" readonly />
+        <div [hidden]="!sourceType.id" class="form-group">
+            <label [translate]="'global.field.id'" for="id"></label>
+            <input [(ngModel)]="sourceType.id" class="form-control" id="id" name="id"
+                   readonly type="text"/>
         </div>
         <div class="form-group">
-            <label class="form-control-label"
-                [translate]="'managementPortalApp.sourceType.producer'"
-                for="field_producer">
+            <label [translate]="'managementPortalApp.sourceType.producer'"
+                   class="form-control-label"
+                   for="field_producer">
             </label>
-            <input type="text" class="form-control" name="producer" id="field_producer"
-                [(ngModel)]="sourceType.producer" required pattern="[_'.@A-Za-z0-9- ]*" />
+            <input [(ngModel)]="sourceType.producer" class="form-control" id="field_producer" name="producer"
+                   pattern="[_'.@A-Za-z0-9- ]*" required type="text"/>
             <div [hidden]="!(editForm.controls.producer?.dirty && editForm.controls.producer?.invalid)">
-                <small class="form-text text-danger"
-                    [hidden]="!editForm.controls.producer?.errors?.required"
-                    [translate]="'entity.validation.required'">
+                <small [hidden]="!editForm.controls.producer?.errors?.required"
+                       [translate]="'entity.validation.required'"
+                       class="form-text text-danger">
                 </small>
-                <small class="form-text text-danger"
-                    [hidden]="!editForm.controls.producer?.errors?.pattern"
-                    [translate]="'entity.validation.pattern'"
-                    [translateParams]="{pattern: 'alphanumerics, dash (-), underscore (_), space ( ) and period (.)'}">
+                <small [hidden]="!editForm.controls.producer?.errors?.pattern"
+                       [translateParams]="{pattern: 'alphanumerics, dash (-), underscore (_), space ( ) and period (.)'}"
+                       [translate]="'entity.validation.pattern'"
+                       class="form-text text-danger">
                 </small>
             </div>
         </div>
         <div class="form-group">
-            <label class="form-control-label"
-                [translate]="'managementPortalApp.sourceType.model'"
-                for="field_model">
+            <label [translate]="'managementPortalApp.sourceType.model'"
+                   class="form-control-label"
+                   for="field_model">
             </label>
-            <input type="text" class="form-control" name="model" id="field_model"
-                [(ngModel)]="sourceType.model" required pattern="[_'.@A-Za-z0-9- ]*" />
+            <input [(ngModel)]="sourceType.model" class="form-control" id="field_model" name="model"
+                   pattern="[_'.@A-Za-z0-9- ]*" required type="text"/>
             <div [hidden]="!(editForm.controls.model?.dirty && editForm.controls.model?.invalid)">
-                <small class="form-text text-danger"
-                   [hidden]="!editForm.controls.model?.errors?.required"
-                   [translate]="'entity.validation.required'">
+                <small [hidden]="!editForm.controls.model?.errors?.required"
+                       [translate]="'entity.validation.required'"
+                       class="form-text text-danger">
                 </small>
-                <small class="form-text text-danger"
-                    [hidden]="!editForm.controls.model?.errors?.pattern"
-                    [translate]="'entity.validation.pattern'"
-                    [translateParams]="{pattern: 'alphanumerics, dash (-), underscore (_), space ( ) and period (.)'}">
+                <small [hidden]="!editForm.controls.model?.errors?.pattern"
+                       [translateParams]="{pattern: 'alphanumerics, dash (-), underscore (_), space ( ) and period (.)'}"
+                       [translate]="'entity.validation.pattern'"
+                       class="form-text text-danger">
                 </small>
             </div>
         </div>
         <div class="form-group">
-            <label class="form-control-label"
-                [translate]="'managementPortalApp.sourceType.catalogVersion'"
-                for="field_catalogVersion">
+            <label [translate]="'managementPortalApp.sourceType.catalogVersion'"
+                   class="form-control-label"
+                   for="field_catalogVersion">
             </label>
-            <input type="text" class="form-control" name="catalogVersion" id="field_catalogVersion"
-                   [(ngModel)]="sourceType.catalogVersion" required pattern="[_'.@A-Za-z0-9- ]*" />
+            <input [(ngModel)]="sourceType.catalogVersion" class="form-control" id="field_catalogVersion"
+                   name="catalogVersion"
+                   pattern="[_'.@A-Za-z0-9- ]*" required type="text"/>
             <div [hidden]="!(editForm.controls.catalogVersion?.dirty && editForm.controls.catalogVersion?.invalid)">
-                <small class="form-text text-danger"
-                    [hidden]="!editForm.controls.catalogVersion?.errors?.required"
-                    [translate]="'entity.validation.required'">
+                <small [hidden]="!editForm.controls.catalogVersion?.errors?.required"
+                       [translate]="'entity.validation.required'"
+                       class="form-text text-danger">
                 </small>
-                <small class="form-text text-danger"
-                    [hidden]="!editForm.controls.catalogVersion?.errors?.pattern"
-                    [translate]="'entity.validation.pattern'"
-                    [translateParams]="{pattern: 'alphanumerics, dash (-), underscore (_), space ( ) and period (.)'}">
+                <small [hidden]="!editForm.controls.catalogVersion?.errors?.pattern"
+                       [translateParams]="{pattern: 'alphanumerics, dash (-), underscore (_), space ( ) and period (.)'}"
+                       [translate]="'entity.validation.pattern'"
+                       class="form-text text-danger">
                 </small>
             </div>
         </div>
         <div class="form-group">
-            <label class="form-control-label"
-                [translate]="'managementPortalApp.sourceType.sourceTypeScope'"
-                for="field_sourceTypeScope">
+            <label [translate]="'managementPortalApp.sourceType.sourceTypeScope'"
+                   class="form-control-label"
+                   for="field_sourceTypeScope">
             </label>
-            <select class="form-control" name="sourceTypeScope" [(ngModel)]="sourceType.sourceTypeScope" id="field_sourceTypeScope"  required>
-                <option value="ACTIVE"
-                    [translate]="'managementPortalApp.SourceTypeScope.ACTIVE'">
+            <select [(ngModel)]="sourceType.sourceTypeScope" class="form-control" id="field_sourceTypeScope"
+                    name="sourceTypeScope" required>
+                <option [translate]="'managementPortalApp.SourceTypeScope.ACTIVE'"
+                        value="ACTIVE">
                 </option>
-                <option value="PASSIVE"
-                    [translate]="'managementPortalApp.SourceTypeScope.PASSIVE'">
+                <option [translate]="'managementPortalApp.SourceTypeScope.PASSIVE'"
+                        value="PASSIVE">
                 </option>
             </select>
             <div [hidden]="!(editForm.controls.sourceTypeScope?.dirty && editForm.controls.sourceTypeScope?.invalid)">
-                <small class="form-text text-danger"
-                   [hidden]="!editForm.controls.sourceTypeScope?.errors?.required"
-                   [translate]="'entity.validation.required'">
+                <small [hidden]="!editForm.controls.sourceTypeScope?.errors?.required"
+                       [translate]="'entity.validation.required'"
+                       class="form-text text-danger">
                 </small>
             </div>
         </div>
 
         <div class="form-group">
-            <label class="form-control-label" for="field_hasDynamicId"
-                   [translate]="'managementPortalApp.sourceType.dynamicRegistration'">
+            <label [translate]="'managementPortalApp.sourceType.dynamicRegistration'" class="form-control-label"
+                   for="field_hasDynamicId">
             </label>
             <div class="form-check">
                 <label class="form-check-label">
-                    <input type="checkbox" id="field_hasDynamicId" class="form-check-input"
-                           name="hasDynamicId" [checked]="sourceType.canRegisterDynamically"
-                           (change)="sourceType.canRegisterDynamically = !sourceType.canRegisterDynamically"/>
-                    {{'managementPortalApp.sourceType.canRegisterDynamically' | translate}}
+                    <input (change)="sourceType.canRegisterDynamically = !sourceType.canRegisterDynamically"
+                           [checked]="sourceType.canRegisterDynamically" class="form-check-input"
+                           id="field_hasDynamicId" name="hasDynamicId"
+                           type="checkbox"/>
+                    {{ 'managementPortalApp.sourceType.canRegisterDynamically' | translate }}
                 </label>
             </div>
-            <small id="dynamicRegistrationHelp" class="form-text text-muted"
-                [translate]="'managementPortalApp.sourceType.dynamicRegistrationHelp'">
+            <small [translate]="'managementPortalApp.sourceType.dynamicRegistrationHelp'" class="form-text text-muted"
+                   id="dynamicRegistrationHelp">
             </small>
         </div>
 
         <div class="form-group">
-            <label class="form-control-label"
-                [translate]="'managementPortalApp.sourceType.name'"
-                for="field_name">
+            <label [translate]="'managementPortalApp.sourceType.name'"
+                   class="form-control-label"
+                   for="field_name">
             </label>
-            <input type="text" class="form-control" name="name" id="field_name"
-                   [(ngModel)]="sourceType.name"
+            <input [(ngModel)]="sourceType.name" class="form-control" id="field_name" name="name"
+                   type="text"
             />
         </div>
         <div class="form-group">
-            <label class="form-control-label"
-                [translate]="'managementPortalApp.sourceType.description'"
-                for="field_description">
+            <label [translate]="'managementPortalApp.sourceType.description'"
+                   class="form-control-label"
+                   for="field_description">
             </label>
-            <input type="text" class="form-control" name="field_description" id="field_description"
-                   [(ngModel)]="sourceType.description"
+            <input [(ngModel)]="sourceType.description" class="form-control" id="field_description"
+                   name="field_description"
+                   type="text"
             />
         </div>
         <div class="form-group">
-            <label class="form-control-label"
-                [translate]="'managementPortalApp.sourceType.assessmentType'"
-                for="field_assessmentType">
+            <label [translate]="'managementPortalApp.sourceType.assessmentType'"
+                   class="form-control-label"
+                   for="field_assessmentType">
             </label>
-            <input type="text" class="form-control" name="assessmentType" id="field_assessmentType"
-                   [(ngModel)]="sourceType.assessmentType"
+            <input [(ngModel)]="sourceType.assessmentType" class="form-control" id="field_assessmentType"
+                   name="assessmentType"
+                   type="text"
             />
         </div>
 
         <div class="form-group">
-            <label class="form-control-label"
-                [translate]="'managementPortalApp.sourceType.appProvider'"
-                for="field_appProvider">
+            <label [translate]="'managementPortalApp.sourceType.appProvider'"
+                   class="form-control-label"
+                   for="field_appProvider">
             </label>
-            <input type="text" class="form-control" name="appProvider" id="field_appProvider"
-                   [(ngModel)]="sourceType.appProvider"
+            <input [(ngModel)]="sourceType.appProvider" class="form-control" id="field_appProvider" name="appProvider"
+                   type="text"
             />
         </div>
     </div>
     <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal" (click)="clear()">
+        <button (click)="clear()" class="btn btn-default" data-dismiss="modal" type="button">
             <span class="fa fa-ban"></span>&nbsp;<span [translate]="'entity.action.cancel'"></span>
         </button>
-        <button type="submit" [disabled]="editForm.form.invalid || isSaving" class="btn btn-primary">
+        <button [disabled]="editForm.form.invalid || isSaving" class="btn btn-primary" type="submit">
             <span class="fa fa-save"></span>&nbsp;<span [translate]="'entity.action.save'"></span>
         </button>
     </div>

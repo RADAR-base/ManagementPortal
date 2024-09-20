@@ -1,168 +1,205 @@
-<form name="editForm" role="form" novalidate (ngSubmit)="save()" #editForm="ngForm">
+<form #editForm="ngForm" (ngSubmit)="save()" name="editForm" novalidate role="form">
 
     <div class="modal-header">
-        <h4 class="modal-title" id="myOAuthClientLabel"
-            [translate]="'managementPortalApp.oauthClient.home.createOrEditLabel'">
+        <h4 [translate]="'managementPortalApp.oauthClient.home.createOrEditLabel'" class="modal-title"
+            id="myOAuthClientLabel">
         </h4>
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
-                (click)="clear()">&times;</button>
+        <button (click)="clear()" aria-hidden="true" class="close" data-dismiss="modal"
+                type="button">&times;
+        </button>
     </div>
     <div class="modal-body">
         <jhi-alert-error></jhi-alert-error>
-        <div class="alert alert-danger" *ngIf="protectedClient">
+        <div *ngIf="protectedClient" class="alert alert-danger">
             <strong>This is a protected client.</strong> You will not be able to make any changes to it.
         </div>
         <div class="form-group">
-            <label class="form-control-label" for="id"
-                [translate]="'managementPortalApp.oauthClient.clientId'">
+            <label [translate]="'managementPortalApp.oauthClient.clientId'" class="form-control-label"
+                   for="id">
             </label>
-            <input *ngIf="!newClient" type="text" class="form-control" id="id" name="id" [(ngModel)]="client.clientId" readonly />
-            <input *ngIf="newClient" type="text" class="form-control" id="id" name="id" [(ngModel)]="client.clientId" required pattern="[_'.@A-Za-z0-9- ]*" />
+            <input *ngIf="!newClient" [(ngModel)]="client.clientId" class="form-control" id="id" name="id" readonly
+                   type="text"/>
+            <input *ngIf="newClient" [(ngModel)]="client.clientId" class="form-control" id="id" name="id"
+                   pattern="[_'.@A-Za-z0-9- ]*"
+                   required type="text"/>
             <div [hidden]="!(editForm.controls.id?.dirty && editForm.controls.id?.invalid)">
-                <small class="form-text text-danger"
-                    [hidden]="!editForm.controls.id?.errors?.required"
-                    [translate]="'entity.validation.required'">
+                <small [hidden]="!editForm.controls.id?.errors?.required"
+                       [translate]="'entity.validation.required'"
+                       class="form-text text-danger">
                 </small>
-                <small class="form-text text-danger"
-                    [hidden]="!editForm.controls.id?.errors?.pattern"
-                    [translate]="'entity.validation.pattern'"
-                    [translateParams]="{pattern: 'alphanumerics, dash (-), underscore (_), space ( ) and period (.)'}">
+                <small [hidden]="!editForm.controls.id?.errors?.pattern"
+                       [translateParams]="{pattern: 'alphanumerics, dash (-), underscore (_), space ( ) and period (.)'}"
+                       [translate]="'entity.validation.pattern'"
+                       class="form-text text-danger">
                 </small>
             </div>
         </div>
         <div class="form-group">
-            <label class="form-control-label" for="secret"
-                [translate]="'managementPortalApp.oauthClient.clientSecret'">
+            <label [translate]="'managementPortalApp.oauthClient.clientSecret'" class="form-control-label"
+                   for="secret">
             </label>
 
             <div class="form-group">
-                <label class="form-control-label" for="dynamicRegistration"
-                    [translate]="'managementPortalApp.oauthClient.additionalInformation'">
+                <label [translate]="'managementPortalApp.oauthClient.additionalInformation'" class="form-control-label"
+                       for="dynamicRegistration">
                 </label>
                 <div class="form-check">
                     <label class="form-check-label">
-                        <input type="checkbox" id="emptySecret" class="form-check-input" name="emptySecret" [checked]="emptySecret" (change)="emptySecret = !emptySecret" [disabled]="protectedClient" /> Empty secret for Public Client
+                        <input (change)="emptySecret = !emptySecret" [checked]="emptySecret"
+                               [disabled]="protectedClient" class="form-check-input"
+                               id="emptySecret" name="emptySecret"
+                               type="checkbox"/> Empty secret for Public Client
                     </label>
                 </div>
-                <small id="emptySecretHelp" class="form-text text-muted">Enable it to set empty client secret. Public clients do not need a secret.</small>
+                <small class="form-text text-muted" id="emptySecretHelp">Enable it to set empty client secret. Public
+                    clients do not need a secret.</small>
             </div>
-            <div id="secretInputBox" [hidden]="emptySecret">
-            <div class="input-group">
-                <input type="text" class="form-control" id="secret" name="clientSecret" [(ngModel)]="client.clientSecret" [disabled]="protectedClient" [required]="newClient && !emptySecret" />
-                <span class="input-group-btn"><button class="btn btn-secondary" type="button" (click)="generateRandomSecret()"><span class="fa fa-magic">&nbsp;</span>Randomize</button></span>
-            </div>
-            <div [hidden]="!newClient || (newClient && !(editForm.controls.clientSecret?.dirty && editForm.controls.clientSecret?.invalid))">
-                <small class="form-text text-danger"
-                    [hidden]="!editForm.controls.clientSecret?.errors?.required"
-                    [translate]="'entity.validation.required'">
-                </small>
-            </div>
-            <small id="secretHelp" class="form-text text-muted" *ngIf="!newClient">If this field is left empty the secret will not be modified.</small>
+            <div [hidden]="emptySecret" id="secretInputBox">
+                <div class="input-group">
+                    <input [(ngModel)]="client.clientSecret" [disabled]="protectedClient"
+                           [required]="newClient && !emptySecret" class="form-control"
+                           id="secret" name="clientSecret"
+                           type="text"/>
+                    <span class="input-group-btn"><button (click)="generateRandomSecret()" class="btn btn-secondary"
+                                                          type="button"><span class="fa fa-magic">&nbsp;</span>Randomize</button></span>
+                </div>
+                <div [hidden]="!newClient || (newClient && !(editForm.controls.clientSecret?.dirty && editForm.controls.clientSecret?.invalid))">
+                    <small [hidden]="!editForm.controls.clientSecret?.errors?.required"
+                           [translate]="'entity.validation.required'"
+                           class="form-text text-danger">
+                    </small>
+                </div>
+                <small *ngIf="!newClient" class="form-text text-muted" id="secretHelp">If this field is left empty the
+                    secret will not be modified.</small>
             </div>
         </div>
         <div class="form-group">
-            <label class="form-control-label" for="scope"
-                [translate]="'managementPortalApp.oauthClient.scope'">
+            <label [translate]="'managementPortalApp.oauthClient.scope'" class="form-control-label"
+                   for="scope">
             </label>
-            <input type="text" class="form-control" id="scope" name="scope" [(ngModel)]="scopeList" [disabled]="protectedClient" required />
-            <small id="scopeHelp" class="form-text text-muted">Comma seperated list of scopes. Scopes should have the following structure: ENTITY.OPERATION. See the <a href="https://github.com/RADAR-base/ManagementPortal/tree/master/radar-auth">radar-auth library documentation</a> for more information.</small>
+            <input [(ngModel)]="scopeList" [disabled]="protectedClient" class="form-control" id="scope" name="scope"
+                   required type="text"/>
+            <small class="form-text text-muted" id="scopeHelp">Comma seperated list of scopes. Scopes should have the
+                following structure: ENTITY.OPERATION. See the <a
+                        href="https://github.com/RADAR-base/ManagementPortal/tree/master/radar-auth">radar-auth library
+                    documentation</a> for more information.</small>
             <div [hidden]="!(editForm.controls.scope?.dirty && editForm.controls.scope?.invalid)">
-                <small class="form-text text-danger"
-                    [hidden]="!editForm.controls.scope?.errors?.required"
-                    [translate]="'entity.validation.required'">
+                <small [hidden]="!editForm.controls.scope?.errors?.required"
+                       [translate]="'entity.validation.required'"
+                       class="form-text text-danger">
                 </small>
             </div>
         </div>
         <div class="form-group">
-            <label class="form-control-label" for="resourceIds"
-                [translate]="'managementPortalApp.oauthClient.resourceIds'">
+            <label [translate]="'managementPortalApp.oauthClient.resourceIds'" class="form-control-label"
+                   for="resourceIds">
             </label>
-            <input type="text" class="form-control" id="resourceIds" name="resourceIds" [(ngModel)]="resourcesList" [disabled]="protectedClient" required />
-            <small id="resourceIdsHelp" class="form-text text-muted">Comma seperated list of allowed resource IDs.</small>
+            <input [(ngModel)]="resourcesList" [disabled]="protectedClient" class="form-control" id="resourceIds"
+                   name="resourceIds"
+                   required type="text"/>
+            <small class="form-text text-muted" id="resourceIdsHelp">Comma seperated list of allowed resource
+                IDs.</small>
             <div [hidden]="!(editForm.controls.resourceIds?.dirty && editForm.controls.resourceIds?.invalid)">
-                <small class="form-text text-danger"
-                    [hidden]="!editForm.controls.resourceIds?.errors?.required"
-                    [translate]="'entity.validation.required'">
+                <small [hidden]="!editForm.controls.resourceIds?.errors?.required"
+                       [translate]="'entity.validation.required'"
+                       class="form-text text-danger">
                 </small>
             </div>
         </div>
         <div class="form-group">
-            <label class="form-control-label" for="grantTypes"
-                [translate]="'managementPortalApp.oauthClient.authorizedGrantTypes'">
+            <label [translate]="'managementPortalApp.oauthClient.authorizedGrantTypes'" class="form-control-label"
+                   for="grantTypes">
             </label>
             <div id="grantTypes">
-                <div class="form-check" *ngFor="let grant of grantTypes">
+                <div *ngFor="let grant of grantTypes" class="form-check">
                     <label class="form-check-label">
-                        <input type="checkbox" class="form-check-input" name="grantTypes" [checked]="grant.authorized" (change)="grant.authorized = !grant.authorized" [disabled]="protectedClient" /> {{grant.name}}
+                        <input (change)="grant.authorized = !grant.authorized" [checked]="grant.authorized"
+                               [disabled]="protectedClient" class="form-check-input"
+                               name="grantTypes"
+                               type="checkbox"/> {{ grant.name }}
                     </label>
                 </div>
             </div>
         </div>
         <div class="form-group">
-            <label class="form-control-label" for="redirectUri"
-                [translate]="'managementPortalApp.oauthClient.redirectUri'">
+            <label [translate]="'managementPortalApp.oauthClient.redirectUri'" class="form-control-label"
+                   for="redirectUri">
             </label>
-            <input type="text" class="form-control" id="redirectUri" name="redirectUri" [(ngModel)]="redirectUriList" [disabled]="protectedClient" />
-            <small id="redirectUriHelp" class="form-text text-muted">Comma seperated list of resolvable redirect URIs. </small>
+            <input [(ngModel)]="redirectUriList" [disabled]="protectedClient" class="form-control" id="redirectUri"
+                   name="redirectUri"
+                   type="text"/>
+            <small class="form-text text-muted" id="redirectUriHelp">Comma seperated list of resolvable redirect
+                URIs. </small>
         </div>
         <div class="form-group">
-            <label class="form-control-label" for="autoApprove"
-                [translate]="'managementPortalApp.oauthClient.autoApprove'">
+            <label [translate]="'managementPortalApp.oauthClient.autoApprove'" class="form-control-label"
+                   for="autoApprove">
             </label>
-            <input type="text" class="form-control" id="autoApprove" name="autoApprove" [(ngModel)]="autoApproveScopeList" [disabled]="protectedClient" />
-            <small id="autoApproveHelp" class="form-text text-muted">Comma seperated list of scopes that do not require explicit user approval in the authorization code grant.</small>
+            <input [(ngModel)]="autoApproveScopeList" [disabled]="protectedClient" class="form-control" id="autoApprove"
+                   name="autoApprove" type="text"/>
+            <small class="form-text text-muted" id="autoApproveHelp">Comma seperated list of scopes that do not require
+                explicit user approval in the authorization code grant.</small>
         </div>
         <div class="form-group">
-            <label class="form-control-label" for="accessTokenValidity"
-                [translate]="'managementPortalApp.oauthClient.accessTokenValidity'">
+            <label [translate]="'managementPortalApp.oauthClient.accessTokenValidity'" class="form-control-label"
+                   for="accessTokenValidity">
             </label>
-            <input type="text" class="form-control" id="accessTokenValidity" name="accessTokenValidity" [(ngModel)]="client.accessTokenValiditySeconds" [disabled]="protectedClient" required pattern="\d+" />
-            <small id="accessTokenValidityHelp" class="form-text text-muted">Token validity period in seconds.</small>
+            <input [(ngModel)]="client.accessTokenValiditySeconds" [disabled]="protectedClient" class="form-control"
+                   id="accessTokenValidity"
+                   name="accessTokenValidity" pattern="\d+" required type="text"/>
+            <small class="form-text text-muted" id="accessTokenValidityHelp">Token validity period in seconds.</small>
             <div [hidden]="!(editForm.controls.accessTokenValidity?.dirty && editForm.controls.accessTokenValidity?.invalid)">
-                <small class="form-text text-danger"
-                    [hidden]="!editForm.controls.accessTokenValidity?.errors?.required"
-                    [translate]="'entity.validation.required'">
+                <small [hidden]="!editForm.controls.accessTokenValidity?.errors?.required"
+                       [translate]="'entity.validation.required'"
+                       class="form-text text-danger">
                 </small>
-                <small class="form-text text-danger"
-                    [hidden]="!editForm.controls.accessTokenValidity?.errors?.pattern"
-                    [translate]="'entity.validation.number'">
+                <small [hidden]="!editForm.controls.accessTokenValidity?.errors?.pattern"
+                       [translate]="'entity.validation.number'"
+                       class="form-text text-danger">
                 </small>
             </div>
         </div>
         <div class="form-group">
-            <label class="form-control-label" for="refreshTokenValidity"
-                [translate]="'managementPortalApp.oauthClient.refreshTokenValidity'">
+            <label [translate]="'managementPortalApp.oauthClient.refreshTokenValidity'" class="form-control-label"
+                   for="refreshTokenValidity">
             </label>
-            <input type="text" class="form-control" id="refreshTokenValidity" name="refreshTokenValidity" [(ngModel)]="client.refreshTokenValiditySeconds" [disabled]="protectedClient" required pattern="\d+" />
-            <small id="refreshTokenValidityHelp" class="form-text text-muted">Token validity period in seconds.</small>
+            <input [(ngModel)]="client.refreshTokenValiditySeconds" [disabled]="protectedClient" class="form-control"
+                   id="refreshTokenValidity"
+                   name="refreshTokenValidity" pattern="\d+" required
+                   type="text"/>
+            <small class="form-text text-muted" id="refreshTokenValidityHelp">Token validity period in seconds.</small>
             <div [hidden]="!(editForm.controls.refreshTokenValidity?.dirty && editForm.controls.refreshTokenValidity?.invalid)">
-                <small class="form-text text-danger"
-                    [hidden]="!editForm.controls.refreshTokenValidity?.errors?.required"
-                    [translate]="'entity.validation.required'">
+                <small [hidden]="!editForm.controls.refreshTokenValidity?.errors?.required"
+                       [translate]="'entity.validation.required'"
+                       class="form-text text-danger">
                 </small>
-                <small class="form-text text-danger"
-                    [hidden]="!editForm.controls.refreshTokenValidity?.errors?.pattern"
-                    [translate]="'entity.validation.number'">
+                <small [hidden]="!editForm.controls.refreshTokenValidity?.errors?.pattern"
+                       [translate]="'entity.validation.number'"
+                       class="form-text text-danger">
                 </small>
             </div>
         </div>
         <div class="form-group">
-            <label class="form-control-label" for="dynamicRegistration"
-                [translate]="'managementPortalApp.oauthClient.additionalInformation'">
+            <label [translate]="'managementPortalApp.oauthClient.additionalInformation'" class="form-control-label"
+                   for="dynamicRegistration">
             </label>
             <div class="form-check">
-                    <label class="form-check-label">
-                        <input type="checkbox" id="dynamicRegistration" class="form-check-input" name="dynamicRegistration" [checked]="dynamicRegistration" (change)="dynamicRegistration = !dynamicRegistration" [disabled]="protectedClient" /> Dynamic registration allowed
-                    </label>
-                </div>
-                <small id="dynamicRegistrationHelp" class="form-text text-muted">If enabled this will allow the OAuth client to dynamically register data sources.</small>
+                <label class="form-check-label">
+                    <input (change)="dynamicRegistration = !dynamicRegistration" [checked]="dynamicRegistration"
+                           [disabled]="protectedClient" class="form-check-input"
+                           id="dynamicRegistration" name="dynamicRegistration"
+                           type="checkbox"/> Dynamic registration allowed
+                </label>
+            </div>
+            <small class="form-text text-muted" id="dynamicRegistrationHelp">If enabled this will allow the OAuth client
+                to dynamically register data sources.</small>
         </div>
     </div>
     <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal" (click)="clear()">
+        <button (click)="clear()" class="btn btn-default" data-dismiss="modal" type="button">
             <span class="fa fa-ban"></span>&nbsp;<span [translate]="'entity.action.cancel'"></span>
         </button>
-        <button type="submit" [disabled]="editForm.form.invalid || isSaving" class="btn btn-primary">
+        <button [disabled]="editForm.form.invalid || isSaving" class="btn btn-primary" type="submit">
             <span class="fa fa-save"></span>&nbsp;<span [translate]="'entity.action.save'"></span>
         </button>
     </div>

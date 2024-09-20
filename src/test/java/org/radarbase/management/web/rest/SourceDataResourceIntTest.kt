@@ -46,7 +46,7 @@ internal class SourceDataResourceIntTest(
     @Autowired private val jacksonMessageConverter: MappingJackson2HttpMessageConverter,
     @Autowired private val pageableArgumentResolver: PageableHandlerMethodArgumentResolver,
     @Autowired private val exceptionTranslator: ExceptionTranslator,
-    @Autowired private val authService: AuthService
+    @Autowired private val authService: AuthService,
 ) {
     private lateinit var restSourceDataMockMvc: MockMvc
     private lateinit var sourceData: SourceData
@@ -55,19 +55,24 @@ internal class SourceDataResourceIntTest(
     @Throws(ServletException::class)
     fun setUp() {
         MockitoAnnotations.openMocks(this)
-        val sourceDataResource = SourceDataResource(
-            sourceDataService,
-            authService
-        )
+        val sourceDataResource =
+            SourceDataResource(
+                sourceDataService,
+                authService,
+            )
         val filter = OAuthHelper.createAuthenticationFilter()
         filter.init(MockFilterConfig())
-        restSourceDataMockMvc = MockMvcBuilders.standaloneSetup(sourceDataResource)
-            .setCustomArgumentResolvers(pageableArgumentResolver)
-            .setControllerAdvice(exceptionTranslator)
-            .setMessageConverters(jacksonMessageConverter)
-            .addFilter<StandaloneMockMvcBuilder>(filter)
-            .defaultRequest<StandaloneMockMvcBuilder>(MockMvcRequestBuilders.get("/").with(OAuthHelper.bearerToken()))
-            .build()
+        restSourceDataMockMvc =
+            MockMvcBuilders
+                .standaloneSetup(sourceDataResource)
+                .setCustomArgumentResolvers(pageableArgumentResolver)
+                .setControllerAdvice(exceptionTranslator)
+                .setMessageConverters(jacksonMessageConverter)
+                .addFilter<StandaloneMockMvcBuilder>(filter)
+                .defaultRequest<StandaloneMockMvcBuilder>(
+                    MockMvcRequestBuilders.get("/").with(OAuthHelper.bearerToken()),
+                )
+                .build()
     }
 
     @BeforeEach
@@ -83,12 +88,13 @@ internal class SourceDataResourceIntTest(
 
         // Create the SourceData
         val sourceDataDto = sourceDataMapper.sourceDataToSourceDataDTO(sourceData)
-        restSourceDataMockMvc.perform(
-            MockMvcRequestBuilders.post("/api/source-data")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(sourceDataDto))
-        )
-            .andExpect(MockMvcResultMatchers.status().isCreated())
+        restSourceDataMockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .post("/api/source-data")
+                    .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                    .content(TestUtil.convertObjectToJsonBytes(sourceDataDto)),
+            ).andExpect(MockMvcResultMatchers.status().isCreated())
 
         // Validate the SourceData in the database
         val sourceDataList = sourceDataRepository.findAll()
@@ -115,12 +121,13 @@ internal class SourceDataResourceIntTest(
         val sourceDataDto = sourceDataMapper.sourceDataToSourceDataDTO(sourceData)
 
         // An entity with an existing ID cannot be created, so this API call must fail
-        restSourceDataMockMvc.perform(
-            MockMvcRequestBuilders.post("/api/source-data")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(sourceDataDto))
-        )
-            .andExpect(MockMvcResultMatchers.status().isBadRequest())
+        restSourceDataMockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .post("/api/source-data")
+                    .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                    .content(TestUtil.convertObjectToJsonBytes(sourceDataDto)),
+            ).andExpect(MockMvcResultMatchers.status().isBadRequest())
 
         // Validate the Alice in the database
         val sourceDataList = sourceDataRepository.findAll()
@@ -137,12 +144,13 @@ internal class SourceDataResourceIntTest(
 
         // Create the SourceData, which fails.
         val sourceDataDto: SourceDataDTO? = sourceDataMapper.sourceDataToSourceDataDTO(sourceData)
-        restSourceDataMockMvc.perform(
-            MockMvcRequestBuilders.post("/api/source-data")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(sourceDataDto))
-        )
-            .andExpect(MockMvcResultMatchers.status().isCreated())
+        restSourceDataMockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .post("/api/source-data")
+                    .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                    .content(TestUtil.convertObjectToJsonBytes(sourceDataDto)),
+            ).andExpect(MockMvcResultMatchers.status().isCreated())
         val sourceDataList = sourceDataRepository.findAll()
         Assertions.assertThat(sourceDataList).hasSize(databaseSizeBeforeTest + 1)
     }
@@ -158,12 +166,13 @@ internal class SourceDataResourceIntTest(
 
         // Create the SourceData, which fails.
         val sourceDataDto = sourceDataMapper.sourceDataToSourceDataDTO(sourceData)
-        restSourceDataMockMvc.perform(
-            MockMvcRequestBuilders.post("/api/source-data")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(sourceDataDto))
-        )
-            .andExpect(MockMvcResultMatchers.status().isBadRequest())
+        restSourceDataMockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .post("/api/source-data")
+                    .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                    .content(TestUtil.convertObjectToJsonBytes(sourceDataDto)),
+            ).andExpect(MockMvcResultMatchers.status().isBadRequest())
         val sourceDataList = sourceDataRepository.findAll()
         Assertions.assertThat(sourceDataList).hasSize(databaseSizeBeforeTest)
     }
@@ -172,141 +181,127 @@ internal class SourceDataResourceIntTest(
     @Transactional
     @Test
     fun allSourceData() {
-            // Initialize the database
-            sourceDataRepository.saveAndFlush(sourceData)
+        // Initialize the database
+        sourceDataRepository.saveAndFlush(sourceData)
 
-            // Get all the sourceDataList
-            restSourceDataMockMvc.perform(MockMvcRequestBuilders.get("/api/source-data?sort=id,desc"))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(
-                    MockMvcResultMatchers.jsonPath("$.[*].id").value<Iterable<Int?>>(
-                        Matchers.hasItem(
-                            sourceData.id!!.toInt()
-                        )
-                    )
-                )
-                .andExpect(
-                    MockMvcResultMatchers.jsonPath("$.[*].sourceDataType").value<Iterable<String?>>(
-                        Matchers.hasItem(DEFAULT_SOURCE_DATA_TYPE)
-                    )
-                )
-                .andExpect(
-                    MockMvcResultMatchers.jsonPath("$.[*].sourceDataName").value<Iterable<String?>>(
-                        Matchers.hasItem(DEFAULT_SOURCE_DATA_NAME)
-                    )
-                )
-                .andExpect(
-                    MockMvcResultMatchers.jsonPath("$.[*].processingState").value<Iterable<String?>>(
-                        Matchers.hasItem(DEFAULT_PROCESSING_STATE)
-                    )
-                )
-                .andExpect(
-                    MockMvcResultMatchers.jsonPath("$.[*].keySchema").value<Iterable<String?>>(
-                        Matchers.hasItem(
-                            DEFAULT_KEY_SCHEMA
-                        )
-                    )
-                )
-                .andExpect(
-                    MockMvcResultMatchers.jsonPath("$.[*].valueSchema").value<Iterable<String?>>(
-                        Matchers.hasItem(
-                            DEFAULT_VALUE_SCHEMA
-                        )
-                    )
-                )
-                .andExpect(
-                    MockMvcResultMatchers.jsonPath("$.[*].unit").value<Iterable<String?>>(
-                        Matchers.hasItem(
-                            DEFAULT_UNTI
-                        )
-                    )
-                )
-                .andExpect(
-                    MockMvcResultMatchers.jsonPath("$.[*].topic").value<Iterable<String?>>(
-                        Matchers.hasItem(
-                            DEFAULT_TOPIC
-                        )
-                    )
-                )
-                .andExpect(
-                    MockMvcResultMatchers.jsonPath("$.[*].frequency").value<Iterable<String?>>(
-                        Matchers.hasItem(
-                            DEFAULT_FREQUENCY
-                        )
-                    )
-                )
-        }
+        // Get all the sourceDataList
+        restSourceDataMockMvc
+            .perform(MockMvcRequestBuilders.get("/api/source-data?sort=id,desc"))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$.[*].id").value<Iterable<Int?>>(
+                    Matchers.hasItem(
+                        sourceData.id!!.toInt(),
+                    ),
+                ),
+            ).andExpect(
+                MockMvcResultMatchers.jsonPath("$.[*].sourceDataType").value<Iterable<String?>>(
+                    Matchers.hasItem(DEFAULT_SOURCE_DATA_TYPE),
+                ),
+            ).andExpect(
+                MockMvcResultMatchers.jsonPath("$.[*].sourceDataName").value<Iterable<String?>>(
+                    Matchers.hasItem(DEFAULT_SOURCE_DATA_NAME),
+                ),
+            ).andExpect(
+                MockMvcResultMatchers.jsonPath("$.[*].processingState").value<Iterable<String?>>(
+                    Matchers.hasItem(DEFAULT_PROCESSING_STATE),
+                ),
+            ).andExpect(
+                MockMvcResultMatchers.jsonPath("$.[*].keySchema").value<Iterable<String?>>(
+                    Matchers.hasItem(
+                        DEFAULT_KEY_SCHEMA,
+                    ),
+                ),
+            ).andExpect(
+                MockMvcResultMatchers.jsonPath("$.[*].valueSchema").value<Iterable<String?>>(
+                    Matchers.hasItem(
+                        DEFAULT_VALUE_SCHEMA,
+                    ),
+                ),
+            ).andExpect(
+                MockMvcResultMatchers.jsonPath("$.[*].unit").value<Iterable<String?>>(
+                    Matchers.hasItem(
+                        DEFAULT_UNTI,
+                    ),
+                ),
+            ).andExpect(
+                MockMvcResultMatchers.jsonPath("$.[*].topic").value<Iterable<String?>>(
+                    Matchers.hasItem(
+                        DEFAULT_TOPIC,
+                    ),
+                ),
+            ).andExpect(
+                MockMvcResultMatchers.jsonPath("$.[*].frequency").value<Iterable<String?>>(
+                    Matchers.hasItem(
+                        DEFAULT_FREQUENCY,
+                    ),
+                ),
+            )
+    }
 
     @Throws(Exception::class)
     @Transactional
     @Test
     fun allSourceDataWithPagination() {
-            // Initialize the database
-            sourceDataRepository.saveAndFlush(sourceData)
+        // Initialize the database
+        sourceDataRepository.saveAndFlush(sourceData)
 
-            // Get all the sourceDataList
-            restSourceDataMockMvc.perform(MockMvcRequestBuilders.get("/api/source-data?page=0&size=5&sort=id,desc"))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(
-                    MockMvcResultMatchers.jsonPath("$.[*].id").value<Iterable<Int?>>(
-                        Matchers.hasItem(
-                            sourceData.id!!.toInt()
-                        )
-                    )
-                )
-                .andExpect(
-                    MockMvcResultMatchers.jsonPath("$.[*].sourceDataType").value<Iterable<String?>>(
-                        Matchers.hasItem(DEFAULT_SOURCE_DATA_TYPE)
-                    )
-                )
-                .andExpect(
-                    MockMvcResultMatchers.jsonPath("$.[*].sourceDataName").value<Iterable<String?>>(
-                        Matchers.hasItem(DEFAULT_SOURCE_DATA_NAME)
-                    )
-                )
-                .andExpect(
-                    MockMvcResultMatchers.jsonPath("$.[*].processingState").value<Iterable<String?>>(
-                        Matchers.hasItem(DEFAULT_PROCESSING_STATE)
-                    )
-                )
-                .andExpect(
-                    MockMvcResultMatchers.jsonPath("$.[*].keySchema").value<Iterable<String?>>(
-                        Matchers.hasItem(
-                            DEFAULT_KEY_SCHEMA
-                        )
-                    )
-                )
-                .andExpect(
-                    MockMvcResultMatchers.jsonPath("$.[*].valueSchema").value<Iterable<String?>>(
-                        Matchers.hasItem(
-                            DEFAULT_VALUE_SCHEMA
-                        )
-                    )
-                )
-                .andExpect(
-                    MockMvcResultMatchers.jsonPath("$.[*].unit").value<Iterable<String?>>(
-                        Matchers.hasItem(
-                            DEFAULT_UNTI
-                        )
-                    )
-                )
-                .andExpect(
-                    MockMvcResultMatchers.jsonPath("$.[*].topic").value<Iterable<String?>>(
-                        Matchers.hasItem(
-                            DEFAULT_TOPIC
-                        )
-                    )
-                )
-                .andExpect(
-                    MockMvcResultMatchers.jsonPath("$.[*].frequency").value<Iterable<String?>>(
-                        Matchers.hasItem(
-                            DEFAULT_FREQUENCY
-                        )
-                    )
-                )
-        }
+        // Get all the sourceDataList
+        restSourceDataMockMvc
+            .perform(MockMvcRequestBuilders.get("/api/source-data?page=0&size=5&sort=id,desc"))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$.[*].id").value<Iterable<Int?>>(
+                    Matchers.hasItem(
+                        sourceData.id!!.toInt(),
+                    ),
+                ),
+            ).andExpect(
+                MockMvcResultMatchers.jsonPath("$.[*].sourceDataType").value<Iterable<String?>>(
+                    Matchers.hasItem(DEFAULT_SOURCE_DATA_TYPE),
+                ),
+            ).andExpect(
+                MockMvcResultMatchers.jsonPath("$.[*].sourceDataName").value<Iterable<String?>>(
+                    Matchers.hasItem(DEFAULT_SOURCE_DATA_NAME),
+                ),
+            ).andExpect(
+                MockMvcResultMatchers.jsonPath("$.[*].processingState").value<Iterable<String?>>(
+                    Matchers.hasItem(DEFAULT_PROCESSING_STATE),
+                ),
+            ).andExpect(
+                MockMvcResultMatchers.jsonPath("$.[*].keySchema").value<Iterable<String?>>(
+                    Matchers.hasItem(
+                        DEFAULT_KEY_SCHEMA,
+                    ),
+                ),
+            ).andExpect(
+                MockMvcResultMatchers.jsonPath("$.[*].valueSchema").value<Iterable<String?>>(
+                    Matchers.hasItem(
+                        DEFAULT_VALUE_SCHEMA,
+                    ),
+                ),
+            ).andExpect(
+                MockMvcResultMatchers.jsonPath("$.[*].unit").value<Iterable<String?>>(
+                    Matchers.hasItem(
+                        DEFAULT_UNTI,
+                    ),
+                ),
+            ).andExpect(
+                MockMvcResultMatchers.jsonPath("$.[*].topic").value<Iterable<String?>>(
+                    Matchers.hasItem(
+                        DEFAULT_TOPIC,
+                    ),
+                ),
+            ).andExpect(
+                MockMvcResultMatchers.jsonPath("$.[*].frequency").value<Iterable<String?>>(
+                    Matchers.hasItem(
+                        DEFAULT_FREQUENCY,
+                    ),
+                ),
+            )
+    }
 
     @Test
     @Transactional
@@ -316,13 +311,13 @@ internal class SourceDataResourceIntTest(
         sourceDataRepository.saveAndFlush(sourceData)
 
         // Get the sourceData
-        restSourceDataMockMvc.perform(
-            MockMvcRequestBuilders.get(
-                "/api/source-data/{sourceDataName}",
-                sourceData.sourceDataName
-            )
-        )
-            .andExpect(MockMvcResultMatchers.status().isOk())
+        restSourceDataMockMvc
+            .perform(
+                MockMvcRequestBuilders.get(
+                    "/api/source-data/{sourceDataName}",
+                    sourceData.sourceDataName,
+                ),
+            ).andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(sourceData.id!!.toInt()))
             .andExpect(MockMvcResultMatchers.jsonPath("$.sourceDataType").value(DEFAULT_SOURCE_DATA_TYPE))
@@ -339,15 +334,15 @@ internal class SourceDataResourceIntTest(
     @Transactional
     @Test
     fun nonExistingSourceData() {
-            // Get the sourceData
-            restSourceDataMockMvc.perform(
+        // Get the sourceData
+        restSourceDataMockMvc
+            .perform(
                 MockMvcRequestBuilders.get(
                     "/api/source-data/{sourceDataName}",
-                    DEFAULT_SOURCE_DATA_NAME + DEFAULT_SOURCE_DATA_NAME
-                )
-            )
-                .andExpect(MockMvcResultMatchers.status().isNotFound())
-        }
+                    DEFAULT_SOURCE_DATA_NAME + DEFAULT_SOURCE_DATA_NAME,
+                ),
+            ).andExpect(MockMvcResultMatchers.status().isNotFound())
+    }
 
     @Test
     @Transactional
@@ -369,12 +364,13 @@ internal class SourceDataResourceIntTest(
             .unit(UPDATED_UNIT)
             .frequency(UPDATED_FREQUENCY)
         val sourceDataDto = sourceDataMapper.sourceDataToSourceDataDTO(updatedSourceData)
-        restSourceDataMockMvc.perform(
-            MockMvcRequestBuilders.put("/api/source-data")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(sourceDataDto))
-        )
-            .andExpect(MockMvcResultMatchers.status().isOk())
+        restSourceDataMockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .put("/api/source-data")
+                    .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                    .content(TestUtil.convertObjectToJsonBytes(sourceDataDto)),
+            ).andExpect(MockMvcResultMatchers.status().isOk())
 
         // Validate the SourceData in the database
         val sourceDataList = sourceDataRepository.findAll()
@@ -400,12 +396,13 @@ internal class SourceDataResourceIntTest(
         val sourceDataDto = sourceDataMapper.sourceDataToSourceDataDTO(sourceData)
 
         // If the entity doesn't have an ID, it will be created instead of just being updated
-        restSourceDataMockMvc.perform(
-            MockMvcRequestBuilders.put("/api/source-data")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(sourceDataDto))
-        )
-            .andExpect(MockMvcResultMatchers.status().isCreated())
+        restSourceDataMockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .put("/api/source-data")
+                    .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                    .content(TestUtil.convertObjectToJsonBytes(sourceDataDto)),
+            ).andExpect(MockMvcResultMatchers.status().isCreated())
 
         // Validate the SourceData in the database
         val sourceDataList = sourceDataRepository.findAll()
@@ -421,14 +418,14 @@ internal class SourceDataResourceIntTest(
         val databaseSizeBeforeDelete = sourceDataRepository.findAll().size
 
         // Get the sourceData
-        restSourceDataMockMvc.perform(
-            MockMvcRequestBuilders.delete(
-                "/api/source-data/{sourceDataName}",
-                sourceData.sourceDataName
-            )
-                .accept(TestUtil.APPLICATION_JSON_UTF8)
-        )
-            .andExpect(MockMvcResultMatchers.status().isOk())
+        restSourceDataMockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .delete(
+                        "/api/source-data/{sourceDataName}",
+                        sourceData.sourceDataName,
+                    ).accept(TestUtil.APPLICATION_JSON_UTF8),
+            ).andExpect(MockMvcResultMatchers.status().isOk())
 
         // Validate the database is empty
         val sourceDataList = sourceDataRepository.findAll()
@@ -439,7 +436,8 @@ internal class SourceDataResourceIntTest(
     @Transactional
     @Throws(Exception::class)
     fun equalsVerifier() {
-        org.junit.jupiter.api.Assertions.assertTrue(TestUtil.equalsVerifier(SourceData::class.java))
+        org.junit.jupiter.api.Assertions
+            .assertTrue(TestUtil.equalsVerifier(SourceData::class.java))
     }
 
     companion object {
@@ -467,8 +465,8 @@ internal class SourceDataResourceIntTest(
          * This is a static method, as tests for other entities might also need it,
          * if they test an entity which requires the current entity.
          */
-        fun createEntity(): SourceData {
-            return SourceData()
+        fun createEntity(): SourceData =
+            SourceData()
                 .sourceDataType(DEFAULT_SOURCE_DATA_TYPE)
                 .sourceDataName(DEFAULT_SOURCE_DATA_NAME)
                 .processingState(DEFAULT_PROCESSING_STATE)
@@ -477,6 +475,5 @@ internal class SourceDataResourceIntTest(
                 .topic(DEFAULT_TOPIC)
                 .unit(DEFAULT_UNTI)
                 .frequency(DEFAULT_FREQUENCY)
-        }
     }
 }

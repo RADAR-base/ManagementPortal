@@ -1,5 +1,5 @@
-import { Role } from '../../admin/user-management/role.model';
-import { Project } from '../project';
+import {Role} from '../../admin/user-management/role.model';
+import {Project} from '../project';
 
 export interface User {
     id?: number;

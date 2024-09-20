@@ -23,9 +23,8 @@ import java.util.*
 @Transactional
 class SubjectServiceTest(
     @Autowired private val subjectService: SubjectService,
-    @Autowired private val projectService: ProjectService
+    @Autowired private val projectService: ProjectService,
 ) {
-
     @Test
     @Transactional
     fun testGetPrivacyPolicyUrl() {
@@ -69,10 +68,11 @@ class SubjectServiceTest(
             projectDto.projectName = "Radar"
             projectDto.location = "SOMEWHERE"
             projectDto.description = "test"
-            projectDto.attributes = Collections.singletonMap(
-                ProjectDTO.PRIVACY_POLICY_URL,
-                DEFAULT_PROJECT_PRIVACY_POLICY_URL
-            )
+            projectDto.attributes =
+                Collections.singletonMap(
+                    ProjectDTO.PRIVACY_POLICY_URL,
+                    DEFAULT_PROJECT_PRIVACY_POLICY_URL,
+                )
             subject.project = projectDto
             return subject
         }

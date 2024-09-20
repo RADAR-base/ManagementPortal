@@ -1,19 +1,20 @@
 <div>
     <h2>
-        <span id="health-page-heading" [translate]="'health.title'" data-cy="healthPageHeading">Health Checks</span>
+        <span [translate]="'health.title'" data-cy="healthPageHeading" id="health-page-heading">Health Checks</span>
 
-        <button class="btn btn-primary float-right" (click)="refresh()">
-            <fa-icon icon="sync"></fa-icon> <span [translate]="'health.refresh.button'">Refresh</span>
+        <button (click)="refresh()" class="btn btn-primary float-right">
+            <fa-icon icon="sync"></fa-icon>
+            <span [translate]="'health.refresh.button'">Refresh</span>
         </button>
     </h2>
 
     <div class="table-responsive">
-        <table id="healthCheck" class="table table-striped" aria-describedby="health-page-heading">
+        <table aria-describedby="health-page-heading" class="table table-striped" id="healthCheck">
             <thead>
             <tr>
-                <th scope="col" [translate]="'health.table.service'">Service Name</th>
-                <th scope="col" class="text-center" [translate]="'health.table.status'">Status</th>
-                <th scope="col" class="text-center" [translate]="'health.details.details'">Details</th>
+                <th [translate]="'health.table.service'" scope="col">Service Name</th>
+                <th [translate]="'health.table.status'" class="text-center" scope="col">Status</th>
+                <th [translate]="'health.details.details'" class="text-center" scope="col">Details</th>
             </tr>
             </thead>
             <tbody *ngIf="health">
@@ -23,18 +24,18 @@
                 </td>
                 <td class="text-center">
             <span
-                    class="badge"
                     [ngClass]="getBadgeClass(componentHealth.value!.status)"
                     [translate]="'health.status.' + componentHealth.value!.status"
-                    >
+                    class="badge"
+            >
                     {{ componentHealth.value!.status }}
                     </span>
                 </td>
                 <td class="text-center">
                     <a
-                            class="hand"
                             (click)="showHealth({ key: componentHealth.key, value: componentHealth.value! })"
                             *ngIf="componentHealth.value!.details"
+                            class="hand"
                     >
                         <fa-icon icon="eye"></fa-icon>
                     </a>

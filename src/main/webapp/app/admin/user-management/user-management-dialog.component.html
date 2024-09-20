@@ -1,116 +1,118 @@
-<form name="editForm" role="form" novalidate (ngSubmit)="save()" #editForm="ngForm">
+<form #editForm="ngForm" (ngSubmit)="save()" name="editForm" novalidate role="form">
 
     <div class="modal-header">
-        <h4 class="modal-title" id="myUserLabel"
-            [translate]="'userManagement.home.createOrEditLabel'">
+        <h4 [translate]="'userManagement.home.createOrEditLabel'" class="modal-title"
+            id="myUserLabel">
         </h4>
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
-            (click)="clear()">&times;</button>
+        <button (click)="clear()" aria-hidden="true" class="close" data-dismiss="modal"
+                type="button">&times;
+        </button>
     </div>
     <div class="modal-body">
         <jhi-alert-error></jhi-alert-error>
         <div class="form-group">
             <label [translate]="'global.field.id'"></label>
-            <input type="text" class="form-control" name="id"
-                   [(ngModel)]="user.id" readonly>
+            <input [(ngModel)]="user.id" class="form-control" name="id"
+                   readonly type="text">
         </div>
 
         <div class="form-group">
-            <label class="form-control-label" [translate]="'userManagement.login'"></label>
-            <input type="text" class="form-control" name="login" #loginInput="ngModel"
-                   [(ngModel)]="user.login" required minlength=1 maxlength=50 pattern="^[_'.@A-Za-z0-9- ]*$">
+            <label [translate]="'userManagement.login'" class="form-control-label"></label>
+            <input #loginInput="ngModel" [(ngModel)]="user.login" class="form-control" maxlength=50
+                   minlength=1 name="login" pattern="^[_'.@A-Za-z0-9- ]*$" required type="text">
 
             <div *ngIf="loginInput.dirty && loginInput.invalid">
-                <small class="form-text text-danger"
-                    *ngIf="loginInput.errors.required"
-                    [translate]="'entity.validation.required'">
+                <small *ngIf="loginInput.errors.required"
+                       [translate]="'entity.validation.required'"
+                       class="form-text text-danger">
                 </small>
 
-                <small class="form-text text-danger"
-                    *ngIf="loginInput.errors.maxlength"
-                    [translate]="'entity.validation.maxlength'"
-                    [translateParams]="{max: 50}">
+                <small *ngIf="loginInput.errors.maxlength"
+                       [translateParams]="{max: 50}"
+                       [translate]="'entity.validation.maxlength'"
+                       class="form-text text-danger">
                 </small>
             </div>
         </div>
 
         <div class="form-group">
-            <label class="form-control-label" [translate]="'userManagement.kratosId'"></label>
-            <input type="text" class="form-control" name="kratosId" #kratosIdInput="ngModel"
-                   [(ngModel)]="user.identity" minlength=36 maxlength=36 pattern="^[_'.@A-Za-z0-9- ]*$">
+            <label [translate]="'userManagement.kratosId'" class="form-control-label"></label>
+            <input #kratosIdInput="ngModel" [(ngModel)]="user.identity" class="form-control" maxlength=36
+                   minlength=36 name="kratosId" pattern="^[_'.@A-Za-z0-9- ]*$" type="text">
 
             <div *ngIf="kratosIdInput.dirty && kratosIdInput.invalid">
-                <small class="form-text text-danger"
-                       *ngIf="kratosIdInput.errors.maxlength || kratosIdInput.errors.minlength"
+                <small *ngIf="kratosIdInput.errors.maxlength || kratosIdInput.errors.minlength"
+                       [translateParams]="{max: 36}"
                        [translate]="'entity.validation.maxlength'"
-                       [translateParams]="{max: 36}">
+                       class="form-text text-danger">
                 </small>
             </div>
         </div>
 
         <div class="form-group">
-            <label class="form-control-label" [translate]="'userManagement.firstName'"></label>
-            <input type="text" class="form-control" name="firstName" #firstNameInput="ngModel"
-                   [(ngModel)]="user.firstName" maxlength="50">
+            <label [translate]="'userManagement.firstName'" class="form-control-label"></label>
+            <input #firstNameInput="ngModel" [(ngModel)]="user.firstName" class="form-control" maxlength="50"
+                   name="firstName" type="text">
 
             <div *ngIf="firstNameInput.dirty && firstNameInput.invalid">
-                <small class="form-text text-danger"
-                    *ngIf="firstNameInput.errors.maxlength"
-                    [translate]="'entity.validation.maxlength'"
-                    [translateParams]="{max: 50}">
+                <small *ngIf="firstNameInput.errors.maxlength"
+                       [translateParams]="{max: 50}"
+                       [translate]="'entity.validation.maxlength'"
+                       class="form-text text-danger">
                 </small>
             </div>
         </div>
         <div class="form-group">
             <label [translate]="'userManagement.lastName'"></label>
-            <input type="text" class="form-control" name="lastName" #lastNameInput="ngModel"
-                   [(ngModel)]="user.lastName" maxlength="50">
+            <input #lastNameInput="ngModel" [(ngModel)]="user.lastName" class="form-control" maxlength="50"
+                   name="lastName" type="text">
 
             <div *ngIf="lastNameInput.dirty && lastNameInput.invalid">
-                <small class="form-text text-danger"
-                    *ngIf="lastNameInput.errors.maxlength"
-                    [translate]="'entity.validation.maxlength'"
-                    [translateParams]="{max: 50}">
+                <small *ngIf="lastNameInput.errors.maxlength"
+                       [translateParams]="{max: 50}"
+                       [translate]="'entity.validation.maxlength'"
+                       class="form-text text-danger">
                 </small>
             </div>
         </div>
         <div class="form-group">
-            <label class="form-control-label" [translate]="'userManagement.email'"></label>
-            <input type="email" class="form-control" name="email" #emailInput="ngModel"
-                   [(ngModel)]="user.email" maxlength="100" required>
+            <label [translate]="'userManagement.email'" class="form-control-label"></label>
+            <input #emailInput="ngModel" [(ngModel)]="user.email" class="form-control" maxlength="100"
+                   name="email" required type="email">
 
             <div *ngIf="emailInput.dirty && emailInput.invalid">
-                <small class="form-text text-danger"
-                    [hidden]="emailInput.errors.required"
-                    [translate]="'entity.validation.required'">
+                <small [hidden]="emailInput.errors.required"
+                       [translate]="'entity.validation.required'"
+                       class="form-text text-danger">
                 </small>
 
-                <small class="form-text text-danger"
-                    *ngIf="emailInput.errors.maxlength"
-                    [translate]="'entity.validation.maxlength'"
-                    [translateParams]="{max: 100}">
+                <small *ngIf="emailInput.errors.maxlength"
+                       [translateParams]="{max: 100}"
+                       [translate]="'entity.validation.maxlength'"
+                       class="form-text text-danger">
                 </small>
-                <small class="form-text text-danger"
-                    *ngIf="emailInput.errors.email"
-                    [translate]="'global.messages.validate.email.invalid'">
-                 </small>
+                <small *ngIf="emailInput.errors.email"
+                       [translate]="'global.messages.validate.email.invalid'"
+                       class="form-text text-danger">
+                </small>
             </div>
         </div>
 
-        <div class="form-group" *ngIf="languageHelper.languages$ | async as languages">
+        <div *ngIf="languageHelper.languages$ | async as languages" class="form-group">
             <label [translate]="'userManagement.langKey'"></label>
-            <select class="form-control" id="langKey" name="langKey" [(ngModel)]="user.langKey">
-                <option *ngFor="let language of languages" [value]="language">{{language | findLanguageFromKey}}</option>
+            <select [(ngModel)]="user.langKey" class="form-control" id="langKey" name="langKey">
+                <option *ngFor="let language of languages" [value]="language">{{ language | findLanguageFromKey }}
+                </option>
             </select>
         </div>
         <jhi-user-role [roles]='user.roles'></jhi-user-role>
     </div>
     <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal" (click)="clear()">
+        <button (click)="clear()" class="btn btn-secondary" data-dismiss="modal" type="button">
             <span class="fa fa-ban"></span>&nbsp;<span
                 [translate]="'entity.action.cancel'"></span>
         </button>
-        <button type="submit" [disabled]="editForm.form.invalid || isSaving" class="btn btn-primary">
+        <button [disabled]="editForm.form.invalid || isSaving" class="btn btn-primary" type="submit">
             <span class="fa fa-floppy-o"></span>&nbsp;<span [translate]="'entity.action.save'"></span>
         </button>
     </div>

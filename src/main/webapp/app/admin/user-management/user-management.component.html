@@ -1,7 +1,8 @@
 <div *ngIf="principal.account$ | async as account">
     <h2>
         <span [translate]="'userManagement.home.title'"></span>
-        <button class="btn btn-primary float-right" [routerLink]="['/', { outlets: { popup: ['user-management-new'] } }]">
+        <button [routerLink]="['/', { outlets: { popup: ['user-management-new'] } }]"
+                class="btn btn-primary float-right">
             <span class="fa fa-plus"></span> <span [translate]="'userManagement.home.createLabel'"></span>
         </button>
     </h2>
@@ -10,25 +11,32 @@
         <h4 [translate]="'userManagement.search.title'"></h4>
         <p class="d-flex">
             <span [translate]="'userManagement.login'" class="input-group-addon"></span>
-            <input type="text" class="form-control" name="byLogin" [(ngModel)]="byLogin" (ngModelChange)="filter.next($event)" />
+            <input (ngModelChange)="filter.next($event)" [(ngModel)]="byLogin" class="form-control" name="byLogin"
+                   type="text"/>
 
             <span [translate]="'userManagement.email'" class="input-group-addon"></span>
-            <input type="text" class="form-control" name="byEmail" [(ngModel)]="byEmail" (ngModelChange)="filter.next($event)"/>
+            <input (ngModelChange)="filter.next($event)" [(ngModel)]="byEmail" class="form-control" name="byEmail"
+                   type="text"/>
 
             <span [translate]="'userManagement.role.authorityName'" class="input-group-addon"></span>
-            <input type="text" class="form-control" name="byAuthority" [(ngModel)]="byAuthority" (ngModelChange)="filter.next($event)"/>
+            <input (ngModelChange)="filter.next($event)" [(ngModel)]="byAuthority" class="form-control"
+                   name="byAuthority"
+                   type="text"/>
         </p>
     </div>
 
-    <div class="table-responsive" *ngIf="users">
+    <div *ngIf="users" class="table-responsive">
         <table class="table table-striped">
             <thead>
-            <tr jhiSort [(predicate)]="predicate" [(ascending)]="reverse" [callback]="transition.bind(this)">
+            <tr [(ascending)]="reverse" [(predicate)]="predicate" [callback]="transition.bind(this)" jhiSort>
                 <th jhiSortBy="id"><span [translate]="'global.field.id'"></span><span class="fa fa-sort"></span></th>
-                <th jhiSortBy="login"><span [translate]="'userManagement.login'"></span> <span class="fa fa-sort"></span></th>
-                <th jhiSortBy="email"><span [translate]="'userManagement.email'"></span> <span class="fa fa-sort"></span></th>
+                <th jhiSortBy="login"><span [translate]="'userManagement.login'"></span> <span
+                        class="fa fa-sort"></span></th>
+                <th jhiSortBy="email"><span [translate]="'userManagement.email'"></span> <span
+                        class="fa fa-sort"></span></th>
                 <th></th>
-                <th jhiSortBy="langKey"> <span [translate]="'userManagement.langKey'"></span> <span class="fa fa-sort"></span></th>
+                <th jhiSortBy="langKey"><span [translate]="'userManagement.langKey'"></span> <span
+                        class="fa fa-sort"></span></th>
                 <th><span [translate]="'userManagement.role.authorityName'"></span></th>
                 <th><span [translate]="'userManagement.createdDate'"></span></th>
                 <th><span [translate]="'userManagement.lastModifiedBy'"></span></th>
@@ -36,65 +44,67 @@
                 <th></th>
             </tr>
             </thead>
-            <tbody *ngIf ="users">
+            <tbody *ngIf="users">
             <tr *ngFor="let user of users; trackBy: trackIdentity">
-                <td><a [routerLink]="['../user-management', user.login]">{{user.id}}</a></td>
-                <td>{{user.login}}</td>
-                <td>{{user.email}}</td>
+                <td><a [routerLink]="['../user-management', user.login]">{{ user.id }}</a></td>
+                <td>{{ user.login }}</td>
+                <td>{{ user.email }}</td>
                 <td>
                     <span *ngIf="!user.activated"
-                        class="badge badge-danger"
-                        [translate]="'userManagement.deactivated'">
+                          [translate]="'userManagement.deactivated'"
+                          class="badge badge-danger">
                     </span>
                     <span *ngIf="user.activated"
-                        class="badge badge-success"
-                        [translate]="'userManagement.activated'">
+                          [translate]="'userManagement.activated'"
+                          class="badge badge-success">
                     </span>
                 </td>
-                <td>{{user.langKey}}</td>
+                <td>{{ user.langKey }}</td>
                 <td>
                     <div *ngFor="let role of user.roles">
-                        <span *ngIf="role.authorityName === 'ROLE_SYS_ADMIN'">{{role.authorityName}}</span>
-                        <span *ngIf="role.authorityName === 'ROLE_ORGANIZATION_ADMIN'" >{{role.authorityName}}: {{role.organizationName}}</span>
-                        <span *ngIf="role.authorityName === 'ROLE_PROJECT_ADMIN'">{{role.authorityName}}: {{role.projectName}}</span>
+                        <span *ngIf="role.authorityName === 'ROLE_SYS_ADMIN'">{{ role.authorityName }}</span>
+                        <span *ngIf="role.authorityName === 'ROLE_ORGANIZATION_ADMIN'">{{ role.authorityName }}
+                            : {{ role.organizationName }}</span>
+                        <span *ngIf="role.authorityName === 'ROLE_PROJECT_ADMIN'">{{ role.authorityName }}
+                            : {{ role.projectName }}</span>
                     </div>
                 </td>
-                <td>{{user.createdDate | date:'dd/MM/yy HH:mm'}}</td>
-                <td>{{user.lastModifiedBy}}</td>
-                <td>{{user.lastModifiedDate | date:'dd/MM/yy HH:mm'}}</td>
+                <td>{{ user.createdDate | date:'dd/MM/yy HH:mm' }}</td>
+                <td>{{ user.lastModifiedBy }}</td>
+                <td>{{ user.lastModifiedDate | date:'dd/MM/yy HH:mm' }}</td>
 
                 <td class="text-right">
                     <div class="btn-group flex-btn-group-container">
-                        <button type="submit"
-                                [routerLink]="['../user-management', user.login]"
-                                class="btn btn-info btn-sm">
+                        <button [routerLink]="['../user-management', user.login]"
+                                class="btn btn-info btn-sm"
+                                type="submit">
                             <span class="fa fa-eye"></span>
-                            <span class="hidden-md-down" [translate]="'entity.action.view'"></span>
+                            <span [translate]="'entity.action.view'" class="hidden-md-down"></span>
                         </button>
-                        <button type="submit" [replaceUrl]="true"
+                        <button [disabled]="user.activated" [replaceUrl]="true"
                                 [routerLink]="['/', { outlets: { popup: 'user-management/'+ user.login + '/send-activation'} }]"
-                                [disabled]="user.activated"
-                                class="btn btn-warning btn-sm">
+                                class="btn btn-warning btn-sm"
+                                type="submit">
                             <span class="fa fa-mail-forward"></span>
-                            <span class="hidden-md-down" [translate]="'userManagement.sendActivation.title'"></span>
+                            <span [translate]="'userManagement.sendActivation.title'" class="hidden-md-down"></span>
                         </button>
-                        <button type="submit"
+                        <button [replaceUrl]="true"
                                 [routerLink]="['/', { outlets: { popup: 'user-management/'+ user.login + '/edit'} }]"
-                                [replaceUrl]="true"
-                                class="btn btn-primary btn-sm">
+                                class="btn btn-primary btn-sm"
+                                type="submit">
                             <span class="fa fa-pencil"></span>
-                            <span class="hidden-md-down" [translate]="'entity.action.edit'"></span>
+                            <span [translate]="'entity.action.edit'" class="hidden-md-down"></span>
                         </button>
-                        <button type="submit"
-                                [routerLink]="['/', { outlets: { popup: 'user-management/'+ user.login + '/delete'} }]"
-                                [replaceUrl]="true"
-                                class="btn btn-danger btn-sm"
-                                [disabled]="account.login == user.login ||
+                        <button [disabled]="account.login == user.login ||
                                 (user.roles.length > 0 && (
                                 user.roles[0].authorityName=='ROLE_PARTICIPANT' ||
-                                user.roles[0].authorityName=='ROLE_INACTIVE_PARTICIPANT'))">
+                                user.roles[0].authorityName=='ROLE_INACTIVE_PARTICIPANT'))"
+                                [replaceUrl]="true"
+                                [routerLink]="['/', { outlets: { popup: 'user-management/'+ user.login + '/delete'} }]"
+                                class="btn btn-danger btn-sm"
+                                type="submit">
                             <span class="fa fa-remove"></span>
-                            <span class="hidden-md-down" [translate]="'entity.action.delete'"></span>
+                            <span [translate]="'entity.action.delete'" class="hidden-md-down"></span>
                         </button>
                     </div>
                 </td>
@@ -104,10 +114,11 @@
     </div>
     <div *ngIf="users">
         <div class="row justify-content-center">
-            <jhi-item-count [page]="page" [total]="queryCount" [itemsPerPage]="itemsPerPage"></jhi-item-count>
+            <jhi-item-count [itemsPerPage]="itemsPerPage" [page]="page" [total]="queryCount"></jhi-item-count>
         </div>
         <div class="row justify-content-center">
-            <ngb-pagination [collectionSize]="totalItems" [(pageSize)]="itemsPerPage" [(page)]="page" (pageChange)="loadPage(page)"></ngb-pagination>
+            <ngb-pagination (pageChange)="loadPage(page)" [(page)]="page" [(pageSize)]="itemsPerPage"
+                            [collectionSize]="totalItems"></ngb-pagination>
         </div>
     </div>
 </div>

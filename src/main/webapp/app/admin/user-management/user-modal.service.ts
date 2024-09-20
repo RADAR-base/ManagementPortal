@@ -1,20 +1,20 @@
-import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import {Injectable} from '@angular/core';
+import {Router} from '@angular/router';
+import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 
-import { User, UserService } from '../../shared';
-import { SYSTEM_ADMIN } from '../../shared/constants/common.constants';
-import { Observable, of } from 'rxjs';
-import { map } from 'rxjs/operators';
+import {User, UserService} from '../../shared';
+import {SYSTEM_ADMIN} from '../../shared/constants/common.constants';
+import {Observable, of} from 'rxjs';
+import {map} from 'rxjs/operators';
 
-@Injectable({ providedIn: 'root' })
+@Injectable({providedIn: 'root'})
 export class UserModalService {
     private isOpen = false;
 
     constructor(
-            private modalService: NgbModal,
-            private router: Router,
-            private userService: UserService,
+        private modalService: NgbModal,
+        private router: Router,
+        private userService: UserService,
     ) {
     }
 
@@ -36,10 +36,10 @@ export class UserModalService {
 
         if (login) {
             return this.userService.find(login).pipe(
-              map((user) => this.userModalRef(component, user, user.authorities.indexOf(SYSTEM_ADMIN) > -1)),
+                map((user) => this.userModalRef(component, user, user.authorities.indexOf(SYSTEM_ADMIN) > -1)),
             );
         } else {
-            return of(this.userModalRef(component, { authorities: [] }, false));
+            return of(this.userModalRef(component, {authorities: []}, false));
         }
     }
 

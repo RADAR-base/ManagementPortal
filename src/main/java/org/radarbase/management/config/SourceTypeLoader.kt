@@ -22,17 +22,21 @@ class SourceTypeLoader : CommandLineRunner {
 
     @Autowired
     private val managementPortalProperties: ManagementPortalProperties? = null
+
     override fun run(vararg args: String) {
         if (!managementPortalProperties!!.catalogueServer.isEnableAutoImport) {
             log.info("Auto source-type import is disabled")
             return
         }
-        val catalogServerUrl = managementPortalProperties.catalogueServer.serverUrl
+        val catalogServerUrl =
+            managementPortalProperties.catalogueServer.serverUrl
+                ?: throw IllegalStateException("Catalog server URL is not set")
         try {
             val restTemplate = RestTemplate()
             log.debug("Requesting source-types from catalog server...")
-            val catalogues = restTemplate
-                .getForEntity(catalogServerUrl, SourceTypeResponse::class.java)
+            val catalogues =
+                restTemplate
+                    .getForEntity(catalogServerUrl, SourceTypeResponse::class.java)
             val catalogueDto = catalogues.body
             if (catalogueDto == null) {
                 log.warn("Catalog Service {} returned empty response", catalogServerUrl)
@@ -46,20 +50,26 @@ class SourceTypeLoader : CommandLineRunner {
             sourceTypeService!!.saveSourceTypesFromCatalogServer(catalogSourceTypes)
         } catch (e: RestClientException) {
             log.warn(
-                "Cannot fetch source types from Catalog Service at {}: {}", catalogServerUrl,
-                e.toString()
+                "Cannot fetch source types from Catalog Service at {}: {}",
+                catalogServerUrl,
+                e.toString(),
             )
         } catch (exe: RuntimeException) {
             log.warn(
-                "An error has occurred during auto import of source-types: {}", exe
-                    .message
+                "An error has occurred during auto import of source-types: {}",
+                exe
+                    .message,
             )
         }
     }
 
     companion object {
         private val log = LoggerFactory.getLogger(SourceTypeLoader::class.java)
-        private fun <T> addNonNull(collection: MutableCollection<T>, toAdd: Collection<T>?) {
+
+        private fun <T> addNonNull(
+            collection: MutableCollection<T>,
+            toAdd: Collection<T>?,
+        ) {
             if (toAdd != null && !toAdd.isEmpty()) {
                 collection.addAll(toAdd)
             }

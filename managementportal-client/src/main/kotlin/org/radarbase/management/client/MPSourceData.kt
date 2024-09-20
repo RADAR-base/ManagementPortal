@@ -14,12 +14,12 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class MPSourceData(
     val id: Long,
-    //Source data type.
+    // Source data type.
     val sourceDataType: String,
     val sourceDataName: String? = null,
-    //Default data frequency
+    // Default data frequency
     val frequency: String? = null,
-    //Measurement unit.
+    // Measurement unit.
     val unit: String? = null,
     // Define if the samples are RAW data or instead they the result of some computation
     val processingState: String? = null,
@@ -30,5 +30,5 @@ data class MPSourceData(
     val topic: String? = null,
     val provider: String? = null,
     val enabled: Boolean = true,
-    val sourceType: MPSourceType? = null
+    val sourceType: MPSourceType? = null,
 )

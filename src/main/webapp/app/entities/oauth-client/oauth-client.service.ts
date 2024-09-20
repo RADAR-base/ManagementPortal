@@ -1,11 +1,11 @@
-import { Injectable } from '@angular/core';
-import { HttpClient, HttpResponse } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import {Injectable} from '@angular/core';
+import {HttpClient, HttpResponse} from '@angular/common/http';
+import {Observable} from 'rxjs';
 
-import { OAuthClient } from './oauth-client.model';
-import { createRequestOption } from '../../shared/model/request.utils';
+import {OAuthClient} from './oauth-client.model';
+import {createRequestOption} from '../../shared/model/request.utils';
 
-@Injectable({ providedIn: 'root' })
+@Injectable({providedIn: 'root'})
 export class OAuthClientService {
 
     private resourceUrl = 'api/oauth-clients';

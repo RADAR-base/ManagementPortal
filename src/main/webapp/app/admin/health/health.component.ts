@@ -1,10 +1,10 @@
-import { Component, OnInit } from '@angular/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { JhiHealthModalComponent } from './health-modal.component';
+import {Component, OnInit} from '@angular/core';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {JhiHealthModalComponent} from './health-modal.component';
 
-import { JhiHealthService } from './health.service';
-import { Health, HealthDetails, HealthStatus } from "./health.model";
-import { HttpErrorResponse } from "@angular/common/http";
+import {JhiHealthService} from './health.service';
+import {Health, HealthDetails, HealthStatus} from "./health.model";
+import {HttpErrorResponse} from "@angular/common/http";
 
 @Component({
     selector: 'jhi-health',
@@ -13,7 +13,8 @@ import { HttpErrorResponse } from "@angular/common/http";
 export class JhiHealthCheckComponent implements OnInit {
     health?: Health;
 
-    constructor(private modalService: NgbModal, private healthService: JhiHealthService) {}
+    constructor(private modalService: NgbModal, private healthService: JhiHealthService) {
+    }
 
     ngOnInit(): void {
         this.refresh();
@@ -28,12 +29,12 @@ export class JhiHealthCheckComponent implements OnInit {
 
     refresh(): void {
         this.healthService.checkHealth().subscribe(
-          health => (this.health = health),
-          (error: HttpErrorResponse) => {
-              if (error.status === 503) {
-                  this.health = error.error;
-              }
-          }
+            health => (this.health = health),
+            (error: HttpErrorResponse) => {
+                if (error.status === 503) {
+                    this.health = error.error;
+                }
+            }
         );
     }
 

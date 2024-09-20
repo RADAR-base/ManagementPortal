@@ -34,7 +34,7 @@ class CustomRevisionEntity : Serializable {
         name = "revisionGenerator",
         initialValue = 2,
         allocationSize = 50,
-        sequenceName = "sequence_revision"
+        sequenceName = "sequence_revision",
     )
     @RevisionNumber
     var id = 0
@@ -43,6 +43,7 @@ class CustomRevisionEntity : Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     @RevisionTimestamp
     var timestamp: Date? = null
+
     @JvmField
     var auditor: String? = null
 
@@ -51,10 +52,11 @@ class CustomRevisionEntity : Serializable {
     @JoinTable(name = "REVCHANGES", joinColumns = [JoinColumn(name = "REV")])
     @Column(name = "ENTITYNAME")
     @Fetch(
-        FetchMode.JOIN
+        FetchMode.JOIN,
     )
     @ModifiedEntityNames
     var modifiedEntityNames: Set<String>? = null
+
     override fun equals(other: Any?): Boolean {
         if (this === other) {
             return true
@@ -62,21 +64,23 @@ class CustomRevisionEntity : Serializable {
         if (other !is CustomRevisionEntity) {
             return false
         }
-        return id == other.id && timestamp == other.timestamp && auditor == other.auditor && modifiedEntityNames == other.modifiedEntityNames
+        return id == other.id &&
+            timestamp == other.timestamp &&
+            auditor == other.auditor &&
+            modifiedEntityNames == other.modifiedEntityNames
     }
 
-    override fun hashCode(): Int {
-        return Objects.hash(id, timestamp, auditor, modifiedEntityNames)
-    }
+    override fun hashCode(): Int = Objects.hash(id, timestamp, auditor, modifiedEntityNames)
 
-    override fun toString(): String {
-        return ("CustomRevisionEntity{"
-                + "id=" + id
-                + ", timestamp=" + timestamp
-                + ", auditor='" + auditor + '\''
-                + ", modifiedEntityNames=" + modifiedEntityNames
-                + '}')
-    }
+    override fun toString(): String =
+        (
+            "CustomRevisionEntity{" +
+                "id=" + id +
+                ", timestamp=" + timestamp +
+                ", auditor='" + auditor + '\'' +
+                ", modifiedEntityNames=" + modifiedEntityNames +
+                '}'
+            )
 
     companion object {
         private const val serialVersionUID = 8530213963961662300L

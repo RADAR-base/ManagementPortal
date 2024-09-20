@@ -46,9 +46,8 @@ class AccountResource(
     @Autowired private val userMapper: UserMapper,
     @Autowired private val managementPortalProperties: ManagementPortalProperties,
     @Autowired private val authService: AuthService,
-    @Autowired private val passwordService: PasswordService
+    @Autowired private val passwordService: PasswordService,
 ) {
-
     @Autowired(required = false)
     var token: RadarToken? = null
 
@@ -61,14 +60,15 @@ class AccountResource(
      */
     @GetMapping("/activate")
     @Timed
-    fun activateAccount(@RequestParam(value = "key") key: String): ResponseEntity<String> {
-        return try {
+    fun activateAccount(
+        @RequestParam(value = "key") key: String,
+    ): ResponseEntity<String> =
+        try {
             userService.activateRegistration(key)
             ResponseEntity<String>(HttpStatus.OK)
         } catch (e: Exception) {
             ResponseEntity(HttpStatus.NOT_FOUND)
         }
-    }
 
     /**
      * POST /login : check if the user is authenticated.
@@ -113,10 +113,13 @@ class AccountResource(
          * (Internal Server Error) if the user couldn't be returned
          */
         get() {
-            val currentUser = userService.getUserWithAuthorities()
-                ?: throw RadarWebApplicationException(
+            val currentUser =
+                userService.getUserWithAuthorities()
+                    ?: throw RadarWebApplicationException(
                         HttpStatus.FORBIDDEN,
-                        "Cannot get account without user", EntityName.Companion.USER, ErrorConstants.ERR_ACCESS_DENIED
+                        "Cannot get account without user",
+                        EntityName.Companion.USER,
+                        ErrorConstants.ERR_ACCESS_DENIED,
                     )
             val userDto = userMapper.userToUserDTO(currentUser)
             if (managementPortalProperties.account.enableExposeToken) {
@@ -137,13 +140,17 @@ class AccountResource(
     @Throws(NotAuthorizedException::class)
     suspend fun saveAccount(
         @RequestBody @Valid userDto: UserDTO,
-        authentication: Authentication
+        authentication: Authentication,
     ): ResponseEntity<Void> {
         authService.checkPermission(Permission.USER_UPDATE, { e: EntityDetails ->
-            e.user(userDto.login) })
+            e.user(userDto.login)
+        })
         userService.updateUser(
-            authentication.name, userDto.firstName,
-            userDto.lastName, userDto.email, userDto.langKey
+            authentication.name,
+            userDto.firstName,
+            userDto.lastName,
+            userDto.email,
+            userDto.langKey,
         )
         return ResponseEntity(HttpStatus.NO_CONTENT)
     }
@@ -157,7 +164,9 @@ class AccountResource(
      */
     @PostMapping(path = ["/account/change_password"], produces = [MediaType.TEXT_PLAIN_VALUE])
     @Timed
-    fun changePassword(@RequestBody password: String): ResponseEntity<String> {
+    fun changePassword(
+        @RequestBody password: String,
+    ): ResponseEntity<String> {
         passwordService.checkPasswordStrength(password)
         userService.changePassword(password)
         return ResponseEntity(HttpStatus.NO_CONTENT)
@@ -173,16 +182,22 @@ class AccountResource(
      */
     @PostMapping(path = ["/account/reset-activation/init"])
     @Timed
-    fun requestActivationReset(@RequestBody login: String): ResponseEntity<Void> {
-        val user = userService.requestActivationReset(login)
-            ?: throw BadRequestException(
+    fun requestActivationReset(
+        @RequestBody login: String,
+    ): ResponseEntity<Void> {
+        val user =
+            userService.requestActivationReset(login)
+                ?: throw BadRequestException(
                     "Cannot find a deactivated user with login $login",
-                    EntityName.Companion.USER, ErrorConstants.ERR_EMAIL_NOT_REGISTERED
+                    EntityName.Companion.USER,
+                    ErrorConstants.ERR_EMAIL_NOT_REGISTERED,
                 )
 
         mailService.sendCreationEmail(
-            user, managementPortalProperties.common
-                .activationKeyTimeoutInSeconds.toLong()
+            user,
+            managementPortalProperties.common
+                .activationKeyTimeoutInSeconds
+                .toLong(),
         )
         return ResponseEntity(HttpStatus.NO_CONTENT)
     }
@@ -196,11 +211,15 @@ class AccountResource(
      */
     @PostMapping(path = ["/account/reset_password/init"])
     @Timed
-    fun requestPasswordReset(@RequestBody mail: String): ResponseEntity<Void> {
-        val user = userService.requestPasswordReset(mail)
-            ?: throw BadRequestException(
+    fun requestPasswordReset(
+        @RequestBody mail: String,
+    ): ResponseEntity<Void> {
+        val user =
+            userService.requestPasswordReset(mail)
+                ?: throw BadRequestException(
                     "email address not registered",
-                    EntityName.Companion.USER, ErrorConstants.ERR_EMAIL_NOT_REGISTERED
+                    EntityName.Companion.USER,
+                    ErrorConstants.ERR_EMAIL_NOT_REGISTERED,
                 )
         mailService.sendPasswordResetMail(user)
         return ResponseEntity(HttpStatus.NO_CONTENT)
@@ -216,7 +235,7 @@ class AccountResource(
     @PostMapping(path = ["/account/reset_password/finish"], produces = [MediaType.TEXT_PLAIN_VALUE])
     @Timed
     fun finishPasswordReset(
-        @RequestBody keyAndPassword: KeyAndPasswordVM
+        @RequestBody keyAndPassword: KeyAndPasswordVM,
     ): ResponseEntity<Void?> {
         passwordService.checkPasswordStrength(keyAndPassword.newPassword)
         userService.completePasswordReset(keyAndPassword.newPassword, keyAndPassword.key)

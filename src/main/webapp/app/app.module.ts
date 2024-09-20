@@ -1,19 +1,15 @@
-import { NgModule } from '@angular/core';
-import {
-    HttpClient,
-    HttpClientModule,
-    HTTP_INTERCEPTORS,
-} from '@angular/common/http';
-import { BrowserModule } from '@angular/platform-browser';
-import { NgxWebstorageModule } from 'ngx-webstorage';
-import { TranslateLoader, TranslateModule, TranslateService } from '@ngx-translate/core';
-import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+import {NgModule} from '@angular/core';
+import {HTTP_INTERCEPTORS, HttpClient, HttpClientModule,} from '@angular/common/http';
+import {BrowserModule} from '@angular/platform-browser';
+import {NgxWebstorageModule} from 'ngx-webstorage';
+import {TranslateLoader, TranslateModule, TranslateService} from '@ngx-translate/core';
+import {TranslateHttpLoader} from '@ngx-translate/http-loader';
 
-import { ManagementPortalAccountModule } from './account/account.module';
-import { ManagementPortalAdminModule } from './admin/admin.module';
-import { PaginationConfig } from './blocks/config/uib-pagination.config';
-import { ManagementPortalEntityModule } from './entities/entity.module';
-import { ManagementPortalHomeModule } from './home';
+import {ManagementPortalAccountModule} from './account/account.module';
+import {ManagementPortalAdminModule} from './admin/admin.module';
+import {PaginationConfig} from './blocks/config/uib-pagination.config';
+import {ManagementPortalEntityModule} from './entities/entity.module';
+import {ManagementPortalHomeModule} from './home';
 
 import {
     ActiveMenuDirective,
@@ -25,10 +21,10 @@ import {
     PageRibbonComponent,
 } from './layouts';
 
-import { LANGUAGES, ManagementPortalSharedModule} from './shared';
-import { ErrorHandlerInterceptor } from './blocks/interceptor/errorhandler.interceptor';
-import { NotificationInterceptor } from './blocks/interceptor/notification.interceptor';
-import { APP_BASE_HREF, PlatformLocation } from "@angular/common";
+import {LANGUAGES, ManagementPortalSharedModule} from './shared';
+import {ErrorHandlerInterceptor} from './blocks/interceptor/errorhandler.interceptor';
+import {NotificationInterceptor} from './blocks/interceptor/notification.interceptor';
+import {APP_BASE_HREF, PlatformLocation} from "@angular/common";
 
 export function getBaseHref(platformLocation: PlatformLocation): string {
     return platformLocation.getBaseHrefFromDOM();
@@ -47,7 +43,7 @@ export function getBaseHref(platformLocation: PlatformLocation): string {
             },
         }),
         LayoutRoutingModule,
-        NgxWebstorageModule.forRoot({ prefix: 'jhi', separator: '-' }),
+        NgxWebstorageModule.forRoot({prefix: 'jhi', separator: '-'}),
         ManagementPortalSharedModule,
         ManagementPortalHomeModule,
         ManagementPortalAdminModule,
@@ -85,6 +81,6 @@ export function getBaseHref(platformLocation: PlatformLocation): string {
 export class ManagementPortalAppModule {
     constructor(translate: TranslateService) {
         let browserLang = translate.getBrowserLang();
-        translate.use(LANGUAGES.includes(browserLang) ? browserLang: 'en');
+        translate.use(LANGUAGES.includes(browserLang) ? browserLang : 'en');
     }
 }

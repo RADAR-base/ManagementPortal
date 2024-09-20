@@ -23,8 +23,9 @@ import javax.persistence.criteria.Path
 import javax.persistence.criteria.Predicate
 import javax.persistence.criteria.Root
 
-
-class SubjectSpecification(criteria: SubjectCriteria) : Specification<Subject?> {
+class SubjectSpecification(
+    criteria: SubjectCriteria,
+) : Specification<Subject?> {
     private val dateOfBirth: LocalDateCriteriaRange?
     private val enrollmentDate: ZonedDateTimeCriteriaRange?
     private val groupId: Long?
@@ -43,9 +44,10 @@ class SubjectSpecification(criteria: SubjectCriteria) : Specification<Subject?> 
      * @param criteria criteria to use for the specification.
      */
     init {
-        authority = criteria.authority
-            .map { obj: SubjectAuthority -> obj.name }
-            .toSet()
+        authority =
+            criteria.authority
+                .map { obj: SubjectAuthority -> obj.name }
+                .toSet()
         dateOfBirth = criteria.dateOfBirth
         enrollmentDate = criteria.enrollmentDate
         groupId = criteria.groupId
@@ -56,21 +58,23 @@ class SubjectSpecification(criteria: SubjectCriteria) : Specification<Subject?> 
         externalId = criteria.externalId
         subjectId = criteria.login
         sort = criteria.parsedSort
-        sortLastValues = if (last != null) {
-            sort
-                ?.mapNotNull { o: SubjectSortOrder -> getLastValue(o.sortBy) }
-                ?.toList()
-        } else {
-            null
-        }
+        sortLastValues =
+            if (last != null) {
+                sort
+                    ?.mapNotNull { o: SubjectSortOrder -> getLastValue(o.sortBy) }
+                    ?.toList()
+            } else {
+                null
+            }
     }
 
     override fun toPredicate(
-        root: Root<Subject?>, query: CriteriaQuery<*>,
-        builder: CriteriaBuilder
+        root: Root<Subject?>,
+        query: CriteriaQuery<*>,
+        builder: CriteriaBuilder,
     ): Predicate? {
         if (root == null || query == null || builder == null) {
-            return null;
+            return null
         }
         query.distinct(true)
         root.alias("subject")
@@ -79,8 +83,9 @@ class SubjectSpecification(criteria: SubjectCriteria) : Specification<Subject?> 
         val predicates = PredicateBuilder(builder)
         addRolePredicates(userJoin, predicates)
         predicates.attributeLike(
-            root, "Human-readable-identifier",
-            humanReadableIdentifier
+            root,
+            "Human-readable-identifier",
+            humanReadableIdentifier,
         )
         predicates.likeLower(root.get("externalId"), externalId)
         predicates.equal(root.get("group"), groupId)
@@ -93,13 +98,18 @@ class SubjectSpecification(criteria: SubjectCriteria) : Specification<Subject?> 
         return predicates.toAndPredicate()!!
     }
 
-    private fun filterLastValues(root: Root<Subject?>, builder: CriteriaBuilder): Predicate? {
-        val lastPredicates = arrayOfNulls<Predicate?>(
-            sort!!.size
-        )
-        val paths: MutableList<Path<String>> = ArrayList(
-            sort.size
-        )
+    private fun filterLastValues(
+        root: Root<Subject?>,
+        builder: CriteriaBuilder,
+    ): Predicate? {
+        val lastPredicates =
+            arrayOfNulls<Predicate?>(
+                sort!!.size,
+            )
+        val paths: MutableList<Path<String>> =
+            ArrayList(
+                sort.size,
+            )
         for (order in sort) {
             paths.add(getPropertyPath(order.sortBy, root))
         }
@@ -110,16 +120,19 @@ class SubjectSpecification(criteria: SubjectCriteria) : Specification<Subject?> 
                 lastAndPredicates!![j] = builder.equal(paths[j], sortLastValues!![j])
             }
             val order = sort[i]
-            val saveVal = sortLastValues
-                ?: throw BadRequestException(
-                    "No last value given",
-                    EntityName.SUBJECT, ErrorConstants.ERR_VALIDATION
-                )
-            val currentSort: Predicate? = if (order.direction.isAscending) {
-                builder.greaterThan(paths[i], saveVal[i])
-            } else {
-                builder.lessThan(paths[i], saveVal[i])
-            }
+            val saveVal =
+                sortLastValues
+                    ?: throw BadRequestException(
+                        "No last value given",
+                        EntityName.SUBJECT,
+                        ErrorConstants.ERR_VALIDATION,
+                    )
+            val currentSort: Predicate? =
+                if (order.direction.isAscending) {
+                    builder.greaterThan(paths[i], saveVal[i])
+                } else {
+                    builder.lessThan(paths[i], saveVal[i])
+                }
             if (lastAndPredicates != null) {
                 lastAndPredicates[i] = currentSort
                 lastPredicates[i] = builder.and(*lastAndPredicates)
@@ -135,8 +148,10 @@ class SubjectSpecification(criteria: SubjectCriteria) : Specification<Subject?> 
     }
 
     private fun addContentPredicates(
-        predicates: PredicateBuilder, builder: CriteriaBuilder,
-        root: Root<Subject?>, queryResult: Class<*>
+        predicates: PredicateBuilder,
+        builder: CriteriaBuilder,
+        root: Root<Subject?>,
+        queryResult: Class<*>,
     ) {
         // Don't add content for count queries.
         if (Long::class.javaObjectType == queryResult) {
@@ -150,29 +165,36 @@ class SubjectSpecification(criteria: SubjectCriteria) : Specification<Subject?> 
     }
 
     private fun getLastValue(property: SubjectSortBy): String? {
-        val result = when (property) {
-            SubjectSortBy.ID -> last?.id
-            SubjectSortBy.USER_LOGIN -> last?.login
-            SubjectSortBy.EXTERNAL_ID -> last?.login
-        }
+        val result =
+            when (property) {
+                SubjectSortBy.ID -> last?.id
+                SubjectSortBy.USER_LOGIN -> last?.login
+                SubjectSortBy.EXTERNAL_ID -> last?.login
+            }
         if (property.isUnique && result == null) {
             throw BadRequestException(
                 "No last value given for sort property $property",
-                EntityName.SUBJECT, ErrorConstants.ERR_VALIDATION
+                EntityName.SUBJECT,
+                ErrorConstants.ERR_VALIDATION,
             )
         }
         return result
     }
 
-    private fun getPropertyPath(property: SubjectSortBy, root: Root<Subject?>): Path<String> {
-        return when (property) {
+    private fun getPropertyPath(
+        property: SubjectSortBy,
+        root: Root<Subject?>,
+    ): Path<String> =
+        when (property) {
             SubjectSortBy.ID -> root.get("id")
             SubjectSortBy.USER_LOGIN -> root.get<Any>("user").get("login")
             SubjectSortBy.EXTERNAL_ID -> root.get("externalId")
         }
-    }
 
-    private fun addRolePredicates(userJoin: Join<Subject, User>, predicates: PredicateBuilder) {
+    private fun addRolePredicates(
+        userJoin: Join<Subject, User>,
+        predicates: PredicateBuilder,
+    ) {
         val rolesJoin = userJoin.join<User, Role>("roles")
         rolesJoin.alias("roles")
         predicates.equal({ rolesJoin.get<Any>("project").get("projectName") }, projectName)
@@ -183,7 +205,7 @@ class SubjectSpecification(criteria: SubjectCriteria) : Specification<Subject?> 
 
     private fun getSortOrder(
         root: Root<Subject?>,
-        builder: CriteriaBuilder
+        builder: CriteriaBuilder,
     ): List<Order>? {
         return sort
             ?.map { order: SubjectSortOrder ->
@@ -193,7 +215,6 @@ class SubjectSpecification(criteria: SubjectCriteria) : Specification<Subject?> 
                 } else {
                     return listOf(builder.desc(path))
                 }
-            }
-            ?.toList()
+            }?.toList()
     }
 }

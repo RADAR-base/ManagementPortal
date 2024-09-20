@@ -7,21 +7,21 @@
   ~ See the file LICENSE in the root of this repository.
   -->
 
-<h3 id="cacheMetrics" [translate]="'metrics.cache.title'">Cache statistics</h3>
+<h3 [translate]="'metrics.cache.title'" id="cacheMetrics">Cache statistics</h3>
 
-<div class="table-responsive" *ngIf="!updating && cacheMetrics">
-    <table class="table table-striped" aria-describedby="cacheMetrics">
+<div *ngIf="!updating && cacheMetrics" class="table-responsive">
+    <table aria-describedby="cacheMetrics" class="table table-striped">
         <thead>
         <tr>
-            <th scope="col" [translate]="'metrics.cache.cachename'">Cache name</th>
-            <th scope="col" class="text-right" [translate]="'metrics.cache.hits'">Cache Hits</th>
-            <th scope="col" class="text-right" [translate]="'metrics.cache.misses'">Cache Misses</th>
-            <th scope="col" class="text-right" [translate]="'metrics.cache.gets'">Cache Gets</th>
-            <th scope="col" class="text-right" [translate]="'metrics.cache.puts'">Cache Puts</th>
-            <th scope="col" class="text-right" [translate]="'metrics.cache.removals'">Cache Removals</th>
-            <th scope="col" class="text-right" [translate]="'metrics.cache.evictions'">Cache Evictions</th>
-            <th scope="col" class="text-right" [translate]="'metrics.cache.hitPercent'">Cache Hit %</th>
-            <th scope="col" class="text-right" [translate]="'metrics.cache.missPercent'">Cache Miss %</th>
+            <th [translate]="'metrics.cache.cachename'" scope="col">Cache name</th>
+            <th [translate]="'metrics.cache.hits'" class="text-right" scope="col">Cache Hits</th>
+            <th [translate]="'metrics.cache.misses'" class="text-right" scope="col">Cache Misses</th>
+            <th [translate]="'metrics.cache.gets'" class="text-right" scope="col">Cache Gets</th>
+            <th [translate]="'metrics.cache.puts'" class="text-right" scope="col">Cache Puts</th>
+            <th [translate]="'metrics.cache.removals'" class="text-right" scope="col">Cache Removals</th>
+            <th [translate]="'metrics.cache.evictions'" class="text-right" scope="col">Cache Evictions</th>
+            <th [translate]="'metrics.cache.hitPercent'" class="text-right" scope="col">Cache Hit %</th>
+            <th [translate]="'metrics.cache.missPercent'" class="text-right" scope="col">Cache Miss %</th>
         </tr>
         </thead>
         <tbody>
@@ -35,14 +35,14 @@
             <td class="text-right">{{ entry.value['cache.evictions'] }}</td>
             <td class="text-right">
                 {{
-                filterNaN((100 * entry.value['cache.gets.hit']) / (entry.value['cache.gets.hit'] + entry.value['cache.gets.miss']))
-                        | number: '1.0-4'
+                    filterNaN((100 * entry.value['cache.gets.hit']) / (entry.value['cache.gets.hit'] + entry.value['cache.gets.miss']))
+                            | number: '1.0-4'
                 }}
             </td>
             <td class="text-right">
                 {{
-                filterNaN((100 * entry.value['cache.gets.miss']) / (entry.value['cache.gets.hit'] + entry.value['cache.gets.miss']))
-                        | number: '1.0-4'
+                    filterNaN((100 * entry.value['cache.gets.miss']) / (entry.value['cache.gets.hit'] + entry.value['cache.gets.miss']))
+                            | number: '1.0-4'
                 }}
             </td>
         </tr>

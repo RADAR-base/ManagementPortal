@@ -10,6 +10,8 @@ import org.springframework.data.repository.history.RevisionRepository
  */
 @Suppress("unused")
 @RepositoryDefinition(domainClass = SourceData::class, idClass = Long::class)
-interface SourceDataRepository : JpaRepository<SourceData, Long>, RevisionRepository<SourceData, Long, Int> {
+interface SourceDataRepository :
+    JpaRepository<SourceData, Long>,
+    RevisionRepository<SourceData, Long, Int> {
     fun findOneBySourceDataName(sourceDataName: String?): SourceData?
 }

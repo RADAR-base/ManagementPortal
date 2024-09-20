@@ -1,16 +1,16 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
-import { ActivatedRoute, Router } from '@angular/router';
-import { Observable, Subscription } from 'rxjs';
-import { map } from 'rxjs/operators';
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {HttpErrorResponse, HttpResponse} from '@angular/common/http';
+import {ActivatedRoute, Router} from '@angular/router';
+import {Observable, Subscription} from 'rxjs';
+import {map} from 'rxjs/operators';
 
-import { ITEMS_PER_PAGE } from '../../shared';
-import { Revision } from './revision.model';
-import { RevisionService } from './revision.service';
-import { PagingParams } from '../../shared/commons';
-import { AlertService } from '../../shared/util/alert.service';
-import { EventManager } from '../../shared/util/event-manager.service';
-import { parseLinks } from '../../shared/util/parse-links-util';
+import {ITEMS_PER_PAGE} from '../../shared';
+import {Revision} from './revision.model';
+import {RevisionService} from './revision.service';
+import {PagingParams} from '../../shared/commons';
+import {AlertService} from '../../shared/util/alert.service';
+import {EventManager} from '../../shared/util/event-manager.service';
+import {parseLinks} from '../../shared/util/parse-links-util';
 
 @Component({
     selector: 'jhi-revisions',
@@ -34,15 +34,15 @@ export class RevisionComponent implements OnInit, OnDestroy {
     routeData: any;
 
     constructor(
-            private revisionService: RevisionService,
-            private alertService: AlertService,
-            private activatedRoute: ActivatedRoute,
-            private eventManager: EventManager,
-            private router: Router,
+        private revisionService: RevisionService,
+        private alertService: AlertService,
+        private activatedRoute: ActivatedRoute,
+        private eventManager: EventManager,
+        private router: Router,
     ) {
         this.itemsPerPage = ITEMS_PER_PAGE;
         this.pagingParams$ = this.activatedRoute.data.pipe(map(data => {
-            const fallback = { page: 1, predicate: 'id', ascending: true };
+            const fallback = {page: 1, predicate: 'id', ascending: true};
             return data['pagingParams'] || fallback;
         }));
         this.routeData = this.pagingParams$.subscribe(params => {
@@ -77,8 +77,8 @@ export class RevisionComponent implements OnInit, OnDestroy {
             size: this.itemsPerPage,
             sort: this.sort(),
         }).subscribe(
-                (res: HttpResponse<any>) => this.onSuccess(res.body, res.headers),
-                (res: HttpErrorResponse) => this.onError(res.message),
+            (res: HttpResponse<any>) => this.onSuccess(res.body, res.headers),
+            (res: HttpErrorResponse) => this.onError(res.message),
         );
     }
 
@@ -104,10 +104,10 @@ export class RevisionComponent implements OnInit, OnDestroy {
     transition() {
         this.router.navigate(['/revisions'], {
             queryParams:
-                    {
-                        page: this.page,
-                        sort: this.predicate + ',' + (this.ascending ? 'asc' : 'desc'),
-                    },
+                {
+                    page: this.page,
+                    sort: this.predicate + ',' + (this.ascending ? 'asc' : 'desc'),
+                },
         });
         this.loadAll();
     }

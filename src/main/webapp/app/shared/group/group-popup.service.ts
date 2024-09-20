@@ -1,14 +1,14 @@
-import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import {Injectable} from '@angular/core';
+import {Router} from '@angular/router';
+import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 
-import { ProjectService } from '../project';
-import { GroupService } from './group.service';
-import { Group } from './group.model';
-import { Observable, throwError } from 'rxjs';
-import { first, map } from 'rxjs/operators';
+import {ProjectService} from '../project';
+import {GroupService} from './group.service';
+import {Group} from './group.model';
+import {Observable, throwError} from 'rxjs';
+import {first, map} from 'rxjs/operators';
 
-@Injectable({ providedIn: 'root' })
+@Injectable({providedIn: 'root'})
 export class GroupPopupService {
     private isOpen = false;
 
@@ -17,7 +17,8 @@ export class GroupPopupService {
         private router: Router,
         private groupService: GroupService,
         private projectService: ProjectService,
-    ) {}
+    ) {
+    }
 
     open(component: any, id?: number, isDelete?: boolean, projectName?: string): Observable<NgbModalRef> {
         if (this.isOpen) {
@@ -38,11 +39,11 @@ export class GroupPopupService {
         } else if (projectName) {
             return this.projectService.find(projectName).pipe(
                 map((project) => {
-                  const group: Group = {
-                      projectId: project.id,
-                      projectName: project.projectName,
-                  };
-                  return this.groupModalRef(component, group, isDelete);
+                    const group: Group = {
+                        projectId: project.id,
+                        projectName: project.projectName,
+                    };
+                    return this.groupModalRef(component, group, isDelete);
                 }),
                 first(),
             );

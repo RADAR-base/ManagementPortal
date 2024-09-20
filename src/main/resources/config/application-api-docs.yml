@@ -14,5 +14,5 @@
 # ===================================================================
 
 springdoc:
-    api-docs.enabled: true
-    swagger-ui.enabled: true
+  api-docs.enabled: true
+  swagger-ui.enabled: true

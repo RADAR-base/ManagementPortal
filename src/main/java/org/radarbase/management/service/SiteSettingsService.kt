@@ -13,8 +13,8 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 @Transactional
 class SiteSettingsService(
-    @Autowired private val managementPortalProperties: ManagementPortalProperties) {
-
+    @Autowired private val managementPortalProperties: ManagementPortalProperties,
+) {
     /**
      * Convert a [SiteSettings] to a [SiteSettingsDto] object.
      * @param siteSettings The object to convert
@@ -22,7 +22,7 @@ class SiteSettingsService(
      */
     fun createSiteSettingsDto(siteSettings: SiteSettings): SiteSettingsDto {
         val siteSettingsDto = SiteSettingsDto()
-        siteSettingsDto.hiddenSubjectFields = siteSettings.hiddenSubjectFields
+        siteSettingsDto.hiddenSubjectFields = siteSettings.hiddenSubjectFields ?: emptyList()
         return siteSettingsDto
     }
 

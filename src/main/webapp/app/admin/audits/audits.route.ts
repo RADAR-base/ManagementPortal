@@ -1,6 +1,6 @@
-import { Route } from '@angular/router';
+import {Route} from '@angular/router';
 
-import { AuditsComponent } from './audits.component';
+import {AuditsComponent} from './audits.component';
 
 export const auditsRoute: Route = {
     path: 'audits',

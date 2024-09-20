@@ -12,10 +12,9 @@ enum class SubjectSortBy(
     /** Query parameter name.  */
     val queryParam: String,
     /** Whether this property is unique across all subjects.  */
-    val isUnique: Boolean
+    val isUnique: Boolean,
 ) {
     ID("id", true),
     EXTERNAL_ID("externalId", false),
-    USER_LOGIN("login", true)
-
+    USER_LOGIN("login", true),
 }

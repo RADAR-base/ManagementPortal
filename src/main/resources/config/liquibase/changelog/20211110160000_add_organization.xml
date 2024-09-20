@@ -10,11 +10,9 @@
   -->
 
 <databaseChangeLog
-    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd
-                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
 
     <property name="autoIncrement" value="true"/>
 
@@ -27,13 +25,13 @@
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="name" type="varchar(255)">
-                <constraints nullable="false" />
+                <constraints nullable="false"/>
             </column>
             <column name="description" type="varchar(255)">
-                <constraints nullable="false" />
+                <constraints nullable="false"/>
             </column>
             <column name="location" type="varchar(255)">
-                <constraints nullable="false" />
+                <constraints nullable="false"/>
             </column>
         </createTable>
 
@@ -114,19 +112,20 @@
 
     <changeSet id="initialize organization audit data" author="alexey@thehyve.nl">
         <sql>
-            INSERT into radar_organization_aud (
-                id, rev, revtype,
+            INSERT into radar_organization_aud (id, rev, revtype,
+                                                description, description_mod,
+                                                location, location_mod,
+                                                name, name_mod)
+            SELECT id,
+                   1,
+                   0,
 
-                description, description_mod,
-                location, location_mod,
-                name, name_mod
-            )
-            SELECT
-                id, 1, 0,
-
-                description, true,
-                location, true,
-                name, true
+                   description,
+                   true,
+                   location,
+                   true,
+                   name,
+                   true
             FROM radar_organization
         </sql>
     </changeSet>

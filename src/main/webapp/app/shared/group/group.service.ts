@@ -1,21 +1,13 @@
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { map } from "rxjs/operators";
-import { Group } from "./group.model";
-import { createRequestOption } from "../model/request.utils";
+import {Injectable} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {Observable} from 'rxjs';
+import {map} from "rxjs/operators";
+import {Group} from "./group.model";
+import {createRequestOption} from "../model/request.utils";
 
-@Injectable({ providedIn: 'root' })
+@Injectable({providedIn: 'root'})
 export class GroupService {
     constructor(private http: HttpClient) {
-    }
-
-    protected resourceUrl(projectName: string, groupName?: string): string {
-        let url = 'api/projects/' + encodeURIComponent(projectName) + '/groups';
-        if (groupName) {
-            url += '/' + encodeURIComponent(groupName);
-        }
-        return url;
     }
 
     list(projectName: string): Observable<Group[]> {
@@ -35,7 +27,7 @@ export class GroupService {
 
     delete(projectName: string, groupName: string, forceDelete?: boolean): Observable<any> {
         return this.http.delete(this.resourceUrl(projectName, groupName), {
-            params: createRequestOption({ unlinkSubjects: forceDelete }),
+            params: createRequestOption({unlinkSubjects: forceDelete}),
         });
     }
 
@@ -44,7 +36,15 @@ export class GroupService {
         subjects: { login?: string, id?: number; }[]
     ) {
         let baseUrl = this.resourceUrl(projectName, groupName);
-        let body = [{ op: "add", value: subjects }];
+        let body = [{op: "add", value: subjects}];
         return this.http.patch(`${baseUrl}/subjects`, body);
+    }
+
+    protected resourceUrl(projectName: string, groupName?: string): string {
+        let url = 'api/projects/' + encodeURIComponent(projectName) + '/groups';
+        if (groupName) {
+            url += '/' + encodeURIComponent(groupName);
+        }
+        return url;
     }
 }

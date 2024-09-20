@@ -1,6 +1,6 @@
 package org.radarbase.management.client
 
-import io.ktor.http.*
+import io.ktor.http.HttpStatusCode
 import java.io.IOException
 
 class HttpStatusException(

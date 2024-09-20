@@ -1,15 +1,15 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute, Params } from '@angular/router';
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {ActivatedRoute, Params} from '@angular/router';
 
-import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import {NgbActiveModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 
-import { EventManager } from '../../shared/util/event-manager.service';
-import { OAuthClientPopupService } from './oauth-client-popup.service';
+import {EventManager} from '../../shared/util/event-manager.service';
+import {OAuthClientPopupService} from './oauth-client-popup.service';
 
-import { OAuthClient } from './oauth-client.model';
-import { OAuthClientService } from './oauth-client.service';
-import { ObservablePopupComponent } from '../../shared/util/observable-popup.component';
-import { Observable, Subscription } from 'rxjs';
+import {OAuthClient} from './oauth-client.model';
+import {OAuthClientService} from './oauth-client.service';
+import {ObservablePopupComponent} from '../../shared/util/observable-popup.component';
+import {Observable, Subscription} from 'rxjs';
 
 @Component({
     selector: 'jhi-oauth-client-delete-dialog',
@@ -22,9 +22,9 @@ export class OAuthClientDeleteDialogComponent implements OnInit, OnDestroy {
     private subscriptions: Subscription = new Subscription();
 
     constructor(
-            private oauthClientService: OAuthClientService,
-            public activeModal: NgbActiveModal,
-            private eventManager: EventManager,
+        private oauthClientService: OAuthClientService,
+        public activeModal: NgbActiveModal,
+        private eventManager: EventManager,
     ) {
     }
 
@@ -57,8 +57,8 @@ export class OAuthClientDeleteDialogComponent implements OnInit, OnDestroy {
 })
 export class OAuthClientDeletePopupComponent extends ObservablePopupComponent {
     constructor(
-            route: ActivatedRoute,
-            private oauthClientPopupService: OAuthClientPopupService,
+        route: ActivatedRoute,
+        private oauthClientPopupService: OAuthClientPopupService,
     ) {
         super(route);
     }

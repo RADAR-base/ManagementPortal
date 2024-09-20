@@ -1,7 +1,7 @@
-import { Component, OnInit} from '@angular/core';
-import { NavigationEnd, Router } from '@angular/router';
+import {Component, OnInit} from '@angular/core';
+import {NavigationEnd, Router} from '@angular/router';
 
-import { JhiLanguageHelper } from '../../shared';
+import {JhiLanguageHelper} from '../../shared';
 import {PrintService} from "../../shared/util/print.service";
 
 @Component({
@@ -11,14 +11,14 @@ import {PrintService} from "../../shared/util/print.service";
 })
 export class JhiMainComponent implements OnInit {
 
+    isPrintLocked$ = this.printService.isPrintLocked$;
+
     constructor(
-            private jhiLanguageHelper: JhiLanguageHelper,
-            private printService: PrintService,
-            private router: Router,
+        private jhiLanguageHelper: JhiLanguageHelper,
+        private printService: PrintService,
+        private router: Router,
     ) {
     }
-
-    isPrintLocked$= this.printService.isPrintLocked$;
 
     ngOnInit() {
         this.router.events.subscribe((event) => {

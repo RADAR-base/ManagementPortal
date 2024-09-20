@@ -1,7 +1,7 @@
 <div *ngIf="projectName$ | async as projectName">
     <div class="create-group-wrapper">
-        <button class="btn btn-primary create-group"
-                [routerLink]="['/', { outlets: { popup: ['project-group-new' , projectName] } }]"
+        <button [routerLink]="['/', { outlets: { popup: ['project-group-new' , projectName] } }]"
+                class="btn btn-primary create-group"
                 queryParamsHandling="merge">
             <span class="fa fa-plus"></span>
             <span [translate]="'managementPortalApp.group.home.createLabel'">
@@ -15,38 +15,38 @@
                 <div *ngFor="let group of groups; trackBy: trackId" class="group-row">
                     <div class="group-row__content">
                         <div class="group-row__group-id">
-                            <span class="group-row__field-label"
-                                [translate]="'managementPortalApp.group.id'">
+                            <span [translate]="'managementPortalApp.group.id'"
+                                  class="group-row__field-label">
                             </span>
                             <div>
-                                <span>{{group.id}}</span>
+                                <span>{{ group.id }}</span>
                             </div>
                         </div>
                         <div class="group-row__name">
-                            <span class="group-row__field-label"
-                                [translate]="'managementPortalApp.group.name'">
+                            <span [translate]="'managementPortalApp.group.name'"
+                                  class="group-row__field-label">
                             </span>
                             <div>
                                 <span>
-                                    {{group.name}}
+                                    {{ group.name }}
                                 </span>
                             </div>
                         </div>
                         <div class="group-row__project">
-                            <span class="group-row__field-label"
-                                [translate]="'managementPortalApp.group.project'">
+                            <span [translate]="'managementPortalApp.group.project'"
+                                  class="group-row__field-label">
                             </span>
                             <div>
-                                <a  class="badge badge-success"
-                                    [routerLink]="['/project', projectName ]">{{projectName}}</a>
+                                <a [routerLink]="['/project', projectName ]"
+                                   class="badge badge-success">{{ projectName }}</a>
                             </div>
                         </div>
                     </div>
                     <div class="group-row__actions">
                         <button
+                                (click)="deleteGroup(group)"
                                 class="btn btn-danger btn-sm"
                                 type="submit"
-                                (click)="deleteGroup(group)"
                         >
                             <span class="fa fa-remove"></span>&nbsp;<span [translate]="'entity.action.delete'"></span>
                         </button>

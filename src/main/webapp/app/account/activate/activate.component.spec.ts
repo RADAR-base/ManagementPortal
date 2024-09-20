@@ -1,12 +1,12 @@
-import { TestBed, tick, fakeAsync, inject, waitForAsync } from '@angular/core/testing';
-import { ActivatedRoute } from '@angular/router';
-import { of, throwError } from 'rxjs';
+import {fakeAsync, inject, TestBed, tick, waitForAsync} from '@angular/core/testing';
+import {ActivatedRoute} from '@angular/router';
+import {of, throwError} from 'rxjs';
 
-import { ManagementPortalTestModule } from '../../shared/util/test/test.module';
-import { MockActivatedRoute } from '../../shared/util/test/mock-route.service';
-import { LoginModalService } from '../../shared';
-import { Activate } from './activate.service';
-import { ActivateComponent } from './activate.component';
+import {ManagementPortalTestModule} from '../../shared/util/test/test.module';
+import {MockActivatedRoute} from '../../shared/util/test/mock-route.service';
+import {LoginModalService} from '../../shared';
+import {Activate} from './activate.service';
+import {ActivateComponent} from './activate.component';
 
 describe('Component Tests', () => {
 

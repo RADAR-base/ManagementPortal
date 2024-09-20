@@ -1,16 +1,17 @@
-import { Injectable } from '@angular/core';
-import { HttpClient, HttpResponse } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import {Injectable} from '@angular/core';
+import {HttpClient, HttpResponse} from '@angular/common/http';
+import {Observable} from 'rxjs';
 
-import { SourceData } from './source-data.model';
-import { createRequestOption } from '../../shared/model/request.utils';
+import {SourceData} from './source-data.model';
+import {createRequestOption} from '../../shared/model/request.utils';
 
-@Injectable({ providedIn: 'root' })
+@Injectable({providedIn: 'root'})
 export class SourceDataService {
 
     private resourceUrl = 'api/source-data';
 
-    constructor(private http: HttpClient) { }
+    constructor(private http: HttpClient) {
+    }
 
     create(sourceData: SourceData): Observable<SourceData> {
         const copy: SourceData = Object.assign({}, sourceData);

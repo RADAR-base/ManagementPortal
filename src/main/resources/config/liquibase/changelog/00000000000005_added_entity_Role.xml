@@ -10,11 +10,9 @@
   -->
 
 <databaseChangeLog
-    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd
-                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
 
     <property name="now" value="now()" dbms="mysql,hsqldb"/>
     <property name="now" value="current_timestamp" dbms="postgresql"/>
@@ -35,7 +33,7 @@
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="project_id" type="bigint">
-                <constraints nullable="true" />
+                <constraints nullable="true"/>
             </column>
 
             <column name="authority_name" type="varchar(50)">
@@ -64,8 +62,8 @@
         <addPrimaryKey columnNames="roles_id, users_id" tableName="role_users"/>
 
         <createIndex indexName="idx_role_project_authority"
-            tableName="radar_role"
-            unique="true">
+                     tableName="radar_role"
+                     unique="true">
             <column name="project_id" type="bigint"/>
             <column name="authority_name" type="varchar(50)"/>
         </createIndex>

@@ -1,9 +1,9 @@
-import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import {CUSTOM_ELEMENTS_SCHEMA, NgModule} from '@angular/core';
+import {RouterModule} from '@angular/router';
 
-import { ManagementPortalSharedModule } from '../../shared';
-import { RevisionComponent } from './revision.component';
-import { revisionRoute } from './revision.route';
+import {ManagementPortalSharedModule} from '../../shared';
+import {RevisionComponent} from './revision.component';
+import {revisionRoute} from './revision.route';
 
 const ENTITY_STATES = [
     ...revisionRoute,

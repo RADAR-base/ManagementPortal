@@ -1,6 +1,6 @@
 {
     "managementPortalApp": {
-        "group" : {
+        "group": {
             "home": {
                 "title": "Groepen",
                 "createLabel": "Maak een nieuwe groep",
@@ -21,13 +21,13 @@
             "name": "Naam",
             "project": "Project",
             "actions": "Acties",
-            "groupId" : "Groep-ID",
+            "groupId": "Groep-ID",
             "group": "Groep",
             "noGroup": "Geen groepen beschikbaar."
         }
     },
     "error": {
-        "groupExists" : "Er bestaat al een groep met deze naam in dit project",
+        "groupExists": "Er bestaat al een groep met deze naam in dit project",
         "validation": "Validatiefout, controleer de opgegeven waarden.",
         "nameRequired": "Een groepsnaam is verplicht"
     }

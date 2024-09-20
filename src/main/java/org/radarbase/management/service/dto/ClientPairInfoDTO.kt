@@ -8,7 +8,12 @@ import java.util.*
 /**
  * Created by dverbeec on 29/08/2017.
  */
-class ClientPairInfoDTO(baseUrl: URL, tokenName: String, tokenUrl: URL?, timeout: Duration) {
+class ClientPairInfoDTO(
+    baseUrl: URL,
+    tokenName: String,
+    tokenUrl: URL?,
+    timeout: Duration,
+) {
     val tokenName: String
     val tokenUrl: URL
     val baseUrl: URL
@@ -38,19 +43,22 @@ class ClientPairInfoDTO(baseUrl: URL, tokenName: String, tokenUrl: URL?, timeout
             return false
         }
         val that = other as ClientPairInfoDTO
-        return tokenName == that.tokenName && tokenUrl == that.tokenUrl && baseUrl == that.baseUrl && timeout == that.timeout && timesOutAt == that.timesOutAt
+        return tokenName == that.tokenName &&
+            tokenUrl == that.tokenUrl &&
+            baseUrl == that.baseUrl &&
+            timeout == that.timeout &&
+            timesOutAt == that.timesOutAt
     }
 
-    override fun hashCode(): Int {
-        return Objects.hash(baseUrl, tokenName, tokenUrl, timeout, timesOutAt)
-    }
+    override fun hashCode(): Int = Objects.hash(baseUrl, tokenName, tokenUrl, timeout, timesOutAt)
 
-    override fun toString(): String {
-        return ("ClientPairInfoDTO{"
-                + "tokenName='" + tokenName + '\''
-                + ", tokenUrl=" + tokenUrl + '\''
-                + ", timeout=" + timeout + '\''
-                + ", timesOutAt=" + timesOutAt + '\''
-                + ", baseUrl=" + baseUrl + '}')
-    }
+    override fun toString(): String =
+        (
+            "ClientPairInfoDTO{" +
+                "tokenName='" + tokenName + '\'' +
+                ", tokenUrl=" + tokenUrl + '\'' +
+                ", timeout=" + timeout + '\'' +
+                ", timesOutAt=" + timesOutAt + '\'' +
+                ", baseUrl=" + baseUrl + '}'
+            )
 }

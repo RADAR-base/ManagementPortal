@@ -4,7 +4,10 @@ package org.radarbase.auth.authorization
  * Class to represent the different permissions in the RADAR platform. A permission has an entity
  * and an operation.
  */
-enum class Permission(val entity: Entity, val operation: Operation) {
+enum class Permission(
+    val entity: Entity,
+    val operation: Operation,
+) {
     SOURCETYPE_CREATE(Entity.SOURCETYPE, Operation.CREATE),
     SOURCETYPE_READ(Entity.SOURCETYPE, Operation.READ),
     SOURCETYPE_UPDATE(Entity.SOURCETYPE, Operation.UPDATE),
@@ -55,18 +58,32 @@ enum class Permission(val entity: Entity, val operation: Operation) {
     AUTHORITY_READ(Entity.AUTHORITY, Operation.READ),
 
     MEASUREMENT_READ(Entity.MEASUREMENT, Operation.READ),
-    MEASUREMENT_CREATE(Entity.MEASUREMENT, Operation.CREATE);
+    MEASUREMENT_CREATE(Entity.MEASUREMENT, Operation.CREATE),
+    ;
 
     enum class Entity {
         // ManagementPortal entities
-        SOURCETYPE, SOURCEDATA, SOURCE, SUBJECT, USER, ROLE, ORGANIZATION, PROJECT, OAUTHCLIENTS,
-        AUDIT, AUTHORITY,
+        SOURCETYPE,
+        SOURCEDATA,
+        SOURCE,
+        SUBJECT,
+        USER,
+        ROLE,
+        ORGANIZATION,
+        PROJECT,
+        OAUTHCLIENTS,
+        AUDIT,
+        AUTHORITY,
+
         // RMT measurements
-        MEASUREMENT
+        MEASUREMENT,
     }
 
     enum class Operation {
-        CREATE, READ, UPDATE, DELETE
+        CREATE,
+        READ,
+        UPDATE,
+        DELETE,
     }
 
     override fun toString(): String = "Permission{entity=$entity, operation=$operation}"
@@ -81,21 +98,21 @@ enum class Permission(val entity: Entity, val operation: Operation) {
     companion object {
         /** Returns all available scope names.  */
         @JvmStatic
-        fun scopes(): Array<String> {
-            return values()
+        fun scopes(): Array<String> =
+            values()
                 .map { obj: Permission -> obj.scope() }
                 .toTypedArray()
-        }
 
         /** Return matching permission.  */
-        fun of(entity: Entity, operation: Operation): Permission =
+        fun of(
+            entity: Entity,
+            operation: Operation,
+        ): Permission =
             requireNotNull(
-                values().firstOrNull { p -> p.entity == entity && p.operation == operation }
+                values().firstOrNull { p -> p.entity == entity && p.operation == operation },
             ) { "No permission found for given entity and operation" }
 
         @JvmStatic
-        fun ofScope(scope: String): Permission {
-            return valueOf(scope.replace('.', '_'))
-        }
+        fun ofScope(scope: String): Permission = valueOf(scope.replace('.', '_'))
     }
 }

@@ -1,10 +1,10 @@
 version: '2'
 services:
-    managementportal-postgresql:
-        image: postgres
-        environment:
-            - POSTGRES_USER=radarbase
-            - POSTGRES_PASSWORD=radarbase
-            - POSTGRES_DB=managementportal
-        ports:
-            - "5432:5432"
+  managementportal-postgresql:
+    image: postgres
+    environment:
+      - POSTGRES_USER=radarbase
+      - POSTGRES_PASSWORD=radarbase
+      - POSTGRES_DB=managementportal
+    ports:
+      - "5432:5432"

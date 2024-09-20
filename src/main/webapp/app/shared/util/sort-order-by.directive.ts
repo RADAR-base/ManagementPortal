@@ -1,8 +1,7 @@
 // Borrowed from ng-jhipster
 
-import { Directive, Host, HostListener, Input, ElementRef, Renderer2 } from '@angular/core';
-import { JhiSortDirective } from './sort.directive';
-import { JhiSortOrderDirective } from "./sort-order.directive";
+import {Directive, ElementRef, Host, HostListener, Input, Renderer2} from '@angular/core';
+import {JhiSortOrderDirective} from "./sort-order.directive";
 
 @Directive({
     selector: '[jhiOrderBy]'
@@ -30,7 +29,7 @@ export class JhiOrderByDirective {
         }
     }
 
-    private applyClass () {
+    private applyClass() {
         let childSpan = this.el.nativeElement.children[1];
         let add = this.sortAscIcon;
         if (!this.jhiSort.order.ascending) {

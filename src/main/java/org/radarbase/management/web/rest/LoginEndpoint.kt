@@ -19,7 +19,7 @@ class LoginEndpoint
         fun loginRedirect(): RedirectView {
             val redirectView = RedirectView()
             redirectView.url = managementPortalProperties.identityServer.loginUrl +
-                                "/login?return_to=" + managementPortalProperties.common.managementPortalBaseUrl
+                "/login?return_to=" + managementPortalProperties.common.managementPortalBaseUrl
             return redirectView
         }
 

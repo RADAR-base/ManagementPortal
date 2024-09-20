@@ -4,15 +4,15 @@
             <h1 [translate]="error403 ? 'error.403title' : 'error.title'"></h1>
 
             <div *ngIf="errorMessage">
-                <div class="alert alert-danger">{{errorMessage}}</div>
+                <div class="alert alert-danger">{{ errorMessage }}</div>
             </div>
 
             <div *ngIf="error403">
-                <div class="alert alert-danger" [translate]="'error.403'">
+                <div [translate]="'error.403'" class="alert alert-danger">
                 </div>
                 <span [translate]="'error.loginLink.prefix'"></span>
-                <a class="alert-link" (click)="login()"
-                    [translate]="'error.loginLink.text'">
+                <a (click)="login()" [translate]="'error.loginLink.text'"
+                   class="alert-link">
                 </a>
                 <span [translate]="'error.loginLink.suffix'"></span>
             </div>

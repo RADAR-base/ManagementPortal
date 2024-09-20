@@ -1,107 +1,111 @@
-<form name="editForm" role="form" novalidate (ngSubmit)="save()" #editForm="ngForm">
+<form #editForm="ngForm" (ngSubmit)="save()" name="editForm" novalidate role="form">
 
     <div class="modal-header">
-        <h4 class="modal-title" id="mySubjectLabel"
-            [translate]="'managementPortalApp.subject.home.createOrEditLabel'">
+        <h4 [translate]="'managementPortalApp.subject.home.createOrEditLabel'" class="modal-title"
+            id="mySubjectLabel">
         </h4>
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
-                (click)="clear()">&times;</button>
+        <button (click)="clear()" aria-hidden="true" class="close" data-dismiss="modal"
+                type="button">&times;
+        </button>
     </div>
     <div class="modal-body">
         <jhi-alert-error></jhi-alert-error>
-        <div class="form-group" [hidden]="!subject.id">
-            <label for="id" [translate]="'global.field.id'"></label>
-            <input type="text" class="form-control" id="id" name="id"
-                   [(ngModel)]="subject.id" readonly />
+        <div [hidden]="!subject.id" class="form-group">
+            <label [translate]="'global.field.id'" for="id"></label>
+            <input [(ngModel)]="subject.id" class="form-control" id="id" name="id"
+                   readonly type="text"/>
         </div>
 
         <div class="form-group">
-            <label class="form-control-label"
-                for="field_externalLink"
-                [translate]="'managementPortalApp.subject.externalLink'">
+            <label [translate]="'managementPortalApp.subject.externalLink'"
+                   class="form-control-label"
+                   for="field_externalLink">
             </label>
-            <input type="text" class="form-control" name="externalLink" id="field_externalLink"
-                [(ngModel)]="subject.externalLink"
-             />
+            <input [(ngModel)]="subject.externalLink" class="form-control" id="field_externalLink" name="externalLink"
+                   type="text"
+            />
         </div>
         <div class="form-group">
-            <label class="form-control-label"
-                for="field_externalId"
-                [translate]="'managementPortalApp.subject.externalId'">
+            <label [translate]="'managementPortalApp.subject.externalId'"
+                   class="form-control-label"
+                   for="field_externalId">
             </label>
-            <input type="text" class="form-control" name="externalId" id="field_externalId"
-                [(ngModel)]="subject.externalId"
-             />
+            <input [(ngModel)]="subject.externalId" class="form-control" id="field_externalId" name="externalId"
+                   type="text"
+            />
         </div>
-        <div class="form-group" *ngIf="!isInProject">
-            <label class="form-control-label"
-                   for="field_project"
-                   [translate]="'managementPortalApp.subject.project'">
+        <div *ngIf="!isInProject" class="form-group">
+            <label [translate]="'managementPortalApp.subject.project'"
+                   class="form-control-label"
+                   for="field_project">
             </label>
-            <select class="form-control"
+            <select (ngModelChange)="onProjectChange($event)"
+                    [(ngModel)]="projectName"
+                    class="form-control"
                     id="field_project"
                     name="project"
-                    [(ngModel)]="projectName"
-                    (ngModelChange)="onProjectChange($event)"
                     required
             >
                 <option [ngValue]="null">-</option>
                 <option *ngFor="let p of projects" [ngValue]="p.projectName">
-                    {{p.projectName}}
+                    {{ p.projectName }}
                 </option>
             </select>
         </div>
         <div *ngIf="(siteSettings$ | async).hiddenSubjectFields as hiddenFields">
             <div *ngIf="!hiddenFields.has(HideableSubjectField.GROUP)" class="form-group">
-                <label class="form-control-label"
-                    for="field_group"
-                    [translate]="'managementPortalApp.subject.group'">
+                <label [translate]="'managementPortalApp.subject.group'"
+                       class="form-control-label"
+                       for="field_group">
                 </label>
-                <select class="form-control"
-                    id="field_group"
-                    name="group"
-                    [(ngModel)]="groupName"
+                <select [(ngModel)]="groupName"
+                        class="form-control"
+                        id="field_group"
+                        name="group"
                 >
                     <option [ngValue]="null">-</option>
                     <option *ngFor="let g of groups$ | async" [ngValue]="g.name">
-                        {{g.name}}
+                        {{ g.name }}
                     </option>
                 </select>
             </div>
             <div *ngIf="!hiddenFields.has(HideableSubjectField.NAME)" class="form-group">
-                <label class="form-control-label"
-                       [translate]="'managementPortalApp.subject.personName'"
+                <label [translate]="'managementPortalApp.subject.personName'"
+                       class="form-control-label"
                        for="field_person_name">
                 </label>
-                <input type="text" class="form-control" name="personName" id="field_person_name" [(ngModel)]="subject.personName"/>
+                <input [(ngModel)]="subject.personName" class="form-control" id="field_person_name" name="personName"
+                       type="text"/>
             </div>
 
             <div *ngIf="!hiddenFields.has(HideableSubjectField.DATEOFBIRTH)" class="form-group">
-                <label class="form-control-label"
-                       [translate]="'managementPortalApp.subject.dateOfBirth'"
+                <label [translate]="'managementPortalApp.subject.dateOfBirth'"
+                       class="form-control-label"
                        for="field_date_of_birth">
                 </label>
                 <div class="input-group">
-                    <input [(ngModel)]="dateOfBirth"
-                           id="field_date_of_birth"
+                    <input #dateOfBirthDatePicker="ngbDatepicker"
+                           [(ngModel)]="dateOfBirth"
                            class="form-control"
+                           id="field_date_of_birth"
                            name="dateOfBirth"
-                           placeholder="yyyy-mm-dd"
                            ngbDatepicker
-                           #dateOfBirthDatePicker="ngbDatepicker">
+                           placeholder="yyyy-mm-dd">
                     <div class="input-group-append">
-                        <button class="btn btn-outline-secondary calendar" (click)="dateOfBirthDatePicker.toggle()" type="button"></button>
+                        <button (click)="dateOfBirthDatePicker.toggle()" class="btn btn-outline-secondary calendar"
+                                type="button"></button>
                     </div>
                 </div>
             </div>
         </div>
-        <jhi-dictionary-mapper [attributes]='subject.attributes' [options]="options" [eventPrefix]='attributeComponentEventPrefix'></jhi-dictionary-mapper>
+        <jhi-dictionary-mapper [attributes]='subject.attributes' [eventPrefix]='attributeComponentEventPrefix'
+                               [options]="options"></jhi-dictionary-mapper>
     </div>
     <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal" (click)="clear()">
+        <button (click)="clear()" class="btn btn-default" data-dismiss="modal" type="button">
             <span class="fa fa-ban"></span>&nbsp;<span [translate]="'entity.action.cancel'"></span>
         </button>
-        <button type="submit" [disabled]="editForm.form.invalid || isSaving" class="btn btn-primary">
+        <button [disabled]="editForm.form.invalid || isSaving" class="btn btn-primary" type="submit">
             <span class="fa fa-save"></span>&nbsp;<span [translate]="'entity.action.save'"></span>
         </button>
     </div>

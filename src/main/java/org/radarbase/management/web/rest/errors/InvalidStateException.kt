@@ -17,7 +17,7 @@ class InvalidStateException : RadarWebApplicationException {
         HttpStatus.INTERNAL_SERVER_ERROR,
         message,
         entityName,
-        errorCode
+        errorCode,
     )
 
     /**
@@ -29,7 +29,9 @@ class InvalidStateException : RadarWebApplicationException {
      * @param params     map of additional information.
      */
     constructor(
-        message: String?, entityName: String, errorCode: String?,
-        params: Map<String, String?>?
+        message: String?,
+        entityName: String,
+        errorCode: String?,
+        params: Map<String, String?>?,
     ) : super(HttpStatus.INTERNAL_SERVER_ERROR, message, entityName, errorCode, params)
 }

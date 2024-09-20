@@ -1,13 +1,13 @@
-import { ComponentFixture, TestBed, inject } from '@angular/core/testing';
-import { of, throwError } from 'rxjs';
+import {ComponentFixture, inject, TestBed} from '@angular/core/testing';
+import {of, throwError} from 'rxjs';
 
-import { ManagementPortalTestModule } from '../../../shared/util/test/test.module';
-import { PasswordResetInitComponent } from './password-reset-init.component';
-import { PasswordResetInit } from './password-reset-init.service';
+import {ManagementPortalTestModule} from '../../../shared/util/test/test.module';
+import {PasswordResetInitComponent} from './password-reset-init.component';
+import {PasswordResetInit} from './password-reset-init.service';
 
 describe('Component Tests', () => {
 
-    describe('PasswordResetInitComponent', function() {
+    describe('PasswordResetInitComponent', function () {
         let fixture: ComponentFixture<PasswordResetInitComponent>;
         let comp: PasswordResetInitComponent;
 
@@ -23,7 +23,7 @@ describe('Component Tests', () => {
             comp.ngOnInit();
         });
 
-        it('should define its initial state', function() {
+        it('should define its initial state', function () {
             expect(comp.success).toBeUndefined();
             expect(comp.error).toBeUndefined();
             expect(comp.errorEmailNotExists).toBeUndefined();

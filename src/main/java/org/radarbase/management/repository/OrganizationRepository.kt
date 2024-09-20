@@ -11,18 +11,22 @@ import org.springframework.data.repository.query.Param
  * Spring Data JPA repository for the Organization entity.
  */
 @RepositoryDefinition(domainClass = Organization::class, idClass = Long::class)
-interface OrganizationRepository : JpaRepository<Organization, Long>, RevisionRepository<Organization, Long, Int> {
+interface OrganizationRepository :
+    JpaRepository<Organization, Long>,
+    RevisionRepository<Organization, Long, Int> {
     @Query(
-        "select org from Organization org "
-                + "where org.name = :name"
+        "select org from Organization org " +
+            "where org.name = :name",
     )
-    fun findOneByName(@Param("name") name: String): Organization?
+    fun findOneByName(
+        @Param("name") name: String,
+    ): Organization?
 
     @Query(
-        "select distinct org from Organization org left join fetch org.projects project "
-                + "where project.projectName in (:projectNames)"
+        "select distinct org from Organization org left join fetch org.projects project " +
+            "where project.projectName in (:projectNames)",
     )
     fun findAllByProjectNames(
-        @Param("projectNames") projectNames: Collection<String>
+        @Param("projectNames") projectNames: Collection<String>,
     ): List<Organization>
 }

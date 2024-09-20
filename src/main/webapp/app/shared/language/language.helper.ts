@@ -1,17 +1,13 @@
-import { Injectable } from '@angular/core';
-import { Title } from '@angular/platform-browser';
-import { ActivatedRouteSnapshot, Router } from '@angular/router';
-import {
-    LangChangeEvent,
-    TranslateService,
-    TranslationChangeEvent,
-} from '@ngx-translate/core';
+import {Injectable} from '@angular/core';
+import {Title} from '@angular/platform-browser';
+import {ActivatedRouteSnapshot, Router} from '@angular/router';
+import {LangChangeEvent, TranslateService, TranslationChangeEvent,} from '@ngx-translate/core';
 
-import { LANGUAGES } from './language.constants';
-import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
-import { catchError, map, startWith, switchMap } from 'rxjs/operators';
+import {LANGUAGES} from './language.constants';
+import {BehaviorSubject, combineLatest, Observable, of} from 'rxjs';
+import {catchError, map, startWith, switchMap} from 'rxjs/operators';
 
-@Injectable({ providedIn: 'root' })
+@Injectable({providedIn: 'root'})
 export class JhiLanguageHelper {
     readonly languages$: Observable<string[]> = of(LANGUAGES);
 

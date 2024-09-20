@@ -32,9 +32,8 @@ class ExceptionTranslator {
     @ExceptionHandler(ConcurrencyFailureException::class)
     @ResponseStatus(HttpStatus.CONFLICT)
     @ResponseBody
-    fun processConcurrencyError(ex: ConcurrencyFailureException?): ErrorVM {
-        return ErrorVM(ErrorConstants.ERR_CONCURRENCY_FAILURE)
-    }
+    fun processConcurrencyError(ex: ConcurrencyFailureException?): ErrorVM =
+        ErrorVM(ErrorConstants.ERR_CONCURRENCY_FAILURE)
 
     /**
      * Translate a [TransactionSystemException].
@@ -64,8 +63,9 @@ class ExceptionTranslator {
         val dto = ErrorVM(ErrorConstants.ERR_VALIDATION)
         for (fieldError in fieldErrors) {
             dto.add(
-                fieldError.objectName, fieldError.field,
-                (fieldError.code?.plus(": ") ?: "undefined.error.code") + fieldError.defaultMessage
+                fieldError.objectName,
+                fieldError.field,
+                (fieldError.code?.plus(": ") ?: "undefined.error.code") + fieldError.defaultMessage,
             )
         }
         return dto
@@ -73,48 +73,35 @@ class ExceptionTranslator {
 
     @ExceptionHandler(MethodArgumentTypeMismatchException::class)
     @ResponseBody
-    fun processValidationError(ex: MethodArgumentTypeMismatchException): ErrorVM {
-        return ErrorVM(
+    fun processValidationError(ex: MethodArgumentTypeMismatchException): ErrorVM =
+        ErrorVM(
             ErrorConstants.ERR_VALIDATION,
-            ex.name + ": " + ex.message
+            ex.name + ": " + ex.message,
         )
-    }
 
     @ExceptionHandler(RadarWebApplicationException::class)
-    fun processParameterizedValidationError(
-        ex: RadarWebApplicationException
-    ): ResponseEntity<RadarWebApplicationExceptionVM?> {
-        return processRadarWebApplicationException(ex)
-    }
+    fun processParameterizedValidationError(ex: RadarWebApplicationException): ResponseEntity<RadarWebApplicationExceptionVM?> =
+        processRadarWebApplicationException(ex)
 
     @ExceptionHandler(NotFoundException::class)
-    fun processNotFound(ex: NotFoundException): ResponseEntity<RadarWebApplicationExceptionVM?> {
-        return processRadarWebApplicationException(ex)
-    }
+    fun processNotFound(ex: NotFoundException): ResponseEntity<RadarWebApplicationExceptionVM?> =
+        processRadarWebApplicationException(ex)
 
     @ExceptionHandler(InvalidStateException::class)
-    fun processNotFound(
-        ex: InvalidStateException
-    ): ResponseEntity<RadarWebApplicationExceptionVM?> {
-        return processRadarWebApplicationException(ex)
-    }
+    fun processNotFound(ex: InvalidStateException): ResponseEntity<RadarWebApplicationExceptionVM?> =
+        processRadarWebApplicationException(ex)
 
     @ExceptionHandler(RequestGoneException::class)
-    fun processNotFound(ex: RequestGoneException): ResponseEntity<RadarWebApplicationExceptionVM?> {
-        return processRadarWebApplicationException(ex)
-    }
+    fun processNotFound(ex: RequestGoneException): ResponseEntity<RadarWebApplicationExceptionVM?> =
+        processRadarWebApplicationException(ex)
 
     @ExceptionHandler(BadRequestException::class)
-    fun processNotFound(ex: BadRequestException): ResponseEntity<RadarWebApplicationExceptionVM?> {
-        return processRadarWebApplicationException(ex)
-    }
+    fun processNotFound(ex: BadRequestException): ResponseEntity<RadarWebApplicationExceptionVM?> =
+        processRadarWebApplicationException(ex)
 
     @ExceptionHandler(InvalidRequestException::class)
-    fun processNotFound(
-        ex: InvalidRequestException
-    ): ResponseEntity<RadarWebApplicationExceptionVM?> {
-        return processRadarWebApplicationException(ex)
-    }
+    fun processNotFound(ex: InvalidRequestException): ResponseEntity<RadarWebApplicationExceptionVM?> =
+        processRadarWebApplicationException(ex)
 
     /**
      * Translate a [ConflictException].
@@ -122,46 +109,39 @@ class ExceptionTranslator {
      * @return the view-model for the translated exception
      */
     @ExceptionHandler(ConflictException::class)
-    fun processConflict(
-        ex: ConflictException
-    ): ResponseEntity<RadarWebApplicationExceptionVM?> {
-        return processRadarWebApplicationException(ex)
-    }
+    fun processConflict(ex: ConflictException): ResponseEntity<RadarWebApplicationExceptionVM?> =
+        processRadarWebApplicationException(ex)
 
     private fun processRadarWebApplicationException(
-        exception: RadarWebApplicationException
-    ): ResponseEntity<RadarWebApplicationExceptionVM?> {
-        return ResponseEntity
+        exception: RadarWebApplicationException,
+    ): ResponseEntity<RadarWebApplicationExceptionVM?> =
+        ResponseEntity
             .status(exception.status)
             .headers(
                 HeaderUtil.createExceptionAlert(
                     exception.entityName,
-                    exception.errorCode, exception.message
-                )
-            )
-            .body(exception.exceptionVM)
-    }
+                    exception.errorCode,
+                    exception.message,
+                ),
+            ).body(exception.exceptionVM)
 
     @ExceptionHandler(AccessDeniedException::class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
     @ResponseBody
-    fun processAccessDeniedException(e: AccessDeniedException): ErrorVM {
-        return ErrorVM(ErrorConstants.ERR_ACCESS_DENIED, e.message)
-    }
+    fun processAccessDeniedException(e: AccessDeniedException): ErrorVM =
+        ErrorVM(ErrorConstants.ERR_ACCESS_DENIED, e.message)
 
     @ExceptionHandler(NotAuthorizedException::class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
     @ResponseBody
-    fun processRadarNotAuthorizedException(e: NotAuthorizedException): ErrorVM {
-        return ErrorVM(ErrorConstants.ERR_ACCESS_DENIED, e.message)
-    }
+    fun processRadarNotAuthorizedException(e: NotAuthorizedException): ErrorVM =
+        ErrorVM(ErrorConstants.ERR_ACCESS_DENIED, e.message)
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException::class)
     @ResponseBody
     @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
-    fun processMethodNotSupportedException(ex: HttpRequestMethodNotSupportedException): ErrorVM {
-        return ErrorVM(ErrorConstants.ERR_METHOD_NOT_SUPPORTED, ex.message)
-    }
+    fun processMethodNotSupportedException(ex: HttpRequestMethodNotSupportedException): ErrorVM =
+        ErrorVM(ErrorConstants.ERR_METHOD_NOT_SUPPORTED, ex.message)
 
     /**
      * If a client tries to initiate an OAuth flow with a non-existing client, this will
@@ -174,15 +154,14 @@ class ExceptionTranslator {
     @ExceptionHandler(NoSuchClientException::class)
     @ResponseBody
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    fun processNoSuchClientException(ex: NoSuchClientException): ErrorVM {
-        return ErrorVM(ErrorConstants.ERR_NO_SUCH_CLIENT, ex.message)
-    }
+    fun processNoSuchClientException(ex: NoSuchClientException): ErrorVM =
+        ErrorVM(ErrorConstants.ERR_NO_SUCH_CLIENT, ex.message)
 
     @ExceptionHandler(ResponseStatusException::class)
-    fun responseStatusResponse(ex: ResponseStatusException): ResponseEntity<ErrorVM> {
-        return ResponseEntity.status(ex.status)
+    fun responseStatusResponse(ex: ResponseStatusException): ResponseEntity<ErrorVM> =
+        ResponseEntity
+            .status(ex.status)
             .body(ErrorVM(null, ex.message))
-    }
 
     /**
      * Generic exception translator.
@@ -194,22 +173,25 @@ class ExceptionTranslator {
         val builder: ResponseEntity.BodyBuilder
         val errorVm: ErrorVM
         logger.error("Failed to process message", ex)
-        val responseStatus = AnnotationUtils.findAnnotation(
-            ex.javaClass,
-            ResponseStatus::class.java
-        )
+        val responseStatus =
+            AnnotationUtils.findAnnotation(
+                ex.javaClass,
+                ResponseStatus::class.java,
+            )
         if (responseStatus != null) {
             builder = ResponseEntity.status(responseStatus.value)
-            errorVm = ErrorVM(
-                "error." + responseStatus.value.value(),
-                responseStatus.reason
-            )
+            errorVm =
+                ErrorVM(
+                    "error." + responseStatus.value.value(),
+                    responseStatus.reason,
+                )
         } else {
             builder = ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-            errorVm = ErrorVM(
-                ErrorConstants.ERR_INTERNAL_SERVER_ERROR,
-                "Internal server error"
-            )
+            errorVm =
+                ErrorVM(
+                    ErrorConstants.ERR_INTERNAL_SERVER_ERROR,
+                    "Internal server error",
+                )
         }
         return builder.body(errorVm)
     }

@@ -1,6 +1,6 @@
 {
     "managementPortalApp": {
-        "subject" : {
+        "subject": {
             "home": {
                 "title": "Subjecten",
                 "createLabel": "Maak een nieuwe subject",
@@ -54,13 +54,13 @@
             "actions": "Acties",
             "pairApp": "App koppelen",
             "pairSources": {
-                "button" : "Koppel Sources",
-                "title" : "Koppel of verwijder sources",
-                "Id" : "ID",
-                "sourceDescription" : "Source beschrijving",
-                "remove" : "Verwijderen",
-                "assignedSources" : "Gekoppelde sources",
-                "availableSources" : "Beschikbare sources",
+                "button": "Koppel Sources",
+                "title": "Koppel of verwijder sources",
+                "Id": "ID",
+                "sourceDescription": "Source beschrijving",
+                "remove": "Verwijderen",
+                "assignedSources": "Gekoppelde sources",
+                "availableSources": "Beschikbare sources",
                 "sourceType": "Source type",
                 "sourceId": "Source ID",
                 "sourceName": "Source naam",
@@ -68,18 +68,18 @@
             },
             "clientApp": "Client app",
             "resource": "Beveiligde gegevensbron",
-            "attributeData" : "Attributen",
-            "status" : {
-                "title" : "Staat",
-                "discontinued" : "Stopgezet",
-                "active" : "Actief",
-                "deactivated" : "Inactief",
+            "attributeData": "Attributen",
+            "status": {
+                "title": "Staat",
+                "discontinued": "Stopgezet",
+                "active": "Actief",
+                "deactivated": "Inactief",
                 "invalid": "Ongeldig"
             },
-            "discontinue" : {
-                "operation" : "Stopzetten",
-                "title" : "Bevestig stopzetten",
-                "question" : "Weet u zeker dat u de deelname van subject {{ id }} wilt stopzetten? Dit kan niet ongedaan gemaakt worden."
+            "discontinue": {
+                "operation": "Stopzetten",
+                "title": "Bevestig stopzetten",
+                "question": "Weet u zeker dat u de deelname van subject {{ id }} wilt stopzetten? Dit kan niet ongedaan gemaakt worden."
             },
             "discontinued": "De deelname van subject {{ param }} is stopgezet.",
             "sorting": {
@@ -92,9 +92,9 @@
                 "login": "Subject ID",
                 "authority": "Status"
             },
-            "subjectId" : "Subject ID",
-            "baseUrl" : "Basis-url",
-            "tokenName" : "Token naam",
+            "subjectId": "Subject ID",
+            "baseUrl": "Basis-url",
+            "tokenName": "Token naam",
             "tokenTimeoutMinutes": "{{minutes}} minuten",
             "tokenTimeoutHour": "1 uur",
             "tokenTimeoutHours": "{{hours}} uur",
@@ -114,7 +114,7 @@
     },
     "error": {
         "patientEmailRequired": "Er is een geldige e-mailadres nodig om het subject-account te activeren",
-        "subjectExists" : "Er bestaat al een onderwerp met een gegeven project ID en extern ID",
+        "subjectExists": "Er bestaat al een onderwerp met een gegeven project ID en extern ID",
         "loginNotParticipant": "Opgegeven subject is geen deelnemer van een project",
         "loginRequired": "Een subject-login is vereist.",
         "sourceNotFound": "Er is geen source met deze naam toegewezen aan het subject.",
@@ -122,6 +122,6 @@
         "validation": "Validatie fout, controleer de ingevoerde waarden.",
         "sourceTypeExists": "De deelnemer werd reeds een source van dit type toegewezen.",
         "activeParticipantProjectNotFound": "Het subject neemt niet deel aan een project",
-        "sourceTypeNotProvided" : "De opgegeven eigenschappen van het source-type zijn incompleet."
+        "sourceTypeNotProvided": "De opgegeven eigenschappen van het source-type zijn incompleet."
     }
 }

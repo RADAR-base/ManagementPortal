@@ -1,20 +1,28 @@
-import { Injectable } from '@angular/core';
-import { HttpClient, HttpResponse } from '@angular/common/http';
-import { BehaviorSubject, combineLatest, Observable, of, Subject, throwError } from 'rxjs';
+import {Injectable} from '@angular/core';
+import {HttpClient, HttpResponse} from '@angular/common/http';
+import {BehaviorSubject, combineLatest, Observable, of, Subject, throwError} from 'rxjs';
 
-import { Organization } from './organization.model';
-import { Principal } from '../auth/principal.service';
-import { AlertService } from '../util/alert.service';
-import { concatMap, delay, distinctUntilChanged, filter, map, retryWhen, startWith, switchMap, tap } from 'rxjs/operators';
-import { createRequestOption } from '../model/request.utils';
+import {Organization} from './organization.model';
+import {Principal} from '../auth/principal.service';
+import {AlertService} from '../util/alert.service';
+import {
+    concatMap,
+    delay,
+    distinctUntilChanged,
+    filter,
+    map,
+    retryWhen,
+    startWith,
+    switchMap,
+    tap
+} from 'rxjs/operators';
+import {createRequestOption} from '../model/request.utils';
 
-@Injectable({ providedIn: 'root' })
+@Injectable({providedIn: 'root'})
 export class OrganizationService {
     private readonly _organizations$ = new BehaviorSubject<Organization[]>([]);
-    private readonly _trigger$ = new Subject<void>();
-
     organizations$: Observable<Organization[]> = this._organizations$.asObservable();
-
+    private readonly _trigger$ = new Subject<void>();
     private resourceUrl = 'api/organizations';
 
     constructor(
@@ -29,15 +37,15 @@ export class OrganizationService {
             switchMap(([account]) => {
                 if (account) {
                     return this.fetch().pipe(
-                      retryWhen(errors => errors.pipe(
-                        concatMap((error, count) => {
-                            if (count <= 10 && (!error.status || error.status >= 500)) {
-                                return of(error);
-                            }
-                            return throwError(error);
-                        }),
-                        delay(1000),
-                      )),
+                        retryWhen(errors => errors.pipe(
+                            concatMap((error, count) => {
+                                if (count <= 10 && (!error.status || error.status >= 500)) {
+                                    return of(error);
+                                }
+                                return throwError(error);
+                            }),
+                            delay(1000),
+                        )),
                     );
                 } else {
                     return of([]);
@@ -110,6 +118,18 @@ export class OrganizationService {
         );
     }
 
+    findAll(): Observable<Organization[]> {
+        return this.http.get<Organization[]>(this.resourceUrl);
+    }
+
+    protected organizationUrl(orgName?: string): string {
+        if (orgName) {
+            return this.resourceUrl + '/' + encodeURIComponent(orgName);
+        } else {
+            return this.resourceUrl;
+        }
+    }
+
     private updateOrganization(organization: Organization) {
         const nextValue = this._organizations$.value.slice();
         const idx = nextValue.findIndex(p => p.id === organization.id);
@@ -128,18 +148,6 @@ export class OrganizationService {
         this._organizations$.next(nextValue);
         if (needsAuthRenewal) {
             this.principal.reset();
-        }
-    }
-
-    findAll(): Observable<Organization[]> {
-        return this.http.get<Organization[]>(this.resourceUrl);
-    }
-
-    protected organizationUrl(orgName?: string): string {
-        if (orgName) {
-            return this.resourceUrl + '/' + encodeURIComponent(orgName);
-        } else {
-            return this.resourceUrl;
         }
     }
 }

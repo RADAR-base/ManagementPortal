@@ -18,7 +18,7 @@ class InvalidRequestException : RadarWebApplicationException {
         HttpStatus.FORBIDDEN,
         message,
         entityName,
-        errorCode
+        errorCode,
     )
 
     /**
@@ -30,7 +30,9 @@ class InvalidRequestException : RadarWebApplicationException {
      * @param params     map of additional information.
      */
     constructor(
-        message: String?, entityName: String, errorCode: String?,
-        params: Map<String, String?>?
+        message: String?,
+        entityName: String,
+        errorCode: String?,
+        params: Map<String, String?>?,
     ) : super(HttpStatus.FORBIDDEN, message, entityName, errorCode, params)
 }

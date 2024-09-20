@@ -16,5 +16,5 @@ import kotlinx.serialization.Serializable
 data class MPRole(
     @SerialName("projectName")
     val projectId: String? = null,
-    val authorityName: String
+    val authorityName: String,
 )

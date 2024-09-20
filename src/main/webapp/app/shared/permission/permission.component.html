@@ -7,48 +7,53 @@
     <div class="table-responsive">
         <table class="table table-striped">
             <thead>
-                <tr>
-                    <th><span [translate]="'userManagement.role.users'"></span></th>
-                    <th><span [translate]="'userManagement.role.roles'"></span></th>
-                    <th><span [translate]="'userManagement.role.options'"></span></th>
-                </tr>
+            <tr>
+                <th><span [translate]="'userManagement.role.users'"></span></th>
+                <th><span [translate]="'userManagement.role.roles'"></span></th>
+                <th><span [translate]="'userManagement.role.options'"></span></th>
+            </tr>
             </thead>
             <tbody>
-                <tr class="user-with-permission" *ngFor="let user of authorizedUsers; trackBy: trackId">
-                    <td>{{user.login}}</td>
-                    <td>
-                        {{user.authorityName}}
-                    </td>
-                    <td *ngIf="project && !organization">
-                        <button type="button" (click)="removeRole(user.login, user.authorityName)" class="btn btn-danger btn-sm fa fa-remove"
-                            [disabled]="user.authorityName === 'ROLE_SYS_ADMIN' || user.authorityName === 'ROLE_ORGANIZATION_ADMIN' || account.login === user.login">
-                        </button>
-                    </td>
-                    <td *ngIf="!project && organization">
-                        <button type="button" (click)="removeRole(user.login, user.authorityName)" class="btn btn-danger btn-sm fa fa-remove"
-                                [disabled]="user.authorityName === 'ROLE_SYS_ADMIN' || account.login === user.login">
-                        </button>
-                    </td>
-                </tr>
-                <tr *ngIf="users.length">
-                    <td style="width: 50%;">
-                        <select name='user' [(ngModel)]="selectedUser" class="form-control" id="user" required>
-                            <option [ngValue]="null" [disabled]="true" [translate]="'userManagement.role.selectUser'"></option>
-                            <option *ngFor="let user of users" [ngValue]="user">{{user.login}}</option>
-                        </select>
-                    </td>
-                    <td>
-                        <select name='authority' [(ngModel)]="selectedAuthority" class="form-control" id="role" required>
-                            <option *ngIf="organization" value="ROLE_ORGANIZATION_ADMIN">ROLE_ORGANIZATION_ADMIN</option>
-                            <option *ngIf="project" value="ROLE_PROJECT_ADMIN">ROLE_PROJECT_ADMIN</option>
-                        </select>
-                    </td>
-                    <td>
-                        <button type="button" (click)="addRole()" class="btn btn-primary btn-sm fa fa-plus"
-                                [disabled]="!selectedUser">
-                        </button>
-                    </td>
-                </tr>
+            <tr *ngFor="let user of authorizedUsers; trackBy: trackId" class="user-with-permission">
+                <td>{{ user.login }}</td>
+                <td>
+                    {{ user.authorityName }}
+                </td>
+                <td *ngIf="project && !organization">
+                    <button (click)="removeRole(user.login, user.authorityName)"
+                            [disabled]="user.authorityName === 'ROLE_SYS_ADMIN' || user.authorityName === 'ROLE_ORGANIZATION_ADMIN' || account.login === user.login"
+                            class="btn btn-danger btn-sm fa fa-remove"
+                            type="button">
+                    </button>
+                </td>
+                <td *ngIf="!project && organization">
+                    <button (click)="removeRole(user.login, user.authorityName)"
+                            [disabled]="user.authorityName === 'ROLE_SYS_ADMIN' || account.login === user.login"
+                            class="btn btn-danger btn-sm fa fa-remove"
+                            type="button">
+                    </button>
+                </td>
+            </tr>
+            <tr *ngIf="users.length">
+                <td style="width: 50%;">
+                    <select [(ngModel)]="selectedUser" class="form-control" id="user" name='user' required>
+                        <option [disabled]="true" [ngValue]="null"
+                                [translate]="'userManagement.role.selectUser'"></option>
+                        <option *ngFor="let user of users" [ngValue]="user">{{ user.login }}</option>
+                    </select>
+                </td>
+                <td>
+                    <select [(ngModel)]="selectedAuthority" class="form-control" id="role" name='authority' required>
+                        <option *ngIf="organization" value="ROLE_ORGANIZATION_ADMIN">ROLE_ORGANIZATION_ADMIN</option>
+                        <option *ngIf="project" value="ROLE_PROJECT_ADMIN">ROLE_PROJECT_ADMIN</option>
+                    </select>
+                </td>
+                <td>
+                    <button (click)="addRole()" [disabled]="!selectedUser" class="btn btn-primary btn-sm fa fa-plus"
+                            type="button">
+                    </button>
+                </td>
+            </tr>
             </tbody>
         </table>
     </div>

@@ -1,9 +1,8 @@
-import { Component, OnInit } from '@angular/core';
-import { ProfileInfo } from './profile-info.model';
-import { ProfileService } from './profile.service';
-import { Observable, of } from 'rxjs';
-import { TranslateService } from '@ngx-translate/core';
-import { catchError, filter, switchMap } from 'rxjs/operators';
+import {Component} from '@angular/core';
+import {ProfileService} from './profile.service';
+import {Observable} from 'rxjs';
+import {TranslateService} from '@ngx-translate/core';
+import {filter, switchMap} from 'rxjs/operators';
 
 @Component({
     selector: 'jhi-page-ribbon',
@@ -17,6 +16,7 @@ import { catchError, filter, switchMap } from 'rxjs/operators';
 })
 export class PageRibbonComponent {
     ribbon$: Observable<string | null>
+
     constructor(
         public profileService: ProfileService,
         translateService: TranslateService,

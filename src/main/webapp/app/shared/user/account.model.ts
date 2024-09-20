@@ -1,4 +1,4 @@
-import { Role } from "../../admin/user-management/role.model";
+import {Role} from "../../admin/user-management/role.model";
 
 export interface Account {
     id?: number;

@@ -17,6 +17,7 @@ class MinimalSourceDetailsDTO {
     var sourceName: String? = null
     var isAssigned: Boolean? = null
     var attributes: MutableMap<String, String> = HashMap()
+
     fun id(id: Long?): MinimalSourceDetailsDTO {
         this.id = id
         return this
@@ -62,17 +63,18 @@ class MinimalSourceDetailsDTO {
         return this
     }
 
-    override fun toString(): String {
-        return ("MinimalSourceDetailsDTO{"
-                + "id=" + id
-                + ", sourceTypeId=" + sourceTypeId
-                + ", sourceTypeProducer='" + sourceTypeProducer + '\''
-                + ", sourceTypeModel='" + sourceTypeModel + '\''
-                + ", sourceTypeCatalogVersion='" + sourceTypeCatalogVersion + '\''
-                + ", expectedSourceName='" + expectedSourceName + '\''
-                + ", sourceId=" + sourceId
-                + ", sourceName='" + sourceName + '\''
-                + ", assigned=" + isAssigned
-                + ", attributes=" + attributes + '}')
-    }
+    override fun toString(): String =
+        (
+            "MinimalSourceDetailsDTO{" +
+                "id=" + id +
+                ", sourceTypeId=" + sourceTypeId +
+                ", sourceTypeProducer='" + sourceTypeProducer + '\'' +
+                ", sourceTypeModel='" + sourceTypeModel + '\'' +
+                ", sourceTypeCatalogVersion='" + sourceTypeCatalogVersion + '\'' +
+                ", expectedSourceName='" + expectedSourceName + '\'' +
+                ", sourceId=" + sourceId +
+                ", sourceName='" + sourceName + '\'' +
+                ", assigned=" + isAssigned +
+                ", attributes=" + attributes + '}'
+            )
 }

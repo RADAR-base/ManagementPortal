@@ -1,20 +1,21 @@
-<form name="sendActivationLinkForm" (ngSubmit)="sendActivationLink(user.login)">
+<form (ngSubmit)="sendActivationLink(user.login)" name="sendActivationLinkForm">
     <div class="modal-header">
-        <h4 class="modal-title" [translate]="'userManagement.sendActivation.confirmTitle'"></h4>
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
-                (click)="clear()">&times;</button>
+        <h4 [translate]="'userManagement.sendActivation.confirmTitle'" class="modal-title"></h4>
+        <button (click)="clear()" aria-hidden="true" class="close" data-dismiss="modal"
+                type="button">&times;
+        </button>
     </div>
     <div class="modal-body">
         <jhi-alert-error></jhi-alert-error>
-        <p [translate]="'userManagement.sendActivation.question'"
-            [translateParams]="{login: user.login, email: user.email}">
+        <p [translateParams]="{login: user.login, email: user.email}"
+           [translate]="'userManagement.sendActivation.question'">
         </p>
     </div>
     <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal" (click)="clear()">
+        <button (click)="clear()" class="btn btn-secondary" data-dismiss="modal" type="button">
             <span class="fa fa-ban"></span>&nbsp;<span [translate]="'entity.action.cancel'"></span>
         </button>
-        <button type="submit" class="btn btn-success">
+        <button class="btn btn-success" type="submit">
             <span class="fa fa-send"></span>&nbsp;<span [translate]="'userManagement.sendActivation.send'"></span>
         </button>
     </div>

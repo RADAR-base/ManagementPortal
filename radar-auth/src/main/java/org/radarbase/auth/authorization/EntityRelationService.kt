@@ -9,6 +9,8 @@ interface EntityRelationService {
     suspend fun findOrganizationOfProject(project: String): String?
 
     /** Whether given [organization] name has a [project] with given name. */
-    suspend fun organizationContainsProject(organization: String, project: String): Boolean =
-        findOrganizationOfProject(project) == organization
+    suspend fun organizationContainsProject(
+        organization: String,
+        project: String,
+    ): Boolean = findOrganizationOfProject(project) == organization
 }

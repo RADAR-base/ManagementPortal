@@ -12,27 +12,24 @@ import org.springframework.data.domain.Sort
 import java.util.*
 import javax.validation.constraints.NotNull
 
-class SubjectSortOrder @JvmOverloads constructor(
-    @NotNull val sortBy: SubjectSortBy,
-    @NotNull var direction: Sort.Direction = Sort.Direction.ASC
-) {
+class SubjectSortOrder
+    @JvmOverloads
+    constructor(
+        @NotNull val sortBy: SubjectSortBy,
+        @NotNull var direction: Sort.Direction = Sort.Direction.ASC,
+    ) {
+        override fun toString(): String = sortBy.name + ',' + direction.name
 
-    override fun toString(): String {
-        return sortBy.name + ',' + direction.name
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) {
-            return true
+        override fun equals(other: Any?): Boolean {
+            if (this === other) {
+                return true
+            }
+            if (other == null || javaClass != other.javaClass) {
+                return false
+            }
+            val that = other as SubjectSortOrder
+            return sortBy == that.sortBy && direction == that.direction
         }
-        if (other == null || javaClass != other.javaClass) {
-            return false
-        }
-        val that = other as SubjectSortOrder
-        return sortBy == that.sortBy && direction == that.direction
-    }
 
-    override fun hashCode(): Int {
-        return Objects.hash(direction, sortBy)
+        override fun hashCode(): Int = Objects.hash(direction, sortBy)
     }
-}

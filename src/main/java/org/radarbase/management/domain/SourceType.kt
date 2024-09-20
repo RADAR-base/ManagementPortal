@@ -34,9 +34,11 @@ import javax.validation.constraints.Pattern
 @Table(name = "source_type")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @EntityListeners(
-    AbstractEntityListener::class
+    AbstractEntityListener::class,
 )
-class SourceType : AbstractEntity(), Serializable {
+class SourceType :
+    AbstractEntity(),
+    Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
     @SequenceGenerator(name = "sequenceGenerator", initialValue = 1000, sequenceName = "hibernate_sequence")
@@ -44,7 +46,9 @@ class SourceType : AbstractEntity(), Serializable {
 
     @JvmField
     @Column(name = "producer")
-    @NotNull @Pattern(regexp = Constants.ENTITY_ID_REGEX) var producer: String? = null
+    @NotNull
+    @Pattern(regexp = Constants.ENTITY_ID_REGEX)
+    var producer: String? = null
 
     @JvmField
     @Column(name = "name")
@@ -64,26 +68,33 @@ class SourceType : AbstractEntity(), Serializable {
 
     @JvmField
     @Column(name = "model", nullable = false)
-    @NotNull @Pattern(regexp = Constants.ENTITY_ID_REGEX) var model: String? = null
+    @NotNull
+    @Pattern(regexp = Constants.ENTITY_ID_REGEX)
+    var model: String? = null
 
     @JvmField
     @Column(name = "catalog_version", nullable = false)
-    @NotNull @Pattern(regexp = Constants.ENTITY_ID_REGEX) var catalogVersion: String? = null
+    @NotNull
+    @Pattern(regexp = Constants.ENTITY_ID_REGEX)
+    var catalogVersion: String? = null
 
     @JvmField
     @Column(name = "source_type_scope", nullable = false)
-    @NotNull var sourceTypeScope: String? = null
+    @NotNull
+    var sourceTypeScope: String? = null
 
     @JvmField
     @Column(name = "dynamic_registration", nullable = false)
-    @NotNull var canRegisterDynamically: Boolean? = false
+    @NotNull
+    var canRegisterDynamically: Boolean? = false
 
     @JvmField
     @JsonSetter(nulls = Nulls.AS_EMPTY)
     @OneToMany(mappedBy = "sourceType", orphanRemoval = true, fetch = FetchType.LAZY)
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @Cascade(
-        CascadeType.DELETE, CascadeType.SAVE_UPDATE
+        CascadeType.DELETE,
+        CascadeType.SAVE_UPDATE,
     )
     var sourceData: Set<SourceData> = HashSet()
 
@@ -92,6 +103,7 @@ class SourceType : AbstractEntity(), Serializable {
     @JsonIgnore
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     var projects: Set<Project> = HashSet()
+
     fun producer(producer: String?): SourceType {
         this.producer = producer
         return this
@@ -132,30 +144,49 @@ class SourceType : AbstractEntity(), Serializable {
         val sourceType = other as SourceType
         return if (sourceType.id == null || id == null) {
             false
-        } else id == sourceType.id && producer == sourceType.producer && model == sourceType.model && catalogVersion == sourceType.catalogVersion && canRegisterDynamically == sourceType.canRegisterDynamically && sourceTypeScope == sourceType.sourceTypeScope && name == sourceType.name && description == sourceType.description && appProvider == sourceType.appProvider && assessmentType == sourceType.assessmentType
+        } else {
+            id == sourceType.id &&
+                producer == sourceType.producer &&
+                model == sourceType.model &&
+                catalogVersion == sourceType.catalogVersion &&
+                canRegisterDynamically == sourceType.canRegisterDynamically &&
+                sourceTypeScope == sourceType.sourceTypeScope &&
+                name == sourceType.name &&
+                description == sourceType.description &&
+                appProvider == sourceType.appProvider &&
+                assessmentType == sourceType.assessmentType
+        }
     }
 
-    override fun hashCode(): Int {
-        return Objects.hash(
-            id, model, producer, catalogVersion, canRegisterDynamically,
-            sourceTypeScope, name, description, appProvider, assessmentType
+    override fun hashCode(): Int =
+        Objects.hash(
+            id,
+            model,
+            producer,
+            catalogVersion,
+            canRegisterDynamically,
+            sourceTypeScope,
+            name,
+            description,
+            appProvider,
+            assessmentType,
         )
-    }
 
-    override fun toString(): String {
-        return ("SourceType{"
-                + "id=" + id
-                + ", producer='" + producer + '\''
-                + ", model='" + model + '\''
-                + ", catalogVersion='" + catalogVersion + '\''
-                + ", sourceTypeScope=" + sourceTypeScope
-                + ", canRegisterDynamically=" + canRegisterDynamically
-                + ", name='" + name + '\''
-                + ", description=" + description
-                + ", appProvider=" + appProvider
-                + ", assessmentType=" + assessmentType
-                + '}')
-    }
+    override fun toString(): String =
+        (
+            "SourceType{" +
+                "id=" + id +
+                ", producer='" + producer + '\'' +
+                ", model='" + model + '\'' +
+                ", catalogVersion='" + catalogVersion + '\'' +
+                ", sourceTypeScope=" + sourceTypeScope +
+                ", canRegisterDynamically=" + canRegisterDynamically +
+                ", name='" + name + '\'' +
+                ", description=" + description +
+                ", appProvider=" + appProvider +
+                ", assessmentType=" + assessmentType +
+                '}'
+            )
 
     companion object {
         private const val serialVersionUID = 1L

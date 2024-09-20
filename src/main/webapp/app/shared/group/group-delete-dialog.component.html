@@ -1,21 +1,21 @@
-<form name="deleteForm" (ngSubmit)="confirmDelete()">
+<form (ngSubmit)="confirmDelete()" name="deleteForm">
     <div class="modal-header">
-        <h4 class="modal-title" [translate]="'entity.delete.title'"></h4>
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true" (click)="clear()">&times;</button>
+        <h4 [translate]="'entity.delete.title'" class="modal-title"></h4>
+        <button (click)="clear()" aria-hidden="true" class="close" data-dismiss="modal" type="button">&times;</button>
     </div>
     <div class="modal-body">
         <jhi-alert-error></jhi-alert-error>
-        <p class="bold warn" [translate]="'managementPortalApp.group.delete.warning'"></p>
-        <p class="bold" [translate]="'managementPortalApp.group.delete.warningDescription'"></p>
-        <p class="bold warn" [translate]="'managementPortalApp.group.delete.question'"
-           [translateParams]="{id: group.name}">
+        <p [translate]="'managementPortalApp.group.delete.warning'" class="bold warn"></p>
+        <p [translate]="'managementPortalApp.group.delete.warningDescription'" class="bold"></p>
+        <p [translateParams]="{id: group.name}" [translate]="'managementPortalApp.group.delete.question'"
+           class="bold warn">
         </p>
     </div>
     <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal" (click)="clear()">
+        <button (click)="clear()" class="btn btn-secondary" data-dismiss="modal" type="button">
             <span class="fa fa-ban"></span>&nbsp;<span [translate]="'entity.action.cancel'"></span>
         </button>
-        <button type="submit" class="btn btn-danger">
+        <button class="btn btn-danger" type="submit">
             <span class="fa fa-remove"></span>&nbsp;<span [translate]="'entity.action.delete'"></span>
         </button>
     </div>

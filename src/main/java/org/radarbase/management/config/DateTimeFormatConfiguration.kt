@@ -13,7 +13,9 @@ import javax.annotation.Nonnull
 
 @Configuration
 class DateTimeFormatConfiguration : WebMvcConfigurer {
-    override fun addFormatters(@Nonnull registry: FormatterRegistry) {
+    override fun addFormatters(
+        @Nonnull registry: FormatterRegistry,
+    ) {
         val registrar = DateTimeFormatterRegistrar()
         registrar.setUseIsoFormat(true)
         registrar.setDateTimeFormatter(
@@ -41,7 +43,7 @@ class DateTimeFormatConfiguration : WebMvcConfigurer {
                 .parseDefaulting(ChronoField.NANO_OF_SECOND, ChronoField.NANO_OF_SECOND.range().minimum)
                 .toFormatter()
                 .withZone(ZoneId.of("UTC"))
-                .withResolverStyle(ResolverStyle.LENIENT)
+                .withResolverStyle(ResolverStyle.LENIENT),
         )
         registrar.registerFormatters(registry)
     }

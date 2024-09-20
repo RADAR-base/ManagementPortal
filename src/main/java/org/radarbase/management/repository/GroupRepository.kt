@@ -16,25 +16,27 @@ import org.springframework.data.repository.history.RevisionRepository
 import org.springframework.data.repository.query.Param
 
 @RepositoryDefinition(domainClass = Group::class, idClass = Long::class)
-interface GroupRepository : JpaRepository<Group?, Long?>, RevisionRepository<Group?, Long?, Int> {
+interface GroupRepository :
+    JpaRepository<Group?, Long?>,
+    RevisionRepository<Group?, Long?, Int> {
     @Query(
-        "SELECT group FROM Group group "
-                + "WHERE group.project.id = :project_id "
-                + "AND group.name = :group_name"
+        "SELECT group FROM Group group " +
+            "WHERE group.project.id = :project_id " +
+            "AND group.name = :group_name",
     )
     fun findByProjectIdAndName(
         @Param("project_id") id: Long?,
-        @Param("group_name") groupName: String?
+        @Param("group_name") groupName: String?,
     ): Group?
 
     @Query(
-        "SELECT group FROM Group group "
-                + "LEFT JOIN Project project on group.project = project "
-                + "WHERE group.project.projectName = :project_name "
-                + "AND group.name = :group_name"
+        "SELECT group FROM Group group " +
+            "LEFT JOIN Project project on group.project = project " +
+            "WHERE group.project.projectName = :project_name " +
+            "AND group.name = :group_name",
     )
     fun findByProjectNameAndName(
         @Param("project_name") projectName: String?,
-        @Param("group_name") groupName: String?
+        @Param("group_name") groupName: String?,
     ): Group?
 }

@@ -27,13 +27,17 @@ import javax.annotation.PostConstruct
     "org.radarbase.management.repository",
     "org.radarbase.management.service",
     "org.radarbase.management.security",
-    "org.radarbase.management.web"
+    "org.radarbase.management.web",
 )
 @EnableAutoConfiguration
 @EnableConfigurationProperties(
-    LiquibaseProperties::class, ApplicationProperties::class, ManagementPortalProperties::class
+    LiquibaseProperties::class,
+    ApplicationProperties::class,
+    ManagementPortalProperties::class,
 )
-class ManagementPortalTestApp(private val env: Environment) {
+class ManagementPortalTestApp(
+    private val env: Environment,
+) {
     private val kratosContainer = KratosContainer()
 
     /**
@@ -51,20 +55,20 @@ class ManagementPortalTestApp(private val env: Environment) {
      */
     @PostConstruct
     fun initApplication() {
-        if (env.acceptsProfiles(Profiles.of(JHipsterConstants.SPRING_PROFILE_DEVELOPMENT))
-            && env.acceptsProfiles(Profiles.of(JHipsterConstants.SPRING_PROFILE_PRODUCTION))
+        if (env.acceptsProfiles(Profiles.of(JHipsterConstants.SPRING_PROFILE_DEVELOPMENT)) &&
+            env.acceptsProfiles(Profiles.of(JHipsterConstants.SPRING_PROFILE_PRODUCTION))
         ) {
             log.error(
-                "You have misconfigured your application! It should not run "
-                        + "with both the 'dev' and 'prod' profiles at the same time."
+                "You have misconfigured your application! It should not run " +
+                    "with both the 'dev' and 'prod' profiles at the same time.",
             )
         }
-        if (env.acceptsProfiles(Profiles.of(JHipsterConstants.SPRING_PROFILE_DEVELOPMENT))
-            && env.acceptsProfiles(Profiles.of(JHipsterConstants.SPRING_PROFILE_CLOUD))
+        if (env.acceptsProfiles(Profiles.of(JHipsterConstants.SPRING_PROFILE_DEVELOPMENT)) &&
+            env.acceptsProfiles(Profiles.of(JHipsterConstants.SPRING_PROFILE_CLOUD))
         ) {
             log.error(
-                "You have misconfigured your application! It should not"
-                        + "run with both the 'dev' and 'cloud' profiles at the same time."
+                "You have misconfigured your application! It should not" +
+                    "run with both the 'dev' and 'cloud' profiles at the same time.",
             )
         }
 
@@ -90,18 +94,18 @@ class ManagementPortalTestApp(private val env: Environment) {
                 protocol = "https"
             }
             log.info(
-                "\n--------------------------------------------------\n\t"
-                        + "Application '{}' is running! Access URLs:\n\t"
-                        + "Local: \t\t{}://localhost:{}\n\t"
-                        + "External: \t{}://{}:{}\n\t"
-                        + "Profile(s): \t{}\n--------------------------------------------------",
+                "\n--------------------------------------------------\n\t" +
+                    "Application '{}' is running! Access URLs:\n\t" +
+                    "Local: \t\t{}://localhost:{}\n\t" +
+                    "External: \t{}://{}:{}\n\t" +
+                    "Profile(s): \t{}\n--------------------------------------------------",
                 env.getProperty("spring.application.name"),
                 protocol,
                 env.getProperty("server.port"),
                 protocol,
                 InetAddress.getLocalHost().hostAddress,
                 env.getProperty("server.port"),
-                env.activeProfiles
+                env.activeProfiles,
             )
         }
     }

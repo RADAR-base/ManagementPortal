@@ -25,7 +25,8 @@
         <div class="col-md-3 text-right">{{ 100 * systemMetrics['process.cpu.usage'] | number: '1.0-2' }} %</div>
     </div>
 
-    <ngb-progressbar [value]="100 * systemMetrics['process.cpu.usage']" [striped]="true" [animated]="false" type="success">
+    <ngb-progressbar [animated]="false" [striped]="true" [value]="100 * systemMetrics['process.cpu.usage']"
+                     type="success">
         <span>{{ 100 * systemMetrics['process.cpu.usage'] | number: '1.0-2' }} %</span>
     </ngb-progressbar>
 
@@ -34,7 +35,8 @@
         <div class="col-md-3 text-right">{{ 100 * systemMetrics['system.cpu.usage'] | number: '1.0-2' }} %</div>
     </div>
 
-    <ngb-progressbar [value]="100 * systemMetrics['system.cpu.usage']" [striped]="true" [animated]="false" type="success">
+    <ngb-progressbar [animated]="false" [striped]="true" [value]="100 * systemMetrics['system.cpu.usage']"
+                     type="success">
         <span>{{ 100 * systemMetrics['system.cpu.usage'] | number: '1.0-2' }} %</span>
     </ngb-progressbar>
 

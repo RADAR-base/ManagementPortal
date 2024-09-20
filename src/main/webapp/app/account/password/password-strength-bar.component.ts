@@ -1,5 +1,5 @@
-import { Component, ElementRef, Input, Renderer2 } from '@angular/core';
-import { Password } from './password.service';
+import {Component, ElementRef, Input, Renderer2} from '@angular/core';
+import {Password} from './password.service';
 
 @Component({
     selector: 'jhi-password-strength-bar',
@@ -24,26 +24,10 @@ export class PasswordStrengthBarComponent {
     colors = ['#F00', '#F90', '#FF0', '#9F0', '#0F0'];
 
     constructor(
-      private renderer: Renderer2,
-      private elementRef: ElementRef,
-      private passwordService: Password,
+        private renderer: Renderer2,
+        private elementRef: ElementRef,
+        private passwordService: Password,
     ) {
-    }
-
-    getColor(s: number): any {
-        let idx = 0;
-        if (s < 20) {
-            idx = 0;
-        } else if (s < 30) {
-            idx = 1;
-        } else if (s < 40) {
-            idx = 2;
-        } else if (s < 55) {
-            idx = 3;
-        } else {
-            idx = 4;
-        }
-        return {idx: idx + 1, col: this.colors[idx]};
     }
 
     @Input()
@@ -63,5 +47,21 @@ export class PasswordStrengthBarComponent {
                 }
             }
         }
+    }
+
+    getColor(s: number): any {
+        let idx = 0;
+        if (s < 20) {
+            idx = 0;
+        } else if (s < 30) {
+            idx = 1;
+        } else if (s < 40) {
+            idx = 2;
+        } else if (s < 55) {
+            idx = 3;
+        } else {
+            idx = 4;
+        }
+        return {idx: idx + 1, col: this.colors[idx]};
     }
 }

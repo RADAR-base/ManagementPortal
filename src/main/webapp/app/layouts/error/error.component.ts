@@ -1,10 +1,9 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {ActivatedRoute} from '@angular/router';
+import {NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 
-import { LoginModalService } from '../../shared';
-import { Subscription } from "rxjs";
-import {environment} from "../../../environments/environment";
+import {LoginModalService} from '../../shared';
+import {Subscription} from "rxjs";
 
 @Component({
     selector: 'jhi-error',
@@ -18,9 +17,10 @@ export class ErrorComponent implements OnInit, OnDestroy {
     private loginUrl = 'oauth/login';
 
     constructor(
-            private loginModalService: LoginModalService,
-            private route: ActivatedRoute,
-    ) {}
+        private loginModalService: LoginModalService,
+        private route: ActivatedRoute,
+    ) {
+    }
 
     ngOnInit() {
         this.routeSubscription = this.route.url.subscribe((url) => {
@@ -35,6 +35,6 @@ export class ErrorComponent implements OnInit, OnDestroy {
     }
 
     login() {
-        window.location.href =  this.loginUrl;
+        window.location.href = this.loginUrl;
     }
 }

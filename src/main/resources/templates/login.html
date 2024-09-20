@@ -2,36 +2,36 @@
 <html xmlns:th="http://www.thymeleaf.org" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:schemaLocation="http://www.thymeleaf.org ">
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type"/>
     <title>RADAR-base Central Login</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css"
+          rel="stylesheet"/>
     <link rel="stylesheet"
-          href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" />
-    <link rel="stylesheet"
-          th:href="@{/css/oauth.css}" />
+          th:href="@{/css/oauth.css}"/>
 </head>
 <body>
-<img th:src="@{/images/radar-baseRR.png}" style="height: 45px;" class="pull-right"/>
+<img class="pull-right" style="height: 45px;" th:src="@{/images/radar-baseRR.png}"/>
 <div class="modal-header">
     <h4 class="modal-title">Sign In</h4>
 </div>
 <div class="modal-body">
     <div class="row">
         <div class="col-md-10 col-md-offset-1">
-            <div th:if="${loginError}" class="alert alert-danger">Wrong username or password</div>
+            <div class="alert alert-danger" th:if="${loginError}">Wrong username or password</div>
         </div>
         <div class="col-md-10 col-md-offset-1">
-            <form th:action="@{/login}" method="post">
+            <form method="post" th:action="@{/login}">
                 <div class="form-group">
                     <label for="username">Username</label>
-                    <input class="form-control" type="text" id="username" name="username"
-                           autofocus="autofocus" placeholder="Username" />
+                    <input autofocus="autofocus" class="form-control" id="username" name="username"
+                           placeholder="Username" type="text"/>
                 </div>
                 <div class="form-group">
                     <label for="password">Password</label>
-                    <input class="form-control" type="password" id="password" name="password"
-                           placeholder="Password" />
+                    <input class="form-control" id="password" name="password" placeholder="Password"
+                           type="password"/>
                 </div>
-                <button type="submit" class="btn btn-primary">Sign in</button>
+                <button class="btn btn-primary" type="submit">Sign in</button>
             </form>
         </div>
     </div>

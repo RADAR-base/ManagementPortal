@@ -46,34 +46,35 @@ import javax.validation.constraints.Pattern
 @Table(name = "project")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @EntityListeners(
-    AbstractEntityListener::class
+    AbstractEntityListener::class,
 )
 @DynamicInsert
-class Project : AbstractEntity(), Serializable {
+class Project :
+    AbstractEntity(),
+    Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
     @SequenceGenerator(name = "sequenceGenerator", initialValue = 1000, sequenceName = "hibernate_sequence")
     override var id: Long? = null
 
     @Column(name = "project_name", nullable = false, unique = true)
-    @NotNull @Pattern(regexp = "^[_'.@A-Za-z0-9- ]*$") var projectName: String? = null
+    @NotNull
+    @Pattern(regexp = "^[_'.@A-Za-z0-9- ]*$")
+    var projectName: String? = null
 
     @Column(name = "description", nullable = false)
-    @NotNull var description: String? = null
+    @NotNull
+    var description: String? = null
 
     // Defaults to organization name, but if that is not set then we can use the organizationName
     @Column(name = "jhi_organization")
     var organizationName: String? = null
         get() {
-            if (organization?.name != null)
+            if (organization?.name != null) {
                 field = organization?.name
+            }
             return field
         }
-        // needed because the @JVMField annotation cannot be added when a custom getter/setter is set
-        set(value) {
-            field = value
-        }
-
 
     @JvmField
     @ManyToOne(fetch = FetchType.EAGER)
@@ -82,7 +83,8 @@ class Project : AbstractEntity(), Serializable {
 
     @JvmField
     @Column(name = "location", nullable = false)
-    @NotNull var location: String? = null
+    @NotNull
+    var location: String? = null
 
     @JvmField
     @Column(name = "start_date")
@@ -110,7 +112,7 @@ class Project : AbstractEntity(), Serializable {
     @JoinTable(
         name = "project_source_type",
         joinColumns = [JoinColumn(name = "projects_id", referencedColumnName = "id")],
-        inverseJoinColumns = [JoinColumn(name = "source_types_id", referencedColumnName = "id")]
+        inverseJoinColumns = [JoinColumn(name = "source_types_id", referencedColumnName = "id")],
     )
     var sourceTypes: Set<SourceType> = HashSet()
 
@@ -128,10 +130,11 @@ class Project : AbstractEntity(), Serializable {
         mappedBy = "project",
         fetch = FetchType.LAZY,
         orphanRemoval = true,
-        cascade = [javax.persistence.CascadeType.REMOVE, javax.persistence.CascadeType.REFRESH, javax.persistence.CascadeType.DETACH]
+        cascade = [javax.persistence.CascadeType.REMOVE, javax.persistence.CascadeType.REFRESH, javax.persistence.CascadeType.DETACH],
     )
     @OrderBy("name ASC")
     var groups: MutableSet<Group> = HashSet()
+
     fun projectName(projectName: String?): Project {
         this.projectName = projectName
         return this
@@ -187,25 +190,26 @@ class Project : AbstractEntity(), Serializable {
         val project = other as Project
         return if (project.id == null || id == null) {
             false
-        } else id == project.id
+        } else {
+            id == project.id
+        }
     }
 
-    override fun hashCode(): Int {
-        return Objects.hashCode(id)
-    }
+    override fun hashCode(): Int = Objects.hashCode(id)
 
-    override fun toString(): String {
-        return ("Project{"
-                + "id=" + id
-                + ", projectName='" + projectName + "'"
-                + ", description='" + description + "'"
-                + ", organization='" + organizationName + "'"
-                + ", location='" + location + "'"
-                + ", startDate='" + startDate + "'"
-                + ", projectStatus='" + projectStatus + "'"
-                + ", endDate='" + endDate + "'"
-                + "}")
-    }
+    override fun toString(): String =
+        (
+            "Project{" +
+                "id=" + id +
+                ", projectName='" + projectName + "'" +
+                ", description='" + description + "'" +
+                ", organization='" + organizationName + "'" +
+                ", location='" + location + "'" +
+                ", startDate='" + startDate + "'" +
+                ", projectStatus='" + projectStatus + "'" +
+                ", endDate='" + endDate + "'" +
+                "}"
+            )
 
     companion object {
         private const val serialVersionUID = 1L

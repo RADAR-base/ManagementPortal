@@ -29,20 +29,23 @@ internal class TokenValidatorTest {
     @BeforeEach
     fun setUp() {
         wireMockServer.stubFor(
-            WireMock.get(WireMock.urlEqualTo(TokenTestUtils.PUBLIC_KEY_PATH))
+            WireMock
+                .get(WireMock.urlEqualTo(TokenTestUtils.PUBLIC_KEY_PATH))
                 .willReturn(
-                    WireMock.aResponse()
+                    WireMock
+                        .aResponse()
                         .withStatus(200)
                         .withHeader("Content-type", TokenTestUtils.APPLICATION_JSON)
-                        .withBody(TokenTestUtils.PUBLIC_KEY_BODY)
-                )
+                        .withBody(TokenTestUtils.PUBLIC_KEY_BODY),
+                ),
         )
         val algorithmParser = JwkAlgorithmParser(listOf(RSAPEMCertificateParser()))
-        val verifierLoader = JwksTokenVerifierLoader(
-            "http://localhost:" + WIREMOCK_PORT + TokenTestUtils.PUBLIC_KEY_PATH,
-            "unit_test",
-            algorithmParser
-        )
+        val verifierLoader =
+            JwksTokenVerifierLoader(
+                "http://localhost:" + WIREMOCK_PORT + TokenTestUtils.PUBLIC_KEY_PATH,
+                "unit_test",
+                algorithmParser,
+            )
         validator = TokenValidator(listOf(verifierLoader))
     }
 
@@ -59,21 +62,21 @@ internal class TokenValidatorTest {
     @Test
     fun testIncorrectAudienceToken() {
         Assertions.assertThrows(
-            TokenValidationException::class.java
+            TokenValidationException::class.java,
         ) { validator.validateBlocking(TokenTestUtils.INCORRECT_AUDIENCE_TOKEN) }
     }
 
     @Test
     fun testExpiredToken() {
         Assertions.assertThrows(
-            TokenValidationException::class.java
+            TokenValidationException::class.java,
         ) { validator.validateBlocking(TokenTestUtils.EXPIRED_TOKEN) }
     }
 
     @Test
     fun testIncorrectAlgorithmToken() {
         Assertions.assertThrows(
-            TokenValidationException::class.java
+            TokenValidationException::class.java,
         ) { validator.validateBlocking(TokenTestUtils.INCORRECT_ALGORITHM_TOKEN) }
     }
 
@@ -83,10 +86,11 @@ internal class TokenValidatorTest {
         @JvmStatic
         @BeforeAll
         fun loadToken() {
-            wireMockServer = WireMockServer(
-                WireMockConfiguration()
-                    .port(WIREMOCK_PORT)
-            )
+            wireMockServer =
+                WireMockServer(
+                    WireMockConfiguration()
+                        .port(WIREMOCK_PORT),
+                )
             wireMockServer.start()
         }
 

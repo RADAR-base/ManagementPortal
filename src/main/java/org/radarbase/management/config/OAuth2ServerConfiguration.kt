@@ -1,7 +1,5 @@
 package org.radarbase.management.config
 
-import java.util.*
-import javax.sql.DataSource
 import org.radarbase.auth.authorization.RoleAuthority
 import org.radarbase.management.repository.UserRepository
 import org.radarbase.management.security.ClaimsTokenEnhancer
@@ -49,36 +47,40 @@ import org.springframework.security.oauth2.provider.token.TokenEnhancerChain
 import org.springframework.security.oauth2.provider.token.TokenStore
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler
+import java.util.*
+import javax.sql.DataSource
 
 @Configuration
 class OAuth2ServerConfiguration(
     @Autowired private val dataSource: DataSource,
-    @Autowired private val passwordEncoder: PasswordEncoder
+    @Autowired private val passwordEncoder: PasswordEncoder,
 ) {
-
     @Configuration
     @Order(-20)
     protected class LoginConfig(
         @Autowired private val authenticationManager: AuthenticationManager,
-        @Autowired private val jwtAuthenticationFilter: JwtAuthenticationFilter
+        @Autowired private val jwtAuthenticationFilter: JwtAuthenticationFilter,
     ) : WebSecurityConfigurerAdapter() {
-
         @Throws(Exception::class)
         override fun configure(http: HttpSecurity) {
             http
-                .formLogin().loginPage("/login").permitAll()
+                .formLogin()
+                .loginPage("/login")
+                .permitAll()
                 .and()
                 .authorizeRequests()
-                .antMatchers("/oauth/token").permitAll()
+                .antMatchers("/oauth/token")
+                .permitAll()
                 .and()
                 .addFilterAfter(
                     jwtAuthenticationFilter,
-                    UsernamePasswordAuthenticationFilter::class.java
-                )
-                .requestMatchers()
+                    UsernamePasswordAuthenticationFilter::class.java,
+                ).requestMatchers()
                 .antMatchers("/login", "/oauth/authorize", "/oauth/confirm_access")
                 .and()
-                .authorizeRequests().anyRequest().authenticated()
+                .authorizeRequests()
+                .anyRequest()
+                .authenticated()
         }
 
         @Throws(Exception::class)
@@ -91,17 +93,16 @@ class OAuth2ServerConfiguration(
     class JwtAuthenticationFilterConfiguration(
         @Autowired private val authenticationManager: AuthenticationManager,
         @Autowired private val userRepository: UserRepository,
-        @Autowired private val keyStoreHandler: ManagementPortalOauthKeyStoreHandler
+        @Autowired private val keyStoreHandler: ManagementPortalOauthKeyStoreHandler,
     ) {
         @Bean
-        fun jwtAuthenticationFilter(): JwtAuthenticationFilter {
-            return JwtAuthenticationFilter(
+        fun jwtAuthenticationFilter(): JwtAuthenticationFilter =
+            JwtAuthenticationFilter(
                 keyStoreHandler.tokenValidator,
                 authenticationManager,
                 userRepository,
-                true
+                true,
             )
-        }
     }
 
     @Bean
@@ -119,14 +120,14 @@ class OAuth2ServerConfiguration(
         @Autowired private val http401UnauthorizedEntryPoint: Http401UnauthorizedEntryPoint,
         @Autowired private val logoutSuccessHandler: LogoutSuccessHandler,
         @Autowired private val authenticationManager: AuthenticationManager,
-        @Autowired private val userRepository: UserRepository
+        @Autowired private val userRepository: UserRepository,
     ) : ResourceServerConfigurerAdapter() {
-
-        fun jwtAuthenticationFilter(): JwtAuthenticationFilter {
-            return JwtAuthenticationFilter(
-                keyStoreHandler.tokenValidator, authenticationManager, userRepository
-            )
-                .skipUrlPattern(HttpMethod.GET, "/management/health")
+        fun jwtAuthenticationFilter(): JwtAuthenticationFilter =
+            JwtAuthenticationFilter(
+                keyStoreHandler.tokenValidator,
+                authenticationManager,
+                userRepository,
+            ).skipUrlPattern(HttpMethod.GET, "/management/health")
                 .skipUrlPattern(HttpMethod.POST, "/oauth/token")
                 .skipUrlPattern(HttpMethod.GET, "/api/meta-token/*")
                 .skipUrlPattern(HttpMethod.GET, "/api/public/projects")
@@ -138,7 +139,6 @@ class OAuth2ServerConfiguration(
                 .skipUrlPattern(HttpMethod.GET, "/css/**")
                 .skipUrlPattern(HttpMethod.GET, "/js/**")
                 .skipUrlPattern(HttpMethod.GET, "/radar-baseRR.png")
-        }
 
         @Throws(Exception::class)
         override fun configure(http: HttpSecurity) {
@@ -148,12 +148,13 @@ class OAuth2ServerConfiguration(
                 .and()
                 .addFilterBefore(
                     jwtAuthenticationFilter(),
-                    UsernamePasswordAuthenticationFilter::class.java
-                )
-                .authorizeRequests()
-                .antMatchers("/oauth/**").permitAll()
+                    UsernamePasswordAuthenticationFilter::class.java,
+                ).authorizeRequests()
+                .antMatchers("/oauth/**")
+                .permitAll()
                 .and()
-                .logout().invalidateHttpSession(true)
+                .logout()
+                .invalidateHttpSession(true)
                 .logoutUrl("/api/logout")
                 .logoutSuccessHandler(logoutSuccessHandler)
                 .and()
@@ -166,32 +167,41 @@ class OAuth2ServerConfiguration(
                 .and()
                 .addFilterBefore(
                     jwtAuthenticationFilter(),
-                    UsernamePasswordAuthenticationFilter::class.java
-                )
-                .authorizeRequests()
-                .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                    UsernamePasswordAuthenticationFilter::class.java,
+                ).authorizeRequests()
+                .antMatchers(HttpMethod.OPTIONS, "/**")
+                .permitAll()
                 .antMatchers("/api/register")
                 .hasAnyAuthority(RoleAuthority.SYS_ADMIN_AUTHORITY)
-                .antMatchers("/api/profile-info").permitAll()
-                .antMatchers("/api/sitesettings").permitAll()
-                .antMatchers("/api/public/projects").permitAll()
-                .antMatchers("/api/logout-url").permitAll()
+                .antMatchers("/api/profile-info")
+                .permitAll()
+                .antMatchers("/api/sitesettings")
+                .permitAll()
+                .antMatchers("/api/public/projects")
+                .permitAll()
+                .antMatchers("/api/logout-url")
+                .permitAll()
                 .antMatchers("/api/**")
                 .authenticated() // Allow management/health endpoint to all to allow kubernetes to be able to
                 // detect the health of the service
-                .antMatchers("/oauth/token").permitAll()
-                .antMatchers("/management/health").permitAll()
+                .antMatchers("/oauth/token")
+                .permitAll()
+                .antMatchers("/management/health")
+                .permitAll()
                 .antMatchers("/management/**")
                 .hasAnyAuthority(RoleAuthority.SYS_ADMIN_AUTHORITY)
-                .antMatchers("/v2/api-docs/**").permitAll()
-                .antMatchers("/swagger-resources/configuration/ui").permitAll()
+                .antMatchers("/v2/api-docs/**")
+                .permitAll()
+                .antMatchers("/swagger-resources/configuration/ui")
+                .permitAll()
                 .antMatchers("/swagger-ui/index.html")
                 .hasAnyAuthority(RoleAuthority.SYS_ADMIN_AUTHORITY)
         }
 
         @Throws(Exception::class)
         override fun configure(resources: ResourceServerSecurityConfigurer) {
-            resources.resourceId("res_ManagementPortal")
+            resources
+                .resourceId("res_ManagementPortal")
                 .tokenStore(tokenStore)
                 .eventPublisher(CustomEventPublisher())
         }
@@ -212,33 +222,25 @@ class OAuth2ServerConfiguration(
         @Autowired @Qualifier("authenticationManagerBean") private val authenticationManager: AuthenticationManager,
         @Autowired private val dataSource: DataSource,
         @Autowired private val jdbcClientDetailsService: JdbcClientDetailsService,
-        @Autowired private val keyStoreHandler: ManagementPortalOauthKeyStoreHandler
+        @Autowired private val keyStoreHandler: ManagementPortalOauthKeyStoreHandler,
     ) : AuthorizationServerConfigurerAdapter() {
+        @Bean
+        protected fun authorizationCodeServices(): AuthorizationCodeServices = JdbcAuthorizationCodeServices(dataSource)
 
         @Bean
-        protected fun authorizationCodeServices(): AuthorizationCodeServices {
-            return JdbcAuthorizationCodeServices(dataSource)
-        }
-
-        @Bean
-        fun approvalStore(): ApprovalStore {
-            return if (jpaProperties.database == Database.POSTGRESQL) {
+        fun approvalStore(): ApprovalStore =
+            if (jpaProperties.database == Database.POSTGRESQL) {
                 PostgresApprovalStore(dataSource)
             } else {
                 // to have compatibility for other databases including H2
                 JdbcApprovalStore(dataSource)
             }
-        }
 
         @Bean
-        fun tokenEnhancer(): TokenEnhancer {
-            return ClaimsTokenEnhancer()
-        }
+        fun tokenEnhancer(): TokenEnhancer = ClaimsTokenEnhancer()
 
         @Bean
-        fun tokenStore(): TokenStore {
-            return ManagementPortalJwtTokenStore(accessTokenConverter())
-        }
+        fun tokenStore(): TokenStore = ManagementPortalJwtTokenStore(accessTokenConverter())
 
         @Bean
         fun accessTokenConverter(): ManagementPortalJwtAccessTokenConverter {
@@ -246,7 +248,7 @@ class OAuth2ServerConfiguration(
             return ManagementPortalJwtAccessTokenConverter(
                 keyStoreHandler.algorithmForSigning,
                 keyStoreHandler.verifiers,
-                keyStoreHandler.refreshTokenVerifiers
+                keyStoreHandler.refreshTokenVerifiers,
             )
         }
 
@@ -263,7 +265,7 @@ class OAuth2ServerConfiguration(
         override fun configure(endpoints: AuthorizationServerEndpointsConfigurer) {
             val tokenEnhancerChain = TokenEnhancerChain()
             tokenEnhancerChain.setTokenEnhancers(
-                listOf(tokenEnhancer(), accessTokenConverter())
+                listOf(tokenEnhancer(), accessTokenConverter()),
             )
             endpoints
                 .authorizationCodeServices(authorizationCodeServices())
@@ -275,7 +277,8 @@ class OAuth2ServerConfiguration(
         }
 
         override fun configure(oauthServer: AuthorizationServerSecurityConfigurer) {
-            oauthServer.allowFormAuthenticationForClients()
+            oauthServer
+                .allowFormAuthenticationForClients()
                 .checkTokenAccess("isAuthenticated()")
                 .tokenKeyAccess("permitAll()")
                 .passwordEncoder(BCryptPasswordEncoder())

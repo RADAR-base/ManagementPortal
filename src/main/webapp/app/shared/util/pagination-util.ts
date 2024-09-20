@@ -1,6 +1,6 @@
 // Extracted from JHipster PaginationUtil
 
-export function parseSort(sort: string): {predicate: string, ascending: boolean} {
+export function parseSort(sort: string): { predicate: string, ascending: boolean } {
     let sortArray = sort.split(',');
     if (sortArray.length === 1) {
         sortArray = sort.split('%2C');

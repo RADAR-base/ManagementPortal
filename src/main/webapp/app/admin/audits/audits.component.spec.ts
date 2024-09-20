@@ -1,27 +1,27 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { NgbPaginationConfig} from '@ng-bootstrap/ng-bootstrap';
+import {ComponentFixture, TestBed, waitForAsync} from '@angular/core/testing';
+import {NgbPaginationConfig} from '@ng-bootstrap/ng-bootstrap';
 
-import { ManagementPortalTestModule } from '../../shared/util/test/test.module';
-import { ITEMS_PER_PAGE } from '../../shared';
-import { AuditsComponent } from './audits.component';
-import { AuditsService } from './audits.service';
+import {ManagementPortalTestModule} from '../../shared/util/test/test.module';
+import {ITEMS_PER_PAGE} from '../../shared';
+import {AuditsComponent} from './audits.component';
+import {AuditsService} from './audits.service';
 
 function build2DigitsDatePart(datePart: number) {
     return `0${datePart}`.slice(-2);
 }
 
-function getDate(isToday= true) {
+function getDate(isToday = true) {
     let date: Date = new Date();
     if (isToday) {
         // Today + 1 day - needed if the current day must be included
         date.setDate(date.getDate() + 1);
     } else {
-      // get last month
-      if (date.getMonth() === 0) {
-        date = new Date(date.getFullYear() - 1, 11, date.getDate());
-      } else {
-        date = new Date(date.getFullYear(), date.getMonth() - 1, date.getDate());
-      }
+        // get last month
+        if (date.getMonth() === 0) {
+            date = new Date(date.getFullYear() - 1, 11, date.getDate());
+        } else {
+            date = new Date(date.getFullYear(), date.getMonth() - 1, date.getDate());
+        }
     }
 
     const monthString = build2DigitsDatePart(date.getMonth() + 1);
@@ -46,8 +46,8 @@ describe('Component Tests', () => {
                     NgbPaginationConfig,
                 ]
             })
-            .overrideTemplate(AuditsComponent, '')
-            .compileComponents();
+                .overrideTemplate(AuditsComponent, '')
+                .compileComponents();
         }));
 
         beforeEach(() => {
@@ -58,27 +58,27 @@ describe('Component Tests', () => {
 
         describe('today function ', () => {
             it('should set toDate to current date', () => {
-               comp.today();
-               expect(comp.toDate).toBe(getDate());
+                comp.today();
+                expect(comp.toDate).toBe(getDate());
             });
         });
 
         describe('previousMonth function ', () => {
             it('should set fromDate to current date', () => {
-               comp.previousMonth();
-               expect(comp.fromDate).toBe(getDate(false));
+                comp.previousMonth();
+                expect(comp.fromDate).toBe(getDate(false));
             });
         });
 
         describe('By default, on init', () => {
             it('should set all default values correctly', () => {
-               fixture.detectChanges();
-               expect(comp.toDate).toBe(getDate());
-               expect(comp.fromDate).toBe(getDate(false));
-               expect(comp.itemsPerPage).toBe(ITEMS_PER_PAGE);
-               expect(comp.page).toBe(1);
-               expect(comp.reverse).toBeFalsy();
-               expect(comp.orderProp).toBe('timestamp');
+                fixture.detectChanges();
+                expect(comp.toDate).toBe(getDate());
+                expect(comp.fromDate).toBe(getDate(false));
+                expect(comp.itemsPerPage).toBe(ITEMS_PER_PAGE);
+                expect(comp.page).toBe(1);
+                expect(comp.reverse).toBeFalsy();
+                expect(comp.orderProp).toBe('timestamp');
             });
         });
     });

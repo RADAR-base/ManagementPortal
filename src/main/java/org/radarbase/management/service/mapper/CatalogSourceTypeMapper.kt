@@ -16,5 +16,6 @@ interface CatalogSourceTypeMapper {
     @Mapping(target = "projects", ignore = true)
     @Mapping(target = "canRegisterDynamically", ignore = true)
     fun catalogSourceTypeToSourceType(catalogSourceType: CatalogSourceType?): SourceType?
+
     fun catalogSourceTypesToSourceTypes(catalogSourceType: List<CatalogSourceType?>?): List<SourceType?>?
 }

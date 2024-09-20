@@ -39,9 +39,11 @@ import javax.persistence.Table
 @Table(name = "radar_role")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @EntityListeners(
-    AbstractEntityListener::class
+    AbstractEntityListener::class,
 )
-class Role : AbstractEntity, Serializable {
+class Role :
+    AbstractEntity,
+    Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
     @SequenceGenerator(name = "sequenceGenerator", initialValue = 1000, sequenceName = "hibernate_sequence")
@@ -110,19 +112,18 @@ class Role : AbstractEntity, Serializable {
         return authority == role.authority && project == role.project && organization == role.organization
     }
 
-    override fun hashCode(): Int {
-        return Objects.hash(authority, project, organization)
-    }
+    override fun hashCode(): Int = Objects.hash(authority, project, organization)
 
-    override fun toString(): String {
-        return ("Role{"
-                + "id=" + id + ", "
-                + "organization='" + (if (organization == null) "null" else organization?.name)
-                + "', "
-                + "project='" + (if (project == null) "null" else project?.projectName) + "', "
-                + "authority='" + authority?.name + "', "
-                + "}")
-    }
+    override fun toString(): String =
+        (
+            "Role{" +
+                "id=" + id + ", " +
+                "organization='" + (if (organization == null) "null" else organization?.name) +
+                "', " +
+                "project='" + (if (project == null) "null" else project?.projectName) + "', " +
+                "authority='" + authority?.name + "', " +
+                "}"
+            )
 
     companion object {
         private const val serialVersionUID = 1L

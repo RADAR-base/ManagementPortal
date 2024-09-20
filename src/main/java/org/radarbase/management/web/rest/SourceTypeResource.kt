@@ -45,9 +45,8 @@ import javax.validation.Valid
 class SourceTypeResource(
     @Autowired private val sourceTypeService: SourceTypeService,
     @Autowired private val sourceTypeRepository: SourceTypeRepository,
-    @Autowired private val authService: AuthService
+    @Autowired private val authService: AuthService,
 ) {
-
     /**
      * POST  /source-types : Create a new sourceType.
      *
@@ -59,37 +58,49 @@ class SourceTypeResource(
     @PostMapping("/source-types")
     @Timed
     @Throws(URISyntaxException::class, NotAuthorizedException::class)
-    fun createSourceType(@RequestBody @Valid sourceTypeDto: SourceTypeDTO?): ResponseEntity<SourceTypeDTO> {
+    fun createSourceType(
+        @RequestBody @Valid sourceTypeDto: SourceTypeDTO?,
+    ): ResponseEntity<SourceTypeDTO> {
         log.debug("REST request to save SourceType : {}", sourceTypeDto)
         authService.checkPermission(Permission.SOURCETYPE_CREATE)
         if (sourceTypeDto!!.id != null) {
-            return ResponseEntity.badRequest().headers(
-                HeaderUtil.createFailureAlert(
-                    EntityName.SOURCE_TYPE,
-                    "idexists", "A new sourceType cannot already have an ID"
-                )
-            ).build()
+            return ResponseEntity
+                .badRequest()
+                .headers(
+                    HeaderUtil.createFailureAlert(
+                        EntityName.SOURCE_TYPE,
+                        "idexists",
+                        "A new sourceType cannot already have an ID",
+                    ),
+                ).build()
         }
-        val existing: SourceType? = sourceTypeRepository
-            .findOneWithEagerRelationshipsByProducerAndModelAndVersion(
-                sourceTypeDto.producer!!, sourceTypeDto.model!!,
-                sourceTypeDto.catalogVersion!!
-            )
+        val existing: SourceType? =
+            sourceTypeRepository
+                .findOneWithEagerRelationshipsByProducerAndModelAndVersion(
+                    sourceTypeDto.producer!!,
+                    sourceTypeDto.model!!,
+                    sourceTypeDto.catalogVersion!!,
+                )
         if (existing != null) {
             val errorParams: MutableMap<String, String?> = HashMap()
-            errorParams["message"] = ("A SourceType with the specified producer, model and "
-                    + "version already exists. This combination needs to be unique.")
+            errorParams["message"] = (
+                "A SourceType with the specified producer, model and " +
+                    "version already exists. This combination needs to be unique."
+                )
             errorParams["producer"] = sourceTypeDto.producer
             errorParams["model"] = sourceTypeDto.model
             errorParams["catalogVersion"] = sourceTypeDto.catalogVersion
             throw ConflictException(
-                "A SourceType with the specified producer, model and"
-                        + "version already exists. This combination needs to be unique.", EntityName.SOURCE_TYPE,
-                ErrorConstants.ERR_SOURCE_TYPE_EXISTS, errorParams
+                "A SourceType with the specified producer, model and" +
+                    "version already exists. This combination needs to be unique.",
+                EntityName.SOURCE_TYPE,
+                ErrorConstants.ERR_SOURCE_TYPE_EXISTS,
+                errorParams,
             )
         }
         val result = sourceTypeService.save(sourceTypeDto)
-        return ResponseEntity.created(getUri(result))
+        return ResponseEntity
+            .created(getUri(result))
             .headers(HeaderUtil.createEntityCreationAlert(EntityName.SOURCE_TYPE, displayName(result)))
             .body(result)
     }
@@ -106,18 +117,20 @@ class SourceTypeResource(
     @PutMapping("/source-types")
     @Timed
     @Throws(URISyntaxException::class, NotAuthorizedException::class)
-    fun updateSourceType(@RequestBody @Valid sourceTypeDto: SourceTypeDTO?): ResponseEntity<SourceTypeDTO> {
+    fun updateSourceType(
+        @RequestBody @Valid sourceTypeDto: SourceTypeDTO?,
+    ): ResponseEntity<SourceTypeDTO> {
         log.debug("REST request to update SourceType : {}", sourceTypeDto)
         if (sourceTypeDto!!.id == null) {
             return createSourceType(sourceTypeDto)
         }
         authService.checkPermission(Permission.SOURCETYPE_UPDATE)
         val result = sourceTypeService.save(sourceTypeDto)
-        return ResponseEntity.ok()
+        return ResponseEntity
+            .ok()
             .headers(
-                HeaderUtil.createEntityUpdateAlert(EntityName.SOURCE_TYPE, displayName(sourceTypeDto))
-            )
-            .body(result)
+                HeaderUtil.createEntityUpdateAlert(EntityName.SOURCE_TYPE, displayName(sourceTypeDto)),
+            ).body(result)
     }
 
     /**
@@ -130,12 +143,13 @@ class SourceTypeResource(
     @Timed
     @Throws(NotAuthorizedException::class)
     fun getAllSourceTypes(
-        @PageableDefault(page = 0, size = Int.MAX_VALUE) pageable: Pageable?
+        @PageableDefault(page = 0, size = Int.MAX_VALUE) pageable: Pageable?,
     ): ResponseEntity<List<SourceTypeDTO>> {
         authService.checkPermission(Permission.SOURCETYPE_READ)
         val page = sourceTypeService.findAll(pageable!!)
-        val headers = PaginationUtil
-            .generatePaginationHttpHeaders(page, "/api/source-types")
+        val headers =
+            PaginationUtil
+                .generatePaginationHttpHeaders(page, "/api/source-types")
         return ResponseEntity(page.content, headers, HttpStatus.OK)
     }
 
@@ -148,9 +162,11 @@ class SourceTypeResource(
     @GetMapping("/source-types/{producer:" + Constants.ENTITY_ID_REGEX + "}")
     @Timed
     @Throws(
-        NotAuthorizedException::class
+        NotAuthorizedException::class,
     )
-    fun getSourceTypes(@PathVariable producer: String?): ResponseEntity<List<SourceTypeDTO>> {
+    fun getSourceTypes(
+        @PathVariable producer: String?,
+    ): ResponseEntity<List<SourceTypeDTO>> {
         authService.checkPermission(Permission.SOURCETYPE_READ)
         return ResponseEntity.ok(sourceTypeService.findByProducer(producer!!))
     }
@@ -164,22 +180,23 @@ class SourceTypeResource(
      * @return A list of objects matching the producer and model
      */
     @GetMapping(
-        "/source-types/{producer:" + Constants.ENTITY_ID_REGEX + "}/{model:"
-                + Constants.ENTITY_ID_REGEX + "}"
+        "/source-types/{producer:" + Constants.ENTITY_ID_REGEX + "}/{model:" +
+            Constants.ENTITY_ID_REGEX + "}",
     )
     @Timed
     @Throws(
-        NotAuthorizedException::class
+        NotAuthorizedException::class,
     )
     fun getSourceTypes(
         @PathVariable producer: String?,
-        @PathVariable model: String?
+        @PathVariable model: String?,
     ): ResponseEntity<List<SourceTypeDTO>> {
         authService.checkPermission(Permission.SOURCETYPE_READ)
         return ResponseEntity.ok(
             sourceTypeService.findByProducerAndModel(
-                producer!!, model!!
-            )
+                producer!!,
+                model!!,
+            ),
         )
     }
 
@@ -192,22 +209,23 @@ class SourceTypeResource(
      * @return A single SourceType object matching the producer, model and version
      */
     @GetMapping(
-        "/source-types/{producer:" + Constants.ENTITY_ID_REGEX + "}/{model:"
-                + Constants.ENTITY_ID_REGEX + "}/{version:" + Constants.ENTITY_ID_REGEX + "}"
+        "/source-types/{producer:" + Constants.ENTITY_ID_REGEX + "}/{model:" +
+            Constants.ENTITY_ID_REGEX + "}/{version:" + Constants.ENTITY_ID_REGEX + "}",
     )
     @Timed
     @Throws(
-        NotAuthorizedException::class
+        NotAuthorizedException::class,
     )
     fun getSourceTypes(
         @PathVariable producer: String?,
-        @PathVariable model: String?, @PathVariable version: String?
+        @PathVariable model: String?,
+        @PathVariable version: String?,
     ): ResponseEntity<SourceTypeDTO> {
         authService.checkPermission(Permission.SOURCETYPE_READ)
         return ResponseUtil.wrapOrNotFound(
             Optional.ofNullable(
-                sourceTypeService.findByProducerAndModelAndVersion(producer!!, model!!, version!!)
-            )
+                sourceTypeService.findByProducerAndModelAndVersion(producer!!, model!!, version!!),
+            ),
         )
     }
 
@@ -221,54 +239,64 @@ class SourceTypeResource(
      * @return the ResponseEntity with status 200 (OK)
      */
     @DeleteMapping(
-        "/source-types/{producer:" + Constants.ENTITY_ID_REGEX + "}/{model:"
-                + Constants.ENTITY_ID_REGEX + "}/{version:" + Constants.ENTITY_ID_REGEX + "}"
+        "/source-types/{producer:" + Constants.ENTITY_ID_REGEX + "}/{model:" +
+            Constants.ENTITY_ID_REGEX + "}/{version:" + Constants.ENTITY_ID_REGEX + "}",
     )
     @Timed
     @Throws(
-        NotAuthorizedException::class
+        NotAuthorizedException::class,
     )
     fun deleteSourceType(
         @PathVariable producer: String?,
-        @PathVariable model: String?, @PathVariable version: String?
+        @PathVariable model: String?,
+        @PathVariable version: String?,
     ): ResponseEntity<Void> {
         authService.checkPermission(Permission.SOURCETYPE_DELETE)
-        val sourceTypeDto = sourceTypeService
-            .findByProducerAndModelAndVersion(producer!!, model!!, version!!)
+        val sourceTypeDto =
+            sourceTypeService
+                .findByProducerAndModelAndVersion(producer!!, model!!, version!!)
         if (Objects.isNull(sourceTypeDto)) {
             return ResponseEntity.notFound().build()
         }
-        val projects = sourceTypeService.findProjectsBySourceType(
-            producer, model,
-            version
-        )
+        val projects =
+            sourceTypeService.findProjectsBySourceType(
+                producer,
+                model,
+                version,
+            )
         if (projects.isNotEmpty()) {
-            throw InvalidRequestException( // we know the list is not empty so calling get() is safe here
-                "Cannot delete a source-type that " + "is being used by project(s)", EntityName.SOURCE_TYPE,
-                ErrorConstants.ERR_SOURCE_TYPE_IN_USE, Collections.singletonMap(
+            throw InvalidRequestException(
+                // we know the list is not empty so calling get() is safe here
+                "Cannot delete a source-type that " + "is being used by project(s)",
+                EntityName.SOURCE_TYPE,
+                ErrorConstants.ERR_SOURCE_TYPE_IN_USE,
+                Collections.singletonMap(
                     "project-names",
                     projects
                         .stream()
                         .map(ProjectDTO::projectName)
-                        .collect(Collectors.joining("-"))
-                )
+                        .collect(Collectors.joining("-")),
+                ),
             )
         }
         sourceTypeService.delete(sourceTypeDto.id!!)
-        return ResponseEntity.ok().headers(
-            HeaderUtil.createEntityDeletionAlert(
-                EntityName.SOURCE_TYPE,
-                displayName(sourceTypeDto)
-            )
-        ).build()
+        return ResponseEntity
+            .ok()
+            .headers(
+                HeaderUtil.createEntityDeletionAlert(
+                    EntityName.SOURCE_TYPE,
+                    displayName(sourceTypeDto),
+                ),
+            ).build()
     }
 
-    private fun displayName(sourceType: SourceTypeDTO?): String {
-        return java.lang.String.join(
-            " ", sourceType!!.producer, sourceType.model,
-            sourceType.catalogVersion
+    private fun displayName(sourceType: SourceTypeDTO?): String =
+        java.lang.String.join(
+            " ",
+            sourceType!!.producer,
+            sourceType.model,
+            sourceType.catalogVersion,
         )
-    }
 
     companion object {
         private val log = LoggerFactory.getLogger(SourceTypeResource::class.java)

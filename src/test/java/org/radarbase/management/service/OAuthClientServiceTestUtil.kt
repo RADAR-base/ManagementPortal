@@ -22,10 +22,12 @@ object OAuthClientServiceTestUtil {
         result.scope = setOf("scope-1", "scope-2")
         result.resourceIds = setOf("res-1", "res-2")
         result.autoApproveScopes = setOf("scope-1")
-        result.authorizedGrantTypes = setOf(
-            "password", "refresh_token",
-            "authorization_code"
-        )
+        result.authorizedGrantTypes =
+            setOf(
+                "password",
+                "refresh_token",
+                "authorization_code",
+            )
         result.accessTokenValiditySeconds = 3600L
         result.refreshTokenValiditySeconds = 7200L
         result.authorities = setOf("AUTHORITY-1")

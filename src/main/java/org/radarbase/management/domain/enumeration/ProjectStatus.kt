@@ -6,5 +6,5 @@ package org.radarbase.management.domain.enumeration
 enum class ProjectStatus {
     PLANNING,
     ONGOING,
-    ENDED
+    ENDED,
 }

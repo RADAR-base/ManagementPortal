@@ -38,24 +38,27 @@ class CatalogSourceData {
     class DataField {
         @JsonProperty
         val name: String? = null
-        override fun toString(): String {
-            return ("DataField{" + "name='" + name + '\''
-                    + '}')
-        }
+
+        override fun toString(): String =
+            (
+                "DataField{" + "name='" + name + '\'' +
+                    '}'
+                )
     }
 
-    override fun toString(): String {
-        return ("CatalogSourceData{" + "appProvider='" + appProvider + '\''
-                + ", processingState='" + processingState + '\''
-                + ", type='" + type + '\''
-                + ", doc='" + doc + '\''
-                + ", sampleRate=" + sampleRate
-                + ", unit='" + unit + '\''
-                + ", fields=" + fields
-                + ", topic='" + topic + '\''
-                + ", keySchema='" + keySchema + '\''
-                + ", valueSchema='" + valueSchema + '\''
-                + ", tags=" + tags
-                + '}')
-    }
+    override fun toString(): String =
+        (
+            "CatalogSourceData{" + "appProvider='" + appProvider + '\'' +
+                ", processingState='" + processingState + '\'' +
+                ", type='" + type + '\'' +
+                ", doc='" + doc + '\'' +
+                ", sampleRate=" + sampleRate +
+                ", unit='" + unit + '\'' +
+                ", fields=" + fields +
+                ", topic='" + topic + '\'' +
+                ", keySchema='" + keySchema + '\'' +
+                ", valueSchema='" + valueSchema + '\'' +
+                ", tags=" + tags +
+                '}'
+            )
 }

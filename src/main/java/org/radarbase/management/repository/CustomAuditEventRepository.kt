@@ -21,31 +21,37 @@ import java.time.ZoneId
 @Repository
 class CustomAuditEventRepository(
     @Autowired private val auditEventConverter: AuditEventConverter,
-    @Autowired private val persistenceAuditEventRepository: PersistenceAuditEventRepository
+    @Autowired private val persistenceAuditEventRepository: PersistenceAuditEventRepository,
 ) : AuditEventRepository {
-
-    override fun find(principal: String, after: Instant, type: String): List<AuditEvent> {
-        val persistentAuditEvents: Iterable<PersistentAuditEvent> = persistenceAuditEventRepository
-            .findByPrincipalAndAuditEventDateAfterAndAuditEventType(
-                principal,
-                LocalDateTime.from(after), type
-            )
+    override fun find(
+        principal: String,
+        after: Instant,
+        type: String,
+    ): List<AuditEvent> {
+        val persistentAuditEvents: Iterable<PersistentAuditEvent> =
+            persistenceAuditEventRepository
+                .findByPrincipalAndAuditEventDateAfterAndAuditEventType(
+                    principal,
+                    LocalDateTime.from(after),
+                    type,
+                )
         return auditEventConverter.convertToAuditEvent(persistentAuditEvents)
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     override fun add(event: AuditEvent) {
         val eventType = event.type
-        if (AUTHORIZATION_FAILURE != eventType
-            && Constants.ANONYMOUS_USER != event.principal
+        if (AUTHORIZATION_FAILURE != eventType &&
+            Constants.ANONYMOUS_USER != event.principal
         ) {
             val persistentAuditEvent = PersistentAuditEvent()
             persistentAuditEvent.principal = event.principal
             persistentAuditEvent.auditEventType = eventType
-            persistentAuditEvent.auditEventDate = LocalDateTime.ofInstant(
-                event.timestamp,
-                ZoneId.systemDefault()
-            )
+            persistentAuditEvent.auditEventDate =
+                LocalDateTime.ofInstant(
+                    event.timestamp,
+                    ZoneId.systemDefault(),
+                )
             persistentAuditEvent.data = auditEventConverter.convertDataToStrings(event.data)
             persistenceAuditEventRepository.save(persistentAuditEvent)
         }
@@ -58,7 +64,7 @@ class CustomAuditEventRepository(
                 event.principal,
                 errorType,
                 event.data["message"],
-                event.data["details"]
+                event.data["details"],
             )
         }
     }

@@ -75,19 +75,21 @@ class MetaTokenService {
         val metaToken = getToken(tokenName)
         // process the response if the token is not fetched or not expired
         return if (metaToken.isValid) {
-            val refreshToken = oAuthClientService!!.createAccessToken(
-                metaToken.subject!!.user!!,
-                metaToken.clientId!!
-            )
-                .refreshToken
-                .value
+            val refreshToken =
+                oAuthClientService!!
+                    .createAccessToken(
+                        metaToken.subject!!.user!!,
+                        metaToken.clientId!!,
+                    ).refreshToken
+                    .value
 
             // create response
-            val result = TokenDTO(
-                refreshToken,
-                URL(managementPortalProperties!!.common.baseUrl),
-                subjectService!!.getPrivacyPolicyUrl(metaToken.subject!!)
-            )
+            val result =
+                TokenDTO(
+                    refreshToken,
+                    URL(managementPortalProperties!!.common.baseUrl),
+                    subjectService!!.getPrivacyPolicyUrl(metaToken.subject!!),
+                )
 
             // change fetched status to true.
             if (!metaToken.isFetched()) {
@@ -98,7 +100,8 @@ class MetaTokenService {
         } else {
             throw RequestGoneException(
                 "Token $tokenName already fetched or expired. ",
-                EntityName.META_TOKEN, "error.TokenCannotBeSent"
+                EntityName.META_TOKEN,
+                "error.TokenCannotBeSent",
             )
         }
     }
@@ -110,15 +113,14 @@ class MetaTokenService {
      * @return fetched token as [MetaToken].
      */
     @Transactional(readOnly = true)
-    fun getToken(tokenName: String): MetaToken {
-        return metaTokenRepository!!.findOneByTokenName(tokenName)
+    fun getToken(tokenName: String): MetaToken =
+        metaTokenRepository!!.findOneByTokenName(tokenName)
             ?: throw NotFoundException(
-                    "Meta token not found with tokenName",
-                    EntityName.META_TOKEN,
-                    ErrorConstants.ERR_TOKEN_NOT_FOUND,
-                    Collections.singletonMap("tokenName", tokenName)
-                )
-    }
+                "Meta token not found with tokenName",
+                EntityName.META_TOKEN,
+                ErrorConstants.ERR_TOKEN_NOT_FOUND,
+                Collections.singletonMap("tokenName", tokenName),
+            )
 
     /**
      * Saves a unique meta-token instance, by checking for token-name collision.
@@ -130,15 +132,16 @@ class MetaTokenService {
         clientId: String?,
         fetched: Boolean?,
         expiryTime: Instant?,
-        persistent: Boolean
+        persistent: Boolean,
     ): MetaToken {
-        val metaToken = MetaToken()
-            .generateName(if (persistent) MetaToken.LONG_ID_LENGTH else MetaToken.SHORT_ID_LENGTH)
-            .fetched(fetched!!)
-            .expiryDate(expiryTime)
-            .subject(subject)
-            .clientId(clientId)
-            .persistent(persistent)
+        val metaToken =
+            MetaToken()
+                .generateName(if (persistent) MetaToken.LONG_ID_LENGTH else MetaToken.SHORT_ID_LENGTH)
+                .fetched(fetched!!)
+                .expiryDate(expiryTime)
+                .subject(subject)
+                .clientId(clientId)
+                .persistent(persistent)
         return try {
             metaTokenRepository!!.save(metaToken)
         } catch (e: ConstraintViolationException) {
@@ -157,16 +160,28 @@ class MetaTokenService {
      * @throws MalformedURLException when token URL cannot be formed properly.
      */
     @Throws(URISyntaxException::class, MalformedURLException::class, NotAuthorizedException::class)
-    fun createMetaToken(subject: Subject, clientId: String?, persistent: Boolean): ClientPairInfoDTO {
-        val timeout = getMetaTokenTimeout(persistent, project = subject.activeProject
-            ?:throw NotAuthorizedException("Cannot calculate meta-token duration without configured project")
-        )
+    fun createMetaToken(
+        subject: Subject,
+        clientId: String?,
+        persistent: Boolean,
+    ): ClientPairInfoDTO {
+        val timeout =
+            getMetaTokenTimeout(
+                persistent,
+                project =
+                    subject.activeProject
+                        ?: throw NotAuthorizedException("Cannot calculate meta-token duration without configured project"),
+            )
 
         // tokenName should be generated
-        val metaToken = saveUniqueToken(
-            subject, clientId, false,
-            Instant.now().plus(timeout), persistent
-        )
+        val metaToken =
+            saveUniqueToken(
+                subject,
+                clientId,
+                false,
+                Instant.now().plus(timeout),
+                persistent,
+            )
         val tokenName = metaToken.tokenName
         return if (metaToken.id != null && tokenName != null) {
             // get base url from settings
@@ -175,13 +190,16 @@ class MetaTokenService {
             val tokenUrl = baseUrl + ResourceUriService.getUri(metaToken).getPath()
             // create response
             ClientPairInfoDTO(
-                URL(baseUrl), tokenName,
-                URL(tokenUrl), timeout
+                URL(baseUrl),
+                tokenName,
+                URL(tokenUrl),
+                timeout,
             )
         } else {
             throw InvalidStateException(
-                "Could not create a valid token", EntityName.OAUTH_CLIENT,
-                "error.couldNotCreateToken"
+                "Could not create a valid token",
+                EntityName.OAUTH_CLIENT,
+                "error.couldNotCreateToken",
             )
         }
     }
@@ -193,7 +211,10 @@ class MetaTokenService {
      * @return meta-token timeout duration.
      * @throws BadRequestException if a persistent token is requested but it is not configured.
      */
-    fun getMetaTokenTimeout(persistent: Boolean, project: Project?): Duration {
+    fun getMetaTokenTimeout(
+        persistent: Boolean,
+        project: Project?,
+    ): Duration {
         val timeoutConfig: String?
         val defaultTimeout: Duration
         if (persistent) {
@@ -201,7 +222,8 @@ class MetaTokenService {
             if (timeoutConfig == null || timeoutConfig.isEmpty()) {
                 throw BadRequestException(
                     "Cannot create persistent token: not supported in configuration.",
-                    EntityName.META_TOKEN, ErrorConstants.ERR_PERSISTENT_TOKEN_DISABLED
+                    EntityName.META_TOKEN,
+                    ErrorConstants.ERR_PERSISTENT_TOKEN_DISABLED,
                 )
             }
             defaultTimeout = MetaTokenResource.DEFAULT_PERSISTENT_META_TOKEN_TIMEOUT
@@ -218,7 +240,8 @@ class MetaTokenService {
             // if the token timeout cannot be read, log the error and use the default value.
             log.warn(
                 "Cannot parse meta-token timeout config. Using default value {}",
-                defaultTimeout, e
+                defaultTimeout,
+                e,
             )
             defaultTimeout
         }
@@ -232,14 +255,17 @@ class MetaTokenService {
     @Scheduled(cron = "0 0 0 1 * ?")
     fun removeStaleTokens() {
         log.info("Scheduled scan for expired and fetched meta-tokens starting now")
-        metaTokenRepository!!.findAllByFetchedOrExpired(Instant.now())
-            .forEach(Consumer { metaToken: MetaToken ->
-                log.info(
-                    "Deleting deleting expired or fetched token {}",
-                    metaToken.tokenName
-                )
-                metaTokenRepository.delete(metaToken)
-            })
+        metaTokenRepository!!
+            .findAllByFetchedOrExpired(Instant.now())
+            .forEach(
+                Consumer { metaToken: MetaToken ->
+                    log.info(
+                        "Deleting deleting expired or fetched token {}",
+                        metaToken.tokenName,
+                    )
+                    metaTokenRepository.delete(metaToken)
+                },
+            )
     }
 
     fun delete(token: MetaToken) {

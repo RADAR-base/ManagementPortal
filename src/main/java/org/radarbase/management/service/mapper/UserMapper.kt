@@ -13,7 +13,7 @@ import org.radarbase.management.service.mapper.decorator.UserMapperDecorator
  */
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING, uses = [ProjectMapper::class, RoleMapper::class])
 @DecoratedWith(
-    UserMapperDecorator::class
+    UserMapperDecorator::class,
 )
 interface UserMapper {
     @Mapping(target = "createdBy", ignore = true)

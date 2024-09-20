@@ -13,27 +13,30 @@ class LoggingConfiguration(
     @Value("\${spring.application.name}") appName: String,
     @Value("\${server.port}") serverPort: String,
     jHipsterProperties: JHipsterProperties,
-    mapper: ObjectMapper
+    mapper: ObjectMapper,
 ) {
     /** Logging configuration for JHipster.  */
     init {
-        val context = LoggerFactory.getILoggerFactory() as LoggerContext
-        val map: MutableMap<String, String> = buildMap {
-            put("app_name", appName)
-            put("app_port", serverPort)
-        } as MutableMap
+        if (LoggerFactory.getILoggerFactory() is LoggerContext) {
+            val context = LoggerFactory.getILoggerFactory() as LoggerContext
+            val map: MutableMap<String, String> =
+                buildMap {
+                    put("app_name", appName)
+                    put("app_port", serverPort)
+                } as MutableMap
 
-        val customFields = mapper.writeValueAsString(map)
-        val loggingProperties = jHipsterProperties.logging
-        val logstashProperties = loggingProperties.logstash
-        if (loggingProperties.isUseJsonFormat) {
-            LoggingUtils.addJsonConsoleAppender(context, customFields)
-        }
-        if (logstashProperties.isEnabled) {
-            LoggingUtils.addLogstashTcpSocketAppender(context, customFields, logstashProperties)
-        }
-        if (loggingProperties.isUseJsonFormat || logstashProperties.isEnabled) {
-            LoggingUtils.addContextListener(context, customFields, loggingProperties)
+            val customFields = mapper.writeValueAsString(map)
+            val loggingProperties = jHipsterProperties.logging
+            val logstashProperties = loggingProperties.logstash
+            if (loggingProperties.isUseJsonFormat) {
+                LoggingUtils.addJsonConsoleAppender(context, customFields)
+            }
+            if (logstashProperties.isEnabled) {
+                LoggingUtils.addLogstashTcpSocketAppender(context, customFields, logstashProperties)
+            }
+            if (loggingProperties.isUseJsonFormat || logstashProperties.isEnabled) {
+                LoggingUtils.addContextListener(context, customFields, loggingProperties)
+            }
         }
     }
 }

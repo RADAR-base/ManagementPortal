@@ -18,10 +18,11 @@ class LoggerVM {
     @JsonCreator
     constructor()
 
-    override fun toString(): String {
-        return ("LoggerVM{"
-                + "name='" + name + '\''
-                + ", level='" + level + '\''
-                + '}')
-    }
+    override fun toString(): String =
+        (
+            "LoggerVM{" +
+                "name='" + name + '\'' +
+                ", level='" + level + '\'' +
+                '}'
+            )
 }

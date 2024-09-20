@@ -7,22 +7,23 @@
   ~ See the file LICENSE in the root of this repository.
   -->
 
-<h3 id="requestMetrics" [translate]="'metrics.jvm.http.title'">HTTP requests (time in millisecond)</h3>
+<h3 [translate]="'metrics.jvm.http.title'" id="requestMetrics">HTTP requests (time in millisecond)</h3>
 
-<table class="table table-striped" *ngIf="!updating && requestMetrics" aria-describedby="requestMetrics">
+<table *ngIf="!updating && requestMetrics" aria-describedby="requestMetrics" class="table table-striped">
     <thead>
     <tr>
-        <th scope="col" [translate]="'metrics.jvm.http.table.code'">Code</th>
-        <th scope="col" [translate]="'metrics.jvm.http.table.count'">Count</th>
-        <th scope="col" class="text-right" [translate]="'metrics.jvm.http.table.mean'">Mean</th>
-        <th scope="col" class="text-right" [translate]="'metrics.jvm.http.table.max'">Max</th>
+        <th [translate]="'metrics.jvm.http.table.code'" scope="col">Code</th>
+        <th [translate]="'metrics.jvm.http.table.count'" scope="col">Count</th>
+        <th [translate]="'metrics.jvm.http.table.mean'" class="text-right" scope="col">Mean</th>
+        <th [translate]="'metrics.jvm.http.table.max'" class="text-right" scope="col">Max</th>
     </tr>
     </thead>
     <tbody>
     <tr *ngFor="let entry of requestMetrics.percode | keyvalue">
         <td>{{ entry.key }}</td>
         <td>
-            <ngb-progressbar [max]="requestMetrics.all.count" [value]="entry.value.count" [striped]="true" [animated]="false" type="success">
+            <ngb-progressbar [animated]="false" [max]="requestMetrics.all.count" [striped]="true"
+                             [value]="entry.value.count" type="success">
                 <span>{{ entry.value.count }}</span>
             </ngb-progressbar>
         </td>

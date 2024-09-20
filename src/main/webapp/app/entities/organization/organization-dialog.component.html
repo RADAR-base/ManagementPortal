@@ -1,82 +1,87 @@
-<form name="editForm" role="form" novalidate (ngSubmit)="save()" #editForm="ngForm">
+<form #editForm="ngForm" (ngSubmit)="save()" name="editForm" novalidate role="form">
 
     <div class="modal-header">
-        <h4 class="modal-title" id="myOrganizationLabel"
-            [translate]="'managementPortalApp.organization.home.createOrEditLabel'">
+        <h4 [translate]="'managementPortalApp.organization.home.createOrEditLabel'" class="modal-title"
+            id="myOrganizationLabel">
         </h4>
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
-                (click)="clear()">&times;</button>
+        <button (click)="clear()" aria-hidden="true" class="close" data-dismiss="modal"
+                type="button">&times;
+        </button>
     </div>
     <div class="modal-body">
         <jhi-alert-error></jhi-alert-error>
-        <div class="form-group" [hidden]="!organization.id">
-            <label for="id" [translate]="'global.field.id'"></label>
-            <input type="text" class="form-control" id="id" name="id"
-                   [(ngModel)]="organization.id" readonly />
+        <div [hidden]="!organization.id" class="form-group">
+            <label [translate]="'global.field.id'" for="id"></label>
+            <input [(ngModel)]="organization.id" class="form-control" id="id" name="id"
+                   readonly type="text"/>
         </div>
         <div class="form-group">
-            <label class="form-control-label"
-                [translate]="'managementPortalApp.organization.organizationName'"
-                for="field_organizationName">
+            <label [translate]="'managementPortalApp.organization.organizationName'"
+                   class="form-control-label"
+                   for="field_organizationName">
             </label>
-            <input type="text" class="form-control" name="organizationName" id="field_organizationName"
-                [(ngModel)]="organization.name" [readOnly]="organization.id" required pattern="[_'.@A-Za-z0-9- ]*" />
-            <small *ngIf="!organization.id" id="organizationIdWarning" class="form-text bold-warn"
-                   [translate]="'managementPortalApp.organization.organizationName.fieldWarning'">
+            <input [(ngModel)]="organization.name" [readOnly]="organization.id" class="form-control"
+                   id="field_organizationName"
+                   name="organizationName" pattern="[_'.@A-Za-z0-9- ]*" required type="text"/>
+            <small *ngIf="!organization.id"
+                   [translate]="'managementPortalApp.organization.organizationName.fieldWarning'"
+                   class="form-text bold-warn"
+                   id="organizationIdWarning">
             </small>
-            <small id="organizationIdHelp" class="form-text text-muted"
-                [translate]="'managementPortalApp.organization.organizationName.fieldDescription'">
+            <small [translate]="'managementPortalApp.organization.organizationName.fieldDescription'"
+                   class="form-text text-muted"
+                   id="organizationIdHelp">
             </small>
             <div [hidden]="!(editForm.controls.organizationName?.dirty && editForm.controls.organizationName?.invalid)">
-                <small class="form-text text-danger"
-                   [hidden]="!editForm.controls.organizationName?.errors?.required"
-                   [translate]="'entity.validation.required'">
+                <small [hidden]="!editForm.controls.organizationName?.errors?.required"
+                       [translate]="'entity.validation.required'"
+                       class="form-text text-danger">
                 </small>
-                <small class="form-text text-danger"
-                    [hidden]="!editForm.controls.organizationName?.errors?.pattern"
-                    [translate]="'entity.validation.pattern'"
-                    [translateParams]="{pattern: 'alphanumerics, dash (-), underscore (_), space ( ) and period (.)'}">
+                <small [hidden]="!editForm.controls.organizationName?.errors?.pattern"
+                       [translateParams]="{pattern: 'alphanumerics, dash (-), underscore (_), space ( ) and period (.)'}"
+                       [translate]="'entity.validation.pattern'"
+                       class="form-text text-danger">
                 </small>
             </div>
         </div>
 
         <div class="form-group">
-            <label class="form-control-label"
-                [translate]="'managementPortalApp.organization.description'"
-                for="field_description">
+            <label [translate]="'managementPortalApp.organization.description'"
+                   class="form-control-label"
+                   for="field_description">
             </label>
-            <input type="text" class="form-control" name="description" id="field_description"
-                [(ngModel)]="organization.description"
-            required />
+            <input [(ngModel)]="organization.description" class="form-control" id="field_description" name="description"
+                   required
+                   type="text"/>
             <div [hidden]="!(editForm.controls.description?.dirty && editForm.controls.description?.invalid)">
-                <small class="form-text text-danger"
-                   [hidden]="!editForm.controls.description?.errors?.required"
-                   [translate]="'entity.validation.required'">
+                <small [hidden]="!editForm.controls.description?.errors?.required"
+                       [translate]="'entity.validation.required'"
+                       class="form-text text-danger">
                 </small>
             </div>
         </div>
 
         <div class="form-group">
-            <label class="form-control-label"
-                [translate]="'managementPortalApp.organization.location'"
-                for="field_location">
+            <label [translate]="'managementPortalApp.organization.location'"
+                   class="form-control-label"
+                   for="field_location">
             </label>
-            <input type="text" class="form-control" name="location" id="field_location"
-                [(ngModel)]="organization.location"
-            required />
+            <input [(ngModel)]="organization.location" class="form-control" id="field_location" name="location"
+                   required
+                   type="text"/>
             <div [hidden]="!(editForm.controls.location?.dirty && editForm.controls.location?.invalid)">
-                <small class="form-text text-danger"
-                   [hidden]="!editForm.controls.location?.errors?.required"
-                   [translate]="'entity.validation.required'">
+                <small [hidden]="!editForm.controls.location?.errors?.required"
+                       [translate]="'entity.validation.required'"
+                       class="form-text text-danger">
                 </small>
             </div>
         </div>
     </div>
     <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal" (click)="clear()">
+        <button (click)="clear()" class="btn btn-default" data-dismiss="modal" type="button">
             <span class="fa fa-ban"></span>&nbsp;<span [translate]="'entity.action.cancel'"></span>
         </button>
-        <button type="submit" [disabled]="editForm.form.invalid || isSaving" class="btn btn-primary">
+        <button [disabled]="editForm.form.invalid || isSaving" class="btn btn-primary" type="submit">
             <span class="fa fa-save"></span>&nbsp;<span [translate]="'entity.action.save'"></span>
         </button>
     </div>

@@ -1,17 +1,17 @@
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Params } from '@angular/router';
-import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import {Component, OnInit} from '@angular/core';
+import {ActivatedRoute, Params} from '@angular/router';
+import {NgbActiveModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 
-import { AlertService } from '../util/alert.service';
-import { EventManager } from '../util/event-manager.service';
-import { ProjectService } from '../project/project.service';
-import { SourceType } from '../../entities/source-type';
-import { SourcePopupService } from './source-popup.service';
+import {AlertService} from '../util/alert.service';
+import {EventManager} from '../util/event-manager.service';
+import {ProjectService} from '../project/project.service';
+import {SourceType} from '../../entities/source-type';
+import {SourcePopupService} from './source-popup.service';
 
-import { Source } from './source.model';
-import { SourceService } from './source.service';
-import { ObservablePopupComponent } from '../util/observable-popup.component';
-import { Observable } from 'rxjs';
+import {Source} from './source.model';
+import {SourceService} from './source.service';
+import {ObservablePopupComponent} from '../util/observable-popup.component';
+import {Observable} from 'rxjs';
 
 @Component({
     selector: 'jhi-source-dialog',
@@ -27,11 +27,11 @@ export class SourceDialogComponent implements OnInit {
     attributeComponentEventPrefix: 'sourceAttributes';
 
     constructor(
-            public activeModal: NgbActiveModal,
-            private alertService: AlertService,
-            private sourceService: SourceService,
-            private projectService: ProjectService,
-            private eventManager: EventManager,
+        public activeModal: NgbActiveModal,
+        private alertService: AlertService,
+        private sourceService: SourceService,
+        private projectService: ProjectService,
+        private eventManager: EventManager,
     ) {
         this.isSaving = false;
         this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN'];
@@ -57,13 +57,17 @@ export class SourceDialogComponent implements OnInit {
         this.isSaving = true;
         if (this.source.id !== undefined) {
             this.sourceService.update(this.source)
-            .subscribe((res: Source) =>
+                .subscribe((res: Source) =>
                     this.onSaveSuccess(res), (res: any) => this.onSaveError(res));
         } else {
             this.sourceService.create(this.source)
-            .subscribe((res: Source) =>
+                .subscribe((res: Source) =>
                     this.onSaveSuccess(res), (res: any) => this.onSaveError(res));
         }
+    }
+
+    trackSourceTypeById(index: number, item: SourceType) {
+        return item.id;
     }
 
     private onSaveSuccess(result: Source) {
@@ -80,10 +84,6 @@ export class SourceDialogComponent implements OnInit {
     private onError(error) {
         this.alertService.error(error.message, null, null);
     }
-
-    trackSourceTypeById(index: number, item: SourceType) {
-        return item.id;
-    }
 }
 
 @Component({
@@ -92,8 +92,8 @@ export class SourceDialogComponent implements OnInit {
 })
 export class SourcePopupComponent extends ObservablePopupComponent {
     constructor(
-            route: ActivatedRoute,
-            private sourcePopupService: SourcePopupService,
+        route: ActivatedRoute,
+        private sourcePopupService: SourcePopupService,
     ) {
         super(route);
     }

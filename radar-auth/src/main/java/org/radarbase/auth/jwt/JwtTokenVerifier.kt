@@ -17,22 +17,28 @@ class JwtTokenVerifier(
     private val algorithm: String,
     private val verifier: JWTVerifier,
 ) : TokenVerifier {
-    override suspend fun verify(token: String): RadarToken = try {
-        logger.debug("Attempting to verify JWT header {} and payload {}", token.split(".")[0], token.split(".")[1])
+    override suspend fun verify(token: String): RadarToken =
+        try {
+            logger.debug("Attempting to verify JWT header {} and payload {}", token.split(".")[0], token.split(".")[1])
 
-         val jwt = verifier.verify(token)
+            val jwt = verifier.verify(token)
 
-        // Do not print full token with signature to avoid exposing valid token in logs.
-        logger.debug("Verified JWT header {} and payload {}", jwt.header, jwt.payload)
+            // Do not print full token with signature to avoid exposing valid token in logs.
+            logger.debug("Verified JWT header {} and payload {}", jwt.header, jwt.payload)
 
-        jwt.toRadarToken()
-    } catch (ex: Throwable) {
-        when (ex) {
-            is SignatureVerificationException -> logger.debug("Client presented a token with an incorrect signature.")
-            is JWTVerificationException -> logger.debug("Verifier {} did not accept token: {}", verifier.javaClass, ex.message)
+            jwt.toRadarToken()
+        } catch (ex: Throwable) {
+            when (ex) {
+                is SignatureVerificationException -> logger.debug("Client presented a token with an incorrect signature.")
+                is JWTVerificationException ->
+                    logger.debug(
+                        "Verifier {} did not accept token: {}",
+                        verifier.javaClass,
+                        ex.message,
+                    )
+            }
+            throw ex
         }
-        throw ex
-    }
 
     override fun toString(): String = "JwtTokenVerifier(algorithm=$algorithm)"
 
@@ -66,48 +72,55 @@ class JwtTokenVerifier(
                 username = claims.stringClaim(USER_NAME_CLAIM),
             )
         }
+
         fun Map<String, Claim?>.stringListClaim(name: String): List<String>? {
             val claim = get(name) ?: return null
-            val claimList = try {
-                claim.asList(String::class.java)
-            } catch (ex: JWTDecodeException) {
-                // skip
-                null
-            }
-            val claims = claimList
-                ?: claim.asString()?.split(' ')
-                ?: return null
+            val claimList =
+                try {
+                    claim.asList(String::class.java)
+                } catch (ex: JWTDecodeException) {
+                    // skip
+                    null
+                }
+            val claims =
+                claimList
+                    ?: claim.asString()?.split(' ')
+                    ?: return null
 
             return claims.mapNotNull { it?.trimNotEmpty() }
         }
 
-        fun Map<String, Claim?>.stringClaim(name: String): String? = get(name)?.asString()
-            ?.trimNotEmpty()
+        fun Map<String, Claim?>.stringClaim(name: String): String? =
+            get(name)
+                ?.asString()
+                ?.trimNotEmpty()
 
-        private fun String.trimNotEmpty(): String? = trim()
-            .takeIf { it.isNotEmpty() }
+        private fun String.trimNotEmpty(): String? =
+            trim()
+                .takeIf { it.isNotEmpty() }
 
-        private fun Map<String, Claim?>.parseRoles(): Set<AuthorityReference> = buildSet {
-            stringListClaim(AUTHORITIES_CLAIM)?.forEach {
-                val role = RoleAuthority.valueOfAuthorityOrNull(it)
-                if (role?.scope == RoleAuthority.Scope.GLOBAL) {
-                    add(AuthorityReference(role))
+        private fun Map<String, Claim?>.parseRoles(): Set<AuthorityReference> =
+            buildSet {
+                stringListClaim(AUTHORITIES_CLAIM)?.forEach {
+                    val role = RoleAuthority.valueOfAuthorityOrNull(it)
+                    if (role?.scope == RoleAuthority.Scope.GLOBAL) {
+                        add(AuthorityReference(role))
+                    }
+                }
+                stringListClaim(ROLES_CLAIM)?.forEach { input ->
+                    val v = input.split(':')
+                    try {
+                        add(
+                            if (v.size == 1 || v[1].isEmpty()) {
+                                AuthorityReference(v[0])
+                            } else {
+                                AuthorityReference(v[1], v[0])
+                            },
+                        )
+                    } catch (ex: IllegalArgumentException) {
+                        // skip
+                    }
                 }
             }
-            stringListClaim(ROLES_CLAIM)?.forEach { input ->
-                val v = input.split(':')
-                try {
-                    add(
-                        if (v.size == 1 || v[1].isEmpty()) {
-                            AuthorityReference(v[0])
-                        } else {
-                            AuthorityReference(v[1], v[0])
-                        }
-                    )
-                } catch (ex: IllegalArgumentException) {
-                    // skip
-                }
-            }
-        }
     }
 }

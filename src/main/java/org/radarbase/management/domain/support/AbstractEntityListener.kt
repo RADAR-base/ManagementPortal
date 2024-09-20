@@ -30,9 +30,13 @@ class AbstractEntityListener {
     fun publishPersistEvent(entity: AbstractEntity) {
         AutowireHelper.autowire(this, springSecurityAuditorAware)
         log.info(
-            TEMPLATE, ENTITY_CREATED, springSecurityAuditorAware!!.currentAuditor
+            TEMPLATE,
+            ENTITY_CREATED,
+            springSecurityAuditorAware!!
+                .currentAuditor
                 .orElse(Constants.SYSTEM_ACCOUNT),
-            entity.javaClass.getName(), entity.toString()
+            entity.javaClass.getName(),
+            entity.toString(),
         )
     }
 
@@ -45,9 +49,13 @@ class AbstractEntityListener {
     fun publishUpdateEvent(entity: AbstractEntity) {
         AutowireHelper.autowire(this, springSecurityAuditorAware)
         log.info(
-            TEMPLATE, ENTITY_UPDATED, springSecurityAuditorAware!!.currentAuditor
+            TEMPLATE,
+            ENTITY_UPDATED,
+            springSecurityAuditorAware!!
+                .currentAuditor
                 .orElse(Constants.SYSTEM_ACCOUNT),
-            entity.javaClass.getName(), entity.toString()
+            entity.javaClass.getName(),
+            entity.toString(),
         )
     }
 
@@ -60,9 +68,13 @@ class AbstractEntityListener {
     fun publishRemoveEvent(entity: AbstractEntity) {
         AutowireHelper.autowire(this, springSecurityAuditorAware)
         log.info(
-            TEMPLATE, ENTITY_REMOVED, springSecurityAuditorAware!!.currentAuditor
+            TEMPLATE,
+            ENTITY_REMOVED,
+            springSecurityAuditorAware!!
+                .currentAuditor
                 .orElse(Constants.SYSTEM_ACCOUNT),
-            entity.javaClass.getName(), entity.toString()
+            entity.javaClass.getName(),
+            entity.toString(),
         )
     }
 
@@ -71,12 +83,11 @@ class AbstractEntityListener {
      * and use it to populate the created and last modified fields.
      *
      * @param entity the entity that was loaded.
-     */
-    /*
-    @PostLoad
-    public void populateAuditMetaData(AbstractEntity entity) {
 
-    }*/
+     @PostLoad
+     public void populateAuditMetaData(AbstractEntity entity) {
+
+     }*/
     companion object {
         const val ENTITY_CREATED = "ENTITY_CREATED"
         const val ENTITY_UPDATED = "ENTITY_UPDATED"

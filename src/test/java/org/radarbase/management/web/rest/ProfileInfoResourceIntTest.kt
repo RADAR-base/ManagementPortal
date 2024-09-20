@@ -25,10 +25,10 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(classes = [ManagementPortalTestApp::class])
 internal class ProfileInfoResourceIntTest(
-    @Autowired private val profileInfoResource: ProfileInfoResource
+    @Autowired private val profileInfoResource: ProfileInfoResource,
 ) {
-
-    @Mock private lateinit var environment: Environment
+    @Mock
+    private lateinit var environment: Environment
     private lateinit var restProfileMockMvc: MockMvc
 
     @BeforeEach
@@ -37,27 +37,30 @@ internal class ProfileInfoResourceIntTest(
         val activeProfiles = arrayOf("test")
         Mockito.`when`(environment.defaultProfiles).thenReturn(activeProfiles)
         Mockito.`when`(environment.activeProfiles).thenReturn(activeProfiles)
-        restProfileMockMvc = MockMvcBuilders
-            .standaloneSetup(profileInfoResource)
-            .build()
+        restProfileMockMvc =
+            MockMvcBuilders
+                .standaloneSetup(profileInfoResource)
+                .build()
     }
 
     @Throws(Exception::class)
     @Test
     fun profileInfo() {
-            restProfileMockMvc.perform(MockMvcRequestBuilders.get("/api/profile-info"))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
-        }
+        restProfileMockMvc
+            .perform(MockMvcRequestBuilders.get("/api/profile-info"))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+    }
 
     @Throws(Exception::class)
     @Test
     fun profileInfoWithoutActiveProfiles() {
-            val emptyProfile = arrayOf<String>()
-            Mockito.`when`(environment.defaultProfiles).thenReturn(emptyProfile)
-            Mockito.`when`(environment.activeProfiles).thenReturn(emptyProfile)
-            restProfileMockMvc.perform(MockMvcRequestBuilders.get("/api/profile-info"))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
-        }
+        val emptyProfile = arrayOf<String>()
+        Mockito.`when`(environment.defaultProfiles).thenReturn(emptyProfile)
+        Mockito.`when`(environment.activeProfiles).thenReturn(emptyProfile)
+        restProfileMockMvc
+            .perform(MockMvcRequestBuilders.get("/api/profile-info"))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+    }
 }

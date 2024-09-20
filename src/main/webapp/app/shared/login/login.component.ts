@@ -1,12 +1,12 @@
-import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
-import { Router, UrlSegment } from '@angular/router';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import {AfterViewInit, Component, ElementRef, ViewChild} from '@angular/core';
+import {Router} from '@angular/router';
+import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 
-import { AuthService, StateStorageService } from '..';
-import { EventManager } from '../util/event-manager.service';
+import {AuthService} from '..';
+import {EventManager} from '../util/event-manager.service';
 
-import { LoginService } from './login.service';
-import { first } from 'rxjs/operators';
+import {LoginService} from './login.service';
+import {first} from 'rxjs/operators';
 
 @Component({
     selector: 'jhi-login-modal',
@@ -22,11 +22,11 @@ export class JhiLoginModalComponent implements AfterViewInit {
     credentials: any;
 
     constructor(
-            private eventManager: EventManager,
-            private loginService: LoginService,
-            private router: Router,
-            public activeModal: NgbActiveModal,
-            private authService: AuthService,
+        private eventManager: EventManager,
+        private loginService: LoginService,
+        private router: Router,
+        public activeModal: NgbActiveModal,
+        private authService: AuthService,
     ) {
         this.credentials = {};
     }
@@ -54,7 +54,7 @@ export class JhiLoginModalComponent implements AfterViewInit {
             this.authenticationError = false;
             this.activeModal.dismiss('login success');
             if (this.router.url === '/register' || (/activate/.test(this.router.url)) ||
-                    this.router.url === '/finishReset' || this.router.url === '/requestReset') {
+                this.router.url === '/finishReset' || this.router.url === '/requestReset') {
                 return this.router.navigate(['']);
             }
 

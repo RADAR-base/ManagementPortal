@@ -16,15 +16,12 @@ import kotlinx.serialization.Serializable
 data class MPUser(
     @SerialName("login")
     val id: String,
-
     val firstName: String? = null,
     val lastName: String? = null,
     val email: String? = null,
     val activated: Boolean = false,
-
     val langKey: String? = null,
     val createdBy: String? = null,
-
     /** ZonedDateTime. */
     val createdDate: String? = null,
     val lastModifiedBy: String? = null,

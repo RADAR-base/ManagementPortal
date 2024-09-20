@@ -18,13 +18,13 @@ export type HealthKey =
     | 'db';
 
 export interface Health {
-  status: HealthStatus;
-  components: {
-    [key in HealthKey]?: HealthDetails;
-  };
+    status: HealthStatus;
+    components: {
+        [key in HealthKey]?: HealthDetails;
+    };
 }
 
 export interface HealthDetails {
-  status: HealthStatus;
-  details?: { [key: string]: unknown };
+    status: HealthStatus;
+    details?: { [key: string]: unknown };
 }

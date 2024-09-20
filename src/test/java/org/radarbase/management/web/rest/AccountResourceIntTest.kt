@@ -53,10 +53,13 @@ internal class AccountResourceIntTest(
     @Autowired private val userMapper: UserMapper,
     @Autowired private val managementPortalProperties: ManagementPortalProperties,
     @Autowired private val authService: AuthService,
-    @Autowired private val passwordService: PasswordService
+    @Autowired private val passwordService: PasswordService,
 ) {
-    @Autowired private lateinit var mockUserService: UserService
-    @Autowired private lateinit var mockMailService: MailService
+    @Autowired
+    private lateinit var mockUserService: UserService
+
+    @Autowired
+    private lateinit var mockMailService: MailService
     private lateinit var restUserMockMvc: MockMvc
 
     @BeforeEach
@@ -64,27 +67,29 @@ internal class AccountResourceIntTest(
         mockUserService = mock()
         mockMailService = mock()
 
-        whenever(mockMailService.sendActivationEmail(anyVararg<User>())).doAnswer{ print("tried to send mail") }
+        whenever(mockMailService.sendActivationEmail(anyVararg<User>())).doAnswer { print("tried to send mail") }
 
         SecurityContextHolder.getContext().authentication = RadarAuthentication(radarToken)
-        val accountResource = AccountResource(
-            mockUserService,
-            mockMailService,
-            userMapper,
-            managementPortalProperties,
-            authService,
-            passwordService,
-        )
+        val accountResource =
+            AccountResource(
+                mockUserService,
+                mockMailService,
+                userMapper,
+                managementPortalProperties,
+                authService,
+                passwordService,
+            )
         accountResource.token = radarToken
 
-        val accountUserMockResource = AccountResource(
-            mockUserService,
-            mockMailService,
-            userMapper,
-            managementPortalProperties,
-            authService,
-            passwordService,
-        )
+        val accountUserMockResource =
+            AccountResource(
+                mockUserService,
+                mockMailService,
+                userMapper,
+                managementPortalProperties,
+                authService,
+                passwordService,
+            )
         accountUserMockResource.token = radarToken
 
         restUserMockMvc = MockMvcBuilders.standaloneSetup(accountUserMockResource).build()
@@ -98,11 +103,12 @@ internal class AccountResourceIntTest(
     @Test
     @Throws(Exception::class)
     fun testNonAuthenticatedUser() {
-        restUserMockMvc.perform(
-            MockMvcRequestBuilders.post("/api/login")
-                .accept(MediaType.APPLICATION_JSON)
-        )
-            .andExpect(MockMvcResultMatchers.status().isForbidden())
+        restUserMockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .post("/api/login")
+                    .accept(MediaType.APPLICATION_JSON),
+            ).andExpect(MockMvcResultMatchers.status().isForbidden())
     }
 
     @Test
@@ -123,14 +129,16 @@ internal class AccountResourceIntTest(
         user.langKey = "en"
         user.roles = roles
         whenever(mockUserService.getUserWithAuthorities()).doReturn(user)
-        restUserMockMvc.perform(MockMvcRequestBuilders.post("/api/login")
-            .with { request: MockHttpServletRequest ->
-                request.radarToken = token
-                request.remoteUser = "test"
-                request
-            }
-            .accept(MediaType.APPLICATION_JSON))
-            .andExpect(MockMvcResultMatchers.status().isOk())
+        restUserMockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .post("/api/login")
+                    .with { request: MockHttpServletRequest ->
+                        request.radarToken = token
+                        request.remoteUser = "test"
+                        request
+                    }.accept(MediaType.APPLICATION_JSON),
+            ).andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$.login").value("test"))
             .andExpect(MockMvcResultMatchers.jsonPath("$.firstName").value("john"))
@@ -139,8 +147,8 @@ internal class AccountResourceIntTest(
             .andExpect(MockMvcResultMatchers.jsonPath("$.langKey").value("en"))
             .andExpect(
                 MockMvcResultMatchers.jsonPath("$.authorities").value(
-                    RoleAuthority.SYS_ADMIN.authority
-                )
+                    RoleAuthority.SYS_ADMIN.authority,
+                ),
             )
     }
 
@@ -161,11 +169,12 @@ internal class AccountResourceIntTest(
         user.langKey = "en"
         user.roles = roles
         whenever(mockUserService.getUserWithAuthorities()).doReturn(user)
-        restUserMockMvc.perform(
-            MockMvcRequestBuilders.get("/api/account")
-                .accept(MediaType.APPLICATION_JSON)
-        )
-            .andExpect(MockMvcResultMatchers.status().isOk())
+        restUserMockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .get("/api/account")
+                    .accept(MediaType.APPLICATION_JSON),
+            ).andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$.login").value("test"))
             .andExpect(MockMvcResultMatchers.jsonPath("$.firstName").value("john"))
@@ -174,8 +183,8 @@ internal class AccountResourceIntTest(
             .andExpect(MockMvcResultMatchers.jsonPath("$.langKey").value("en"))
             .andExpect(
                 MockMvcResultMatchers.jsonPath("$.authorities").value(
-                    RoleAuthority.SYS_ADMIN.authority
-                )
+                    RoleAuthority.SYS_ADMIN.authority,
+                ),
             )
     }
 
@@ -183,11 +192,12 @@ internal class AccountResourceIntTest(
     @Throws(Exception::class)
     fun testGetUnknownAccount() {
         whenever(mockUserService.getUserWithAuthorities()).doReturn(null)
-        restUserMockMvc.perform(
-            MockMvcRequestBuilders.get("/api/account")
-                .accept(MediaType.APPLICATION_JSON)
-        )
-            .andExpect(MockMvcResultMatchers.status().isForbidden())
+        restUserMockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .get("/api/account")
+                    .accept(MediaType.APPLICATION_JSON),
+            ).andExpect(MockMvcResultMatchers.status().isForbidden())
     }
 
     @Test
@@ -206,12 +216,13 @@ internal class AccountResourceIntTest(
         invalidUser.isActivated = true
         invalidUser.langKey = "en"
         invalidUser.roles = roles
-        restUserMockMvc.perform(
-            MockMvcRequestBuilders.post("/api/account")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(invalidUser))
-        )
-            .andExpect(MockMvcResultMatchers.status().isBadRequest())
+        restUserMockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .post("/api/account")
+                    .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                    .content(TestUtil.convertObjectToJsonBytes(invalidUser)),
+            ).andExpect(MockMvcResultMatchers.status().isBadRequest())
         val user = userRepository.findOneByEmail("funky@example.com")
         Assertions.assertThat(user).isNull()
     }

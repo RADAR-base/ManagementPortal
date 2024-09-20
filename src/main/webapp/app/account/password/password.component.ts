@@ -1,8 +1,8 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import {Component, OnDestroy} from '@angular/core';
 
-import { Principal } from '../../shared';
-import { Password } from './password.service';
-import { Subscription } from 'rxjs';
+import {Principal} from '../../shared';
+import {Password} from './password.service';
+import {Subscription} from 'rxjs';
 
 @Component({
     selector: 'jhi-password',
@@ -19,8 +19,8 @@ export class PasswordComponent implements OnDestroy {
     private subscriptions = new Subscription();
 
     constructor(
-      private passwordService: Password,
-      public principal: Principal,
+        private passwordService: Password,
+        public principal: Principal,
     ) {
     }
 

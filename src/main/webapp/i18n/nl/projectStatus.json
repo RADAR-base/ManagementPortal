@@ -1,6 +1,6 @@
 {
     "managementPortalApp": {
-        "ProjectStatus" : {
+        "ProjectStatus": {
             "undefined": "",
             "null": "",
             "PLANNING": "PLANNING",

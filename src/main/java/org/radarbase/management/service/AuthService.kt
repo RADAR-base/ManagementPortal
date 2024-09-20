@@ -1,7 +1,12 @@
 package org.radarbase.management.service
 
 import kotlinx.coroutines.runBlocking
-import org.radarbase.auth.authorization.*
+import org.radarbase.auth.authorization.AuthorityReferenceSet
+import org.radarbase.auth.authorization.AuthorizationOracle
+import org.radarbase.auth.authorization.EntityDetails
+import org.radarbase.auth.authorization.Permission
+import org.radarbase.auth.authorization.RoleAuthority
+import org.radarbase.auth.authorization.entityDetailsBuilder
 import org.radarbase.auth.token.RadarToken
 import org.radarbase.management.security.NotAuthorizedException
 import org.springframework.stereotype.Service
@@ -26,7 +31,7 @@ class AuthService(
 
         if (!oracle.hasScope(token, permission)) {
             throw NotAuthorizedException(
-                "User ${token.username} with client ${token.clientId} does not have permission $permission"
+                "User ${token.username} with client ${token.clientId} does not have permission $permission",
             )
         }
     }
@@ -49,13 +54,14 @@ class AuthService(
         // entitydetails builder is null means we require global permission
         val entity = if (builder != null) entityDetailsBuilder(builder) else EntityDetails.global
 
-        val hasPermission = runBlocking {
-            oracle.hasPermission(token, permission, entity, scope)
-        }
+        val hasPermission =
+            runBlocking {
+                oracle.hasPermission(token, permission, entity, scope)
+            }
         if (!hasPermission) {
             throw NotAuthorizedException(
                 "User ${token.username} with client ${token.clientId} does not have permission $permission to scope " +
-                        "$scope of $entity"
+                    "$scope of $entity",
             )
         }
     }
@@ -65,11 +71,16 @@ class AuthService(
         return oracle.referentsByScope(token, permission)
     }
 
-    fun mayBeGranted(role: RoleAuthority, permission: Permission): Boolean = with(oracle) {
-        role.mayBeGranted(permission)
-    }
+    fun mayBeGranted(
+        role: RoleAuthority,
+        permission: Permission,
+    ): Boolean =
+        with(oracle) {
+            role.mayBeGranted(permission)
+        }
 
-    fun mayBeGranted(authorities: Collection<RoleAuthority>, permission: Permission): Boolean {
-        return authorities.any{ mayBeGranted(it, permission) }
-    }
+    fun mayBeGranted(
+        authorities: Collection<RoleAuthority>,
+        permission: Permission,
+    ): Boolean = authorities.any { mayBeGranted(it, permission) }
 }

@@ -1,15 +1,14 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { DatePipe } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
-import { of } from 'rxjs';
+import {ComponentFixture, TestBed, waitForAsync} from '@angular/core/testing';
+import {DatePipe} from '@angular/common';
+import {ActivatedRoute} from '@angular/router';
+import {of} from 'rxjs';
 
-import { EventManager } from '../../shared/util/event-manager.service';
-import { ManagementPortalTestModule } from '../../shared/util/test/test.module';
-import { MockActivatedRoute } from '../../shared/util/test/mock-route.service';
-import { SourceTypeDetailComponent } from './source-type-detail.component';
-import { SourceTypeService } from './source-type.service';
-import { SourceType } from './source-type.model';
-import { first } from 'rxjs/operators';
+import {EventManager} from '../../shared/util/event-manager.service';
+import {ManagementPortalTestModule} from '../../shared/util/test/test.module';
+import {MockActivatedRoute} from '../../shared/util/test/mock-route.service';
+import {SourceTypeDetailComponent} from './source-type-detail.component';
+import {SourceTypeService} from './source-type.service';
+import {first} from 'rxjs/operators';
 
 describe('Component Tests', () => {
 
@@ -26,8 +25,10 @@ describe('Component Tests', () => {
                     DatePipe,
                     {
                         provide: ActivatedRoute,
-                        useValue: new MockActivatedRoute({sourceTypeProducer: 'testProducer',
-                            sourceTypeModel: 'testModel', catalogVersion: 'testVersion'})
+                        useValue: new MockActivatedRoute({
+                            sourceTypeProducer: 'testProducer',
+                            sourceTypeModel: 'testModel', catalogVersion: 'testVersion'
+                        })
                     },
                     SourceTypeService,
                     EventManager
@@ -43,17 +44,17 @@ describe('Component Tests', () => {
 
         describe('OnInit', () => {
             it('Should call load all on init', waitForAsync(async () => {
-            // GIVEN
+                // GIVEN
 
-            spyOn(service, 'find').and.returnValue(of({id: 10, organization: {name: 'test'}}));
+                spyOn(service, 'find').and.returnValue(of({id: 10, organization: {name: 'test'}}));
 
-            // WHEN
-            comp.ngOnInit();
+                // WHEN
+                comp.ngOnInit();
 
-            const sourceType = await comp.sourceType$.pipe(first()).toPromise();
-            // THEN
-            expect(sourceType).toEqual(jasmine.objectContaining({id: 10, organization: {name: 'test'}}));
-            expect(service.find).toHaveBeenCalledWith('testProducer', 'testModel', 'testVersion');
+                const sourceType = await comp.sourceType$.pipe(first()).toPromise();
+                // THEN
+                expect(sourceType).toEqual(jasmine.objectContaining({id: 10, organization: {name: 'test'}}));
+                expect(service.find).toHaveBeenCalledWith('testProducer', 'testModel', 'testVersion');
             }));
         });
     });

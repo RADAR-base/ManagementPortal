@@ -30,6 +30,7 @@ import javax.annotation.PreDestroy
 class CacheConfiguration {
     @Autowired
     private val env: Environment? = null
+
     @PreDestroy
     fun destroy() {
         log.info("Closing Cache Manager")
@@ -40,7 +41,7 @@ class CacheConfiguration {
     fun HazelcastInstance.cacheManager(): CacheManager {
         log.debug("Starting HazelcastCacheManager")
         return HazelcastCacheManager(
-            this
+            this,
         )
     }
 
@@ -64,15 +65,18 @@ class CacheConfiguration {
             networkConfig.join.eurekaConfig.setEnabled(false)
             networkConfig.join.kubernetesConfig.setEnabled(false)
         }
-        val attributeConfig = AttributeConfig()
-            .setName(Hazelcast4IndexedSessionRepository.PRINCIPAL_NAME_ATTRIBUTE)
-            .setExtractorClassName(Hazelcast4PrincipalNameExtractor::class.java.getName())
-        config.getMapConfig(Hazelcast4IndexedSessionRepository.DEFAULT_SESSION_MAP_NAME)
-            .addAttributeConfig(attributeConfig).addIndexConfig(
+        val attributeConfig =
+            AttributeConfig()
+                .setName(Hazelcast4IndexedSessionRepository.PRINCIPAL_NAME_ATTRIBUTE)
+                .setExtractorClassName(Hazelcast4PrincipalNameExtractor::class.java.getName())
+        config
+            .getMapConfig(Hazelcast4IndexedSessionRepository.DEFAULT_SESSION_MAP_NAME)
+            .addAttributeConfig(attributeConfig)
+            .addIndexConfig(
                 IndexConfig(
                     IndexType.HASH,
-                    Hazelcast4IndexedSessionRepository.PRINCIPAL_NAME_ATTRIBUTE
-                )
+                    Hazelcast4IndexedSessionRepository.PRINCIPAL_NAME_ATTRIBUTE,
+                ),
             )
         config.mapConfigs["default"] = initializeDefaultMapConfig()
         config.mapConfigs["org.radarbase.management.domain.*"] = initializeDomainMapConfig(jHipsterProperties)
@@ -84,25 +88,28 @@ class CacheConfiguration {
 
         /* Number of backups. If 1 is set as the backup-count for example,
            then all entries of the map will be copied to another JVM for
-           fail-safety. Valid numbers are 0 (no backup), 1, 2, 3. */mapConfig.setBackupCount(0)
+           fail-safety. Valid numbers are 0 (no backup), 1, 2, 3. */
+        mapConfig.setBackupCount(0)
 
         /* Valid values are:
            NONE (no eviction),
            LRU (Least Recently Used),
            LFU (Least Frequently Used).
-           NONE is the default. */mapConfig.evictionConfig.setEvictionPolicy(EvictionPolicy.LRU)
+           NONE is the default. */
+        mapConfig.evictionConfig.setEvictionPolicy(EvictionPolicy.LRU)
 
         /* Maximum size of the map. When max size is reached,
            map is evicted based on the policy defined.
            Any integer between 0 and Integer.MAX_VALUE. 0 means
-           Integer.MAX_VALUE. Default is 0. */mapConfig.evictionConfig.setMaxSizePolicy(MaxSizePolicy.USED_HEAP_SIZE)
+           Integer.MAX_VALUE. Default is 0. */
+        mapConfig.evictionConfig.setMaxSizePolicy(MaxSizePolicy.USED_HEAP_SIZE)
         return mapConfig
     }
 
     private fun initializeDomainMapConfig(jHipsterProperties: JHipsterProperties): MapConfig {
         val mapConfig = MapConfig()
         mapConfig.setTimeToLiveSeconds(
-            jHipsterProperties.cache.hazelcast.timeToLiveSeconds
+            jHipsterProperties.cache.hazelcast.timeToLiveSeconds,
         )
         return mapConfig
     }

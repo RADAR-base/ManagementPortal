@@ -2,85 +2,123 @@
     <jhi-alert></jhi-alert>
     <h1><span [translate]="'revisions.title'"></span></h1>
     <p class="text-right">
-        <span class="badge badge-success" [translate]="'revisions.type.add'">
-        </span>&nbsp;<span class="badge badge-warning" [translate]="'revisions.type.mod'">
-        </span>&nbsp;<span class="badge badge-danger" [translate]="'revisions.type.del'">
+        <span [translate]="'revisions.type.add'" class="badge badge-success">
+        </span>&nbsp;<span [translate]="'revisions.type.mod'" class="badge badge-warning">
+        </span>&nbsp;<span [translate]="'revisions.type.del'" class="badge badge-danger">
         </span>
     </p>
     <div class="table-responsive">
         <table class="table table-striped">
             <thead>
-            <tr jhiSort [(predicate)]="predicate" [(ascending)]="ascending" [callback]="transition.bind(this)">
-                <th jhiSortBy="id" ><span [translate]="'revisions.number'"></span><span class="fa fa-sort"></span></th>
-                <th jhiSortBy="timestamp" ><span [translate]="'audits.table.header.date'"></span><span class="fa fa-sort"></span></th>
-                <th jhiSortBy="auditor" ><span [translate]="'revisions.author'"></span><span class="fa fa-sort"></span></th>
+            <tr [(ascending)]="ascending" [(predicate)]="predicate" [callback]="transition.bind(this)" jhiSort>
+                <th jhiSortBy="id"><span [translate]="'revisions.number'"></span><span class="fa fa-sort"></span></th>
+                <th jhiSortBy="timestamp"><span [translate]="'audits.table.header.date'"></span><span
+                        class="fa fa-sort"></span></th>
+                <th jhiSortBy="auditor"><span [translate]="'revisions.author'"></span><span class="fa fa-sort"></span>
+                </th>
                 <th><span [translate]="'revisions.modifications'"></span></th>
             </tr>
             </thead>
             <tbody>
             <tr *ngFor="let revision of revisions;trackBy: trackIdentity">
-                <td>{{revision.id}}</td>
-                <td>{{revision.timestamp}}</td>
-                <td>{{revision.author}}</td>
+                <td>{{ revision.id }}</td>
+                <td>{{ revision.timestamp }}</td>
+                <td>{{ revision.author }}</td>
                 <td>
                     <!-- Additions -->
-                    <a [routerLink]="['/project', project.projectName, 'revisions', revision.id]" *ngFor="let project of revision.changes['ADD']['project']">
-                        <span class="badge badge-success"><span [translate]="'revisions.entity.project'"></span> {{project.projectName}}</span>
+                    <a *ngFor="let project of revision.changes['ADD']['project']"
+                       [routerLink]="['/project', project.projectName, 'revisions', revision.id]">
+                        <span class="badge badge-success"><span
+                                [translate]="'revisions.entity.project'"></span> {{ project.projectName }}</span>
                     </a>
-                    <a [routerLink]="['/subject', subject.login, 'revisions', revision.id]" *ngFor="let subject of revision.changes['ADD']['subject']">
-                        <span class="badge badge-success"><span [translate]="'revisions.entity.subject'"></span> {{subject.login}}</span>
+                    <a *ngFor="let subject of revision.changes['ADD']['subject']"
+                       [routerLink]="['/subject', subject.login, 'revisions', revision.id]">
+                        <span class="badge badge-success"><span
+                                [translate]="'revisions.entity.subject'"></span> {{ subject.login }}</span>
                     </a>
-                    <a [routerLink]="['/source', source.sourceName, 'revisions', revision.id]" *ngFor="let source of revision.changes['ADD']['source']">
-                        <span class="badge badge-success"><span [translate]="'revisions.entity.source'"></span> {{source.sourceName}}</span>
+                    <a *ngFor="let source of revision.changes['ADD']['source']"
+                       [routerLink]="['/source', source.sourceName, 'revisions', revision.id]">
+                        <span class="badge badge-success"><span
+                                [translate]="'revisions.entity.source'"></span> {{ source.sourceName }}</span>
                     </a>
-                    <a [routerLink]="['/source-type', sourceType.producer, sourceType.model, sourceType.catalogVersion, 'revisions', revision.id]" *ngFor="let sourceType of revision.changes['ADD']['sourcetype']">
-                        <span class="badge badge-success"><span [translate]="'revisions.entity.sourceType'"></span> {{sourceType.producer}} {{sourceType.model}} {{sourceType.catalogVersion}}</span>
+                    <a *ngFor="let sourceType of revision.changes['ADD']['sourcetype']"
+                       [routerLink]="['/source-type', sourceType.producer, sourceType.model, sourceType.catalogVersion, 'revisions', revision.id]">
+                        <span class="badge badge-success"><span
+                                [translate]="'revisions.entity.sourceType'"></span> {{ sourceType.producer }} {{ sourceType.model }} {{ sourceType.catalogVersion }}</span>
                     </a>
-                    <a [routerLink]="['/source-data', sourceData.sourceDataName, 'revisions', revision.id]" *ngFor="let sourceData of revision.changes['ADD']['sourcedata']">
-                        <span class="badge badge-success"><span [translate]="'revisions.entity.sourceData'"></span> {{sourceData.sourceDataName}}</span>
+                    <a *ngFor="let sourceData of revision.changes['ADD']['sourcedata']"
+                       [routerLink]="['/source-data', sourceData.sourceDataName, 'revisions', revision.id]">
+                        <span class="badge badge-success"><span
+                                [translate]="'revisions.entity.sourceData'"></span> {{ sourceData.sourceDataName }}</span>
                     </a>
-                    <a [routerLink]="['/user-management', user.login, 'revisions', revision.id]" *ngFor="let user of revision.changes['ADD']['user']">
-                        <span class="badge badge-success"><span [translate]="'revisions.entity.user'"></span> {{user.login}}</span>
+                    <a *ngFor="let user of revision.changes['ADD']['user']"
+                       [routerLink]="['/user-management', user.login, 'revisions', revision.id]">
+                        <span class="badge badge-success"><span
+                                [translate]="'revisions.entity.user'"></span> {{ user.login }}</span>
                     </a>
-                    
+
                     <!-- Modifications -->
-                    <a [routerLink]="['/project', project.projectName, 'revisions', revision.id]" *ngFor="let project of revision.changes['MOD']['project']">
-                        <span class="badge badge-warning"><span [translate]="'revisions.entity.project'"></span> {{project.projectName}}</span>
+                    <a *ngFor="let project of revision.changes['MOD']['project']"
+                       [routerLink]="['/project', project.projectName, 'revisions', revision.id]">
+                        <span class="badge badge-warning"><span
+                                [translate]="'revisions.entity.project'"></span> {{ project.projectName }}</span>
                     </a>
-                    <a [routerLink]="['/subject', subject.login, 'revisions', revision.id]" *ngFor="let subject of revision.changes['MOD']['subject']">
-                        <span class="badge badge-warning"><span [translate]="'revisions.entity.subject'"></span> {{subject.login}}</span>
+                    <a *ngFor="let subject of revision.changes['MOD']['subject']"
+                       [routerLink]="['/subject', subject.login, 'revisions', revision.id]">
+                        <span class="badge badge-warning"><span
+                                [translate]="'revisions.entity.subject'"></span> {{ subject.login }}</span>
                     </a>
-                    <a [routerLink]="['/source', source.sourceName, 'revisions', revision.id]" *ngFor="let source of revision.changes['MOD']['source']">
-                        <span class="badge badge-warning"><span [translate]="'revisions.entity.source'"></span> {{source.sourceName}}</span>
+                    <a *ngFor="let source of revision.changes['MOD']['source']"
+                       [routerLink]="['/source', source.sourceName, 'revisions', revision.id]">
+                        <span class="badge badge-warning"><span
+                                [translate]="'revisions.entity.source'"></span> {{ source.sourceName }}</span>
                     </a>
-                    <a [routerLink]="['/source-type', sourceType.producer, sourceType.model, sourceType.catalogVersion, 'revisions', revision.id]" *ngFor="let sourceType of revision.changes['MOD']['sourcetype']">
-                        <span class="badge badge-warning"><span [translate]="'revisions.entity.sourceType'"></span> {{sourceType.producer}} {{sourceType.model}} {{sourceType.catalogVersion}}</span>
+                    <a *ngFor="let sourceType of revision.changes['MOD']['sourcetype']"
+                       [routerLink]="['/source-type', sourceType.producer, sourceType.model, sourceType.catalogVersion, 'revisions', revision.id]">
+                        <span class="badge badge-warning"><span
+                                [translate]="'revisions.entity.sourceType'"></span> {{ sourceType.producer }} {{ sourceType.model }} {{ sourceType.catalogVersion }}</span>
                     </a>
-                    <a [routerLink]="['/source-data', sourceData.sourceDataName, 'revisions', revision.id]" *ngFor="let sourceData of revision.changes['MOD']['sourcedata']">
-                        <span class="badge badge-warning"><span [translate]="'revisions.entity.sourceData'"></span> {{sourceData.sourceDataName}}</span>
+                    <a *ngFor="let sourceData of revision.changes['MOD']['sourcedata']"
+                       [routerLink]="['/source-data', sourceData.sourceDataName, 'revisions', revision.id]">
+                        <span class="badge badge-warning"><span
+                                [translate]="'revisions.entity.sourceData'"></span> {{ sourceData.sourceDataName }}</span>
                     </a>
-                    <a [routerLink]="['/user-management', user.login, 'revisions', revision.id]" *ngFor="let user of revision.changes['MOD']['user']">
-                        <span class="badge badge-warning"><span [translate]="'revisions.entity.user'"></span> {{user.login}}</span>
+                    <a *ngFor="let user of revision.changes['MOD']['user']"
+                       [routerLink]="['/user-management', user.login, 'revisions', revision.id]">
+                        <span class="badge badge-warning"><span
+                                [translate]="'revisions.entity.user'"></span> {{ user.login }}</span>
                     </a>
 
                     <!-- Deletions -->
-                    <a [routerLink]="['/project', project.projectName, 'revisions', revision.id]" *ngFor="let project of revision.changes['DEL']['project']">
-                        <span class="badge badge-danger"><span [translate]="'revisions.entity.project'"></span> {{project.projectName}}</span>
+                    <a *ngFor="let project of revision.changes['DEL']['project']"
+                       [routerLink]="['/project', project.projectName, 'revisions', revision.id]">
+                        <span class="badge badge-danger"><span
+                                [translate]="'revisions.entity.project'"></span> {{ project.projectName }}</span>
                     </a>
-                    <a [routerLink]="['/subject', subject.login, 'revisions', revision.id]" *ngFor="let subject of revision.changes['DEL']['subject']">
-                        <span class="badge badge-danger"><span [translate]="'revisions.entity.subject'"></span> {{subject.login}}</span>
+                    <a *ngFor="let subject of revision.changes['DEL']['subject']"
+                       [routerLink]="['/subject', subject.login, 'revisions', revision.id]">
+                        <span class="badge badge-danger"><span
+                                [translate]="'revisions.entity.subject'"></span> {{ subject.login }}</span>
                     </a>
-                    <a [routerLink]="['/source', source.sourceName, 'revisions', revision.id]" *ngFor="let source of revision.changes['DEL']['source']">
-                        <span class="badge badge-danger"><span [translate]="'revisions.entity.source'"></span> {{source.sourceName}}</span>
+                    <a *ngFor="let source of revision.changes['DEL']['source']"
+                       [routerLink]="['/source', source.sourceName, 'revisions', revision.id]">
+                        <span class="badge badge-danger"><span
+                                [translate]="'revisions.entity.source'"></span> {{ source.sourceName }}</span>
                     </a>
-                    <a [routerLink]="['/source-type', sourceType.producer, sourceType.model, sourceType.catalogVersion, 'revisions', revision.id]" *ngFor="let sourceType of revision.changes['DEL']['sourcetype']">
-                        <span class="badge badge-danger"><span [translate]="'revisions.entity.sourceType'"></span> {{sourceType.producer}} {{sourceType.model}} {{sourceType.catalogVersion}}</span>
+                    <a *ngFor="let sourceType of revision.changes['DEL']['sourcetype']"
+                       [routerLink]="['/source-type', sourceType.producer, sourceType.model, sourceType.catalogVersion, 'revisions', revision.id]">
+                        <span class="badge badge-danger"><span
+                                [translate]="'revisions.entity.sourceType'"></span> {{ sourceType.producer }} {{ sourceType.model }} {{ sourceType.catalogVersion }}</span>
                     </a>
-                    <a [routerLink]="['/source-data', sourceData.sourceDataName, 'revisions', revision.id]" *ngFor="let sourceData of revision.changes['DEL']['sourcedata']">
-                        <span class="badge badge-danger"><span [translate]="'revisions.entity.sourceData'"></span> {{sourceData.sourceDataName}}</span>
+                    <a *ngFor="let sourceData of revision.changes['DEL']['sourcedata']"
+                       [routerLink]="['/source-data', sourceData.sourceDataName, 'revisions', revision.id]">
+                        <span class="badge badge-danger"><span
+                                [translate]="'revisions.entity.sourceData'"></span> {{ sourceData.sourceDataName }}</span>
                     </a>
-                    <a [routerLink]="['/user-management', user.login, 'revisions', revision.id]" *ngFor="let user of revision.changes['DEL']['user']">
-                        <span class="badge badge-danger"><span [translate]="'revisions.entity.user'"></span> {{user.login}}</span>
+                    <a *ngFor="let user of revision.changes['DEL']['user']"
+                       [routerLink]="['/user-management', user.login, 'revisions', revision.id]">
+                        <span class="badge badge-danger"><span
+                                [translate]="'revisions.entity.user'"></span> {{ user.login }}</span>
                     </a>
                 </td>
                 <td></td>
@@ -90,10 +128,12 @@
     </div>
     <div *ngIf="totalItems !== undefined">
         <div class="row justify-content-center">
-            <jhi-item-count [page]="page" [total]="queryCount" [itemsPerPage]="itemsPerPage"></jhi-item-count>
+            <jhi-item-count [itemsPerPage]="itemsPerPage" [page]="page" [total]="queryCount"></jhi-item-count>
         </div>
         <div class="row justify-content-center">
-            <ngb-pagination [collectionSize]="totalItems" [(pageSize)]="itemsPerPage" boundaryLinks = true [(page)]="page" (pageChange)="loadPage(page)"></ngb-pagination>
+            <ngb-pagination (pageChange)="loadPage(page)" [(page)]="page" [(pageSize)]="itemsPerPage"
+                            [collectionSize]="totalItems"
+                            boundaryLinks=true></ngb-pagination>
         </div>
     </div>
 </div>

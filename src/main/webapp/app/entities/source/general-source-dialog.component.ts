@@ -1,18 +1,18 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { HttpErrorResponse } from '@angular/common/http';
-import { ActivatedRoute, Params } from '@angular/router';
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {HttpErrorResponse} from '@angular/common/http';
+import {ActivatedRoute, Params} from '@angular/router';
 
-import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import {NgbActiveModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 
-import { AlertService } from '../../shared/util/alert.service';
-import { EventManager } from '../../shared/util/event-manager.service';
-import { Source, SourceService } from '../../shared/source';
-import { MinimalProject, Project, ProjectService } from '../../shared';
+import {AlertService} from '../../shared/util/alert.service';
+import {EventManager} from '../../shared/util/event-manager.service';
+import {Source, SourceService} from '../../shared/source';
+import {MinimalProject, Project, ProjectService} from '../../shared';
 
-import { SourceType } from '../source-type';
-import { GeneralSourcePopupService } from './general-source-popup.service';
-import { ObservablePopupComponent } from '../../shared/util/observable-popup.component';
-import { Observable, Subscription } from 'rxjs';
+import {SourceType} from '../source-type';
+import {GeneralSourcePopupService} from './general-source-popup.service';
+import {ObservablePopupComponent} from '../../shared/util/observable-popup.component';
+import {Observable, Subscription} from 'rxjs';
 
 @Component({
     selector: 'jhi-source-dialog',
@@ -30,11 +30,11 @@ export class GeneralSourceDialogComponent implements OnInit, OnDestroy {
     private subscriptions: Subscription = new Subscription();
 
     constructor(
-      public activeModal: NgbActiveModal,
-      private alertService: AlertService,
-      private sourceService: SourceService,
-      public projectService: ProjectService,
-      private eventManager: EventManager,
+        public activeModal: NgbActiveModal,
+        private alertService: AlertService,
+        private sourceService: SourceService,
+        public projectService: ProjectService,
+        private eventManager: EventManager,
     ) {
         this.authorities = ['ROLE_USER', 'ROLE_SYS_ADMIN'];
         this.isSaving = false;
@@ -79,6 +79,14 @@ export class GeneralSourceDialogComponent implements OnInit, OnDestroy {
         }
     }
 
+    trackSourceTypeById(index: number, item: SourceType) {
+        return item.id;
+    }
+
+    trackProjectById(index: number, item: MinimalProject) {
+        return item.id;
+    }
+
     private onSaveSuccess(result: Source) {
         this.eventManager.broadcast({name: 'sourceListModification', content: 'OK'});
         this.isSaving = false;
@@ -92,14 +100,6 @@ export class GeneralSourceDialogComponent implements OnInit, OnDestroy {
 
     private onError(error) {
         this.alertService.error(error.message, null, null);
-    }
-
-    trackSourceTypeById(index: number, item: SourceType) {
-        return item.id;
-    }
-
-    trackProjectById(index: number, item: MinimalProject) {
-        return item.id;
     }
 }
 

@@ -10,8 +10,10 @@ export function login(username = "admin", password = "admin") {
         cy.get('#password').type(password);
         cy.get('button[type=submit]').click();
         cy.get('.alert-success span').should('exist');
-    }, { validate() {
-        cy.getCookie('SESSION').should('exist')}
+    }, {
+        validate() {
+            cy.getCookie('SESSION').should('exist')
+        }
     })
     cy.visit('/');
 }

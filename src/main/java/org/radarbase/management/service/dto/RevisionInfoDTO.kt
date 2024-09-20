@@ -31,20 +31,27 @@ class RevisionInfoDTO : Serializable {
          * @param changes the changes
          * @return the RevisionInfoDTO object
          */
-        fun from(revisionEntity: CustomRevisionEntity, changes: Map<RevisionType, List<Any>>): RevisionInfoDTO {
+        fun from(
+            revisionEntity: CustomRevisionEntity,
+            changes: Map<RevisionType, List<Any>>,
+        ): RevisionInfoDTO {
             val result = RevisionInfoDTO()
             result.author = revisionEntity.auditor
             result.timestamp = revisionEntity.timestamp
             result.id = revisionEntity.id
-            result.changes = changes.entries
-                .associateBy (
-                    { obj -> obj.key },
-                    {
-                        it.value.groupBy { obj ->
-                            obj.javaClass.getSimpleName().replace("DTO$".toRegex(), "").lowercase()
-                        }
-                    }
-                )
+            result.changes =
+                changes.entries
+                    .associateBy(
+                        { obj -> obj.key },
+                        {
+                            it.value.groupBy { obj ->
+                                obj.javaClass
+                                    .getSimpleName()
+                                    .replace("DTO$".toRegex(), "")
+                                    .lowercase()
+                            }
+                        },
+                    )
 
             return result
         }

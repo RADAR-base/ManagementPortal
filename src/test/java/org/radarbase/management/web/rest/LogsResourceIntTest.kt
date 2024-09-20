@@ -23,22 +23,25 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders
 @SpringBootTest(classes = [ManagementPortalTestApp::class])
 internal class LogsResourceIntTest {
     private var restLogsMockMvc: MockMvc? = null
+
     @BeforeEach
     fun setUp() {
         MockitoAnnotations.openMocks(this)
         val logsResource = LogsResource()
-        restLogsMockMvc = MockMvcBuilders
-            .standaloneSetup(logsResource)
-            .build()
+        restLogsMockMvc =
+            MockMvcBuilders
+                .standaloneSetup(logsResource)
+                .build()
     }
 
     @Throws(Exception::class)
     @Test
     fun allLogs() {
-            restLogsMockMvc!!.perform(MockMvcRequestBuilders.get("/management/logs"))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
-        }
+        restLogsMockMvc!!
+            .perform(MockMvcRequestBuilders.get("/management/logs"))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+    }
 
     @Test
     @Throws(Exception::class)
@@ -46,11 +49,12 @@ internal class LogsResourceIntTest {
         val logger = LoggerVM()
         logger.level = "INFO"
         logger.name = "ROOT"
-        restLogsMockMvc!!.perform(
-            MockMvcRequestBuilders.put("/management/logs")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(logger))
-        )
-            .andExpect(MockMvcResultMatchers.status().isNoContent())
+        restLogsMockMvc!!
+            .perform(
+                MockMvcRequestBuilders
+                    .put("/management/logs")
+                    .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                    .content(TestUtil.convertObjectToJsonBytes(logger)),
+            ).andExpect(MockMvcResultMatchers.status().isNoContent())
     }
 }

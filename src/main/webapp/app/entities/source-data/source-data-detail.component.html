@@ -1,16 +1,15 @@
-
 <div *ngIf="sourceData">
-    <h2><span [translate]="'managementPortalApp.sourceData.detail.title'"></span>: {{sourceData.sourceDataName}}</h2>
+    <h2><span [translate]="'managementPortalApp.sourceData.detail.title'"></span>: {{ sourceData.sourceDataName }}</h2>
     <hr>
     <jhi-alert-error></jhi-alert-error>
     <dl class="row-md jh-entity-details">
         <dt><span [translate]="'managementPortalApp.sourceData.sourceDataType'"></span></dt>
         <dd>
-            <span>{{sourceData.sourceDataType}}</span>
+            <span>{{ sourceData.sourceDataType }}</span>
         </dd>
         <dt><span [translate]="'managementPortalApp.sourceData.sourceDataName'"></span></dt>
         <dd>
-            <span>{{sourceData.sourceDataName}}</span>
+            <span>{{ sourceData.sourceDataName }}</span>
         </dd>
         <dt><span [translate]="'managementPortalApp.sourceData.processingState'"></span></dt>
         <dd>
@@ -18,35 +17,35 @@
         </dd>
         <dt><span [translate]="'managementPortalApp.sourceData.keySchema'"></span></dt>
         <dd>
-            <span>{{sourceData.keySchema}}</span>
+            <span>{{ sourceData.keySchema }}</span>
         </dd>
         <dt><span [translate]="'managementPortalApp.sourceData.valueSchema'"></span></dt>
         <dd>
-            <span>{{sourceData.valueSchema}}</span>
+            <span>{{ sourceData.valueSchema }}</span>
         </dd>
         <dt><span [translate]="'managementPortalApp.sourceData.topic'"></span></dt>
         <dd>
-            <span>{{sourceData.topic}}</span>
+            <span>{{ sourceData.topic }}</span>
         </dd>
         <dt><span [translate]="'managementPortalApp.sourceData.frequency'"></span></dt>
         <dd>
-            <span>{{sourceData.frequency}}</span>
+            <span>{{ sourceData.frequency }}</span>
         </dd>
         <dt><span [translate]="'managementPortalApp.sourceData.unit'"></span></dt>
         <dd>
-            <span>{{sourceData.unit}}</span>
+            <span>{{ sourceData.unit }}</span>
         </dd>
         <dt><span [translate]="'managementPortalApp.sourceData.sourceType'"></span></dt>
         <dd>
             <span *ngIf="sourceData.sourceType">
-                <a  [routerLink]="['/source-type', sourceData.sourceType.producer , sourceData.sourceType.model , sourceData.sourceType.catalogVersion ]">{{sourceData.sourceType?.producer+"_"+sourceData.sourceType?.model+"_"+sourceData.sourceType?.catalogVersion}}</a>
+                <a [routerLink]="['/source-type', sourceData.sourceType.producer , sourceData.sourceType.model , sourceData.sourceType.catalogVersion ]">{{ sourceData.sourceType?.producer + "_" + sourceData.sourceType?.model + "_" + sourceData.sourceType?.catalogVersion }}</a>
             </span>
         </dd>
     </dl>
 
-    <button type="submit"
-            (click)="previousState()"
-            class="btn btn-info">
+    <button (click)="previousState()"
+            class="btn btn-info"
+            type="submit">
         <span class="fa fa-arrow-left"></span>&nbsp;<span [translate]="'entity.action.back'"></span>
     </button>
 

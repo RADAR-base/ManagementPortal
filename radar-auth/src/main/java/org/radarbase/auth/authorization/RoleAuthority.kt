@@ -16,12 +16,15 @@ enum class RoleAuthority(
     PROJECT_ANALYST(Scope.PROJECT, false),
     PARTICIPANT(Scope.PROJECT, true),
     INACTIVE_PARTICIPANT(Scope.PROJECT, true),
-    ORGANIZATION_ADMIN(Scope.ORGANIZATION, false);
+    ORGANIZATION_ADMIN(Scope.ORGANIZATION, false),
+    ;
 
     val authority: String = "ROLE_$name"
 
     enum class Scope {
-        GLOBAL, ORGANIZATION, PROJECT
+        GLOBAL,
+        ORGANIZATION,
+        PROJECT,
     }
 
     companion object {
@@ -35,11 +38,12 @@ enum class RoleAuthority(
          * @throws NullPointerException if given authority is null.
          */
         @JvmStatic
-        fun valueOfAuthority(authority: String): RoleAuthority = valueOf(
-            authority
-                .uppercase()
-                .removePrefix("ROLE_")
-        )
+        fun valueOfAuthority(authority: String): RoleAuthority =
+            valueOf(
+                authority
+                    .uppercase()
+                    .removePrefix("ROLE_"),
+            )
 
         /**
          * Find role authority based on authority name.
@@ -47,12 +51,11 @@ enum class RoleAuthority(
          * @return RoleAuthority or null if no role authority exists with the given name.
          */
         @JvmStatic
-        fun valueOfAuthorityOrNull(authority: String): RoleAuthority? {
-            return try {
+        fun valueOfAuthorityOrNull(authority: String): RoleAuthority? =
+            try {
                 valueOfAuthority(authority)
             } catch (ex: IllegalArgumentException) {
                 null
             }
-        }
     }
 }

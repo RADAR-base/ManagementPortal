@@ -1,11 +1,11 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
-import { Subscription } from 'rxjs';
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {HttpErrorResponse, HttpResponse} from '@angular/common/http';
+import {Subscription} from 'rxjs';
 
-import { AlertService } from '../../shared/util/alert.service';
-import { EventManager } from '../../shared/util/event-manager.service';
-import { OAuthClient } from './oauth-client.model';
-import { OAuthClientService } from './oauth-client.service';
+import {AlertService} from '../../shared/util/alert.service';
+import {EventManager} from '../../shared/util/event-manager.service';
+import {OAuthClient} from './oauth-client.model';
+import {OAuthClientService} from './oauth-client.service';
 
 @Component({
     selector: 'jhi-oauth-client',
@@ -24,18 +24,18 @@ export class OAuthClientComponent implements OnInit, OnDestroy {
     };
 
     constructor(
-            private oauthClientService: OAuthClientService,
-            private alertService: AlertService,
-            private eventManager: EventManager,
+        private oauthClientService: OAuthClientService,
+        private alertService: AlertService,
+        private eventManager: EventManager,
     ) {
     }
 
     loadAll() {
         this.oauthClientService.query().subscribe(
-                (res: HttpResponse<any>) => {
-                    this.oauthClients = res.body;
-                },
-                (res: HttpErrorResponse) => this.onError(res.message),
+            (res: HttpResponse<any>) => {
+                this.oauthClients = res.body;
+            },
+            (res: HttpErrorResponse) => this.onError(res.message),
         );
     }
 
@@ -56,10 +56,6 @@ export class OAuthClientComponent implements OnInit, OnDestroy {
         this.eventSubscriber = this.eventManager.subscribe('oauthClientListModification', () => this.loadAll());
     }
 
-    private onError(error) {
-        this.alertService.error(error.message, null, null);
-    }
-
     public convertSeconds(seconds: number) {
         let time_string = '';
         let plural = '';
@@ -77,5 +73,9 @@ export class OAuthClientComponent implements OnInit, OnDestroy {
             }
         }
         return time_string;
+    }
+
+    private onError(error) {
+        this.alertService.error(error.message, null, null);
     }
 }

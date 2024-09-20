@@ -4,5 +4,5 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class JsonWebKeySet(
-    val keys: List<JsonWebKey> = emptyList()
+    val keys: List<JsonWebKey> = emptyList(),
 )

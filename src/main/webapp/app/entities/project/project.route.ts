@@ -1,13 +1,13 @@
-import { Routes } from '@angular/router';
+import {Routes} from '@angular/router';
 
-import { UserRouteAccessService } from '../../shared';
+import {UserRouteAccessService} from '../../shared';
 import {ORGANIZATION_ADMIN, PROJECT_ADMIN, SYSTEM_ADMIN} from '../../shared/constants/common.constants';
-import { ProjectComponent } from './project.component';
+import {ProjectComponent} from './project.component';
 // import { ProjectDeletePopupComponent } from './project-delete-dialog.component';
-import { ProjectDetailComponent } from './project-detail.component';
-import { ProjectPopupComponent } from './project-dialog.component';
+import {ProjectDetailComponent} from './project-detail.component';
+import {ProjectPopupComponent} from './project-dialog.component';
 
-import { ResolvePagingParams } from '../../shared/commons';
+import {ResolvePagingParams} from '../../shared/commons';
 
 export const projectRoute: Routes = [
     {

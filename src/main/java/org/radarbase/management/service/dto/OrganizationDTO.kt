@@ -11,9 +11,15 @@ import javax.validation.constraints.NotNull
 @JsonInclude(JsonInclude.Include.NON_NULL)
 class OrganizationDTO : Serializable {
     var id: Long? = null
-    @NotNull var name: String? = null
-    @NotNull var description: String? = null
-    @NotNull var location: String? = null
+
+    @NotNull
+    var name: String? = null
+
+    @NotNull
+    var description: String? = null
+
+    @NotNull
+    var location: String? = null
 
     var projects: List<ProjectDTO> = emptyList()
 
@@ -28,18 +34,17 @@ class OrganizationDTO : Serializable {
         return name == orgDto.name && description == orgDto.description && location == orgDto.location
     }
 
-    override fun hashCode(): Int {
-        return Objects.hashCode(name)
-    }
+    override fun hashCode(): Int = Objects.hashCode(name)
 
-    override fun toString(): String {
-        return ("OrganizationDTO{"
-                + "id=" + id
-                + ", name='" + name + "'"
-                + ", description='" + description + "'"
-                + ", location='" + location + "'"
-                + '}')
-    }
+    override fun toString(): String =
+        (
+            "OrganizationDTO{" +
+                "id=" + id +
+                ", name='" + name + "'" +
+                ", description='" + description + "'" +
+                ", location='" + location + "'" +
+                '}'
+            )
 
     companion object {
         private const val serialVersionUID = 1L

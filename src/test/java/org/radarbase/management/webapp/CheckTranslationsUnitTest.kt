@@ -9,15 +9,12 @@ import java.io.IOException
 import java.util.*
 
 /**
- * Created by dverbeec on 14/12/2017.
- */
-/**
  * Test class for checking that the i18n JSON files in all languages have the same fields. This
  * test takes one language as the 'ground truth' to check against. That language is currently
  * configured to be English, but can be changed by changing the `BASE_LANG` field.
  */
-//TODO reimplement in proper kotlin
 internal class CheckTranslationsUnitTest {
+// TODO reimplement this class in proper kotlin
 //    @Test
 //    fun testLanguages() {
 //        val basePath = File(PATH)
@@ -62,7 +59,7 @@ internal class CheckTranslationsUnitTest {
      */
     private fun findDifferences(
         base: Map<String, List<String>>?,
-        toCheck: Map<String, List<String>>
+        toCheck: Map<String, List<String>>,
     ): Map<String, List<String>> {
         val result: MutableMap<String, List<String>> = HashMap()
         for (baseKey in base!!.keys) {
@@ -86,6 +83,7 @@ internal class CheckTranslationsUnitTest {
         private const val PATH = "src/main/webapp/i18n"
         private const val BASE_LANG = "en"
         private var baseDictionary: Map<String, List<String>>? = null
+
         @BeforeAll
         fun loadBaseDictionary() {
             val baseLangPath = File(PATH, BASE_LANG)
@@ -106,7 +104,8 @@ internal class CheckTranslationsUnitTest {
         private fun loadJsonKeysFromDirectory(path: File): Map<String, List<String>> {
             Assertions.assertTrue(path.isDirectory())
             val map = HashMap<String, List<String>>()
-            Arrays.stream(path.listFiles())
+            Arrays
+                .stream(path.listFiles())
                 .filter { p: File -> p.getName().endsWith(".json") }
                 .forEach { p: File -> map[p.getName()] = loadJsonKeysFromFile(p) }
             return map
@@ -144,8 +143,9 @@ internal class CheckTranslationsUnitTest {
          * from having to instantiate a new list at every recursion.
          */
         private fun addKeysToList(
-            currentNode: JsonNode, currentPath: String,
-            keyList: MutableList<String>
+            currentNode: JsonNode,
+            currentPath: String,
+            keyList: MutableList<String>,
         ) {
             val iterator = currentNode.fieldNames()
             while (iterator.hasNext()) {
@@ -158,8 +158,8 @@ internal class CheckTranslationsUnitTest {
                     keyList.add(path)
                 } else {
                     Assertions.fail<Any>(
-                        "Encountered field that is not an object and not a string at "
-                                + path
+                        "Encountered field that is not an object and not a string at " +
+                            path,
                     )
                 }
             }

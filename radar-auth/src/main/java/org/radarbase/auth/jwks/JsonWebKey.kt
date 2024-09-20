@@ -8,7 +8,6 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import org.radarbase.auth.exception.InvalidPublicKeyException
-import java.lang.IllegalArgumentException
 
 /**
  * Represents the OAuth 2.0 JsonWebKey for token verification.
@@ -17,8 +16,10 @@ import java.lang.IllegalArgumentException
 sealed interface JsonWebKey {
     val alg: String?
     val kty: String
+
     /** X.509 Certificate Chain. */
     val x5c: List<String>
+
     /** X.509 Certificate SHA-1 thumbprint. */
     val x5t: String?
 
@@ -29,13 +30,16 @@ sealed interface JsonWebKey {
 }
 
 object JavaWebKeyPolymorphicSerializer : JsonContentPolymorphicSerializer<JsonWebKey>(JsonWebKey::class) {
-    override fun selectDeserializer(element: JsonElement): DeserializationStrategy<JsonWebKey> = if ("value" in element.jsonObject) {
-        MPJsonWebKey.serializer()
-    } else when (element.jsonObject["kty"]?.jsonPrimitive?.content) {
-        "EC" -> ECDSAJsonWebKey.serializer()
-        "RSA" -> RSAJsonWebKey.serializer()
-        else -> throw SerializationException("Unknown JavaWebKey")
-    }
+    override fun selectDeserializer(element: JsonElement): DeserializationStrategy<JsonWebKey> =
+        if ("value" in element.jsonObject) {
+            MPJsonWebKey.serializer()
+        } else {
+            when (element.jsonObject["kty"]?.jsonPrimitive?.content) {
+                "EC" -> ECDSAJsonWebKey.serializer()
+                "RSA" -> RSAJsonWebKey.serializer()
+                else -> throw SerializationException("Unknown JavaWebKey")
+            }
+        }
 }
 
 @Serializable
@@ -58,7 +62,7 @@ data class RSAJsonWebKey(
     enum class HashSize {
         RS256,
         RS384,
-        RS512;
+        RS512,
     }
 }
 
@@ -91,10 +95,12 @@ data class ECDSAJsonWebKey(
         }
     }
 
-    enum class Curve(val ecStdName: String) {
+    enum class Curve(
+        val ecStdName: String,
+    ) {
         ES256("secp256r1"),
         ES384("secp384r1"),
-        ES512("secp521r1");
+        ES512("secp521r1"),
     }
 }
 

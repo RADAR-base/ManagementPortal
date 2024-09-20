@@ -19,7 +19,7 @@ class RequestGoneException : RadarWebApplicationException {
         HttpStatus.GONE,
         message,
         entityName,
-        errorCode
+        errorCode,
     )
 
     /**
@@ -31,7 +31,9 @@ class RequestGoneException : RadarWebApplicationException {
      * @param paramMap   map of additional information.
      */
     constructor(
-        message: String?, entityName: String, errorCode: String?,
-        paramMap: Map<String, String?>?
+        message: String?,
+        entityName: String,
+        errorCode: String?,
+        paramMap: Map<String, String?>?,
     ) : super(HttpStatus.GONE, message, entityName, errorCode, paramMap)
 }

@@ -5,7 +5,7 @@ import org.radarbase.kotlin.coroutines.forkAny
 import java.util.*
 
 class MPAuthorizationOracle(
-    private val relationService: EntityRelationService
+    private val relationService: EntityRelationService,
 ) : AuthorizationOracle {
     /**
      * Whether [identity] has permission [permission], regarding given [entity]. An additional
@@ -34,7 +34,10 @@ class MPAuthorizationOracle(
      * check whether [identity] has access to a specific entity or global access.
      * @return true if identity has scope, false otherwise
      */
-    override fun hasScope(identity: RadarToken, permission: Permission): Boolean {
+    override fun hasScope(
+        identity: RadarToken,
+        permission: Permission,
+    ): Boolean {
         if (permission.scope() !in identity.scopes) return false
 
         if (identity.isClientCredentials) return true
@@ -51,7 +54,7 @@ class MPAuthorizationOracle(
      */
     override fun referentsByScope(
         identity: RadarToken,
-        permission: Permission
+        permission: Permission,
     ): AuthorityReferenceSet {
         if (identity.isClientCredentials) {
             return AuthorityReferenceSet(global = true)
@@ -108,8 +111,10 @@ class MPAuthorizationOracle(
         // can be found.
         val minEntityScope = entity.minimumEntityOrNull() ?: return false
         return hasAuthority(identity, permission, entity, entityScope) &&
-                (entityScope == minEntityScope ||
-                        hasAuthority(identity, permission, entity, minEntityScope))
+            (
+                entityScope == minEntityScope ||
+                    hasAuthority(identity, permission, entity, minEntityScope)
+                )
     }
 
     /**
@@ -121,36 +126,60 @@ class MPAuthorizationOracle(
         permission: Permission,
         entity: EntityDetails,
         entityScope: Permission.Entity,
-    ): Boolean = when (entityScope) {
-        Permission.Entity.MEASUREMENT -> hasAuthority(identity, permission, entity,
-            Permission.Entity.SOURCE
-        )
-        Permission.Entity.SOURCE -> (!role.isPersonal ||
-                // no specific source is mentioned -> just check the subject
-                entity.source == null ||
-                entity.source in identity.sources) &&
-                hasAuthority(identity, permission, entity, Permission.Entity.SUBJECT)
-        Permission.Entity.SUBJECT -> (!role.isPersonal ||
-                entity.subject == identity.subject) &&
-                hasAuthority(identity, permission, entity, Permission.Entity.PROJECT)
-        Permission.Entity.PROJECT -> when (role.scope) {
-            RoleAuthority.Scope.PROJECT -> referent == entity.project
-            RoleAuthority.Scope.ORGANIZATION -> entity.findOrganization() == referent
-            else -> false
+    ): Boolean =
+        when (entityScope) {
+            Permission.Entity.MEASUREMENT ->
+                hasAuthority(
+                    identity,
+                    permission,
+                    entity,
+                    Permission.Entity.SOURCE,
+                )
+
+            Permission.Entity.SOURCE ->
+                (
+                    !role.isPersonal ||
+                        // no specific source is mentioned -> just check the subject
+                        entity.source == null ||
+                        entity.source in identity.sources
+                    ) &&
+                    hasAuthority(identity, permission, entity, Permission.Entity.SUBJECT)
+
+            Permission.Entity.SUBJECT ->
+                (
+                    !role.isPersonal ||
+                        entity.subject == identity.subject
+                    ) &&
+                    hasAuthority(identity, permission, entity, Permission.Entity.PROJECT)
+
+            Permission.Entity.PROJECT ->
+                when (role.scope) {
+                    RoleAuthority.Scope.PROJECT -> referent == entity.project
+                    RoleAuthority.Scope.ORGANIZATION -> entity.findOrganization() == referent
+                    else -> false
+                }
+
+            Permission.Entity.ORGANIZATION ->
+                when (role.scope) {
+                    RoleAuthority.Scope.PROJECT ->
+                        referent == entity.project ||
+                            entity.organizationContainsProject(
+                                referent!!,
+                            )
+
+                    RoleAuthority.Scope.ORGANIZATION -> entity.findOrganization() == referent
+                    else -> false
+                }
+
+            Permission.Entity.USER -> entity.user == identity.username || !role.isPersonal
+            else -> true
         }
-        Permission.Entity.ORGANIZATION -> when (role.scope) {
-            RoleAuthority.Scope.PROJECT -> referent == entity.project || entity.organizationContainsProject(referent!!)
-            RoleAuthority.Scope.ORGANIZATION -> entity.findOrganization() == referent
-            else -> false
-        }
-        Permission.Entity.USER -> entity.user == identity.username || !role.isPersonal
-        else -> true
-    }
 
     private suspend fun EntityDetails.findOrganization(): String? {
         organization?.let { return it }
         val p = project ?: return null
-        return relationService.findOrganizationOfProject(p)
+        return relationService
+            .findOrganizationOfProject(p)
             .also { this.organization = it }
     }
 
@@ -181,9 +210,7 @@ class MPAuthorizationOracle(
          * @return An unmodifiable view of the set of allowed authorities.
          */
         @JvmStatic
-        fun allowedRoles(permission: Permission): Set<RoleAuthority> {
-            return permissionMatrix[permission] ?: emptySet()
-        }
+        fun allowedRoles(permission: Permission): Set<RoleAuthority> = permissionMatrix[permission] ?: emptySet()
 
         /**
          * Static permission matrix based on the currently agreed upon security rules.
@@ -196,97 +223,110 @@ class MPAuthorizationOracle(
             rolePermissions[RoleAuthority.SYS_ADMIN] = Permission.values().asSequence()
 
             // Organization admin can do most things, but not view subjects or measurements
-            rolePermissions[RoleAuthority.ORGANIZATION_ADMIN] = Permission.values().asSequence()
-                .exclude(
-                    Permission.ORGANIZATION_CREATE,
-                    Permission.SOURCEDATA_CREATE,
-                    Permission.SOURCETYPE_CREATE
-                )
-                .excludeEntities(
-                    Permission.Entity.AUDIT,
-                    Permission.Entity.AUTHORITY,
-                    Permission.Entity.MEASUREMENT
-                )
+            rolePermissions[RoleAuthority.ORGANIZATION_ADMIN] =
+                Permission
+                    .values()
+                    .asSequence()
+                    .exclude(
+                        Permission.ORGANIZATION_CREATE,
+                        Permission.SOURCEDATA_CREATE,
+                        Permission.SOURCETYPE_CREATE,
+                    ).excludeEntities(
+                        Permission.Entity.AUDIT,
+                        Permission.Entity.AUTHORITY,
+                        Permission.Entity.MEASUREMENT,
+                    )
 
             // for all authorities except for SYS_ADMIN, the authority is scoped to a project, which
             // is checked elsewhere
             // Project Admin - has all currently defined permissions except creating new projects
             // Note: from radar-auth:0.5.7 we allow PROJECT_ADMIN to create measurements.
             // This can be done by uploading data through the web application.
-            rolePermissions[RoleAuthority.PROJECT_ADMIN] = Permission.values().asSequence()
-                .exclude(Permission.PROJECT_CREATE)
-                .excludeEntities(Permission.Entity.AUDIT, Permission.Entity.AUTHORITY)
-                .limitEntityOperations(Permission.Entity.ORGANIZATION, Permission.Operation.READ)
+            rolePermissions[RoleAuthority.PROJECT_ADMIN] =
+                Permission
+                    .values()
+                    .asSequence()
+                    .exclude(Permission.PROJECT_CREATE)
+                    .excludeEntities(Permission.Entity.AUDIT, Permission.Entity.AUTHORITY)
+                    .limitEntityOperations(Permission.Entity.ORGANIZATION, Permission.Operation.READ)
 
-            /* Project Owner */
+            // Project Owner
             // CRUD operations on subjects to allow enrollment
-            rolePermissions[RoleAuthority.PROJECT_OWNER] = Permission.values().asSequence()
-                .exclude(Permission.PROJECT_CREATE)
-                .excludeEntities(
-                    Permission.Entity.AUDIT,
-                    Permission.Entity.AUTHORITY,
-                    Permission.Entity.USER
-                )
-                .limitEntityOperations(Permission.Entity.ORGANIZATION, Permission.Operation.READ)
+            rolePermissions[RoleAuthority.PROJECT_OWNER] =
+                Permission
+                    .values()
+                    .asSequence()
+                    .exclude(Permission.PROJECT_CREATE)
+                    .excludeEntities(
+                        Permission.Entity.AUDIT,
+                        Permission.Entity.AUTHORITY,
+                        Permission.Entity.USER,
+                    ).limitEntityOperations(Permission.Entity.ORGANIZATION, Permission.Operation.READ)
 
-            /* Project affiliate */
+            // Project affiliate
             // Create, read and update participant (no delete)
-            rolePermissions[RoleAuthority.PROJECT_AFFILIATE] = Permission.values().asSequence()
-                .exclude(Permission.SUBJECT_DELETE)
-                .excludeEntities(
-                    Permission.Entity.AUDIT,
-                    Permission.Entity.AUTHORITY,
-                    Permission.Entity.USER
-                )
-                .limitEntityOperations(Permission.Entity.ORGANIZATION, Permission.Operation.READ)
-                .limitEntityOperations(Permission.Entity.PROJECT, Permission.Operation.READ)
+            rolePermissions[RoleAuthority.PROJECT_AFFILIATE] =
+                Permission
+                    .values()
+                    .asSequence()
+                    .exclude(Permission.SUBJECT_DELETE)
+                    .excludeEntities(
+                        Permission.Entity.AUDIT,
+                        Permission.Entity.AUTHORITY,
+                        Permission.Entity.USER,
+                    ).limitEntityOperations(Permission.Entity.ORGANIZATION, Permission.Operation.READ)
+                    .limitEntityOperations(Permission.Entity.PROJECT, Permission.Operation.READ)
 
-            /* Project analyst */
+            // Project analyst
             // Can read everything except users, authorities and audits
-            rolePermissions[RoleAuthority.PROJECT_ANALYST] = Permission.values().asSequence()
-                .excludeEntities(
-                    Permission.Entity.AUDIT,
-                    Permission.Entity.AUTHORITY,
-                    Permission.Entity.USER
-                )
-                // Can add metadata to sources, only read other things.
-                .filter { p ->
-                    p.operation == Permission.Operation.READ ||
+            rolePermissions[RoleAuthority.PROJECT_ANALYST] =
+                Permission
+                    .values()
+                    .asSequence()
+                    .excludeEntities(
+                        Permission.Entity.AUDIT,
+                        Permission.Entity.AUTHORITY,
+                        Permission.Entity.USER,
+                    )
+                    // Can add metadata to sources, only read other things.
+                    .filter { p ->
+                        p.operation == Permission.Operation.READ ||
                             p == Permission.SUBJECT_UPDATE
-                }
+                    }
 
-            /* Participant */
+            // Participant
             // Can update and read own data and can read and write own measurements
-            rolePermissions[RoleAuthority.PARTICIPANT] = sequenceOf(
-                Permission.SUBJECT_READ,
-                Permission.SUBJECT_UPDATE,
-                Permission.MEASUREMENT_CREATE,
-                Permission.MEASUREMENT_READ
-            )
+            rolePermissions[RoleAuthority.PARTICIPANT] =
+                sequenceOf(
+                    Permission.SUBJECT_READ,
+                    Permission.SUBJECT_UPDATE,
+                    Permission.MEASUREMENT_CREATE,
+                    Permission.MEASUREMENT_READ,
+                )
 
-            /* Inactive participant */
+            // Inactive participant
             // Doesn't have any permissions
             rolePermissions[RoleAuthority.INACTIVE_PARTICIPANT] = emptySequence()
 
             // invert map
-            return rolePermissions.asSequence()
+            return rolePermissions
+                .asSequence()
                 .flatMap { (role, permissionSeq) ->
                     permissionSeq.map { p -> Pair(p, role) }
-                }
-                .groupingBy { (p, _) -> p }
+                }.groupingBy { (p, _) -> p }
                 .foldTo(
                     EnumMap(Permission::class.java),
                     initialValueSelector = { _, (_, role) -> enumSetOf(role) },
                     operation = { _, set, (_, role) ->
                         set += role
                         set
-                    }
+                    },
                 )
         }
 
         private fun Sequence<Permission>.limitEntityOperations(
             entity: Permission.Entity,
-            vararg operations: Permission.Operation
+            vararg operations: Permission.Operation,
         ): Sequence<Permission> {
             val operationSet = enumSetOf(*operations)
             return filter { p: Permission -> p.entity != entity || p.operation in operationSet }
@@ -302,10 +342,12 @@ class MPAuthorizationOracle(
             return filter { it.entity !in entitySet }
         }
 
-        private inline fun <reified T: Enum<T>> enumSetOf(vararg values: T): EnumSet<T> = EnumSet.noneOf(
-            T::class.java
-        ).apply {
-            values.forEach { add(it) }
-        }
+        private inline fun <reified T : Enum<T>> enumSetOf(vararg values: T): EnumSet<T> =
+            EnumSet
+                .noneOf(
+                    T::class.java,
+                ).apply {
+                    values.forEach { add(it) }
+                }
     }
 }

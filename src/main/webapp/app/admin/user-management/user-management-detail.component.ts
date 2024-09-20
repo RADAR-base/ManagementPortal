@@ -1,7 +1,7 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {ActivatedRoute} from '@angular/router';
 
-import { User, UserService } from '../../shared';
+import {User, UserService} from '../../shared';
 
 @Component({
     selector: 'jhi-user-mgmt-detail',
@@ -13,8 +13,8 @@ export class UserMgmtDetailComponent implements OnInit, OnDestroy {
     private subscription: any;
 
     constructor(
-            private userService: UserService,
-            private route: ActivatedRoute,
+        private userService: UserService,
+        private route: ActivatedRoute,
     ) {
     }
 

@@ -41,9 +41,11 @@
 .group-list-actions {
     margin-bottom: 8px;
 }
+
 .group-list-actions > :not(:first-child) {
     margin-left: 8px;
 }
+
 .group-row__select-row {
     display: flex;
     flex-direction: column;
@@ -59,11 +61,13 @@
     flex-grow: 0 !important;
     margin-left: 16px;
 }
+
 .group-row__actions > *:not(:last-child) {
     width: 100%;
     margin-bottom: 4px;
 }
-.create-group-wrapper{
+
+.create-group-wrapper {
     display: flex;
     justify-content: flex-end;
 }

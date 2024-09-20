@@ -1,17 +1,17 @@
-import { ChangeDetectorRef, Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, } from '@angular/core';
-import { Role } from '../../admin/user-management/role.model';
-import { combineLatest, Observable, of, Subscription } from 'rxjs';
-import { Project } from '../project';
-import { AuthorityService } from '../user/authority.service';
-import { AlertService } from '../util/alert.service';
-import { EventManager } from '../util/event-manager.service';
-import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
-import { User } from '../user/user.model';
-import { Organization } from '../organization';
-import { UserService } from '../user/user.service';
-import { Authority, Scope } from '../user/authority.model';
-import { distinctUntilChanged, first, map, switchMap, tap } from 'rxjs/operators';
-import { Principal } from '../auth/principal.service';
+import {ChangeDetectorRef, Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges,} from '@angular/core';
+import {Role} from '../../admin/user-management/role.model';
+import {combineLatest, Observable, of, Subscription} from 'rxjs';
+import {Project} from '../project';
+import {AuthorityService} from '../user/authority.service';
+import {AlertService} from '../util/alert.service';
+import {EventManager} from '../util/event-manager.service';
+import {HttpErrorResponse, HttpResponse} from '@angular/common/http';
+import {User} from '../user/user.model';
+import {Organization} from '../organization';
+import {UserService} from '../user/user.service';
+import {Authority, Scope} from '../user/authority.model';
+import {distinctUntilChanged, first, map, switchMap, tap} from 'rxjs/operators';
+import {Principal} from '../auth/principal.service';
 
 interface UserRole {
     login: string;
@@ -38,35 +38,36 @@ export class PermissionComponent implements OnInit, OnChanges, OnDestroy {
     private subscriptions: Subscription = new Subscription();
 
     constructor(
-            private authorityService: AuthorityService,
-            private alertService: AlertService,
-            private eventManager: EventManager,
-            private userService: UserService,
-            private changeDetectorRef: ChangeDetectorRef,
-            public principal: Principal,
-    ) {}
+        private authorityService: AuthorityService,
+        private alertService: AlertService,
+        private eventManager: EventManager,
+        private userService: UserService,
+        private changeDetectorRef: ChangeDetectorRef,
+        public principal: Principal,
+    ) {
+    }
 
     ngOnInit() {
         this.authorities$ = this.authorityService.authorities$.pipe(
-          map(authorities => {
-              let scope: Scope;
-              if (this.organization) {
-                  scope = Scope.ORGANIZATION;
-              } else if (this.project) {
-                  scope = Scope.PROJECT;
-              } else {
-                  scope = Scope.GLOBAL;
-              }
-              return authorities.filter(a => a.scope === scope);
-          }),
-          distinctUntilChanged((a1, a2) => a1.map(a => a.name).join(',') === a2.map(a => a.name).join(',')),
-          tap(a => {
-              if (a.length > 0) {
-                  this.selectedAuthority = a[0]
-              } else {
-                  this.selectedAuthority = undefined;
-              }
-          })
+            map(authorities => {
+                let scope: Scope;
+                if (this.organization) {
+                    scope = Scope.ORGANIZATION;
+                } else if (this.project) {
+                    scope = Scope.PROJECT;
+                } else {
+                    scope = Scope.GLOBAL;
+                }
+                return authorities.filter(a => a.scope === scope);
+            }),
+            distinctUntilChanged((a1, a2) => a1.map(a => a.name).join(',') === a2.map(a => a.name).join(',')),
+            tap(a => {
+                if (a.length > 0) {
+                    this.selectedAuthority = a[0]
+                } else {
+                    this.selectedAuthority = undefined;
+                }
+            })
         );
     }
 
@@ -85,27 +86,6 @@ export class PermissionComponent implements OnInit, OnChanges, OnDestroy {
     getUsers() {
         this.selectedUser = null;
         this.subscriptions.add(this.fetchUsers().subscribe());
-    }
-
-    private fetchUsers(): Observable<any> {
-        return this.userService.query({includeProvenance: false}).pipe(
-            tap(
-                (res: HttpResponse<User[]>) => this.onSuccess(res.body),
-                (error: HttpErrorResponse) => this.onError(error),
-            ),
-        );
-    }
-
-    private onSuccess(data: User[]) {
-        this.allUsers = data;
-        const {authorizedUsers, users} = this.filterByProjectOrOrganization(data);
-        this.authorizedUsers = authorizedUsers;
-        this.users = users;
-        this.changeDetectorRef.detectChanges();
-    }
-
-    private onError(error) {
-        this.alertService.error(error.message, null, null);
     }
 
     addRole() {
@@ -148,25 +128,6 @@ export class PermissionComponent implements OnInit, OnChanges, OnDestroy {
         this.subscriptions.add(this.updateUser(user));
     }
 
-    private updateUser(user: User): Subscription {
-        return this.userService.update(user).pipe(
-            tap(() => this.selectedUser = null),
-            switchMap(() => combineLatest([
-                this.principal.account$.pipe(
-                    first(),
-                    switchMap(account => {
-                        if (account.id === user.id) {
-                            return this.principal.reset();
-                        } else {
-                            return of(account);
-                        }
-                    }),
-                ),
-                this.fetchUsers(),
-            ])),
-        ).subscribe()
-    }
-
     filterByProjectOrOrganization(users: User[]): { users: User[], authorizedUsers: UserRole[] } {
         const result = {
             users: [],
@@ -180,7 +141,7 @@ export class PermissionComponent implements OnInit, OnChanges, OnDestroy {
                     //     userAdded = true;
                     //     result.authorizedUsers.push({login: user.login, authorityName: role.authorityName})
                     // }
-                    if ( role.projectId === this.project.id ||
+                    if (role.projectId === this.project.id ||
                         role.organizationId === this.project.organization.id ||
                         role.authorityName === 'ROLE_SYS_ADMIN'
                     ) {
@@ -201,5 +162,45 @@ export class PermissionComponent implements OnInit, OnChanges, OnDestroy {
         });
 
         return result;
+    }
+
+    private fetchUsers(): Observable<any> {
+        return this.userService.query({includeProvenance: false}).pipe(
+            tap(
+                (res: HttpResponse<User[]>) => this.onSuccess(res.body),
+                (error: HttpErrorResponse) => this.onError(error),
+            ),
+        );
+    }
+
+    private onSuccess(data: User[]) {
+        this.allUsers = data;
+        const {authorizedUsers, users} = this.filterByProjectOrOrganization(data);
+        this.authorizedUsers = authorizedUsers;
+        this.users = users;
+        this.changeDetectorRef.detectChanges();
+    }
+
+    private onError(error) {
+        this.alertService.error(error.message, null, null);
+    }
+
+    private updateUser(user: User): Subscription {
+        return this.userService.update(user).pipe(
+            tap(() => this.selectedUser = null),
+            switchMap(() => combineLatest([
+                this.principal.account$.pipe(
+                    first(),
+                    switchMap(account => {
+                        if (account.id === user.id) {
+                            return this.principal.reset();
+                        } else {
+                            return of(account);
+                        }
+                    }),
+                ),
+                this.fetchUsers(),
+            ])),
+        ).subscribe()
     }
 }

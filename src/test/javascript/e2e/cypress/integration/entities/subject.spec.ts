@@ -1,4 +1,4 @@
-import { login } from '../util/login';
+import {login} from '../util/login';
 
 describe('Subject e2e test', () => {
     beforeEach(() => {
@@ -42,40 +42,40 @@ describe('Subject e2e test', () => {
     it('should have load subject row with subject-id, external-id, status, project, sources and attributes columns', () => {
         cy.get('app-load-more a.load-more-limited').click();
         cy.contains('jhi-subjects .subject-row', 'test-subject-1').first().find('.subject-row__select-row input')
-                .invoke('attr', 'type')
-                .should('eq', 'checkbox')
+            .invoke('attr', 'type')
+            .should('eq', 'checkbox')
 
         cy.contains('jhi-subjects .subject-row', 'test-subject-1').first().find('.subject-row__content .subject-row__subject-id .subject-row__field-label')
-                .should('have.text', 'Subject Id')
+            .should('have.text', 'Subject Id')
 
         cy.contains('jhi-subjects .subject-row', 'test-subject-1').first().find('.subject-row__content .subject-row__external-id .subject-row__field-label')
-                .should('have.text', 'External Id')
+            .should('have.text', 'External Id')
 
         cy.contains('jhi-subjects .subject-row', 'test-subject-1').first().find('.subject-row__content .subject-row__external-id a')
-                .should('have.text',' test-subject-1 ')
-                .invoke('attr', 'href')
-                .should('eq', 'https://radar-base-test-edited.org')
+            .should('have.text', ' test-subject-1 ')
+            .invoke('attr', 'href')
+            .should('eq', 'https://radar-base-test-edited.org')
 
         cy.contains('jhi-subjects .subject-row', 'test-subject-1').first().find('.subject-row__content .subject-row__status .subject-row__field-label')
-                .should('have.text', 'Status')
+            .should('have.text', 'Status')
 
         cy.contains('jhi-subjects .subject-row', 'test-subject-1').first().find('.subject-row__content .subject-row__status span.badge')
-                .should('have.text','ACTIVATED')
+            .should('have.text', 'ACTIVATED')
 
         cy.contains('jhi-subjects .subject-row', 'test-subject-1').first().find('.subject-row__content .subject-row__sources .subject-row__field-label')
-                .should('have.text', 'Sources')
+            .should('have.text', 'Sources')
 
         cy.contains('jhi-subjects .subject-row', 'test-subject-1').first().find('.subject-row__content .subject-row__attribute-data .subject-row__field-label')
-                .should('have.text', 'Attributes')
+            .should('have.text', 'Attributes')
 
         cy.contains('jhi-subjects .subject-row', 'test-subject-1').first().find('.subject-row__content .subject-row__attribute-data div span')
-                .should('have.text','Human-readable-identifier: Test Subject 1')
+            .should('have.text', 'Human-readable-identifier: Test Subject 1')
 
         cy.contains('jhi-subjects .subject-row', 'test-subject-1').first().find('.subject-row__content .subject-row__group .subject-row__field-label')
-                .should('have.text', 'Group')
+            .should('have.text', 'Group')
 
         cy.contains('jhi-subjects .subject-row', 'test-subject-1').first().find('.subject-row__content .subject-row__group .subject-row__field-value')
-                .should('have.text','Test Group B')
+            .should('have.text', 'Test Group B')
     })
 
     it('should be able to filter subjects by subject id', () => {

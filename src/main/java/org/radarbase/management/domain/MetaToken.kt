@@ -27,7 +27,7 @@ import javax.validation.constraints.Pattern
 @Table(name = "radar_meta_token")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @EntityListeners(
-    AbstractEntityListener::class
+    AbstractEntityListener::class,
 )
 class MetaToken : AbstractEntity() {
     @Id
@@ -36,7 +36,9 @@ class MetaToken : AbstractEntity() {
     override var id: Long? = null
 
     @Column(name = "token_name", nullable = false, unique = true)
-    @NotNull @Pattern(regexp = Constants.TOKEN_NAME_REGEX) var tokenName: String? = null
+    @NotNull
+    @Pattern(regexp = Constants.TOKEN_NAME_REGEX)
+    var tokenName: String? = null
         private set
 
     @Column(name = "fetched", nullable = false)
@@ -82,9 +84,7 @@ class MetaToken : AbstractEntity() {
         return this
     }
 
-    fun isFetched(): Boolean {
-        return fetched!!
-    }
+    fun isFetched(): Boolean = fetched!!
 
     fun fetched(fetched: Boolean): MetaToken {
         this.fetched = fetched
@@ -117,27 +117,30 @@ class MetaToken : AbstractEntity() {
             return false
         }
         val metaToken = other as MetaToken
-        return id == metaToken.id && tokenName == metaToken.tokenName && fetched == metaToken.fetched && expiryDate == metaToken.expiryDate && clientId == metaToken.clientId && subject == metaToken.subject && persistent == metaToken.persistent
+        return id == metaToken.id &&
+            tokenName == metaToken.tokenName &&
+            fetched == metaToken.fetched &&
+            expiryDate == metaToken.expiryDate &&
+            clientId == metaToken.clientId &&
+            subject == metaToken.subject &&
+            persistent == metaToken.persistent
     }
 
-    override fun hashCode(): Int {
-        return Objects.hash(id, tokenName, fetched, expiryDate, subject, clientId, persistent)
-    }
+    override fun hashCode(): Int = Objects.hash(id, tokenName, fetched, expiryDate, subject, clientId, persistent)
 
-    override fun toString(): String {
-        return ("MetaToken{" + "id=" + id
-                + ", tokenName='" + tokenName
-                + ", fetched=" + fetched
-                + ", expiryDate=" + expiryDate
-                + ", subject=" + subject
-                + ", clientId=" + clientId
-                + ", persistent=" + persistent
-                + '}')
-    }
+    override fun toString(): String =
+        (
+            "MetaToken{" + "id=" + id +
+                ", tokenName='" + tokenName +
+                ", fetched=" + fetched +
+                ", expiryDate=" + expiryDate +
+                ", subject=" + subject +
+                ", clientId=" + clientId +
+                ", persistent=" + persistent +
+                '}'
+            )
 
-    fun isPersistent(): Boolean {
-        return persistent!!
-    }
+    fun isPersistent(): Boolean = persistent!!
 
     fun persistent(persistent: Boolean): MetaToken {
         this.persistent = persistent
@@ -145,16 +148,75 @@ class MetaToken : AbstractEntity() {
     }
 
     companion object {
-        private val ID_CHARS = charArrayOf(
-            'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q',
-            'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
-            'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q',
-            'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
-            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-            '-', '.'
-        )
+        private val ID_CHARS =
+            charArrayOf(
+                'a',
+                'b',
+                'c',
+                'd',
+                'e',
+                'f',
+                'g',
+                'h',
+                'i',
+                'j',
+                'k',
+                'l',
+                'm',
+                'n',
+                'o',
+                'p',
+                'q',
+                'r',
+                's',
+                't',
+                'u',
+                'v',
+                'w',
+                'x',
+                'y',
+                'z',
+                'A',
+                'B',
+                'C',
+                'D',
+                'E',
+                'F',
+                'G',
+                'H',
+                'I',
+                'J',
+                'K',
+                'L',
+                'M',
+                'N',
+                'O',
+                'P',
+                'Q',
+                'R',
+                'S',
+                'T',
+                'U',
+                'V',
+                'W',
+                'X',
+                'Y',
+                'Z',
+                '0',
+                '1',
+                '2',
+                '3',
+                '4',
+                '5',
+                '6',
+                '7',
+                '8',
+                '9',
+                '-',
+                '.',
+            )
 
-        //https://math.stackexchange.com/questions/889538/
+        // https://math.stackexchange.com/questions/889538/
         // probability-of-collision-with-randomly-generated-id
         // Current length of tokenName is 8 for short-lived tokens, and double that
         // for persistent tokens.

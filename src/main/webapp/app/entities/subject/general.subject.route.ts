@@ -1,11 +1,11 @@
-import { Routes } from '@angular/router';
+import {Routes} from '@angular/router';
 
-import { UserRouteAccessService } from '../../shared';
-import { SYSTEM_ADMIN } from '../../shared/constants/common.constants';
+import {UserRouteAccessService} from '../../shared';
+import {SYSTEM_ADMIN} from '../../shared/constants/common.constants';
 
-import { GeneralSubjectComponent } from './general.subject.component';
-import { ResolvePagingParams } from '../../shared/commons';
-import { SubjectPopupComponent } from '../../shared/subject';
+import {GeneralSubjectComponent} from './general.subject.component';
+import {ResolvePagingParams} from '../../shared/commons';
+import {SubjectPopupComponent} from '../../shared/subject';
 
 export const subjectRoute: Routes = [
     {

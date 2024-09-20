@@ -45,7 +45,6 @@ class UserServiceIntTest(
     @Autowired private val userRepository: UserRepository,
     @Autowired private val userMapper: UserMapper,
     @Autowired private val revisionService: RevisionService,
-
     @Autowired private val entityManagerFactory: EntityManagerFactory,
     @Autowired private val passwordService: PasswordService,
 ) {
@@ -54,12 +53,13 @@ class UserServiceIntTest(
 
     @BeforeEach
     fun setUp() {
-        entityManager = entityManagerFactory.createEntityManager(
-            entityManagerFactory.properties
-        )
+        entityManager =
+            entityManagerFactory.createEntityManager(
+                entityManagerFactory.properties,
+            )
         userDto = userMapper.userToUserDTO(createEntity(passwordService))!!
 
-        userRepository.findOneByLogin(userDto.login)?.let { userRepository.delete(it)}
+        userRepository.findOneByLogin(userDto.login)?.let { userRepository.delete(it) }
     }
 
     @Test
@@ -73,7 +73,7 @@ class UserServiceIntTest(
         Assertions.assertThat(maybeUser?.resetKey).isNotNull()
     }
 
-      //TODO this test should fail, remove?
+    // TODO this test should fail, remove?
 //    @Test
 //    @Throws(NotAuthorizedException::class)
 //    fun assertThatOnlyActivatedUserCanRequestPasswordReset() {
@@ -98,16 +98,17 @@ class UserServiceIntTest(
             user.resetDate = daysAgo
             user.resetKey = resetKey
             userService.updateUser(userMapper.userToUserDTO(user)!!)
-            val maybeUser = userService.completePasswordReset(
-                "johndoe2",
-                user.resetKey!!
-            )
+            val maybeUser =
+                userService.completePasswordReset(
+                    "johndoe2",
+                    user.resetKey!!,
+                )
             Assertions.assertThat(maybeUser).isNull()
             userService.deleteUser(user.login!!)
         }
     }
 
-    //TODO this functionality will be removed, remove test
+    // TODO this functionality will be removed, remove test
 //    @Test
 //    @Throws(NotAuthorizedException::class)
 //    fun assertThatResetKeyMustBeValid() {
@@ -127,7 +128,7 @@ class UserServiceIntTest(
 //        }
 //    }
 
-    //TODO this functionality will be removed, remove test
+    // TODO this functionality will be removed, remove test
 //    @Test
 //    @Throws(NotAuthorizedException::class)
 //    fun assertThatUserCanResetPassword() {
@@ -160,14 +161,17 @@ class UserServiceIntTest(
         // Update the timestamp of the revision, so it appears to have been created 5 days ago
         val expDateTime = ZonedDateTime.now().minus(Period.ofDays(5)).withNano(0)
         val auditReader = AuditReaderFactory.get(entityManager)
-        val firstRevision = auditReader.createQuery()
-            .forRevisionsOfEntity(expiredUser.javaClass, false, true)
-            .add(AuditEntity.id().eq(expiredUser.id))
-            .add(
-                AuditEntity.revisionNumber().minimize()
-                    .computeAggregationInInstanceContext()
-            )
-            .singleResult as Array<*>
+        val firstRevision =
+            auditReader
+                .createQuery()
+                .forRevisionsOfEntity(expiredUser.javaClass, false, true)
+                .add(AuditEntity.id().eq(expiredUser.id))
+                .add(
+                    AuditEntity
+                        .revisionNumber()
+                        .minimize()
+                        .computeAggregationInInstanceContext(),
+                ).singleResult as Array<*>
         val first = firstRevision[1] as CustomRevisionEntity
         first.timestamp = Date.from(expDateTime.toInstant())
         entityManager.joinTransaction()
@@ -187,12 +191,18 @@ class UserServiceIntTest(
         Assertions.assertThat(numUsers - users.size).isEqualTo(1)
         // remaining users should be either activated or have a created date less then 3 days ago
         val cutoff = ZonedDateTime.now().minus(Period.ofDays(3))
-        users.forEach(Consumer { u: User ->
-            Assertions.assertThat(
-                u.activated || revisionService.getAuditInfo(u)
-                    .createdAt!!.isAfter(cutoff)
-            ).isTrue()
-        })
+        users.forEach(
+            Consumer { u: User ->
+                Assertions
+                    .assertThat(
+                        u.activated ||
+                            revisionService
+                                .getAuditInfo(u)
+                                .createdAt!!
+                                .isAfter(cutoff),
+                    ).isTrue()
+            },
+        )
         // commit the deletion, otherwise the deletion will be rolled back
         TestUtil.commitTransactionAndStartNew()
     }
@@ -200,14 +210,19 @@ class UserServiceIntTest(
     @Test
     fun assertThatAnonymousUserIsNotGet() {
         val pageable = PageRequest.of(0, userRepository.count().toInt())
-        val allManagedUsers = userService.findUsers(
-            UserFilter(), pageable,
-            false
-        )
-        Assertions.assertThat(
-            allManagedUsers!!.content.stream()
-                .noneMatch { user: UserDTO -> Constants.ANONYMOUS_USER == user.login })
-            .isTrue()
+        val allManagedUsers =
+            userService.findUsers(
+                UserFilter(),
+                pageable,
+                false,
+            )
+        Assertions
+            .assertThat(
+                allManagedUsers!!
+                    .content
+                    .stream()
+                    .noneMatch { user: UserDTO -> Constants.ANONYMOUS_USER == user.login },
+            ).isTrue()
     }
 
     /**

@@ -10,11 +10,14 @@ import org.springframework.beans.factory.annotation.Qualifier
 /**
  * Created by nivethika on 03-8-18.
  */
-abstract class RoleMapperDecorator() : RoleMapper {
+abstract class RoleMapperDecorator : RoleMapper {
+    //    constructor(roleMapper: RoleMapper, authorityRepository: AuthorityRepository?) : this(roleMapper)
+    @Autowired
+    @Qualifier("delegate")
+    private val delegate: RoleMapper? = null
 
-//    constructor(roleMapper: RoleMapper, authorityRepository: AuthorityRepository?) : this(roleMapper)
-    @Autowired @Qualifier("delegate") private val delegate: RoleMapper? = null
-    @Autowired private var authorityRepository: AuthorityRepository? = null;
+    @Autowired
+    private var authorityRepository: AuthorityRepository? = null
 
     /**
      * Overrides standard RoleMapperImpl and loads authority from repository if not specified.

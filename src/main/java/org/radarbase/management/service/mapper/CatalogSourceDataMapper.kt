@@ -16,7 +16,6 @@ interface CatalogSourceDataMapper {
     @Mapping(target = "enabled", expression = "java(true)")
     @Mapping(target = "sourceType", ignore = true)
     fun catalogSourceDataToSourceData(catalogSourceData: CatalogSourceData?): SourceData?
-    fun catalogSourceDataListToSourceDataList(
-        catalogSourceType: List<CatalogSourceData?>?
-    ): List<SourceData?>?
+
+    fun catalogSourceDataListToSourceDataList(catalogSourceType: List<CatalogSourceData?>?): List<SourceData?>?
 }

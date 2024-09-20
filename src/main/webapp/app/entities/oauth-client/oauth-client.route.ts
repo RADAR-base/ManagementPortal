@@ -1,10 +1,10 @@
-import { Routes } from '@angular/router';
+import {Routes} from '@angular/router';
 
-import { UserRouteAccessService } from '../../shared';
-import { SYSTEM_ADMIN } from '../../shared/constants/common.constants';
-import { OAuthClientDeletePopupComponent } from './oauth-client-delete-dialog.component';
-import { OAuthClientPopupComponent } from './oauth-client-dialog.component';
-import { OAuthClientComponent } from './oauth-client.component';
+import {UserRouteAccessService} from '../../shared';
+import {SYSTEM_ADMIN} from '../../shared/constants/common.constants';
+import {OAuthClientDeletePopupComponent} from './oauth-client-delete-dialog.component';
+import {OAuthClientPopupComponent} from './oauth-client-dialog.component';
+import {OAuthClientComponent} from './oauth-client.component';
 
 export const oauthClientRoute: Routes = [
     {

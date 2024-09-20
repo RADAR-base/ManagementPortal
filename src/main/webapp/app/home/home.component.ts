@@ -1,17 +1,8 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import {Component} from '@angular/core';
+import {NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 
-import {
-    LoginModalService,
-    ProjectService,
-    Principal,
-    Project, OrganizationService,
-} from '../shared';
-import {Observable, of, Subscription} from "rxjs";
-import { EventManager } from "../shared/util/event-manager.service";
-import { switchMap } from "rxjs/operators";
-import {SessionService} from "../shared/session/session.service";
-import {environment} from "../../environments/environment";
+import {LoginModalService, OrganizationService, Principal, Project, ProjectService,} from '../shared';
+import {Subscription} from "rxjs";
 
 @Component({
     selector: 'jhi-home',
@@ -29,10 +20,10 @@ export class HomeComponent {
     private loginUrl = 'api/redirect/login';
 
     constructor(
-            public principal: Principal,
-            private loginModalService: LoginModalService,
-            public projectService: ProjectService,
-            public organizationService: OrganizationService,
+        public principal: Principal,
+        private loginModalService: LoginModalService,
+        public projectService: ProjectService,
+        public organizationService: OrganizationService,
     ) {
         this.subscriptions = new Subscription();
     }
@@ -64,6 +55,6 @@ export class HomeComponent {
     }
 
     login() {
-        window.location.href =  this.loginUrl
+        window.location.href = this.loginUrl
     }
 }

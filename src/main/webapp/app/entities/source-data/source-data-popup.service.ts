@@ -1,20 +1,20 @@
-import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import {Injectable} from '@angular/core';
+import {Router} from '@angular/router';
+import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 
-import { SourceData } from './source-data.model';
-import { SourceDataService } from './source-data.service';
-import { Observable, of } from 'rxjs';
-import { map } from 'rxjs/operators';
+import {SourceData} from './source-data.model';
+import {SourceDataService} from './source-data.service';
+import {Observable, of} from 'rxjs';
+import {map} from 'rxjs/operators';
 
-@Injectable({ providedIn: 'root' })
+@Injectable({providedIn: 'root'})
 export class SourceDataPopupService {
     private isOpen = false;
 
     constructor(
-            private modalService: NgbModal,
-            private router: Router,
-            private sourceDataService: SourceDataService,
+        private modalService: NgbModal,
+        private router: Router,
+        private sourceDataService: SourceDataService,
     ) {
     }
 

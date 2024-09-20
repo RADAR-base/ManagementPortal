@@ -44,6 +44,8 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
     attributeComponentEventPrefix: 'subjectAttributes';
 
     dateOfBirth: NgbDateStruct;
+    protected readonly History = History;
+    protected readonly HideableSubjectField = HideableSubjectField;
     private subscriptions: Subscription = new Subscription();
 
     constructor(public activeModal: NgbActiveModal,
@@ -68,7 +70,7 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
         this.projectService.query().subscribe((projects) => {
             this.projects = projects.body;
         })
-        if(this.subject.dateOfBirth) {
+        if (this.subject.dateOfBirth) {
             this.dateOfBirth = this.formatter.parse(this.subject.dateOfBirth.toString());
         }
         this.siteSettings$ = this.siteSettingsService.siteSettings$;
@@ -78,12 +80,6 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
 
     ngOnDestroy() {
         this.subscriptions.unsubscribe();
-    }
-
-    private registerEventChanges(): Subscription {
-        return this.eventManager.subscribe(this.attributeComponentEventPrefix + 'ListModification', (response) => {
-            this.subject.attributes = response.content;
-        });
     }
 
     clear() {
@@ -101,13 +97,23 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
 
         if (this.subject.id) {
             this.subjectService.update(this.subject)
-            .subscribe((res: Subject) =>
+                .subscribe((res: Subject) =>
                     this.onSaveSuccess('UPDATE', res), (res: any) => this.onSaveError(res));
         } else {
             this.subjectService.create(this.subject)
-            .subscribe((res: Subject) =>
+                .subscribe((res: Subject) =>
                     this.onSaveSuccess('CREATE', res), (res: any) => this.onSaveError(res));
         }
+    }
+
+    onProjectChange($event: any) {
+        this.project = this.projects.find((p) => p.projectName === $event);
+    }
+
+    private registerEventChanges(): Subscription {
+        return this.eventManager.subscribe(this.attributeComponentEventPrefix + 'ListModification', (response) => {
+            this.subject.attributes = response.content;
+        });
     }
 
     private onSaveSuccess(op: string, result: Subject) {
@@ -124,13 +130,6 @@ export class SubjectDialogComponent implements OnInit, OnDestroy {
     private onError(error) {
         this.alertService.error(error.message, null, null);
     }
-
-    onProjectChange($event: any) {
-        this.project = this.projects.find((p) => p.projectName === $event);
-    }
-
-    protected readonly History = History;
-    protected readonly HideableSubjectField = HideableSubjectField;
 }
 
 @Component({

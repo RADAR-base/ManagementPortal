@@ -1,48 +1,47 @@
-
 <div *ngIf="source">
-    <h2><span [translate]="'managementPortalApp.source.detail.title'"></span>: {{source.sourceName}}</h2>
+    <h2><span [translate]="'managementPortalApp.source.detail.title'"></span>: {{ source.sourceName }}</h2>
     <hr>
     <jhi-alert-error></jhi-alert-error>
     <dl class="row-md jh-entity-details">
         <dt><span [translate]="'managementPortalApp.source.sourceName'"></span></dt>
         <dd>
-            <span>{{source.sourceName}}</span>
+            <span>{{ source.sourceName }}</span>
         </dd>
         <dt><span [translate]="'managementPortalApp.source.expectedSourceName'"></span></dt>
         <dd>
-            <span>{{source.expectedSourceName}}</span>
+            <span>{{ source.expectedSourceName }}</span>
         </dd>
         <dt><span [translate]="'managementPortalApp.source.sourceId'"></span></dt>
         <dd>
-            <span>{{source.sourceId}}</span>
+            <span>{{ source.sourceId }}</span>
         </dd>
         <dt><span [translate]="'managementPortalApp.source.assigned'"></span></dt>
         <dd>
-            <span>{{source.assigned}}</span>
+            <span>{{ source.assigned }}</span>
         </dd>
         <dt><span [translate]="'managementPortalApp.source.sourceType'"></span></dt>
         <dd>
             <div *ngIf="source.sourceType">
-                <a [routerLink]="['/source-type', source.sourceType?.producer, source.sourceType?.model, source.sourceType?.catalogVersion]">{{source.sourceType.producer+"_"+source.sourceType.model+"_"+source.sourceType.catalogVersion}}</a>
+                <a [routerLink]="['/source-type', source.sourceType?.producer, source.sourceType?.model, source.sourceType?.catalogVersion]">{{ source.sourceType.producer + "_" + source.sourceType.model + "_" + source.sourceType.catalogVersion }}</a>
             </div>
         </dd>
         <dt><span [translate]="'managementPortalApp.source.project'"></span></dt>
         <dd>
             <div *ngIf="source.project">
-                <a [routerLink]="['/project', source.project?.projectName]">{{source.project.projectName}}</a>
+                <a [routerLink]="['/project', source.project?.projectName]">{{ source.project.projectName }}</a>
             </div>
         </dd>
         <dt><span [translate]="'managementPortalApp.source.attributeData'"></span></dt>
         <dd>
             <div *ngFor="let entry of source.attributes | keyvalue; trackBy: trackKey">
-                <span class="form-control-static">{{entry.key}}: {{entry.value}}</span>
+                <span class="form-control-static">{{ entry.key }}: {{ entry.value }}</span>
             </div>
         </dd>
     </dl>
 
-    <button type="submit"
-            (click)="previousState()"
-            class="btn btn-info">
+    <button (click)="previousState()"
+            class="btn btn-info"
+            type="submit">
         <span class="fa fa-arrow-left"></span>&nbsp;<span [translate]="'entity.action.back'"></span>
     </button>
 

@@ -1,11 +1,11 @@
-import { Injectable } from '@angular/core';
-import {HttpClient, HttpParams, HttpResponse} from '@angular/common/http';
-import {Observable, of} from 'rxjs';
+import {Injectable} from '@angular/core';
+import {HttpClient, HttpResponse} from '@angular/common/http';
+import {Observable} from 'rxjs';
 
-import { User } from './user.model';
-import { createRequestOption } from '../model/request.utils';
+import {User} from './user.model';
+import {createRequestOption} from '../model/request.utils';
 
-@Injectable({ providedIn: 'root' })
+@Injectable({providedIn: 'root'})
 export class UserService {
     private resourceUrl = 'api/users';
 

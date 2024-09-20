@@ -1,6 +1,6 @@
 package org.radarbase.management.web.rest.util
 
-import io.ktor.http.*
+import io.ktor.http.Cookie
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpHeaders
 import java.io.UnsupportedEncodingException
@@ -19,24 +19,30 @@ object HeaderUtil {
      * @param param the message parameters
      * @return the [HttpHeaders]
      */
-    fun createAlert(message: String?, param: String?): HttpHeaders {
+    fun createAlert(
+        message: String?,
+        param: String?,
+    ): HttpHeaders {
         val headers = HttpHeaders()
         headers.add("X-managementPortalApp-alert", message)
         headers.add("X-managementPortalApp-params", param)
         return headers
     }
 
-    fun createEntityCreationAlert(entityName: String, param: String?): HttpHeaders {
-        return createAlert(APPLICATION_NAME + "." + entityName + ".created", param)
-    }
+    fun createEntityCreationAlert(
+        entityName: String,
+        param: String?,
+    ): HttpHeaders = createAlert(APPLICATION_NAME + "." + entityName + ".created", param)
 
-    fun createEntityUpdateAlert(entityName: String, param: String?): HttpHeaders {
-        return createAlert(APPLICATION_NAME + "." + entityName + ".updated", param)
-    }
+    fun createEntityUpdateAlert(
+        entityName: String,
+        param: String?,
+    ): HttpHeaders = createAlert(APPLICATION_NAME + "." + entityName + ".updated", param)
 
-    fun createEntityDeletionAlert(entityName: String, param: String?): HttpHeaders {
-        return createAlert(APPLICATION_NAME + "." + entityName + ".deleted", param)
-    }
+    fun createEntityDeletionAlert(
+        entityName: String,
+        param: String?,
+    ): HttpHeaders = createAlert(APPLICATION_NAME + "." + entityName + ".deleted", param)
 
     /**
      * Create headers to display a failure alert in the frontend.
@@ -46,8 +52,9 @@ object HeaderUtil {
      * @return the [HttpHeaders]
      */
     fun createFailureAlert(
-        entityName: String, errorKey: String,
-        defaultMessage: String?
+        entityName: String,
+        errorKey: String,
+        defaultMessage: String?,
     ): HttpHeaders {
         log.error("Entity creation failed, {}", defaultMessage)
         val headers = HttpHeaders()
@@ -64,10 +71,11 @@ object HeaderUtil {
      * @return the [HttpHeaders]
      */
     fun createExceptionAlert(
-        entityName: String?, errorKey: String?,
-        defaultMessage: String?
+        entityName: String?,
+        errorKey: String?,
+        defaultMessage: String?,
     ): HttpHeaders {
-        //TODO: Replace createFailureAlert with error. addition
+        // TODO: Replace createFailureAlert with error. addition
         log.error("Entity creation failed, {}", defaultMessage)
         val headers = HttpHeaders()
         headers.add("X-managementPortalApp-error", errorKey)
@@ -86,22 +94,20 @@ object HeaderUtil {
      * @return A String where the components are URLEncoded and joined by forward slashes.
      */
     fun buildPath(vararg components: String?): String {
-        return "/" + components
-            .filterNotNull()
-            .filter { it != "" }
-            .map { c: String? ->
-                // try-catch needs to be inside the lambda
-                try {
-                    return@map URLEncoder.encode(c, "UTF-8")
-                } catch (ex: UnsupportedEncodingException) {
-                    log.error(ex.message)
-                    return@map ""
-                }
-            }
-            .reduce { a: String, b: String -> java.lang.String.join("/", a, b) }
+        return "/" +
+            components
+                .filterNotNull()
+                .filter { it != "" }
+                .map { c: String? ->
+                    // try-catch needs to be inside the lambda
+                    try {
+                        return@map URLEncoder.encode(c, "UTF-8")
+                    } catch (ex: UnsupportedEncodingException) {
+                        log.error(ex.message)
+                        return@map ""
+                    }
+                }.reduce { a: String, b: String -> java.lang.String.join("/", a, b) }
     }
-
-
 
     /**
      * Custom cookie parser as the httprequest.cookies method cuts off '='.
@@ -109,16 +115,20 @@ object HeaderUtil {
     fun parseCookies(cookieHeader: String?): List<Cookie> {
         val result: List<Cookie> = listOf()
         if (cookieHeader != null) {
-            val cookiesRaw = cookieHeader.split("; ".toRegex()).dropLastWhile { it.isEmpty() }
-                .toTypedArray()
-            return cookiesRaw.map{
-                val parts = it.split("=".toRegex(), limit = 2).toTypedArray()
-                var value = if (parts.size > 1) parts[1] else ""
-                if (value.length >= 2 && value.startsWith("\"") && value.endsWith("\"")) {
-                    value = value.substring(1, value.length - 1)
-                }
-                Cookie(name = parts[0], value = parts[1])
-            }.toList()
+            val cookiesRaw =
+                cookieHeader
+                    .split("; ".toRegex())
+                    .dropLastWhile { it.isEmpty() }
+                    .toTypedArray()
+            return cookiesRaw
+                .map {
+                    val parts = it.split("=".toRegex(), limit = 2).toTypedArray()
+                    var value = if (parts.size > 1) parts[1] else ""
+                    if (value.length >= 2 && value.startsWith("\"") && value.endsWith("\"")) {
+                        value = value.substring(1, value.length - 1)
+                    }
+                    Cookie(name = parts[0], value = parts[1])
+                }.toList()
         }
         return result
     }

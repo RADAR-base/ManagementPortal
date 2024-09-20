@@ -46,7 +46,6 @@ import javax.servlet.ServletException
 @WithMockUser
 internal class ProjectResourceIntTest(
     @Autowired private val projectResource: ProjectResource,
-
 //    @Autowired private val subjectMapper: SubjectMapper,
     @Autowired private val projectRepository: ProjectRepository,
 //    @Autowired private val projectService: ProjectService,
@@ -54,11 +53,9 @@ internal class ProjectResourceIntTest(
 //    @Autowired private val subjectService: SubjectService,
 //    @Autowired private val sourceService: SourceService,
 //    @Autowired private val authService: AuthService,
-
     @Autowired private val pageableArgumentResolver: PageableHandlerMethodArgumentResolver,
     @Autowired private val jacksonMessageConverter: MappingJackson2HttpMessageConverter,
     @Autowired private val exceptionTranslator: ExceptionTranslator,
-
     @Autowired private val projectMapper: ProjectMapper,
     @Autowired private val organizationRepository: OrganizationRepository,
 ) {
@@ -71,13 +68,17 @@ internal class ProjectResourceIntTest(
         MockitoAnnotations.openMocks(this)
         val filter = OAuthHelper.createAuthenticationFilter()
         filter.init(MockFilterConfig())
-        restProjectMockMvc = MockMvcBuilders.standaloneSetup(projectResource)
-            .setCustomArgumentResolvers(pageableArgumentResolver)
-            .setControllerAdvice(exceptionTranslator)
-            .setMessageConverters(jacksonMessageConverter)
-            .addFilter<StandaloneMockMvcBuilder>(filter)
-            .defaultRequest<StandaloneMockMvcBuilder>(MockMvcRequestBuilders.get("/").with(OAuthHelper.bearerToken()))
-            .build()
+        restProjectMockMvc =
+            MockMvcBuilders
+                .standaloneSetup(projectResource)
+                .setCustomArgumentResolvers(pageableArgumentResolver)
+                .setControllerAdvice(exceptionTranslator)
+                .setMessageConverters(jacksonMessageConverter)
+                .addFilter<StandaloneMockMvcBuilder>(filter)
+                .defaultRequest<StandaloneMockMvcBuilder>(
+                    MockMvcRequestBuilders.get("/").with(OAuthHelper.bearerToken()),
+                )
+                .build()
     }
 
     @BeforeEach
@@ -93,12 +94,13 @@ internal class ProjectResourceIntTest(
 
         // Create the Project
         val projectDto = projectMapper.projectToProjectDTO(project)
-        restProjectMockMvc.perform(
-            MockMvcRequestBuilders.post("/api/projects")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(projectDto))
-        )
-            .andExpect(MockMvcResultMatchers.status().isCreated())
+        restProjectMockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .post("/api/projects")
+                    .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                    .content(TestUtil.convertObjectToJsonBytes(projectDto)),
+            ).andExpect(MockMvcResultMatchers.status().isCreated())
 
         // Validate the Project in the database
         val projectList = projectRepository.findAll()
@@ -124,12 +126,13 @@ internal class ProjectResourceIntTest(
         val projectDto = projectMapper.projectToProjectDTO(project)
 
         // An entity with an existing ID cannot be created, so this API call must fail
-        restProjectMockMvc.perform(
-            MockMvcRequestBuilders.post("/api/projects")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(projectDto))
-        )
-            .andExpect(MockMvcResultMatchers.status().isBadRequest())
+        restProjectMockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .post("/api/projects")
+                    .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                    .content(TestUtil.convertObjectToJsonBytes(projectDto)),
+            ).andExpect(MockMvcResultMatchers.status().isBadRequest())
 
         // Validate the Alice in the database
         val projectList = projectRepository.findAll()
@@ -146,12 +149,13 @@ internal class ProjectResourceIntTest(
 
         // Create the Project, which fails.
         val projectDto: ProjectDTO? = projectMapper.projectToProjectDTO(project)
-        restProjectMockMvc.perform(
-            MockMvcRequestBuilders.post("/api/projects")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(projectDto))
-        )
-            .andExpect(MockMvcResultMatchers.status().isBadRequest())
+        restProjectMockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .post("/api/projects")
+                    .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                    .content(TestUtil.convertObjectToJsonBytes(projectDto)),
+            ).andExpect(MockMvcResultMatchers.status().isBadRequest())
         val projectList = projectRepository.findAll()
         assertThat(projectList).hasSize(databaseSizeBeforeTest)
     }
@@ -166,12 +170,13 @@ internal class ProjectResourceIntTest(
 
         // Create the Project, which fails.
         val projectDto = projectMapper.projectToProjectDTO(project)
-        restProjectMockMvc.perform(
-            MockMvcRequestBuilders.post("/api/projects")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(projectDto))
-        )
-            .andExpect(MockMvcResultMatchers.status().isBadRequest())
+        restProjectMockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .post("/api/projects")
+                    .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                    .content(TestUtil.convertObjectToJsonBytes(projectDto)),
+            ).andExpect(MockMvcResultMatchers.status().isBadRequest())
         val projectList = projectRepository.findAll()
         assertThat(projectList).hasSize(databaseSizeBeforeTest)
     }
@@ -186,12 +191,13 @@ internal class ProjectResourceIntTest(
 
         // Create the Project, which fails.
         val projectDto: ProjectDTO? = projectMapper.projectToProjectDTO(project)
-        restProjectMockMvc.perform(
-            MockMvcRequestBuilders.post("/api/projects")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(projectDto))
-        )
-            .andExpect(MockMvcResultMatchers.status().isBadRequest())
+        restProjectMockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .post("/api/projects")
+                    .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                    .content(TestUtil.convertObjectToJsonBytes(projectDto)),
+            ).andExpect(MockMvcResultMatchers.status().isBadRequest())
         val projectList = projectRepository.findAll()
         assertThat(projectList).hasSize(databaseSizeBeforeTest)
     }
@@ -200,68 +206,62 @@ internal class ProjectResourceIntTest(
     @Transactional
     @Test
     fun allProjects() {
-            // Initialize the database
-            projectRepository.saveAndFlush(project)
+        // Initialize the database
+        projectRepository.saveAndFlush(project)
 
-            // Get all the projectList
-            restProjectMockMvc.perform(MockMvcRequestBuilders.get("/api/projects?sort=id,desc"))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(
-                    MockMvcResultMatchers.jsonPath("$.[*].id").value<Iterable<Int?>>(
-                        Matchers.hasItem(
-                            project.id!!.toInt()
-                        )
-                    )
-                )
-                .andExpect(
-                    MockMvcResultMatchers.jsonPath("$.[*].projectName").value<Iterable<String?>>(
-                        Matchers.hasItem(
-                            DEFAULT_PROJECT_NAME
-                        )
-                    )
-                )
-                .andExpect(
-                    MockMvcResultMatchers.jsonPath("$.[*].description").value<Iterable<String?>>(
-                        Matchers.hasItem(
-                            DEFAULT_DESCRIPTION
-                        )
-                    )
-                )
-                .andExpect(
-                    MockMvcResultMatchers.jsonPath("$.[*].organizationName").value<Iterable<String?>>(
-                        Matchers.hasItem(
-                            DEFAULT_ORGANIZATION
-                        )
-                    )
-                )
-                .andExpect(
-                    MockMvcResultMatchers.jsonPath("$.[*].location").value<Iterable<String?>>(
-                        Matchers.hasItem(
-                            DEFAULT_LOCATION
-                        )
-                    )
-                )
-                .andExpect(
-                    MockMvcResultMatchers.jsonPath("$.[*].startDate").value<Iterable<String?>>(
-                        Matchers.hasItem(TestUtil.sameInstant(DEFAULT_START_DATE))
-                    )
-                )
-                .andExpect(
-                    MockMvcResultMatchers.jsonPath("$.[*].projectStatus").value<Iterable<String?>>(
-                        Matchers.hasItem(DEFAULT_PROJECT_STATUS.toString())
-                    )
-                )
-                .andExpect(
-                    MockMvcResultMatchers.jsonPath("$.[*].endDate").value<Iterable<String?>>(
-                        Matchers.hasItem(
-                            TestUtil.sameInstant(
-                                DEFAULT_END_DATE
-                            )
-                        )
-                    )
-                )
-        }
+        // Get all the projectList
+        restProjectMockMvc
+            .perform(MockMvcRequestBuilders.get("/api/projects?sort=id,desc"))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$.[*].id").value<Iterable<Int?>>(
+                    Matchers.hasItem(
+                        project.id!!.toInt(),
+                    ),
+                ),
+            ).andExpect(
+                MockMvcResultMatchers.jsonPath("$.[*].projectName").value<Iterable<String?>>(
+                    Matchers.hasItem(
+                        DEFAULT_PROJECT_NAME,
+                    ),
+                ),
+            ).andExpect(
+                MockMvcResultMatchers.jsonPath("$.[*].description").value<Iterable<String?>>(
+                    Matchers.hasItem(
+                        DEFAULT_DESCRIPTION,
+                    ),
+                ),
+            ).andExpect(
+                MockMvcResultMatchers.jsonPath("$.[*].organizationName").value<Iterable<String?>>(
+                    Matchers.hasItem(
+                        DEFAULT_ORGANIZATION,
+                    ),
+                ),
+            ).andExpect(
+                MockMvcResultMatchers.jsonPath("$.[*].location").value<Iterable<String?>>(
+                    Matchers.hasItem(
+                        DEFAULT_LOCATION,
+                    ),
+                ),
+            ).andExpect(
+                MockMvcResultMatchers.jsonPath("$.[*].startDate").value<Iterable<String?>>(
+                    Matchers.hasItem(TestUtil.sameInstant(DEFAULT_START_DATE)),
+                ),
+            ).andExpect(
+                MockMvcResultMatchers.jsonPath("$.[*].projectStatus").value<Iterable<String?>>(
+                    Matchers.hasItem(DEFAULT_PROJECT_STATUS.toString()),
+                ),
+            ).andExpect(
+                MockMvcResultMatchers.jsonPath("$.[*].endDate").value<Iterable<String?>>(
+                    Matchers.hasItem(
+                        TestUtil.sameInstant(
+                            DEFAULT_END_DATE,
+                        ),
+                    ),
+                ),
+            )
+    }
 
     @Test
     @Transactional
@@ -271,7 +271,8 @@ internal class ProjectResourceIntTest(
         projectRepository.saveAndFlush(project)
 
         // Get the project
-        restProjectMockMvc.perform(MockMvcRequestBuilders.get("/api/projects/{projectName}", project.projectName))
+        restProjectMockMvc
+            .perform(MockMvcRequestBuilders.get("/api/projects/{projectName}", project.projectName))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(project.id!!.toInt()))
@@ -288,10 +289,11 @@ internal class ProjectResourceIntTest(
     @Transactional
     @Test
     fun nonExistingProject() {
-            // Get the project
-            restProjectMockMvc.perform(MockMvcRequestBuilders.get("/api/projects/{id}", Long.MAX_VALUE))
-                .andExpect(MockMvcResultMatchers.status().isNotFound())
-        }
+        // Get the project
+        restProjectMockMvc
+            .perform(MockMvcRequestBuilders.get("/api/projects/{id}", Long.MAX_VALUE))
+            .andExpect(MockMvcResultMatchers.status().isNotFound())
+    }
 
     @Test
     @Transactional
@@ -318,11 +320,13 @@ internal class ProjectResourceIntTest(
             .projectStatus(UPDATED_PROJECT_STATUS)
             .endDate(UPDATED_END_DATE)
         val projectDto = projectMapper.projectToProjectDTO(updatedProject)
-        restProjectMockMvc.perform(
-            MockMvcRequestBuilders.put("/api/projects")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(projectDto))
-        ).andExpect(MockMvcResultMatchers.status().isOk())
+        restProjectMockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .put("/api/projects")
+                    .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                    .content(TestUtil.convertObjectToJsonBytes(projectDto)),
+            ).andExpect(MockMvcResultMatchers.status().isOk())
 
         // Validate the Project in the database
         val projectList = projectRepository.findAll()
@@ -335,7 +339,7 @@ internal class ProjectResourceIntTest(
         assertThat(testProject.location).isEqualTo(UPDATED_LOCATION)
         assertThat(testProject.startDate).isEqualTo(UPDATED_START_DATE)
         assertThat<ProjectStatus>(testProject.projectStatus).isEqualTo(
-            UPDATED_PROJECT_STATUS
+            UPDATED_PROJECT_STATUS,
         )
         assertThat(testProject.endDate).isEqualTo(UPDATED_END_DATE)
         organizationRepository.delete(org)
@@ -351,12 +355,13 @@ internal class ProjectResourceIntTest(
         val projectDto = projectMapper.projectToProjectDTO(project)
 
         // If the entity doesn't have an ID, it will be created instead of just being updated
-        restProjectMockMvc.perform(
-            MockMvcRequestBuilders.put("/api/projects")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(projectDto))
-        )
-            .andExpect(MockMvcResultMatchers.status().isCreated())
+        restProjectMockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .put("/api/projects")
+                    .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                    .content(TestUtil.convertObjectToJsonBytes(projectDto)),
+            ).andExpect(MockMvcResultMatchers.status().isCreated())
 
         // Validate the Project in the database
         val projectList = projectRepository.findAll()
@@ -372,11 +377,12 @@ internal class ProjectResourceIntTest(
         val databaseSizeBeforeDelete = projectRepository.findAll().size
 
         // Get the project
-        restProjectMockMvc.perform(
-            MockMvcRequestBuilders.delete("/api/projects/{projectName}", project.projectName)
-                .accept(TestUtil.APPLICATION_JSON_UTF8)
-        )
-            .andExpect(MockMvcResultMatchers.status().isOk())
+        restProjectMockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .delete("/api/projects/{projectName}", project.projectName)
+                    .accept(TestUtil.APPLICATION_JSON_UTF8),
+            ).andExpect(MockMvcResultMatchers.status().isOk())
 
         // Validate the database is empty
         val projectList = projectRepository.findAll()
@@ -387,7 +393,8 @@ internal class ProjectResourceIntTest(
     @Transactional
     @Throws(Exception::class)
     fun equalsVerifier() {
-        org.junit.jupiter.api.Assertions.assertTrue(TestUtil.equalsVerifier(Project::class.java))
+        org.junit.jupiter.api.Assertions
+            .assertTrue(TestUtil.equalsVerifier(Project::class.java))
     }
 
     companion object {
@@ -399,20 +406,28 @@ internal class ProjectResourceIntTest(
         private const val UPDATED_ORGANIZATION = "org1"
         private const val DEFAULT_LOCATION = "AAAAAAAAAA"
         private const val UPDATED_LOCATION = "BBBBBBBBBB"
-        private val DEFAULT_START_DATE = ZonedDateTime.ofInstant(
-            Instant.ofEpochMilli(0L), ZoneOffset.UTC
-        )
-        private val UPDATED_START_DATE = ZonedDateTime.now(
-            ZoneId.systemDefault()
-        ).withNano(0)
+        private val DEFAULT_START_DATE =
+            ZonedDateTime.ofInstant(
+                Instant.ofEpochMilli(0L),
+                ZoneOffset.UTC,
+            )
+        private val UPDATED_START_DATE =
+            ZonedDateTime
+                .now(
+                    ZoneId.systemDefault(),
+                ).withNano(0)
         private val DEFAULT_PROJECT_STATUS = ProjectStatus.PLANNING
         private val UPDATED_PROJECT_STATUS = ProjectStatus.ONGOING
-        private val DEFAULT_END_DATE = ZonedDateTime.ofInstant(
-            Instant.ofEpochMilli(0L), ZoneOffset.UTC
-        )
-        private val UPDATED_END_DATE = ZonedDateTime.now(
-            ZoneId.systemDefault()
-        ).withNano(0)
+        private val DEFAULT_END_DATE =
+            ZonedDateTime.ofInstant(
+                Instant.ofEpochMilli(0L),
+                ZoneOffset.UTC,
+            )
+        private val UPDATED_END_DATE =
+            ZonedDateTime
+                .now(
+                    ZoneId.systemDefault(),
+                ).withNano(0)
 
         /**
          * Create an entity for this test.

@@ -5,7 +5,9 @@ import org.springframework.util.Assert
 import java.time.Instant
 import java.util.*
 
-class CustomRevisionMetadata(entity: CustomRevisionEntity) : RevisionMetadata<Int> {
+class CustomRevisionMetadata(
+    entity: CustomRevisionEntity,
+) : RevisionMetadata<Int> {
     private val entity: CustomRevisionEntity
 
     /**
@@ -22,19 +24,14 @@ class CustomRevisionMetadata(entity: CustomRevisionEntity) : RevisionMetadata<In
      * (non-Javadoc)
      * @see org.springframework.data.history.RevisionMetadata#getRevisionNumber()
      */
-    override fun getRevisionNumber(): Optional<Int> {
-        return Optional.of(entity.id)
-    }
+    override fun getRevisionNumber(): Optional<Int> = Optional.of(entity.id)
 
-    override fun getRevisionInstant(): Optional<Instant> {
-        return Optional.ofNullable(entity.timestamp).map { ts: Date -> ts.toInstant() }
-    }
+    override fun getRevisionInstant(): Optional<Instant> =
+        Optional.ofNullable(entity.timestamp).map { ts: Date -> ts.toInstant() }
 
     /*
      * (non-Javadoc)
      * @see org.springframework.data.history.RevisionMetadata#getDelegate()
      */
-    override fun <T : Any> getDelegate(): T {
-        return entity as T
-    }
+    override fun <T : Any> getDelegate(): T = entity as T
 }

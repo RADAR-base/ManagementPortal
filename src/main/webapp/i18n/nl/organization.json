@@ -1,6 +1,6 @@
 {
     "managementPortalApp": {
-        "organization" : {
+        "organization": {
             "home": {
                 "title": "Organisaties",
                 "createLabel": "Maak een nieuwe Organisatie",
@@ -33,15 +33,15 @@
                 "label": "Nieuwe groep",
                 "button": "Groep toevogen"
             },
-            "attributeDataKey" : "Tag",
-            "attributeDataValue" : "Waarde",
-            "prettyOrganizationName" : "Leesbare organizationnaam",
-            "prettyOrganizationName.fieldDescription" : "Voor mensen leesbare organizationnaam die niet het urlpatroon hoeft te volgen.",
+            "attributeDataKey": "Tag",
+            "attributeDataValue": "Waarde",
+            "prettyOrganizationName": "Leesbare organizationnaam",
+            "prettyOrganizationName.fieldDescription": "Voor mensen leesbare organizationnaam die niet het urlpatroon hoeft te volgen.",
             "organizationIdAsPrettyName": "Wil je de organization-id gebruiken als de voor mensen leesbare naam?"
         },
-        "error" : {
-            "organizationIdNotFound" : "Er werd geen organization gevonden met id {{ param0 }}",
-            "organizationNameNotFound" : "Er werd geen organization gevonden met de naam {{ param0 }}"
+        "error": {
+            "organizationIdNotFound": "Er werd geen organization gevonden met id {{ param0 }}",
+            "organizationNameNotFound": "Er werd geen organization gevonden met de naam {{ param0 }}"
         }
     }
 }

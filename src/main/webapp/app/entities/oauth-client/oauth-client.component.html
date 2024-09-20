@@ -1,8 +1,8 @@
 <div>
     <h4>
-       <span [translate]="'managementPortalApp.oauthClient.home.title'"></span>
-       <button class="btn btn-primary float-right"
-               [routerLink]="['/', { outlets: { popup: ['oauth-client-new'] } }]">
+        <span [translate]="'managementPortalApp.oauthClient.home.title'"></span>
+        <button [routerLink]="['/', { outlets: { popup: ['oauth-client-new'] } }]"
+                class="btn btn-primary float-right">
             <span class="fa fa-plus"></span>
             <span [translate]="'managementPortalApp.oauthClient.home.createLabel'"></span>
         </button>
@@ -15,48 +15,57 @@
     <div class="table-responsive">
         <table class="table table-striped">
             <thead>
-                <tr>
-                    <th><span [translate]="'managementPortalApp.oauthClient.clientId'"></span></th>
-                    <th><span [translate]="'managementPortalApp.oauthClient.scope'"></span></th>
-                    <th><span [translate]="'managementPortalApp.oauthClient.resourceIds'"></span></th>
-                    <th><span [translate]="'managementPortalApp.oauthClient.authorizedGrantTypes'"></span></th>
-                    <th><span [translate]="'managementPortalApp.oauthClient.autoApprove'"></span></th>
-                    <th><span [translate]="'managementPortalApp.oauthClient.accessTokenValidity'"></span></th>
-                    <th><span [translate]="'managementPortalApp.oauthClient.refreshTokenValidity'"></span></th>
-                    <th><span [translate]="'managementPortalApp.oauthClient.additionalInformation'"></span></th>
-                    <th><span [translate]="'managementPortalApp.oauthClient.actions'"></span></th>
-                </tr>
+            <tr>
+                <th><span [translate]="'managementPortalApp.oauthClient.clientId'"></span></th>
+                <th><span [translate]="'managementPortalApp.oauthClient.scope'"></span></th>
+                <th><span [translate]="'managementPortalApp.oauthClient.resourceIds'"></span></th>
+                <th><span [translate]="'managementPortalApp.oauthClient.authorizedGrantTypes'"></span></th>
+                <th><span [translate]="'managementPortalApp.oauthClient.autoApprove'"></span></th>
+                <th><span [translate]="'managementPortalApp.oauthClient.accessTokenValidity'"></span></th>
+                <th><span [translate]="'managementPortalApp.oauthClient.refreshTokenValidity'"></span></th>
+                <th><span [translate]="'managementPortalApp.oauthClient.additionalInformation'"></span></th>
+                <th><span [translate]="'managementPortalApp.oauthClient.actions'"></span></th>
+            </tr>
             </thead>
             <tbody>
-                    <tr *ngFor="let client of oauthClients ;trackBy: trackId">
-                        <td>{{client.clientId}}</td>
-                        <td><jhi-show-more [items]='client.scope' [spanClass]='"badge badge-primary"'></jhi-show-more></td>
-                        <td><span *ngFor="let resource of client.resourceIds; let last = last"><span class="badge badge-default">{{resource }}</span>{{last ? "" : "&nbsp;"}}</span></td>
-                        <td><span *ngFor="let granttype of client.authorizedGrantTypes; let last = last"><span class="badge badge-default">{{granttype }}</span>{{last ? "" : "&nbsp;"}}</span></td>
-                        <td><jhi-show-more [items]='client.autoApproveScopes' [spanClass]='"badge badge-primary"'></jhi-show-more></td>
-                        <td>{{convertSeconds(client.accessTokenValiditySeconds)}}</td>
-                        <td>{{convertSeconds(client.refreshTokenValiditySeconds)}}</td>
-                        <td><span *ngFor="let infoKey of objectKeys(client.additionalInformation); let last = last"><span class="badge badge-info">{{infoKey }}: {{client.additionalInformation[infoKey]}}</span>{{last ? "" : "&nbsp;"}}</span></td>
-                        <td class="text-right">
-                            <div class="btn-group flex-btn-group-container">
-                                <button type="submit"
-                                        [routerLink]="['/', { outlets: { popup: ['oauth-client', client.clientId, 'edit']} }]"
-                                        replaceUrl="true"
-                                        class="btn btn-primary btn-sm"
-                                        [disabled]="client.additionalInformation['protected'] == 'true'">
-                                    <span class="fa fa-pencil"></span>
-                                    <span class="hidden-md-down" [translate]="'entity.action.edit'"></span>
-                                </button>
-                                <button type="submit"
-                                        [routerLink]="['/', { outlets: { popup: ['oauth-client', client.clientId, 'delete']} }]"
-                                        replaceUrl="true"
-                                        class="btn btn-danger btn-sm"
-                                        [disabled]="client.additionalInformation['protected'] == 'true'">
-                                    <span class="fa fa-remove"></span>
-                                    <span class="hidden-md-down" [translate]="'entity.action.delete'"></span>
-                                </button>
-                            </div>
-                    </tr>
+            <tr *ngFor="let client of oauthClients ;trackBy: trackId">
+                <td>{{ client.clientId }}</td>
+                <td>
+                    <jhi-show-more [items]='client.scope' [spanClass]='"badge badge-primary"'></jhi-show-more>
+                </td>
+                <td><span *ngFor="let resource of client.resourceIds; let last = last"><span
+                        class="badge badge-default">{{ resource }}</span>{{ last ? "" : "&nbsp;" }}</span></td>
+                <td><span *ngFor="let granttype of client.authorizedGrantTypes; let last = last"><span
+                        class="badge badge-default">{{ granttype }}</span>{{ last ? "" : "&nbsp;" }}</span></td>
+                <td>
+                    <jhi-show-more [items]='client.autoApproveScopes'
+                                   [spanClass]='"badge badge-primary"'></jhi-show-more>
+                </td>
+                <td>{{ convertSeconds(client.accessTokenValiditySeconds) }}</td>
+                <td>{{ convertSeconds(client.refreshTokenValiditySeconds) }}</td>
+                <td><span *ngFor="let infoKey of objectKeys(client.additionalInformation); let last = last"><span
+                        class="badge badge-info">{{ infoKey }}
+                    : {{ client.additionalInformation[infoKey] }}</span>{{ last ? "" : "&nbsp;" }}</span></td>
+                <td class="text-right">
+                    <div class="btn-group flex-btn-group-container">
+                        <button [disabled]="client.additionalInformation['protected'] == 'true'"
+                                [routerLink]="['/', { outlets: { popup: ['oauth-client', client.clientId, 'edit']} }]"
+                                class="btn btn-primary btn-sm"
+                                replaceUrl="true"
+                                type="submit">
+                            <span class="fa fa-pencil"></span>
+                            <span [translate]="'entity.action.edit'" class="hidden-md-down"></span>
+                        </button>
+                        <button [disabled]="client.additionalInformation['protected'] == 'true'"
+                                [routerLink]="['/', { outlets: { popup: ['oauth-client', client.clientId, 'delete']} }]"
+                                class="btn btn-danger btn-sm"
+                                replaceUrl="true"
+                                type="submit">
+                            <span class="fa fa-remove"></span>
+                            <span [translate]="'entity.action.delete'" class="hidden-md-down"></span>
+                        </button>
+                    </div>
+            </tr>
             </tbody>
         </table>
     </div>

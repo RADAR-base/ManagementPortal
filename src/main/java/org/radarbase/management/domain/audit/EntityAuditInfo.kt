@@ -44,19 +44,21 @@ class EntityAuditInfo {
             return false
         }
         val that = other as EntityAuditInfo
-        return createdAt == that.createdAt && createdBy == that.createdBy && lastModifiedAt == that.lastModifiedAt && lastModifiedBy == that.lastModifiedBy
+        return createdAt == that.createdAt &&
+            createdBy == that.createdBy &&
+            lastModifiedAt == that.lastModifiedAt &&
+            lastModifiedBy == that.lastModifiedBy
     }
 
-    override fun hashCode(): Int {
-        return if (lastModifiedAt != null) lastModifiedAt.hashCode() else 0
-    }
+    override fun hashCode(): Int = if (lastModifiedAt != null) lastModifiedAt.hashCode() else 0
 
-    override fun toString(): String {
-        return ("EntityAuditInfo{"
-                + "createdAt=" + createdAt
-                + ", createdBy='" + createdBy + '\''
-                + ", lastModifiedAt=" + lastModifiedAt
-                + ", lastModifiedBy='" + lastModifiedBy + '\''
-                + '}')
-    }
+    override fun toString(): String =
+        (
+            "EntityAuditInfo{" +
+                "createdAt=" + createdAt +
+                ", createdBy='" + createdBy + '\'' +
+                ", lastModifiedAt=" + lastModifiedAt +
+                ", lastModifiedBy='" + lastModifiedBy + '\'' +
+                '}'
+            )
 }

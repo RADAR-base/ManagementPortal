@@ -22,10 +22,11 @@ internal class SecurityUtilsUnitTest {
     @Test
     fun testGetCurrentUserLogin() {
         val securityContext = SecurityContextHolder.createEmptyContext()
-        securityContext.authentication = UsernamePasswordAuthenticationToken(
-            "admin",
-            "admin"
-        )
+        securityContext.authentication =
+            UsernamePasswordAuthenticationToken(
+                "admin",
+                "admin",
+            )
         SecurityContextHolder.setContext(securityContext)
         val login = SecurityUtils.currentUserLogin
         Assertions.assertThat(login).isEqualTo("admin")

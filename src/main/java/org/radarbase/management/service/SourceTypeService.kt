@@ -34,9 +34,8 @@ class SourceTypeService(
     @Autowired private val sourceDataRepository: SourceDataRepository,
     @Autowired private val catalogSourceTypeMapper: CatalogSourceTypeMapper,
     @Autowired private val catalogSourceDataMapper: CatalogSourceDataMapper,
-    @Autowired private val projectMapper: ProjectMapper
+    @Autowired private val projectMapper: ProjectMapper,
 ) {
-
     /**
      * Save a sourceType.
      *
@@ -77,7 +76,8 @@ class SourceTypeService(
      */
     fun findAll(pageable: Pageable): Page<SourceTypeDTO> {
         log.debug("Request to get SourceTypes")
-        return sourceTypeRepository.findAll(pageable)
+        return sourceTypeRepository
+            .findAll(pageable)
             .map { sourceType: SourceType -> sourceTypeMapper.sourceTypeToSourceTypeDTO(sourceType) }
     }
 
@@ -96,29 +96,36 @@ class SourceTypeService(
      */
     fun findByProducerAndModelAndVersion(
         @NotNull producer: String?,
-        @NotNull model: String?, @NotNull version: String?
+        @NotNull model: String?,
+        @NotNull version: String?,
     ): SourceTypeDTO {
         log.debug(
             "Request to get SourceType by producer and model and version: {}, {}, {}",
-            producer, model, version
+            producer,
+            model,
+            version,
         )
         if (producer == null || model == null || version == null) {
             throw NotFoundException(
-                "SourceType not found with producer, model, " + "version ", EntityName.SOURCE_TYPE,
-                ErrorConstants.ERR_SOURCE_TYPE_NOT_FOUND, Collections.singletonMap(
+                "SourceType not found with producer, model, " + "version ",
+                EntityName.SOURCE_TYPE,
+                ErrorConstants.ERR_SOURCE_TYPE_NOT_FOUND,
+                Collections.singletonMap(
                     "producer-model-version",
-                    "$producer-$model-$version"
-                )
+                    "$producer-$model-$version",
+                ),
             )
         }
         val result =
             sourceTypeRepository.findOneWithEagerRelationshipsByProducerAndModelAndVersion(producer, model, version)
                 ?: throw NotFoundException(
-                    "SourceType not found with producer, model, " + "version ", EntityName.SOURCE_TYPE,
-                    ErrorConstants.ERR_SOURCE_TYPE_NOT_FOUND, Collections.singletonMap(
+                    "SourceType not found with producer, model, " + "version ",
+                    EntityName.SOURCE_TYPE,
+                    ErrorConstants.ERR_SOURCE_TYPE_NOT_FOUND,
+                    Collections.singletonMap(
                         "producer-model-version",
-                        "$producer-$model-$version"
-                    )
+                        "$producer-$model-$version",
+                    ),
                 )
 
         return sourceTypeMapper.sourceTypeToSourceTypeDTO(result)
@@ -129,22 +136,27 @@ class SourceTypeService(
      */
     fun findByProducer(producer: String): List<SourceTypeDTO> {
         log.debug("Request to get SourceType by producer: {}", producer)
-        val sourceTypes = sourceTypeRepository
-            .findWithEagerRelationshipsByProducer(producer)
+        val sourceTypes =
+            sourceTypeRepository
+                .findWithEagerRelationshipsByProducer(producer)
         return sourceTypeMapper.sourceTypesToSourceTypeDTOs(
-            sourceTypes
+            sourceTypes,
         )
     }
 
     /**
      * Fetch SourceType by producer and model.
      */
-    fun findByProducerAndModel(producer: String, model: String): List<SourceTypeDTO> {
+    fun findByProducerAndModel(
+        producer: String,
+        model: String,
+    ): List<SourceTypeDTO> {
         log.debug("Request to get SourceType by producer and model: {}, {}", producer, model)
-        val sourceTypes = sourceTypeRepository
-            .findWithEagerRelationshipsByProducerAndModel(producer, model)
+        val sourceTypes =
+            sourceTypeRepository
+                .findWithEagerRelationshipsByProducerAndModel(producer, model)
         return sourceTypeMapper.sourceTypesToSourceTypeDTOs(
-            sourceTypes
+            sourceTypes,
         )
     }
 
@@ -156,12 +168,15 @@ class SourceTypeService(
      * @param version the SourceType catalogVersion
      * @return the list of projects associated with this SourceType
      */
-    fun findProjectsBySourceType(producer: String, model: String, version: String): List<ProjectDTO> {
-        return projectMapper.projectsToProjectDTOs(
+    fun findProjectsBySourceType(
+        producer: String,
+        model: String,
+        version: String,
+    ): List<ProjectDTO> =
+        projectMapper.projectsToProjectDTOs(
             sourceTypeRepository
-                .findProjectsBySourceType(producer, model, version)
+                .findProjectsBySourceType(producer, model, version),
         )
-    }
 
     /**
      * Converts given [CatalogSourceType] to [SourceType] and saves it to the databse
@@ -171,23 +186,26 @@ class SourceTypeService(
     @Transactional
     fun saveSourceTypesFromCatalogServer(catalogSourceTypes: List<CatalogSourceType>) {
         for (catalogSourceType in catalogSourceTypes) {
-            var sourceType = catalogSourceTypeMapper
-                .catalogSourceTypeToSourceType(catalogSourceType)
+            var sourceType =
+                catalogSourceTypeMapper
+                    .catalogSourceTypeToSourceType(catalogSourceType)
             if (!isSourceTypeValid(sourceType)) {
                 continue
             }
 
             // check whether a source-type is already available with given config
             if (sourceTypeRepository.hasOneByProducerAndModelAndVersion(
-                    sourceType!!.producer!!, sourceType.model!!,
-                    sourceType.catalogVersion!!
+                    sourceType!!.producer!!,
+                    sourceType.model!!,
+                    sourceType.catalogVersion!!,
                 )
             ) {
                 // skip for existing source-types
                 log.info(
-                    "Source-type {} is already available ", sourceType.producer
-                            + "_" + sourceType.model
-                            + "_" + sourceType.catalogVersion
+                    "Source-type {} is already available ",
+                    sourceType.producer +
+                        "_" + sourceType.model +
+                        "_" + sourceType.catalogVersion,
                 )
             } else {
                 try {
@@ -206,17 +224,21 @@ class SourceTypeService(
         log.info("Completed source-type import from catalog-server")
     }
 
-    private fun saveSourceData(sourceType: SourceType?, catalogSourceData: CatalogSourceData?) {
+    private fun saveSourceData(
+        sourceType: SourceType?,
+        catalogSourceData: CatalogSourceData?,
+    ) {
         try {
-            val sourceData = catalogSourceDataMapper
-                .catalogSourceDataToSourceData(catalogSourceData)
+            val sourceData =
+                catalogSourceDataMapper
+                    .catalogSourceDataToSourceData(catalogSourceData)
             // sourceDataName should be unique
             // generated by combining sourceDataType and source-type configs
             sourceData!!.sourceDataName(
-                sourceType!!.producer
-                        + "_" + sourceType.model
-                        + "_" + sourceType.catalogVersion
-                        + "_" + sourceData.sourceDataType
+                sourceType!!.producer +
+                    "_" + sourceType.model +
+                    "_" + sourceType.catalogVersion +
+                    "_" + sourceData.sourceDataType,
             )
             sourceData.sourceType(sourceType)
             sourceDataRepository.save(sourceData)
@@ -227,25 +249,29 @@ class SourceTypeService(
 
     companion object {
         private val log = LoggerFactory.getLogger(SourceTypeService::class.java)
+
         private fun isSourceTypeValid(sourceType: SourceType?): Boolean {
             if (sourceType!!.producer == null) {
                 log.warn(
-                    "Catalog source-type {} does not have a vendor. "
-                            + "Skipping importing this type", sourceType.name
+                    "Catalog source-type {} does not have a vendor. " +
+                        "Skipping importing this type",
+                    sourceType.name,
                 )
                 return false
             }
             if (sourceType.model == null) {
                 log.warn(
-                    "Catalog source-type {} does not have a model. "
-                            + "Skipping importing this type", sourceType.name
+                    "Catalog source-type {} does not have a model. " +
+                        "Skipping importing this type",
+                    sourceType.name,
                 )
                 return false
             }
             if (sourceType.catalogVersion == null) {
                 log.warn(
-                    "Catalog source-type {} does not have a version. "
-                            + "Skipping importing this type", sourceType.name
+                    "Catalog source-type {} does not have a version. " +
+                        "Skipping importing this type",
+                    sourceType.name,
                 )
                 return false
             }

@@ -1,4 +1,4 @@
-import { HttpParams } from '@angular/common/http';
+import {HttpParams} from '@angular/common/http';
 
 const addRequestOptions = (options: HttpParams, key: string, value?: any): HttpParams => {
     if (typeof value === 'undefined' || value === null) { // || value === ''

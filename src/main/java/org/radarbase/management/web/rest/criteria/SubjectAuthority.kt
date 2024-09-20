@@ -10,5 +10,5 @@ package org.radarbase.management.web.rest.criteria
 
 enum class SubjectAuthority {
     ROLE_PARTICIPANT,
-    ROLE_INACTIVE_PARTICIPANT
+    ROLE_INACTIVE_PARTICIPANT,
 }

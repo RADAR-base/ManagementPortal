@@ -1,6 +1,6 @@
 // Based on JhiAlertService
-import { Injectable, SecurityContext } from '@angular/core';
-import { DomSanitizer } from '@angular/platform-browser';
+import {Injectable, SecurityContext} from '@angular/core';
+import {DomSanitizer} from '@angular/platform-browser';
 
 export type AlertType = 'success' | 'danger' | 'warning' | 'info';
 
@@ -15,7 +15,7 @@ export interface Alert {
     close?: (alerts: Alert[]) => void;
 }
 
-@Injectable({ providedIn: 'root' })
+@Injectable({providedIn: 'root'})
 export class AlertService {
 
     private alertId: number;
@@ -78,25 +78,6 @@ export class AlertService {
         }, []);
     }
 
-    private factory(alertOptions: Alert): Alert {
-        const alert: Alert = {
-            type: alertOptions.type,
-            msg: this.sanitizer.sanitize(SecurityContext.HTML, alertOptions.msg),
-            params: alertOptions.params,
-            id: alertOptions.id,
-            timeout: alertOptions.timeout,
-            position: alertOptions.position ? alertOptions.position : 'top right',
-            scoped: alertOptions.scoped,
-            close: (alerts: Alert[]) => {
-                return this.closeAlert(alertOptions.id, alerts);
-            }
-        };
-        if (!alert.scoped) {
-            this.alerts.push(alert);
-        }
-        return alert;
-    }
-
     addAlert(alertOptions: Alert, extAlerts?: Alert[]): Alert {
         alertOptions.id = this.alertId++;
         const alert = this.factory(alertOptions);
@@ -115,5 +96,24 @@ export class AlertService {
 
     closeAlertByIndex(index: number, thisAlerts: Alert[]): Alert[] {
         return thisAlerts.splice(index, 1);
+    }
+
+    private factory(alertOptions: Alert): Alert {
+        const alert: Alert = {
+            type: alertOptions.type,
+            msg: this.sanitizer.sanitize(SecurityContext.HTML, alertOptions.msg),
+            params: alertOptions.params,
+            id: alertOptions.id,
+            timeout: alertOptions.timeout,
+            position: alertOptions.position ? alertOptions.position : 'top right',
+            scoped: alertOptions.scoped,
+            close: (alerts: Alert[]) => {
+                return this.closeAlert(alertOptions.id, alerts);
+            }
+        };
+        if (!alert.scoped) {
+            this.alerts.push(alert);
+        }
+        return alert;
     }
 }

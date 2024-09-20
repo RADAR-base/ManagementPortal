@@ -1,11 +1,11 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { LoginModalService } from '../../shared';
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {ActivatedRoute} from '@angular/router';
+import {NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
+import {LoginModalService} from '../../shared';
 
-import { Activate } from './activate.service';
-import { Subscription } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import {Activate} from './activate.service';
+import {Subscription} from 'rxjs';
+import {switchMap} from 'rxjs/operators';
 
 @Component({
     selector: 'jhi-activate',
@@ -18,9 +18,9 @@ export class ActivateComponent implements OnInit, OnDestroy {
     subscription: Subscription;
 
     constructor(
-            private activate: Activate,
-            private loginModalService: LoginModalService,
-            private route: ActivatedRoute,
+        private activate: Activate,
+        private loginModalService: LoginModalService,
+        private route: ActivatedRoute,
     ) {
     }
 

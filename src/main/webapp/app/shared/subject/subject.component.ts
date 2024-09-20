@@ -1,18 +1,38 @@
-import { ChangeDetectionStrategy, Component, Input, OnChanges, OnDestroy, OnInit, SimpleChange, SimpleChanges, } from '@angular/core';
-import { HttpHeaders, HttpResponse } from '@angular/common/http';
-import { ActivatedRoute, Router } from '@angular/router';
-import { BehaviorSubject, combineLatest, Observable, Subscription } from 'rxjs';
-import { debounceTime, distinctUntilChanged, filter, first, map, pluck, shareReplay, switchMap, tap, withLatestFrom, } from 'rxjs/operators';
-import { NgbCalendar, NgbDateParserFormatter, NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    Input,
+    OnChanges,
+    OnDestroy,
+    OnInit,
+    SimpleChange,
+    SimpleChanges,
+} from '@angular/core';
+import {HttpHeaders, HttpResponse} from '@angular/common/http';
+import {ActivatedRoute, Router} from '@angular/router';
+import {BehaviorSubject, combineLatest, Observable, Subscription} from 'rxjs';
+import {
+    debounceTime,
+    distinctUntilChanged,
+    filter,
+    first,
+    map,
+    pluck,
+    shareReplay,
+    switchMap,
+    tap,
+    withLatestFrom,
+} from 'rxjs/operators';
+import {NgbCalendar, NgbDateParserFormatter, NgbModal} from '@ng-bootstrap/ng-bootstrap';
 
-import { Group, GroupService, ITEMS_PER_PAGE, Project } from '..';
-import { AddSubjectsToGroupDialogComponent } from './add-subjects-to-group-dialog.component';
+import {Group, GroupService, ITEMS_PER_PAGE, Project} from '..';
+import {AddSubjectsToGroupDialogComponent} from './add-subjects-to-group-dialog.component';
 import {CheckedSubject, Subject, SubjectFilterCriteria} from './subject.model';
-import { SubjectFilterParams, SubjectPaginationParams, SubjectService, } from './subject.service';
-import { AlertService } from '../util/alert.service';
-import { EventManager } from '../util/event-manager.service';
-import { NgbDateRange, NgbDateReactiveFilter, ReactiveFilter, ReactiveFilterOptions } from '../util/reactive-filter';
-import { regularSortOrder, SortOrder, SortOrderImpl } from '../util/sort-util';
+import {SubjectFilterParams, SubjectPaginationParams, SubjectService,} from './subject.service';
+import {AlertService} from '../util/alert.service';
+import {EventManager} from '../util/event-manager.service';
+import {NgbDateRange, NgbDateReactiveFilter, ReactiveFilter, ReactiveFilterOptions} from '../util/reactive-filter';
+import {regularSortOrder, SortOrder, SortOrderImpl} from '../util/sort-util';
 import {HideableSubjectField, SiteSettings, SiteSettingsService} from "./sitesettings.service";
 
 @Component({
@@ -22,34 +42,20 @@ import {HideableSubjectField, SiteSettings, SiteSettingsService} from "./siteset
     styleUrls: ['./subject.component.scss'],
 })
 export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
-    private subscriptions: Subscription = new Subscription();
-
     @Input() readonly isProjectSpecific: boolean;
-
     project$ = new BehaviorSubject<Project>(null);
-    @Input()
-    get project() { return this.project$.value; }
-    set project(v: Project) { this.project$.next(v); }
     _subjects$: BehaviorSubject<Subject[]> = new BehaviorSubject([]);
     subjects$: Observable<CheckedSubject[]>
     groups$: BehaviorSubject<Group[]> = new BehaviorSubject([]);
-
     page$ = new BehaviorSubject<number>(1);
     totalItems: number;
     previousPage: number = 1;
     itemsPerPage = ITEMS_PER_PAGE;
-
-    private _sortOrder$ = new BehaviorSubject<SortOrder>({
-        predicate: 'login',
-        ascending: true,
-    });
     sortOrder$: Observable<SortOrderImpl>;
-
     sortingOptions = [
         'login',
         'externalId',
     ];
-
     filters: Record<string, ReactiveFilter<any>>
     enrollmentDate$: Observable<NgbDateRange>
     enrollmentDateRangeError = false;
@@ -57,10 +63,15 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
     formattedFilterResult$: Observable<Record<string, string>>;
     isAdvancedFilterCollapsed = true;
     public siteSettings$: Observable<SiteSettings>;
-
     setOfCheckedId$ = new BehaviorSubject<Set<number>>(new Set());
     allChecked$: Observable<boolean>;
     anyChecked$: Observable<boolean>;
+    readonly HideableSubjectField = HideableSubjectField;
+    private subscriptions: Subscription = new Subscription();
+    private _sortOrder$ = new BehaviorSubject<SortOrder>({
+        predicate: 'login',
+        ascending: true,
+    });
 
     constructor(
         private subjectService: SubjectService,
@@ -90,7 +101,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
             personName: new ReactiveFilter<string>(stringFilterOptions),
             enrollmentDateFrom: new NgbDateReactiveFilter(calendar, this.dateFormatter),
             enrollmentDateTo: new NgbDateReactiveFilter(calendar, this.dateFormatter),
-            groupId: new ReactiveFilter<number>({ debounceTime: 1 }),
+            groupId: new ReactiveFilter<number>({debounceTime: 1}),
         }
         this.enrollmentDate$ = this.observeEnrollmentDate();
         this.filterResult$ = this.observeCombinedFilters();
@@ -114,7 +125,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
             this.setOfCheckedId$,
         ]).pipe(
             map(([subjects, checkedSet]) =>
-                subjects.map(s => ({...s, checked: checkedSet.has(s.id) }))),
+                subjects.map(s => ({...s, checked: checkedSet.has(s.id)}))),
             shareReplay(1),
         )
         this.allChecked$ = this.subjects$.pipe(
@@ -130,6 +141,15 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
 
         this.subscriptions.add(this.registerChangeInPagingParams());
         this.subscriptions.add(this.registerChangeInParams());
+    }
+
+    @Input()
+    get project() {
+        return this.project$.value;
+    }
+
+    set project(v: Project) {
+        this.project$.next(v);
     }
 
     ngOnInit() {
@@ -166,100 +186,6 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
         return item.key;
     }
 
-    private registerChangeInParams(): Subscription {
-        return this.activatedRoute.params.pipe(
-            first(),
-        ).subscribe(params => Object.entries(params).forEach(([k, v]) => {
-            if (this.filters.hasOwnProperty(k)) {
-                this.filters[k].next(v, true);
-            }
-        }));
-    }
-
-    private registerChangeInPagingParams(): Subscription {
-        return this.activatedRoute.data.pipe(
-          pluck('pagingParams'),
-          first(),
-        ).subscribe(params => {
-            this.page$.next(params.page);
-            this._sortOrder$.next({
-                predicate: params.predicate,
-                ascending: params.ascending,
-            });
-        })
-    }
-
-    private registerChangeInFilters(): Subscription {
-        return combineLatest([
-            this.project$.pipe(map(p => p ? p.projectName : ''), distinctUntilChanged()),
-            this.filterResult$,
-            this.sortOrder$,
-            this.page$.pipe(distinctUntilChanged()),
-        ]).pipe(
-          debounceTime(10),
-          tap(([projectName, criteria, sortOrder, page]) =>
-            this.router.navigate(this.toPathParams(projectName, criteria), {
-                queryParams: {
-                    page: page.toString(),
-                    sort: sortOrder.toQueryParam(),
-                },
-                queryParamsHandling: "merge",
-                replaceUrl: true,
-            })),
-          withLatestFrom(this._subjects$),
-          switchMap(([[projectName, filter, sortOrder, page], subjects]) => {
-              const mergeResults: boolean = page > this.previousPage;
-              this.previousPage = page;
-              const filterParams = this.queryFilterParams(filter);
-              const pagingParams = this.queryPaginationParams(page, sortOrder, mergeResults, subjects)
-
-              let fetch$: Observable<HttpResponse<Subject[]>>;
-              if (projectName) {
-                  fetch$ = this.subjectService.findAllByProject(projectName, filterParams, pagingParams);
-              } else {
-                  fetch$ = this.subjectService.query(filterParams, pagingParams);
-              }
-              return fetch$.pipe(
-                map(res => ({
-                    body: res.body,
-                    headers: res.headers,
-                    mergeResults: mergeResults,
-                })),
-              );
-          })
-        )
-        .subscribe(res => this.onSuccess(res.body, res.headers, res.mergeResults));
-    }
-
-    private registerChangeInSubjects(): Subscription {
-        return this.eventManager.subscribe('subjectListModification', ({content}) => {
-            const modifiedSubject = content.subject;
-            let currentSubjects = this._subjects$.value.slice();
-            const subjectIndex = currentSubjects.findIndex((s => s.login === modifiedSubject.login));
-            if (content.op === 'DELETE') {
-                if (subjectIndex >= 0) {
-                    currentSubjects = currentSubjects.splice(subjectIndex, 1);
-                }
-                this.totalItems--;
-            } else if (subjectIndex >= 0) {
-                currentSubjects[subjectIndex] = modifiedSubject;
-            } else {
-                this.totalItems++;
-                currentSubjects = [modifiedSubject, ...currentSubjects];
-            }
-            this._subjects$.next(currentSubjects);
-        });
-    }
-
-    private loadAllGroups() {
-        return this.project$.pipe(
-          filter(p => !!p),
-          pluck('projectName'),
-          distinctUntilChanged(),
-          switchMap(projectName => this.groupService.list(projectName))
-        ).subscribe((res: Group[]) => this.groups$.next(res));
-    }
-
     queryFilterParams(criteria: SubjectFilterCriteria): SubjectFilterParams {
         if (!criteria) {
             return {};
@@ -277,11 +203,11 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
             params.enrollmentDate = {};
             if (criteria.enrollmentDateFrom) {
                 params.enrollmentDate.from = this.dateFormatter.format(criteria.enrollmentDateFrom)
-                  + 'T00:00' + '[' + timeZone + ']';
+                    + 'T00:00' + '[' + timeZone + ']';
             }
             if (criteria.enrollmentDateTo) {
                 params.enrollmentDate.to = this.dateFormatter.format(criteria.enrollmentDateTo)
-                  + 'T23:59' + '[' + timeZone + ']';
+                    + 'T23:59' + '[' + timeZone + ']';
             }
         }
         if (criteria.dateOfBirth) {
@@ -291,46 +217,6 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
         }
 
         return params;
-    }
-
-    private queryPaginationParams(page: number, sortOrder: SortOrderImpl, loadMore: boolean, subjects: Subject[]): SubjectPaginationParams {
-        const params: SubjectPaginationParams = {
-            size: Math.max(page * this.itemsPerPage - subjects.length, this.itemsPerPage),
-            sort: [sortOrder.toQueryParam()],
-        };
-        if (loadMore && subjects.length > 0) {
-            const lastSubject = subjects[subjects.length - 1]
-            params.last = {
-                id: lastSubject.id,
-                login: lastSubject.login,
-                externalId: lastSubject.externalId || '',
-            }
-        }
-        return params;
-    }
-
-    private onSuccess(data: Subject[], headers: HttpHeaders, mergeResults: boolean) {
-        this.totalItems = +headers.get('X-Total-Count');
-        // remove redundant subjects from the list
-        let nextValue: Subject[]
-        if (mergeResults) {
-            const fetchedSubjects = new Map<number, Subject>(data.map(a => [a.id, a]));
-            nextValue = [
-              ...this._subjects$.value.map(s => {
-                  const newSubject = fetchedSubjects.get(s.id);
-                  if (newSubject) {
-                      fetchedSubjects.delete(s.id);
-                      return newSubject;
-                  } else {
-                      return s;
-                  }
-              }),
-              ...data.filter(s => fetchedSubjects.has(s.id)),
-            ];
-        } else {
-            nextValue = data;
-        }
-        this._subjects$.next(nextValue);
     }
 
     clearFilters() {
@@ -364,37 +250,186 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
             this._subjects$,
             this.setOfCheckedId$,
         ]).pipe(
-          first(),
-          filter(([subjects]) => subjects.length > 0),
-          map(([subjects, checkedIds]) => {
-              const nextValue = new Set(checkedIds);
-              if (subjects.every(s => checkedIds.has(s.id))) {
-                  subjects.forEach(({id}) => nextValue.delete(id));
-              } else {
-                  subjects.forEach(({id, status}) => {
-                      if(status.toString() === "ACTIVATED"){
-                        nextValue.add(id)
-                      }
-                  });
-              }
-              return nextValue;
-          })
+            first(),
+            filter(([subjects]) => subjects.length > 0),
+            map(([subjects, checkedIds]) => {
+                const nextValue = new Set(checkedIds);
+                if (subjects.every(s => checkedIds.has(s.id))) {
+                    subjects.forEach(({id}) => nextValue.delete(id));
+                } else {
+                    subjects.forEach(({id, status}) => {
+                        if (status.toString() === "ACTIVATED") {
+                            nextValue.add(id)
+                        }
+                    });
+                }
+                return nextValue;
+            })
         ).subscribe(nextValue => this.setOfCheckedId$.next(nextValue));
     }
 
     onItemChecked(id: number, checked: boolean): void {
         this.setOfCheckedId$.pipe(
-          first(),
-          map(v => {
-              const nextValue = new Set(v);
-              if (checked) {
-                  nextValue.add(id);
-              } else {
-                  nextValue.delete(id);
-              }
-              return nextValue;
-          }),
+            first(),
+            map(v => {
+                const nextValue = new Set(v);
+                if (checked) {
+                    nextValue.add(id);
+                } else {
+                    nextValue.delete(id);
+                }
+                return nextValue;
+            }),
         ).subscribe(nextValue => this.setOfCheckedId$.next(nextValue));
+    }
+
+    addSelectedToGroup() {
+        const modalRef = this.modalService.open(AddSubjectsToGroupDialogComponent);
+        this.subscriptions.add(combineLatest([
+            this.subjects$,
+            this.groups$,
+            this.project$,
+        ]).subscribe(([subjects, groups, project]) => {
+            if (modalRef.componentInstance) {
+                modalRef.componentInstance.groups = groups;
+                modalRef.componentInstance.projectName = project.projectName;
+                modalRef.componentInstance.subjects = subjects.filter(s => s.checked);
+            }
+        }));
+    }
+
+    private registerChangeInParams(): Subscription {
+        return this.activatedRoute.params.pipe(
+            first(),
+        ).subscribe(params => Object.entries(params).forEach(([k, v]) => {
+            if (this.filters.hasOwnProperty(k)) {
+                this.filters[k].next(v, true);
+            }
+        }));
+    }
+
+    private registerChangeInPagingParams(): Subscription {
+        return this.activatedRoute.data.pipe(
+            pluck('pagingParams'),
+            first(),
+        ).subscribe(params => {
+            this.page$.next(params.page);
+            this._sortOrder$.next({
+                predicate: params.predicate,
+                ascending: params.ascending,
+            });
+        })
+    }
+
+    private registerChangeInFilters(): Subscription {
+        return combineLatest([
+            this.project$.pipe(map(p => p ? p.projectName : ''), distinctUntilChanged()),
+            this.filterResult$,
+            this.sortOrder$,
+            this.page$.pipe(distinctUntilChanged()),
+        ]).pipe(
+            debounceTime(10),
+            tap(([projectName, criteria, sortOrder, page]) =>
+                this.router.navigate(this.toPathParams(projectName, criteria), {
+                    queryParams: {
+                        page: page.toString(),
+                        sort: sortOrder.toQueryParam(),
+                    },
+                    queryParamsHandling: "merge",
+                    replaceUrl: true,
+                })),
+            withLatestFrom(this._subjects$),
+            switchMap(([[projectName, filter, sortOrder, page], subjects]) => {
+                const mergeResults: boolean = page > this.previousPage;
+                this.previousPage = page;
+                const filterParams = this.queryFilterParams(filter);
+                const pagingParams = this.queryPaginationParams(page, sortOrder, mergeResults, subjects)
+
+                let fetch$: Observable<HttpResponse<Subject[]>>;
+                if (projectName) {
+                    fetch$ = this.subjectService.findAllByProject(projectName, filterParams, pagingParams);
+                } else {
+                    fetch$ = this.subjectService.query(filterParams, pagingParams);
+                }
+                return fetch$.pipe(
+                    map(res => ({
+                        body: res.body,
+                        headers: res.headers,
+                        mergeResults: mergeResults,
+                    })),
+                );
+            })
+        )
+            .subscribe(res => this.onSuccess(res.body, res.headers, res.mergeResults));
+    }
+
+    private registerChangeInSubjects(): Subscription {
+        return this.eventManager.subscribe('subjectListModification', ({content}) => {
+            const modifiedSubject = content.subject;
+            let currentSubjects = this._subjects$.value.slice();
+            const subjectIndex = currentSubjects.findIndex((s => s.login === modifiedSubject.login));
+            if (content.op === 'DELETE') {
+                if (subjectIndex >= 0) {
+                    currentSubjects = currentSubjects.splice(subjectIndex, 1);
+                }
+                this.totalItems--;
+            } else if (subjectIndex >= 0) {
+                currentSubjects[subjectIndex] = modifiedSubject;
+            } else {
+                this.totalItems++;
+                currentSubjects = [modifiedSubject, ...currentSubjects];
+            }
+            this._subjects$.next(currentSubjects);
+        });
+    }
+
+    private loadAllGroups() {
+        return this.project$.pipe(
+            filter(p => !!p),
+            pluck('projectName'),
+            distinctUntilChanged(),
+            switchMap(projectName => this.groupService.list(projectName))
+        ).subscribe((res: Group[]) => this.groups$.next(res));
+    }
+
+    private queryPaginationParams(page: number, sortOrder: SortOrderImpl, loadMore: boolean, subjects: Subject[]): SubjectPaginationParams {
+        const params: SubjectPaginationParams = {
+            size: Math.max(page * this.itemsPerPage - subjects.length, this.itemsPerPage),
+            sort: [sortOrder.toQueryParam()],
+        };
+        if (loadMore && subjects.length > 0) {
+            const lastSubject = subjects[subjects.length - 1]
+            params.last = {
+                id: lastSubject.id,
+                login: lastSubject.login,
+                externalId: lastSubject.externalId || '',
+            }
+        }
+        return params;
+    }
+
+    private onSuccess(data: Subject[], headers: HttpHeaders, mergeResults: boolean) {
+        this.totalItems = +headers.get('X-Total-Count');
+        // remove redundant subjects from the list
+        let nextValue: Subject[]
+        if (mergeResults) {
+            const fetchedSubjects = new Map<number, Subject>(data.map(a => [a.id, a]));
+            nextValue = [
+                ...this._subjects$.value.map(s => {
+                    const newSubject = fetchedSubjects.get(s.id);
+                    if (newSubject) {
+                        fetchedSubjects.delete(s.id);
+                        return newSubject;
+                    } else {
+                        return s;
+                    }
+                }),
+                ...data.filter(s => fetchedSubjects.has(s.id)),
+            ];
+        } else {
+            nextValue = data;
+        }
+        this._subjects$.next(nextValue);
     }
 
     private observeCombinedFilters(): Observable<SubjectFilterCriteria> {
@@ -407,19 +442,19 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
             this.enrollmentDate$,
             this.filters.groupId.value$,
         ]).pipe(
-          map(([subjectId, externalId, humanReadableId, dateOfBirth, personName, enrollmentDate, groupId]) => ({
-              subjectId,
-              externalId,
-              humanReadableId,
-              dateOfBirth,
-              personName,
-              enrollmentDateFrom: enrollmentDate.from,
-              enrollmentDateTo: enrollmentDate.to,
-              groupId,
-          })),
-          map(criteria =>
-            Object.keys(criteria).some(k => !!criteria[k]) ? criteria : null),
-          shareReplay(1),
+            map(([subjectId, externalId, humanReadableId, dateOfBirth, personName, enrollmentDate, groupId]) => ({
+                subjectId,
+                externalId,
+                humanReadableId,
+                dateOfBirth,
+                personName,
+                enrollmentDateFrom: enrollmentDate.from,
+                enrollmentDateTo: enrollmentDate.to,
+                groupId,
+            })),
+            map(criteria =>
+                Object.keys(criteria).some(k => !!criteria[k]) ? criteria : null),
+            shareReplay(1),
         )
     }
 
@@ -428,16 +463,16 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
             this.filters.enrollmentDateFrom.value$,
             this.filters.enrollmentDateTo.value$,
         ]).pipe(
-          map(([from, to]) => ({from, to})),
-          filter(({from, to}) => {
-              if (NgbDateReactiveFilter.isValidRange(from, to)) {
-                  this.enrollmentDateRangeError = false;
-                  return true;
-              } else {
-                  this.enrollmentDateRangeError = true;
-                  return false;
-              }
-          }),
+            map(([from, to]) => ({from, to})),
+            filter(({from, to}) => {
+                if (NgbDateReactiveFilter.isValidRange(from, to)) {
+                    this.enrollmentDateRangeError = false;
+                    return true;
+                } else {
+                    this.enrollmentDateRangeError = true;
+                    return false;
+                }
+            }),
         )
     }
 
@@ -471,21 +506,4 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
         }
         return route;
     }
-
-    addSelectedToGroup() {
-        const modalRef = this.modalService.open(AddSubjectsToGroupDialogComponent);
-        this.subscriptions.add(combineLatest([
-          this.subjects$,
-          this.groups$,
-          this.project$,
-        ]).subscribe(([subjects, groups, project]) => {
-            if(modalRef.componentInstance){
-                modalRef.componentInstance.groups = groups;
-                modalRef.componentInstance.projectName = project.projectName;
-                modalRef.componentInstance.subjects = subjects.filter(s => s.checked);
-            }
-        }));
-    }
-
-    readonly HideableSubjectField = HideableSubjectField;
 }

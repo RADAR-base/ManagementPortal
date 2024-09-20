@@ -16,14 +16,14 @@ import org.radarbase.management.service.mapper.decorator.ProjectMapperDecorator
  */
 @Mapper(componentModel = "spring", uses = [GroupMapper::class, SourceTypeMapper::class, OrganizationMapper::class])
 @DecoratedWith(
-    ProjectMapperDecorator::class
+    ProjectMapperDecorator::class,
 )
 interface ProjectMapper {
     @Mapping(target = "humanReadableProjectName", ignore = true)
     @Mapping(
         target = "organization",
         source = "organization",
-        qualifiedByName = ["organizationToOrganizationDTOWithoutProjects"]
+        qualifiedByName = ["organizationToOrganizationDTOWithoutProjects"],
     )
     @Mapping(target = "persistentTokenTimeout", ignore = true)
     @Mapping(target = "groups", qualifiedByName = ["groupToGroupDTO"])
@@ -45,8 +45,11 @@ interface ProjectMapper {
     @Mapping(target = "groups", ignore = true)
     @Mapping(target = "organization", ignore = true)
     fun projectDTOToProject(projectDto: ProjectDTO?): Project?
+
     fun projectDTOsToProjects(projectDtos: List<ProjectDTO>): List<Project>
+
     fun projectToMinimalProjectDetailsDTO(project: Project): MinimalProjectDetailsDTO
+
     fun projectsToMinimalProjectDetailsDTOs(projects: List<Project>): List<MinimalProjectDetailsDTO>
 
     fun projectToPublicProjectDTO(project: Project): PublicProjectDTO
@@ -63,7 +66,6 @@ interface ProjectMapper {
     @Mapping(target = "attributes", ignore = true)
     @Mapping(target = "groups", ignore = true)
     fun descriptiveDTOToProject(minimalProjectDetailsDto: MinimalProjectDetailsDTO?): Project?
-    fun descriptiveDTOsToProjects(
-        minimalProjectDetailsDtos: List<MinimalProjectDetailsDTO>
-    ): List<Project>
+
+    fun descriptiveDTOsToProjects(minimalProjectDetailsDtos: List<MinimalProjectDetailsDTO>): List<Project>
 }

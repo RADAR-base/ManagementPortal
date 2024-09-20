@@ -18,14 +18,15 @@
 
         <div>Committed : {{ entry.value.committed / 1048576 | number: '1.0-0' }}M</div>
 
-        <ng-template #other><span><span>{{ entry.key }}</span> {{ entry.value.used / 1048576 | number: '1.0-0' }}M</span></ng-template>
+        <ng-template #other><span><span>{{ entry.key }}</span> {{ entry.value.used / 1048576 | number: '1.0-0' }}
+            M</span></ng-template>
 
         <ngb-progressbar
                 *ngIf="entry.value.max !== -1"
-                type="success"
-                [value]="(100 * entry.value.used) / entry.value.max"
-                [striped]="true"
                 [animated]="false"
+                [striped]="true"
+                [value]="(100 * entry.value.used) / entry.value.max"
+                type="success"
         >
             <span>{{ (entry.value.used * 100) / entry.value.max | number: '1.0-0' }}%</span>
         </ngb-progressbar>

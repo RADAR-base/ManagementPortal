@@ -27,18 +27,23 @@ object PaginationUtil {
      * @param baseUrl the base URL
      * @return the [HttpHeaders]
      */
-    fun generatePaginationHttpHeaders(page: Page<*>?, baseUrl: String): HttpHeaders {
+    fun generatePaginationHttpHeaders(
+        page: Page<*>?,
+        baseUrl: String,
+    ): HttpHeaders {
         val headers = HttpHeaders()
         headers.add("X-Total-Count", page!!.totalElements.toString())
         val link = StringBuilder(256)
         if (page.number + 1 < page.totalPages) {
-            link.append('<')
+            link
+                .append('<')
                 .append(generateUri(baseUrl, page.number + 1, page.size))
                 .append(">; rel=\"next\",")
         }
         // prev link
         if (page.number > 0) {
-            link.append('<')
+            link
+                .append('<')
                 .append(generateUri(baseUrl, page.number - 1, page.size))
                 .append(">; rel=\"prev\",")
         }
@@ -47,7 +52,8 @@ object PaginationUtil {
         if (page.totalPages > 0) {
             lastPage = page.totalPages - 1
         }
-        link.append('<')
+        link
+            .append('<')
             .append(generateUri(baseUrl, lastPage, page.size))
             .append(">; rel=\"last\",<")
             .append(generateUri(baseUrl, 0, page.size))
@@ -64,29 +70,38 @@ object PaginationUtil {
      * @return the [HttpHeaders]
      */
     fun generateSubjectPaginationHttpHeaders(
-        page: Page<SubjectDTO?>, baseUrl: String, criteria: SubjectCriteria
+        page: Page<SubjectDTO?>,
+        baseUrl: String,
+        criteria: SubjectCriteria,
     ): HttpHeaders {
         val headers = HttpHeaders()
         headers.add("X-Total-Count", page.totalElements.toString())
         if (!page.isEmpty) {
-            val link = ('<'
-                .toString() + generateUri(page, baseUrl, criteria)
-                    + ">; rel=\"next\"")
+            val link = (
+                '<'
+                    .toString() + generateUri(page, baseUrl, criteria) +
+                    ">; rel=\"next\""
+                )
             headers.add(HttpHeaders.LINK, link)
         }
         return headers
     }
 
-    private fun generateUri(baseUrl: String, page: Int, size: Int): String {
-        return UriComponentsBuilder.fromUriString(baseUrl)
+    private fun generateUri(
+        baseUrl: String,
+        page: Int,
+        size: Int,
+    ): String =
+        UriComponentsBuilder
+            .fromUriString(baseUrl)
             .queryParam("page", page)
             .queryParam("size", size)
             .toUriString()
-    }
 
     private fun generateUri(
-        page: Page<SubjectDTO?>, baseUrl: String,
-        criteria: SubjectCriteria
+        page: Page<SubjectDTO?>,
+        baseUrl: String,
+        criteria: SubjectCriteria,
     ): String {
         val builder = UriComponentsBuilder.fromUriString(baseUrl)
         generateUriCriteriaRange(builder, "dateOfBirth", criteria.dateOfBirth)
@@ -95,27 +110,34 @@ object PaginationUtil {
         generateUriParam(builder, "groupId", criteria.groupId)
         generateUriParam(builder, "personName", criteria.personName)
         generateUriParam(
-            builder, "humanReadableIdentifier",
-            criteria.humanReadableIdentifier
+            builder,
+            "humanReadableIdentifier",
+            criteria.humanReadableIdentifier,
         )
         generateUriParam(builder, "projectName", criteria.projectName)
         generateUriParam(builder, "login", criteria.login)
-        criteria.authority.forEach(Consumer { a: SubjectAuthority? ->
-            generateUriParam(
-                builder,
-                "authority", a
-            )
-        })
+        criteria.authority.forEach(
+            Consumer { a: SubjectAuthority? ->
+                generateUriParam(
+                    builder,
+                    "authority",
+                    a,
+                )
+            },
+        )
         generateUriParam(builder, "size", criteria.size)
         generateUriParam(builder, "page", criteria.page)
         if (criteria.sort != null) {
-            criteria.parsedSort!!.forEach(Consumer { order: SubjectSortOrder? ->
-                generateUriParam(
-                    builder, "sort",
-                    order?.sortBy?.queryParam + ','
-                            + order?.direction?.name?.lowercase()
-                )
-            })
+            criteria.parsedSort!!.forEach(
+                Consumer { order: SubjectSortOrder? ->
+                    generateUriParam(
+                        builder,
+                        "sort",
+                        order?.sortBy?.queryParam + ',' +
+                            order?.direction?.name?.lowercase(),
+                    )
+                },
+            )
         }
         val lastSubject = page.content[page.numberOfElements - 1]
         generateUriParam(builder, "last.id", lastSubject?.id)
@@ -127,8 +149,9 @@ object PaginationUtil {
     }
 
     private fun generateUriCriteriaRange(
-        builder: UriComponentsBuilder, prefix: String,
-        range: CriteriaRange<*>?
+        builder: UriComponentsBuilder,
+        prefix: String,
+        range: CriteriaRange<*>?,
     ) {
         if (range == null) {
             return
@@ -139,8 +162,9 @@ object PaginationUtil {
     }
 
     private fun generateUriParam(
-        builder: UriComponentsBuilder, name: String,
-        value: Any?
+        builder: UriComponentsBuilder,
+        name: String,
+        value: Any?,
     ) {
         if (value != null) {
             builder.queryParam(name, value)

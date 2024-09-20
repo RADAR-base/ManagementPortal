@@ -1,18 +1,18 @@
 import {Injectable} from "@angular/core";
 import {BehaviorSubject, Observable, of} from "rxjs";
-import {HttpClient, HttpParams} from "@angular/common/http";
-import {map, mergeMap, shareReplay, tap} from "rxjs/operators";
+import {HttpClient} from "@angular/common/http";
+import {mergeMap, shareReplay, tap} from "rxjs/operators";
 
 @Injectable({providedIn: 'root'})
 export class SessionService {
 
+    logoutUrl$: Observable<string>;
     private SessionLogoutResourceUrl = 'api/logout-url';
     private _siteSettings$ = new BehaviorSubject<string>(null);
-    logoutUrl$: Observable<string>;
 
     constructor(private http: HttpClient) {
 
-        this.logoutUrl$ =  this._siteSettings$.pipe(
+        this.logoutUrl$ = this._siteSettings$.pipe(
             mergeMap(s => s ? of(s) : this.fetchLogoutUrl()),
             shareReplay()
         );
@@ -26,7 +26,7 @@ export class SessionService {
             }
         )
             .pipe(
-            tap(s => this._siteSettings$.next(s)),
-        );
+                tap(s => this._siteSettings$.next(s)),
+            );
     }
 }

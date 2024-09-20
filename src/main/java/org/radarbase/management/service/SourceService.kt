@@ -31,9 +31,8 @@ class SourceService(
     @Autowired private val sourceMapper: SourceMapper,
     @Autowired private val projectRepository: ProjectRepository,
     @Autowired private val sourceTypeMapper: SourceTypeMapper,
-    @Autowired private val authService: AuthService
+    @Autowired private val authService: AuthService,
 ) {
-
     /**
      * Save a Source.
      *
@@ -53,13 +52,12 @@ class SourceService(
      * @return the list of entities
      */
     @Transactional(readOnly = true)
-    fun findAll(): List<SourceDTO> {
-        return sourceRepository
+    fun findAll(): List<SourceDTO> =
+        sourceRepository
             .findAll()
             .filterNotNull()
             .map { source: Source -> sourceMapper.sourceToSourceDTO(source) }
             .toList()
-    }
 
     /**
      * Get all the sourceData with pagination.
@@ -89,7 +87,8 @@ class SourceService(
     @Transactional(readOnly = true)
     fun findOneByName(sourceName: String): SourceDTO? {
         log.debug("Request to get Source : {}", sourceName)
-        return sourceRepository.findOneBySourceName(sourceName)
+        return sourceRepository
+            .findOneBySourceName(sourceName)
             .let { source: Source? -> source?.let { sourceMapper.sourceToSourceDTO(it) } }
     }
 
@@ -102,7 +101,8 @@ class SourceService(
     @Transactional(readOnly = true)
     fun findOneById(id: Long): Optional<SourceDTO> {
         log.debug("Request to get Source by id: {}", id)
-        return Optional.ofNullable(sourceRepository.findById(id).orElse(null))
+        return Optional
+            .ofNullable(sourceRepository.findById(id).orElse(null))
             .map { source: Source? -> source?.let { sourceMapper.sourceToSourceDTO(it) } }
     }
 
@@ -115,11 +115,13 @@ class SourceService(
     fun delete(id: Long) {
         log.info("Request to delete Source : {}", id)
         val sourceHistory = sourceRepository.findRevisions(id)
-        val sources = sourceHistory.content
-            .mapNotNull { obj -> obj.entity }
-            .filter{ it.assigned
-                ?: false }
-            .toList()
+        val sources =
+            sourceHistory.content
+                .mapNotNull { obj -> obj.entity }
+                .filter {
+                    it.assigned
+                        ?: false
+                }.toList()
         if (sources.isEmpty()) {
             sourceRepository.deleteById(id)
         } else {
@@ -128,7 +130,9 @@ class SourceService(
             errorParams["id"] = id.toString()
             throw InvalidRequestException(
                 "Cannot delete a source that was once assigned.",
-                EntityName.SOURCE, "error.usedSourceDeletion", errorParams
+                EntityName.SOURCE,
+                "error.usedSourceDeletion",
+                errorParams,
             )
         }
     }
@@ -138,10 +142,13 @@ class SourceService(
      *
      * @return list of sources
      */
-    fun findAllByProjectId(projectId: Long, pageable: Pageable): Page<SourceDTO> {
-        return sourceRepository.findAllSourcesByProjectId(pageable, projectId)
+    fun findAllByProjectId(
+        projectId: Long,
+        pageable: Pageable,
+    ): Page<SourceDTO> =
+        sourceRepository
+            .findAllSourcesByProjectId(pageable, projectId)
             .map { source -> sourceMapper.sourceToSourceWithoutProjectDTO(source) }
-    }
 
     /**
      * Returns all sources by project in [MinimalSourceDetailsDTO] format.
@@ -150,33 +157,34 @@ class SourceService(
      */
     fun findAllMinimalSourceDetailsByProject(
         projectId: Long,
-        pageable: Pageable
-    ): Page<MinimalSourceDetailsDTO> {
-        return sourceRepository.findAllSourcesByProjectId(pageable, projectId)
+        pageable: Pageable,
+    ): Page<MinimalSourceDetailsDTO> =
+        sourceRepository
+            .findAllSourcesByProjectId(pageable, projectId)
             .map { source: Source -> sourceMapper.sourceToMinimalSourceDetailsDTO(source) }
-    }
 
     /**
      * Returns list of not-assigned sources by project id.
      */
-    fun findAllByProjectAndAssigned(projectId: Long?, assigned: Boolean): List<SourceDTO> {
-        return sourceMapper.sourcesToSourceDTOs(
-            sourceRepository.findAllSourcesByProjectIdAndAssigned(projectId, assigned)
+    fun findAllByProjectAndAssigned(
+        projectId: Long?,
+        assigned: Boolean,
+    ): List<SourceDTO> =
+        sourceMapper.sourcesToSourceDTOs(
+            sourceRepository.findAllSourcesByProjectIdAndAssigned(projectId, assigned),
         )
-    }
 
     /**
      * Returns list of not-assigned sources by project id.
      */
     fun findAllMinimalSourceDetailsByProjectAndAssigned(
-        projectId: Long?, assigned: Boolean
-    ): List<MinimalSourceDetailsDTO> {
-        return sourceRepository
+        projectId: Long?,
+        assigned: Boolean,
+    ): List<MinimalSourceDetailsDTO> =
+        sourceRepository
             .findAllSourcesByProjectIdAndAssigned(projectId, assigned)
-            ?.map { source -> sourceMapper.sourceToMinimalSourceDetailsDTO(source) }
-            ?.toList()
-            ?: listOf()
-    }
+            .map { source -> sourceMapper.sourceToMinimalSourceDetailsDTO(source) }
+            .toList()
 
     /**
      * This method does a safe update of source assigned to a subject. It will allow updates of
@@ -188,9 +196,8 @@ class SourceService(
      */
     fun safeUpdateOfAttributes(
         sourceToUpdate: Source,
-        attributes: Map<String, String>?
+        attributes: Map<String, String>?,
     ): MinimalSourceDetailsDTO {
-
         // update source attributes
         val updatedAttributes: MutableMap<String, String> = HashMap()
         updatedAttributes.putAll(sourceToUpdate.attributes)
@@ -219,8 +226,8 @@ class SourceService(
             if (existingSource.project != null) {
                 e.project = existingSource.project?.projectName
             }
-            if (existingSource.subject != null
-                && existingSource.subject!!.user != null
+            if (existingSource.subject != null &&
+                existingSource.subject!!.user != null
             ) {
                 e.subject = existingSource.subject?.user?.login
             }
@@ -230,22 +237,26 @@ class SourceService(
         if (existingSource.project?.id != sourceDto.project?.id) {
             if (existingSource.assigned!!) {
                 throw InvalidRequestException(
-                    "Cannot transfer an assigned source", EntityName.SOURCE,
-                    "error.sourceIsAssigned"
+                    "Cannot transfer an assigned source",
+                    EntityName.SOURCE,
+                    "error.sourceIsAssigned",
                 )
             }
 
             // check whether source-type of the device is assigned to the new project
             // to be transferred.
-            val sourceType = projectRepository
-                .findSourceTypeByProjectIdAndSourceTypeId(
-                    sourceDto.project?.id,
-                    existingSource.sourceType?.id
-                )
-                ?: throw InvalidRequestException(
-                    "Cannot transfer a source to a project which doesn't have compatible "
-                            + "source-type", IdentifierGenerator.ENTITY_NAME, "error.invalidTransfer"
-                )
+            val sourceType =
+                projectRepository
+                    .findSourceTypeByProjectIdAndSourceTypeId(
+                        sourceDto.project?.id,
+                        existingSource.sourceType?.id,
+                    )
+                    ?: throw InvalidRequestException(
+                        "Cannot transfer a source to a project which doesn't have compatible " +
+                            "source-type",
+                        IdentifierGenerator.ENTITY_NAME,
+                        "error.invalidTransfer",
+                    )
 
             // set old source-type, ensures compatibility
             sourceDto.sourceType = existingSource.sourceType?.let { sourceTypeMapper.sourceTypeToSourceTypeDTO(it) }

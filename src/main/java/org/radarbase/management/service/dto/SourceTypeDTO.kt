@@ -13,11 +13,21 @@ import javax.validation.constraints.NotNull
 @JsonInclude(JsonInclude.Include.NON_NULL)
 class SourceTypeDTO : Serializable {
     var id: Long? = null
-    @NotNull var producer: String? = null
-    @NotNull var model: String? = null
-    @NotNull var catalogVersion: String? = null
-    @NotNull var sourceTypeScope: String? = null
-    @NotNull var canRegisterDynamically: Boolean = false
+
+    @NotNull
+    var producer: String? = null
+
+    @NotNull
+    var model: String? = null
+
+    @NotNull
+    var catalogVersion: String? = null
+
+    @NotNull
+    var sourceTypeScope: String? = null
+
+    @NotNull
+    var canRegisterDynamically: Boolean = false
     var name: String? = null
     var description: String? = null
     var assessmentType: String? = null
@@ -26,6 +36,7 @@ class SourceTypeDTO : Serializable {
     @set:JsonSetter(nulls = Nulls.AS_EMPTY)
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     var sourceData: MutableSet<SourceDataDTO> = HashSet()
+
     override fun equals(other: Any?): Boolean {
         if (this === other) {
             return true
@@ -36,27 +47,28 @@ class SourceTypeDTO : Serializable {
         val sourceTypeDto = other as SourceTypeDTO
         return if (id == null || sourceTypeDto.id == null) {
             false
-        } else id == sourceTypeDto.id
+        } else {
+            id == sourceTypeDto.id
+        }
     }
 
-    override fun hashCode(): Int {
-        return Objects.hashCode(id)
-    }
+    override fun hashCode(): Int = Objects.hashCode(id)
 
-    override fun toString(): String {
-        return ("SourceTypeDTO{"
-                + "id=" + id
-                + ", producer='" + producer + "'"
-                + ", model='" + model + "'"
-                + ", catalogVersion='" + catalogVersion + "'"
-                + ", sourceTypeScope='" + sourceTypeScope + "'"
-                + ", canRegisterDynamically='" + canRegisterDynamically + "'"
-                + ", name='" + name + '\''
-                + ", description=" + description
-                + ", appProvider=" + appProvider
-                + ", assessmentType=" + assessmentType
-                + '}')
-    }
+    override fun toString(): String =
+        (
+            "SourceTypeDTO{" +
+                "id=" + id +
+                ", producer='" + producer + "'" +
+                ", model='" + model + "'" +
+                ", catalogVersion='" + catalogVersion + "'" +
+                ", sourceTypeScope='" + sourceTypeScope + "'" +
+                ", canRegisterDynamically='" + canRegisterDynamically + "'" +
+                ", name='" + name + '\'' +
+                ", description=" + description +
+                ", appProvider=" + appProvider +
+                ", assessmentType=" + assessmentType +
+                '}'
+            )
 
     companion object {
         private const val serialVersionUID = 1L

@@ -1,12 +1,12 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
-import { ActivatedRoute, Router } from '@angular/router';
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {HttpErrorResponse, HttpResponse} from '@angular/common/http';
+import {ActivatedRoute, Router} from '@angular/router';
 
-import { ITEMS_PER_PAGE, Principal, User, UserService } from '../../shared';
-import { AlertService } from '../../shared/util/alert.service';
-import { EventManager } from '../../shared/util/event-manager.service';
-import { parseLinks } from '../../shared/util/parse-links-util';
-import { Subject, Subscription } from "rxjs";
+import {ITEMS_PER_PAGE, Principal, User, UserService} from '../../shared';
+import {AlertService} from '../../shared/util/alert.service';
+import {EventManager} from '../../shared/util/event-manager.service';
+import {parseLinks} from '../../shared/util/parse-links-util';
+import {Subject, Subscription} from "rxjs";
 import {debounceTime, distinctUntilChanged} from "rxjs/operators";
 
 @Component({
@@ -34,12 +34,12 @@ export class UserMgmtComponent implements OnInit, OnDestroy {
     filter: Subject<string> = new Subject<string>();
 
     constructor(
-      private userService: UserService,
-      private alertService: AlertService,
-      public principal: Principal,
-      private eventManager: EventManager,
-      private activatedRoute: ActivatedRoute,
-      private router: Router,
+        private userService: UserService,
+        private alertService: AlertService,
+        public principal: Principal,
+        private eventManager: EventManager,
+        private activatedRoute: ActivatedRoute,
+        private router: Router,
     ) {
         this.itemsPerPage = ITEMS_PER_PAGE;
         this.subscriptions.add(this.activatedRoute.data.subscribe((data) => {
@@ -78,8 +78,8 @@ export class UserMgmtComponent implements OnInit, OnDestroy {
                 projectName: this.byProject,
                 sort: this.sort(),
             }).subscribe(
-                    (res: HttpResponse<User[]>) => this.onSuccess(res.body, res.headers),
-                    (res: HttpErrorResponse) => this.onError(res),
+                (res: HttpResponse<User[]>) => this.onSuccess(res.body, res.headers),
+                (res: HttpErrorResponse) => this.onError(res),
             )
         );
     }
@@ -91,8 +91,8 @@ export class UserMgmtComponent implements OnInit, OnDestroy {
                 size: this.itemsPerPage,
                 sort: this.sort(),
             }).subscribe(
-                    (res: HttpResponse<User[]>) => this.onSuccess(res.body, res.headers),
-                    (res: HttpErrorResponse) => this.onError(res),
+                (res: HttpResponse<User[]>) => this.onSuccess(res.body, res.headers),
+                (res: HttpErrorResponse) => this.onError(res),
             )
         );
     }
@@ -119,10 +119,10 @@ export class UserMgmtComponent implements OnInit, OnDestroy {
     transition() {
         this.router.navigate(['/user-management'], {
             queryParams:
-                    {
-                        page: this.page,
-                        sort: this.predicate + ',' + (this.reverse ? 'asc' : 'desc'),
-                    },
+                {
+                    page: this.page,
+                    sort: this.predicate + ',' + (this.reverse ? 'asc' : 'desc'),
+                },
         });
         this.loadAll();
     }

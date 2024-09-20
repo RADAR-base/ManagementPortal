@@ -1,128 +1,134 @@
-<form name="editForm" role="form" novalidate (ngSubmit)="save()" #editForm="ngForm">
+<form #editForm="ngForm" (ngSubmit)="save()" name="editForm" novalidate role="form">
 
     <div class="modal-header">
-        <h4 class="modal-title" id="mySourceDataLabel"
-            [translate]="'managementPortalApp.sourceData.home.createOrEditLabel'">
+        <h4 [translate]="'managementPortalApp.sourceData.home.createOrEditLabel'" class="modal-title"
+            id="mySourceDataLabel">
         </h4>
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
-                (click)="clear()">&times;</button>
+        <button (click)="clear()" aria-hidden="true" class="close" data-dismiss="modal"
+                type="button">&times;
+        </button>
     </div>
     <div class="modal-body">
         <jhi-alert-error></jhi-alert-error>
-        <div class="form-group" [hidden]="!sourceData.id">
-            <label for="id" [translate]="'global.field.id'"></label>
-            <input type="text" class="form-control" id="id" name="id"
-                   [(ngModel)]="sourceData.id" readonly />
+        <div [hidden]="!sourceData.id" class="form-group">
+            <label [translate]="'global.field.id'" for="id"></label>
+            <input [(ngModel)]="sourceData.id" class="form-control" id="id" name="id"
+                   readonly type="text"/>
         </div>
         <div class="form-group">
-            <label class="form-control-label"
-                for="field_sourceDataType"
-                [translate]="'managementPortalApp.sourceData.sourceDataType'">
+            <label [translate]="'managementPortalApp.sourceData.sourceDataType'"
+                   class="form-control-label"
+                   for="field_sourceDataType">
             </label>
-            <input type="text" class="form-control" name="sourceDataType" id="field_sourceDataType"
-                [(ngModel)]="sourceData.sourceDataType"
-            required />
+            <input [(ngModel)]="sourceData.sourceDataType" class="form-control" id="field_sourceDataType"
+                   name="sourceDataType"
+                   required
+                   type="text"/>
             <div [hidden]="!(editForm.controls.sourceDataType?.dirty && editForm.controls.sourceDataType?.invalid)">
-                <small class="form-text text-danger"
-                   [hidden]="!editForm.controls.sourceDataType?.errors?.required"
-                   [translate]="'entity.validation.required'">
+                <small [hidden]="!editForm.controls.sourceDataType?.errors?.required"
+                       [translate]="'entity.validation.required'"
+                       class="form-text text-danger">
                 </small>
             </div>
         </div>
         <div class="form-group">
-            <label for="field_sourceType"
-                [translate]="'managementPortalApp.sourceData.sourceType'">
+            <label [translate]="'managementPortalApp.sourceData.sourceType'"
+                   for="field_sourceType">
             </label>
-            <select class="form-control" id="field_sourceType" name="sourceType" [(ngModel)]="sourceData.sourceType" >
+            <select [(ngModel)]="sourceData.sourceType" class="form-control" id="field_sourceType" name="sourceType">
                 <option [ngValue]="null"></option>
-                <option [ngValue]="sourceTypeOption.id === sourceData.sourceType?.id ? sourceData.sourceType: sourceTypeOption" *ngFor="let sourceTypeOption of sourceTypeService.sourceTypes$ | async; trackBy: trackSourceTypeById">{{sourceTypeOption.producer+"_"+sourceTypeOption.model+"_"+sourceTypeOption.catalogVersion}}</option>
+                <option *ngFor="let sourceTypeOption of sourceTypeService.sourceTypes$ | async; trackBy: trackSourceTypeById"
+                        [ngValue]="sourceTypeOption.id === sourceData.sourceType?.id ? sourceData.sourceType: sourceTypeOption">{{ sourceTypeOption.producer + "_" + sourceTypeOption.model + "_" + sourceTypeOption.catalogVersion }}
+                </option>
             </select>
         </div>
         <div class="form-group">
-            <label class="form-control-label"
-                for="field_sourceDataName"
-                [translate]="'managementPortalApp.sourceData.sourceDataName'">
+            <label [translate]="'managementPortalApp.sourceData.sourceDataName'"
+                   class="form-control-label"
+                   for="field_sourceDataName">
             </label>
-            <input type="text" class="form-control" name="sourceDataName" id="field_sourceDataName"
-                   [(ngModel)]="sourceData.sourceDataName" required pattern="[_'.@A-Za-z0-9- ]*" />
+            <input [(ngModel)]="sourceData.sourceDataName" class="form-control" id="field_sourceDataName"
+                   name="sourceDataName"
+                   pattern="[_'.@A-Za-z0-9- ]*" required type="text"/>
             <div [hidden]="!(editForm.controls.sourceDataName?.dirty && editForm.controls.sourceDataName?.invalid)">
-                <small class="form-text text-danger"
-                    [hidden]="!editForm.controls.sourceDataName?.errors?.required"
-                    [translate]="'entity.validation.required'">
+                <small [hidden]="!editForm.controls.sourceDataName?.errors?.required"
+                       [translate]="'entity.validation.required'"
+                       class="form-text text-danger">
                 </small>
-                <small class="form-text text-danger"
-                    [hidden]="!editForm.controls.sourceDataName?.errors?.pattern"
-                    [translate]="'entity.validation.pattern'"
-                    [translateParams]="{pattern: 'alphanumerics, dash (-), underscore (_), space ( ) and period (.)'}">
+                <small [hidden]="!editForm.controls.sourceDataName?.errors?.pattern"
+                       [translateParams]="{pattern: 'alphanumerics, dash (-), underscore (_), space ( ) and period (.)'}"
+                       [translate]="'entity.validation.pattern'"
+                       class="form-text text-danger">
                 </small>
             </div>
         </div>
         <div class="form-group">
-            <label class="form-control-label"
-                for="field_processingState"
-                [translate]="'managementPortalApp.sourceData.processingState'">
+            <label [translate]="'managementPortalApp.sourceData.processingState'"
+                   class="form-control-label"
+                   for="field_processingState">
             </label>
-            <select class="form-control" name="processingState" [(ngModel)]="sourceData.processingState" id="field_processingState" >
-                <option value="RAW" [translate]="'managementPortalApp.processingState.RAW'"></option>
-                <option value="DERIVED" [translate]="'managementPortalApp.processingState.DERIVED'"></option>
-                <option value="VENDOR" [translate]="'managementPortalApp.processingState.VENDOR'"></option>
-                <option value="RADAR" [translate]="'managementPortalApp.processingState.RADAR'"></option>
-                <option value="UNKNOWN" [translate]="'managementPortalApp.processingState.UNKNOWN'"></option>
+            <select [(ngModel)]="sourceData.processingState" class="form-control" id="field_processingState"
+                    name="processingState">
+                <option [translate]="'managementPortalApp.processingState.RAW'" value="RAW"></option>
+                <option [translate]="'managementPortalApp.processingState.DERIVED'" value="DERIVED"></option>
+                <option [translate]="'managementPortalApp.processingState.VENDOR'" value="VENDOR"></option>
+                <option [translate]="'managementPortalApp.processingState.RADAR'" value="RADAR"></option>
+                <option [translate]="'managementPortalApp.processingState.UNKNOWN'" value="UNKNOWN"></option>
             </select>
         </div>
         <div class="form-group">
-            <label class="form-control-label"
-                for="field_topic"
-                [translate]="'managementPortalApp.sourceData.topic'">
+            <label [translate]="'managementPortalApp.sourceData.topic'"
+                   class="form-control-label"
+                   for="field_topic">
             </label>
-            <input type="text" class="form-control" name="topic" id="field_topic"
-                   [(ngModel)]="sourceData.topic"
+            <input [(ngModel)]="sourceData.topic" class="form-control" id="field_topic" name="topic"
+                   type="text"
             />
         </div>
         <div class="form-group">
-            <label class="form-control-label"
-                for="field_keySchema"
-                [translate]="'managementPortalApp.sourceData.keySchema'">
+            <label [translate]="'managementPortalApp.sourceData.keySchema'"
+                   class="form-control-label"
+                   for="field_keySchema">
             </label>
-            <input type="text" class="form-control" name="keySchema" id="field_keySchema"
-                [(ngModel)]="sourceData.keySchema"
-             />
-        </div>
-        <div class="form-group">
-            <label class="form-control-label"
-                for="field_valueSchema"
-                [translate]="'managementPortalApp.sourceData.valueSchema'">
-            </label>
-            <input type="text" class="form-control" name="valueSchema" id="field_valueSchema"
-                   [(ngModel)]="sourceData.valueSchema"
+            <input [(ngModel)]="sourceData.keySchema" class="form-control" id="field_keySchema" name="keySchema"
+                   type="text"
             />
         </div>
         <div class="form-group">
-            <label class="form-control-label"
-                for="field_frequency"
-                [translate]="'managementPortalApp.sourceData.frequency'">
+            <label [translate]="'managementPortalApp.sourceData.valueSchema'"
+                   class="form-control-label"
+                   for="field_valueSchema">
             </label>
-            <input type="text" class="form-control" name="frequency" id="field_frequency"
-                [(ngModel)]="sourceData.frequency"
-             />
+            <input [(ngModel)]="sourceData.valueSchema" class="form-control" id="field_valueSchema" name="valueSchema"
+                   type="text"
+            />
         </div>
         <div class="form-group">
-            <label class="form-control-label"
-                for="field_unit"
-                [translate]="'managementPortalApp.sourceData.unit'">
+            <label [translate]="'managementPortalApp.sourceData.frequency'"
+                   class="form-control-label"
+                   for="field_frequency">
             </label>
-            <input type="text" class="form-control" name="unit" id="field_unit"
-                   [(ngModel)]="sourceData.unit"
+            <input [(ngModel)]="sourceData.frequency" class="form-control" id="field_frequency" name="frequency"
+                   type="text"
+            />
+        </div>
+        <div class="form-group">
+            <label [translate]="'managementPortalApp.sourceData.unit'"
+                   class="form-control-label"
+                   for="field_unit">
+            </label>
+            <input [(ngModel)]="sourceData.unit" class="form-control" id="field_unit" name="unit"
+                   type="text"
             />
         </div>
 
 
     </div>
     <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal" (click)="clear()">
+        <button (click)="clear()" class="btn btn-default" data-dismiss="modal" type="button">
             <span class="fa fa-ban"></span>&nbsp;<span [translate]="'entity.action.cancel'"></span>
         </button>
-        <button type="submit" [disabled]="editForm.form.invalid || isSaving" class="btn btn-primary">
+        <button [disabled]="editForm.form.invalid || isSaving" class="btn btn-primary" type="submit">
             <span class="fa fa-save"></span>&nbsp;<span [translate]="'entity.action.save'"></span>
         </button>
     </div>

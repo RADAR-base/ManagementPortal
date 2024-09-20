@@ -1,15 +1,15 @@
-import { Component } from '@angular/core';
-import { ActivatedRoute, Params } from '@angular/router';
+import {Component} from '@angular/core';
+import {ActivatedRoute, Params} from '@angular/router';
 
-import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import {NgbActiveModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 
-import { EventManager } from '../../shared/util/event-manager.service';
-import { SourceDataPopupService } from './source-data-popup.service';
+import {EventManager} from '../../shared/util/event-manager.service';
+import {SourceDataPopupService} from './source-data-popup.service';
 
-import { SourceData } from './source-data.model';
-import { SourceDataService } from './source-data.service';
-import { ObservablePopupComponent } from '../../shared/util/observable-popup.component';
-import { Observable } from 'rxjs';
+import {SourceData} from './source-data.model';
+import {SourceDataService} from './source-data.service';
+import {ObservablePopupComponent} from '../../shared/util/observable-popup.component';
+import {Observable} from 'rxjs';
 
 @Component({
     selector: 'jhi-source-data-delete-dialog',
@@ -19,9 +19,9 @@ export class SourceDataDeleteDialogComponent {
     sourceData: SourceData;
 
     constructor(
-            private sourceDataService: SourceDataService,
-            public activeModal: NgbActiveModal,
-            private eventManager: EventManager,
+        private sourceDataService: SourceDataService,
+        public activeModal: NgbActiveModal,
+        private eventManager: EventManager,
     ) {
     }
 
@@ -46,8 +46,8 @@ export class SourceDataDeleteDialogComponent {
 })
 export class SourceDataDeletePopupComponent extends ObservablePopupComponent {
     constructor(
-            route: ActivatedRoute,
-            private sourceDataPopupService: SourceDataPopupService,
+        route: ActivatedRoute,
+        private sourceDataPopupService: SourceDataPopupService,
     ) {
         super(route);
     }

@@ -26,7 +26,7 @@ class ConflictException : RadarWebApplicationException {
         HttpStatus.CONFLICT,
         message,
         entityName,
-        errorCode
+        errorCode,
     )
 
     /**
@@ -38,7 +38,9 @@ class ConflictException : RadarWebApplicationException {
      * @param paramMap   map of additional information.
      */
     constructor(
-        message: String?, entityName: String, errorCode: String?,
-        paramMap: Map<String, String?>?
+        message: String?,
+        entityName: String,
+        errorCode: String?,
+        paramMap: Map<String, String?>?,
     ) : super(HttpStatus.CONFLICT, message, entityName, errorCode, paramMap)
 }

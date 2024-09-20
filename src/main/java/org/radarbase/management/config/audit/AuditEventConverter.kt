@@ -14,9 +14,7 @@ class AuditEventConverter {
      * @param persistentAuditEvents the list to convert
      * @return the converted list.
      */
-    fun convertToAuditEvent(
-        persistentAuditEvents: Iterable<PersistentAuditEvent>?
-    ): List<AuditEvent> {
+    fun convertToAuditEvent(persistentAuditEvents: Iterable<PersistentAuditEvent>?): List<AuditEvent> {
         if (persistentAuditEvents == null) {
             return emptyList()
         }
@@ -34,12 +32,15 @@ class AuditEventConverter {
      * @return the converted list.
      */
     fun convertToAuditEvent(persistentAuditEvent: PersistentAuditEvent): AuditEvent {
-        val instant = persistentAuditEvent.auditEventDate?.atZone(ZoneId.systemDefault())
-            ?.toInstant()
+        val instant =
+            persistentAuditEvent.auditEventDate
+                ?.atZone(ZoneId.systemDefault())
+                ?.toInstant()
         return AuditEvent(
-            instant, persistentAuditEvent.principal,
+            instant,
+            persistentAuditEvent.principal,
             persistentAuditEvent.auditEventType,
-            convertDataToObjects(persistentAuditEvent.data)
+            convertDataToObjects(persistentAuditEvent.data),
         )
     }
 
@@ -71,7 +72,6 @@ class AuditEventConverter {
         val results: MutableMap<String, String> = HashMap()
         if (data != null) {
             for ((key, value) in data) {
-
                 // Extract the data that will be saved.
                 if (value is WebAuthenticationDetails && value.sessionId != null) {
                     results["sessionId"] = value.sessionId

@@ -1,7 +1,7 @@
-import { Directive, Input, OnDestroy, TemplateRef, ViewContainerRef } from '@angular/core';
-import { Principal } from './principal.service';
-import { Subscription } from "rxjs";
-import { map } from "rxjs/operators";
+import {Directive, Input, OnDestroy, TemplateRef, ViewContainerRef} from '@angular/core';
+import {Principal} from './principal.service';
+import {Subscription} from "rxjs";
+import {map} from "rxjs/operators";
 
 /**
  * @whatItDoes Conditionally includes an HTML element if current user has any
@@ -23,17 +23,13 @@ export class HasAnyAuthorityDirective implements OnDestroy {
     constructor(private principal: Principal, private templateRef: TemplateRef<any>, private viewContainerRef: ViewContainerRef) {
     }
 
-    ngOnDestroy(): void {
-        this.subscriptions.unsubscribe();
-    }
-
     @Input()
     set jhiHasAnyAuthority(value: string | string[]) {
-        const authorities = typeof value === 'string' ? [<string> value] : <string[]> value;
+        const authorities = typeof value === 'string' ? [<string>value] : <string[]>value;
         this.subscriptions.add(
             this.principal.account$
                 .pipe(
-                  map(account => this.principal.accountHasAnyAuthority(account, authorities)),
+                    map(account => this.principal.accountHasAnyAuthority(account, authorities)),
                 )
                 .subscribe((hasAuthority) => {
                     this.viewContainerRef.clear();
@@ -42,6 +38,10 @@ export class HasAnyAuthorityDirective implements OnDestroy {
                     }
                 })
         );
+    }
+
+    ngOnDestroy(): void {
+        this.subscriptions.unsubscribe();
     }
 
 }

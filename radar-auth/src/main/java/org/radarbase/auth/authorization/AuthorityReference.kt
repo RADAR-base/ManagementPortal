@@ -19,9 +19,11 @@ data class AuthorityReference(
     val role: RoleAuthority,
     val authority: String,
     val referent: String?,
-): Serializable {
+) : Serializable {
     init {
-        require(role.scope == RoleAuthority.Scope.GLOBAL || referent != null) { "Non-global authority references require a referent entity" }
+        require(
+            role.scope == RoleAuthority.Scope.GLOBAL || referent != null,
+        ) { "Non-global authority references require a referent entity" }
     }
 
     /**

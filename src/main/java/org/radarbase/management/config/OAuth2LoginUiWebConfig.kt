@@ -44,15 +44,21 @@ import kotlin.collections.set
 @SessionAttributes("authorizationRequest")
 class OAuth2LoginUiWebConfig(
     @Autowired private val tokenEndPoint: TokenEndpoint,
-    @Autowired private val managementPortalProperties: ManagementPortalProperties
+    @Autowired private val managementPortalProperties: ManagementPortalProperties,
 ) {
-
     @Autowired
     private val clientDetailsService: ClientDetailsService? = null
 
     @RequestMapping("/oauth2/authorize")
-    fun redirect_authorize(request: HttpServletRequest): String {
-        val returnString = URLEncoder.encode(request.requestURL.toString().replace("oauth2", "oauth") + "?" + request.parameterMap.map{ param -> param.key + "=" + param.value.first()}.joinToString("&"), "UTF-8")
+    fun redirectAuthorize(request: HttpServletRequest): String {
+        val returnString =
+            URLEncoder.encode(
+                request.requestURL.toString().replace(
+                    "oauth2",
+                    "oauth",
+                ) + "?" + request.parameterMap.map { param -> param.key + "=" + param.value.first() }.joinToString("&"),
+                "UTF-8",
+            )
         val mpUrl = managementPortalProperties.common.baseUrl
         return "redirect:$mpUrl/kratos-ui/login?return_to=$returnString"
     }
@@ -60,35 +66,44 @@ class OAuth2LoginUiWebConfig(
     @PostMapping(
         "/oauth2/token",
         consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE],
-        produces = [MediaType.APPLICATION_FORM_URLENCODED_VALUE]
+        produces = [MediaType.APPLICATION_FORM_URLENCODED_VALUE],
     )
-    fun redirect_token(@RequestParam parameters: Map<String, String>, request: HttpServletRequest, response: HttpServletResponse) {
-        var dispatcher: RequestDispatcher =  request.servletContext.getRequestDispatcher("/oauth/token/")
+    fun redirectToken(
+        @RequestParam parameters: Map<String, String>,
+        request: HttpServletRequest,
+        response: HttpServletResponse,
+    ) {
+        var dispatcher: RequestDispatcher = request.servletContext.getRequestDispatcher("/oauth/token/")
         dispatcher.forward(request, response)
     }
 
-    @PostMapping(value = ["/oauth/token"],
-        consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE]
+    @PostMapping(
+        value = ["/oauth/token"],
+        consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE],
     )
     @Throws(
-        HttpRequestMethodNotSupportedException::class
+        HttpRequestMethodNotSupportedException::class,
     )
-    fun postAccessToken(@RequestParam parameters: Map<String, String>, principal: Principal?):
-            ResponseEntity<OAuth2AccessToken> {
+    fun postAccessToken(
+        @RequestParam parameters: Map<String, String>,
+        principal: Principal?,
+    ): ResponseEntity<OAuth2AccessToken>? {
         if (principal !is Authentication) {
             throw InsufficientAuthenticationException(
-                "There is no client authentication. Try adding an appropriate authentication filter."
+                "There is no client authentication. Try adding an appropriate authentication filter.",
             )
         }
 
-        val grant_type = parameters.get("grant_type")
-        logger.debug("Token request of grant type $grant_type received")
+        val grantType = parameters.get("grant_type")
+        logger.debug("Token request of grant type $grantType received")
 
         val clientId: String = parameters.get("client_id") ?: principal.name
-        var radarPrincipal = RadarPrincipal(clientId, principal)
+        val radarPrincipal = RadarPrincipal(clientId, principal)
+        val accessToken =
+            this.tokenEndPoint.postAccessToken(radarPrincipal, parameters)?.body
+                ?: throw RuntimeException("Token endpoint did not return a token")
 
-        val token2 = this.tokenEndPoint.postAccessToken(radarPrincipal, parameters)
-        return getResponse(token2.body)
+        return getResponse(accessToken)
     }
 
     fun getResponse(accessToken: OAuth2AccessToken): ResponseEntity<OAuth2AccessToken> {
@@ -106,7 +121,10 @@ class OAuth2LoginUiWebConfig(
      * @return a ModelAndView to render the form
      */
     @RequestMapping("/login")
-    fun getLogin(request: HttpServletRequest, response: HttpServletResponse?): ModelAndView {
+    fun getLogin(
+        request: HttpServletRequest,
+        response: HttpServletResponse?,
+    ): ModelAndView {
         val model = TreeMap<String, Any?>()
         if (request.parameterMap.containsKey("error")) {
             model["loginError"] = true
@@ -123,22 +141,28 @@ class OAuth2LoginUiWebConfig(
     @RequestMapping("/oauth/confirm_access")
     fun getAccessConfirmation(
         request: HttpServletRequest,
-        response: HttpServletResponse?
+        response: HttpServletResponse?,
     ): ModelAndView {
         val params = request.parameterMap
-        val authorizationParameters = Stream.of(
-            OAuth2Utils.CLIENT_ID, OAuth2Utils.REDIRECT_URI, OAuth2Utils.STATE,
-            OAuth2Utils.SCOPE, OAuth2Utils.RESPONSE_TYPE
-        )
-            .filter { key: String -> params.containsKey(key) }
-            .collect(Collectors.toMap(Function.identity(), Function { p: String -> params[p]!![0] }))
-        val authorizationRequest = DefaultOAuth2RequestFactory(
-            clientDetailsService
-        ).createAuthorizationRequest(authorizationParameters)
-        val model = Collections.singletonMap<String, Any?>(
-            "authorizationRequest",
-            authorizationRequest
-        )
+        val authorizationParameters =
+            Stream
+                .of(
+                    OAuth2Utils.CLIENT_ID,
+                    OAuth2Utils.REDIRECT_URI,
+                    OAuth2Utils.STATE,
+                    OAuth2Utils.SCOPE,
+                    OAuth2Utils.RESPONSE_TYPE,
+                ).filter { key: String -> params.containsKey(key) }
+                .collect(Collectors.toMap(Function.identity(), Function { p: String -> params[p]!![0] }))
+        val authorizationRequest =
+            DefaultOAuth2RequestFactory(
+                clientDetailsService,
+            ).createAuthorizationRequest(authorizationParameters)
+        val model =
+            Collections.singletonMap<String, Any?>(
+                "authorizationRequest",
+                authorizationRequest,
+            )
         return ModelAndView("authorize", model)
     }
 
@@ -154,8 +178,9 @@ class OAuth2LoginUiWebConfig(
         // The error summary may contain malicious user input,
         // it needs to be escaped to prevent XSS
         val errorParams: MutableMap<String, String> = HashMap()
-        errorParams["date"] = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
-            .format(Date())
+        errorParams["date"] =
+            SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
+                .format(Date())
         if (error is OAuth2Exception) {
             val oauthError = error
             errorParams["status"] = String.format("%d", oauthError.httpErrorCode)
@@ -163,9 +188,10 @@ class OAuth2LoginUiWebConfig(
             errorParams["message"] = oauthError.message?.let { HtmlUtils.htmlEscape(it) } ?: "No error message found"
             // transform the additionalInfo map to a comma seperated list of key: value pairs
             if (oauthError.additionalInformation != null) {
-                errorParams["additionalInfo"] = HtmlUtils.htmlEscape(
-                    oauthError.additionalInformation.entries.joinToString(", ") { entry -> entry.key + ": " + entry.value }
-                )
+                errorParams["additionalInfo"] =
+                    HtmlUtils.htmlEscape(
+                        oauthError.additionalInformation.entries.joinToString(", ") { entry -> entry.key + ": " + entry.value },
+                    )
             }
         }
         // Copy non-empty entries to the model. Empty entries will not be present in the model,
@@ -178,41 +204,32 @@ class OAuth2LoginUiWebConfig(
         return ModelAndView("error", model)
     }
 
-    private class RadarPrincipal(private val name: String, private val auth: Authentication) : Principal, Authentication {
+    private class RadarPrincipal(
+        private val name: String,
+        private val auth: Authentication,
+    ) : Principal,
+        Authentication {
+            override fun getName(): String = name
 
-        override fun getName(): String {
-            return name
+            override fun getAuthorities(): MutableCollection<out GrantedAuthority> = auth.authorities
+
+            override fun getCredentials(): Any = auth.credentials
+
+            override fun getDetails(): Any = auth.details
+
+            override fun getPrincipal(): Any = this
+
+            override fun isAuthenticated(): Boolean = auth.isAuthenticated
+
+            override fun setAuthenticated(isAuthenticated: Boolean) {
+                auth.isAuthenticated = isAuthenticated
+            }
         }
-
-        override fun getAuthorities(): MutableCollection<out GrantedAuthority> {
-            return auth.authorities
-        }
-
-        override fun getCredentials(): Any {
-            return auth.credentials
-        }
-
-        override fun getDetails(): Any {
-            return auth.details
-        }
-
-        override fun getPrincipal(): Any {
-            return this
-        }
-
-        override fun isAuthenticated(): Boolean {
-            return auth.isAuthenticated
-        }
-
-        override fun setAuthenticated(isAuthenticated: Boolean) {
-            auth.isAuthenticated = isAuthenticated
-        }
-
-    }
 
     companion object {
-        private val logger = LoggerFactory.getLogger(
-            OAuth2LoginUiWebConfig::class.java
-        )
+        private val logger =
+            LoggerFactory.getLogger(
+                OAuth2LoginUiWebConfig::class.java,
+            )
     }
 }

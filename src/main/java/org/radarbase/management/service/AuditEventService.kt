@@ -21,16 +21,16 @@ import java.util.*
 @Transactional
 class AuditEventService(
     private val persistenceAuditEventRepository: PersistenceAuditEventRepository,
-    private val auditEventConverter: AuditEventConverter
+    private val auditEventConverter: AuditEventConverter,
 ) {
-    fun findAll(pageable: Pageable): Page<AuditEvent> {
-        return persistenceAuditEventRepository.findAll(pageable)
+    fun findAll(pageable: Pageable): Page<AuditEvent> =
+        persistenceAuditEventRepository
+            .findAll(pageable)
             .map { persistentAuditEvent: PersistentAuditEvent? ->
                 auditEventConverter.convertToAuditEvent(
-                    persistentAuditEvent!!
+                    persistentAuditEvent!!,
                 )
             }
-    }
 
     /**
      * Find audit events by dates.
@@ -41,24 +41,24 @@ class AuditEventService(
      * @return a page of audit events
      */
     fun findByDates(
-        fromDate: LocalDateTime?, toDate: LocalDateTime?,
-        pageable: Pageable?
-    ): Page<AuditEvent> {
-        return persistenceAuditEventRepository
+        fromDate: LocalDateTime?,
+        toDate: LocalDateTime?,
+        pageable: Pageable?,
+    ): Page<AuditEvent> =
+        persistenceAuditEventRepository
             .findAllByAuditEventDateBetween(fromDate, toDate, pageable)
             .map { persistentAuditEvent: PersistentAuditEvent? ->
                 auditEventConverter.convertToAuditEvent(
-                    persistentAuditEvent!!
+                    persistentAuditEvent!!,
                 )
             }
-    }
 
-    fun find(id: Long): Optional<AuditEvent> {
-        return persistenceAuditEventRepository.findById(id)
+    fun find(id: Long): Optional<AuditEvent> =
+        persistenceAuditEventRepository
+            .findById(id)
             .map { persistentAuditEvent: PersistentAuditEvent? ->
                 auditEventConverter.convertToAuditEvent(
-                    persistentAuditEvent!!
+                    persistentAuditEvent!!,
                 )
             }
-    }
 }

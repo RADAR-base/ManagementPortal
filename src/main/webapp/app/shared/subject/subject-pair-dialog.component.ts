@@ -1,20 +1,20 @@
-import { Component, Inject, OnDestroy, OnInit} from '@angular/core';
-import { DatePipe, DOCUMENT } from '@angular/common';
-import { HttpResponse } from '@angular/common/http';
-import { ActivatedRoute, Params } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
+import {Component, Inject, OnDestroy, OnInit} from '@angular/core';
+import {DatePipe, DOCUMENT} from '@angular/common';
+import {HttpResponse} from '@angular/common/http';
+import {ActivatedRoute, Params} from '@angular/router';
+import {TranslateService} from '@ngx-translate/core';
 import {Observable, Subscription} from 'rxjs';
 
-import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import {NgbActiveModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 
-import { OAuthClient, OAuthClientService, PairInfo } from '../../entities/oauth-client';
-import { OAuthClientPairInfoService } from '../../entities/oauth-client/oauth-client-pair-info.service';
+import {OAuthClient, OAuthClientService, PairInfo} from '../../entities/oauth-client';
+import {OAuthClientPairInfoService} from '../../entities/oauth-client/oauth-client-pair-info.service';
 
-import { SubjectPopupService } from './subject-popup.service';
-import { Subject} from './subject.model';
-import { ObservablePopupComponent } from '../util/observable-popup.component';
-import { map, switchMap, tap } from 'rxjs/operators';
-import { PrintService } from '../util/print.service';
+import {SubjectPopupService} from './subject-popup.service';
+import {Subject} from './subject.model';
+import {ObservablePopupComponent} from '../util/observable-popup.component';
+import {map, switchMap, tap} from 'rxjs/operators';
+import {PrintService} from '../util/print.service';
 import {HideableSubjectField, SiteSettingsService} from "./sitesettings.service";
 
 @Component({
@@ -31,6 +31,7 @@ export class SubjectPairDialogComponent implements OnInit, OnDestroy {
     selectedClient: OAuthClient = null;
     allowPersistentToken = false;
     siteSettings$ = this.siteSettingsService.siteSettings$;
+    protected readonly HideableSubjectField = HideableSubjectField;
     private subscriptions: Subscription = new Subscription();
 
     constructor(public activeModal: NgbActiveModal,
@@ -64,29 +65,6 @@ export class SubjectPairDialogComponent implements OnInit, OnDestroy {
         this.printService.setPrintLockTo(false);
     }
 
-    private fetchOAuthClients(): Subscription {
-        return this.oauthClientService.query().subscribe(
-            (res: HttpResponse<any>) => {
-                // only keep clients that have the dynamic_registration key in additionalInformation
-                // and have set it to true
-                this.oauthClients = res.body.filter(
-                  (c) => c.additionalInformation.dynamic_registration && c.additionalInformation.dynamic_registration.toLowerCase() === 'true'
-                );
-            }
-        );
-    }
-
-    private loadInconsolataFont() {
-        if (this.doc.getElementById('inconsolata-font-link') === null) {
-            const link: HTMLLinkElement = this.doc.createElement('link');
-            link.id = 'inconsolata-font-link';
-            link.setAttribute('rel', 'stylesheet');
-            link.setAttribute('type', 'text/css');
-            link.setAttribute('href', '//fonts.googleapis.com/css?family=Inconsolata');
-            this.doc.head.appendChild(link);
-        }
-    }
-
     clear() {
         this.activeModal.dismiss('cancel');
     }
@@ -116,10 +94,33 @@ export class SubjectPairDialogComponent implements OnInit, OnDestroy {
                     })),
                 )),
             ).subscribe(
-              (pairInfo) => this.pairInfo = pairInfo,
+                (pairInfo) => this.pairInfo = pairInfo,
             ));
         } else {
             this.pairInfo = null;
+        }
+    }
+
+    private fetchOAuthClients(): Subscription {
+        return this.oauthClientService.query().subscribe(
+            (res: HttpResponse<any>) => {
+                // only keep clients that have the dynamic_registration key in additionalInformation
+                // and have set it to true
+                this.oauthClients = res.body.filter(
+                    (c) => c.additionalInformation.dynamic_registration && c.additionalInformation.dynamic_registration.toLowerCase() === 'true'
+                );
+            }
+        );
+    }
+
+    private loadInconsolataFont() {
+        if (this.doc.getElementById('inconsolata-font-link') === null) {
+            const link: HTMLLinkElement = this.doc.createElement('link');
+            link.id = 'inconsolata-font-link';
+            link.setAttribute('rel', 'stylesheet');
+            link.setAttribute('type', 'text/css');
+            link.setAttribute('href', '//fonts.googleapis.com/css?family=Inconsolata');
+            this.doc.head.appendChild(link);
         }
     }
 
@@ -128,7 +129,7 @@ export class SubjectPairDialogComponent implements OnInit, OnDestroy {
             (deleteRes) => {
                 if (!deleteRes.ok) {
                     console.log('Failed to delete stale MetaToken: '
-                      + JSON.stringify(deleteRes.body));
+                        + JSON.stringify(deleteRes.body));
                 }
             },
         );
@@ -138,27 +139,25 @@ export class SubjectPairDialogComponent implements OnInit, OnDestroy {
         const timeoutMins = timeout / 60000;
         if (timeoutMins < 180 && timeoutMins % 60 !== 0) {
             return this.translate.get(
-                    'managementPortalApp.subject.tokenTimeoutMinutes',
-                    {minutes: timeoutMins});
+                'managementPortalApp.subject.tokenTimeoutMinutes',
+                {minutes: timeoutMins});
         } else {
             const timeoutHours = Math.floor(timeoutMins / 60);
 
             if (timeoutHours === 1) {
                 return this.translate.get(
-                        'managementPortalApp.subject.tokenTimeoutHour');
+                    'managementPortalApp.subject.tokenTimeoutHour');
             } else if (timeoutHours <= 48) {
                 return this.translate.get(
-                        'managementPortalApp.subject.tokenTimeoutHours',
-                        {hours: timeoutHours});
+                    'managementPortalApp.subject.tokenTimeoutHours',
+                    {hours: timeoutHours});
             } else {
                 return this.translate.get(
-                        'managementPortalApp.subject.tokenTimeoutDays',
-                        {days: Math.floor(timeoutHours / 24)});
+                    'managementPortalApp.subject.tokenTimeoutDays',
+                    {days: Math.floor(timeoutHours / 24)});
             }
         }
     }
-
-    protected readonly HideableSubjectField = HideableSubjectField;
 }
 
 @Component({

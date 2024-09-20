@@ -1,11 +1,12 @@
-import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
-import { RouterModule } from '@angular/router';
-import { QrCodeModule } from 'ng-qrcode';
+import {CUSTOM_ELEMENTS_SCHEMA, NgModule} from '@angular/core';
+import {RouterModule} from '@angular/router';
+import {QrCodeModule} from 'ng-qrcode';
 
-import { ManagementPortalSharedModule } from '../../shared';
+import {ManagementPortalSharedModule} from '../../shared';
 import {
     FilterBadgeComponent,
-    LoadMoreComponent, NgbDatePipe,
+    LoadMoreComponent,
+    NgbDatePipe,
     SubjectComponent,
     SubjectDeleteDialogComponent,
     SubjectDeletePopupComponent,
@@ -19,9 +20,7 @@ import {
     SubjectRevisionListComponent,
     subjectRoute,
 } from './';
-import {
-    AddSubjectsToGroupDialogComponent
-} from "./add-subjects-to-group-dialog.component";
+import {AddSubjectsToGroupDialogComponent} from "./add-subjects-to-group-dialog.component";
 import {
     SubjectSourceAssignerDialogComponent,
     SubjectSourceAssignerPopupComponent,

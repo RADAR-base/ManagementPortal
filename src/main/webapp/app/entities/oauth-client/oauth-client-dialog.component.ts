@@ -1,17 +1,17 @@
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Params } from '@angular/router';
+import {Component, OnInit} from '@angular/core';
+import {ActivatedRoute, Params} from '@angular/router';
 
-import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import {NgbActiveModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 
-import { AlertService } from '../../shared/util/alert.service';
-import { EventManager } from '../../shared/util/event-manager.service';
-import { OAuthClientPopupService } from './oauth-client-popup.service';
+import {AlertService} from '../../shared/util/alert.service';
+import {EventManager} from '../../shared/util/event-manager.service';
+import {OAuthClientPopupService} from './oauth-client-popup.service';
 
-import { OAuthClient } from './oauth-client.model';
-import { OAuthClientService } from './oauth-client.service';
-import { HttpErrorResponse } from '@angular/common/http';
-import { ObservablePopupComponent } from '../../shared/util/observable-popup.component';
-import { Observable } from 'rxjs';
+import {OAuthClient} from './oauth-client.model';
+import {OAuthClientService} from './oauth-client.service';
+import {HttpErrorResponse} from '@angular/common/http';
+import {ObservablePopupComponent} from '../../shared/util/observable-popup.component';
+import {Observable} from 'rxjs';
 
 @Component({
     selector: 'jhi-oauth-client-dialog',
@@ -34,10 +34,10 @@ export class OAuthClientDialogComponent implements OnInit {
     protectedClient: boolean;
 
     constructor(
-            public activeModal: NgbActiveModal,
-            private alertService: AlertService,
-            private oauthClientSerivce: OAuthClientService,
-            private eventManager: EventManager,
+        public activeModal: NgbActiveModal,
+        private alertService: AlertService,
+        private oauthClientSerivce: OAuthClientService,
+        private eventManager: EventManager,
     ) {
         this.availableGrants = ['authorization_code', 'implicit', 'client_credentials', 'refresh_token', 'password'];
         this.authorities = ['ROLE_SYS_ADMIN'];
@@ -97,13 +97,24 @@ export class OAuthClientDialogComponent implements OnInit {
 
         if (!this.newClient) {
             this.oauthClientSerivce.update(this.client)
-            .subscribe((res: OAuthClient) =>
+                .subscribe((res: OAuthClient) =>
                     this.onSaveSuccess(res), (res: HttpErrorResponse) => this.onError(res.message));
         } else {
             this.oauthClientSerivce.create(this.client)
-            .subscribe((res: OAuthClient) =>
+                .subscribe((res: OAuthClient) =>
                     this.onSaveSuccess(res), (res: HttpErrorResponse) => this.onError(res.message));
         }
+    }
+
+    generateRandomSecret() {
+        const text = [];
+        const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+
+        for (let i = 0; i < 36; i++) {
+            text.push(possible.charAt(Math.floor(Math.random() * possible.length)));
+        }
+
+        this.client.clientSecret = text.join('');
     }
 
     // convert comma seperated list of values to array
@@ -127,17 +138,6 @@ export class OAuthClientDialogComponent implements OnInit {
     private onError(error) {
         this.alertService.error(error.message, null, null);
     }
-
-    generateRandomSecret() {
-        const text = [];
-        const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-
-        for (let i = 0; i < 36; i++) {
-            text.push(possible.charAt(Math.floor(Math.random() * possible.length)));
-        }
-
-        this.client.clientSecret = text.join('');
-    }
 }
 
 @Component({
@@ -146,8 +146,8 @@ export class OAuthClientDialogComponent implements OnInit {
 })
 export class OAuthClientPopupComponent extends ObservablePopupComponent {
     constructor(
-            route: ActivatedRoute,
-            private oauthClientPopupService: OAuthClientPopupService,
+        route: ActivatedRoute,
+        private oauthClientPopupService: OAuthClientPopupService,
     ) {
         super(route);
     }

@@ -1,13 +1,12 @@
-import { Routes } from '@angular/router';
+import {Routes} from '@angular/router';
 
-import { UserRouteAccessService } from '../../shared';
+import {UserRouteAccessService} from '../../shared';
 import {ORGANIZATION_ADMIN, PROJECT_ADMIN, SYSTEM_ADMIN} from '../../shared/constants/common.constants';
-import { OrganizationComponent } from './organization.component';
-import { OrganizationDeletePopupComponent } from './organization-delete-dialog.component';
-import { OrganizationDetailComponent } from './organization-detail.component';
-import { OrganizationPopupComponent } from './organization-dialog.component';
+import {OrganizationComponent} from './organization.component';
+import {OrganizationDetailComponent} from './organization-detail.component';
+import {OrganizationPopupComponent} from './organization-dialog.component';
 
-import { ResolvePagingParams } from '../../shared/commons';
+import {ResolvePagingParams} from '../../shared/commons';
 
 export const organizationRoute: Routes = [
     {

@@ -1,6 +1,6 @@
 {
     "managementPortalApp": {
-        "project" : {
+        "project": {
             "home": {
                 "title": "Projecten",
                 "createLabel": "Maak een nieuwe Project",
@@ -28,24 +28,24 @@
             "sourceType": "Source Type",
             "groups": "Groepen",
             "subjects": "Onderwerpen",
-            "permissions":  "Rechten",
-            "admins":  "Beheerders",
+            "permissions": "Rechten",
+            "admins": "Beheerders",
             "analysts": "Analisten",
             "newGroup": {
                 "label": "Nieuwe groep",
                 "button": "Groep toevogen"
             },
-            "attributeData" : "Eigenschappen",
-            "attributeDataKey" : "Tag",
-            "attributeDataValue" : "Waarde",
-            "prettyProjectName" : "Leesbare projectnaam",
-            "prettyProjectName.fieldDescription" : "Voor mensen leesbare projectnaam die niet het urlpatroon hoeft te volgen.",
+            "attributeData": "Eigenschappen",
+            "attributeDataKey": "Tag",
+            "attributeDataValue": "Waarde",
+            "prettyProjectName": "Leesbare projectnaam",
+            "prettyProjectName.fieldDescription": "Voor mensen leesbare projectnaam die niet het urlpatroon hoeft te volgen.",
             "projectIdAsPrettyName": "Wil je de project-id gebruiken als de voor mensen leesbare naam?",
             "sources": "Sources"
         },
-        "error" : {
-            "projectIdNotFound" : "Er werd geen project gevonden met id {{ param0 }}",
-            "projectNameNotFound" : "Er werd geen project gevonden met de naam {{ param0 }}"
+        "error": {
+            "projectIdNotFound": "Er werd geen project gevonden met id {{ param0 }}",
+            "projectNameNotFound": "Er werd geen project gevonden met de naam {{ param0 }}"
         }
     }
 }

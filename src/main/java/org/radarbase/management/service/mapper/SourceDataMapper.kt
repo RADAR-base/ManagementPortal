@@ -21,7 +21,9 @@ interface SourceDataMapper {
 
     @IterableMapping(qualifiedByName = ["sourceDataReducedDTO"])
     fun sourceDataToSourceDataDTOs(sourceData: List<SourceData>): List<SourceDataDTO>
+
     fun sourceDataDTOToSourceData(sourceDataDto: SourceDataDTO): SourceData
+
     fun sourceDataDTOsToSourceData(sourceDataDtos: List<SourceDataDTO>): List<SourceData>
 
     /**

@@ -13,7 +13,5 @@ import tech.jhipster.config.JHipsterConstants
 class LoggingAspectConfiguration {
     @Bean
     @Profile(JHipsterConstants.SPRING_PROFILE_DEVELOPMENT)
-    fun loggingAspect(env: Environment?): LoggingAspect {
-        return LoggingAspect(env!!)
-    }
+    fun loggingAspect(env: Environment?): LoggingAspect = LoggingAspect(env!!)
 }

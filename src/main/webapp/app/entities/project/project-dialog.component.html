@@ -1,183 +1,199 @@
-<form name="editForm" role="form" novalidate (ngSubmit)="save()" #editForm="ngForm">
+<form #editForm="ngForm" (ngSubmit)="save()" name="editForm" novalidate role="form">
 
     <div class="modal-header">
-        <h4 class="modal-title" id="myProjectLabel"
-            [translate]="'managementPortalApp.project.home.createOrEditLabel'">
+        <h4 [translate]="'managementPortalApp.project.home.createOrEditLabel'" class="modal-title"
+            id="myProjectLabel">
         </h4>
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
-                (click)="clear()">&times;</button>
+        <button (click)="clear()" aria-hidden="true" class="close" data-dismiss="modal"
+                type="button">&times;
+        </button>
     </div>
     <div class="modal-body">
         <jhi-alert-error></jhi-alert-error>
-        <div class="form-group" [hidden]="!projectCopy.id">
-            <label for="id" [translate]="'global.field.id'"></label>
-            <input type="text" class="form-control" id="id" name="id"
-                   [(ngModel)]="projectCopy.id" readonly />
+        <div [hidden]="!projectCopy.id" class="form-group">
+            <label [translate]="'global.field.id'" for="id"></label>
+            <input [(ngModel)]="projectCopy.id" class="form-control" id="id" name="id"
+                   readonly type="text"/>
         </div>
         <div class="form-group">
-            <label class="form-control-label"
-                [translate]="'managementPortalApp.project.projectName'"
-                for="field_projectName">
+            <label [translate]="'managementPortalApp.project.projectName'"
+                   class="form-control-label"
+                   for="field_projectName">
             </label>
-            <input type="text" class="form-control" name="projectName" id="field_projectName"
-                [(ngModel)]="projectCopy.projectName" [readOnly]="projectCopy.id" required pattern="[_'.@A-Za-z0-9- ]*" />
-            <small *ngIf="!projectCopy.id" id="projectIdWarning" class="form-text bold-warn"
-                   [translate]="'managementPortalApp.project.projectName.fieldWarning'">
+            <input [(ngModel)]="projectCopy.projectName" [readOnly]="projectCopy.id" class="form-control"
+                   id="field_projectName"
+                   name="projectName" pattern="[_'.@A-Za-z0-9- ]*" required
+                   type="text"/>
+            <small *ngIf="!projectCopy.id" [translate]="'managementPortalApp.project.projectName.fieldWarning'"
+                   class="form-text bold-warn"
+                   id="projectIdWarning">
             </small>
-            <small id="projectIdHelp" class="form-text text-muted"
-                [translate]="'managementPortalApp.project.projectName.fieldDescription'">
+            <small [translate]="'managementPortalApp.project.projectName.fieldDescription'" class="form-text text-muted"
+                   id="projectIdHelp">
             </small>
             <div [hidden]="!(editForm.controls.projectName?.dirty && editForm.controls.projectName?.invalid)">
-                <small class="form-text text-danger"
-                   [hidden]="!editForm.controls.projectName?.errors?.required"
-                   [translate]="'entity.validation.required'">
+                <small [hidden]="!editForm.controls.projectName?.errors?.required"
+                       [translate]="'entity.validation.required'"
+                       class="form-text text-danger">
                 </small>
-                <small class="form-text text-danger"
-                    [hidden]="!editForm.controls.projectName?.errors?.pattern"
-                    [translate]="'entity.validation.pattern'"
-                    [translateParams]="{pattern: 'alphanumerics, dash (-), underscore (_), space ( ) and period (.)'}">
+                <small [hidden]="!editForm.controls.projectName?.errors?.pattern"
+                       [translateParams]="{pattern: 'alphanumerics, dash (-), underscore (_), space ( ) and period (.)'}"
+                       [translate]="'entity.validation.pattern'"
+                       class="form-text text-danger">
                 </small>
             </div>
         </div>
 
         <div class="form-group">
-            <label class="form-control-label"
-                [translate]="'managementPortalApp.project.prettyProjectName'"
-                for="field_humanReadableProjectName">
+            <label [translate]="'managementPortalApp.project.prettyProjectName'"
+                   class="form-control-label"
+                   for="field_humanReadableProjectName">
             </label>
-            <input type="text" class="form-control" name="prettyProjectName" id="field_humanReadableProjectName"
-                   [(ngModel)]="projectCopy.humanReadableProjectName" value="{{projectIdAsPrettyValue? projectCopy.projectName : ''}}"/>
-            <small id="prettyProjectNameHelp" class="form-text text-muted"
-                [translate]="'managementPortalApp.project.prettyProjectName.fieldDescription'">
+            <input [(ngModel)]="projectCopy.humanReadableProjectName" class="form-control"
+                   id="field_humanReadableProjectName" name="prettyProjectName"
+                   type="text"
+                   value="{{projectIdAsPrettyValue? projectCopy.projectName : ''}}"/>
+            <small [translate]="'managementPortalApp.project.prettyProjectName.fieldDescription'"
+                   class="form-text text-muted"
+                   id="prettyProjectNameHelp">
             </small>
             <small>
-                <input type="checkbox" class="form-control-check" name="grantTypes" [checked]="projectIdAsPrettyValue" (change)="projectIdAsPrettyValue = !projectIdAsPrettyValue" />
+                <input (change)="projectIdAsPrettyValue = !projectIdAsPrettyValue" [checked]="projectIdAsPrettyValue"
+                       class="form-control-check" name="grantTypes"
+                       type="checkbox"/>
                 {{ 'managementPortalApp.project.projectIdAsPrettyName' | translate }}
             </small>
         </div>
 
         <div class="form-group">
-            <label class="form-control-label"
-                [translate]="'managementPortalApp.project.description'"
-                for="field_description">
+            <label [translate]="'managementPortalApp.project.description'"
+                   class="form-control-label"
+                   for="field_description">
             </label>
-            <input type="text" class="form-control" name="description" id="field_description"
-                [(ngModel)]="projectCopy.description"
-            required />
+            <input [(ngModel)]="projectCopy.description" class="form-control" id="field_description" name="description"
+                   required
+                   type="text"/>
             <div [hidden]="!(editForm.controls.description?.dirty && editForm.controls.description?.invalid)">
-                <small class="form-text text-danger"
-                   [hidden]="!editForm.controls.description?.errors?.required"
-                   [translate]="'entity.validation.required'">
+                <small [hidden]="!editForm.controls.description?.errors?.required"
+                       [translate]="'entity.validation.required'"
+                       class="form-text text-danger">
                 </small>
             </div>
         </div>
-        <div class="form-group" *ngIf="projectCopy.organization">
-            <label class="form-control-label"
-                [translate]="'managementPortalApp.project.organization'"
-                for="field_organization">
+        <div *ngIf="projectCopy.organization" class="form-group">
+            <label [translate]="'managementPortalApp.project.organization'"
+                   class="form-control-label"
+                   for="field_organization">
             </label>
 
-            <select class="form-control" name="organization" [(ngModel)]="projectCopy.organization.name" id="field_organization"
-                [disabled]="!hasRoleToChangeOrganization">
-                <option *ngFor="let organization of availableOrganizations" [ngValue]="organization">{{organization}}</option>
+            <select [(ngModel)]="projectCopy.organization.name" [disabled]="!hasRoleToChangeOrganization"
+                    class="form-control"
+                    id="field_organization"
+                    name="organization">
+                <option *ngFor="let organization of availableOrganizations"
+                        [ngValue]="organization">{{ organization }}
+                </option>
             </select>
         </div>
         <div class="form-group">
-            <label class="form-control-label"
-                [translate]="'managementPortalApp.project.location'"
-                for="field_location">
+            <label [translate]="'managementPortalApp.project.location'"
+                   class="form-control-label"
+                   for="field_location">
             </label>
-            <input type="text" class="form-control" name="location" id="field_location"
-                [(ngModel)]="projectCopy.location"
-            required />
+            <input [(ngModel)]="projectCopy.location" class="form-control" id="field_location" name="location"
+                   required
+                   type="text"/>
             <div [hidden]="!(editForm.controls.location?.dirty && editForm.controls.location?.invalid)">
-                <small class="form-text text-danger"
-                   [hidden]="!editForm.controls.location?.errors?.required"
-                   [translate]="'entity.validation.required'">
+                <small [hidden]="!editForm.controls.location?.errors?.required"
+                       [translate]="'entity.validation.required'"
+                       class="form-text text-danger">
                 </small>
             </div>
         </div>
         <div class="form-group">
-            <label class="form-control-label"
-                [translate]="'managementPortalApp.project.startDate'"
-                for="field_startDate">
+            <label [translate]="'managementPortalApp.project.startDate'"
+                   class="form-control-label"
+                   for="field_startDate">
             </label>
             <div class="input-group">
-                <input [(ngModel)]="startDate"
-                       id="field_startDate"
+                <input #startDatePicker="ngbDatepicker"
+                       [(ngModel)]="startDate"
                        class="form-control"
+                       id="field_startDate"
                        name="startDate"
-                       placeholder="yyyy-mm-dd"
                        ngbDatepicker
-                       #startDatePicker="ngbDatepicker">
+                       placeholder="yyyy-mm-dd">
                 <div class="input-group-append">
-                    <button class="btn btn-outline-secondary calendar" (click)="startDatePicker.toggle()" type="button"></button>
+                    <button (click)="startDatePicker.toggle()" class="btn btn-outline-secondary calendar"
+                            type="button"></button>
                 </div>
             </div>
         </div>
         <div class="form-group">
-            <label class="form-control-label"
-                [translate]="'managementPortalApp.project.projectStatus'"
-                for="field_projectStatus">
+            <label [translate]="'managementPortalApp.project.projectStatus'"
+                   class="form-control-label"
+                   for="field_projectStatus">
             </label>
-            <select class="form-control" name="projectStatus" [(ngModel)]="projectCopy.projectStatus" id="field_projectStatus" >
-                <option value="PLANNING" [translate]="'managementPortalApp.ProjectStatus.PLANNING'"></option>
-                <option value="ONGOING" [translate]="'managementPortalApp.ProjectStatus.ONGOING'"></option>
-                <option value="ENDED" [translate]="'managementPortalApp.ProjectStatus.ENDED'"></option>
+            <select [(ngModel)]="projectCopy.projectStatus" class="form-control" id="field_projectStatus"
+                    name="projectStatus">
+                <option [translate]="'managementPortalApp.ProjectStatus.PLANNING'" value="PLANNING"></option>
+                <option [translate]="'managementPortalApp.ProjectStatus.ONGOING'" value="ONGOING"></option>
+                <option [translate]="'managementPortalApp.ProjectStatus.ENDED'" value="ENDED"></option>
             </select>
         </div>
         <div class="form-group">
-            <label class="form-control-label"
-                [translate]="'managementPortalApp.project.endDate'"
-                for="field_endDate">
+            <label [translate]="'managementPortalApp.project.endDate'"
+                   class="form-control-label"
+                   for="field_endDate">
             </label>
             <div class="input-group">
-                <input [(ngModel)]="endDate"
-                       id="field_endDate"
+                <input #endDatePicker="ngbDatepicker"
+                       [(ngModel)]="endDate"
                        class="form-control"
+                       id="field_endDate"
                        name="endDate"
-                       placeholder="yyyy-mm-dd"
                        ngbDatepicker
-                       #endDatePicker="ngbDatepicker">
+                       placeholder="yyyy-mm-dd">
                 <div class="input-group-append">
-                    <button class="btn btn-outline-secondary calendar" (click)="endDatePicker.toggle()" type="button"></button>
+                    <button (click)="endDatePicker.toggle()" class="btn btn-outline-secondary calendar"
+                            type="button"></button>
                 </div>
             </div>
         </div>
 
         <div class="form-group">
             <label [translate]="'managementPortalApp.project.sourceType'" for="field_sourceType"></label>
-            <input id="field_sourceType"
-                   type="text"
-                   name="sourceType"
-                   class="form-control"
+            <input #instance="ngbTypeahead"
+                   (click)="click$.next($any($event).target.value)"
+                   (focus)="focus$.next($any($event).target.value)"
+                   (selectItem)="addSourceType($event)"
                    [(ngModel)]="sourceTypeInputText"
                    [ngbTypeahead]="getMatchingSourceTypes"
-                   (focus)="focus$.next($any($event).target.value)"
-                   (click)="click$.next($any($event).target.value)"
-                   #instance="ngbTypeahead"
                    [resultFormatter]="formatSourceTypeOption"
-                   (selectItem)="addSourceType($event)"
+                   class="form-control"
+                   id="field_sourceType"
+                   name="sourceType"
+                   type="text"
             />
             <div class="selected-source-types">
                 <div
-                    class="badge badge-pill badge-primary"
-                    *ngFor="let t of projectCopy.sourceTypes"
-                    (click)="removeSourceType(t.id)"
+                        (click)="removeSourceType(t.id)"
+                        *ngFor="let t of projectCopy.sourceTypes"
+                        class="badge badge-pill badge-primary"
                 >
-                    <span>{{formatSourceTypeOption(t)}}</span>
+                    <span>{{ formatSourceTypeOption(t) }}</span>
                     <span aria-hidden="true">&times;</span>
                 </div>
             </div>
         </div>
-        <jhi-dictionary-mapper [attributes]='projectCopy.attributes' [options]="options"
-                               [eventPrefix]='attributeComponentEventPrefix'></jhi-dictionary-mapper>
+        <jhi-dictionary-mapper [attributes]='projectCopy.attributes' [eventPrefix]='attributeComponentEventPrefix'
+                               [options]="options"></jhi-dictionary-mapper>
     </div>
     <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal" (click)="clear()">
+        <button (click)="clear()" class="btn btn-default" data-dismiss="modal" type="button">
             <span class="fa fa-ban"></span>&nbsp;<span [translate]="'entity.action.cancel'"></span>
         </button>
-        <button type="submit" [disabled]="editForm.form.invalid || isSaving" class="btn btn-primary">
+        <button [disabled]="editForm.form.invalid || isSaving" class="btn btn-primary" type="submit">
             <span class="fa fa-save"></span>&nbsp;<span [translate]="'entity.action.save'"></span>
         </button>
     </div>

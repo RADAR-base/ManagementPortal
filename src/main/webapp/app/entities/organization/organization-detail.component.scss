@@ -6,15 +6,19 @@
         display: flex;
     }
 }
+
 .organization-detail__organization-info-fields {
     > div {
         margin-right: 16px;
 
         > span {
-            font-weight: bold; font-size: 12px; color: #bebebe;
+            font-weight: bold;
+            font-size: 12px;
+            color: #bebebe;
         }
     }
 }
+
 .organization-detail__description {
     padding: 8px 8px;
     border-left: 2px solid #dadada;

@@ -30,11 +30,12 @@ interface SourceTypeMapper {
 
     @Mapping(target = "projects", ignore = true)
     fun sourceTypeDTOToSourceType(sourceTypeDto: SourceTypeDTO): SourceType
+
     fun sourceTypeDTOsToSourceTypes(sourceTypeDtos: List<SourceTypeDTO>): List<SourceType>
+
     fun sourceTypeToMinimalSourceTypeDetailsDTO(sourceType: SourceType): MinimalSourceTypeDTO
-    fun sourceTypesToMinimalSourceTypeDetailsDTOs(
-        sourceTypes: List<SourceType>
-    ): List<MinimalSourceTypeDTO>
+
+    fun sourceTypesToMinimalSourceTypeDetailsDTOs(sourceTypes: List<SourceType>): List<MinimalSourceTypeDTO>
 
     @IterableMapping(qualifiedByName = ["sourceDataReducedDTO"])
     fun map(sourceData: Set<SourceData?>?): Set<SourceDataDTO?>?
@@ -48,6 +49,7 @@ interface SourceTypeMapper {
     @Mapping(target = "projects", ignore = true)
     @Mapping(target = "appProvider", ignore = true)
     fun minimalDTOToSourceType(minimalSourceTypeDetailsDto: MinimalSourceTypeDTO?): SourceType?
+
     fun minimalDTOsToSourceTypes(minimalProjectDetailsDtos: List<MinimalSourceTypeDTO?>?): List<SourceType?>?
 
     /**

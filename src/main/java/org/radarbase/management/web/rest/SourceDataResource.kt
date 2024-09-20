@@ -41,9 +41,8 @@ import javax.validation.Valid
 @RequestMapping("/api")
 class SourceDataResource(
     @Autowired private val sourceDataService: SourceDataService,
-    @Autowired private val authService: AuthService
+    @Autowired private val authService: AuthService,
 ) {
-
     /**
      * POST  /source-data : Create a new sourceData.
      *
@@ -55,27 +54,34 @@ class SourceDataResource(
     @PostMapping("/source-data")
     @Timed
     @Throws(URISyntaxException::class, NotAuthorizedException::class)
-    fun createSourceData(@RequestBody @Valid sourceDataDto: SourceDataDTO): ResponseEntity<SourceDataDTO?> {
+    fun createSourceData(
+        @RequestBody @Valid sourceDataDto: SourceDataDTO,
+    ): ResponseEntity<SourceDataDTO?> {
         log.debug("REST request to save SourceData : {}", sourceDataDto)
         authService.checkPermission(Permission.SOURCEDATA_CREATE)
         if (sourceDataDto.id != null) {
-            return ResponseEntity.badRequest().headers(
-                createFailureAlert(
-                    EntityName.SOURCE_DATA,
-                    "idexists", "A new sourceData cannot already have an ID"
-                )
-            ).build()
+            return ResponseEntity
+                .badRequest()
+                .headers(
+                    createFailureAlert(
+                        EntityName.SOURCE_DATA,
+                        "idexists",
+                        "A new sourceData cannot already have an ID",
+                    ),
+                ).build()
         }
         val name = sourceDataDto.sourceDataName
         if (sourceDataService.findOneBySourceDataName(name) != null) {
             throw ConflictException(
                 "SourceData already available with source-name",
-                EntityName.SOURCE_DATA, "error.sourceDataNameAvailable",
-                Collections.singletonMap("sourceDataName", name)
+                EntityName.SOURCE_DATA,
+                "error.sourceDataNameAvailable",
+                Collections.singletonMap("sourceDataName", name),
             )
         }
         val result = sourceDataService.save(sourceDataDto)
-        return ResponseEntity.created(getUri(sourceDataDto))
+        return ResponseEntity
+            .created(getUri(sourceDataDto))
             .headers(createEntityCreationAlert(EntityName.SOURCE_DATA, name))
             .body(result)
     }
@@ -92,14 +98,17 @@ class SourceDataResource(
     @PutMapping("/source-data")
     @Timed
     @Throws(URISyntaxException::class, NotAuthorizedException::class)
-    fun updateSourceData(@RequestBody @Valid sourceDataDto: SourceDataDTO?): ResponseEntity<SourceDataDTO?> {
+    fun updateSourceData(
+        @RequestBody @Valid sourceDataDto: SourceDataDTO?,
+    ): ResponseEntity<SourceDataDTO?> {
         log.debug("REST request to update SourceData : {}", sourceDataDto)
         if (sourceDataDto!!.id == null) {
             return createSourceData(sourceDataDto)
         }
         authService.checkPermission(Permission.SOURCEDATA_UPDATE)
         val result = sourceDataService.save(sourceDataDto)
-        return ResponseEntity.ok()
+        return ResponseEntity
+            .ok()
             .headers(createEntityUpdateAlert(EntityName.SOURCE_DATA, sourceDataDto.sourceDataName))
             .body(result)
     }
@@ -114,7 +123,7 @@ class SourceDataResource(
     @Timed
     @Throws(NotAuthorizedException::class)
     fun getAllSourceData(
-        @PageableDefault(page = 0, size = Int.MAX_VALUE) pageable: Pageable
+        @PageableDefault(page = 0, size = Int.MAX_VALUE) pageable: Pageable,
     ): ResponseEntity<List<SourceDataDTO?>> {
         log.debug("REST request to get all SourceData")
         authService.checkScope(Permission.SOURCEDATA_READ)
@@ -133,15 +142,17 @@ class SourceDataResource(
     @GetMapping("/source-data/{sourceDataName:" + Constants.ENTITY_ID_REGEX + "}")
     @Timed
     @Throws(
-        NotAuthorizedException::class
+        NotAuthorizedException::class,
     )
-    fun getSourceData(@PathVariable sourceDataName: String?): ResponseEntity<SourceDataDTO> {
+    fun getSourceData(
+        @PathVariable sourceDataName: String?,
+    ): ResponseEntity<SourceDataDTO> {
         authService.checkScope(Permission.SOURCEDATA_READ)
         return ResponseUtil.wrapOrNotFound(
             Optional.ofNullable(
                 sourceDataService
-                    .findOneBySourceDataName(sourceDataName)
-            )
+                    .findOneBySourceDataName(sourceDataName),
+            ),
         )
     }
 
@@ -154,12 +165,15 @@ class SourceDataResource(
     @DeleteMapping("/source-data/{sourceDataName:" + Constants.ENTITY_ID_REGEX + "}")
     @Timed
     @Throws(
-        NotAuthorizedException::class
+        NotAuthorizedException::class,
     )
-    fun deleteSourceData(@PathVariable sourceDataName: String?): ResponseEntity<Void> {
+    fun deleteSourceData(
+        @PathVariable sourceDataName: String?,
+    ): ResponseEntity<Void> {
         authService.checkPermission(Permission.SOURCEDATA_DELETE)
-        val sourceDataDto = sourceDataService
-            .findOneBySourceDataName(sourceDataName) ?: return ResponseEntity.notFound().build()
+        val sourceDataDto =
+            sourceDataService
+                .findOneBySourceDataName(sourceDataName) ?: return ResponseEntity.notFound().build()
         sourceDataService.delete(sourceDataDto.id)
         return ResponseEntity.ok().headers(createEntityDeletionAlert(EntityName.SOURCE_DATA, sourceDataName)).build()
     }

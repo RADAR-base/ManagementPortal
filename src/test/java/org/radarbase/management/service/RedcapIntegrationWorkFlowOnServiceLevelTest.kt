@@ -25,6 +25,7 @@ internal class RedcapIntegrationWorkFlowOnServiceLevelTest {
 
     @Autowired
     private val subjectService: SubjectService? = null
+
     @Test
     fun testRedcapIntegrationWorkFlowOnServiceLevel() {
         val externalProjectUrl = "MyUrl"
@@ -84,16 +85,21 @@ internal class RedcapIntegrationWorkFlowOnServiceLevelTest {
         newSubject.externalId = redcapRecordId // set redcap-record-id
 
         // create human-readable-id
-        val humanReadableId = java.lang.String.join(
-            "-", workPackageRetrieved, phaseRetrieved,
-            locationRetrieved, redcapRecordId
-        )
+        val humanReadableId =
+            java.lang.String.join(
+                "-",
+                workPackageRetrieved,
+                phaseRetrieved,
+                locationRetrieved,
+                redcapRecordId,
+            )
 
-        //set meta-data to subject
-        newSubject.attributes = Collections.singletonMap(
-            SubjectDTO.HUMAN_READABLE_IDENTIFIER_KEY,
-            humanReadableId
-        )
+        // set meta-data to subject
+        newSubject.attributes =
+            Collections.singletonMap(
+                SubjectDTO.HUMAN_READABLE_IDENTIFIER_KEY,
+                humanReadableId,
+            )
 
         // create/save a subject
         // PUT api/subjects/

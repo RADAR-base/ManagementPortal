@@ -7,17 +7,17 @@
  * See the file LICENSE in the root of this repository.
  */
 
-import { Pipe, PipeTransform } from "@angular/core";
-import { NgbDateParserFormatter, NgbDateStruct } from "@ng-bootstrap/ng-bootstrap";
+import {Pipe, PipeTransform} from "@angular/core";
+import {NgbDateParserFormatter, NgbDateStruct} from "@ng-bootstrap/ng-bootstrap";
 
 @Pipe({name: 'ngbDate'})
 export class NgbDatePipe implements PipeTransform {
-  constructor(
-    private formatter: NgbDateParserFormatter,
-  ) {
-  }
+    constructor(
+        private formatter: NgbDateParserFormatter,
+    ) {
+    }
 
-  transform(value: NgbDateStruct): string {
-    return this.formatter.format(value);
-  }
+    transform(value: NgbDateStruct): string {
+        return this.formatter.format(value);
+    }
 }

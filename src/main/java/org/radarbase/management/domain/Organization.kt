@@ -26,7 +26,7 @@ import javax.validation.constraints.Pattern
 @Table(name = "radar_organization")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @EntityListeners(
-    AbstractEntityListener::class
+    AbstractEntityListener::class,
 )
 class Organization : AbstractEntity() {
     @Id
@@ -36,15 +36,19 @@ class Organization : AbstractEntity() {
 
     @JvmField
     @Column(name = "name", nullable = false, unique = true)
-    @NotNull @Pattern(regexp = Constants.ENTITY_ID_REGEX) var name: String? = null
+    @NotNull
+    @Pattern(regexp = Constants.ENTITY_ID_REGEX)
+    var name: String? = null
 
     @JvmField
     @Column(name = "description", nullable = false)
-    @NotNull var description: String? = null
+    @NotNull
+    var description: String? = null
 
     @JvmField
     @Column(name = "location", nullable = false)
-    @NotNull var location: String? = null
+    @NotNull
+    var location: String? = null
 
     @JvmField
     @OneToMany(mappedBy = "organization")
@@ -60,21 +64,22 @@ class Organization : AbstractEntity() {
         val org = other as Organization
         return if (org.id == null || id == null) {
             false
-        } else id == org.id
+        } else {
+            id == org.id
+        }
     }
 
-    override fun hashCode(): Int {
-        return Objects.hashCode(id)
-    }
+    override fun hashCode(): Int = Objects.hashCode(id)
 
-    override fun toString(): String {
-        return ("Organization{"
-                + "id=" + id
-                + ", name='" + name + "'"
-                + ", description='" + description + "'"
-                + ", location='" + location + "'"
-                + "}")
-    }
+    override fun toString(): String =
+        (
+            "Organization{" +
+                "id=" + id +
+                ", name='" + name + "'" +
+                ", description='" + description + "'" +
+                ", location='" + location + "'" +
+                "}"
+            )
 
     companion object {
         private const val serialVersionUID = 1L

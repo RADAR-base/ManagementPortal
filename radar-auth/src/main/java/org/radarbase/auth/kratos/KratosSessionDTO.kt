@@ -11,7 +11,6 @@ import org.radarbase.auth.token.DataRadarToken
 import org.radarbase.auth.token.RadarToken
 import java.time.Instant
 
-
 @Serializable
 class KratosSessionDTO(
     val id: String,
@@ -25,7 +24,7 @@ class KratosSessionDTO(
     @Serializable(with = InstantSerializer::class)
     val issued_at: Instant,
     val identity: Identity,
-    val devices: ArrayList<Device>
+    val devices: ArrayList<Device>,
 ) {
     @Serializable
     data class AuthenticationMethod(
@@ -33,7 +32,7 @@ class KratosSessionDTO(
         val aal: String? = null,
         @Serializable(with = InstantSerializer::class)
         val completed_at: Instant? = null,
-        val provider: String? = null
+        val provider: String? = null,
     )
 
     @Serializable
@@ -58,51 +57,51 @@ class KratosSessionDTO(
         val created_at: Instant? = null,
         @Serializable(with = InstantSerializer::class)
         val updated_at: Instant? = null,
-    )
-    {
-
-
-        fun parseRoles(): Set<AuthorityReference> = buildSet {
-            if (metadata_public?.authorities?.isNotEmpty() == true) {
-                for (roleValue in metadata_public.authorities) {
-                    val authority = RoleAuthority.valueOfAuthorityOrNull(roleValue)
-                    if (authority?.scope == RoleAuthority.Scope.GLOBAL) {
-                        add(AuthorityReference(authority))
+    ) {
+        fun parseRoles(): Set<AuthorityReference> =
+            buildSet {
+                if (metadata_public?.authorities?.isNotEmpty() == true) {
+                    for (roleValue in metadata_public.authorities) {
+                        val authority = RoleAuthority.valueOfAuthorityOrNull(roleValue)
+                        if (authority?.scope == RoleAuthority.Scope.GLOBAL) {
+                            add(AuthorityReference(authority))
+                        }
+                    }
+                }
+                if (metadata_public?.roles?.isNotEmpty() == true) {
+                    for (roleValue in metadata_public.roles) {
+                        val role = RoleAuthority.valueOfAuthorityOrNull(roleValue)
+                        if (role?.scope == RoleAuthority.Scope.GLOBAL) {
+                            add(AuthorityReference(role))
+                        }
                     }
                 }
             }
-            if (metadata_public?.roles?.isNotEmpty() == true) {
-                for (roleValue in metadata_public.roles) {
-                    val role = RoleAuthority.valueOfAuthorityOrNull(roleValue)
-                    if (role?.scope == RoleAuthority.Scope.GLOBAL) {
-                        add(AuthorityReference(role))
-                    }
-                }
-            }
-        }
     }
 
-
     @Serializable
-    class Traits (
+    class Traits(
         val name: String? = null,
         val email: String? = null,
     )
 
     @Serializable
-    class Metadata (
+    class Metadata(
         val roles: List<String>,
         val authorities: Set<String>,
         val scope: List<String>,
         val sources: List<String>,
         val aud: List<String>,
-        val mp_login: String?
+        val mp_login: String?,
     )
 
-    fun toDataRadarToken() : DataRadarToken {
-        return DataRadarToken(
+    fun toDataRadarToken(): DataRadarToken =
+        DataRadarToken(
             roles = this.identity.parseRoles(),
-            scopes = this.identity.metadata_public?.scope?.toSet() ?: emptySet(),
+            scopes =
+                this.identity.metadata_public
+                    ?.scope
+                    ?.toSet() ?: emptySet(),
             sources = this.identity.metadata_public?.sources ?: emptyList(),
             grantType = "session",
             subject = this.identity.id,
@@ -114,19 +113,19 @@ class KratosSessionDTO(
             type = "type",
             clientId = "ManagementPortalapp",
             username = this.identity.metadata_public?.mp_login,
-            authenticatorAssuranceLevel = this.authenticator_assurance_level
+            authenticatorAssuranceLevel = this.authenticator_assurance_level,
         )
-    }
 }
 
 object InstantSerializer : KSerializer<Instant> {
     override val descriptor = PrimitiveSerialDescriptor("Instant", PrimitiveKind.STRING)
 
-    override fun deserialize(decoder: Decoder): Instant {
-        return Instant.parse(decoder.decodeString())
-    }
+    override fun deserialize(decoder: Decoder): Instant = Instant.parse(decoder.decodeString())
 
-    override fun serialize(encoder: kotlinx.serialization.encoding.Encoder, value: Instant) {
+    override fun serialize(
+        encoder: kotlinx.serialization.encoding.Encoder,
+        value: Instant,
+    ) {
         encoder.encodeString(value.toString())
     }
 }

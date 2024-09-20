@@ -1,6 +1,6 @@
 // Borrowed from ng-jhipster
 
-import { Directive, ElementRef, EventEmitter, Input, Output } from '@angular/core';
+import {Directive, ElementRef, EventEmitter, Input, Output} from '@angular/core';
 
 @Directive({
     selector: '[jhiSort]'

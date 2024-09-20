@@ -1,5 +1,5 @@
-import { login } from '../util/login';
-import { clickOnAdminMenu, clickOnEntity } from "../util/nav-bar";
+import {login} from '../util/login';
+import {clickOnAdminMenu, clickOnEntity} from "../util/nav-bar";
 
 describe('OAuth Clients e2e test', () => {
     beforeEach(() => {

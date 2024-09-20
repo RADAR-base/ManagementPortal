@@ -6,10 +6,10 @@
     </div>
     <br/>
     <jhi-alert></jhi-alert>
-    <div class="table-responsive" *ngIf="revisions">
+    <div *ngIf="revisions" class="table-responsive">
         <table class="table table-striped">
             <thead>
-            <tr jhiSort [(predicate)]="predicate" [(ascending)]="reverse" [callback]="transition.bind(this)">
+            <tr [(ascending)]="reverse" [(predicate)]="predicate" [callback]="transition.bind(this)" jhiSort>
                 <th jhiSortBy="id"><span [translate]="'revisions.number'"></span><span class="fa fa-sort"></span></th>
                 <th><span [translate]="'revisions.revisionType'"></span></th>
                 <th><span [translate]="'revisions.author'"></span></th>
@@ -25,37 +25,42 @@
             </thead>
             <tbody>
             <tr *ngFor="let revision of revisions; trackBy: trackRevision">
-                <td>{{revision.id}}</td>
+                <td>{{ revision.id }}</td>
                 <td><span [translate]="'revisions.type.' + revision.revisionType.toLowerCase()"></span></td>
-                <td>{{revision.author}}</td>
-                <td>{{revision.timestamp  | date:'MMMM d, y, h:mm:ss a Z'}}</td>
-                <td><a [routerLink]="['/subject', revision.entity.login, 'revisions', revision.id ]">{{revision.entity.login}}</a></td>
-                <td>{{revision.entity.externalId}}</td>
-                <td><a target="_blank" [href]=revision.entity.externalLink>{{revision.entity.externalLink}}</a></td>
+                <td>{{ revision.author }}</td>
+                <td>{{ revision.timestamp  | date:'MMMM d, y, h:mm:ss a Z' }}</td>
                 <td>
-                    <span class="badge badge-danger" *ngIf="revision.entity.status == 'DEACTIVATED'">DEACTIVATED</span>
-                    <span class="badge badge-success" *ngIf="revision.entity.status == 'ACTIVATED'">ACTIVATED</span>
-                    <span class="badge badge-warning" *ngIf="revision.entity.status == 'DISCONTINUED'">DISCONTINUED</span>
-                    <span class="badge badge-danger" *ngIf="revision.entity.status == 'INVALID'">INVALID</span>
+                    <a [routerLink]="['/subject', revision.entity.login, 'revisions', revision.id ]">{{ revision.entity.login }}</a>
+                </td>
+                <td>{{ revision.entity.externalId }}</td>
+                <td><a [href]=revision.entity.externalLink target="_blank">{{ revision.entity.externalLink }}</a></td>
+                <td>
+                    <span *ngIf="revision.entity.status == 'DEACTIVATED'" class="badge badge-danger">DEACTIVATED</span>
+                    <span *ngIf="revision.entity.status == 'ACTIVATED'" class="badge badge-success">ACTIVATED</span>
+                    <span *ngIf="revision.entity.status == 'DISCONTINUED'"
+                          class="badge badge-warning">DISCONTINUED</span>
+                    <span *ngIf="revision.entity.status == 'INVALID'" class="badge badge-danger">INVALID</span>
                 </td>
                 <td>
                     <span *ngFor="let role of revision.entity.roles; let last = last">
-                        <a  *ngIf="role.authorityName == 'ROLE_PARTICIPANT'"
-                            class="badge badge-success"
-                           [routerLink]="['/project', role.projectName ]">{{role.projectName}}</a>
-                        <a  *ngIf="role.authorityName == 'ROLE_INACTIVE_PARTICIPANT'"
-                           class="badge badge-warning"
-                           [routerLink]="['/project', role.projectName ]">{{role.projectName}}</a>
+                        <a *ngIf="role.authorityName == 'ROLE_PARTICIPANT'"
+                           [routerLink]="['/project', role.projectName ]"
+                           class="badge badge-success">{{ role.projectName }}</a>
+                        <a *ngIf="role.authorityName == 'ROLE_INACTIVE_PARTICIPANT'"
+                           [routerLink]="['/project', role.projectName ]"
+                           class="badge badge-warning">{{ role.projectName }}</a>
                     </span>
                 </td>
                 <td>
                     <span *ngFor="let sources of revision.entity.sources; let last = last">
-                        <a class="form-control-static" [routerLink]="['/source', sources.sourceName ]">{{sources.sourceTypeModel}}: {{sources.sourceName}}</a>{{last ? '' : ', '}}
+                        <a [routerLink]="['/source', sources.sourceName ]"
+                           class="form-control-static">{{ sources.sourceTypeModel }}
+                            : {{ sources.sourceName }}</a>{{ last ? '' : ', ' }}
                     </span>
                 </td>
                 <td>
                     <div *ngFor="let entry of revision.entity.attributes | keyvalue; trackBy: trackKey">
-                        <span class="form-control-static">{{entry.key}}: {{entry.value}}</span>
+                        <span class="form-control-static">{{ entry.key }}: {{ entry.value }}</span>
                     </div>
                 </td>
             </tr>
@@ -64,10 +69,12 @@
     </div>
     <div *ngIf="revisions">
         <div class="row justify-content-center">
-            <jhi-item-count [page]="page" [total]="queryCount" [itemsPerPage]="itemsPerPage"></jhi-item-count>
+            <jhi-item-count [itemsPerPage]="itemsPerPage" [page]="page" [total]="queryCount"></jhi-item-count>
         </div>
         <div class="row justify-content-center">
-            <ngb-pagination [collectionSize]="totalItems" [(pageSize)]="itemsPerPage" boundaryLinks = true [(page)]="page" (pageChange)="loadPage(page)"></ngb-pagination>
+            <ngb-pagination (pageChange)="loadPage(page)" [(page)]="page" [(pageSize)]="itemsPerPage"
+                            [collectionSize]="totalItems"
+                            boundaryLinks=true></ngb-pagination>
         </div>
     </div>
 </div>

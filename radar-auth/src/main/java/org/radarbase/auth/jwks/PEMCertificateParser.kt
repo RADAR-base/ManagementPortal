@@ -40,10 +40,11 @@ interface PEMCertificateParser {
          * @param publicKey the public key to parse
          * @return a PublicKey object representing the supplied public key
          */
-        inline fun <reified T: PublicKey> String.parsePublicKey(keyFactoryType: String): T {
-            val trimmedKey = replace("-----BEGIN ([A-Z]+ )?PUBLIC KEY-----".toRegex(), "")
-                .replace("-----END ([A-Z]+ )?PUBLIC KEY-----".toRegex(), "")
-                .trim { it <= ' ' }
+        inline fun <reified T : PublicKey> String.parsePublicKey(keyFactoryType: String): T {
+            val trimmedKey =
+                replace("-----BEGIN ([A-Z]+ )?PUBLIC KEY-----".toRegex(), "")
+                    .replace("-----END ([A-Z]+ )?PUBLIC KEY-----".toRegex(), "")
+                    .trim { it <= ' ' }
             return try {
                 val decodedPublicKey = Base64.getDecoder().decode(trimmedKey)
                 val spec = X509EncodedKeySpec(decodedPublicKey)

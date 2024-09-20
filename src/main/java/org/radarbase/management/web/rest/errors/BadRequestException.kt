@@ -20,7 +20,7 @@ class BadRequestException : RadarWebApplicationException {
         HttpStatus.BAD_REQUEST,
         message,
         entityName,
-        errorCode
+        errorCode,
     )
 
     /**
@@ -32,7 +32,9 @@ class BadRequestException : RadarWebApplicationException {
      * @param paramMap   map of additional information.
      */
     constructor(
-        message: String?, entityName: String, errorCode: String?,
-        paramMap: Map<String, String?>?
+        message: String?,
+        entityName: String,
+        errorCode: String?,
+        paramMap: Map<String, String?>?,
     ) : super(HttpStatus.BAD_REQUEST, message, entityName, errorCode, paramMap)
 }

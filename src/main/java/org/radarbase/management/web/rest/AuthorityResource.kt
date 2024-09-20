@@ -39,19 +39,19 @@ class AuthorityResource {
 
     companion object {
         private val log = LoggerFactory.getLogger(AuthorityResource::class.java)
-        private val ALL_AUTHORITIES = Stream.of(
-            RoleAuthority.SYS_ADMIN,
-            RoleAuthority.ORGANIZATION_ADMIN,
-            RoleAuthority.PROJECT_ADMIN,
-            RoleAuthority.PROJECT_OWNER,
-            RoleAuthority.PROJECT_AFFILIATE,
-            RoleAuthority.PROJECT_ANALYST
-        )
-            .map { role: RoleAuthority? ->
-                AuthorityDTO(
-                    role!!
-                )
-            }
-            .toList()
+        private val ALL_AUTHORITIES =
+            Stream
+                .of(
+                    RoleAuthority.SYS_ADMIN,
+                    RoleAuthority.ORGANIZATION_ADMIN,
+                    RoleAuthority.PROJECT_ADMIN,
+                    RoleAuthority.PROJECT_OWNER,
+                    RoleAuthority.PROJECT_AFFILIATE,
+                    RoleAuthority.PROJECT_ANALYST,
+                ).map { role: RoleAuthority? ->
+                    AuthorityDTO(
+                        role!!,
+                    )
+                }.toList()
     }
 }

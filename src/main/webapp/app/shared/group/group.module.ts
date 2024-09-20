@@ -1,7 +1,7 @@
-import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import {CUSTOM_ELEMENTS_SCHEMA, NgModule} from '@angular/core';
+import {RouterModule} from '@angular/router';
 
-import { ManagementPortalSharedModule } from '../../shared';
+import {ManagementPortalSharedModule} from '../../shared';
 import {GroupComponent} from "./group.component";
 import {GroupDialogComponent, GroupPopupComponent} from "./group-dialog.component";
 import {GroupDeleteDialogComponent, GroupDeletePopupComponent} from "./group-delete-dialog.component";

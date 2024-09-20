@@ -1,6 +1,6 @@
-import { copySourceType, SourceType } from '../../entities/source-type';
-import { copyGroup, Group } from '../group';
-import { MinimalOrganization } from '../organization';
+import {copySourceType, SourceType} from '../../entities/source-type';
+import {copyGroup, Group} from '../group';
+import {MinimalOrganization} from '../organization';
 
 export const enum ProjectStatus {
     'PLANNING',
@@ -13,7 +13,7 @@ export interface MinimalProject {
     projectName?: string;
 }
 
-export interface Project extends MinimalProject{
+export interface Project extends MinimalProject {
     description?: string;
     organization?: MinimalOrganization;
     organizationName?: string;
@@ -21,10 +21,10 @@ export interface Project extends MinimalProject{
     startDate?: any;
     projectStatus?: ProjectStatus;
     endDate?: any;
-    attributes ?: any;
+    attributes?: any;
     sourceTypes?: SourceType[];
     groups?: Group[];
-    humanReadableProjectName ?: string;
+    humanReadableProjectName?: string;
     persistentTokenTimeout?: number;
 }
 

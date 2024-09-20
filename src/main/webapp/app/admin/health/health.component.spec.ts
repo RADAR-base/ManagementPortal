@@ -7,14 +7,14 @@
  * See the file LICENSE in the root of this repository.
  */
 
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { HttpErrorResponse } from '@angular/common/http';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { of, throwError } from 'rxjs';
+import {ComponentFixture, TestBed, waitForAsync} from '@angular/core/testing';
+import {HttpErrorResponse} from '@angular/common/http';
+import {HttpClientTestingModule} from '@angular/common/http/testing';
+import {of, throwError} from 'rxjs';
 
-import { JhiHealthCheckComponent } from './health.component';
-import { JhiHealthService } from './health.service';
-import { Health } from './health.model';
+import {JhiHealthCheckComponent} from './health.component';
+import {JhiHealthService} from './health.service';
+import {Health} from './health.model';
 
 describe('HealthComponent', () => {
     let comp: JhiHealthCheckComponent;
@@ -22,14 +22,14 @@ describe('HealthComponent', () => {
     let service: JhiHealthService;
 
     beforeEach(
-      waitForAsync(() => {
-          TestBed.configureTestingModule({
-              imports: [HttpClientTestingModule],
-              declarations: [JhiHealthCheckComponent],
-          })
-          .overrideTemplate(JhiHealthCheckComponent, '')
-          .compileComponents();
-      })
+        waitForAsync(() => {
+            TestBed.configureTestingModule({
+                imports: [HttpClientTestingModule],
+                declarations: [JhiHealthCheckComponent],
+            })
+                .overrideTemplate(JhiHealthCheckComponent, '')
+                .compileComponents();
+        })
     );
 
     beforeEach(() => {
@@ -50,7 +50,7 @@ describe('HealthComponent', () => {
     describe('refresh', () => {
         it('should call refresh on init', () => {
             // GIVEN
-            const health: Health = { status: 'UP', components: { mail: { status: 'UP', details: { mailDetail: 'mail' } } } };
+            const health: Health = {status: 'UP', components: {mail: {status: 'UP', details: {mailDetail: 'mail'}}}};
             spyOn(service, 'checkHealth').and.returnValue(of(health));
 
             // WHEN
@@ -63,8 +63,11 @@ describe('HealthComponent', () => {
 
         it('should handle a 503 on refreshing health data', () => {
             // GIVEN
-            const health: Health = { status: 'DOWN', components: { mail: { status: 'DOWN' } } };
-            spyOn(service, 'checkHealth').and.returnValue(throwError(new HttpErrorResponse({ status: 503, error: health })));
+            const health: Health = {status: 'DOWN', components: {mail: {status: 'DOWN'}}};
+            spyOn(service, 'checkHealth').and.returnValue(throwError(new HttpErrorResponse({
+                status: 503,
+                error: health
+            })));
 
             // WHEN
             comp.refresh();

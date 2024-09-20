@@ -36,9 +36,11 @@ import javax.validation.constraints.Pattern
 @Table(name = "radar_source")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @EntityListeners(
-    AbstractEntityListener::class
+    AbstractEntityListener::class,
 )
-class Source : AbstractEntity, Serializable {
+class Source :
+    AbstractEntity,
+    Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
     @SequenceGenerator(name = "sequenceGenerator", initialValue = 1000, sequenceName = "hibernate_sequence")
@@ -47,21 +49,26 @@ class Source : AbstractEntity, Serializable {
     // pass
     @JvmField
     @Column(name = "source_id", nullable = false, unique = true)
-    @NotNull var sourceId: UUID? = null
+    @NotNull
+    var sourceId: UUID? = null
 
     @JvmField
     @Column(name = "source_name", nullable = false, unique = true)
-    @NotNull @Pattern(regexp = Constants.ENTITY_ID_REGEX) var sourceName: String? = null
+    @NotNull
+    @Pattern(regexp = Constants.ENTITY_ID_REGEX)
+    var sourceName: String? = null
 
     @JvmField
     @Column(name = "expected_source_name")
     var expectedSourceName: String? = null
 
     @Column(name = "assigned", nullable = false)
-    @NotNull var assigned: Boolean? = false
+    @NotNull
+    var assigned: Boolean? = false
 
     @Column(name = "deleted", nullable = false)
-    @NotNull var deleted: Boolean = false
+    @NotNull
+    var deleted: Boolean = false
 
     @JvmField
     @ManyToOne(fetch = FetchType.EAGER)
@@ -118,12 +125,15 @@ class Source : AbstractEntity, Serializable {
             sourceId = UUID.randomUUID()
         }
         if (sourceName == null) {
-            sourceName = java.lang.String.join(
-                "-", sourceType?.model,
-                sourceId.toString().substring(0, 8)
-            )
+            sourceName =
+                java.lang.String.join(
+                    "-",
+                    sourceType?.model,
+                    sourceId.toString().substring(0, 8),
+                )
         }
     }
+
     fun sourceType(sourceType: SourceType?): Source {
         this.sourceType = sourceType
         return this
@@ -154,23 +164,24 @@ class Source : AbstractEntity, Serializable {
         val source = other as Source
         return if (source.id == null || id == null) {
             false
-        } else id == source.id && sourceId == source.sourceId
+        } else {
+            id == source.id && sourceId == source.sourceId
+        }
     }
 
-    override fun hashCode(): Int {
-        return Objects.hash(id, sourceId)
-    }
+    override fun hashCode(): Int = Objects.hash(id, sourceId)
 
-    override fun toString(): String {
-        return ("Source{"
-                + "id=" + id
-                + ", sourceId='" + sourceId + '\''
-                + ", sourceName='" + sourceName + '\''
-                + ", assigned=" + assigned
-                + ", sourceType=" + sourceType
-                + ", project=" + project
-                + '}')
-    }
+    override fun toString(): String =
+        (
+            "Source{" +
+                "id=" + id +
+                ", sourceId='" + sourceId + '\'' +
+                ", sourceName='" + sourceName + '\'' +
+                ", assigned=" + assigned +
+                ", sourceType=" + sourceType +
+                ", project=" + project +
+                '}'
+            )
 
     companion object {
         private const val serialVersionUID = 1L

@@ -14,13 +14,12 @@ import org.springframework.security.core.AuthenticationException
 
 class RadarAuthenticationProvider : AuthenticationProvider {
     @Throws(AuthenticationException::class)
-    override fun authenticate(authentication: Authentication): Authentication? {
-        return if (authentication.isAuthenticated) {
+    override fun authenticate(authentication: Authentication): Authentication? =
+        if (authentication.isAuthenticated) {
             authentication
-        } else null
-    }
+        } else {
+            null
+        }
 
-    override fun supports(authentication: Class<*>): Boolean {
-        return authentication == RadarAuthentication::class.java
-    }
+    override fun supports(authentication: Class<*>): Boolean = authentication == RadarAuthentication::class.java
 }

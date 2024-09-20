@@ -1,12 +1,12 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { TranslateService } from '@ngx-translate/core';
-import { of, throwError } from 'rxjs';
+import {ComponentFixture, TestBed, waitForAsync} from '@angular/core/testing';
+import {TranslateService} from '@ngx-translate/core';
+import {of, throwError} from 'rxjs';
 
-import { AccountService, JhiLanguageHelper, Principal } from '../../shared';
-import { MockAccountService } from '../../shared/util/test/mock-account.service';
-import { MockPrincipal } from '../../shared/util/test/mock-principal.service';
-import { ManagementPortalTestModule } from '../../shared/util/test/test.module';
-import { SettingsComponent } from './settings.component';
+import {AccountService, JhiLanguageHelper, Principal} from '../../shared';
+import {MockAccountService} from '../../shared/util/test/mock-account.service';
+import {MockPrincipal} from '../../shared/util/test/mock-principal.service';
+import {ManagementPortalTestModule} from '../../shared/util/test/test.module';
+import {SettingsComponent} from './settings.component';
 
 describe('Component Tests', () => {
 
@@ -38,7 +38,10 @@ describe('Component Tests', () => {
                     },
                     {
                         provide: TranslateService,
-                        useValue: { use() {} }
+                        useValue: {
+                            use() {
+                            }
+                        }
                     },
                 ]
             }).overrideTemplate(SettingsComponent, '').compileComponents();
@@ -52,7 +55,7 @@ describe('Component Tests', () => {
             fixture.detectChanges();
         });
 
-        it('should send the current identity upon save', waitForAsync(async function() {
+        it('should send the current identity upon save', waitForAsync(async function () {
             // GIVEN
             const accountValues = {
                 firstName: 'John',
@@ -77,7 +80,7 @@ describe('Component Tests', () => {
             expect(comp.settingsAccount).toEqual(accountValues);
         }));
 
-        it('should notify of success upon successful save', waitForAsync(async function() {
+        it('should notify of success upon successful save', waitForAsync(async function () {
             // GIVEN
             const accountValues = {
                 firstName: 'John',
@@ -94,7 +97,7 @@ describe('Component Tests', () => {
             expect(comp.success).toBe('OK');
         }));
 
-        it('should notify of error upon failed save', waitForAsync(async function() {
+        it('should notify of error upon failed save', waitForAsync(async function () {
             // GIVEN
             const accountValues = {
                 firstName: 'John',

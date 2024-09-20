@@ -3,31 +3,32 @@
         <span class="home-page-logo img-fluid img-rounded"></span>
     </div>
     <div class="col-md-9">
-        <h1 class="display-4" [translate]="'home.title'"></h1>
-        <p class="lead" [translate]="'home.subtitle'"></p>
+        <h1 [translate]="'home.title'" class="display-4"></h1>
+        <p [translate]="'home.subtitle'" class="lead"></p>
 
         <div *ngIf="principal.account$ | async as account; else unauthenticated">
             <div class="alert alert-success">
-                <span [translate]="'home.logged.message'"
-                      [translateParams]="{username: account.login}">
+                <span [translateParams]="{username: account.login}"
+                      [translate]="'home.logged.message'">
                 </span>
             </div>
 
             <div class="card-columns ">
-                <div class="card mb-3" *ngFor="let organization of organizationService.organizations$ | async;"
-                     [routerLink]="['../organization', organization.name ]">
+                <div *ngFor="let organization of organizationService.organizations$ | async;"
+                     [routerLink]="['../organization', organization.name ]"
+                     class="card mb-3">
                     <div class="card-body text-center">
-                        <h5 class="card-title" style="text-transform: uppercase"> {{organization.name}}</h5>
-                        <h6 class="card-subtitle text-center mb-2 text-muted">{{organization.location}} </h6>
-                        <p class="card-text"> {{organization.description}}
+                        <h5 class="card-title" style="text-transform: uppercase"> {{ organization.name }}</h5>
+                        <h6 class="card-subtitle text-center mb-2 text-muted">{{ organization.location }} </h6>
+                        <p class="card-text"> {{ organization.description }}
                     </div>
                     <footer class="card-footer  text-center">
-                        <button type="button"
+                        <button [queryParams]="{page: 1}"
                                 [routerLink]="['../organization', organization.name ]"
-                                [queryParams]="{page: 1}"
-                                class="btn btn-info btn-sm">
+                                class="btn btn-info btn-sm"
+                                type="button">
                             <span class="fa fa-eye"></span>
-                            <span class="hidden-md-down" [translate]="'entity.action.view'"></span>
+                            <span [translate]="'entity.action.view'" class="hidden-md-down"></span>
                         </button>
                     </footer>
 
@@ -38,7 +39,7 @@
         <ng-template #unauthenticated>
             <div class="alert alert-warning">
                 <span [translate]="'global.messages.info.authenticated.prefix'"></span>
-                <a class="alert-link" (click)="login()" [translate]="'global.messages.info.authenticated.link'"></a>
+                <a (click)="login()" [translate]="'global.messages.info.authenticated.link'" class="alert-link"></a>
             </div>
         </ng-template>
     </div>

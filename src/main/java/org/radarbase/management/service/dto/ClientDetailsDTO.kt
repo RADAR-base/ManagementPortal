@@ -6,7 +6,8 @@ import javax.validation.constraints.NotNull
  * Created by dverbeec on 7/09/2017.
  */
 class ClientDetailsDTO {
-    @NotNull var clientId: String? = null
+    @NotNull
+    var clientId: String? = null
     var clientSecret: String? = null
     var scope: Set<String>? = null
     var resourceIds: Set<String>? = null

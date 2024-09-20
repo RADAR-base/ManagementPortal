@@ -1,13 +1,10 @@
 package org.radarbase.management.web.rest
 
-import io.ktor.client.*
-import io.ktor.client.call.*
-import io.ktor.client.engine.cio.*
-import io.ktor.client.plugins.*
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.request.*
-import io.ktor.http.*
-import io.ktor.serialization.kotlinx.json.*
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.cio.CIO
+import io.ktor.client.plugins.HttpTimeout
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.serialization.kotlinx.json.json
 import io.micrometer.core.annotation.Timed
 import kotlinx.serialization.json.Json
 import org.radarbase.auth.exception.IdpException
@@ -23,32 +20,36 @@ import org.springframework.web.bind.annotation.RestController
 import java.time.Duration
 import javax.servlet.http.HttpServletRequest
 
-
 /**
  * REST controller for managing Sessions.
  */
 @RestController
 @RequestMapping("/api")
-class SessionResource(managementPortalProperties: ManagementPortalProperties) {
+class SessionResource(
+    managementPortalProperties: ManagementPortalProperties,
+) {
     private lateinit var sessionService: SessionService
 
     init {
-        sessionService = SessionService(managementPortalProperties.identityServer.publicUrl())
+        sessionService = SessionService(managementPortalProperties.identityServer.publicUrl() ?: "undefined")
     }
 
-    private val httpClient = HttpClient(CIO).config {
-        install(HttpTimeout) {
-            connectTimeoutMillis = Duration.ofSeconds(10).toMillis()
-            socketTimeoutMillis = Duration.ofSeconds(10).toMillis()
-            requestTimeoutMillis = Duration.ofSeconds(300).toMillis()
+    private val httpClient =
+        HttpClient(CIO).config {
+            install(HttpTimeout) {
+                connectTimeoutMillis = Duration.ofSeconds(10).toMillis()
+                socketTimeoutMillis = Duration.ofSeconds(10).toMillis()
+                requestTimeoutMillis = Duration.ofSeconds(300).toMillis()
+            }
+            install(ContentNegotiation) {
+                json(
+                    Json {
+                        ignoreUnknownKeys = true
+                        coerceInputValues = true
+                    },
+                )
+            }
         }
-        install(ContentNegotiation) {
-            json(Json {
-                ignoreUnknownKeys = true
-                coerceInputValues = true
-            })
-        }
-    }
 
     /**
      * GET  /logout-url  : Gets a kratos logout url for the current session.
@@ -59,8 +60,11 @@ class SessionResource(managementPortalProperties: ManagementPortalProperties) {
     @Timed
     @Throws(IdpException::class)
     suspend fun getLogoutUrl(httpRequest: HttpServletRequest): ResponseEntity<String> {
-        val sessionToken = HeaderUtil.parseCookies(httpRequest.getHeader(HttpHeaders.COOKIE)).find { it.name == "ory_kratos_session" }
-            ?.value
+        val sessionToken =
+            HeaderUtil
+                .parseCookies(httpRequest.getHeader(HttpHeaders.COOKIE))
+                .find { it.name == "ory_kratos_session" }
+                ?.value
 
         return try {
             sessionToken ?: throw IdpException("no ory_kratos_session could be parsed from the headers")
@@ -69,12 +73,17 @@ class SessionResource(managementPortalProperties: ManagementPortalProperties) {
                 .ok()
                 .body(sessionService.getLogoutUrl(sessionToken))
         } catch (e: Throwable) {
-            ResponseEntity.badRequest()
-                .headers(e.message?.let {
-                    HeaderUtil.createFailureAlert("NoSession",
-                        it, "could not create logout url")
-                })
-                .body("")
+            ResponseEntity
+                .badRequest()
+                .headers(
+                    e.message?.let {
+                        HeaderUtil.createFailureAlert(
+                            "NoSession",
+                            it,
+                            "could not create logout url",
+                        )
+                    },
+                ).body("")
         }
     }
 

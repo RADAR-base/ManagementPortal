@@ -31,26 +31,26 @@
         "createdDate": "Created date",
         "lastModifiedBy": "Modified by",
         "lastModifiedDate": "Modified date",
-        "role" : {
-            "title" : "Role",
-            "create" : "Add",
-            "authorityName" : "Authority",
-            "project" : "Project",
+        "role": {
+            "title": "Role",
+            "create": "Add",
+            "authorityName": "Authority",
+            "project": "Project",
             "organizationOrProject": "Organization/Project",
             "users": "Users",
             "roles": "Roles",
             "options": "Options",
             "selectUser": "Select a user",
-            "error" : {
-                "alreadyExist" : "This role has been already added"
+            "error": {
+                "alreadyExist": "This role has been already added"
             }
         },
-        "project" : "Project",
-        "sendActivation" : {
+        "project": "Project",
+        "sendActivation": {
             "title": "Send activation link",
-            "confirmTitle" : "Confirm sending activation link",
-            "question" : "Are you sure you want to resend activation link for user {{ login }} to {{ email }}?",
-            "send" : "Send"
+            "confirmTitle": "Confirm sending activation link",
+            "question": "Are you sure you want to resend activation link for user {{ login }} to {{ email }}?",
+            "send": "Send"
         }
     },
     "error": {

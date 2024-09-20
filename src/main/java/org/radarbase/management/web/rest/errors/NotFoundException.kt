@@ -22,7 +22,7 @@ class NotFoundException : RadarWebApplicationException {
         HttpStatus.NOT_FOUND,
         message,
         entityName,
-        errorCode
+        errorCode,
     )
 
     /**
@@ -34,7 +34,9 @@ class NotFoundException : RadarWebApplicationException {
      * @param paramMap   map of additional information.
      */
     constructor(
-        message: String, entityName: String, errorCode: String,
-        paramMap: Map<String, String?>?
+        message: String,
+        entityName: String,
+        errorCode: String,
+        paramMap: Map<String, String?>?,
     ) : super(HttpStatus.NOT_FOUND, message, entityName, errorCode, paramMap)
 }

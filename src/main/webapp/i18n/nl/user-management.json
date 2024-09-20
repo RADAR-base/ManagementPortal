@@ -31,26 +31,26 @@
         "createdDate": "Aanmaak datum",
         "lastModifiedBy": "Laatst aangepast door",
         "lastModifiedDate": "Laatst aangepast datum",
-        "role" : {
-            "title" : "Rol",
-            "create" : "Toevoegen",
-            "authorityName" : "Authority",
-            "project" : "Project",
+        "role": {
+            "title": "Rol",
+            "create": "Toevoegen",
+            "authorityName": "Authority",
+            "project": "Project",
             "organizationOrProject": "Organisatie/Project",
             "users": "Gebruikers",
             "roles": "Rollen",
             "options": "Opties",
             "selectUser": "Selecteer een gebruiker",
-            "error" : {
-                "alreadyExist" : "Deze rol werd al toegevoegd"
+            "error": {
+                "alreadyExist": "Deze rol werd al toegevoegd"
             }
         },
         "project": "Project",
-        "sendActivation" : {
+        "sendActivation": {
             "title": "Stuur activeringslink",
-            "confirmTitle" : "Bevestig de verzendactiveringslink",
-            "question" : "Weet je zeker dat je activeringslink opnieuw wilt verzenden voor gebruiker {{ login }} naar {{email}} ?",
-            "send" : "Sturen"
+            "confirmTitle": "Bevestig de verzendactiveringslink",
+            "question": "Weet je zeker dat je activeringslink opnieuw wilt verzenden voor gebruiker {{ login }} naar {{email}} ?",
+            "send": "Sturen"
         }
     },
     "error": {

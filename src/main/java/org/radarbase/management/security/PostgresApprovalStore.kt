@@ -36,7 +36,9 @@ import javax.sql.DataSource
  * @author Dave Syer
  * @author Modified by Nivethika
  */
-class PostgresApprovalStore(dataSource: DataSource?) : ApprovalStore {
+class PostgresApprovalStore(
+    dataSource: DataSource?,
+) : ApprovalStore {
     private val jdbcTemplate: JdbcTemplate
     private val rowMapper: RowMapper<Approval> = AuthorizationRowMapper()
     private var addApprovalStatement = DEFAULT_ADD_APPROVAL_STATEMENT
@@ -79,8 +81,10 @@ class PostgresApprovalStore(dataSource: DataSource?) : ApprovalStore {
         logger.debug(String.format("adding approvals: [%s]", approvals))
         var success = true
         for (approval in approvals) {
-            if (!updateApproval(refreshApprovalStatement, approval) && !updateApproval(
-                    addApprovalStatement, approval
+            if (!updateApproval(refreshApprovalStatement, approval) &&
+                !updateApproval(
+                    addApprovalStatement,
+                    approval,
                 )
             ) {
                 success = false
@@ -94,23 +98,25 @@ class PostgresApprovalStore(dataSource: DataSource?) : ApprovalStore {
         var success = true
         for (approval in approvals) {
             if (handleRevocationsAsExpiry) {
-                val refreshed = jdbcTemplate
-                    .update(expireApprovalStatement) { ps: PreparedStatement ->
-                        ps.setTimestamp(1, Timestamp(System.currentTimeMillis()))
-                        ps.setString(2, approval.userId)
-                        ps.setString(3, approval.clientId)
-                        ps.setString(4, approval.scope)
-                    }
+                val refreshed =
+                    jdbcTemplate
+                        .update(expireApprovalStatement) { ps: PreparedStatement ->
+                            ps.setTimestamp(1, Timestamp(System.currentTimeMillis()))
+                            ps.setString(2, approval.userId)
+                            ps.setString(3, approval.clientId)
+                            ps.setString(4, approval.scope)
+                        }
                 if (refreshed != 1) {
                     success = false
                 }
             } else {
-                val refreshed = jdbcTemplate
-                    .update(deleteApprovalStatment) { ps: PreparedStatement ->
-                        ps.setString(1, approval.userId)
-                        ps.setString(2, approval.clientId)
-                        ps.setString(3, approval.scope)
-                    }
+                val refreshed =
+                    jdbcTemplate
+                        .update(deleteApprovalStatment) { ps: PreparedStatement ->
+                            ps.setString(1, approval.userId)
+                            ps.setString(2, approval.clientId)
+                            ps.setString(3, approval.scope)
+                        }
                 if (refreshed != 1) {
                     success = false
                 }
@@ -126,13 +132,15 @@ class PostgresApprovalStore(dataSource: DataSource?) : ApprovalStore {
     fun purgeExpiredApprovals(): Boolean {
         logger.debug("Purging expired approvals from database")
         try {
-            val deleted = jdbcTemplate.update(deleteApprovalStatment) { ps: PreparedStatement ->
-                ps.setTimestamp(
-                    1, Timestamp(
-                        Date().time
+            val deleted =
+                jdbcTemplate.update(deleteApprovalStatment) { ps: PreparedStatement ->
+                    ps.setTimestamp(
+                        1,
+                        Timestamp(
+                            Date().time,
+                        ),
                     )
-                )
-            }
+                }
             logger.debug("$deleted expired approvals deleted")
         } catch (ex: DataAccessException) {
             logger.error("Error purging expired approvals", ex)
@@ -141,27 +149,37 @@ class PostgresApprovalStore(dataSource: DataSource?) : ApprovalStore {
         return true
     }
 
-    override fun getApprovals(userName: String, clientId: String): List<Approval> {
+    override fun getApprovals(
+        userName: String,
+        clientId: String,
+    ): List<Approval> {
         logger.debug("Finding approvals for userName {} and cliendId {}", userName, clientId)
         return jdbcTemplate.query(findApprovalStatement, rowMapper, userName, clientId)
     }
 
-    private fun updateApproval(sql: String, approval: Approval): Boolean {
+    private fun updateApproval(
+        sql: String,
+        approval: Approval,
+    ): Boolean {
         logger.debug(String.format("refreshing approval: [%s]", approval))
-        val refreshed = jdbcTemplate.update(sql) { ps: PreparedStatement ->
-            ps.setTimestamp(1, Timestamp(approval.expiresAt.time))
-            ps.setString(2, (if (approval.status == null) ApprovalStatus.APPROVED else approval.status).toString())
-            ps.setTimestamp(3, Timestamp(approval.lastUpdatedAt.time))
-            ps.setString(4, approval.userId)
-            ps.setString(5, approval.clientId)
-            ps.setString(6, approval.scope)
-        }
+        val refreshed =
+            jdbcTemplate.update(sql) { ps: PreparedStatement ->
+                ps.setTimestamp(1, Timestamp(approval.expiresAt.time))
+                ps.setString(2, (if (approval.status == null) ApprovalStatus.APPROVED else approval.status).toString())
+                ps.setTimestamp(3, Timestamp(approval.lastUpdatedAt.time))
+                ps.setString(4, approval.userId)
+                ps.setString(5, approval.clientId)
+                ps.setString(6, approval.scope)
+            }
         return refreshed == 1
     }
 
     private class AuthorizationRowMapper : RowMapper<Approval> {
         @Throws(SQLException::class)
-        override fun mapRow(rs: ResultSet, rowNum: Int): Approval {
+        override fun mapRow(
+            rs: ResultSet,
+            rowNum: Int,
+        ): Approval {
             val userName = rs.getString(4)
             val clientId = rs.getString(5)
             val scope = rs.getString(6)
@@ -169,8 +187,12 @@ class PostgresApprovalStore(dataSource: DataSource?) : ApprovalStore {
             val status = rs.getString(2)
             val lastUpdatedAt: Date = rs.getTimestamp(3)
             return Approval(
-                userName, clientId, scope, expiresAt,
-                ApprovalStatus.valueOf(status), lastUpdatedAt
+                userName,
+                clientId,
+                scope,
+                expiresAt,
+                ApprovalStatus.valueOf(status),
+                lastUpdatedAt,
             )
         }
     }
@@ -178,25 +200,32 @@ class PostgresApprovalStore(dataSource: DataSource?) : ApprovalStore {
     companion object {
         private val logger = LoggerFactory.getLogger(PostgresApprovalStore::class.java)
         private const val TABLE_NAME = "oauth_approvals"
-        private const val FIELDS = ("\"expiresAt\", \"status\",\"lastModifiedAt\",\"userId\"," + "\"clientId\","
-                + "\"scope\"")
+        private const val FIELDS = (
+            "\"expiresAt\", \"status\",\"lastModifiedAt\",\"userId\"," + "\"clientId\"," +
+                "\"scope\""
+            )
         private const val WHERE_KEY = "where \"userId\"=? and \"clientId\"=?"
         private const val WHERE_KEY_AND_SCOPE = WHERE_KEY + " and \"scope\"=?"
         private const val AND_LESS_THAN_EXPIRE_AT = " and \"expiresAt\" <= ?"
         private val DEFAULT_ADD_APPROVAL_STATEMENT =
             String.format("insert into %s ( %s ) values (?,?,?,?,?,?)", TABLE_NAME, FIELDS)
-        private val DEFAULT_REFRESH_APPROVAL_STATEMENT = String.format(
-            "update %s set \"expiresAt\"=?, \"status\"=?, \"lastModifiedAt\"=? "
-                    + WHERE_KEY_AND_SCOPE, TABLE_NAME
-        )
+        private val DEFAULT_REFRESH_APPROVAL_STATEMENT =
+            String.format(
+                "update %s set \"expiresAt\"=?, \"status\"=?, \"lastModifiedAt\"=? " +
+                    WHERE_KEY_AND_SCOPE,
+                TABLE_NAME,
+            )
         private val DEFAULT_GET_APPROVAL_SQL = String.format("select %s from %s " + WHERE_KEY, FIELDS, TABLE_NAME)
-        private val DEFAULT_DELETE_APPROVAL_SQL = String.format(
-            "delete from %s " + WHERE_KEY_AND_SCOPE + AND_LESS_THAN_EXPIRE_AT,
-            TABLE_NAME
-        )
-        private val DEFAULT_EXPIRE_APPROVAL_STATEMENT = String.format(
-            "update %s set " + "\"expiresAt\" = ? "
-                    + WHERE_KEY_AND_SCOPE, TABLE_NAME
-        )
+        private val DEFAULT_DELETE_APPROVAL_SQL =
+            String.format(
+                "delete from %s " + WHERE_KEY_AND_SCOPE + AND_LESS_THAN_EXPIRE_AT,
+                TABLE_NAME,
+            )
+        private val DEFAULT_EXPIRE_APPROVAL_STATEMENT =
+            String.format(
+                "update %s set " + "\"expiresAt\" = ? " +
+                    WHERE_KEY_AND_SCOPE,
+                TABLE_NAME,
+            )
     }
 }

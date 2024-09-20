@@ -8,7 +8,6 @@ import org.radarbase.management.security.NotAuthorizedException
 import org.radarbase.management.service.AuthService
 import org.radarbase.management.service.MetaTokenService
 import org.radarbase.management.service.dto.TokenDTO
-import org.radarbase.management.web.rest.OAuthClientsResource
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
@@ -41,9 +40,11 @@ class MetaTokenResource {
     @GetMapping("/meta-token/{tokenName:" + Constants.TOKEN_NAME_REGEX + "}")
     @Timed
     @Throws(
-        MalformedURLException::class
+        MalformedURLException::class,
     )
-    fun getTokenByTokenName(@PathVariable("tokenName") tokenName: String?): ResponseEntity<TokenDTO> {
+    fun getTokenByTokenName(
+        @PathVariable("tokenName") tokenName: String?,
+    ): ResponseEntity<TokenDTO> {
         log.info("Requesting token with tokenName {}", tokenName)
         return ResponseEntity.ok().body(tokenName?.let { metaTokenService!!.fetchToken(it) })
     }
@@ -60,31 +61,36 @@ class MetaTokenResource {
     @DeleteMapping("/meta-token/{tokenName:" + Constants.TOKEN_NAME_REGEX + "}")
     @Timed
     @Throws(
-        NotAuthorizedException::class
+        NotAuthorizedException::class,
     )
-    fun deleteTokenByTokenName(@PathVariable("tokenName") tokenName: String?): ResponseEntity<Void> {
+    fun deleteTokenByTokenName(
+        @PathVariable("tokenName") tokenName: String?,
+    ): ResponseEntity<Void> {
         log.info("Requesting token with tokenName {}", tokenName)
         val metaToken = tokenName?.let { metaTokenService!!.getToken(it) }
         val subject = metaToken?.subject
-        val project: String = subject!!
-            .activeProject
-            ?.projectName
-            ?:
-            throw NotAuthorizedException(
-            "Cannot establish authority of subject without active project affiliation."
-        )
+        val project: String =
+            subject!!
+                .activeProject
+                ?.projectName
+                ?: throw NotAuthorizedException(
+                    "Cannot establish authority of subject without active project affiliation.",
+                )
         val user = subject.user!!.login
         authService!!.checkPermission(
             Permission.SUBJECT_UPDATE,
-            { e: EntityDetails -> e.project(project).subject(user) })
+            { e: EntityDetails -> e.project(project).subject(user) },
+        )
         metaTokenService?.delete(metaToken)
         return ResponseEntity.noContent().build()
     }
 
     companion object {
         private val log = LoggerFactory.getLogger(OAuthClientsResource::class.java)
+
         @JvmField
         val DEFAULT_META_TOKEN_TIMEOUT = Duration.ofHours(1)
+
         @JvmField
         val DEFAULT_PERSISTENT_META_TOKEN_TIMEOUT = Duration.ofDays(31)
     }

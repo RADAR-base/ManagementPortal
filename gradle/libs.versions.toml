@@ -1,0 +1,112 @@
+[versions]
+
+# platform
+java="17"
+kotlin="1.9.21"
+
+# libraries
+assertJ = "3.23.1"
+auth0-jwt = "4.4.0"
+commonsCompress = "1.26.0"
+coroutines = "1.7.3"
+gatling = "3.8.4"
+google-findbugs = "3.0.2"
+guava = "32.1.1-jre"
+hamcrest = "2.2"
+hazelcast = "5.2.5"
+hazelcastHibernate = "5.1.0"
+hibernate-validator = "6.2.5.Final"
+hikariCp = "5.0.1"
+hsqldb = "2.7.2"
+jackson = "2.16.1"
+javaxActivation = "1.1.1"
+javaxInject = "1"
+jhipster = "7.9.3"
+junit = "5.10.0"
+ktor = "2.3.4"
+liquibase = "4.22.0"
+liquibaseSlf4j = "4.1.0"
+logback = "1.4.11"
+mapstruct = "1.5.5.Final"
+mockito = "5.5.0"
+mockitoKotlin = "5.1.0"
+opencsv = "5.8"
+postgresql = "42.6.1"
+radarCommons = "1.1.3-SNAPSHOT"
+radarSchemas = "0.8.8"
+slf4j = "2.0.16"
+snappy = "1.1.10.5"
+springBoot = "2.7.15"
+springData = "2021.2.5"
+springDoc = "1.6.15"
+springFramework = "5.3.27"
+springSecurityOauth = "2.5.2.RELEASE"
+springSession = "2021.2.0"
+swagger = "2.2.22"
+testContainers = "1.19.7"
+wireMock = "2.27.2"
+
+# plugins
+nodeGradle = "3.6.0"
+springDependencyManagement = "1.1.3"
+undercouchDownload = "5.5.0"
+
+[libraries]
+assertj-core = { group = "org.assertj", name = "assertj-core", version.ref = "assertJ" }
+auth0-jwt = { group = "com.auth0", name = "java-jwt", version.ref = "auth0-jwt" }
+google-findbugs = { group = "com.google.code.findbugs", name = "jsr305", version.ref = "google-findbugs" }
+gradle-radar-kotlin = { group = "org.radarbase.radar-kotlin", name = "org.radarbase.radar-kotlin.gradle.plugin", version.ref = "radarCommons" }
+gradle-kotlin-jvm = { group = "org.jetbrains.kotlin.jvm", name = "org.jetbrains.kotlin.jvm.gradle.plugin", version.ref = "kotlin" }
+gradle-kotlin-serialization = { group = "org.jetbrains.kotlin", name = "kotlin-serialization", version.ref = "kotlin" }
+hamcrest = { group = "org.hamcrest", name = "hamcrest", version.ref = "hamcrest" }
+hazelcast = { group = "com.hazelcast", name = "hazelcast", version.ref = "hazelcast" }
+hazelcast-hybernate53 = { group = "com.hazelcast", name = "hazelcast-hibernate53", version.ref = "hazelcastHibernate" }
+hazelcast-spring = { group = "com.hazelcast", name = "hazelcast-spring", version.ref = "hazelcast" }
+hibernate-validator = { group = "org.hibernate.validator", name = "hibernate-validator", version.ref = "hibernate-validator" }
+hikari-cp = { group = "com.zaxxer", name = "HikariCP", version.ref = "hikariCp" }
+hsqldb = { group = "org.hsqldb", name = "hsqldb", version.ref = "hsqldb" }
+javax-activation = { group = "javax.activation", name = "activation", version.ref = "javaxActivation" }
+javax-inject = { group = "javax.inject", name = "javax.inject", version.ref = "javaxInject" }
+jhipster-dependencies = { group = "tech.jhipster", name = "jhipster-dependencies", version.ref = "jhipster"}
+jhipster-framework = { group = "tech.jhipster", name = "jhipster-framework", version.ref = "jhipster"}
+junit-jupiter-api = { group = "org.junit.jupiter", name = "junit-jupiter-api", version.ref = "junit" }
+junit-jupiter-engine = { group = "org.junit.jupiter", name = "junit-jupiter-engine", version.ref = "junit" }
+kotlin-coroutines-bom = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-bom", version.ref = "coroutines" }
+kotlin-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core" }
+kotlin-coroutines-reactor = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-reactor" }
+kotlin-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test" }
+kotlin-reflect = { group = "org.jetbrains.kotlin", name = "kotlin-reflect", version.ref = "kotlin" }
+kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlin" }
+ktor-bom = { group = "io.ktor", name = "ktor-bom", version.ref = "ktor" }
+ktor-client-auth = { module = "io.ktor:ktor-client-auth" }
+ktor-client-cio = { module = "io.ktor:ktor-client-cio" }
+ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation" }
+ktor-client-core = { module = "io.ktor:ktor-client-core" }
+ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json" }
+liquibase-core = { group = "org.liquibase", name = "liquibase-core", version.ref = "liquibase" }
+liquibase-slf4j = { group = "com.mattbertolini", name = "liquibase-slf4j", version.ref = "liquibaseSlf4j" }
+logback-classic = { group = "ch.qos.logback", name = "logback-classic", version.ref = "logback" }
+mockito-kotlin = { group = "org.mockito.kotlin", name = "mockito-kotlin", version.ref = "mockitoKotlin" }
+postgresql = { group = "org.postgresql", name = "postgresql", version.ref = "postgresql" }
+radar-commons-kotlin = { group = "org.radarbase", name = "radar-commons-kotlin", version.ref = "radarCommons" }
+slf4j-api = { group = "org.slf4j", name = "slf4j-api", version.ref = "slf4j" }
+slf4j-simple = { group = "org.slf4j", name = "slf4j-simple", version.ref = "slf4j" }
+spring-security-oauth = { group = "org.springframework.security.oauth", name = "spring-security-oauth2", version.ref = "springSecurityOauth" }
+springdoc-openapi = { group = "org.springdoc", name = "springdoc-openapi-ui", version.ref = "springDoc" }
+swagger-annotations = { group = "io.swagger.core.v3", name = "swagger-annotations", version.ref = "swagger" }
+testcontainers = { group = "org.testcontainers", name = "testcontainers", version.ref = "testContainers" }
+wiremock = { group = "com.github.tomakehurst", name = "wiremock", version.ref = "wireMock" }
+
+[plugins]
+kotlin-allopen = { id = "org.jetbrains.kotlin.plugin.allopen", version.ref = "kotlin" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+node-gradle = { id = "com.github.node-gradle.node", version.ref = "nodeGradle" }
+radar-dependency-management = { id = "org.radarbase.radar-dependency-management", version.ref = "radarCommons" }
+radar-kotlin = { id = "org.radarbase.radar-kotlin", version.ref = "radarCommons" }
+radar-publishing = { id = "org.radarbase.radar-publishing", version.ref = "radarCommons" }
+radar-root-project = { id = "org.radarbase.radar-root-project", version.ref = "radarCommons" }
+spring-boot = { id = "org.springframework.boot", version.ref = "springBoot" }
+spring-dependency-management = { id = "io.spring.dependency-management", version.ref = "springDependencyManagement" }
+undercouch-download = { id = "de.undercouch.download", version.ref = "undercouchDownload" }

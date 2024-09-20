@@ -23,12 +23,13 @@ import java.time.Instant
 class MockConfiguration {
     @Bean
     @Primary
-    fun radarTokenMock(): RadarToken = DataRadarToken(
-        subject = "admin",
-        username = "admin",
-        roles = setOf(AuthorityReference(RoleAuthority.SYS_ADMIN)),
-        scopes = Permission.scopes().toSet(),
-        grantType = "password",
-        expiresAt = Instant.now() + Duration.ofMinutes(30),
-    )
+    fun radarTokenMock(): RadarToken =
+        DataRadarToken(
+            subject = "admin",
+            username = "admin",
+            roles = setOf(AuthorityReference(RoleAuthority.SYS_ADMIN)),
+            scopes = Permission.scopes().toSet(),
+            grantType = "password",
+            expiresAt = Instant.now() + Duration.ofMinutes(30),
+        )
 }

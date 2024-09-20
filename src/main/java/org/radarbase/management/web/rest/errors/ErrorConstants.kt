@@ -21,8 +21,10 @@ object ErrorConstants {
     const val ERR_GROUP_EXISTS = "error.groupExists"
     const val ERR_INVALID_AUTHORITY = "error.invalidAuthority"
     const val ERR_EMAIL_EXISTS = "error.emailexists"
-    const val ERR_ORGANIZATION_NAME_NOT_FOUND = ("error"
-            + ".organizationNameNotFound")
+    const val ERR_ORGANIZATION_NAME_NOT_FOUND = (
+        "error" +
+            ".organizationNameNotFound"
+        )
     const val ERR_PROJECT_ID_NOT_FOUND = "error.projectIdNotFound"
     const val ERR_PROJECT_NAME_NOT_FOUND = "error.projectNameNotFound"
     const val ERR_REVISIONS_NOT_FOUND = "error.revisionsNotFound"
@@ -30,10 +32,14 @@ object ErrorConstants {
     const val ERR_TOKEN_NOT_FOUND = "error.tokenNotFound"
     const val ERR_SOURCE_TYPE_NOT_PROVIDED = "error.sourceTypeNotProvided"
     const val ERR_PERSISTENT_TOKEN_DISABLED = "error.persistentTokenDisabled"
-    const val ERR_ACTIVE_PARTICIPANT_PROJECT_NOT_FOUND = ("error"
-            + ".activeParticipantProjectNotFound")
-    const val ERR_NO_VALID_PRIVACY_POLICY_URL_CONFIGURED = ("error"
-            + ".noValidPrivacyPolicyUrl")
+    const val ERR_ACTIVE_PARTICIPANT_PROJECT_NOT_FOUND = (
+        "error" +
+            ".activeParticipantProjectNotFound"
+        )
+    const val ERR_NO_VALID_PRIVACY_POLICY_URL_CONFIGURED = (
+        "error" +
+            ".noValidPrivacyPolicyUrl"
+        )
     const val ERR_NO_SUCH_CLIENT = "error.noSuchClient"
     const val ERR_PROJECT_NOT_EMPTY = "error.projectNotEmpty"
     const val ERR_PASSWORD_TOO_LONG = "error.longPassword"

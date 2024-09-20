@@ -1,8 +1,8 @@
-import { Route } from '@angular/router';
+import {Route} from '@angular/router';
 
-import { UserRouteAccessService } from '../../shared';
-import { PROJECT_ADMIN, SYSTEM_ADMIN, ORGANIZATION_ADMIN } from '../../shared/constants/common.constants';
-import { SettingsComponent } from './settings.component';
+import {UserRouteAccessService} from '../../shared';
+import {ORGANIZATION_ADMIN, PROJECT_ADMIN, SYSTEM_ADMIN} from '../../shared/constants/common.constants';
+import {SettingsComponent} from './settings.component';
 
 export const settingsRoute: Route = {
     path: 'settings',

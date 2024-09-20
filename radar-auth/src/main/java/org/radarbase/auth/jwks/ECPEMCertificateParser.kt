@@ -11,9 +11,10 @@ class ECPEMCertificateParser : PEMCertificateParser {
     override val keyHeader: String
         get() = "-----BEGIN EC PUBLIC KEY-----"
 
-    override fun parseAlgorithm(publicKey: String): Algorithm = publicKey
-        .parsePublicKey<ECPublicKey>(keyFactoryType)
-        .toAlgorithm()
+    override fun parseAlgorithm(publicKey: String): Algorithm =
+        publicKey
+            .parsePublicKey<ECPublicKey>(keyFactoryType)
+            .toAlgorithm()
 
     override val keyFactoryType: String
         get() = ALGORITHM_EC

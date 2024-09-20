@@ -53,7 +53,6 @@ import javax.servlet.ServletException
 internal class UserResourceIntTest(
     @Autowired private val userService: UserService,
     @Autowired private val userResource: UserResource,
-
     @Autowired private val roleRepository: RoleRepository,
     @Autowired private val userRepository: UserRepository,
     @Autowired private val jacksonMessageConverter: MappingJackson2HttpMessageConverter,
@@ -73,13 +72,17 @@ internal class UserResourceIntTest(
 
         val filter = OAuthHelper.createAuthenticationFilter()
         filter.init(MockFilterConfig())
-        restUserMockMvc = MockMvcBuilders.standaloneSetup(userResource)
-            .setCustomArgumentResolvers(pageableArgumentResolver)
-            .setControllerAdvice(exceptionTranslator)
-            .setMessageConverters(jacksonMessageConverter)
-            .addFilter<StandaloneMockMvcBuilder>(filter)
-            .defaultRequest<StandaloneMockMvcBuilder>(MockMvcRequestBuilders.get("/").with(OAuthHelper.bearerToken()))
-            .build()
+        restUserMockMvc =
+            MockMvcBuilders
+                .standaloneSetup(userResource)
+                .setCustomArgumentResolvers(pageableArgumentResolver)
+                .setControllerAdvice(exceptionTranslator)
+                .setMessageConverters(jacksonMessageConverter)
+                .addFilter<StandaloneMockMvcBuilder>(filter)
+                .defaultRequest<StandaloneMockMvcBuilder>(
+                    MockMvcRequestBuilders.get("/").with(OAuthHelper.bearerToken()),
+                )
+                .build()
         project = null
     }
 
@@ -113,10 +116,12 @@ internal class UserResourceIntTest(
                 // ignore
             }
 
-            val roles = roleRepository
-                .findRolesByAuthorityName(RoleAuthority.PARTICIPANT.authority)
-                .stream().filter { r: Role -> r.project == null }
-                .collect(Collectors.toList())
+            val roles =
+                roleRepository
+                    .findRolesByAuthorityName(RoleAuthority.PARTICIPANT.authority)
+                    .stream()
+                    .filter { r: Role -> r.project == null }
+                    .collect(Collectors.toList())
             roleRepository.deleteAll(roles)
         }
     }
@@ -156,88 +161,102 @@ internal class UserResourceIntTest(
     @Test
     @Transactional
     @Throws(Exception::class)
-    fun createUserWithExistingId(): Unit = runBlocking{
-        val databaseSizeBeforeCreate = userRepository.findAll().size
-        val roles: MutableSet<RoleDTO> = HashSet()
-        val role = RoleDTO()
-        role.authorityName = RoleAuthority.PARTICIPANT.authority
-        roles.add(role)
-        val managedUserVm = createDefaultUser(roles)
-        managedUserVm.id = 1L
+    fun createUserWithExistingId(): Unit =
+        runBlocking {
+            val databaseSizeBeforeCreate = userRepository.findAll().size
+            val roles: MutableSet<RoleDTO> = HashSet()
+            val role = RoleDTO()
+            role.authorityName = RoleAuthority.PARTICIPANT.authority
+            roles.add(role)
+            val managedUserVm = createDefaultUser(roles)
+            managedUserVm.id = 1L
 
-        // An entity with an existing ID cannot be created, so this API call must fail
-        val result = restUserMockMvc.perform(
-            MockMvcRequestBuilders.post("/api/users")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(managedUserVm))
-        ).andReturn()
+            // An entity with an existing ID cannot be created, so this API call must fail
+            val result =
+                restUserMockMvc
+                    .perform(
+                        MockMvcRequestBuilders
+                            .post("/api/users")
+                            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                            .content(TestUtil.convertObjectToJsonBytes(managedUserVm)),
+                    ).andReturn()
 
-        restUserMockMvc.perform(asyncDispatch(result))
-            .andExpect(MockMvcResultMatchers.status().isBadRequest())
+            restUserMockMvc
+                .perform(asyncDispatch(result))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
 
-        // Validate the User in the database
-        val userList = userRepository.findAll()
-        Assertions.assertThat(userList).hasSize(databaseSizeBeforeCreate)
-    }
-
-    @Test
-    @Transactional
-    @Throws(Exception::class)
-    fun createUserWithExistingLogin(): Unit = runBlocking {
-        // Initialize the database
-        userRepository.saveAndFlush(user)
-        val databaseSizeBeforeCreate = userRepository.findAll().size
-        val roles: MutableSet<RoleDTO> = HashSet()
-        val role = RoleDTO()
-        role.authorityName = RoleAuthority.PARTICIPANT.authority
-        roles.add(role)
-        val managedUserVm = createDefaultUser(roles)
-        managedUserVm.email = "anothermail@localhost"
-
-        // Create the User
-        val result = restUserMockMvc.perform(
-            MockMvcRequestBuilders.post("/api/users")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(managedUserVm))
-        ).andReturn()
-
-        restUserMockMvc.perform(asyncDispatch(result))
-            .andExpect(MockMvcResultMatchers.status().isBadRequest())
-
-        // Validate the User in the database
-        val userList = userRepository.findAll()
-        Assertions.assertThat(userList).hasSize(databaseSizeBeforeCreate)
-    }
+            // Validate the User in the database
+            val userList = userRepository.findAll()
+            Assertions.assertThat(userList).hasSize(databaseSizeBeforeCreate)
+        }
 
     @Test
     @Transactional
     @Throws(Exception::class)
-    fun createUserWithExistingEmail(): Unit = runBlocking {
-        // Initialize the database
-        userRepository.saveAndFlush(user)
-        val databaseSizeBeforeCreate = userRepository.findAll().size
-        val roles: MutableSet<RoleDTO> = HashSet()
-        val role = RoleDTO()
-        role.authorityName = RoleAuthority.PARTICIPANT.authority
-        roles.add(role)
-        val managedUserVm = createDefaultUser(roles)
-        managedUserVm.login = "anotherlogin"
+    fun createUserWithExistingLogin(): Unit =
+        runBlocking {
+            // Initialize the database
+            userRepository.saveAndFlush(user)
+            val databaseSizeBeforeCreate = userRepository.findAll().size
+            val roles: MutableSet<RoleDTO> = HashSet()
+            val role = RoleDTO()
+            role.authorityName = RoleAuthority.PARTICIPANT.authority
+            roles.add(role)
+            val managedUserVm = createDefaultUser(roles)
+            managedUserVm.email = "anothermail@localhost"
 
-        // Create the User
-        val result = restUserMockMvc.perform(
-            MockMvcRequestBuilders.post("/api/users")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(managedUserVm))
-        ).andReturn()
+            // Create the User
+            val result =
+                restUserMockMvc
+                    .perform(
+                        MockMvcRequestBuilders
+                            .post("/api/users")
+                            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                            .content(TestUtil.convertObjectToJsonBytes(managedUserVm)),
+                    ).andReturn()
 
+            restUserMockMvc
+                .perform(asyncDispatch(result))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
 
-        restUserMockMvc.perform(asyncDispatch(result))
-            .andExpect(MockMvcResultMatchers.status().isBadRequest())
+            // Validate the User in the database
+            val userList = userRepository.findAll()
+            Assertions.assertThat(userList).hasSize(databaseSizeBeforeCreate)
+        }
 
-        // Validate the User in the database
-        val userList = userRepository.findAll()
-        Assertions.assertThat(userList).hasSize(databaseSizeBeforeCreate)
-    }
+    @Test
+    @Transactional
+    @Throws(Exception::class)
+    fun createUserWithExistingEmail(): Unit =
+        runBlocking {
+            // Initialize the database
+            userRepository.saveAndFlush(user)
+            val databaseSizeBeforeCreate = userRepository.findAll().size
+            val roles: MutableSet<RoleDTO> = HashSet()
+            val role = RoleDTO()
+            role.authorityName = RoleAuthority.PARTICIPANT.authority
+            roles.add(role)
+            val managedUserVm = createDefaultUser(roles)
+            managedUserVm.login = "anotherlogin"
+
+            // Create the User
+            val result =
+                restUserMockMvc
+                    .perform(
+                        MockMvcRequestBuilders
+                            .post("/api/users")
+                            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                            .content(TestUtil.convertObjectToJsonBytes(managedUserVm)),
+                    ).andReturn()
+
+            restUserMockMvc
+                .perform(asyncDispatch(result))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+
+            // Validate the User in the database
+            val userList = userRepository.findAll()
+            Assertions.assertThat(userList).hasSize(databaseSizeBeforeCreate)
+        }
 
     @Throws(Exception::class)
     @Transactional
@@ -260,31 +279,33 @@ internal class UserResourceIntTest(
         userRepository.saveAndFlush(userWithRole)
 
         // Get all the users
-        restUserMockMvc.perform(
-            MockMvcRequestBuilders.get("/api/users?sort=id,desc")
-                .accept(MediaType.APPLICATION_JSON)
-        )
-            .andExpect(MockMvcResultMatchers.status().isOk())
+        restUserMockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .get("/api/users?sort=id,desc")
+                    .accept(MediaType.APPLICATION_JSON),
+            ).andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(
-                MockMvcResultMatchers.jsonPath("$.[*].login")
-                    .value<Iterable<String?>>(Matchers.hasItem(UserServiceIntTest.DEFAULT_LOGIN))
-            )
-            .andExpect(
-                MockMvcResultMatchers.jsonPath("$.[*].firstName")
-                    .value<Iterable<String?>>(Matchers.hasItem(UserServiceIntTest.DEFAULT_FIRSTNAME))
-            )
-            .andExpect(
-                MockMvcResultMatchers.jsonPath("$.[*].lastName")
-                    .value<Iterable<String?>>(Matchers.hasItem(UserServiceIntTest.DEFAULT_LASTNAME))
-            )
-            .andExpect(
-                MockMvcResultMatchers.jsonPath("$.[*].email")
-                    .value<Iterable<String?>>(Matchers.hasItem(UserServiceIntTest.DEFAULT_EMAIL))
-            )
-            .andExpect(
-                MockMvcResultMatchers.jsonPath("$.[*].langKey")
-                    .value<Iterable<String?>>(Matchers.hasItem(UserServiceIntTest.DEFAULT_LANGKEY))
+                MockMvcResultMatchers
+                    .jsonPath("$.[*].login")
+                    .value<Iterable<String?>>(Matchers.hasItem(UserServiceIntTest.DEFAULT_LOGIN)),
+            ).andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$.[*].firstName")
+                    .value<Iterable<String?>>(Matchers.hasItem(UserServiceIntTest.DEFAULT_FIRSTNAME)),
+            ).andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$.[*].lastName")
+                    .value<Iterable<String?>>(Matchers.hasItem(UserServiceIntTest.DEFAULT_LASTNAME)),
+            ).andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$.[*].email")
+                    .value<Iterable<String?>>(Matchers.hasItem(UserServiceIntTest.DEFAULT_EMAIL)),
+            ).andExpect(
+                MockMvcResultMatchers
+                    .jsonPath("$.[*].langKey")
+                    .value<Iterable<String?>>(Matchers.hasItem(UserServiceIntTest.DEFAULT_LANGKEY)),
             )
     }
 
@@ -296,17 +317,16 @@ internal class UserResourceIntTest(
         userRepository.saveAndFlush(user)
 
         // Get the user
-        restUserMockMvc.perform(MockMvcRequestBuilders.get("/api/users/{login}", user.login))
+        restUserMockMvc
+            .perform(MockMvcRequestBuilders.get("/api/users/{login}", user.login))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("$.login").value(user.login))
             .andExpect(
-                MockMvcResultMatchers.jsonPath("$.firstName").value(UserServiceIntTest.DEFAULT_FIRSTNAME)
-            )
-            .andExpect(
-                MockMvcResultMatchers.jsonPath("$.lastName").value(UserServiceIntTest.DEFAULT_LASTNAME)
-            )
-            .andExpect(MockMvcResultMatchers.jsonPath("$.email").value(UserServiceIntTest.DEFAULT_EMAIL))
+                MockMvcResultMatchers.jsonPath("$.firstName").value(UserServiceIntTest.DEFAULT_FIRSTNAME),
+            ).andExpect(
+                MockMvcResultMatchers.jsonPath("$.lastName").value(UserServiceIntTest.DEFAULT_LASTNAME),
+            ).andExpect(MockMvcResultMatchers.jsonPath("$.email").value(UserServiceIntTest.DEFAULT_EMAIL))
             .andExpect(MockMvcResultMatchers.jsonPath("$.langKey").value(UserServiceIntTest.DEFAULT_LANGKEY))
     }
 
@@ -314,7 +334,8 @@ internal class UserResourceIntTest(
     @Transactional
     @Test
     fun getNonExistingUser() {
-        restUserMockMvc.perform(MockMvcRequestBuilders.get("/api/users/unknown"))
+        restUserMockMvc
+            .perform(MockMvcRequestBuilders.get("/api/users/unknown"))
             .andExpect(MockMvcResultMatchers.status().isNotFound())
     }
 
@@ -329,8 +350,10 @@ internal class UserResourceIntTest(
         projectRepository.save(project!!)
 
         // Update the user
-        val updatedUser = userRepository.findById(user.id!!)
-            .orElseThrow { AssertionError("Cannot find user " + user.id) }
+        val updatedUser =
+            userRepository
+                .findById(user.id!!)
+                .orElseThrow { AssertionError("Cannot find user " + user.id) }
         val managedUserVm = ManagedUserVM()
         managedUserVm.id = updatedUser.id
         managedUserVm.login = updatedUser.login
@@ -344,12 +367,13 @@ internal class UserResourceIntTest(
         role.projectId = project!!.id
         role.authorityName = RoleAuthority.PARTICIPANT.authority
         managedUserVm.roles = mutableSetOf(role)
-        restUserMockMvc.perform(
-            MockMvcRequestBuilders.put("/api/users")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(managedUserVm))
-        )
-            .andExpect(MockMvcResultMatchers.status().isOk())
+        restUserMockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .put("/api/users")
+                    .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                    .content(TestUtil.convertObjectToJsonBytes(managedUserVm)),
+            ).andExpect(MockMvcResultMatchers.status().isOk())
 
         // Validate the User in the database
         val userList = userRepository.findAll()
@@ -372,8 +396,10 @@ internal class UserResourceIntTest(
         val databaseSizeBeforeUpdate = userRepository.findAll().size
 
         // Update the user
-        val updatedUser = userRepository.findById(user.id!!)
-            .orElseThrow { AssertionError("Cannot find user " + user.id) }
+        val updatedUser =
+            userRepository
+                .findById(user.id!!)
+                .orElseThrow { AssertionError("Cannot find user " + user.id) }
         val managedUserVm = ManagedUserVM()
         managedUserVm.id = updatedUser.id
         managedUserVm.login = UserServiceIntTest.UPDATED_LOGIN
@@ -387,12 +413,13 @@ internal class UserResourceIntTest(
         role.projectId = project!!.id
         role.authorityName = RoleAuthority.PARTICIPANT.authority
         managedUserVm.roles = mutableSetOf(role)
-        restUserMockMvc.perform(
-            MockMvcRequestBuilders.put("/api/users")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(managedUserVm))
-        )
-            .andExpect(MockMvcResultMatchers.status().isOk())
+        restUserMockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .put("/api/users")
+                    .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                    .content(TestUtil.convertObjectToJsonBytes(managedUserVm)),
+            ).andExpect(MockMvcResultMatchers.status().isOk())
 
         // Validate the User in the database
         val userList = userRepository.findAll()
@@ -408,114 +435,133 @@ internal class UserResourceIntTest(
     @Test
     @Transactional
     @Throws(Exception::class)
-    fun updateUserExistingEmail() = runBlocking {
-        // Initialize the database with 2 users
-        userRepository.saveAndFlush(user)
-        project = ProjectResourceIntTest.createEntity()
-        projectRepository.save(project!!)
-        val anotherUser = User()
-        anotherUser.setLogin("jhipster")
-        anotherUser.password = passwordService.generateEncodedPassword()
-        anotherUser.activated = true
-        anotherUser.email = "jhipster@localhost"
-        anotherUser.firstName = "java"
-        anotherUser.lastName = "hipster"
-        anotherUser.langKey = "en"
-        userRepository.saveAndFlush(anotherUser)
+    fun updateUserExistingEmail() =
+        runBlocking {
+            // Initialize the database with 2 users
+            userRepository.saveAndFlush(user)
+            project = ProjectResourceIntTest.createEntity()
+            projectRepository.save(project!!)
+            val anotherUser = User()
+            anotherUser.setLogin("jhipster")
+            anotherUser.password = passwordService.generateEncodedPassword()
+            anotherUser.activated = true
+            anotherUser.email = "jhipster@localhost"
+            anotherUser.firstName = "java"
+            anotherUser.lastName = "hipster"
+            anotherUser.langKey = "en"
+            userRepository.saveAndFlush(anotherUser)
 
-        // Update the user
-        val updatedUser = userRepository.findById(user.id!!)
-            .orElseThrow { AssertionError("Cannot find user " + user.id) }
-        val managedUserVm = ManagedUserVM()
-        managedUserVm.id = updatedUser.id
-        managedUserVm.login = updatedUser.login
-        managedUserVm.password = updatedUser.password
-        managedUserVm.firstName = updatedUser.firstName
-        managedUserVm.lastName = updatedUser.lastName
-        managedUserVm.email = "jhipster@localhost"
-        managedUserVm.isActivated = updatedUser.activated
-        managedUserVm.langKey = updatedUser.langKey
-        val role = RoleDTO()
-        role.projectId = project!!.id
-        role.authorityName = RoleAuthority.PARTICIPANT.authority
-        managedUserVm.roles = setOf(role)
-        val result = restUserMockMvc.perform(
-            MockMvcRequestBuilders.put("/api/users")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(managedUserVm))
-        ).andReturn()
+            // Update the user
+            val updatedUser =
+                userRepository
+                    .findById(user.id!!)
+                    .orElseThrow { AssertionError("Cannot find user " + user.id) }
+            val managedUserVm = ManagedUserVM()
+            managedUserVm.id = updatedUser.id
+            managedUserVm.login = updatedUser.login
+            managedUserVm.password = updatedUser.password
+            managedUserVm.firstName = updatedUser.firstName
+            managedUserVm.lastName = updatedUser.lastName
+            managedUserVm.email = "jhipster@localhost"
+            managedUserVm.isActivated = updatedUser.activated
+            managedUserVm.langKey = updatedUser.langKey
+            val role = RoleDTO()
+            role.projectId = project!!.id
+            role.authorityName = RoleAuthority.PARTICIPANT.authority
+            managedUserVm.roles = setOf(role)
+            val result =
+                restUserMockMvc
+                    .perform(
+                        MockMvcRequestBuilders
+                            .put("/api/users")
+                            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                            .content(TestUtil.convertObjectToJsonBytes(managedUserVm)),
+                    ).andReturn()
 
-        restUserMockMvc.perform(asyncDispatch(result))
-            .andExpect(MockMvcResultMatchers.status().isBadRequest())
-    }
-
-    @Test
-    @Transactional
-    @Throws(Exception::class)
-    fun updateUserExistingLogin(): Unit = runBlocking {
-        // Initialize the database
-        userRepository.saveAndFlush(user)
-        project = ProjectResourceIntTest.createEntity()
-        projectRepository.save(project!!)
-        val anotherUser = User()
-        anotherUser.setLogin("jhipster")
-        anotherUser.password = passwordService.generateEncodedPassword()
-        anotherUser.activated = true
-        anotherUser.email = "jhipster@localhost"
-        anotherUser.firstName = "java"
-        anotherUser.lastName = "hipster"
-        anotherUser.langKey = "en"
-        userRepository.saveAndFlush(anotherUser)
-
-        // Update the user
-        val updatedUser = userRepository.findById(user.id!!)
-            .orElseThrow { AssertionError("Cannot find user " + user.id) }
-        val managedUserVm = ManagedUserVM()
-        managedUserVm.id = updatedUser.id
-        managedUserVm.login = "jhipster"
-        managedUserVm.password = updatedUser.password
-        managedUserVm.firstName = updatedUser.firstName
-        managedUserVm.lastName = updatedUser.lastName
-        managedUserVm.email = updatedUser.email
-        managedUserVm.isActivated = updatedUser.activated
-        managedUserVm.langKey = updatedUser.langKey
-        val role = RoleDTO()
-        role.projectId = project!!.id
-        role.authorityName = RoleAuthority.PARTICIPANT.authority
-        managedUserVm.roles = setOf(role)
-        val result = restUserMockMvc.perform(
-            MockMvcRequestBuilders.put("/api/users")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(managedUserVm))
-        ).andReturn()
-
-        restUserMockMvc.perform(asyncDispatch(result))
-            .andExpect(MockMvcResultMatchers.status().isBadRequest())
-    }
+            restUserMockMvc
+                .perform(asyncDispatch(result))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+        }
 
     @Test
     @Transactional
     @Throws(Exception::class)
-    fun deleteUser(): Unit = runBlocking {
-        // Initialize the database
-        userRepository.saveAndFlush(user)
-        val databaseSizeBeforeDelete = userRepository.findAll().size
+    fun updateUserExistingLogin(): Unit =
+        runBlocking {
+            // Initialize the database
+            userRepository.saveAndFlush(user)
+            project = ProjectResourceIntTest.createEntity()
+            projectRepository.save(project!!)
+            val anotherUser = User()
+            anotherUser.setLogin("jhipster")
+            anotherUser.password = passwordService.generateEncodedPassword()
+            anotherUser.activated = true
+            anotherUser.email = "jhipster@localhost"
+            anotherUser.firstName = "java"
+            anotherUser.lastName = "hipster"
+            anotherUser.langKey = "en"
+            userRepository.saveAndFlush(anotherUser)
 
-        // Delete the user
-        val result = restUserMockMvc.perform(
-            MockMvcRequestBuilders.delete("/api/users/{login}", user.login)
-                .accept(TestUtil.APPLICATION_JSON_UTF8)
-        ).andReturn()
+            // Update the user
+            val updatedUser =
+                userRepository
+                    .findById(user.id!!)
+                    .orElseThrow { AssertionError("Cannot find user " + user.id) }
+            val managedUserVm = ManagedUserVM()
+            managedUserVm.id = updatedUser.id
+            managedUserVm.login = "jhipster"
+            managedUserVm.password = updatedUser.password
+            managedUserVm.firstName = updatedUser.firstName
+            managedUserVm.lastName = updatedUser.lastName
+            managedUserVm.email = updatedUser.email
+            managedUserVm.isActivated = updatedUser.activated
+            managedUserVm.langKey = updatedUser.langKey
+            val role = RoleDTO()
+            role.projectId = project!!.id
+            role.authorityName = RoleAuthority.PARTICIPANT.authority
+            managedUserVm.roles = setOf(role)
+            val result =
+                restUserMockMvc
+                    .perform(
+                        MockMvcRequestBuilders
+                            .put("/api/users")
+                            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                            .content(TestUtil.convertObjectToJsonBytes(managedUserVm)),
+                    ).andReturn()
 
-        result.getAsyncResult()
+            restUserMockMvc
+                .perform(asyncDispatch(result))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+        }
 
-        restUserMockMvc.perform(asyncDispatch(result))
-            .andExpect(MockMvcResultMatchers.status().isOk())
+    @Test
+    @Transactional
+    @Throws(Exception::class)
+    fun deleteUser(): Unit =
+        runBlocking {
+            // Initialize the database
+            userRepository.saveAndFlush(user)
+            val databaseSizeBeforeDelete = userRepository.findAll().size
 
-        // Validate the database is empty
-        val userList = userRepository.findAll()
-        Assertions.assertThat(userList).hasSize(databaseSizeBeforeDelete - 1)
-    }
+            // Delete the user
+            val result =
+                restUserMockMvc
+                    .perform(
+                        MockMvcRequestBuilders
+                            .delete("/api/users/{login}", user.login)
+                            .accept(TestUtil.APPLICATION_JSON_UTF8),
+                    ).andReturn()
+
+            result.asyncResult
+
+            restUserMockMvc
+                .perform(asyncDispatch(result))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+
+            // Validate the database is empty
+            val userList = userRepository.findAll()
+            Assertions.assertThat(userList).hasSize(databaseSizeBeforeDelete - 1)
+        }
 
     @Test
     @Transactional

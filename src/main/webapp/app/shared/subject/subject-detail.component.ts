@@ -1,10 +1,10 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { Subscription } from 'rxjs';
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {ActivatedRoute} from '@angular/router';
+import {Subscription} from 'rxjs';
 
-import { EventManager } from '../util/event-manager.service';
-import { Subject } from './subject.model';
-import { SubjectService } from './subject.service';
+import {EventManager} from '../util/event-manager.service';
+import {Subject} from './subject.model';
+import {SubjectService} from './subject.service';
 import {HideableSubjectField, SiteSettingsService} from "./sitesettings.service";
 
 @Component({
@@ -15,15 +15,16 @@ import {HideableSubjectField, SiteSettingsService} from "./sitesettings.service"
 export class SubjectDetailComponent implements OnInit, OnDestroy {
 
     subject: Subject;
+    public siteSettings$ = this.siteSettingsService.siteSettings$;
+    protected readonly HideableSubjectField = HideableSubjectField;
     private subscription: any;
     private eventSubscriber: Subscription;
-    public siteSettings$ =this.siteSettingsService.siteSettings$;
 
     constructor(
-            private eventManager: EventManager,
-            private subjectService: SubjectService,
-            private siteSettingsService: SiteSettingsService,
-            private route: ActivatedRoute,
+        private eventManager: EventManager,
+        private subjectService: SubjectService,
+        private siteSettingsService: SiteSettingsService,
+        private route: ActivatedRoute,
     ) {
     }
 
@@ -56,6 +57,4 @@ export class SubjectDetailComponent implements OnInit, OnDestroy {
             }
         });
     }
-
-    protected readonly HideableSubjectField = HideableSubjectField;
 }

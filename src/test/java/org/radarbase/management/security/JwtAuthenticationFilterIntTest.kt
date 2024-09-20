@@ -6,8 +6,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.MockitoAnnotations
 import org.radarbase.auth.authentication.OAuthHelper
 import org.radarbase.management.ManagementPortalTestApp
-import org.radarbase.management.service.AuthService
-import org.radarbase.management.service.ProjectService
 import org.radarbase.management.web.rest.ProjectResource
 import org.radarbase.management.web.rest.errors.ExceptionTranslator
 import org.springframework.beans.factory.annotation.Autowired
@@ -34,10 +32,6 @@ import javax.servlet.ServletException
 @WithMockUser
 internal class JwtAuthenticationFilterIntTest(
     @Autowired private val projectResource: ProjectResource,
-
-    @Autowired private val projectService: ProjectService,
-    @Autowired private val authService: AuthService,
-
     @Autowired private val jacksonMessageConverter: MappingJackson2HttpMessageConverter,
     @Autowired private val pageableArgumentResolver: PageableHandlerMethodArgumentResolver,
     @Autowired private val exceptionTranslator: ExceptionTranslator,
@@ -51,26 +45,30 @@ internal class JwtAuthenticationFilterIntTest(
         MockitoAnnotations.openMocks(this)
         val filter = OAuthHelper.createAuthenticationFilter()
         filter.init(MockFilterConfig())
-        rsaRestProjectMockMvc = MockMvcBuilders.standaloneSetup(projectResource)
-            .setCustomArgumentResolvers(pageableArgumentResolver)
-            .setControllerAdvice(exceptionTranslator)
-            .setMessageConverters(jacksonMessageConverter)
-            .addFilter<StandaloneMockMvcBuilder>(filter)
-            .defaultRequest<StandaloneMockMvcBuilder>(
-                MockMvcRequestBuilders.get("/")
-                    .with(OAuthHelper.rsaBearerToken())
-            )
-            .build()
-        ecRestProjectMockMvc = MockMvcBuilders.standaloneSetup(projectResource)
-            .setCustomArgumentResolvers(pageableArgumentResolver)
-            .setControllerAdvice(exceptionTranslator)
-            .setMessageConverters(jacksonMessageConverter)
-            .addFilter<StandaloneMockMvcBuilder>(filter)
-            .defaultRequest<StandaloneMockMvcBuilder>(
-                MockMvcRequestBuilders.get("/")
-                    .with(OAuthHelper.bearerToken())
-            )
-            .build()
+        rsaRestProjectMockMvc =
+            MockMvcBuilders
+                .standaloneSetup(projectResource)
+                .setCustomArgumentResolvers(pageableArgumentResolver)
+                .setControllerAdvice(exceptionTranslator)
+                .setMessageConverters(jacksonMessageConverter)
+                .addFilter<StandaloneMockMvcBuilder>(filter)
+                .defaultRequest<StandaloneMockMvcBuilder>(
+                    MockMvcRequestBuilders
+                        .get("/")
+                        .with(OAuthHelper.rsaBearerToken()),
+                ).build()
+        ecRestProjectMockMvc =
+            MockMvcBuilders
+                .standaloneSetup(projectResource)
+                .setCustomArgumentResolvers(pageableArgumentResolver)
+                .setControllerAdvice(exceptionTranslator)
+                .setMessageConverters(jacksonMessageConverter)
+                .addFilter<StandaloneMockMvcBuilder>(filter)
+                .defaultRequest<StandaloneMockMvcBuilder>(
+                    MockMvcRequestBuilders
+                        .get("/")
+                        .with(OAuthHelper.bearerToken()),
+                ).build()
     }
 
     @Test
@@ -78,9 +76,11 @@ internal class JwtAuthenticationFilterIntTest(
     fun testMultipleSigningKeys() {
         // Check that we can get the project list with both RSA and EC signed token. We are testing
         // acceptance of the tokens, so no test on the content of the response is performed here.
-        rsaRestProjectMockMvc.perform(MockMvcRequestBuilders.get("/api/projects?sort=id,desc"))
+        rsaRestProjectMockMvc
+            .perform(MockMvcRequestBuilders.get("/api/projects?sort=id,desc"))
             .andExpect(MockMvcResultMatchers.status().isOk())
-        ecRestProjectMockMvc.perform(MockMvcRequestBuilders.get("/api/projects?sort=id,desc"))
+        ecRestProjectMockMvc
+            .perform(MockMvcRequestBuilders.get("/api/projects?sort=id,desc"))
             .andExpect(MockMvcResultMatchers.status().isOk())
     }
 }

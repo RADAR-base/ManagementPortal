@@ -19,8 +19,9 @@ COPY .yarn /code/.yarn
 RUN yarn install --network-timeout 1000000
 
 COPY gradle gradle
-COPY gradlew build.gradle gradle.properties settings.gradle /code/
-COPY radar-auth/build.gradle radar-auth/
+COPY gradlew build.gradle.kts gradle.properties settings.gradle.kts /code/
+COPY radar-auth/build.gradle.kts radar-auth/
+COPY buildSrc/ buildSrc/
 
 RUN ./gradlew downloadDependencies
 
@@ -39,7 +40,7 @@ FROM eclipse-temurin:17-jre
 
 ENV SPRING_OUTPUT_ANSI_ENABLED=ALWAYS \
     JHIPSTER_SLEEP=0 \
-    JAVA_OPTS="" 
+    JAVA_OPTS=""
 
 # Add the war and changelogs files from build stage
 COPY --from=builder /code/build/libs/*.war /app.war

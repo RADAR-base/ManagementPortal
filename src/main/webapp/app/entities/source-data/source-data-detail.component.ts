@@ -1,11 +1,11 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { Subscription } from 'rxjs';
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {ActivatedRoute} from '@angular/router';
+import {Subscription} from 'rxjs';
 
-import { EventManager } from '../../shared/util/event-manager.service';
+import {EventManager} from '../../shared/util/event-manager.service';
 
-import { SourceData } from './source-data.model';
-import { SourceDataService } from './source-data.service';
+import {SourceData} from './source-data.model';
+import {SourceDataService} from './source-data.service';
 
 @Component({
     selector: 'jhi-source-data-detail',
@@ -18,9 +18,9 @@ export class SourceDataDetailComponent implements OnInit, OnDestroy {
     private eventSubscriber: Subscription;
 
     constructor(
-            private eventManager: EventManager,
-            private sourceDataService: SourceDataService,
-            private route: ActivatedRoute,
+        private eventManager: EventManager,
+        private sourceDataService: SourceDataService,
+        private route: ActivatedRoute,
     ) {
     }
 

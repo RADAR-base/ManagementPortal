@@ -1,4 +1,4 @@
-import { login } from '../util/login';
+import {login} from '../util/login';
 import * as navBarPage from '../util/nav-bar';
 
 describe('administration', () => {

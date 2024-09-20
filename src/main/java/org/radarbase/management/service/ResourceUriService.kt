@@ -27,9 +27,7 @@ object ResourceUriService {
      * @throws URISyntaxException See [URI.URI]
      */
     @Throws(URISyntaxException::class)
-    fun getUri(resource: OrganizationDTO): URI {
-        return URI(HeaderUtil.buildPath("api", "organizations", resource.name))
-    }
+    fun getUri(resource: OrganizationDTO): URI = URI(HeaderUtil.buildPath("api", "organizations", resource.name))
 
     /**
      * Get the API location for the given resource.
@@ -38,9 +36,7 @@ object ResourceUriService {
      * @throws URISyntaxException See [URI.URI]
      */
     @Throws(URISyntaxException::class)
-    fun getUri(resource: SubjectDTO): URI {
-        return URI(resource.login?.let { HeaderUtil.buildPath("api", "subjects", it) })
-    }
+    fun getUri(resource: SubjectDTO): URI = URI(resource.login?.let { HeaderUtil.buildPath("api", "subjects", it) })
 
     /**
      * Get the API location for the given resource.
@@ -49,9 +45,7 @@ object ResourceUriService {
      * @throws URISyntaxException See [URI.URI]
      */
     @Throws(URISyntaxException::class)
-    fun getUri(resource: ClientDetailsDTO): URI {
-        return URI(HeaderUtil.buildPath("api", "oauth-clients", resource.clientId))
-    }
+    fun getUri(resource: ClientDetailsDTO): URI = URI(HeaderUtil.buildPath("api", "oauth-clients", resource.clientId))
 
     /**
      * Get the API location for the given resource.
@@ -60,9 +54,8 @@ object ResourceUriService {
      * @throws URISyntaxException See [URI.URI]
      */
     @Throws(URISyntaxException::class)
-    fun getUri(resource: MinimalSourceDetailsDTO): URI {
-        return URI(HeaderUtil.buildPath("api", "sources", resource.sourceName!!))
-    }
+    fun getUri(resource: MinimalSourceDetailsDTO): URI =
+        URI(HeaderUtil.buildPath("api", "sources", resource.sourceName!!))
 
     /**
      * Get the API location for the given resource.
@@ -71,14 +64,15 @@ object ResourceUriService {
      * @throws URISyntaxException See [URI.URI]
      */
     @Throws(URISyntaxException::class)
-    fun getUri(resource: RoleDTO?): URI {
-        return URI(
+    fun getUri(resource: RoleDTO?): URI =
+        URI(
             HeaderUtil.buildPath(
-                "api", "roles", resource?.projectName!!,
-                resource.authorityName!!
-            )
+                "api",
+                "roles",
+                resource?.projectName!!,
+                resource.authorityName!!,
+            ),
         )
-    }
 
     /**
      * Get the API location for the given resource.
@@ -87,14 +81,16 @@ object ResourceUriService {
      * @throws URISyntaxException See [URI.URI]
      */
     @Throws(URISyntaxException::class)
-    fun getUri(resource: SourceTypeDTO): URI {
-        return URI(
+    fun getUri(resource: SourceTypeDTO): URI =
+        URI(
             HeaderUtil.buildPath(
-                "api", "source-types", resource.producer,
-                resource.model, resource.catalogVersion
-            )
+                "api",
+                "source-types",
+                resource.producer,
+                resource.model,
+                resource.catalogVersion,
+            ),
         )
-    }
 
     /**
      * Get the API location for the given resource.
@@ -103,9 +99,7 @@ object ResourceUriService {
      * @throws URISyntaxException See [URI.URI]
      */
     @Throws(URISyntaxException::class)
-    fun getUri(resource: SourceDTO): URI {
-        return URI(HeaderUtil.buildPath("api", "sources", resource.sourceName))
-    }
+    fun getUri(resource: SourceDTO): URI = URI(HeaderUtil.buildPath("api", "sources", resource.sourceName))
 
     /**
      * Get the API location for the given resource.
@@ -114,9 +108,7 @@ object ResourceUriService {
      * @throws URISyntaxException See [URI.URI]
      */
     @Throws(URISyntaxException::class)
-    fun getUri(resource: Source): URI {
-        return URI(HeaderUtil.buildPath("api", "sources", resource.sourceName!!))
-    }
+    fun getUri(resource: Source): URI = URI(HeaderUtil.buildPath("api", "sources", resource.sourceName!!))
 
     /**
      * Get the API location for the given resource.
@@ -125,9 +117,7 @@ object ResourceUriService {
      * @throws URISyntaxException See [URI.URI]
      */
     @Throws(URISyntaxException::class)
-    fun getUri(resource: User): URI {
-        return URI(HeaderUtil.buildPath("api", "users", resource.login))
-    }
+    fun getUri(resource: User): URI = URI(HeaderUtil.buildPath("api", "users", resource.login))
 
     /**
      * Get the API location for the given resource.
@@ -136,9 +126,8 @@ object ResourceUriService {
      * @throws URISyntaxException See [URI.URI]
      */
     @Throws(URISyntaxException::class)
-    fun getUri(resource: SourceDataDTO): URI {
-        return URI(HeaderUtil.buildPath("api", "source-data", resource.sourceDataName!!))
-    }
+    fun getUri(resource: SourceDataDTO): URI =
+        URI(HeaderUtil.buildPath("api", "source-data", resource.sourceDataName!!))
 
     /**
      * Get the API location for the given resource.
@@ -147,9 +136,7 @@ object ResourceUriService {
      * @throws URISyntaxException See [URI.URI]
      */
     @Throws(URISyntaxException::class)
-    fun getUri(resource: ProjectDTO): URI {
-        return URI(HeaderUtil.buildPath("api", "projects", resource.projectName!!))
-    }
+    fun getUri(resource: ProjectDTO): URI = URI(HeaderUtil.buildPath("api", "projects", resource.projectName!!))
 
     /**
      * Get the API location for the given resource.
@@ -158,7 +145,5 @@ object ResourceUriService {
      * @throws URISyntaxException See [URI.URI]
      */
     @Throws(URISyntaxException::class)
-    fun getUri(resource: MetaToken): URI {
-        return URI(HeaderUtil.buildPath("api", "meta-token", resource.tokenName!!))
-    }
+    fun getUri(resource: MetaToken): URI = URI(HeaderUtil.buildPath("api", "meta-token", resource.tokenName!!))
 }

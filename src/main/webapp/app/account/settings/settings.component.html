@@ -6,93 +6,105 @@
             </h2>
 
             <div *ngIf="success"
-                class="alert alert-success"
-                [innerHTML]="'settings.messages.success' | translate">
+                 [innerHTML]="'settings.messages.success' | translate"
+                 class="alert alert-success">
             </div>
 
             <jhi-alert-error></jhi-alert-error>
 
-            <form name="form" role="form" (ngSubmit)="save()" #settingsForm="ngForm" *ngIf="settingsAccount" novalidate>
+            <form #settingsForm="ngForm" (ngSubmit)="save()" *ngIf="settingsAccount" name="form" novalidate role="form">
 
                 <div class="form-group">
-                    <label class="form-control-label"
-                        for="firstName"
-                        [translate]="'settings.form.firstname'">
+                    <label [translate]="'settings.form.firstname'"
+                           class="form-control-label"
+                           for="firstName">
                     </label>
-                    <input type="text" class="form-control" id="firstName" name="firstName" placeholder="{{'settings.form.firstname.placeholder' | translate}}"
-                           [(ngModel)]="settingsAccount.firstName" minlength=1 maxlength=50 #firstNameInput="ngModel" required>
+                    <input #firstNameInput="ngModel" [(ngModel)]="settingsAccount.firstName" class="form-control"
+                           id="firstName"
+                           maxlength=50
+                           minlength=1 name="firstName"
+                           placeholder="{{'settings.form.firstname.placeholder' | translate}}" required
+                           type="text">
                     <div *ngIf="firstNameInput.dirty && firstNameInput.invalid">
-                        <small class="form-text text-danger"
-                           *ngIf="firstNameInput.errors.required"
-                           [translate]="'settings.messages.validate.firstname.required'">
+                        <small *ngIf="firstNameInput.errors.required"
+                               [translate]="'settings.messages.validate.firstname.required'"
+                               class="form-text text-danger">
                         </small>
-                        <small class="form-text text-danger"
-                           *ngIf="firstNameInput.errors.minlength"
-                           [translate]="'settings.messages.validate.firstname.minlength'">
+                        <small *ngIf="firstNameInput.errors.minlength"
+                               [translate]="'settings.messages.validate.firstname.minlength'"
+                               class="form-text text-danger">
                         </small>
-                        <small class="form-text text-danger"
-                           *ngIf="firstNameInput.errors.maxlength"
-                           [translate]="'settings.messages.validate.firstname.maxlength'">
+                        <small *ngIf="firstNameInput.errors.maxlength"
+                               [translate]="'settings.messages.validate.firstname.maxlength'"
+                               class="form-text text-danger">
                         </small>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="form-control-label"
-                        for="lastName"
-                        [translate]="'settings.form.lastname'">
+                    <label [translate]="'settings.form.lastname'"
+                           class="form-control-label"
+                           for="lastName">
                     </label>
-                    <input type="text" class="form-control" id="lastName" name="lastName" placeholder="{{'settings.form.lastname.placeholder' | translate}}"
-                           [(ngModel)]="settingsAccount.lastName" minlength=1 maxlength=50 #lastNameInput="ngModel" required>
+                    <input #lastNameInput="ngModel" [(ngModel)]="settingsAccount.lastName" class="form-control"
+                           id="lastName"
+                           maxlength=50
+                           minlength=1 name="lastName"
+                           placeholder="{{'settings.form.lastname.placeholder' | translate}}" required
+                           type="text">
                     <div *ngIf="lastNameInput.dirty && lastNameInput.invalid">
-                        <small class="form-text text-danger"
-                           *ngIf="lastNameInput.errors.required"
-                           [translate]="'settings.messages.validate.lastname.required'">
+                        <small *ngIf="lastNameInput.errors.required"
+                               [translate]="'settings.messages.validate.lastname.required'"
+                               class="form-text text-danger">
                         </small>
-                        <small class="form-text text-danger"
-                           *ngIf="lastNameInput.errors.minlength"
-                           [translate]="'settings.messages.validate.lastname.minlength'">
+                        <small *ngIf="lastNameInput.errors.minlength"
+                               [translate]="'settings.messages.validate.lastname.minlength'"
+                               class="form-text text-danger">
                         </small>
-                        <small class="form-text text-danger"
-                           *ngIf="lastNameInput.errors.maxlength"
-                           [translate]="'settings.messages.validate.lastname.maxlength'">
+                        <small *ngIf="lastNameInput.errors.maxlength"
+                               [translate]="'settings.messages.validate.lastname.maxlength'"
+                               class="form-text text-danger">
                         </small>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="form-control-label"
-                        for="email"
-                        [translate]="'global.form.email'">
+                    <label [translate]="'global.form.email'"
+                           class="form-control-label"
+                           for="email">
                     </label>
-                    <input type="email" class="form-control" id="email" name="email" placeholder="{{'global.form.email.placeholder' | translate}}"
-                           [(ngModel)]="settingsAccount.email" minlength=5 maxlength=100 #emailInput="ngModel" required>
+                    <input #emailInput="ngModel" [(ngModel)]="settingsAccount.email" class="form-control" id="email"
+                           maxlength=100
+                           minlength=5 name="email" placeholder="{{'global.form.email.placeholder' | translate}}"
+                           required type="email">
                     <div *ngIf="emailInput.dirty && emailInput.invalid">
-                        <small class="form-text text-danger"
-                           *ngIf="emailInput.errors.required"
-                           [translate]="'global.messages.validate.email.required'">
+                        <small *ngIf="emailInput.errors.required"
+                               [translate]="'global.messages.validate.email.required'"
+                               class="form-text text-danger">
                         </small>
-                        <small class="form-text text-danger"
-                           *ngIf="emailInput.errors.email"
-                           [translate]="'global.messages.validate.email.invalid'">
+                        <small *ngIf="emailInput.errors.email"
+                               [translate]="'global.messages.validate.email.invalid'"
+                               class="form-text text-danger">
                         </small>
-                        <small class="form-text text-danger"
-                           *ngIf="emailInput.errors.minlength"
-                           [translate]="'global.messages.validate.email.minlength'">
+                        <small *ngIf="emailInput.errors.minlength"
+                               [translate]="'global.messages.validate.email.minlength'"
+                               class="form-text text-danger">
                         </small>
-                        <small class="form-text text-danger"
-                           *ngIf="emailInput.errors.maxlength"
-                           [translate]="'global.messages.validate.email.maxlength'">
+                        <small *ngIf="emailInput.errors.maxlength"
+                               [translate]="'global.messages.validate.email.maxlength'"
+                               class="form-text text-danger">
                         </small>
                     </div>
                 </div>
-                <div class="form-group" *ngIf="languageHelper.languages$ | async as languages">
-                    <label for="langKey" [translate]="'settings.form.language'"></label>
-                    <select class="form-control" id="langKey" name="langKey" [(ngModel)]="settingsAccount.langKey">
-                        <option *ngFor="let language of languages" [value]="language">{{language | findLanguageFromKey}}</option>
+                <div *ngIf="languageHelper.languages$ | async as languages" class="form-group">
+                    <label [translate]="'settings.form.language'" for="langKey"></label>
+                    <select [(ngModel)]="settingsAccount.langKey" class="form-control" id="langKey" name="langKey">
+                        <option *ngFor="let language of languages"
+                                [value]="language">{{ language | findLanguageFromKey }}
+                        </option>
                     </select>
                 </div>
-                <button type="submit" class="btn btn-primary"
-                    [disabled]="settingsForm.form.invalid"
-                    [translate]="'settings.form.button'">
+                <button [disabled]="settingsForm.form.invalid" [translate]="'settings.form.button'"
+                        class="btn btn-primary"
+                        type="submit">
                 </button>
             </form>
         </div>

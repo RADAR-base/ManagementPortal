@@ -1,12 +1,12 @@
-import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { of, throwError } from 'rxjs';
+import {CUSTOM_ELEMENTS_SCHEMA} from '@angular/core';
+import {ComponentFixture, TestBed, waitForAsync} from '@angular/core/testing';
+import {of, throwError} from 'rxjs';
 
-import { ManagementPortalTestModule } from '../../shared/util/test/test.module';
-import { PasswordComponent } from './password.component';
-import { Password } from './password.service';
-import { Principal } from '../../shared/auth/principal.service';
-import { AccountService } from '../../shared/auth/account.service';
+import {ManagementPortalTestModule} from '../../shared/util/test/test.module';
+import {PasswordComponent} from './password.component';
+import {Password} from './password.service';
+import {Principal} from '../../shared/auth/principal.service';
+import {AccountService} from '../../shared/auth/account.service';
 
 describe('Component Tests', () => {
 
@@ -59,7 +59,7 @@ describe('Component Tests', () => {
             expect(service.save).toHaveBeenCalledWith('myPassword1$');
         });
 
-        it('should set success to OK upon success', function() {
+        it('should set success to OK upon success', function () {
             // GIVEN
             spyOn(service, 'save').and.returnValue(of(true));
             comp.password = comp.confirmPassword = 'myPassword1$';
@@ -73,7 +73,7 @@ describe('Component Tests', () => {
             expect(comp.success).toBe('OK');
         });
 
-        it('should notify of error if change password fails', function() {
+        it('should notify of error if change password fails', function () {
             // GIVEN
             spyOn(service, 'save').and.returnValue(throwError('ERROR'));
             comp.password = comp.confirmPassword = 'myPassword1$';

@@ -15,10 +15,10 @@ import org.radarbase.management.service.mapper.decorator.SubjectMapperDecorator
  */
 @Mapper(
     componentModel = "spring",
-    uses = [UserMapper::class, ProjectMapper::class, SourceMapper::class, RoleMapper::class]
+    uses = [UserMapper::class, ProjectMapper::class, SourceMapper::class, RoleMapper::class],
 )
 @DecoratedWith(
-    SubjectMapperDecorator::class
+    SubjectMapperDecorator::class,
 )
 interface SubjectMapper {
     @Mapping(source = "user.login", target = "login")
@@ -71,7 +71,10 @@ interface SubjectMapper {
     @Mapping(target = "removed", ignore = true)
     @Mapping(target = "metaTokens", ignore = true)
     @Mapping(target = "group", ignore = true)
-    fun safeUpdateSubjectFromDTO(subjectDto: SubjectDTO?, @MappingTarget subject: Subject?): Subject?
+    fun safeUpdateSubjectFromDTO(
+        subjectDto: SubjectDTO?,
+        @MappingTarget subject: Subject?,
+    ): Subject?
 
     /**
      * Generating the fromId for all mappers if the databaseType is sql, as the class has

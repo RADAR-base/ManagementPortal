@@ -25,6 +25,8 @@ interface RoleMapper {
     @Mapping(target = "users", ignore = true)
     @Mapping(source = "organizationId", target = "organization.id")
     fun roleDTOToRole(roleDto: RoleDTO?): Role?
+
     fun roleDTOsToRoles(roleDtos: Set<RoleDTO>): Set<Role>
+
     fun rolesToRoleDTOs(roles: Set<Role>): Set<RoleDTO>
 }

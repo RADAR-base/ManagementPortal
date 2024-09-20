@@ -9,14 +9,14 @@
 
 <h3 id="endpointsRequestsMetrics">Endpoints requests (time in millisecond)</h3>
 
-<div class="table-responsive" *ngIf="!updating && endpointsRequestsMetrics">
-    <table class="table table-striped" aria-describedby="endpointsRequestsMetrics">
+<div *ngIf="!updating && endpointsRequestsMetrics" class="table-responsive">
+    <table aria-describedby="endpointsRequestsMetrics" class="table table-striped">
         <thead>
         <tr>
             <th scope="col">Method</th>
             <th scope="col">Endpoint url</th>
-            <th scope="col" class="text-right">Count</th>
-            <th scope="col" class="text-right">Mean</th>
+            <th class="text-right" scope="col">Count</th>
+            <th class="text-right" scope="col">Mean</th>
         </tr>
         </thead>
         <tbody>

@@ -7,24 +7,26 @@
   ~ See the file LICENSE in the root of this repository.
   -->
 
-<h3 id="datasourceMetrics" [translate]="'metrics.datasource.title'">DataSource statistics (time in millisecond)</h3>
+<h3 [translate]="'metrics.datasource.title'" id="datasourceMetrics">DataSource statistics (time in millisecond)</h3>
 
-<div class="table-responsive" *ngIf="!updating && datasourceMetrics">
-    <table class="table table-striped" aria-describedby="datasourceMetrics">
+<div *ngIf="!updating && datasourceMetrics" class="table-responsive">
+    <table aria-describedby="datasourceMetrics" class="table table-striped">
         <thead>
         <tr>
             <th scope="col">
-                <span [translate]="'metrics.datasource.usage'">Connection Pool Usage</span> (active: {{ datasourceMetrics.active.value }},
-                min: {{ datasourceMetrics.min.value }}, max: {{ datasourceMetrics.max.value }}, idle: {{ datasourceMetrics.idle.value }})
+                <span [translate]="'metrics.datasource.usage'">Connection Pool Usage</span>
+                (active: {{ datasourceMetrics.active.value }},
+                min: {{ datasourceMetrics.min.value }}, max: {{ datasourceMetrics.max.value }},
+                idle: {{ datasourceMetrics.idle.value }})
             </th>
-            <th scope="col" class="text-right" [translate]="'metrics.datasource.count'">Count</th>
-            <th scope="col" class="text-right" [translate]="'metrics.datasource.mean'">Mean</th>
-            <th scope="col" class="text-right" [translate]="'metrics.servicesstats.table.min'">Min</th>
-            <th scope="col" class="text-right" [translate]="'metrics.servicesstats.table.p50'">p50</th>
-            <th scope="col" class="text-right" [translate]="'metrics.servicesstats.table.p75'">p75</th>
-            <th scope="col" class="text-right" [translate]="'metrics.servicesstats.table.p95'">p95</th>
-            <th scope="col" class="text-right" [translate]="'metrics.servicesstats.table.p99'">p99</th>
-            <th scope="col" class="text-right" [translate]="'metrics.datasource.max'">Max</th>
+            <th [translate]="'metrics.datasource.count'" class="text-right" scope="col">Count</th>
+            <th [translate]="'metrics.datasource.mean'" class="text-right" scope="col">Mean</th>
+            <th [translate]="'metrics.servicesstats.table.min'" class="text-right" scope="col">Min</th>
+            <th [translate]="'metrics.servicesstats.table.p50'" class="text-right" scope="col">p50</th>
+            <th [translate]="'metrics.servicesstats.table.p75'" class="text-right" scope="col">p75</th>
+            <th [translate]="'metrics.servicesstats.table.p95'" class="text-right" scope="col">p95</th>
+            <th [translate]="'metrics.servicesstats.table.p99'" class="text-right" scope="col">p99</th>
+            <th [translate]="'metrics.datasource.max'" class="text-right" scope="col">Max</th>
         </tr>
         </thead>
         <tbody>

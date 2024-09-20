@@ -1,45 +1,51 @@
 <div>
     <jhi-alert></jhi-alert>
-    <div class="table-responsive" *ngIf="users$ | async as users">
+    <div *ngIf="users$ | async as users" class="table-responsive">
         <table class="table table-striped">
             <thead>
-            <tr jhiSort [predicate]="predicate$ | async" [ascending]="ascending$ | async" (predicateChange)="predicate$.next($event)" (ascendingChange)="ascending$.next($event)" [callback]="transition.bind(this)">
+            <tr (ascendingChange)="ascending$.next($event)" (predicateChange)="predicate$.next($event)"
+                [ascending]="ascending$ | async"
+                [callback]="transition.bind(this)" [predicate]="predicate$ | async"
+                jhiSort>
                 <th jhiSortBy="id"><span [translate]="'global.field.id'"></span><span class="fa fa-sort"></span></th>
-                <th jhiSortBy="login"><span [translate]="'userManagement.login'"></span> <span class="fa fa-sort"></span></th>
-                <th jhiSortBy="email"><span [translate]="'userManagement.email'"></span> <span class="fa fa-sort"></span></th>
+                <th jhiSortBy="login"><span [translate]="'userManagement.login'"></span> <span
+                        class="fa fa-sort"></span></th>
+                <th jhiSortBy="email"><span [translate]="'userManagement.email'"></span> <span
+                        class="fa fa-sort"></span></th>
                 <th></th>
-                <th jhiSortBy="langKey"> <span [translate]="'userManagement.langKey'"></span> <span class="fa fa-sort"></span></th>
+                <th jhiSortBy="langKey"><span [translate]="'userManagement.langKey'"></span> <span
+                        class="fa fa-sort"></span></th>
                 <th><span [translate]="'userManagement.lastModifiedBy'"></span></th>
                 <th></th>
             </tr>
             </thead>
-            <tbody *ngIf ="users.length > 0">
+            <tbody *ngIf="users.length > 0">
             <tr *ngFor="let user of users; trackBy: trackIdentity">
-                <td><a [routerLink]="['/user-management', user.login]">{{user.id}}</a></td>
-                <td>{{user.login}}</td>
-                <td>{{user.email}}</td>
+                <td><a [routerLink]="['/user-management', user.login]">{{ user.id }}</a></td>
+                <td>{{ user.login }}</td>
+                <td>{{ user.email }}</td>
                 <td>
                     <span *ngIf="!user.activated"
-                        class="badge badge-danger hand"
-                        [translate]="'userManagement.deactivated'">
+                          [translate]="'userManagement.deactivated'"
+                          class="badge badge-danger hand">
                     </span>
                     <span *ngIf="user.activated"
-                        class="badge badge-success hand"
-                        [translate]="'userManagement.activated'">
+                          [translate]="'userManagement.activated'"
+                          class="badge badge-success hand">
                     </span>
                 </td>
-                <td>{{user.langKey}}</td>
+                <td>{{ user.langKey }}</td>
 
-                <td>{{user.lastModifiedBy}}</td>
+                <td>{{ user.lastModifiedBy }}</td>
 
                 <td class="text-right">
                     <div class="btn-group flex-btn-group-container">
-                        <button type="submit"
+                        <button [routerLink]="['/user-management', user.login]"
+                                class="btn btn-info btn-sm"
                                 replaceUrl="true"
-                                [routerLink]="['/user-management', user.login]"
-                                class="btn btn-info btn-sm">
+                                type="submit">
                             <span class="fa fa-eye"></span>
-                            <span class="hidden-md-down" [translate]="'entity.action.view'"></span>
+                            <span [translate]="'entity.action.view'" class="hidden-md-down"></span>
                         </button>
                     </div>
                 </td>

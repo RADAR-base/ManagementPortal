@@ -8,16 +8,14 @@
  */
 package org.radarbase.management.web.rest.criteria
 
-open class CriteriaRange<T : Comparable<T>?>(var from: T? = null, var to: T? = null,
-                                             var `is`: T? = null
+open class CriteriaRange<T : Comparable<T>?>(
+    var from: T? = null,
+    var to: T? = null,
+    var `is`: T? = null,
 ) {
-    fun from(): T? {
-        return if (this.`is` == null) from else null
-    }
+    fun from(): T? = if (this.`is` == null) from else null
 
-    fun to(): T? {
-        return if (this.`is` == null) to else null
-    }
+    fun to(): T? = if (this.`is` == null) to else null
 
     val isEmpty: Boolean
         /**
@@ -29,13 +27,16 @@ open class CriteriaRange<T : Comparable<T>?>(var from: T? = null, var to: T? = n
      * Validate this criteria range whether the from and to ranges are in order.
      */
     fun validate() {
-        require(!(`is` == null && from != null && to != null && from!!.compareTo(to!!) > 0)) { "CriteriaRange must have a from range that is smaller then the to range." }
+        require(!(`is` == null && from != null && to != null && from!!.compareTo(to!!) > 0)) {
+            "CriteriaRange must have a from range that is smaller then the to range."
+        }
     }
 
-    override fun toString(): String {
-        return ("CriteriaRange{" + "from=" + from()
-                + ", to=" + to()
-                + ", is=" + this.`is`
-                + '}')
-    }
+    override fun toString(): String =
+        (
+            "CriteriaRange{" + "from=" + from() +
+                ", to=" + to() +
+                ", is=" + this.`is` +
+                '}'
+            )
 }

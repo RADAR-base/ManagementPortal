@@ -22,13 +22,14 @@ class SubjectDTO : Serializable {
         DISCONTINUED,
 
         // activated = false, removed = true
-        INVALID // activated = true,  removed = true (invalid state, makes no sense)
+        INVALID, // activated = true,  removed = true (invalid state, makes no sense)
     }
 
     var id: Long? = null
     private var _login: String? = null
     var login: String?
-        get() = if (_login == null) {
+        get() =
+            if (_login == null) {
                 _login = UUID.randomUUID().toString()
                 _login
             } else {
@@ -76,16 +77,26 @@ class SubjectDTO : Serializable {
         val subjectDto = other as SubjectDTO
         return if (id == null || subjectDto.id == null) {
             false
-        } else id != subjectDto.id
+        } else {
+            id != subjectDto.id
+        }
     }
 
-    override fun hashCode(): Int {
-        return Objects.hashCode(id)
-    }
+    override fun hashCode(): Int = Objects.hashCode(id)
 
-    override fun toString(): String {
-        return ("SubjectDTO{" + "id=" + id + ", login='" + login + '\'' + ", externalLink='" + externalLink + '\'' + ", externalId='" + externalId + '\'' + ", status=" + status + ", project=" + (project?.projectName) + ", attributes=" + attributes + '}')
-    }
+    override fun toString(): String =
+        (
+            "SubjectDTO{" + "id=" + id + ", login='" + login + '\'' + ", externalLink='" + externalLink + '\'' + ", externalId='" +
+                externalId +
+                '\'' +
+                ", status=" +
+                status +
+                ", project=" +
+                (project?.projectName) +
+                ", attributes=" +
+                attributes +
+                '}'
+            )
 
     companion object {
         private const val serialVersionUID = 1L

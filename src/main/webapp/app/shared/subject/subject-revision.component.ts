@@ -1,11 +1,11 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {ActivatedRoute} from '@angular/router';
 
-import { Revision } from '../../entities/revision/revision.model';
-import { RevisionService } from '../../entities/revision/revision.service';
+import {Revision} from '../../entities/revision/revision.model';
+import {RevisionService} from '../../entities/revision/revision.service';
 
-import { Subject } from './subject.model';
-import { SubjectService } from './subject.service';
+import {Subject} from './subject.model';
+import {SubjectService} from './subject.service';
 
 @Component({
     selector: 'jhi-subject-revision',
@@ -18,9 +18,9 @@ export class SubjectRevisionComponent implements OnInit, OnDestroy {
     private subscription: any;
 
     constructor(
-            private subjectService: SubjectService,
-            private revisionService: RevisionService,
-            private route: ActivatedRoute,
+        private subjectService: SubjectService,
+        private revisionService: RevisionService,
+        private route: ActivatedRoute,
     ) {
     }
 

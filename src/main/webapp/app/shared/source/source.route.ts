@@ -1,12 +1,12 @@
-import { Routes } from '@angular/router';
+import {Routes} from '@angular/router';
 
-import { UserRouteAccessService } from '..';
+import {UserRouteAccessService} from '..';
 
 import {ORGANIZATION_ADMIN, PROJECT_ADMIN, SYSTEM_ADMIN} from '../constants/common.constants';
-import { SourceDeletePopupComponent } from './source-delete-dialog.component';
+import {SourceDeletePopupComponent} from './source-delete-dialog.component';
 
-import { SourceDetailComponent } from './source-detail.component';
-import { SourcePopupComponent } from './source-dialog.component';
+import {SourceDetailComponent} from './source-detail.component';
+import {SourcePopupComponent} from './source-dialog.component';
 
 export const sourceRoute: Routes = [
     {

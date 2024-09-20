@@ -14,12 +14,15 @@ class AuthorizationConfiguration(
     private val projectRepository: ProjectRepository,
 ) {
     @Bean
-    fun authorizationOracle(): AuthorizationOracle = MPAuthorizationOracle(
-        object : EntityRelationService {
-            override suspend fun findOrganizationOfProject(project: String): String? = withContext(Dispatchers.IO) {
-                projectRepository.findOneWithEagerRelationshipsByName(project)
-                    ?.organizationName
-            }
-        }
-    )
+    fun authorizationOracle(): AuthorizationOracle =
+        MPAuthorizationOracle(
+            object : EntityRelationService {
+                override suspend fun findOrganizationOfProject(project: String): String? =
+                    withContext(Dispatchers.IO) {
+                        projectRepository
+                            .findOneWithEagerRelationshipsByName(project)
+                            ?.organizationName
+                    }
+            },
+        )
 }

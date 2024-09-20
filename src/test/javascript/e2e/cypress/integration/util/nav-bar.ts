@@ -1,4 +1,3 @@
-
 export let clickOnAccountMenu = () => click('#account-menu');
 export let clickOnAdminMenu = () => click('#admin-menu');
 export let clickOnEntity = (name) => click('[routerLink="' + name + '"]');

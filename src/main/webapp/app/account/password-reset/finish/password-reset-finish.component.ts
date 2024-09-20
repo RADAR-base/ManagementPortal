@@ -1,12 +1,12 @@
 import {AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import {ActivatedRoute} from '@angular/router';
+import {NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 
-import { LoginModalService } from '../../../shared';
+import {LoginModalService} from '../../../shared';
 
-import { PasswordResetFinish } from './password-reset-finish.service';
-import { Password } from '../../password/password.service';
-import { Subscription } from 'rxjs';
+import {PasswordResetFinish} from './password-reset-finish.service';
+import {Password} from '../../password/password.service';
+import {Subscription} from 'rxjs';
 
 @Component({
     selector: 'jhi-password-reset-finish',
@@ -27,10 +27,10 @@ export class PasswordResetFinishComponent implements OnInit, AfterViewInit, OnDe
     private subscriptions = new Subscription();
 
     constructor(
-            private passwordResetFinish: PasswordResetFinish,
-            private passwordService: Password,
-            private loginModalService: LoginModalService,
-            private route: ActivatedRoute,
+        private passwordResetFinish: PasswordResetFinish,
+        private passwordService: Password,
+        private loginModalService: LoginModalService,
+        private route: ActivatedRoute,
     ) {
     }
 

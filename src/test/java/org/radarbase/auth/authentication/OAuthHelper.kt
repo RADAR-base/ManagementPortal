@@ -58,24 +58,22 @@ object OAuthHelper {
      * MockMVC.
      * @return the request post processor
      */
-    fun bearerToken(): RequestPostProcessor {
-        return RequestPostProcessor { mockRequest: MockHttpServletRequest ->
+    fun bearerToken(): RequestPostProcessor =
+        RequestPostProcessor { mockRequest: MockHttpServletRequest ->
             mockRequest.addHeader("Authorization", "Bearer " + validEcToken)
             mockRequest
         }
-    }
 
     /**
      * Create a request post processor that adds a valid RSA bearer token to requests for use with
      * MockMVC.
      * @return the request post processor
      */
-    fun rsaBearerToken(): RequestPostProcessor {
-        return RequestPostProcessor { mockRequest: MockHttpServletRequest ->
+    fun rsaBearerToken(): RequestPostProcessor =
+        RequestPostProcessor { mockRequest: MockHttpServletRequest ->
             mockRequest.addHeader("Authorization", "Bearer " + validRsaToken)
             mockRequest
         }
-    }
 
     /**
      * Set up a keypair for signing the tokens, initialize all kinds of different tokens for tests.
@@ -84,36 +82,43 @@ object OAuthHelper {
     @Throws(Exception::class)
     fun setUp() {
         val ks = KeyStore.getInstance("PKCS12")
-        Thread.currentThread().getContextClassLoader()
-            .getResourceAsStream("config/keystore.p12").use { keyStream ->
+        Thread
+            .currentThread()
+            .getContextClassLoader()
+            .getResourceAsStream("config/keystore.p12")
+            .use { keyStream ->
                 checkNotNull(keyStream) { "Cannot find keystore to set up OAuth" }
                 ks.load(keyStream, TEST_KEYSTORE_PASSWORD.toCharArray())
 
                 // get the EC keypair for signing
-                val privateKey = ks.getKey(
-                    TEST_SIGNKEY_ALIAS,
-                    TEST_KEYSTORE_PASSWORD.toCharArray()
-                ) as ECPrivateKey
+                val privateKey =
+                    ks.getKey(
+                        TEST_SIGNKEY_ALIAS,
+                        TEST_KEYSTORE_PASSWORD.toCharArray(),
+                    ) as ECPrivateKey
                 val cert = ks.getCertificate(TEST_SIGNKEY_ALIAS)
                 val publicKey = cert.publicKey as ECPublicKey
                 val ecdsa = Algorithm.ECDSA256(publicKey, privateKey)
                 validEcToken = createValidToken(ecdsa)
 
                 // also get an RSA keypair to test accepting multiple keys
-                val rsaPrivateKey = ks.getKey(
-                    TEST_CHECKKEY_ALIAS,
-                    TEST_KEYSTORE_PASSWORD.toCharArray()
-                ) as RSAPrivateKey
-                val rsaPublicKey = ks.getCertificate(TEST_CHECKKEY_ALIAS)
-                    .publicKey as RSAPublicKey
+                val rsaPrivateKey =
+                    ks.getKey(
+                        TEST_CHECKKEY_ALIAS,
+                        TEST_KEYSTORE_PASSWORD.toCharArray(),
+                    ) as RSAPrivateKey
+                val rsaPublicKey =
+                    ks
+                        .getCertificate(TEST_CHECKKEY_ALIAS)
+                        .publicKey as RSAPublicKey
                 val rsa = Algorithm.RSA256(rsaPublicKey, rsaPrivateKey)
                 validRsaToken = createValidToken(rsa)
-                val verifierList = listOf(ecdsa, rsa)
-                    .map { alg: Algorithm? ->
-                        alg?.toTokenVerifier(ManagementPortalJwtAccessTokenConverter.RES_MANAGEMENT_PORTAL)
-                    }
-                    .requireNoNulls()
-                    .toList()
+                val verifierList =
+                    listOf(ecdsa, rsa)
+                        .map { alg: Algorithm? ->
+                            alg?.toTokenVerifier(ManagementPortalJwtAccessTokenConverter.RES_MANAGEMENT_PORTAL)
+                        }.requireNoNulls()
+                        .toList()
                 verifiers = listOf(StaticTokenVerifierLoader(verifierList))
             }
     }
@@ -126,7 +131,7 @@ object OAuthHelper {
     fun createAuthenticationFilter(): JwtAuthenticationFilter {
         val userRepository = Mockito.mock(UserRepository::class.java)
         Mockito.`when`(userRepository.findOneByLogin(ArgumentMatchers.anyString())).thenReturn(
-            createAdminUser()
+            createAdminUser(),
         )
         return JwtAuthenticationFilter(createTokenValidator(), { auth: Authentication? -> auth }, userRepository)
     }
@@ -154,7 +159,8 @@ object OAuthHelper {
     private fun createValidToken(algorithm: Algorithm): String {
         val exp = Instant.now().plusSeconds((30 * 60).toLong())
         val iat = Instant.now()
-        return JWT.create()
+        return JWT
+            .create()
             .withIssuer(ISS)
             .withIssuedAt(Date.from(iat))
             .withExpiresAt(Date.from(exp))

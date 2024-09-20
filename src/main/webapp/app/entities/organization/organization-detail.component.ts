@@ -1,9 +1,9 @@
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { combineLatest, Observable } from 'rxjs';
-import { Organization, OrganizationService, Principal } from '../../shared';
-import { EventManager } from '../../shared/util/event-manager.service';
-import { distinctUntilChanged, filter, map, pluck, shareReplay, switchMap } from 'rxjs/operators';
+import {Component, OnInit} from '@angular/core';
+import {ActivatedRoute} from '@angular/router';
+import {combineLatest, Observable} from 'rxjs';
+import {Organization, OrganizationService, Principal} from '../../shared';
+import {EventManager} from '../../shared/util/event-manager.service';
+import {distinctUntilChanged, filter, map, pluck, shareReplay, switchMap} from 'rxjs/operators';
 
 @Component({
     selector: 'jhi-organization-detail',
@@ -18,10 +18,10 @@ export class OrganizationDetailComponent implements OnInit {
     showPermissions: boolean;
 
     constructor(
-            private eventManager: EventManager,
-            private organizationService: OrganizationService,
-            private route: ActivatedRoute,
-            public principal: Principal,
+        private eventManager: EventManager,
+        private organizationService: OrganizationService,
+        private route: ActivatedRoute,
+        public principal: Principal,
     ) {
     }
 
@@ -29,6 +29,20 @@ export class OrganizationDetailComponent implements OnInit {
         this.organization$ = this.observeOrganization();
         this.userRoles$ = this.observeUserRoles(this.organization$);
         this.viewProjects();
+    }
+
+    previousState() {
+        window.history.back();
+    }
+
+    viewProjects() {
+        this.showProjects = true;
+        this.showPermissions = false;
+    }
+
+    viewPermissions() {
+        this.showProjects = false;
+        this.showPermissions = true;
     }
 
     private observeOrganization(): Observable<Organization> {
@@ -46,23 +60,9 @@ export class OrganizationDetailComponent implements OnInit {
             organization$,
             this.principal.account$,
         ]).pipe(
-            map(([organization , account]) => ({
+            map(([organization, account]) => ({
                 organizationAdmin: organization && this.principal.accountHasAnyAuthority(account, ['ROLE_SYS_ADMIN', 'ROLE_ORGANIZATION_ADMIN:' + organization.name]),
             })),
         );
-    }
-
-    previousState() {
-        window.history.back();
-    }
-
-    viewProjects() {
-        this.showProjects = true;
-        this.showPermissions = false;
-    }
-
-    viewPermissions() {
-        this.showProjects = false;
-        this.showPermissions = true;
     }
 }

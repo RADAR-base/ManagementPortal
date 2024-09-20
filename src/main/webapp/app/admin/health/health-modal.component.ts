@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import {Component, OnInit} from '@angular/core';
+import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 
-import { JhiHealthService } from './health.service';
+import {JhiHealthService} from './health.service';
 
 @Component({
     selector: 'jhi-health-modal',
@@ -12,8 +12,8 @@ export class JhiHealthModalComponent implements OnInit {
     currentHealth: any;
 
     constructor(
-            private healthService: JhiHealthService,
-            public activeModal: NgbActiveModal,
+        private healthService: JhiHealthService,
+        public activeModal: NgbActiveModal,
     ) {
     }
 

@@ -1,6 +1,6 @@
 {
     "managementPortalApp": {
-        "sourceData" : {
+        "sourceData": {
             "home": {
                 "title": "Source Data",
                 "createLabel": "Create a new Source Data",
@@ -26,8 +26,8 @@
             "sourceType": "Source Type"
         }
     },
-    "error" : {
-        "sourceDataNameAvailable" : "SourceDataName is already in use",
+    "error": {
+        "sourceDataNameAvailable": "SourceDataName is already in use",
         "validation": "Validation error, check the entered values in the fields."
     }
 }

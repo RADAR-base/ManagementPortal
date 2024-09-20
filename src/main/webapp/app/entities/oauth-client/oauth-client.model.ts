@@ -13,17 +13,17 @@ export class OAuthClient {
     public registeredRedirectUri?: string[];
 
     constructor(
-            clientId?: string,
-            clientSecret?: string,
-            scope?: string[],
-            resourceIds?: string[],
-            authorizedGrantTypes?: string[],
-            autoApproveScopes?: string[],
-            accessTokenValiditySeconds?: number,
-            refreshTokenValiditySeconds?: number,
-            authorities?: string[],
-            additionalInformation?: any,
-            registeredRedirectUri?: string[]
+        clientId?: string,
+        clientSecret?: string,
+        scope?: string[],
+        resourceIds?: string[],
+        authorizedGrantTypes?: string[],
+        autoApproveScopes?: string[],
+        accessTokenValiditySeconds?: number,
+        refreshTokenValiditySeconds?: number,
+        authorities?: string[],
+        additionalInformation?: any,
+        registeredRedirectUri?: string[]
     ) {
         this.clientId = clientId ? clientId : '';
         this.clientSecret = clientSecret ? clientSecret : '';

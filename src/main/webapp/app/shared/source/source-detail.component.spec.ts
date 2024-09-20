@@ -1,14 +1,14 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { DatePipe } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
-import { of } from 'rxjs';
+import {ComponentFixture, TestBed, waitForAsync} from '@angular/core/testing';
+import {DatePipe} from '@angular/common';
+import {ActivatedRoute} from '@angular/router';
+import {of} from 'rxjs';
 
-import { EventManager } from '../util/event-manager.service';
-import { ManagementPortalTestModule } from '../util/test/test.module';
-import { MockActivatedRoute } from '../util/test/mock-route.service';
-import { SourceDetailComponent } from './source-detail.component';
-import { SourceService } from './source.service';
-import { Source } from './source.model';
+import {EventManager} from '../util/event-manager.service';
+import {ManagementPortalTestModule} from '../util/test/test.module';
+import {MockActivatedRoute} from '../util/test/mock-route.service';
+import {SourceDetailComponent} from './source-detail.component';
+import {SourceService} from './source.service';
+import {Source} from './source.model';
 
 describe('Component Tests', () => {
 
@@ -41,16 +41,16 @@ describe('Component Tests', () => {
 
         describe('OnInit', () => {
             it('Should call load all on init', () => {
-            // GIVEN
+                // GIVEN
 
-            spyOn(service, 'find').and.returnValue(of(new Source(10)));
+                spyOn(service, 'find').and.returnValue(of(new Source(10)));
 
-            // WHEN
-            comp.ngOnInit();
+                // WHEN
+                comp.ngOnInit();
 
-            // THEN
-            expect(service.find).toHaveBeenCalledWith('testSource');
-            expect(comp.source).toEqual(jasmine.objectContaining({id: 10}));
+                // THEN
+                expect(service.find).toHaveBeenCalledWith('testSource');
+                expect(comp.source).toEqual(jasmine.objectContaining({id: 10}));
             });
         });
     });

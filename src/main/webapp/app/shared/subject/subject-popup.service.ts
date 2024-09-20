@@ -1,23 +1,23 @@
-import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import {Injectable} from '@angular/core';
+import {Router} from '@angular/router';
+import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 
-import { ProjectService } from '../project/project.service';
-import { Subject, SubjectStatus } from './subject.model';
-import { SubjectService } from './subject.service';
-import { Observable, of } from 'rxjs';
-import { first, map } from 'rxjs/operators';
+import {ProjectService} from '../project/project.service';
+import {Subject, SubjectStatus} from './subject.model';
+import {SubjectService} from './subject.service';
+import {Observable, of} from 'rxjs';
+import {first, map} from 'rxjs/operators';
 
-@Injectable({ providedIn: 'root' })
+@Injectable({providedIn: 'root'})
 export class SubjectPopupService {
-    private isOpen = false;
     login ? = 'xxxyxxxx';
+    private isOpen = false;
 
     constructor(
-            private modalService: NgbModal,
-            private router: Router,
-            private subjectService: SubjectService,
-            private projectService: ProjectService,
+        private modalService: NgbModal,
+        private router: Router,
+        private subjectService: SubjectService,
+        private projectService: ProjectService,
     ) {
     }
 

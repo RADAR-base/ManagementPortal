@@ -1,20 +1,19 @@
 package org.radarbase.management.service.dto
 
 import com.fasterxml.jackson.annotation.JsonInclude
-import reactor.util.annotation.NonNull
 import java.io.Serializable
+import javax.validation.constraints.NotNull
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 class PublicProjectDTO : Serializable {
-    @NonNull
+    @NotNull
     var projectName: String? = null
 
-    @NonNull
+    @NotNull
     var description: String? = null
 
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     var sourceTypes: Set<MinimalSourceTypeDTO> = emptySet()
-
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -38,7 +37,6 @@ class PublicProjectDTO : Serializable {
 
     override fun toString(): String =
         "PublicProjectDTO(projectName=$projectName, description=$description, sourceTypes=$sourceTypes)"
-
 
     companion object {
         private const val serialVersionUID = 1L

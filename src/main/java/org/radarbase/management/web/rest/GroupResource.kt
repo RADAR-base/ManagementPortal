@@ -38,9 +38,8 @@ import javax.validation.Valid
 @RequestMapping("/api/projects/{projectName:" + Constants.ENTITY_ID_REGEX + "}/groups")
 class GroupResource(
     @Autowired private val groupService: GroupService,
-    @Autowired private val authService: AuthService
+    @Autowired private val authService: AuthService,
 ) {
-
     /**
      * Create group.
      * @param projectName project name
@@ -52,15 +51,18 @@ class GroupResource(
     @Throws(NotAuthorizedException::class)
     fun createGroup(
         @PathVariable projectName: String?,
-        @RequestBody @Valid groupDto: GroupDTO?
+        @RequestBody @Valid groupDto: GroupDTO?,
     ): ResponseEntity<GroupDTO> {
         authService.checkPermission(Permission.PROJECT_UPDATE, { e: EntityDetails -> e.project(projectName) })
         val groupDtoResult = groupService.createGroup(projectName!!, groupDto!!)
-        val location = MvcUriComponentsBuilder.fromController(javaClass)
-            .path("/{groupName}")
-            .buildAndExpand(projectName, groupDtoResult.name)
-            .toUri()
-        return ResponseEntity.created(location)
+        val location =
+            MvcUriComponentsBuilder
+                .fromController(javaClass)
+                .path("/{groupName}")
+                .buildAndExpand(projectName, groupDtoResult.name)
+                .toUri()
+        return ResponseEntity
+            .created(location)
             .body(groupDtoResult)
     }
 
@@ -73,7 +75,7 @@ class GroupResource(
     @GetMapping
     @Throws(NotAuthorizedException::class)
     fun listGroups(
-        @PathVariable projectName: String?
+        @PathVariable projectName: String?,
     ): List<GroupDTO> {
         authService.checkPermission(Permission.PROJECT_READ, { e: EntityDetails -> e.project(projectName) })
         return groupService.listGroups(projectName!!)
@@ -88,11 +90,11 @@ class GroupResource(
      */
     @GetMapping("/{groupName:" + Constants.ENTITY_ID_REGEX + "}")
     @Throws(
-        NotAuthorizedException::class
+        NotAuthorizedException::class,
     )
     fun getGroup(
         @PathVariable projectName: String?,
-        @PathVariable groupName: String?
+        @PathVariable groupName: String?,
     ): GroupDTO {
         authService.checkPermission(Permission.PROJECT_READ, { e: EntityDetails -> e.project(projectName) })
         return groupService.getGroup(projectName!!, groupName!!)
@@ -106,12 +108,12 @@ class GroupResource(
      */
     @DeleteMapping("/{groupName:" + Constants.ENTITY_ID_REGEX + "}")
     @Throws(
-        NotAuthorizedException::class
+        NotAuthorizedException::class,
     )
     fun deleteGroup(
         @RequestParam(defaultValue = "false") unlinkSubjects: Boolean?,
         @PathVariable projectName: String?,
-        @PathVariable groupName: String?
+        @PathVariable groupName: String?,
     ): ResponseEntity<*> {
         authService.checkPermission(Permission.PROJECT_UPDATE, { e: EntityDetails -> e.project(projectName) })
         groupService.deleteGroup(projectName!!, groupName!!, unlinkSubjects!!)
@@ -127,12 +129,12 @@ class GroupResource(
      */
     @PatchMapping("/{groupName:" + Constants.ENTITY_ID_REGEX + "}/subjects")
     @Throws(
-        NotAuthorizedException::class
+        NotAuthorizedException::class,
     )
     fun changeGroupSubjects(
         @PathVariable projectName: String?,
         @PathVariable groupName: String?,
-        @RequestBody patchOperations: List<GroupPatchOperation>
+        @RequestBody patchOperations: List<GroupPatchOperation>,
     ): ResponseEntity<*> {
         // Technically, this request modifies subjects,
         // so it would make sense to check permissions per subject,
@@ -147,11 +149,17 @@ class GroupResource(
                 "remove" -> operation.value?.let { removedItems.addAll(it) }
                 else -> throw BadRequestException(
                     "Group patch operation '$opCode' is not supported",
-                    EntityName.Companion.GROUP, ErrorConstants.ERR_VALIDATION
+                    EntityName.Companion.GROUP,
+                    ErrorConstants.ERR_VALIDATION,
                 )
             }
         }
-        groupService.updateGroupSubjects(projectName!!, groupName!!, addedItems.filterNotNull(), removedItems.filterNotNull())
+        groupService.updateGroupSubjects(
+            projectName!!,
+            groupName!!,
+            addedItems.filterNotNull(),
+            removedItems.filterNotNull(),
+        )
         return ResponseEntity.noContent().build<Any>()
     }
 }

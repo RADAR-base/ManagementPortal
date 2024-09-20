@@ -25,22 +25,26 @@ import javax.servlet.ServletContext
  * Configuration of web application with Servlet 3.0 APIs.
  */
 @Configuration
-class WebConfigurer : ServletContextInitializer, WebServerFactoryCustomizer<ConfigurableServletWebServerFactory> {
+class WebConfigurer :
+    ServletContextInitializer,
+    WebServerFactoryCustomizer<ConfigurableServletWebServerFactory> {
     @Autowired
     private val env: Environment? = null
 
     @Autowired
     private val jHipsterProperties: JHipsterProperties? = null
+
     override fun onStartup(servletContext: ServletContext) {
         if (env!!.activeProfiles.size != 0) {
             log.info(
                 "Web application configuration, using profiles: {}",
-                Arrays.asList(*env.activeProfiles)
+                Arrays.asList(*env.activeProfiles),
             )
         }
         if (env.acceptsProfiles(Profiles.of(JHipsterConstants.SPRING_PROFILE_PRODUCTION))) {
-            val disps = EnumSet
-                .of(DispatcherType.REQUEST, DispatcherType.FORWARD, DispatcherType.ASYNC)
+            val disps =
+                EnumSet
+                    .of(DispatcherType.REQUEST, DispatcherType.FORWARD, DispatcherType.ASYNC)
             initCachingHttpHeadersFilter(servletContext, disps)
         }
         log.info("Web application fully configured")
@@ -74,12 +78,19 @@ class WebConfigurer : ServletContextInitializer, WebServerFactoryCustomizer<Conf
      */
     private fun resolvePathPrefix(): String {
         val fullExecutablePath = this.javaClass.getResource("").path
-        val rootPath = Paths.get(".").toUri().normalize().getPath()
+        val rootPath =
+            Paths
+                .get(".")
+                .toUri()
+                .normalize()
+                .getPath()
         val extractedPath = fullExecutablePath.replace(rootPath, "")
         val extractionEndIndex = extractedPath.indexOf("build/")
         return if (extractionEndIndex <= 0) {
             ""
-        } else extractedPath.substring(0, extractionEndIndex)
+        } else {
+            extractedPath.substring(0, extractionEndIndex)
+        }
     }
 
     /**
@@ -87,22 +98,21 @@ class WebConfigurer : ServletContextInitializer, WebServerFactoryCustomizer<Conf
      */
     private fun initCachingHttpHeadersFilter(
         servletContext: ServletContext,
-        disps: EnumSet<DispatcherType>
+        disps: EnumSet<DispatcherType>,
     ) {
         log.debug("Registering Caching HTTP Headers Filter")
-        val cachingHttpHeadersFilter = servletContext.addFilter(
-            "cachingHttpHeadersFilter",
-            CachingHttpHeadersFilter(jHipsterProperties)
-        )
+        val cachingHttpHeadersFilter =
+            servletContext.addFilter(
+                "cachingHttpHeadersFilter",
+                CachingHttpHeadersFilter(jHipsterProperties),
+            )
         cachingHttpHeadersFilter.addMappingForUrlPatterns(disps, true, "/content/*")
         cachingHttpHeadersFilter.addMappingForUrlPatterns(disps, true, "/app/*")
         cachingHttpHeadersFilter.setAsyncSupported(true)
     }
 
     @Bean
-    fun passwordEncoder(): PasswordEncoder {
-        return BCryptPasswordEncoder()
-    }
+    fun passwordEncoder(): PasswordEncoder = BCryptPasswordEncoder()
 
     companion object {
         private val log = LoggerFactory.getLogger(WebConfigurer::class.java)

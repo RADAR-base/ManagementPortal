@@ -1,22 +1,21 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { Router } from '@angular/router';
-import { NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateService } from '@ngx-translate/core';
+import {ChangeDetectionStrategy, Component} from '@angular/core';
+import {Router} from '@angular/router';
+import {NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
+import {TranslateService} from '@ngx-translate/core';
 
 import {
     JhiLanguageHelper,
     LoginModalService,
     LoginService,
+    Organization,
+    OrganizationService,
     Principal,
     Project,
-    ProjectService,
-    Organization,
-    OrganizationService
+    ProjectService
 } from '../../shared';
-import { EventManager } from '../../shared/util/event-manager.service';
+import {EventManager} from '../../shared/util/event-manager.service';
 
-import { ProfileService } from '../profiles/profile.service';
-import {environment} from "../../../environments/environment";
+import {ProfileService} from '../profiles/profile.service';
 
 @Component({
     selector: 'jhi-navbar',
@@ -68,7 +67,7 @@ export class NavbarComponent {
     }
 
     login() {
-        window.location.href =  this.loginUrl;
+        window.location.href = this.loginUrl;
     }
 
     logout() {
@@ -82,6 +81,6 @@ export class NavbarComponent {
     }
 
     redirectToProfile() {
-        window.location.href =  this.settingsUrl;
+        window.location.href = this.settingsUrl;
     }
 }

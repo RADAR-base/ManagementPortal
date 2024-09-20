@@ -1,21 +1,20 @@
-
 <div *ngIf="sourceType$ | async as sourceType">
-    <h2><span [translate]="'managementPortalApp.sourceType.detail.title'"></span>: {{sourceType.producer}}
-    {{sourceType.model}} ({{sourceType.catalogVersion}}) </h2>
+    <h2><span [translate]="'managementPortalApp.sourceType.detail.title'"></span>: {{ sourceType.producer }}
+        {{ sourceType.model }} ({{ sourceType.catalogVersion }}) </h2>
     <hr>
     <jhi-alert-error></jhi-alert-error>
     <dl class="row-md jh-entity-details">
         <dt><span [translate]="'managementPortalApp.sourceType.producer'"></span></dt>
         <dd>
-            <span>{{sourceType.producer}}</span>
+            <span>{{ sourceType.producer }}</span>
         </dd>
         <dt><span [translate]="'managementPortalApp.sourceType.model'"></span></dt>
         <dd>
-            <span>{{sourceType.model}}</span>
+            <span>{{ sourceType.model }}</span>
         </dd>
         <dt><span [translate]="'managementPortalApp.sourceType.catalogVersion'"></span></dt>
         <dd>
-            <span>{{sourceType.catalogVersion}}</span>
+            <span>{{ sourceType.catalogVersion }}</span>
         </dd>
         <dt><span [translate]="'managementPortalApp.sourceType.sourceTypeScope'"></span></dt>
         <dd>
@@ -24,30 +23,30 @@
         <dt><span [translate]="'managementPortalApp.sourceType.sourceData'"></span></dt>
         <dd>
             <span *ngFor="let sourceData of sourceType.sourceData; let last = last">
-                <a [routerLink]="['/source-data', sourceData?.sourceDataName ]">{{sourceData.sourceDataType}}</a>{{last ? '' : ', '}}
+                <a [routerLink]="['/source-data', sourceData?.sourceDataName ]">{{ sourceData.sourceDataType }}</a>{{ last ? '' : ', ' }}
             </span>
         </dd>
         <dt><span [translate]="'managementPortalApp.sourceType.name'"></span></dt>
         <dd>
-            <span>{{sourceType.name}}</span>
+            <span>{{ sourceType.name }}</span>
         </dd>
         <dt><span [translate]="'managementPortalApp.sourceType.appProvider'"></span></dt>
         <dd>
-            <span>{{sourceType.appProvider}}</span>
+            <span>{{ sourceType.appProvider }}</span>
         </dd>
         <dt><span [translate]="'managementPortalApp.sourceType.assessmentType'"></span></dt>
         <dd>
-            <span>{{sourceType.assessmentType}}</span>
+            <span>{{ sourceType.assessmentType }}</span>
         </dd>
         <dt><span [translate]="'managementPortalApp.sourceType.description'"></span></dt>
         <dd>
-            <span>{{sourceType.description}}</span>
+            <span>{{ sourceType.description }}</span>
         </dd>
     </dl>
 
-    <button type="submit"
-            (click)="previousState()"
-            class="btn btn-info">
+    <button (click)="previousState()"
+            class="btn btn-info"
+            type="submit">
         <span class="fa fa-arrow-left"></span>&nbsp;<span [translate]="'entity.action.back'"></span>
     </button>
 

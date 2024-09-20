@@ -16,9 +16,8 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/api/public")
 class PublicResource(
-    @Autowired private val projectService: ProjectService
+    @Autowired private val projectService: ProjectService,
 ) {
-
     /**
      * GET  /public/projects : get all the projects for public endpoint.
      *
@@ -31,8 +30,9 @@ class PublicResource(
     ): ResponseEntity<*> {
         log.debug("REST request to get Projects for public endpoint")
         val page = projectService.getPublicProjects(pageable)
-        val headers = PaginationUtil
-            .generatePaginationHttpHeaders(page, "/api/public/projects")
+        val headers =
+            PaginationUtil
+                .generatePaginationHttpHeaders(page, "/api/public/projects")
         return ResponseEntity(page.content, headers, HttpStatus.OK)
     }
 

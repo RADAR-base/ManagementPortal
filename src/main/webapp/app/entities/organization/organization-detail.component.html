@@ -3,14 +3,14 @@
         <h2>
             <span>
                 <span [translate]="'managementPortalApp.organization.detail.title'"></span>:
-                {{organization.name}}
+                {{ organization.name }}
             </span>
             <button *ngIf="userRoles.organizationAdmin"
-                    type="button"
                     [routerLink]="['/', { outlets: { popup: 'organization/'+ organization.name + '/edit'} }]"
                     [state]="{ parentComponent:'organization-detail'}"
+                    class="btn btn-primary float-right"
                     replaceUrl="true"
-                    class="btn btn-primary float-right">
+                    type="button">
                 <span class="fa fa-pencil"></span>&nbsp;<span [translate]="'entity.action.edit'"></span>
             </button>
         </h2>
@@ -18,28 +18,28 @@
             <div class="organization-detail__organization-info-fields">
                 <div>
                     <span [translate]="'managementPortalApp.organization.organizationName'"></span>
-                    <p>{{organization.name}}</p>
+                    <p>{{ organization.name }}</p>
                 </div>
                 <div>
                     <span [translate]="'managementPortalApp.organization.location'"></span>
-                    <p>{{organization.location}}</p>
+                    <p>{{ organization.location }}</p>
                 </div>
             </div>
             <p class="organization-detail__description">
-                {{organization.description}}
+                {{ organization.description }}
             </p>
         </div>
 
         <ul class="nav nav-tabs">
-            <li class="nav-item" (click)="viewProjects()">
-                <span class="nav-link" [ngClass]="{active: showProjects}"
-                      [translate]="'managementPortalApp.organization.projects'">
+            <li (click)="viewProjects()" class="nav-item">
+                <span [ngClass]="{active: showProjects}" [translate]="'managementPortalApp.organization.projects'"
+                      class="nav-link">
                 </span>
             </li>
-            <li *ngIf="userRoles.organizationAdmin"
-                class="nav-item" (click)="viewPermissions()">
-                <span class="nav-link" [ngClass]="{active: showPermissions}"
-                      [translate]="'managementPortalApp.organization.permissions'">
+            <li (click)="viewPermissions()"
+                *ngIf="userRoles.organizationAdmin" class="nav-item">
+                <span [ngClass]="{active: showPermissions}" [translate]="'managementPortalApp.organization.permissions'"
+                      class="nav-link">
                 </span>
             </li>
         </ul>

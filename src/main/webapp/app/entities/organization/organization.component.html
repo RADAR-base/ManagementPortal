@@ -1,7 +1,9 @@
 <div>
     <h2>
         <span [translate]="'managementPortalApp.organization.home.title'"></span>
-        <button *jhiHasAnyAuthority="['ROLE_SYS_ADMIN']" class="btn btn-primary float-right create-organization" [routerLink]="['/', { outlets: { popup: ['organization-new'] } }]">
+        <button *jhiHasAnyAuthority="['ROLE_SYS_ADMIN']"
+                [routerLink]="['/', { outlets: { popup: ['organization-new'] } }]"
+                class="btn btn-primary float-right create-organization">
             <span class="fa fa-plus"></span>
             <span [translate]="'managementPortalApp.organization.home.createLabel'"></span>
         </button>
@@ -10,31 +12,31 @@
     </div>
     <br/>
     <jhi-alert></jhi-alert>
-    <div class="table-responsive" *ngIf="organizationService.organizations$ | async as organizations">
+    <div *ngIf="organizationService.organizations$ | async as organizations" class="table-responsive">
         <table class="table table-striped">
             <thead>
-                <tr>
-                    <th><span [translate]="'global.field.id'"></span></th>
-                    <th><span [translate]="'managementPortalApp.organization.organizationName'"></span></th>
-                    <th><span [translate]="'managementPortalApp.organization.description'"></span></th>
-                    <th><span [translate]="'managementPortalApp.organization.location'"></span></th>
-                    <th></th>
-                </tr>
+            <tr>
+                <th><span [translate]="'global.field.id'"></span></th>
+                <th><span [translate]="'managementPortalApp.organization.organizationName'"></span></th>
+                <th><span [translate]="'managementPortalApp.organization.description'"></span></th>
+                <th><span [translate]="'managementPortalApp.organization.location'"></span></th>
+                <th></th>
+            </tr>
             </thead>
             <tbody>
             <tr *ngFor="let organization of organizations; trackBy: trackName">
-                <td>{{organization.id}}</td>
-                <td><a [routerLink]="['../organization', organization.name ]">{{organization.name}}</a></td>
-                <td>{{organization.description}}</td>
-                <td>{{organization.location}}</td>
+                <td>{{ organization.id }}</td>
+                <td><a [routerLink]="['../organization', organization.name ]">{{ organization.name }}</a></td>
+                <td>{{ organization.description }}</td>
+                <td>{{ organization.location }}</td>
                 <td class="text-right">
                     <div class="btn-group flex-btn-group-container">
-                        <button type="submit"
-                                [routerLink]="['/', { outlets: { popup: 'organization/'+ organization.name + '/edit'} }]"
+                        <button [routerLink]="['/', { outlets: { popup: 'organization/'+ organization.name + '/edit'} }]"
+                                class="btn btn-primary btn-sm"
                                 replaceUrl="true"
-                                class="btn btn-primary btn-sm">
+                                type="submit">
                             <span class="fa fa-pencil"></span>
-                            <span class="hidden-md-down" [translate]="'entity.action.edit'"></span>
+                            <span [translate]="'entity.action.edit'" class="hidden-md-down"></span>
                         </button>
                     </div>
                 </td>

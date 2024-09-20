@@ -1,6 +1,6 @@
 {
     "managementPortalApp": {
-        "organization" : {
+        "organization": {
             "home": {
                 "title": "Organizations",
                 "createLabel": "Create a new Organization",
@@ -33,15 +33,15 @@
                 "label": "New group",
                 "button": "Add group"
             },
-            "attributeDataKey" : "Tag",
-            "attributeDataValue" : "Value",
-            "prettyOrganizationName" : "Human readable organization Name",
-            "prettyOrganizationName.fieldDescription" : "Human readable organization name that doesn't have to follow url pattern.",
+            "attributeDataKey": "Tag",
+            "attributeDataValue": "Value",
+            "prettyOrganizationName": "Human readable organization Name",
+            "prettyOrganizationName.fieldDescription": "Human readable organization name that doesn't have to follow url pattern.",
             "organizationIdAsPrettyName": "Do you want to use the organization-id as the human readable name?"
         },
-        "error" : {
-            "organizationIdNotFound" : "There was no organization found with id {{ param0 }}",
-            "organizationNameNotFound" : "There was no organization found with the name {{ param0 }}"
+        "error": {
+            "organizationIdNotFound": "There was no organization found with id {{ param0 }}",
+            "organizationNameNotFound": "There was no organization found with the name {{ param0 }}"
         }
     }
 }

@@ -44,28 +44,34 @@ internal class AuditResourceIntTest(
     @Autowired private val jacksonMessageConverter: MappingJackson2HttpMessageConverter,
     @Autowired private val formattingConversionService: FormattingConversionService,
     @Autowired private val pageableArgumentResolver: PageableHandlerMethodArgumentResolver,
-    @Autowired private val authService: AuthService
+    @Autowired private val authService: AuthService,
 ) {
     private lateinit var auditEvent: PersistentAuditEvent
     private lateinit var restAuditMockMvc: MockMvc
+
     @BeforeEach
     @Throws(ServletException::class)
     fun setUp() {
         MockitoAnnotations.openMocks(this)
-        val auditEventService = AuditEventService(
-            auditEventRepository,
-            auditEventConverter
-        )
+        val auditEventService =
+            AuditEventService(
+                auditEventRepository,
+                auditEventConverter,
+            )
         val auditResource = AuditResource(auditEventService, authService)
         val filter = OAuthHelper.createAuthenticationFilter()
         filter.init(MockFilterConfig())
-        restAuditMockMvc = MockMvcBuilders.standaloneSetup(auditResource)
-            .setCustomArgumentResolvers(pageableArgumentResolver)
-            .setConversionService(formattingConversionService)
-            .setMessageConverters(jacksonMessageConverter)
-            .addFilter<StandaloneMockMvcBuilder>(filter)
-            .defaultRequest<StandaloneMockMvcBuilder>(MockMvcRequestBuilders.get("/").with(OAuthHelper.bearerToken()))
-            .build()
+        restAuditMockMvc =
+            MockMvcBuilders
+                .standaloneSetup(auditResource)
+                .setCustomArgumentResolvers(pageableArgumentResolver)
+                .setConversionService(formattingConversionService)
+                .setMessageConverters(jacksonMessageConverter)
+                .addFilter<StandaloneMockMvcBuilder>(filter)
+                .defaultRequest<StandaloneMockMvcBuilder>(
+                    MockMvcRequestBuilders.get("/").with(OAuthHelper.bearerToken()),
+                )
+                .build()
     }
 
     @BeforeEach
@@ -80,93 +86,96 @@ internal class AuditResourceIntTest(
     @Throws(Exception::class)
     @Test
     fun allAudits() {
-            // Initialize the database
-            auditEventRepository.save(auditEvent)
+        // Initialize the database
+        auditEventRepository.save(auditEvent)
 
-            // Get all the audits
-            restAuditMockMvc.perform(MockMvcRequestBuilders.get("/management/audits"))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(
-                    MockMvcResultMatchers.jsonPath("$.[*].principal").value<Iterable<String?>>(
-                        Matchers.hasItem(
-                            SAMPLE_PRINCIPAL
-                        )
-                    )
-                )
-        }
+        // Get all the audits
+        restAuditMockMvc
+            .perform(MockMvcRequestBuilders.get("/management/audits"))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$.[*].principal").value<Iterable<String?>>(
+                    Matchers.hasItem(
+                        SAMPLE_PRINCIPAL,
+                    ),
+                ),
+            )
+    }
 
     @Throws(Exception::class)
     @Test
     fun audit() {
-            // Initialize the database
-            auditEventRepository.save(auditEvent)
+        // Initialize the database
+        auditEventRepository.save(auditEvent)
 
-            // Get the audit
-            restAuditMockMvc.perform(MockMvcRequestBuilders.get("/management/audits/{id}", auditEvent.id))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.principal").value(SAMPLE_PRINCIPAL))
-        }
+        // Get the audit
+        restAuditMockMvc
+            .perform(MockMvcRequestBuilders.get("/management/audits/{id}", auditEvent.id))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.principal").value(SAMPLE_PRINCIPAL))
+    }
 
     @Throws(Exception::class)
     @Test
     fun auditsByDate() {
-            // Initialize the database
-            auditEventRepository.save(auditEvent)
+        // Initialize the database
+        auditEventRepository.save(auditEvent)
 
-            // Generate dates for selecting audits by date, making sure the period contains the audit
-            val fromDate = SAMPLE_TIMESTAMP.minusDays(1).format(FORMATTER)
-            val toDate = SAMPLE_TIMESTAMP.plusDays(1).format(FORMATTER)
+        // Generate dates for selecting audits by date, making sure the period contains the audit
+        val fromDate = SAMPLE_TIMESTAMP.minusDays(1).format(FORMATTER)
+        val toDate = SAMPLE_TIMESTAMP.plusDays(1).format(FORMATTER)
 
-            // Get the audit
-            restAuditMockMvc.perform(
+        // Get the audit
+        restAuditMockMvc
+            .perform(
                 MockMvcRequestBuilders.get(
-                    "/management/audits?fromDate=" + fromDate + "&toDate="
-                            + toDate
-                )
+                    "/management/audits?fromDate=" + fromDate + "&toDate=" +
+                        toDate,
+                ),
+            ).andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$.[*].principal").value<Iterable<String?>>(
+                    Matchers.hasItem(
+                        SAMPLE_PRINCIPAL,
+                    ),
+                ),
             )
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(
-                    MockMvcResultMatchers.jsonPath("$.[*].principal").value<Iterable<String?>>(
-                        Matchers.hasItem(
-                            SAMPLE_PRINCIPAL
-                        )
-                    )
-                )
-        }
+    }
 
     @Throws(Exception::class)
     @Test
     fun nonExistingAuditsByDate() {
-            // Initialize the database
-            auditEventRepository.save(auditEvent)
+        // Initialize the database
+        auditEventRepository.save(auditEvent)
 
-            // Generate dates for selecting audits by date, making sure the period will not contain the
-            // sample audit
-            val fromDate = SAMPLE_TIMESTAMP.minusDays(2).format(FORMATTER)
-            val toDate = SAMPLE_TIMESTAMP.minusDays(1).format(FORMATTER)
+        // Generate dates for selecting audits by date, making sure the period will not contain the
+        // sample audit
+        val fromDate = SAMPLE_TIMESTAMP.minusDays(2).format(FORMATTER)
+        val toDate = SAMPLE_TIMESTAMP.minusDays(1).format(FORMATTER)
 
-            // Query audits but expect no results
-            restAuditMockMvc.perform(
+        // Query audits but expect no results
+        restAuditMockMvc
+            .perform(
                 MockMvcRequestBuilders.get(
-                    "/management/audits?fromDate=" + fromDate + "&toDate="
-                            + toDate
-                )
-            )
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.header().string("X-Total-Count", "0"))
-        }
+                    "/management/audits?fromDate=" + fromDate + "&toDate=" +
+                        toDate,
+                ),
+            ).andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.header().string("X-Total-Count", "0"))
+    }
 
     @Throws(Exception::class)
     @Test
     fun nonExistingAudit() {
-            // Get the audit
-            restAuditMockMvc.perform(MockMvcRequestBuilders.get("/management/audits/{id}", Long.MAX_VALUE))
-                .andExpect(MockMvcResultMatchers.status().isNotFound())
-        }
+        // Get the audit
+        restAuditMockMvc
+            .perform(MockMvcRequestBuilders.get("/management/audits/{id}", Long.MAX_VALUE))
+            .andExpect(MockMvcResultMatchers.status().isNotFound())
+    }
 
     companion object {
         private const val SAMPLE_PRINCIPAL = "SAMPLE_PRINCIPAL"

@@ -15,28 +15,29 @@ import org.springframework.transaction.annotation.Transactional
  */
 @Component("userDetailsService")
 class DomainUserDetailsService(
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
 ) : UserDetailsService {
     @Transactional
     override fun loadUserByUsername(login: String): UserDetails {
         log.debug("Authenticating {}", login)
         val lowercaseLogin = login.lowercase()
-        val user = userRepository.findOneWithRolesByLogin(lowercaseLogin)
-            ?: throw UsernameNotFoundException(
-                    "User $lowercaseLogin was not found in the database"
+        val user =
+            userRepository.findOneWithRolesByLogin(lowercaseLogin)
+                ?: throw UsernameNotFoundException(
+                    "User $lowercaseLogin was not found in the database",
                 )
         if (!user.activated) {
             throw UserNotActivatedException(
-                "User " + lowercaseLogin
-                        + " was not activated"
+                "User " + lowercaseLogin +
+                    " was not activated",
             )
         }
         val grantedAuthorities =
-            user.authorities!!.map { authority -> SimpleGrantedAuthority(authority) }
+            user.authorities.map { authority -> SimpleGrantedAuthority(authority) }
         return User(
             lowercaseLogin,
             user.password,
-            grantedAuthorities
+            grantedAuthorities,
         )
     }
 

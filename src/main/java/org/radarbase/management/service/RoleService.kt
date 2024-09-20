@@ -31,9 +31,10 @@ class RoleService(
     @Autowired private val authorityRepository: AuthorityRepository,
     @Autowired private val organizationRepository: OrganizationRepository,
     @Autowired private val projectRepository: ProjectRepository,
-    @Autowired private val roleMapper: RoleMapper
+    @Autowired private val roleMapper: RoleMapper,
 ) {
-    @Autowired lateinit private var userService: UserService
+    @Autowired
+    private lateinit var userService: UserService
 
     /**
      * Save a role.
@@ -59,24 +60,37 @@ class RoleService(
      */
     @Transactional(readOnly = true)
     fun findAll(): List<RoleDTO> {
-        val optUser = userService.getUserWithAuthorities()
-            ?: // return an empty list if we do not have a current user (e.g. with client credentials
-            // oauth2 grant)
-            return emptyList()
+        val optUser =
+            userService.getUserWithAuthorities()
+                ?: // return an empty list if we do not have a current user (e.g. with client credentials
+                // oauth2 grant)
+                return emptyList()
         val currentUserAuthorities = optUser.authorities
         return if (currentUserAuthorities.contains(RoleAuthority.SYS_ADMIN.authority)) {
             log.debug("Request to get all Roles")
-            roleRepository.findAll().filterNotNull().map { role: Role -> roleMapper.roleToRoleDTO(role) }.toList()
-        } else (if (currentUserAuthorities.contains(RoleAuthority.PROJECT_ADMIN.authority)) {
-            log.debug("Request to get project admin's project Projects")
-            optUser.roles.asSequence().filter { role: Role? ->
-                (RoleAuthority.PROJECT_ADMIN.authority == role?.authority?.name)
-            }.mapNotNull { r: Role -> r.project?.projectName }.distinct()
-                .flatMap { name: String -> roleRepository.findAllRolesByProjectName(name) }
-                .map { role -> roleMapper.roleToRoleDTO(role) }.toList()
+            roleRepository
+                .findAll()
+                .filterNotNull()
+                .map { role: Role -> roleMapper.roleToRoleDTO(role) }
+                .toList()
         } else {
-            emptyList()
-        }) as List<RoleDTO>
+            (
+                if (currentUserAuthorities.contains(RoleAuthority.PROJECT_ADMIN.authority)) {
+                    log.debug("Request to get project admin's project Projects")
+                    optUser.roles
+                        .asSequence()
+                        .filter { role: Role? ->
+                            (RoleAuthority.PROJECT_ADMIN.authority == role?.authority?.name)
+                        }.mapNotNull { r: Role -> r.project?.projectName }
+                        .distinct()
+                        .flatMap { name: String -> roleRepository.findAllRolesByProjectName(name) }
+                        .map { role -> roleMapper.roleToRoleDTO(role) }
+                        .toList()
+                } else {
+                    emptyList()
+                }
+                )
+        }
     }
 
     /**
@@ -87,8 +101,10 @@ class RoleService(
     @Transactional(readOnly = true)
     fun findSuperAdminRoles(): List<RoleDTO> {
         log.debug("Request to get admin Roles")
-        return roleRepository.findRolesByAuthorityName(RoleAuthority.SYS_ADMIN.authority)
-            .map { role: Role -> roleMapper.roleToRoleDTO(role) }.toList()
+        return roleRepository
+            .findRolesByAuthorityName(RoleAuthority.SYS_ADMIN.authority)
+            .map { role: Role -> roleMapper.roleToRoleDTO(role) }
+            .toList()
     }
 
     /**
@@ -119,11 +135,9 @@ class RoleService(
      * @param role to get or create
      * @return role from database
      */
-    fun getGlobalRole(role: RoleAuthority): Role {
-        return roleRepository.findRolesByAuthorityName(role.authority).firstOrNull()
+    fun getGlobalRole(role: RoleAuthority): Role =
+        roleRepository.findRolesByAuthorityName(role.authority).firstOrNull()
             ?: createNewRole(role) { _: Role? -> }
-    }
-
 
     /**
      * Get or create given organization role.
@@ -131,24 +145,28 @@ class RoleService(
      * @param organizationId organization ID
      * @return role from database
      */
-    fun getOrganizationRole(role: RoleAuthority, organizationId: Long): Role {
-        return roleRepository.findOneByOrganizationIdAndAuthorityName(
-            organizationId, role.authority
+    fun getOrganizationRole(
+        role: RoleAuthority,
+        organizationId: Long,
+    ): Role =
+        roleRepository.findOneByOrganizationIdAndAuthorityName(
+            organizationId,
+            role.authority,
         )
             ?: createNewRole(role) { r: Role ->
-                r.organization = organizationRepository.findById(organizationId).orElseThrow {
-                    NotFoundException(
-                        "Cannot find organization for authority",
-                        EntityName.USER,
-                        ErrorConstants.ERR_INVALID_AUTHORITY,
-                        mapOf(
-                            Pair("authorityName", role.authority),
-                            Pair("projectId", organizationId.toString())
+                r.organization =
+                    organizationRepository.findById(organizationId).orElseThrow {
+                        NotFoundException(
+                            "Cannot find organization for authority",
+                            EntityName.USER,
+                            ErrorConstants.ERR_INVALID_AUTHORITY,
+                            mapOf(
+                                Pair("authorityName", role.authority),
+                                Pair("projectId", organizationId.toString()),
+                            ),
                         )
-                    )
-                }
+                    }
             }
-    }
 
     /**
      * Get or create given project role.
@@ -156,20 +174,25 @@ class RoleService(
      * @param projectId organization ID
      * @return role from database
      */
-    fun getProjectRole(role: RoleAuthority, projectId: Long): Role {
-        return roleRepository.findOneByProjectIdAndAuthorityName(
-            projectId, role.authority
+    fun getProjectRole(
+        role: RoleAuthority,
+        projectId: Long,
+    ): Role =
+        roleRepository.findOneByProjectIdAndAuthorityName(
+            projectId,
+            role.authority,
         )
             ?: createNewRole(role) { r: Role ->
                 r.project = projectRepository.findByIdWithOrganization(projectId) ?: throw NotFoundException(
-                    "Cannot find project for authority", EntityName.USER, ErrorConstants.ERR_INVALID_AUTHORITY,
+                    "Cannot find project for authority",
+                    EntityName.USER,
+                    ErrorConstants.ERR_INVALID_AUTHORITY,
                     mapOf(
                         Pair("authorityName", role.authority),
-                        Pair("projectId", projectId.toString())
-                    )
+                        Pair("projectId", projectId.toString()),
+                    ),
                 )
             }
-    }
 
     /**
      * Get all roles related to a project.
@@ -178,16 +201,20 @@ class RoleService(
      */
     fun getRolesByProject(projectName: String): List<RoleDTO> {
         log.debug("Request to get all Roles for projectName $projectName")
-        return roleRepository.findAllRolesByProjectName(projectName)
-            .map { role: Role -> roleMapper.roleToRoleDTO(role) }.toList()
+        return roleRepository
+            .findAllRolesByProjectName(projectName)
+            .map { role: Role -> roleMapper.roleToRoleDTO(role) }
+            .toList()
     }
 
-    private fun getAuthority(role: RoleAuthority): Authority {
-        return authorityRepository.findByAuthorityName(role.authority)
+    private fun getAuthority(role: RoleAuthority): Authority =
+        authorityRepository.findByAuthorityName(role.authority)
             ?: authorityRepository.saveAndFlush(Authority(role))
-    }
 
-    private fun createNewRole(role: RoleAuthority, apply: Consumer<Role>): Role {
+    private fun createNewRole(
+        role: RoleAuthority,
+        apply: Consumer<Role>,
+    ): Role {
         val newRole = Role()
         newRole.authority = getAuthority(role)
         apply.accept(newRole)
@@ -201,10 +228,12 @@ class RoleService(
      * @return an [Optional] containing the role if it exists, and empty otherwise
      */
     fun findOneByProjectNameAndAuthorityName(
-        projectName: String?, authorityName: String?
+        projectName: String?,
+        authorityName: String?,
     ): RoleDTO? {
         log.debug("Request to get role of project {} and authority {}", projectName, authorityName)
-        return roleRepository.findOneByProjectNameAndAuthorityName(projectName, authorityName)
+        return roleRepository
+            .findOneByProjectNameAndAuthorityName(projectName, authorityName)
             .let { role -> role?.let { roleMapper.roleToRoleDTO(it) } }
     }
 
@@ -221,24 +250,26 @@ class RoleService(
         @JvmStatic
         fun getRoleAuthority(roleDto: RoleDTO): RoleAuthority {
             val authority: RoleAuthority
-            authority = try {
-                valueOfAuthority(roleDto.authorityName!!)
-            } catch (ex: IllegalArgumentException) {
-                throw BadRequestException(
-                    "Authority not found with " + "authorityName",
-                    EntityName.USER,
-                    ErrorConstants.ERR_INVALID_AUTHORITY,
-                    Collections.singletonMap(
-                        "authorityName", roleDto.authorityName
+            authority =
+                try {
+                    valueOfAuthority(roleDto.authorityName!!)
+                } catch (ex: IllegalArgumentException) {
+                    throw BadRequestException(
+                        "Authority not found with " + "authorityName",
+                        EntityName.USER,
+                        ErrorConstants.ERR_INVALID_AUTHORITY,
+                        Collections.singletonMap(
+                            "authorityName",
+                            roleDto.authorityName,
+                        ),
                     )
-                )
-            }
+                }
             if (authority.scope === RoleAuthority.Scope.ORGANIZATION && roleDto.organizationId == null) {
                 throw BadRequestException(
                     "Authority with " + "authorityName should have organization ID",
                     EntityName.USER,
                     ErrorConstants.ERR_INVALID_AUTHORITY,
-                    Collections.singletonMap("authorityName", roleDto.authorityName)
+                    Collections.singletonMap("authorityName", roleDto.authorityName),
                 )
             }
             if (authority.scope === RoleAuthority.Scope.PROJECT && roleDto.projectId == null) {
@@ -246,7 +277,7 @@ class RoleService(
                     "Authority with " + "authorityName should have project ID",
                     EntityName.USER,
                     ErrorConstants.ERR_INVALID_AUTHORITY,
-                    Collections.singletonMap("authorityName", roleDto.authorityName)
+                    Collections.singletonMap("authorityName", roleDto.authorityName),
                 )
             }
             return authority

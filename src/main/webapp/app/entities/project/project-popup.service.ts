@@ -1,21 +1,21 @@
-import { DatePipe } from '@angular/common';
-import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import {DatePipe} from '@angular/common';
+import {Injectable} from '@angular/core';
+import {Router} from '@angular/router';
+import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 
-import { copyProject, Project, ProjectService } from '../../shared';
-import { Observable, of, throwError } from 'rxjs';
-import { first, map } from 'rxjs/operators';
+import {copyProject, Project, ProjectService} from '../../shared';
+import {Observable, of, throwError} from 'rxjs';
+import {first, map} from 'rxjs/operators';
 
-@Injectable({ providedIn: 'root' })
+@Injectable({providedIn: 'root'})
 export class ProjectPopupService {
     private isOpen = false;
 
     constructor(
-            private datePipe: DatePipe,
-            private modalService: NgbModal,
-            private router: Router,
-            private projectService: ProjectService,
+        private datePipe: DatePipe,
+        private modalService: NgbModal,
+        private router: Router,
+        private projectService: ProjectService,
     ) {
     }
 

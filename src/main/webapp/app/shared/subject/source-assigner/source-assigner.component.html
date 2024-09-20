@@ -1,22 +1,23 @@
-<form name="editForm" role="form" novalidate (ngSubmit)="save()" #editForm="ngForm">
+<form #editForm="ngForm" (ngSubmit)="save()" name="editForm" novalidate role="form">
 
     <div class="modal-header">
-        <h4 class="modal-title" id="mySubjectLabel"
-            [translate]="'managementPortalApp.subject.pairSources.title'">
+        <h4 [translate]="'managementPortalApp.subject.pairSources.title'" class="modal-title"
+            id="mySubjectLabel">
         </h4>
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
-                (click)="clear()">&times;</button>
+        <button (click)="clear()" aria-hidden="true" class="close" data-dismiss="modal"
+                type="button">&times;
+        </button>
     </div>
 
     <div class="modal-body">
         <jhi-alert-error></jhi-alert-error>
-        <div class="form-group" [hidden]="!subject.id">
-            <label for="id" [translate]="'global.field.id'"></label>
-            <input type="text" class="form-control" id="id" name="id"
-                   [(ngModel)]="subject.login" readonly />
+        <div [hidden]="!subject.id" class="form-group">
+            <label [translate]="'global.field.id'" for="id"></label>
+            <input [(ngModel)]="subject.login" class="form-control" id="id" name="id"
+                   readonly type="text"/>
         </div>
-        <label class="form-control-label"
-            [translate]="'managementPortalApp.subject.pairSources.assignedSources'">
+        <label [translate]="'managementPortalApp.subject.pairSources.assignedSources'"
+               class="form-control-label">
         </label>
         <div class="table-responsive">
             <table class="table table-striped">
@@ -30,13 +31,13 @@
                 </thead>
                 <tbody>
                 <tr *ngFor="let source of assignedSources; trackBy: trackDeviceById">
-                    <td>{{source.sourceTypeProducer+"_"+source.sourceTypeModel+"_"+source.sourceTypeCatalogVersion}}</td>
-                    <td>{{source.sourceName}}</td>
-                    <td>{{source.expectedSourceName}}</td>
+                    <td>{{ source.sourceTypeProducer + "_" + source.sourceTypeModel + "_" + source.sourceTypeCatalogVersion }}</td>
+                    <td>{{ source.sourceName }}</td>
+                    <td>{{ source.expectedSourceName }}</td>
                     <td>
-                        <button type="button" (click)="removeSource(source)" class="btn btn-danger btn-sm fa fa-remove" >
-                            <span class="hidden-md-down"
-                                [translate]="'managementPortalApp.subject.pairSources.remove'">
+                        <button (click)="removeSource(source)" class="btn btn-danger btn-sm fa fa-remove" type="button">
+                            <span [translate]="'managementPortalApp.subject.pairSources.remove'"
+                                  class="hidden-md-down">
                             </span>
                         </button>
                     </td>
@@ -44,8 +45,8 @@
                 </tbody>
             </table>
         </div>
-        <label class="form-control-label"
-            [translate]="'managementPortalApp.subject.pairSources.availableSources'">
+        <label [translate]="'managementPortalApp.subject.pairSources.availableSources'"
+               class="form-control-label">
         </label>
         <div class="table-responsive">
             <table class="table table-striped">
@@ -59,11 +60,11 @@
                 </thead>
                 <tbody>
                 <tr *ngFor="let source of assignableSources; trackBy: trackDeviceById">
-                    <td>{{source.sourceTypeProducer+"_"+source.sourceTypeModel+"_"+source.sourceTypeCatalogVersion}}</td>
-                    <td>{{source.sourceName}}</td>
-                    <td>{{source.expectedSourceName}}</td>
+                    <td>{{ source.sourceTypeProducer + "_" + source.sourceTypeModel + "_" + source.sourceTypeCatalogVersion }}</td>
+                    <td>{{ source.sourceName }}</td>
+                    <td>{{ source.expectedSourceName }}</td>
                     <td>
-                        <button type="button" class="btn btn-primary float-right" (click)="addSource(source)">
+                        <button (click)="addSource(source)" class="btn btn-primary float-right" type="button">
                             <span [translate]="'global.attribute.add'"></span>
                         </button>
                     </td>
@@ -73,10 +74,10 @@
         </div>
     </div>
     <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal" (click)="clear()">
+        <button (click)="clear()" class="btn btn-default" data-dismiss="modal" type="button">
             <span class="fa fa-ban"></span>&nbsp;<span [translate]="'entity.action.cancel'"></span>
         </button>
-        <button type="submit" [disabled]="editForm.form.invalid || isSaving" class="btn btn-primary">
+        <button [disabled]="editForm.form.invalid || isSaving" class="btn btn-primary" type="submit">
             <span class="fa fa-save"></span>&nbsp;<span [translate]="'entity.action.save'"></span>
         </button>
     </div>

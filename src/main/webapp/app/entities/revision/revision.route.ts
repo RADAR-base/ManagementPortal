@@ -1,10 +1,10 @@
-import { Routes } from '@angular/router';
-import { UserRouteAccessService } from '../../shared';
+import {Routes} from '@angular/router';
+import {UserRouteAccessService} from '../../shared';
 
 import {ORGANIZATION_ADMIN, PROJECT_ADMIN, SYSTEM_ADMIN} from '../../shared/constants/common.constants';
 
-import { RevisionComponent } from './revision.component';
-import { ResolvePagingParams } from '../../shared/commons';
+import {RevisionComponent} from './revision.component';
+import {ResolvePagingParams} from '../../shared/commons';
 
 export const revisionRoute: Routes = [
     {

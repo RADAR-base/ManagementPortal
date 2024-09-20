@@ -12,10 +12,13 @@ import org.springframework.stereotype.Component
 class CustomRevisionListener : RevisionListener {
     @Autowired
     private val springSecurityAuditorAware: SpringSecurityAuditorAware? = null
+
     override fun newRevision(revisionEntity: Any) {
         AutowireHelper.autowire(this, springSecurityAuditorAware)
         val entity = revisionEntity as CustomRevisionEntity
-        entity.auditor = springSecurityAuditorAware!!.currentAuditor
-            .orElse(Constants.SYSTEM_ACCOUNT)
+        entity.auditor =
+            springSecurityAuditorAware!!
+                .currentAuditor
+                .orElse(Constants.SYSTEM_ACCOUNT)
     }
 }

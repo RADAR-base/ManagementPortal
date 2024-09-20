@@ -15,20 +15,26 @@ import org.springframework.beans.factory.annotation.Qualifier
 /**
  * Created by nivethika on 13-6-17.
  */
-abstract class SourceMapperDecorator() : SourceMapper {
+abstract class SourceMapperDecorator : SourceMapper {
+    @Autowired
+    @Qualifier("delegate")
+    private val delegate: SourceMapper? = null
 
-    @Autowired @Qualifier("delegate") private val delegate: SourceMapper? = null
-    @Autowired private val sourceRepository: SourceRepository? = null
-    @Autowired private val subjectRepository: SubjectRepository? = null
+    @Autowired
+    private val sourceRepository: SourceRepository? = null
+
+    @Autowired
+    private val subjectRepository: SubjectRepository? = null
 
     override fun minimalSourceDTOToSource(minimalSourceDetailsDto: MinimalSourceDetailsDTO): Source? {
-        val source = sourceRepository
-            ?.findOneBySourceId(minimalSourceDetailsDto.sourceId)
-            ?: throw
-                NotFoundException(
+        val source =
+            sourceRepository
+                ?.findOneBySourceId(minimalSourceDetailsDto.sourceId)
+                ?: throw NotFoundException(
                     "Source ID " + minimalSourceDetailsDto.sourceId + " not found",
-                    EntityName.Companion.SOURCE, ErrorConstants.ERR_SOURCE_NOT_FOUND,
-                    mapOf(Pair("sourceId", minimalSourceDetailsDto.sourceId.toString()))
+                    EntityName.Companion.SOURCE,
+                    ErrorConstants.ERR_SOURCE_NOT_FOUND,
+                    mapOf(Pair("sourceId", minimalSourceDetailsDto.sourceId.toString())),
                 )
         source.assigned = minimalSourceDetailsDto.isAssigned
         return source
@@ -37,16 +43,19 @@ abstract class SourceMapperDecorator() : SourceMapper {
     override fun sourceDTOToSource(sourceDto: SourceDTO): Source {
         val source = delegate?.sourceDTOToSource(sourceDto)
         if (sourceDto.id != null) {
-            val existingSource = sourceDto.id?.let {
-                sourceRepository?.findById(it)
-                    ?.orElseThrow<NotFoundException> {
-                        NotFoundException(
-                            "Source ID " + sourceDto.id + " not found",
-                            EntityName.Companion.SOURCE, ErrorConstants.ERR_SOURCE_NOT_FOUND,
-                            mapOf(Pair("sourceId", sourceDto.id.toString()))
-                        )
-                    }
-            }!!
+            val existingSource =
+                sourceDto.id?.let {
+                    sourceRepository
+                        ?.findById(it)
+                        ?.orElseThrow<NotFoundException> {
+                            NotFoundException(
+                                "Source ID " + sourceDto.id + " not found",
+                                EntityName.Companion.SOURCE,
+                                ErrorConstants.ERR_SOURCE_NOT_FOUND,
+                                mapOf(Pair("sourceId", sourceDto.id.toString())),
+                            )
+                        }
+                }!!
             if (sourceDto.subjectLogin == null) {
                 source?.subject = existingSource.subject
             } else {

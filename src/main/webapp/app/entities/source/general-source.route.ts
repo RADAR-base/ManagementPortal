@@ -1,11 +1,11 @@
-import { Routes } from '@angular/router';
+import {Routes} from '@angular/router';
 
-import { UserRouteAccessService } from '../../shared';
+import {UserRouteAccessService} from '../../shared';
 
 import {ORGANIZATION_ADMIN, PROJECT_ADMIN, SYSTEM_ADMIN} from '../../shared/constants/common.constants';
-import { GeneralSourcePopupComponent } from './general-source-dialog.component';
-import { GeneralSourceComponent } from './general-source.component';
-import { ResolvePagingParams } from '../../shared/commons';
+import {GeneralSourcePopupComponent} from './general-source-dialog.component';
+import {GeneralSourceComponent} from './general-source.component';
+import {ResolvePagingParams} from '../../shared/commons';
 
 export const sourceRoute: Routes = [
     {

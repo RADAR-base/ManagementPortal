@@ -1,18 +1,18 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { HttpErrorResponse } from '@angular/common/http';
-import { ActivatedRoute, Params } from '@angular/router';
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {HttpErrorResponse} from '@angular/common/http';
+import {ActivatedRoute, Params} from '@angular/router';
 
-import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import {NgbActiveModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 
-import { AlertService } from '../../shared/util/alert.service';
-import { EventManager } from '../../shared/util/event-manager.service';
-import { SourceType, SourceTypeService } from '../source-type';
-import { SourceDataPopupService } from './source-data-popup.service';
+import {AlertService} from '../../shared/util/alert.service';
+import {EventManager} from '../../shared/util/event-manager.service';
+import {SourceType, SourceTypeService} from '../source-type';
+import {SourceDataPopupService} from './source-data-popup.service';
 
-import { SourceData } from './source-data.model';
-import { SourceDataService } from './source-data.service';
-import { ObservablePopupComponent } from '../../shared/util/observable-popup.component';
-import { Observable, Subscription } from 'rxjs';
+import {SourceData} from './source-data.model';
+import {SourceDataService} from './source-data.service';
+import {ObservablePopupComponent} from '../../shared/util/observable-popup.component';
+import {Observable, Subscription} from 'rxjs';
 
 @Component({
     selector: 'jhi-source-data-dialog',
@@ -24,11 +24,11 @@ export class SourceDataDialogComponent implements OnInit, OnDestroy {
     private subscriptions: Subscription = new Subscription();
 
     constructor(
-            public activeModal: NgbActiveModal,
-            private alertService: AlertService,
-            private sourceDataService: SourceDataService,
-            public sourceTypeService: SourceTypeService,
-            private eventManager: EventManager,
+        public activeModal: NgbActiveModal,
+        private alertService: AlertService,
+        private sourceDataService: SourceDataService,
+        public sourceTypeService: SourceTypeService,
+        private eventManager: EventManager,
     ) {
     }
 
@@ -59,6 +59,10 @@ export class SourceDataDialogComponent implements OnInit, OnDestroy {
         }
     }
 
+    trackSourceTypeById(index: number, item: SourceType) {
+        return item.id;
+    }
+
     private onSaveSuccess(result: SourceData) {
         this.eventManager.broadcast({name: 'sourceDataListModification', content: 'OK'});
         this.isSaving = false;
@@ -73,10 +77,6 @@ export class SourceDataDialogComponent implements OnInit, OnDestroy {
     private onError(error) {
         this.alertService.error(error.message, null, null);
     }
-
-    trackSourceTypeById(index: number, item: SourceType) {
-        return item.id;
-    }
 }
 
 @Component({
@@ -85,8 +85,8 @@ export class SourceDataDialogComponent implements OnInit, OnDestroy {
 })
 export class SourceDataPopupComponent extends ObservablePopupComponent {
     constructor(
-            route: ActivatedRoute,
-            private sourceDataPopupService: SourceDataPopupService,
+        route: ActivatedRoute,
+        private sourceDataPopupService: SourceDataPopupService,
     ) {
         super(route);
     }

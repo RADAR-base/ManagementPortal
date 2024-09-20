@@ -1,14 +1,14 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { DatePipe } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
-import { of } from 'rxjs';
+import {ComponentFixture, TestBed, waitForAsync} from '@angular/core/testing';
+import {DatePipe} from '@angular/common';
+import {ActivatedRoute} from '@angular/router';
+import {of} from 'rxjs';
 
-import { EventManager } from '../util/event-manager.service';
-import { ManagementPortalTestModule } from '../util/test/test.module';
-import { MockActivatedRoute } from '../util/test/mock-route.service';
-import { SubjectService } from './subject.service';
-import { SubjectStatus } from './subject.model';
-import { SubjectDetailComponent } from './subject-detail.component';
+import {EventManager} from '../util/event-manager.service';
+import {ManagementPortalTestModule} from '../util/test/test.module';
+import {MockActivatedRoute} from '../util/test/mock-route.service';
+import {SubjectService} from './subject.service';
+import {SubjectStatus} from './subject.model';
+import {SubjectDetailComponent} from './subject-detail.component';
 
 describe('Component Tests', () => {
 
@@ -41,16 +41,26 @@ describe('Component Tests', () => {
 
         describe('OnInit', () => {
             it('Should call load all on init', () => {
-            // GIVEN
+                // GIVEN
 
-            spyOn(service, 'find').and.returnValue(of({id: 10, login: 'test', sources: [], status: SubjectStatus.ACTIVATED}));
+                spyOn(service, 'find').and.returnValue(of({
+                    id: 10,
+                    login: 'test',
+                    sources: [],
+                    status: SubjectStatus.ACTIVATED
+                }));
 
-            // WHEN
-            comp.ngOnInit();
+                // WHEN
+                comp.ngOnInit();
 
-            // THEN
-            expect(service.find).toHaveBeenCalledWith('test');
-            expect(comp.subject).toEqual(jasmine.objectContaining({id: 10, login: 'test', sources: [], status: SubjectStatus.ACTIVATED}));
+                // THEN
+                expect(service.find).toHaveBeenCalledWith('test');
+                expect(comp.subject).toEqual(jasmine.objectContaining({
+                    id: 10,
+                    login: 'test',
+                    sources: [],
+                    status: SubjectStatus.ACTIVATED
+                }));
             });
         });
     });

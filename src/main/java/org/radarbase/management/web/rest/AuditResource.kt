@@ -23,7 +23,10 @@ import java.time.LocalDate
  */
 @RestController
 @RequestMapping("/management/audits")
-class AuditResource(private val auditEventService: AuditEventService, private val authService: AuthService) {
+class AuditResource(
+    private val auditEventService: AuditEventService,
+    private val authService: AuthService,
+) {
     /**
      * GET  /audits : get a page of AuditEvents.
      *
@@ -32,7 +35,9 @@ class AuditResource(private val auditEventService: AuditEventService, private va
      */
     @GetMapping
     @Throws(NotAuthorizedException::class)
-    fun getAll(@Parameter pageable: Pageable): ResponseEntity<List<AuditEvent?>> {
+    fun getAll(
+        @Parameter pageable: Pageable,
+    ): ResponseEntity<List<AuditEvent?>> {
         authService.checkPermission(Permission.AUDIT_READ)
         val page = auditEventService.findAll(pageable)
         val headers = PaginationUtil.generatePaginationHttpHeaders(page, "/management/audits")
@@ -52,11 +57,12 @@ class AuditResource(private val auditEventService: AuditEventService, private va
     fun getByDates(
         @RequestParam(value = "fromDate") fromDate: LocalDate,
         @RequestParam(value = "toDate") toDate: LocalDate,
-        @Parameter pageable: Pageable?
+        @Parameter pageable: Pageable?,
     ): ResponseEntity<List<AuditEvent?>> {
         authService.checkPermission(Permission.AUDIT_READ)
-        val page = auditEventService
-            .findByDates(fromDate.atTime(0, 0), toDate.atTime(23, 59), pageable)
+        val page =
+            auditEventService
+                .findByDates(fromDate.atTime(0, 0), toDate.atTime(23, 59), pageable)
         val headers = PaginationUtil.generatePaginationHttpHeaders(page, "/management/audits")
         return ResponseEntity(page.content, headers, HttpStatus.OK)
     }
@@ -70,7 +76,9 @@ class AuditResource(private val auditEventService: AuditEventService, private va
      */
     @GetMapping("/{id:.+}")
     @Throws(NotAuthorizedException::class)
-    operator fun get(@PathVariable id: Long): ResponseEntity<AuditEvent?> {
+    operator fun get(
+        @PathVariable id: Long,
+    ): ResponseEntity<AuditEvent?> {
         authService.checkPermission(Permission.AUDIT_READ)
         return ResponseUtil.wrapOrNotFound(auditEventService.find(id))
     }

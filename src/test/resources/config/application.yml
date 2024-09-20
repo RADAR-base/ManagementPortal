@@ -15,60 +15,60 @@
 
 
 spring:
-    application:
-        name: ManagementPortal
-    profiles:
-        # The commented value for `active` can be replaced with valid Spring profiles to load.
-        # Otherwise, it will be filled in by gradle when building the WAR file
-        # Either way, it can be overridden by `--spring.profiles.active` value passed in the commandline or `-Dspring.profiles.active` set in `JAVA_OPTS`
-        active: #spring.profiles.active#
-    jackson:
-        serialization.write_dates_as_timestamps: false
-    cache:
-        type: none
-    datasource:
-        type: com.zaxxer.hikari.HikariDataSource
-        url: jdbc:hsqldb:mem:ManagementPortal;DB_CLOSE_DELAY=-1
-        name:
-        username:
-        password:
-    jpa:
-        database-platform: org.hibernate.dialect.HSQLDialect
-        database: HSQL
-        open-in-view: false
-        show-sql: false
-        hibernate:
-            ddl-auto: none
-            naming:
-                physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
-                implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
-        properties:
-            hibernate.id.new_generator_mappings: true
-            hibernate.cache.use_second_level_cache: false
-            hibernate.cache.use_query_cache: false
-            hibernate.generate_statistics: true
-            hibernate.hbm2ddl.auto: validate
-            org.hibernate.envers:
-                store_data_at_delete: true
-                audit_strategy: org.hibernate.envers.strategy.ValidityAuditStrategy
-                audit_strategy_validity_store_revend_timestamp: true
-                global_with_modified_flag: true
-                track_entities_changed_in_revision: true
-    mail:
-        host: localhost
-    main:
-        allow-circular-references: true
-    messages:
-        basename: i18n/messages
-    thymeleaf:
-        mode: HTML
+  application:
+    name: ManagementPortal
+  profiles:
+    # The commented value for `active` can be replaced with valid Spring profiles to load.
+    # Otherwise, it will be filled in by gradle when building the WAR file
+    # Either way, it can be overridden by `--spring.profiles.active` value passed in the commandline or `-Dspring.profiles.active` set in `JAVA_OPTS`
+    active: #spring.profiles.active#
+  jackson:
+    serialization.write_dates_as_timestamps: false
+  cache:
+    type: none
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    url: jdbc:hsqldb:mem:ManagementPortal;DB_CLOSE_DELAY=-1
+    name:
+    username:
+    password:
+  jpa:
+    database-platform: org.hibernate.dialect.HSQLDialect
+    database: HSQL
+    open-in-view: false
+    show-sql: false
+    hibernate:
+      ddl-auto: none
+      naming:
+        physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
+        implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
+    properties:
+      hibernate.id.new_generator_mappings: true
+      hibernate.cache.use_second_level_cache: false
+      hibernate.cache.use_query_cache: false
+      hibernate.generate_statistics: true
+      hibernate.hbm2ddl.auto: validate
+      org.hibernate.envers:
+        store_data_at_delete: true
+        audit_strategy: org.hibernate.envers.strategy.ValidityAuditStrategy
+        audit_strategy_validity_store_revend_timestamp: true
+        global_with_modified_flag: true
+        track_entities_changed_in_revision: true
+  mail:
+    host: localhost
+  main:
+    allow-circular-references: true
+  messages:
+    basename: i18n/messages
+  thymeleaf:
+    mode: HTML
 
 liquibase:
-    contexts: test
+  contexts: test
 
 server:
-    port: 10344
-    address: localhost
+  port: 10344
+  address: localhost
 
 # ===================================================================
 # JHipster specific properties
@@ -77,16 +77,16 @@ server:
 # ===================================================================
 
 jhipster:
-    async:
-        core-pool-size: 1
-        max-pool-size: 50
-        queue-capacity: 10000
-    security:
-        authentication:
-            jwt:
-                secret: my-secret-token-to-change-in-production
-                # Token is valid 30 minutes
-                token-validity-in-seconds: 1800
+  async:
+    core-pool-size: 1
+    max-pool-size: 50
+    queue-capacity: 10000
+  security:
+    authentication:
+      jwt:
+        secret: my-secret-token-to-change-in-production
+        # Token is valid 30 minutes
+        token-validity-in-seconds: 1800
 
 # ===================================================================
 # Application specific properties
@@ -100,17 +100,17 @@ jhipster:
 application:
 
 managementportal:
-    oauth:
-        keyStorePassword: radarbase
-        signingKeyAlias: radarbase-managementportal-ec
-        metaTokenTimeout: PT1H
-        persistentMetaTokenTimeout: P31D
-    common:
-        baseUrl: http://localhost:8080
-        managementPortalBaseUrl: http://localhost:8080/managementportal
-        privacyPolicyUrl: http://info.thehyve.nl/radar-cns-privacy-policy
-        activationKeyTimeoutInSeconds: 86400
-    identityServer:
-      serverUrl: http://127.0.0.1:4433
-      serverAdminUrl: http://127.0.0.1:4434
-      admin-email: admin@localhost
+  oauth:
+    keyStorePassword: radarbase
+    signingKeyAlias: radarbase-managementportal-ec
+    metaTokenTimeout: PT1H
+    persistentMetaTokenTimeout: P31D
+  common:
+    baseUrl: http://localhost:8080
+    managementPortalBaseUrl: http://localhost:8080/managementportal
+    privacyPolicyUrl: http://info.thehyve.nl/radar-cns-privacy-policy
+    activationKeyTimeoutInSeconds: 86400
+  identityServer:
+    serverUrl: http://127.0.0.1:4433
+    serverAdminUrl: http://127.0.0.1:4434
+    admin-email: admin@localhost

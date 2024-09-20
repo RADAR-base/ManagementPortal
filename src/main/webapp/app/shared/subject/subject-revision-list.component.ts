@@ -1,10 +1,10 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { ITEMS_PER_PAGE } from '..';
-import { EntityRevision } from '../../entities/revision/entity-revision.model';
-import { SubjectService } from './subject.service';
-import { HttpResponse } from '@angular/common/http';
-import { parseLinks } from '../util/parse-links-util';
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {ActivatedRoute, Router} from '@angular/router';
+import {ITEMS_PER_PAGE} from '..';
+import {EntityRevision} from '../../entities/revision/entity-revision.model';
+import {SubjectService} from './subject.service';
+import {HttpResponse} from '@angular/common/http';
+import {parseLinks} from '../util/parse-links-util';
 
 @Component({
     selector: 'jhi-subject-revision-list',
@@ -26,9 +26,9 @@ export class SubjectRevisionListComponent implements OnInit, OnDestroy {
     private subscription: any;
 
     constructor(
-            private subjectService: SubjectService,
-            private route: ActivatedRoute,
-            private router: Router,
+        private subjectService: SubjectService,
+        private route: ActivatedRoute,
+        private router: Router,
     ) {
         this.revisions = [];
         this.itemsPerPage = ITEMS_PER_PAGE;
@@ -85,11 +85,11 @@ export class SubjectRevisionListComponent implements OnInit, OnDestroy {
     transition() {
         this.router.navigate(['/subject', this.subjectLogin, 'revisions'], {
             queryParams:
-                    {
-                        page: this.page,
-                        size: this.itemsPerPage,
-                        sort: this.sort(),
-                    },
+                {
+                    page: this.page,
+                    size: this.itemsPerPage,
+                    sort: this.sort(),
+                },
         });
         this.load(this.subjectLogin);
     }

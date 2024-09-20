@@ -48,13 +48,14 @@ internal class MetaTokenServiceTest(
     @Test
     @Throws(MalformedURLException::class)
     fun testSaveThenFetchMetaToken() {
-        val metaToken = MetaToken()
-            .generateName(MetaToken.SHORT_ID_LENGTH)
-            .fetched(false)
-            .persistent(false)
-            .expiryDate(Instant.now().plus(Duration.ofHours(1)))
-            .subject(subjectMapper.subjectDTOToSubject(subjectDto))
-            .clientId(clientDetails.clientId)
+        val metaToken =
+            MetaToken()
+                .generateName(MetaToken.SHORT_ID_LENGTH)
+                .fetched(false)
+                .persistent(false)
+                .expiryDate(Instant.now().plus(Duration.ofHours(1)))
+                .subject(subjectMapper.subjectDTOToSubject(subjectDto))
+                .clientId(clientDetails.clientId)
         val saved = metaTokenService.save(metaToken)
         Assertions.assertNotNull(saved.id)
         Assertions.assertNotNull(saved.tokenName)
@@ -69,13 +70,14 @@ internal class MetaTokenServiceTest(
     @Test
     @Throws(MalformedURLException::class)
     fun testGetAFetchedMetaToken() {
-        val token = MetaToken()
-            .generateName(MetaToken.SHORT_ID_LENGTH)
-            .fetched(true)
-            .persistent(false)
-            .tokenName("something")
-            .expiryDate(Instant.now().plus(Duration.ofHours(1)))
-            .subject(subjectMapper.subjectDTOToSubject(subjectDto))
+        val token =
+            MetaToken()
+                .generateName(MetaToken.SHORT_ID_LENGTH)
+                .fetched(true)
+                .persistent(false)
+                .tokenName("something")
+                .expiryDate(Instant.now().plus(Duration.ofHours(1)))
+                .subject(subjectMapper.subjectDTOToSubject(subjectDto))
         val saved = metaTokenService.save(token)
         Assertions.assertNotNull(saved.id)
         Assertions.assertNotNull(saved.tokenName)
@@ -83,20 +85,21 @@ internal class MetaTokenServiceTest(
         Assertions.assertTrue(saved.expiryDate!!.isAfter(Instant.now()))
         val tokenName = saved.tokenName
         Assertions.assertThrows(
-            RadarWebApplicationException::class.java
+            RadarWebApplicationException::class.java,
         ) { metaTokenService.fetchToken(tokenName!!) }
     }
 
     @Test
     @Throws(MalformedURLException::class)
     fun testGetAnExpiredMetaToken() {
-        val token = MetaToken()
-            .generateName(MetaToken.SHORT_ID_LENGTH)
-            .fetched(false)
-            .persistent(false)
-            .tokenName("somethingelse")
-            .expiryDate(Instant.now().minus(Duration.ofHours(1)))
-            .subject(subjectMapper.subjectDTOToSubject(subjectDto))
+        val token =
+            MetaToken()
+                .generateName(MetaToken.SHORT_ID_LENGTH)
+                .fetched(false)
+                .persistent(false)
+                .tokenName("somethingelse")
+                .expiryDate(Instant.now().minus(Duration.ofHours(1)))
+                .subject(subjectMapper.subjectDTOToSubject(subjectDto))
         val saved = metaTokenService.save(token)
         Assertions.assertNotNull(saved.id)
         Assertions.assertNotNull(saved.tokenName)
@@ -104,30 +107,33 @@ internal class MetaTokenServiceTest(
         Assertions.assertTrue(saved.expiryDate!!.isBefore(Instant.now()))
         val tokenName = saved.tokenName
         Assertions.assertThrows(
-            RadarWebApplicationException::class.java
+            RadarWebApplicationException::class.java,
         ) { metaTokenService.fetchToken(tokenName!!) }
     }
 
     @Test
     fun testRemovingExpiredMetaToken() {
-        val tokenFetched = MetaToken()
-            .generateName(MetaToken.SHORT_ID_LENGTH)
-            .fetched(true)
-            .persistent(false)
-            .tokenName("something")
-            .expiryDate(Instant.now().plus(Duration.ofHours(1)))
-        val tokenExpired = MetaToken()
-            .generateName(MetaToken.SHORT_ID_LENGTH)
-            .fetched(false)
-            .persistent(false)
-            .tokenName("somethingelse")
-            .expiryDate(Instant.now().minus(Duration.ofHours(1)))
-        val tokenNew = MetaToken()
-            .generateName(MetaToken.SHORT_ID_LENGTH)
-            .fetched(false)
-            .persistent(false)
-            .tokenName("somethingelseandelse")
-            .expiryDate(Instant.now().plus(Duration.ofHours(1)))
+        val tokenFetched =
+            MetaToken()
+                .generateName(MetaToken.SHORT_ID_LENGTH)
+                .fetched(true)
+                .persistent(false)
+                .tokenName("something")
+                .expiryDate(Instant.now().plus(Duration.ofHours(1)))
+        val tokenExpired =
+            MetaToken()
+                .generateName(MetaToken.SHORT_ID_LENGTH)
+                .fetched(false)
+                .persistent(false)
+                .tokenName("somethingelse")
+                .expiryDate(Instant.now().minus(Duration.ofHours(1)))
+        val tokenNew =
+            MetaToken()
+                .generateName(MetaToken.SHORT_ID_LENGTH)
+                .fetched(false)
+                .persistent(false)
+                .tokenName("somethingelseandelse")
+                .expiryDate(Instant.now().plus(Duration.ofHours(1)))
         metaTokenRepository.saveAll(Arrays.asList(tokenFetched, tokenExpired, tokenNew))
         metaTokenService.removeStaleTokens()
         val availableTokens = metaTokenRepository.findAll()

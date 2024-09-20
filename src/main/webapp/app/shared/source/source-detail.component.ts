@@ -1,10 +1,10 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { Subscription } from 'rxjs';
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {ActivatedRoute} from '@angular/router';
+import {Subscription} from 'rxjs';
 
-import { EventManager } from '../util/event-manager.service';
-import { Source } from './source.model';
-import { SourceService } from './source.service';
+import {EventManager} from '../util/event-manager.service';
+import {Source} from './source.model';
+import {SourceService} from './source.service';
 
 @Component({
     selector: 'jhi-source-detail',
@@ -17,9 +17,9 @@ export class SourceDetailComponent implements OnInit, OnDestroy {
     private eventSubscriber: Subscription;
 
     constructor(
-            private eventManager: EventManager,
-            private sourceService: SourceService,
-            private route: ActivatedRoute,
+        private eventManager: EventManager,
+        private sourceService: SourceService,
+        private route: ActivatedRoute,
     ) {
     }
 
@@ -47,6 +47,6 @@ export class SourceDetailComponent implements OnInit, OnDestroy {
 
     registerChangeInDevices() {
         this.eventSubscriber = this.eventManager.subscribe('sourceListModification',
-                (response) => this.load(this.source.sourceName));
+            (response) => this.load(this.source.sourceName));
     }
 }

@@ -1,11 +1,11 @@
-import { Injectable } from '@angular/core';
-import { HttpClient, HttpResponse } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import {Injectable} from '@angular/core';
+import {HttpClient, HttpResponse} from '@angular/common/http';
+import {Observable} from 'rxjs';
 
-import { MinimalSource, Source } from './source.model';
-import { createRequestOption } from '../model/request.utils';
+import {MinimalSource, Source} from './source.model';
+import {createRequestOption} from '../model/request.utils';
 
-@Injectable({ providedIn: 'root' })
+@Injectable({providedIn: 'root'})
 export class SourceService {
 
     private resourceUrl = 'api/sources';
@@ -39,7 +39,10 @@ export class SourceService {
 
     findAllByProject(req?: any): Observable<HttpResponse<Source[]>> {
         const params = createRequestOption(req);
-        return this.http.get<Source[]>(`${this.projectResourceUrl}/${req.projectName}/sources`, {params, observe: 'response'});
+        return this.http.get<Source[]>(`${this.projectResourceUrl}/${req.projectName}/sources`, {
+            params,
+            observe: 'response'
+        });
     }
 
     findAvailable(projectName: string): Observable<HttpResponse<MinimalSource[]>> {
@@ -47,6 +50,9 @@ export class SourceService {
             assigned: false,
             minimized: true
         };
-        return this.http.get<MinimalSource[]>(`${this.projectResourceUrl}/${projectName}/sources`, {params, observe: 'response'});
+        return this.http.get<MinimalSource[]>(`${this.projectResourceUrl}/${projectName}/sources`, {
+            params,
+            observe: 'response'
+        });
     }
 }

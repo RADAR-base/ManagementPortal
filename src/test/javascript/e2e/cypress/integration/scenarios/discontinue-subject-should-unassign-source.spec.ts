@@ -1,5 +1,5 @@
-import { login } from '../util/login';
-import { loadProjectView } from "../util/nav-bar";
+import {login} from '../util/login';
+import {loadProjectView} from "../util/nav-bar";
 
 describe.skip('Project view: Create a subject, assign sources, discontinue and delete a subject.', () => {
     const sourceName = 'test-source-2';

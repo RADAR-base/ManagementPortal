@@ -1,9 +1,10 @@
 <div class="modal-header">
     <h4 class="modal-title" id="showHealthLabel">
-		{{'health.indicator.' + baseName(currentHealth.name) | translate}}
-        {{subSystemName(currentHealth.name)}}
+        {{ 'health.indicator.' + baseName(currentHealth.name) | translate }}
+        {{ subSystemName(currentHealth.name) }}
     </h4>
-    <button aria-label="Close" data-dismiss="modal" class="close" type="button" (click)="activeModal.dismiss('closed')"><span aria-hidden="true">&times;</span>
+    <button (click)="activeModal.dismiss('closed')" aria-label="Close" class="close" data-dismiss="modal" type="button">
+        <span aria-hidden="true">&times;</span>
     </button>
 </div>
 <div class="modal-body pad">
@@ -12,25 +13,27 @@
         <div class="table-responsive">
             <table class="table table-striped">
                 <thead>
-                    <tr>
-                        <th class="text-left" [translate]="'health.details.name'"></th>
-                        <th class="text-left" [translate]="'health.details.value'"></th>
-                    </tr>
+                <tr>
+                    <th [translate]="'health.details.name'" class="text-left"></th>
+                    <th [translate]="'health.details.value'" class="text-left"></th>
+                </tr>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let entry of currentHealth.details | keyvalue">
-                        <td class="text-left">{{entry.key}}</td>
-                        <td class="text-left">{{readableValue(entry.value)}}</td>
-                    </tr>
+                <tr *ngFor="let entry of currentHealth.details | keyvalue">
+                    <td class="text-left">{{ entry.key }}</td>
+                    <td class="text-left">{{ readableValue(entry.value) }}</td>
+                </tr>
                 </tbody>
             </table>
         </div>
     </div>
     <div *ngIf="currentHealth.error">
         <h4 [translate]="'health.details.error'"></h4>
-        <pre>{{currentHealth.error}}</pre>
+        <pre>{{ currentHealth.error }}</pre>
     </div>
 </div>
 <div class="modal-footer">
-    <button data-dismiss="modal" class="btn btn-secondary float-left" type="button" (click)="activeModal.dismiss('closed')">Done</button>
+    <button (click)="activeModal.dismiss('closed')" class="btn btn-secondary float-left" data-dismiss="modal"
+            type="button">Done
+    </button>
 </div>

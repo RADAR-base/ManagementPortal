@@ -24,36 +24,34 @@ import tech.jhipster.config.JHipsterConstants
 @Profile(JHipsterConstants.SPRING_PROFILE_API_DOCS)
 class OpenApiConfiguration {
     @Bean
-    fun customOpenAPI(): OpenAPI {
-        return OpenAPI()
+    fun customOpenAPI(): OpenAPI =
+        OpenAPI()
             .components(
                 Components()
                     .addSecuritySchemes(
-                        "oauth2Login", SecurityScheme()
+                        "oauth2Login",
+                        SecurityScheme()
                             .type(SecurityScheme.Type.OAUTH2)
                             .flows(
                                 OAuthFlows()
                                     .authorizationCode(
                                         OAuthFlow()
                                             .authorizationUrl("/oauth/authorize")
-                                            .tokenUrl("/oauth/token")
-                                    )
-                                    .clientCredentials(
+                                            .tokenUrl("/oauth/token"),
+                                    ).clientCredentials(
                                         OAuthFlow()
-                                            .tokenUrl("/oauth/token")
-                                    )
-                            )
-                    )
-            )
-            .info(
+                                            .tokenUrl("/oauth/token"),
+                                    ),
+                            ),
+                    ),
+            ).info(
                 Info()
                     .title("ManagementPortal API")
                     .description("ManagementPortal for RADAR-base")
                     .license(
                         License()
                             .name("Apache 2.0")
-                            .url("https://radar-base.org")
-                    )
+                            .url("https://radar-base.org"),
+                    ),
             )
-    }
 }

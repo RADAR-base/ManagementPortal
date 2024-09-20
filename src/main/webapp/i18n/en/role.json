@@ -1,6 +1,6 @@
 {
     "managementPortalApp": {
-        "Role" : {
+        "Role": {
             "null": "",
             "ROLE_SYS_SUPERUSER": "ROLE_SYS_SUPERUSER",
             "ROLE_SYS_ADMIN": "ROLE_SYS_ADMIN",
@@ -10,7 +10,7 @@
             "ROLE_ANALYST": "ROLE_ANALYST",
             "ROLE_PARTICIPANT": "ROLE_PARTICIPANT"
         },
-        "role" : {
+        "role": {
             "home": {
                 "title": "Roles",
                 "createLabel": "Create a new Role",

@@ -53,7 +53,7 @@ class ManagementPortalJwtTokenStore : TokenStore {
      */
     constructor(
         jwtAccessTokenConverter: JwtAccessTokenConverter,
-        approvalStore: ApprovalStore?
+        approvalStore: ApprovalStore?,
     ) {
         this.jwtAccessTokenConverter = jwtAccessTokenConverter
         this.approvalStore = approvalStore
@@ -68,15 +68,15 @@ class ManagementPortalJwtTokenStore : TokenStore {
         this.approvalStore = approvalStore
     }
 
-    override fun readAuthentication(token: OAuth2AccessToken): OAuth2Authentication {
-        return readAuthentication(token.value)
-    }
+    override fun readAuthentication(token: OAuth2AccessToken): OAuth2Authentication = readAuthentication(token.value)
 
-    override fun readAuthentication(token: String): OAuth2Authentication {
-        return jwtAccessTokenConverter.extractAuthentication(jwtAccessTokenConverter.decode(token))
-    }
+    override fun readAuthentication(token: String): OAuth2Authentication =
+        jwtAccessTokenConverter.extractAuthentication(jwtAccessTokenConverter.decode(token))
 
-    override fun storeAccessToken(token: OAuth2AccessToken, authentication: OAuth2Authentication) {
+    override fun storeAccessToken(
+        token: OAuth2AccessToken,
+        authentication: OAuth2Authentication,
+    ) {
         // this is not really a store where we persist
     }
 
@@ -88,10 +88,9 @@ class ManagementPortalJwtTokenStore : TokenStore {
         return accessToken
     }
 
-    private fun convertAccessToken(tokenValue: String): OAuth2AccessToken {
-        return jwtAccessTokenConverter
+    private fun convertAccessToken(tokenValue: String): OAuth2AccessToken =
+        jwtAccessTokenConverter
             .extractAccessToken(tokenValue, jwtAccessTokenConverter.decode(tokenValue))
-    }
 
     override fun removeAccessToken(token: OAuth2AccessToken) {
         // this is not really store where we persist
@@ -99,7 +98,7 @@ class ManagementPortalJwtTokenStore : TokenStore {
 
     override fun storeRefreshToken(
         refreshToken: OAuth2RefreshToken,
-        authentication: OAuth2Authentication
+        authentication: OAuth2Authentication,
     ) {
         // this is not really store where we persist
     }
@@ -133,14 +132,15 @@ class ManagementPortalJwtTokenStore : TokenStore {
         return if (encodedRefreshToken.expiration != null) {
             DefaultExpiringOAuth2RefreshToken(
                 encodedRefreshToken.value,
-                encodedRefreshToken.expiration
+                encodedRefreshToken.expiration,
             )
-        } else DefaultOAuth2RefreshToken(encodedRefreshToken.value)
+        } else {
+            DefaultOAuth2RefreshToken(encodedRefreshToken.value)
+        }
     }
 
-    override fun readAuthenticationForRefreshToken(token: OAuth2RefreshToken): OAuth2Authentication {
-        return readAuthentication(token.value)
-    }
+    override fun readAuthenticationForRefreshToken(token: OAuth2RefreshToken): OAuth2Authentication =
+        readAuthentication(token.value)
 
     override fun removeRefreshToken(token: OAuth2RefreshToken) {
         remove(token.value)
@@ -156,9 +156,12 @@ class ManagementPortalJwtTokenStore : TokenStore {
                 for (scope in auth.oAuth2Request.scope) {
                     approvals.add(
                         Approval(
-                            user.name, clientId, scope, Date(),
-                            ApprovalStatus.APPROVED
-                        )
+                            user.name,
+                            clientId,
+                            scope,
+                            Date(),
+                            ApprovalStatus.APPROVED,
+                        ),
                     )
                 }
                 approvalStore!!.revokeApprovals(approvals)
@@ -178,12 +181,8 @@ class ManagementPortalJwtTokenStore : TokenStore {
 
     override fun findTokensByClientIdAndUserName(
         clientId: String,
-        userName: String
-    ): Collection<OAuth2AccessToken> {
-        return emptySet()
-    }
+        userName: String,
+    ): Collection<OAuth2AccessToken> = emptySet()
 
-    override fun findTokensByClientId(clientId: String): Collection<OAuth2AccessToken> {
-        return emptySet()
-    }
+    override fun findTokensByClientId(clientId: String): Collection<OAuth2AccessToken> = emptySet()
 }

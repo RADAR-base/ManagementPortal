@@ -1,6 +1,6 @@
 {
     "managementPortalApp": {
-        "project" : {
+        "project": {
             "home": {
                 "title": "Projects",
                 "createLabel": "Create a new Project",
@@ -29,23 +29,23 @@
             "groups": "Groups",
             "subjects": "Subjects",
             "sources": "Sources",
-            "permissions":  "Permissions",
-            "admins":  "Admins",
+            "permissions": "Permissions",
+            "admins": "Admins",
             "analysts": "Analysts",
             "newGroup": {
                 "label": "New group",
                 "button": "Add group"
             },
-            "attributeData" : "Attributes",
-            "attributeDataKey" : "Tag",
-            "attributeDataValue" : "Value",
-            "prettyProjectName" : "Human readable project Name",
-            "prettyProjectName.fieldDescription" : "Human readable project name that doesn't have to follow url pattern.",
+            "attributeData": "Attributes",
+            "attributeDataKey": "Tag",
+            "attributeDataValue": "Value",
+            "prettyProjectName": "Human readable project Name",
+            "prettyProjectName.fieldDescription": "Human readable project name that doesn't have to follow url pattern.",
             "projectIdAsPrettyName": "Do you want to use the project-id as the human readable name?"
         },
-        "error" : {
-            "projectIdNotFound" : "There was no project found with id {{ param0 }}",
-            "projectNameNotFound" : "There was no project found with the name {{ param0 }}"
+        "error": {
+            "projectIdNotFound": "There was no project found with id {{ param0 }}",
+            "projectNameNotFound": "There was no project found with the name {{ param0 }}"
         }
     }
 }

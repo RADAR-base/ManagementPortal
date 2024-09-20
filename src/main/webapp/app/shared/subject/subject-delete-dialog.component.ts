@@ -1,16 +1,16 @@
-import { Component } from '@angular/core';
-import { ActivatedRoute, Params } from '@angular/router';
+import {Component} from '@angular/core';
+import {ActivatedRoute, Params} from '@angular/router';
 
-import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import {NgbActiveModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 
-import { EventManager } from '../util/event-manager.service';
-import { SubjectPopupService } from './subject-popup.service';
+import {EventManager} from '../util/event-manager.service';
+import {SubjectPopupService} from './subject-popup.service';
 
-import { Subject } from './subject.model';
-import { SubjectService } from './subject.service';
-import { ObservablePopupComponent } from '../util/observable-popup.component';
-import { Observable } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import {Subject} from './subject.model';
+import {SubjectService} from './subject.service';
+import {ObservablePopupComponent} from '../util/observable-popup.component';
+import {Observable} from 'rxjs';
+import {switchMap} from 'rxjs/operators';
 
 @Component({
     selector: 'jhi-subject-delete-dialog',
@@ -21,9 +21,9 @@ export class SubjectDeleteDialogComponent {
     isDelete: boolean;
 
     constructor(
-            private subjectService: SubjectService,
-            public activeModal: NgbActiveModal,
-            private eventManager: EventManager,
+        private subjectService: SubjectService,
+        public activeModal: NgbActiveModal,
+        private eventManager: EventManager,
     ) {
     }
 
@@ -39,7 +39,10 @@ export class SubjectDeleteDialogComponent {
             });
         } else {
             this.subjectService.discontinue(this.subject).subscribe(() => {
-                this.eventManager.broadcast({name: 'subjectListModification', content: {op: 'DELETE', subject: this.subject}});
+                this.eventManager.broadcast({
+                    name: 'subjectListModification',
+                    content: {op: 'DELETE', subject: this.subject}
+                });
                 this.activeModal.dismiss(true);
                 window.history.back();
             });
@@ -61,13 +64,13 @@ export class SubjectDeletePopupComponent extends ObservablePopupComponent {
 
     createModalRef(params: Params): Observable<NgbModalRef> {
         return this.route.url.pipe(
-          switchMap(url => {
-            if ('discontinue' === url[2].path) {
-                return this.subjectPopupService.open(SubjectDeleteDialogComponent, params['login'], false);
-            } else {
-                return this.subjectPopupService.open(SubjectDeleteDialogComponent, params['login'], true);
-            }
-          }),
+            switchMap(url => {
+                if ('discontinue' === url[2].path) {
+                    return this.subjectPopupService.open(SubjectDeleteDialogComponent, params['login'], false);
+                } else {
+                    return this.subjectPopupService.open(SubjectDeleteDialogComponent, params['login'], true);
+                }
+            }),
         );
     }
 }

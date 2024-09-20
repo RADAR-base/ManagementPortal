@@ -1,4 +1,4 @@
-import { login } from '../util/login';
+import {login} from '../util/login';
 
 describe('Project e2e test', () => {
     beforeEach(() => {

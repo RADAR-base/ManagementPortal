@@ -1,5 +1,5 @@
 
 dependencies {
-    implementation group: 'org.mapstruct', name: 'mapstruct', version: mapstruct_version
-    kapt group: 'org.mapstruct', name: 'mapstruct-processor', version: mapstruct_version
+    implementation group: 'org.mapstruct', name: 'mapstruct', version: libs.versions.mapstruct.get()
+    kapt group: 'org.mapstruct', name: 'mapstruct-processor', version: libs.versions.mapstruct.get()
 }

@@ -6,22 +6,20 @@ import java.util.*
 
 /**
  * View Model for sending a [RadarWebApplicationException].
- */
-class RadarWebApplicationExceptionVM
-/**
+
  * Creates an error view model with message, entityName and errorCode.
  *
  * @param message message to client.
  * @param entityName entityRelated from [EntityName]
  * @param errorCode errorCode from [ErrorConstants]
  * @param params map of optional information.
- */(
+ */
+class RadarWebApplicationExceptionVM(
     @field:JsonProperty val message: String?,
     @field:JsonProperty val entityName: String,
     @field:JsonProperty val errorCode: String?,
-    @field:JsonProperty val params: Map<String, String?>
+    @field:JsonProperty val params: Map<String, String?>,
 ) : Serializable {
-
     /**
      * Creates an error view model with message, entityName and errorCode.
      *
@@ -33,7 +31,7 @@ class RadarWebApplicationExceptionVM
         message,
         entityName,
         errorCode,
-        emptyMap<String, String>()
+        emptyMap<String, String>(),
     )
 
     override fun equals(other: Any?): Boolean {
@@ -47,15 +45,14 @@ class RadarWebApplicationExceptionVM
         return entityName == that.entityName && errorCode == that.errorCode && message == that.message && params == that.params
     }
 
-    override fun hashCode(): Int {
-        return Objects.hash(entityName, errorCode, message, params)
-    }
+    override fun hashCode(): Int = Objects.hash(entityName, errorCode, message, params)
 
-    override fun toString(): String {
-        return ("RadarWebApplicationExceptionVM{" + "entityName='" + entityName + '\''
-                + ", errorCode='" + errorCode + '\'' + ", message='" + message + '\'' + ", params="
-                + params + '}')
-    }
+    override fun toString(): String =
+        (
+            "RadarWebApplicationExceptionVM{" + "entityName='" + entityName + '\'' +
+                ", errorCode='" + errorCode + '\'' + ", message='" + message + '\'' + ", params=" +
+                params + '}'
+            )
 
     companion object {
         private const val serialVersionUID = 1L

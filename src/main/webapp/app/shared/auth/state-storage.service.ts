@@ -1,6 +1,6 @@
-import { Injectable } from '@angular/core';
-import { SessionStorageService } from 'ngx-webstorage';
-import { Params } from "@angular/router";
+import {Injectable} from '@angular/core';
+import {SessionStorageService} from 'ngx-webstorage';
+import {Params} from "@angular/router";
 
 export interface RouteStateSegment {
     path: string;
@@ -14,11 +14,12 @@ export interface RouteState {
     authorities?: string[];
 }
 
-@Injectable({ providedIn: 'root' })
+@Injectable({providedIn: 'root'})
 export class StateStorageService {
     constructor(
-      private $sessionStorage: SessionStorageService,
-    ) {}
+        private $sessionStorage: SessionStorageService,
+    ) {
+    }
 
     getPreviousState(): RouteState | null {
         return this.$sessionStorage.retrieve('previousState');

@@ -10,8 +10,8 @@
   -->
 
 <databaseChangeLog
-        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.7.xsd">
 
     <changeSet id="20211026-1" author="alexey@thehyve.nl" context="dev, test">
@@ -26,11 +26,11 @@
             and I want to keep the old 201708301031-2 changeset intact.
          -->
         <loadUpdateData encoding="UTF-8"
-                  file="config/liquibase/subject_group.csv"
-                  primaryKey="id"
-                  separator=";"
-                  tableName="subject"
-                  onlyUpdate="true">
+                        file="config/liquibase/subject_group.csv"
+                        primaryKey="id"
+                        separator=";"
+                        tableName="subject"
+                        onlyUpdate="true">
         </loadUpdateData>
     </changeSet>
 </databaseChangeLog>
