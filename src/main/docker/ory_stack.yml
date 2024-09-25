@@ -5,10 +5,11 @@ volumes:
 
 services:
     radar-self-enrolment-ui:
-        image: ghcr.io/radar-base/radar-self-enrolment-ui:feat-initial-components
+        image: ghcr.io/radar-base/radar-self-enrolment-ui:dev
         environment:
-            - ORY_SDK_URL=http://kratos:4433/
+            - ORY_SDK_URL=http://kratos:4433
             - HYDRA_ADMIN_URL=http://hydra:4445
+            - HYDRA_PUBLIC_URL=http://hydra:4444
         ports:
             - "3000:3000"
         volumes:
@@ -101,6 +102,7 @@ services:
           - OIDC_SUBJECT_IDENTIFIERS_SUPPORTED_TYPES=public,pairwise
           - OIDC_SUBJECT_IDENTIFIERS_PAIRWISE_SALT=youReallyNeedToChangeThis
           - STRATEGIES_ACCESS_TOKEN=jwt
+          - STRATEGIES_JWT_SCOPE_CLAIM=both
           - SERVE_PUBLIC_CORS_ENABLED=true
           - SERVE_ADMIN_CORS_ENABLED=true
           - OAUTH2_ALLOWED_TOP_LEVEL_CLAIMS=scope,roles,authorities,sources,user_name
