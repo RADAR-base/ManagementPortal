@@ -80,7 +80,7 @@ server:
 # ===================================================================
 managementportal:
   common:
-    baseUrl: http://my-server-url-to-change-here # Modify according to your server's URL
+    baseUrl: http://localhost:8080/managementportal # Modify according to your server's URL
     managementPortalBaseUrl: http://localhost:8080/managementportal
     privacyPolicyUrl: http://info.thehyve.nl/radar-cns-privacy-policy
     adminPassword:
@@ -89,7 +89,7 @@ managementportal:
     from: ManagementPortal@localhost
   frontend:
     clientId: ManagementPortalapp
-    clientSecret:
+    clientSecret: secret
     accessTokenValiditySeconds: 14400
     refreshTokenValiditySeconds: 259200
     sessionTimeout: 86400
@@ -101,9 +101,13 @@ managementportal:
     enableAutoImport: false
   identityServer:
     adminEmail: bdegraaf1234@gmail.com
-    serverUrl: https://radar-k3s-test.thehyve.net/kratos
+    serverUrl: http://localhost:4433
     serverAdminUrl: http://kratos-admin
     loginUrl: http://localhost:3000
+  authServer:
+    serverUrl: http://hydra:4444
+    serverAdminUrl: http://hydra:4445
+    loginUrl:  http://localhost:4444
 
 # ===================================================================
 # JHipster specific properties

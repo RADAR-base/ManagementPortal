@@ -12,6 +12,8 @@ public class ManagementPortalProperties {
 
     private final IdentityServer identityServer = new IdentityServer();
 
+    private final AuthServer authServer = new AuthServer();
+
     private final Mail mail = new Mail();
 
     private final Frontend frontend = new Frontend();
@@ -32,6 +34,10 @@ public class ManagementPortalProperties {
 
     public IdentityServer getIdentityServer() {
         return identityServer;
+    }
+
+    public AuthServer getAuthServer() {
+        return authServer;
     }
 
     public ManagementPortalProperties.Mail getMail() {
@@ -323,6 +329,37 @@ public class ManagementPortalProperties {
             this.loginUrl = loginUrl;
         }
     }
+
+    public class AuthServer {
+        private String serverUrl = null;
+        private String serverAdminUrl = null;
+        private String loginUrl = null;
+
+        public String getServerUrl() {
+            return serverUrl;
+        }
+
+        public void setServerUrl(String serverUrl) {
+            this.serverUrl = serverUrl;
+        }
+
+        public String getServerAdminUrl() {
+            return serverAdminUrl;
+        }
+
+        public void setServerAdminUrl(String serverAdminUrl) {
+            this.serverAdminUrl = serverAdminUrl;
+        }
+
+        public String getLoginUrl() {
+            return loginUrl;
+        }
+
+        public void setLoginUrl(String loginUrl) {
+            this.loginUrl = loginUrl;
+        }
+    }
+
 
     public static class CatalogueServer {
 

@@ -11,7 +11,6 @@ import org.radarbase.management.domain.Role
 import org.radarbase.management.domain.User
 import org.radarbase.management.repository.UserRepository
 import org.radarbase.management.security.JwtAuthenticationFilter
-import org.radarbase.management.security.jwt.ManagementPortalJwtAccessTokenConverter
 import org.slf4j.LoggerFactory
 import org.springframework.mock.web.MockHttpServletRequest
 import org.springframework.security.core.Authentication
@@ -38,7 +37,7 @@ object OAuthHelper {
     val AUTHORITIES = arrayOf("ROLE_SYS_ADMIN")
     val ROLES = arrayOf("ROLE_SYS_ADMIN")
     val SOURCES = arrayOf<String>()
-    val AUD = arrayOf(ManagementPortalJwtAccessTokenConverter.RES_MANAGEMENT_PORTAL)
+    val AUD = arrayOf("res_ManagementPortal")
     const val CLIENT = "unit_test"
     const val USER = "admin"
     const val ISS = "RADAR"
@@ -110,7 +109,7 @@ object OAuthHelper {
                 validRsaToken = createValidToken(rsa)
                 val verifierList = listOf(ecdsa, rsa)
                     .map { alg: Algorithm? ->
-                        alg?.toTokenVerifier(ManagementPortalJwtAccessTokenConverter.RES_MANAGEMENT_PORTAL)
+                        alg?.toTokenVerifier("res_ManagementPortal")
                     }
                     .requireNoNulls()
                     .toList()
@@ -128,7 +127,7 @@ object OAuthHelper {
         Mockito.`when`(userRepository.findOneByLogin(ArgumentMatchers.anyString())).thenReturn(
             createAdminUser()
         )
-        return JwtAuthenticationFilter(createTokenValidator(), { auth: Authentication? -> auth }, userRepository)
+        return JwtAuthenticationFilter(createTokenValidator(), { auth: Authentication? -> auth })
     }
 
     /**
@@ -164,7 +163,6 @@ object OAuthHelper {
             .withArrayClaim("authorities", AUTHORITIES)
             .withArrayClaim("roles", ROLES)
             .withArrayClaim("sources", SOURCES)
-            .withArrayClaim("aud", AUD)
             .withClaim("client_id", CLIENT)
             .withClaim("user_name", USER)
             .withClaim("jti", JTI)
