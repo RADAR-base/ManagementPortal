@@ -58,6 +58,7 @@ constructor(
         val project =
                 kratosIdentity.traits!!.projects?.firstOrNull()
                         ?: throw NotAuthorizedException("Cannot create subject without project")
+        val projectUserId = project.userId ?: throw IllegalArgumentException("Project user ID is required")
         val projectDto =
                 projectService.findOneByName(project.id!!)
                         ?: throw NotFoundException(
@@ -66,7 +67,7 @@ constructor(
                                 "projectNotFound"
                         )
         val subjectDto =
-                subjectService.createSubject(id, projectDto)
+                subjectService.createSubject(projectUserId, projectDto)
                         ?: throw IllegalStateException("Failed to create subject for ID: $id")
         val user =
                 userService.getUserWithAuthoritiesByLogin(subjectDto.login!!)
