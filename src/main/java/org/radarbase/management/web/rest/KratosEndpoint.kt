@@ -94,10 +94,15 @@ constructor(
                 webhookDTO.cookies?.get("ory_kratos_session")
                         ?: throw IllegalArgumentException("Session token is required")
         val kratosIdentity = sessionService.getSession(token).identity
+        val project =
+                kratosIdentity.traits!!.projects?.firstOrNull()
+                ?: throw NotAuthorizedException("Cannot create subject without project")
+        val projectUserId = project.userId ?: throw IllegalArgumentException("Project user ID is required")
+
         if (!hasPermission(kratosIdentity, id)) {
             throw NotAuthorizedException("Not authorized to activate subject")
         }
-        subjectService.activateSubject(id)
+        subjectService.activateSubject(projectUserId)
         return ResponseEntity.ok()
                 .headers(HeaderUtil.createEntityUpdateAlert(EntityName.SUBJECT, id))
                 .build()
