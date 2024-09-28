@@ -93,12 +93,13 @@ class KratosSessionDTO(
     class Traits (
         val name: String? = null,
         val email: String? = null,
-        val projects: List<Projects>? = null,
+        val projects: List<Project>? = null,
     )
 
     @Serializable
-    class Projects (
+    class Project (
         val id: String? = null,
+        val userId: String? = null,
         val name: String? = null,
         val eligibility: Map<String, String>? = null,
         val consent: Map<String, String>? = null,
