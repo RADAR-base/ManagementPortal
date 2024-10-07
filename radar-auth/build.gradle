@@ -5,8 +5,8 @@ plugins {
 apply plugin: 'maven-publish'
 
 ext {
-    jacksonVersion = '2.13.4'
-    jacksonYamlVersion = '2.13.4'
+    jacksonVersion = '2.15.0'
+    jacksonYamlVersion = '2.15.0'
     okhttpVersion = '4.9.1'
     oauthJwtVersion = '3.19.1'
     commonsCodecVersion = '1.15'
