@@ -147,6 +147,7 @@ if (project.hasProperty('prod')) {
 
 //ext.moduleDescription = 'Management Portal application'
 ext.findbugAnnotationVersion = '3.0.2'
+ext['undertow.version'] = "${undertow_version}"
 
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect:${kotlin_version}")
@@ -188,9 +189,9 @@ dependencies {
     runtimeOnly "org.hsqldb:hsqldb:${hsqldb_version}"
 
     // Fix vulnerabilities
-    runtimeOnly("io.undertow:undertow-websockets-jsr:2.2.25.Final")
-    runtimeOnly("io.undertow:undertow-servlet:2.2.25.Final")
-    runtimeOnly("io.undertow:undertow-core:2.2.25.Final")
+    runtimeOnly("io.undertow:undertow-websockets-jsr")
+    runtimeOnly("io.undertow:undertow-servlet")
+    runtimeOnly("io.undertow:undertow-core")
 
     implementation "org.springframework.boot:spring-boot-starter-thymeleaf"
     runtimeOnly("org.thymeleaf:thymeleaf:${thymeleaf_version}")
