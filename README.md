@@ -1,3 +1,5 @@
+Try to run some CI tests
+
 # ManagementPortal
 
 [![Latest release](https://img.shields.io/github/v/release/RADAR-base/ManagementPortal)](https://github.com/RADAR-base/ManagementPortal/releases/latest)
