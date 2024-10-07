@@ -147,6 +147,7 @@ if (project.hasProperty('prod')) {
 
 //ext.moduleDescription = 'Management Portal application'
 ext.findbugAnnotationVersion = '3.0.2'
+ext['jackson.version'] = "${jackson_version}"
 ext['undertow.version'] = "${undertow_version}"
 
 dependencies {
