@@ -1,5 +1,5 @@
-ext.jacksonVersion = '2.13.4'
-ext.jacksonYamlVersion = '2.13.4'
+ext.jacksonVersion = '2.15.0'
+ext.jacksonYamlVersion = '2.15.0'
 ext.okhttpVersion = '4.9.1'
 ext.junitVersion ='5.7.2'
 

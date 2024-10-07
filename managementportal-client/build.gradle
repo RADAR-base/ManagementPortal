@@ -24,7 +24,7 @@ repositories {
 }
 
 ext {
-    jacksonModuleVersion = "2.13.4"
+    jacksonModuleVersion = "2.15.0"
     okhttpVersion = "4.9.1"
     junitVersion = "5.7.2"
 }
