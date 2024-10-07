@@ -145,8 +145,8 @@ if (project.hasProperty('prod')) {
     apply from: 'gradle/profile_dev.gradle'
 }
 
-//ext.moduleDescription = 'Management Portal application'
 ext.findbugAnnotationVersion = '3.0.2'
+// Versions passed to Spring Boot dependency plugin
 ext['jackson.version'] = "${jackson_version}"
 ext['undertow.version'] = "${undertow_version}"
 ext['spring-security.version'] = "${spring_security_version}"
