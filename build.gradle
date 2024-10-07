@@ -143,7 +143,7 @@ if (project.hasProperty('graphite')) {
 //ext.moduleDescription = 'Management Portal application'
 ext.findbugAnnotationVersion = '3.0.2'
 // Needed to force the import by Spring Dependency Management Plugin
-ext['jackson.version'] = '2.15.0'
+ext['jackson.version'] = "${jackson_version}"
 
 dependencies {
     implementation("tech.jhipster:jhipster-framework:${jhipster_server_version}")
