@@ -149,6 +149,7 @@ if (project.hasProperty('prod')) {
 ext.findbugAnnotationVersion = '3.0.2'
 ext['jackson.version'] = "${jackson_version}"
 ext['undertow.version'] = "${undertow_version}"
+ext['spring-security.version'] = "${spring_security_version}"
 
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect:${kotlin_version}")
