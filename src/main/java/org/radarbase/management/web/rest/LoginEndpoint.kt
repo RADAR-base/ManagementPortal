@@ -30,7 +30,7 @@ constructor(
         } else {
             val accessToken = authService.fetchAccessToken(code)
             redirectView.url =
-                    "${managementPortalProperties.common.baseUrl}/#/?access_token=$accessToken"
+                    "${managementPortalProperties.common.managementPortalBaseUrl}/#/?access_token=$accessToken"
         }
         return redirectView
     }
@@ -49,6 +49,6 @@ constructor(
                 "state=${Instant.now()}&" +
                 "audience=res_ManagementPortal&" +
                 "scope=SOURCEDATA.CREATE SOURCETYPE.UPDATE SOURCETYPE.DELETE AUTHORITY.UPDATE MEASUREMENT.DELETE PROJECT.READ AUDIT.CREATE USER.DELETE AUTHORITY.DELETE SUBJECT.DELETE MEASUREMENT.UPDATE SOURCEDATA.UPDATE SUBJECT.READ USER.UPDATE SOURCETYPE.CREATE AUTHORITY.READ USER.CREATE SOURCE.CREATE SOURCE.READ SUBJECT.CREATE ROLE.UPDATE ROLE.READ MEASUREMENT.READ PROJECT.UPDATE PROJECT.DELETE ROLE.DELETE SOURCE.DELETE SOURCETYPE.READ ROLE.CREATE SOURCEDATA.DELETE SUBJECT.UPDATE SOURCE.UPDATE PROJECT.CREATE AUDIT.READ MEASUREMENT.CREATE AUDIT.DELETE AUDIT.UPDATE AUTHORITY.CREATE USER.READ SOURCEDATA.READ&" +
-                "redirect_uri=${managementPortalProperties.common.baseUrl}/api/redirect/login"
+                "redirect_uri=${managementPortalProperties.common.managementPortalBaseUrl}/api/redirect/login"
     }
 }
