@@ -33,8 +33,8 @@ class AuthService(
     private val httpClient =
             HttpClient(CIO) {
                 install(HttpTimeout) {
-                    connectTimeoutMillis = Duration.ofSeconds(10).toMillis()
-                    socketTimeoutMillis = Duration.ofSeconds(10).toMillis()
+                    connectTimeoutMillis = Duration.ofSeconds(20).toMillis()
+                    socketTimeoutMillis = Duration.ofSeconds(20).toMillis()
                     requestTimeoutMillis = Duration.ofSeconds(300).toMillis()
                 }
                 install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) }
@@ -104,8 +104,12 @@ class AuthService(
 
     suspend fun fetchAccessToken(code: String): String {
         val tokenUrl = "${managementPortalProperties.authServer.serverUrl}/oauth2/token"
+        val clientId = managementPortalProperties.frontend.clientId
+        val clientSecret = managementPortalProperties.frontend.clientSecret
+        val authHeader = "Basic " + Base64.getEncoder().encodeToString("$clientId:$clientSecret".toByteArray())
         val response =
                 httpClient.post(tokenUrl) {
+                    headers { append(HttpHeaders.Authorization, authHeader) }
                     contentType(ContentType.Application.FormUrlEncoded)
                     accept(ContentType.Application.Json)
                     setBody(
@@ -114,11 +118,11 @@ class AuthService(
                                         append("code", code)
                                         append(
                                                 "redirect_uri",
-                                                "${managementPortalProperties.common.baseUrl}/api/redirect/login"
+                                                "${managementPortalProperties.common.managementPortalBaseUrl}/api/redirect/login"
                                         )
                                         append(
                                                 "client_id",
-                                                managementPortalProperties.frontend.clientId
+                                                clientId
                                         )
                                     }
                                     .formUrlEncode(),
