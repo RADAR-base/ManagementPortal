@@ -401,14 +401,25 @@ class UserService @Autowired constructor(
     }
 
     /**
+     * Get the user dto with the given login.
+     * @param login the login
+     * @return an [Optional] which holds the user if one was found with the given login,
+     * and is empty otherwise
+     */
+    @Transactional(readOnly = true)
+    fun getUserDtoWithAuthoritiesByLogin(login: String): UserDTO? {
+        return userMapper.userToUserDTO(userRepository.findOneWithRolesByLogin(login))
+    }
+
+    /**
      * Get the user with the given login.
      * @param login the login
      * @return an [Optional] which holds the user if one was found with the given login,
      * and is empty otherwise
      */
     @Transactional(readOnly = true)
-    fun getUserWithAuthoritiesByLogin(login: String): UserDTO? {
-        return userMapper.userToUserDTO(userRepository.findOneWithRolesByLogin(login))
+    fun getUserWithAuthoritiesByLogin(login: String): User? {
+        return userRepository.findOneWithRolesByLogin(login)
     }
 
     @Transactional(readOnly = true)

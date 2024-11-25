@@ -64,7 +64,9 @@ class SubjectService(
         @Autowired private val managementPortalProperties: ManagementPortalProperties,
         @Autowired private val passwordService: PasswordService,
         @Autowired private val authorityRepository: AuthorityRepository,
-        @Autowired private val authService: AuthService
+        @Autowired private val authService: AuthService,
+        @Autowired private val userService: UserService,
+        @Autowired private val identityService: IdentityService
 ) {
 
     /**
@@ -74,7 +76,7 @@ class SubjectService(
      * @return the newly created subject
      */
     @Transactional
-    fun createSubject(subjectDto: SubjectDTO, activated: Boolean? = true): SubjectDTO? {
+    suspend fun createSubject(subjectDto: SubjectDTO, activated: Boolean? = true): SubjectDTO? {
         val subject = subjectMapper.subjectDTOToSubject(subjectDto) ?: throw NullPointerException()
         // assign roles
         val user = subject.user
@@ -107,14 +109,24 @@ class SubjectService(
             subject.enrollmentDate = ZonedDateTime.now()
         }
         sourceRepository.saveAll(subject.sources)
-        return subjectMapper.subjectToSubjectReducedProjectDTO(subjectRepository.save(subject))
+
+        val savedSubject = subjectRepository.save(subject)
+        val subjectDto = subjectMapper.subjectToSubjectReducedProjectDTO(savedSubject)
+
+        // Update identity server identity with roles
+        userService.getUserWithAuthoritiesByLogin(login = subjectDto?.login!!)?.let { user ->
+            identityService.updateAssociatedIdentity(user, subject)
+        }
+
+        return subjectDto
     }
 
-    fun createSubject(id: String, projectDto: ProjectDTO): SubjectDTO? {
+    suspend fun createSubject(id: String, projectDto: ProjectDTO, externalId: String): SubjectDTO? {
         return createSubject(
                 SubjectDTO().apply {
                     login = id
                     project = projectDto
+                    this.externalId = externalId
                 },
                 activated = false
         )
@@ -165,7 +177,7 @@ class SubjectService(
      * @return the updated subject
      */
     @Transactional
-    fun updateSubject(newSubjectDto: SubjectDTO): SubjectDTO? {
+    suspend fun updateSubject(newSubjectDto: SubjectDTO): SubjectDTO? {
         if (newSubjectDto.id == null) {
             return createSubject(newSubjectDto)
         }
@@ -288,7 +300,7 @@ class SubjectService(
      * updates meta-data.
      */
     @Transactional
-    fun assignOrUpdateSource(
+    suspend fun assignOrUpdateSource(
             subject: Subject,
             sourceType: SourceType,
             project: Project?,
@@ -350,6 +362,12 @@ class SubjectService(
             )
         }
         subjectRepository.save(subject)
+
+        // Update identity server identity with roles
+        userService.getUserWithAuthoritiesByLogin(login = subject.user?.login!!)?.let { user ->
+            identityService.updateAssociatedIdentity(user, subject)
+        }
+
         return sourceMapper.sourceToMinimalSourceDetailsDTO(assignedSource)
     }
 

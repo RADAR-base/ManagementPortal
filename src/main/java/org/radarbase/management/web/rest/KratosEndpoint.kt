@@ -9,7 +9,6 @@ import org.radarbase.management.repository.SubjectRepository
 import org.radarbase.management.security.NotAuthorizedException
 import org.radarbase.management.service.*
 import org.radarbase.management.service.dto.KratosSubjectWebhookDTO
-import org.radarbase.management.service.mapper.SubjectMapper
 import org.radarbase.management.web.rest.errors.EntityName
 import org.radarbase.management.web.rest.errors.NotFoundException
 import org.radarbase.management.web.rest.util.HeaderUtil
@@ -26,10 +25,7 @@ constructor(
         @Autowired private val subjectService: SubjectService,
         @Autowired private val subjectRepository: SubjectRepository,
         @Autowired private val projectService: ProjectService,
-        @Autowired private val userService: UserService,
-        @Autowired private val identityService: IdentityService,
         @Autowired private val managementPortalProperties: ManagementPortalProperties,
-        @Autowired private val subjectMapper: SubjectMapper,
 ) {
     private var sessionService: SessionService =
             SessionService(managementPortalProperties.identityServer.publicUrl())
@@ -48,6 +44,7 @@ constructor(
     suspend fun createSubject(
             @RequestBody webhookDTO: KratosSubjectWebhookDTO,
     ): ResponseEntity<Void> {
+        logger.debug("REST request to create subject : $webhookDTO")
         val kratosIdentity =
                 webhookDTO.identity ?: throw IllegalArgumentException("Identity is required")
 
@@ -67,17 +64,9 @@ constructor(
                                 "projectNotFound"
                         )
         val subjectDto =
-                subjectService.createSubject(projectUserId, projectDto)
+                subjectService.createSubject(projectUserId, projectDto, id)
                         ?: throw IllegalStateException("Failed to create subject for ID: $id")
-        val user =
-                userService.getUserWithAuthoritiesByLogin(subjectDto.login!!)
-                        ?: throw NotFoundException(
-                                "User not found with login: ${subjectDto.login}",
-                                EntityName.USER,
-                                "userNotFound"
-                        )
 
-        identityService.updateIdentityMetadataWithRoles(kratosIdentity, user)
         return ResponseEntity.created(ResourceUriService.getUri(subjectDto))
                 .headers(HeaderUtil.createEntityCreationAlert(EntityName.SUBJECT, id))
                 .build()
