@@ -214,7 +214,7 @@ class UserResource(
         log.debug("REST request to get User : {}", login)
         authService.checkPermission(Permission.USER_READ, { e: EntityDetails -> e.user(login) })
         return ResponseUtil.wrapOrNotFound(
-            Optional.ofNullable(userService.getUserWithAuthoritiesByLogin(login))
+            Optional.ofNullable(userService.getUserDtoWithAuthoritiesByLogin(login))
         )
     }
 
@@ -251,7 +251,7 @@ class UserResource(
         log.debug("REST request to read User roles: {}", login)
         authService.checkPermission(Permission.ROLE_READ, { e: EntityDetails -> e.user(login) })
         return ResponseUtil.wrapOrNotFound(
-            Optional.ofNullable(userService.getUserWithAuthoritiesByLogin(login).let { obj: UserDTO? -> obj?.roles })
+            Optional.ofNullable(userService.getUserDtoWithAuthoritiesByLogin(login).let { obj: UserDTO? -> obj?.roles })
         )
     }
 
