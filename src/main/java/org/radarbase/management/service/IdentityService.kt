@@ -16,8 +16,9 @@ import org.radarbase.auth.authorization.RoleAuthority
 import org.radarbase.auth.exception.IdpException
 import org.radarbase.auth.kratos.KratosSessionDTO
 import org.radarbase.management.config.ManagementPortalProperties
+import org.radarbase.management.domain.Role
+import org.radarbase.management.domain.Subject
 import org.radarbase.management.domain.User
-import org.radarbase.management.service.dto.UserDTO
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
@@ -59,53 +60,59 @@ class IdentityService
         }
 
         /**
-         * Convert a [User] to a [KratosSessionDTO.Identity] object.
-         * @param user The object to convert
-         * @return the newly created DTO object
+         * Builds metadata for a user based on roles, authorities, and sources.
          */
-        @Throws(IdpException::class)
-        private fun createIdentity(user: User): KratosSessionDTO.Identity =
+        private fun buildMetadata(
+            roles: Set<Role>,
+            authorities: Set<String>,
+            login: String,
+            sources: List<String> = emptyList(),
+        ): KratosSessionDTO.Metadata =
             try {
-                KratosSessionDTO.Identity(
-                    schema_id = "researcher",
-                    traits = KratosSessionDTO.Traits(email = user.email),
-                    metadata_public =
-                        KratosSessionDTO.Metadata(
-                            aud = emptyList(),
-                            sources = emptyList(),
-                            roles =
-                                user.roles.mapNotNull { role ->
-                                    role.authority?.name?.let { auth ->
-                                        when (role.role?.scope) {
-                                            RoleAuthority.Scope.GLOBAL -> auth
-                                            RoleAuthority.Scope.ORGANIZATION ->
-                                                "${role.organization!!.name}:$auth"
-                                            RoleAuthority.Scope.PROJECT ->
-                                                "${role.project!!.projectName}:$auth"
-                                            null -> null
-                                        }
-                                    }
-                                },
-                            authorities = user.authorities,
-                            scope =
-                                Permission.scopes().filter { scope ->
-                                    authService.mayBeGranted(
-                                        user.roles.mapNotNull { it.role },
-                                        Permission.ofScope(scope),
-                                    )
-                                },
-                            mp_login = user.login,
-                        ),
+                KratosSessionDTO.Metadata(
+                    aud = emptyList(),
+                    sources = sources,
+                    roles =
+                        roles.mapNotNull { role ->
+                            role.authority?.name?.let { auth ->
+                                when (role.role?.scope) {
+                                    RoleAuthority.Scope.GLOBAL -> auth
+                                    RoleAuthority.Scope.ORGANIZATION ->
+                                        "${role.organization!!.name}:$auth"
+                                    RoleAuthority.Scope.PROJECT ->
+                                        "${role.project!!.projectName}:$auth"
+                                    null -> null
+                                }
+                            }
+                        },
+                    authorities = authorities,
+                    scope =
+                        Permission.scopes().filter { scope ->
+                            authService.mayBeGranted(
+                                roles.mapNotNull { it.role },
+                                Permission.ofScope(scope),
+                            )
+                        },
+                    mp_login = login,
                 )
             } catch (e: Throwable) {
-                val message = "Could not convert user ${user.login} to identity"
+                val message = "Could not build metadata for user $login"
                 log.error(message)
                 throw IdpException(message, e)
             }
 
-        /**
-         * Save a [User] to the IDP as an identity. Returns the generated [KratosSessionDTO.Identity]
-         */
+        private fun createIdentity(user: User): KratosSessionDTO.Identity =
+            KratosSessionDTO.Identity(
+                schema_id = "researcher",
+                traits = KratosSessionDTO.Traits(email = user.email),
+                metadata_public =
+                    buildMetadata(
+                        roles = user.roles,
+                        authorities = user.authorities,
+                        login = user.login!!,
+                    ),
+            )
+
         @Throws(IdpException::class)
         suspend fun saveAsIdentity(user: User): KratosSessionDTO.Identity =
             withContext(Dispatchers.IO) {
@@ -127,19 +134,19 @@ class IdentityService
                 }
             }
 
-        /**
-         * Update a [User] to the IDP as an identity. Returns the updated [KratosSessionDTO.Identity]
-         */
         @Throws(IdpException::class)
-        suspend fun updateAssociatedIdentity(user: User): KratosSessionDTO.Identity =
+        suspend fun updateAssociatedIdentity(
+            user: User,
+            subject: Subject? = null,
+        ): KratosSessionDTO.Identity =
             withContext(Dispatchers.IO) {
                 val identityId =
                     user.identity
-                        ?: throw IdpException(
-                            "User ${user.login} could not be updated on the IDP. No identity was set",
-                        )
+                        ?: subject?.externalId ?: throw IdpException("User has no identity")
 
-                val identity = createIdentity(user)
+                val identity = getExistingIdentity(identityId)
+                val sources = subject?.sources?.map { it.sourceId.toString() } ?: emptyList()
+                identity.metadata_public = getIdentityMetadataWithRoles(user, sources)
                 val response =
                     httpClient.put {
                         url("$adminUrl/admin/identities/$identityId")
@@ -157,36 +164,39 @@ class IdentityService
                 }
             }
 
-        /**
-         * Update [KratosSessionDTO.Identity] metadata with user roles. Returns the updated
-         * [KratosSessionDTO.Identity]
-         */
         @Throws(IdpException::class)
-        suspend fun updateIdentityMetadataWithRoles(
-            identity: KratosSessionDTO.Identity,
-            user: UserDTO,
-        ): KratosSessionDTO.Identity =
+        suspend fun getExistingIdentity(identityId: String): KratosSessionDTO.Identity =
             withContext(Dispatchers.IO) {
-                val updatedIdentity = identity.copy(metadata_public = getIdentityMetadata(user))
-
                 val response =
-                    httpClient.put {
-                        url("$adminUrl/admin/identities/${updatedIdentity.id}")
+                    httpClient.get {
+                        url("$adminUrl/admin/identities/$identityId")
                         contentType(ContentType.Application.Json)
                         accept(ContentType.Application.Json)
-                        setBody(updatedIdentity)
                     }
 
                 if (response.status.isSuccess()) {
                     response.body<KratosSessionDTO.Identity>().also {
-                        log.debug("Updated identity for ${it.id}")
+                        log.debug("Retrieved identity for ${it.id}")
                     }
                 } else {
-                    throw IdpException("Couldn't update identity on server at $adminUrl")
+                    throw IdpException("Couldn't retrieve identity from server at $adminUrl")
                 }
             }
 
-        /** Delete a [User] from the IDP as an identity. */
+        @Throws(IdpException::class)
+        suspend fun getIdentityMetadataWithRoles(
+            user: User,
+            sources: List<String>,
+        ): KratosSessionDTO.Metadata =
+            withContext(Dispatchers.IO) {
+                buildMetadata(
+                    roles = user.roles,
+                    authorities = user.authorities,
+                    login = user.login!!,
+                    sources = sources,
+                )
+            }
+
         @Throws(IdpException::class)
         suspend fun deleteAssociatedIdentity(userIdentity: String?) =
             withContext(Dispatchers.IO) {
@@ -210,59 +220,16 @@ class IdentityService
                 }
             }
 
-        /**
-         * Convert a [UserDTO] to a [KratosSessionDTO.Metadata] object.
-         * @param user The object to convert
-         * @return the newly created DTO object
-         */
-        @Throws(IdpException::class)
-        fun getIdentityMetadata(user: UserDTO): KratosSessionDTO.Metadata =
-            try {
-                KratosSessionDTO.Metadata(
-                    aud = emptyList(),
-                    sources = emptyList(),
-                    roles =
-                        user.roles.orEmpty().mapNotNull { role ->
-                            role.authorityName?.let { auth ->
-                                when {
-                                    role.projectName != null -> "${role.projectName}:$auth"
-                                    role.organizationName != null ->
-                                        "${role.organizationName}:$auth"
-                                    else -> auth
-                                }
-                            }
-                        },
-                    authorities = user.authorities.orEmpty(),
-                    scope =
-                        Permission.scopes().filter { scope ->
-                            authService.mayBeGranted(
-                                user.roles?.mapNotNull {
-                                    RoleAuthority.valueOfAuthority(it.authorityName!!)
-                                }
-                                    ?: emptyList(),
-                                Permission.ofScope(scope),
-                            )
-                        },
-                    mp_login = user.login,
-                )
-            } catch (e: Throwable) {
-                val message = "Could not convert user ${user.login} to identity"
-                log.error(message)
-                throw IdpException(message, e)
-            }
-
-        /**
-         * Sends a Kratos activation email to the specified user.
-         */
         @Throws(IdpException::class)
         suspend fun sendActivationEmail(user: User): String =
             withContext(Dispatchers.IO) {
                 val flowResponse =
-                    httpClient.get {
-                        url("$publicUrl/self-service/verification/api")
-                        contentType(ContentType.Application.Json)
-                        accept(ContentType.Application.Json)
-                    }.body<KratosSessionDTO.Verification>()
+                    httpClient
+                        .get {
+                            url("$publicUrl/self-service/verification/api")
+                            contentType(ContentType.Application.Json)
+                            accept(ContentType.Application.Json)
+                        }.body<KratosSessionDTO.Verification>()
 
                 val flowId = flowResponse.id
 
