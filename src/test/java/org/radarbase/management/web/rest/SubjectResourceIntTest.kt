@@ -103,7 +103,7 @@ internal class SubjectResourceIntTest(
     @Test
     @Transactional
     @Throws(Exception::class)
-    fun createSubjectWithExistingId() {
+    suspend fun createSubjectWithExistingId() {
         // Create a Subject
         val subjectDto = subjectService.createSubject(SubjectServiceTest.createEntityDTO())
         val databaseSizeBeforeCreate = subjectRepository.findAll().size
@@ -122,7 +122,7 @@ internal class SubjectResourceIntTest(
     @Throws(Exception::class)
     @Transactional
     @Test
-    fun allSubjects() {
+    suspend fun allSubjects() {
         // Initialize the database
         val subjectDto = subjectService.createSubject(SubjectServiceTest.createEntityDTO())
 
@@ -150,7 +150,7 @@ internal class SubjectResourceIntTest(
     @Throws(Exception::class)
     @Transactional
     @Test
-    fun subject() {
+    suspend fun subject() {
         // Initialize the database
         val subjectDto = subjectService.createSubject(SubjectServiceTest.createEntityDTO())
 
@@ -179,7 +179,7 @@ internal class SubjectResourceIntTest(
     @Test
     @Transactional
     @Throws(Exception::class)
-    fun updateSubject() {
+    suspend fun updateSubject() {
         // Initialize the database
         var subjectDto = subjectService.createSubject(SubjectServiceTest.createEntityDTO())
         val databaseSizeBeforeUpdate = subjectRepository.findAll().size
@@ -206,7 +206,7 @@ internal class SubjectResourceIntTest(
     @Test
     @Transactional
     @Throws(Exception::class)
-    fun updateSubjectWithNewProject() {
+    suspend fun updateSubjectWithNewProject() {
         // Initialize the database
         var subjectDto = subjectService.createSubject(SubjectServiceTest.createEntityDTO())
         val databaseSizeBeforeUpdate = subjectRepository.findAll().size
@@ -259,7 +259,7 @@ internal class SubjectResourceIntTest(
     @Test
     @Transactional
     @Throws(Exception::class)
-    fun deleteSubject() {
+    suspend fun deleteSubject() {
         // Initialize the database
         val subjectDto = subjectService.createSubject(SubjectServiceTest.createEntityDTO())
         val databaseSizeBeforeDelete = subjectRepository.findAll().size
@@ -401,7 +401,7 @@ internal class SubjectResourceIntTest(
     @Throws(Exception::class)
     @Transactional
     @Test
-    fun subjectSources() {
+    suspend fun subjectSources() {
         // Initialize the database
         val subjectDtoToCreate: SubjectDTO = SubjectServiceTest.createEntityDTO()
         val createdSource = sourceService.save(createSource())
@@ -427,7 +427,7 @@ internal class SubjectResourceIntTest(
     @Throws(Exception::class)
     @Transactional
     @Test
-    fun subjectSourcesWithQueryParam() {
+    suspend fun subjectSourcesWithQueryParam() {
         // Initialize the database
         val subjectDtoToCreate: SubjectDTO = SubjectServiceTest.createEntityDTO()
         val createdSource = sourceService.save(createSource())
@@ -453,7 +453,7 @@ internal class SubjectResourceIntTest(
     @Throws(Exception::class)
     @Transactional
     @Test
-    fun inactiveSubjectSourcesWithQueryParam() {
+    suspend fun inactiveSubjectSourcesWithQueryParam() {
         // Initialize the database
         val subjectDtoToCreate: SubjectDTO = SubjectServiceTest.createEntityDTO()
         val createdSource = sourceService.save(createSource())
