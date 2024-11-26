@@ -1,13 +1,5 @@
 package org.radarbase.management.service
 
-import java.net.MalformedURLException
-import java.net.URL
-import java.time.ZonedDateTime
-import java.util.*
-import java.util.function.Consumer
-import java.util.function.Function
-import java.util.function.Predicate
-import javax.annotation.Nonnull
 import org.hibernate.envers.query.AuditEntity
 import org.radarbase.auth.authorization.EntityDetails
 import org.radarbase.auth.authorization.Permission
@@ -48,27 +40,34 @@ import org.springframework.data.domain.Page
 import org.springframework.data.history.Revision
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.net.MalformedURLException
+import java.net.URL
+import java.time.ZonedDateTime
+import java.util.*
+import java.util.function.Consumer
+import java.util.function.Function
+import java.util.function.Predicate
+import javax.annotation.Nonnull
 
 /** Created by nivethika on 26-5-17. */
 @Service
 @Transactional
 class SubjectService(
-        @Autowired private val subjectMapper: SubjectMapper,
-        @Autowired private val projectMapper: ProjectMapper,
-        @Autowired private val subjectRepository: SubjectRepository,
-        @Autowired private val sourceRepository: SourceRepository,
-        @Autowired private val sourceMapper: SourceMapper,
-        @Autowired private val roleRepository: RoleRepository,
-        @Autowired private val groupRepository: GroupRepository,
-        @Autowired private val revisionService: RevisionService,
-        @Autowired private val managementPortalProperties: ManagementPortalProperties,
-        @Autowired private val passwordService: PasswordService,
-        @Autowired private val authorityRepository: AuthorityRepository,
-        @Autowired private val authService: AuthService,
-        @Autowired private val userService: UserService,
-        @Autowired private val identityService: IdentityService
+    @Autowired private val subjectMapper: SubjectMapper,
+    @Autowired private val projectMapper: ProjectMapper,
+    @Autowired private val subjectRepository: SubjectRepository,
+    @Autowired private val sourceRepository: SourceRepository,
+    @Autowired private val sourceMapper: SourceMapper,
+    @Autowired private val roleRepository: RoleRepository,
+    @Autowired private val groupRepository: GroupRepository,
+    @Autowired private val revisionService: RevisionService,
+    @Autowired private val managementPortalProperties: ManagementPortalProperties,
+    @Autowired private val passwordService: PasswordService,
+    @Autowired private val authorityRepository: AuthorityRepository,
+    @Autowired private val authService: AuthService,
+    @Autowired private val userService: UserService,
+    @Autowired private val identityService: IdentityService,
 ) {
-
     /**
      * Create a new subject.
      *
@@ -76,7 +75,10 @@ class SubjectService(
      * @return the newly created subject
      */
     @Transactional
-    suspend fun createSubject(subjectDto: SubjectDTO, activated: Boolean? = true): SubjectDTO? {
+    suspend fun createSubject(
+        subjectDto: SubjectDTO,
+        activated: Boolean? = true,
+    ): SubjectDTO? {
         val subject = subjectMapper.subjectDTOToSubject(subjectDto) ?: throw NullPointerException()
         // assign roles
         val user = subject.user
@@ -99,10 +101,10 @@ class SubjectService(
         // set if any devices are set as assigned
         if (subject.sources.isNotEmpty()) {
             subject.sources.forEach(
-                    Consumer { s: Source ->
-                        s.assigned = true
-                        s.subject(subject)
-                    }
+                Consumer { s: Source ->
+                    s.assigned = true
+                    s.subject(subject)
+                },
             )
         }
         if (subject.enrollmentDate == null) {
@@ -121,31 +123,37 @@ class SubjectService(
         return subjectDto
     }
 
-    suspend fun createSubject(id: String, projectDto: ProjectDTO, externalId: String): SubjectDTO? {
-        return createSubject(
-                SubjectDTO().apply {
-                    login = id
-                    project = projectDto
-                    this.externalId = externalId
-                },
-                activated = false
+    suspend fun createSubject(
+        id: String,
+        projectDto: ProjectDTO,
+        externalId: String,
+    ): SubjectDTO? =
+        createSubject(
+            SubjectDTO().apply {
+                login = id
+                project = projectDto
+                this.externalId = externalId
+            },
+            activated = false,
         )
-    }
 
-    private fun getSubjectGroup(project: Project?, groupName: String?): Group? {
-        return if (project == null || groupName == null) {
+    private fun getSubjectGroup(
+        project: Project?,
+        groupName: String?,
+    ): Group? =
+        if (project == null || groupName == null) {
             null
-        } else
-                groupRepository.findByProjectIdAndName(project.id, groupName)
-                        ?: throw BadRequestException(
-                                "Group " +
-                                        groupName +
-                                        " does not exist in project " +
-                                        project.projectName,
-                                EntityName.GROUP,
-                                ErrorConstants.ERR_GROUP_NOT_FOUND
-                        )
-    }
+        } else {
+            groupRepository.findByProjectIdAndName(project.id, groupName)
+                ?: throw BadRequestException(
+                    "Group " +
+                        groupName +
+                        " does not exist in project " +
+                        project.projectName,
+                    EntityName.GROUP,
+                    ErrorConstants.ERR_GROUP_NOT_FOUND,
+                )
+        }
 
     /**
      * Fetch Participant role of the project if available, otherwise create a new Role and assign.
@@ -154,20 +162,25 @@ class SubjectService(
      * @return relevant Participant role
      * @throws java.util.NoSuchElementException if the authority name is not in the database
      */
-    private fun getProjectParticipantRole(project: Project?, authority: RoleAuthority): Role {
+    private fun getProjectParticipantRole(
+        project: Project?,
+        authority: RoleAuthority,
+    ): Role {
         val ans: Role? =
-                roleRepository.findOneByProjectIdAndAuthorityName(project?.id, authority.authority)
+            roleRepository.findOneByProjectIdAndAuthorityName(project?.id, authority.authority)
         return if (ans == null) {
             val subjectRole = Role()
             val auth: Authority =
-                    authorityRepository.findByAuthorityName(authority.authority)
-                            ?: authorityRepository.save(Authority(authority))
+                authorityRepository.findByAuthorityName(authority.authority)
+                    ?: authorityRepository.save(Authority(authority))
 
             subjectRole.authority = auth
             subjectRole.project = project
             roleRepository.save(subjectRole)
             subjectRole
-        } else ans
+        } else {
+            ans
+        }
     }
 
     /**
@@ -187,7 +200,7 @@ class SubjectService(
         subjectMapper.safeUpdateSubjectFromDTO(newSubjectDto, subjectFromDb)
         sourcesToUpdate.addAll(subjectFromDb.sources)
         subjectFromDb.sources.forEach(
-                Consumer { s: Source -> s.subject(subjectFromDb).assigned = true }
+            Consumer { s: Source -> s.subject(subjectFromDb).assigned = true },
         )
         sourceRepository.saveAll(sourcesToUpdate)
         // update participant role
@@ -195,7 +208,7 @@ class SubjectService(
         // Set group
         subjectFromDb.group = getSubjectGroup(subjectFromDb.activeProject, newSubjectDto.group)
         return subjectMapper.subjectToSubjectReducedProjectDTO(
-                subjectRepository.save(subjectFromDb)
+            subjectRepository.save(subjectFromDb),
         )
     }
 
@@ -205,37 +218,39 @@ class SubjectService(
         return subjectMapper.subjectToSubjectReducedProjectDTO(subjectRepository.save(subject))
     }
 
-    private fun updateParticipantRoles(subject: Subject, subjectDto: SubjectDTO): MutableSet<Role> {
+    private fun updateParticipantRoles(
+        subject: Subject,
+        subjectDto: SubjectDTO,
+    ): MutableSet<Role> {
         if (subjectDto.project == null || subjectDto.project!!.projectName == null) {
             return subject.user!!.roles
         }
         val existingRoles =
-                subject.user!!
-                        .roles
-                        .map {
-                            // make participant inactive in projects that do not match the new
-                            // project
-                            if (it.authority!!.name == RoleAuthority.PARTICIPANT.authority &&
-                                            it.project!!.projectName !=
-                                                    subjectDto.project!!.projectName
-                            ) {
-                                return@map getProjectParticipantRole(
-                                        it.project,
-                                        RoleAuthority.INACTIVE_PARTICIPANT
-                                )
-                            } else {
-                                // do not modify other roles.
-                                return@map it
-                            }
-                        }
-                        .toMutableSet()
+            subject.user!!
+                .roles
+                .map {
+                    // make participant inactive in projects that do not match the new
+                    // project
+                    if (it.authority!!.name == RoleAuthority.PARTICIPANT.authority &&
+                        it.project!!.projectName !=
+                        subjectDto.project!!.projectName
+                    ) {
+                        return@map getProjectParticipantRole(
+                            it.project,
+                            RoleAuthority.INACTIVE_PARTICIPANT,
+                        )
+                    } else {
+                        // do not modify other roles.
+                        return@map it
+                    }
+                }.toMutableSet()
 
         // Ensure that given project is present
         val newProjectRole =
-                getProjectParticipantRole(
-                        projectMapper.projectDTOToProject(subjectDto.project),
-                        RoleAuthority.PARTICIPANT
-                )
+            getProjectParticipantRole(
+                projectMapper.projectDTOToProject(subjectDto.project),
+                RoleAuthority.PARTICIPANT,
+            )
         existingRoles.add(newProjectRole)
 
         return existingRoles
@@ -262,18 +277,17 @@ class SubjectService(
         return subjectMapper.subjectToSubjectReducedProjectDTO(subjectRepository.save(subject))
     }
 
-    private fun ensureSubject(subjectDto: SubjectDTO): Subject {
-        return try {
+    private fun ensureSubject(subjectDto: SubjectDTO): Subject =
+        try {
             subjectDto.id?.let { subjectRepository.findById(it).get() }
-                    ?: throw Exception("invalid subject ${subjectDto.login}: No ID")
+                ?: throw Exception("invalid subject ${subjectDto.login}: No ID")
         } catch (e: Throwable) {
             throw NotFoundException(
-                    "Subject with ID " + subjectDto.id + " not found.",
-                    EntityName.SUBJECT,
-                    ErrorConstants.ERR_SUBJECT_NOT_FOUND
+                "Subject with ID " + subjectDto.id + " not found.",
+                EntityName.SUBJECT,
+                ErrorConstants.ERR_SUBJECT_NOT_FOUND,
             )
         }
-    }
 
     /**
      * Unassign all sources from a subject. This method saves the unassigned sources, but does NOT
@@ -283,12 +297,12 @@ class SubjectService(
      */
     private fun unassignAllSources(subject: Subject) {
         subject.sources.forEach(
-                Consumer { source: Source ->
-                    source.assigned = false
-                    source.subject = null
-                    source.deleted = true
-                    sourceRepository.save(source)
-                }
+            Consumer { source: Source ->
+                source.assigned = false
+                source.subject = null
+                source.deleted = true
+                sourceRepository.save(source)
+            },
         )
         subject.sources.clear()
     }
@@ -301,10 +315,10 @@ class SubjectService(
      */
     @Transactional
     suspend fun assignOrUpdateSource(
-            subject: Subject,
-            sourceType: SourceType,
-            project: Project?,
-            sourceRegistrationDto: MinimalSourceDetailsDTO
+        subject: Subject,
+        sourceType: SourceType,
+        project: Project?,
+        sourceRegistrationDto: MinimalSourceDetailsDTO,
     ): MinimalSourceDetailsDTO {
         val assignedSource: Source
         if (sourceRegistrationDto.sourceId != null) {
@@ -312,17 +326,17 @@ class SubjectService(
             assignedSource = updateSourceAssignedSubject(subject, sourceRegistrationDto)
         } else if (sourceType.canRegisterDynamically!!) {
             val sources =
-                    subjectRepository.findSubjectSourcesBySourceType(
-                            subject.user!!.login,
-                            sourceType.producer,
-                            sourceType.model,
-                            sourceType.catalogVersion
-                    )
+                subjectRepository.findSubjectSourcesBySourceType(
+                    subject.user!!.login,
+                    sourceType.producer,
+                    sourceType.model,
+                    sourceType.catalogVersion,
+                )
             // create a source and register metadata
             // we allow only one source of a source-type per subject
             if (sources.isNullOrEmpty()) {
                 var source =
-                        Source(sourceType).project(project).sourceType(sourceType).subject(subject)
+                    Source(sourceType).project(project).sourceType(sourceType).subject(subject)
                 source.assigned = true
                 source.attributes += sourceRegistrationDto.attributes
                 // if source name is provided update source name
@@ -333,11 +347,11 @@ class SubjectService(
                 // make sure there is no source available on the same name.
                 if (sourceRepository.findOneBySourceName(source.sourceName!!) != null) {
                     throw ConflictException(
-                            "SourceName already in use. Cannot create a " +
-                                    "source with existing source-name ",
-                            EntityName.SUBJECT,
-                            ErrorConstants.ERR_SOURCE_NAME_EXISTS,
-                            Collections.singletonMap("source-name", source.sourceName)
+                        "SourceName already in use. Cannot create a " +
+                            "source with existing source-name ",
+                        EntityName.SUBJECT,
+                        ErrorConstants.ERR_SOURCE_NAME_EXISTS,
+                        Collections.singletonMap("source-name", source.sourceName),
                     )
                 }
                 source = sourceRepository.save(source)
@@ -345,20 +359,20 @@ class SubjectService(
                 subject.sources.add(source)
             } else {
                 throw ConflictException(
-                        "A Source of SourceType with the specified producer, model and version" +
-                                " was already registered for subject login",
-                        EntityName.SUBJECT,
-                        ErrorConstants.ERR_SOURCE_TYPE_EXISTS,
-                        sourceTypeAttributes(sourceType, subject)
+                    "A Source of SourceType with the specified producer, model and version" +
+                        " was already registered for subject login",
+                    EntityName.SUBJECT,
+                    ErrorConstants.ERR_SOURCE_TYPE_EXISTS,
+                    sourceTypeAttributes(sourceType, subject),
                 )
             }
         } else {
             // new source since sourceId == null, but canRegisterDynamically == false
             throw BadRequestException(
-                    "The source type is not eligible for dynamic " + "registration",
-                    EntityName.SOURCE_TYPE,
-                    "error.InvalidDynamicSourceRegistration",
-                    sourceTypeAttributes(sourceType, subject)
+                "The source type is not eligible for dynamic " + "registration",
+                EntityName.SOURCE_TYPE,
+                "error.InvalidDynamicSourceRegistration",
+                sourceTypeAttributes(sourceType, subject),
             )
         }
         subjectRepository.save(subject)
@@ -379,24 +393,24 @@ class SubjectService(
      * @return Updated [Source] instance.
      */
     private fun updateSourceAssignedSubject(
-            subject: Subject,
-            sourceRegistrationDto: MinimalSourceDetailsDTO
+        subject: Subject,
+        sourceRegistrationDto: MinimalSourceDetailsDTO,
     ): Source {
         // for manually registered devices only add meta-data
         val source =
-                subjectRepository.findSubjectSourcesBySourceId(
-                        subject.user?.login,
-                        sourceRegistrationDto.sourceId
-                )
+            subjectRepository.findSubjectSourcesBySourceId(
+                subject.user?.login,
+                sourceRegistrationDto.sourceId,
+            )
         if (source == null) {
             val errorParams: MutableMap<String, String?> = HashMap()
             errorParams["sourceId"] = sourceRegistrationDto.sourceId.toString()
             errorParams["subject-login"] = subject.user?.login
             throw NotFoundException(
-                    "No source with source-id to assigned to the subject with subject-login",
-                    EntityName.SUBJECT,
-                    ErrorConstants.ERR_SOURCE_NOT_FOUND,
-                    errorParams
+                "No source with source-id to assigned to the subject with subject-login",
+                EntityName.SUBJECT,
+                ErrorConstants.ERR_SOURCE_NOT_FOUND,
+                errorParams,
             )
         }
 
@@ -416,10 +430,11 @@ class SubjectService(
      */
     fun getSources(subject: Subject): List<MinimalSourceDetailsDTO> {
         val sources = subjectRepository.findSourcesBySubjectLogin(subject.user?.login)
-        if (sources.isEmpty())
-                throw org.webjars.NotFoundException(
-                        "Could not find sources for user ${subject.user}"
-                )
+        if (sources.isEmpty()) {
+            throw org.webjars.NotFoundException(
+                "Could not find sources for user ${subject.user}",
+            )
+        }
         return sourceMapper.sourcesToMinimalSourceDetailsDTOs(sources)
     }
 
@@ -434,12 +449,12 @@ class SubjectService(
             subjectRepository.delete(subject)
             log.debug("Deleted Subject: {}", subject)
         }
-                ?: throw NotFoundException(
-                        "subject not found for given login.",
-                        EntityName.SUBJECT,
-                        ErrorConstants.ERR_SUBJECT_NOT_FOUND,
-                        Collections.singletonMap("subjectLogin", login)
-                )
+            ?: throw NotFoundException(
+                "subject not found for given login.",
+                EntityName.SUBJECT,
+                ErrorConstants.ERR_SUBJECT_NOT_FOUND,
+                Collections.singletonMap("subjectLogin", login),
+            )
     }
 
     /**
@@ -452,13 +467,14 @@ class SubjectService(
         val revisions = subject.id?.let { subjectRepository.findRevisions(it) }
         // collect distinct sources in a set
         val sources: List<Source>? =
-                revisions?.content
-                        ?.flatMap { p: Revision<Int, Subject> -> p.entity.sources }
-                        ?.distinctBy { obj: Source -> obj.sourceId }
+            revisions
+                ?.content
+                ?.flatMap { p: Revision<Int, Subject> -> p.entity.sources }
+                ?.distinctBy { obj: Source -> obj.sourceId }
 
         return sources
-                ?.map { p: Source -> sourceMapper.sourceToMinimalSourceDetailsDTO(p) }
-                ?.toList()
+            ?.map { p: Source -> sourceMapper.sourceToMinimalSourceDetailsDTO(p) }
+            ?.toList()
     }
 
     /**
@@ -471,26 +487,29 @@ class SubjectService(
      * number
      */
     @Throws(NotFoundException::class, NotAuthorizedException::class)
-    fun findRevision(login: String?, revision: Int?): SubjectDTO {
+    fun findRevision(
+        login: String?,
+        revision: Int?,
+    ): SubjectDTO {
         // first get latest known version of the subject, if it's deleted we can't load the entity
         // directly by e.g. findOneByLogin
         val latest = getLatestRevision(login)
         authService.checkPermission(
-                Permission.SUBJECT_READ,
-                { e: EntityDetails -> e.project(latest.project?.projectName).subject(latest.login) }
+            Permission.SUBJECT_READ,
+            { e: EntityDetails -> e.project(latest.project?.projectName).subject(latest.login) },
         )
         return revisionService.findRevision(
-                revision,
-                latest.id,
-                Subject::class.java,
-                subjectMapper::subjectToSubjectReducedProjectDTO
+            revision,
+            latest.id,
+            Subject::class.java,
+            subjectMapper::subjectToSubjectReducedProjectDTO,
         )
-                ?: throw NotFoundException(
-                        "subject not found for given login and revision.",
-                        EntityName.SUBJECT,
-                        ErrorConstants.ERR_SUBJECT_NOT_FOUND,
-                        Collections.singletonMap("subjectLogin", login)
-                )
+            ?: throw NotFoundException(
+                "subject not found for given login and revision.",
+                EntityName.SUBJECT,
+                ErrorConstants.ERR_SUBJECT_NOT_FOUND,
+                Collections.singletonMap("subjectLogin", login),
+            )
     }
 
     /**
@@ -503,32 +522,32 @@ class SubjectService(
     @Throws(NotFoundException::class)
     fun getLatestRevision(login: String?): SubjectDTO {
         val user =
-                revisionService.getLatestRevisionForEntity(
-                                User::class.java,
-                                listOf(AuditEntity.property("login").eq(login))
-                        )
-                        .orElseThrow {
-                            NotFoundException(
-                                    "Subject latest revision not found " + "for login",
-                                    EntityName.SUBJECT,
-                                    ErrorConstants.ERR_SUBJECT_NOT_FOUND,
-                                    Collections.singletonMap("subjectLogin", login)
-                            )
-                        } as
-                        UserDTO
-        return revisionService.getLatestRevisionForEntity(
-                        Subject::class.java,
-                        listOf(AuditEntity.property("user").eq(user))
-                )
-                .orElseThrow {
+            revisionService
+                .getLatestRevisionForEntity(
+                    User::class.java,
+                    listOf(AuditEntity.property("login").eq(login)),
+                ).orElseThrow {
                     NotFoundException(
-                            "Subject latest revision not found " + "for login",
-                            EntityName.SUBJECT,
-                            ErrorConstants.ERR_SUBJECT_NOT_FOUND,
-                            Collections.singletonMap("subjectLogin", login)
+                        "Subject latest revision not found " + "for login",
+                        EntityName.SUBJECT,
+                        ErrorConstants.ERR_SUBJECT_NOT_FOUND,
+                        Collections.singletonMap("subjectLogin", login),
                     )
                 } as
-                SubjectDTO
+                UserDTO
+        return revisionService
+            .getLatestRevisionForEntity(
+                Subject::class.java,
+                listOf(AuditEntity.property("user").eq(user)),
+            ).orElseThrow {
+                NotFoundException(
+                    "Subject latest revision not found " + "for login",
+                    EntityName.SUBJECT,
+                    ErrorConstants.ERR_SUBJECT_NOT_FOUND,
+                    Collections.singletonMap("subjectLogin", login),
+                )
+            } as
+            SubjectDTO
     }
 
     /**
@@ -540,11 +559,11 @@ class SubjectService(
     fun findOneByLogin(login: String?): Subject {
         val subject = subjectRepository.findOneWithEagerBySubjectLogin(login)
         return subject
-                ?: throw NotFoundException(
-                        "Subject not found with login",
-                        EntityName.SUBJECT,
-                        ErrorConstants.ERR_SUBJECT_NOT_FOUND
-                )
+            ?: throw NotFoundException(
+                "Subject not found with login",
+                EntityName.SUBJECT,
+                ErrorConstants.ERR_SUBJECT_NOT_FOUND,
+            )
     }
 
     /**
@@ -570,11 +589,10 @@ class SubjectService(
      * @return URL of privacy policy for this token
      */
     fun getPrivacyPolicyUrl(subject: Subject): URL {
-
         // load default url from config
         val policyUrl: String =
-                subject.activeProject?.attributes?.get(ProjectDTO.PRIVACY_POLICY_URL)
-                        ?: managementPortalProperties.common.privacyPolicyUrl
+            subject.activeProject?.attributes?.get(ProjectDTO.PRIVACY_POLICY_URL)
+                ?: managementPortalProperties.common.privacyPolicyUrl
         return try {
             URL(policyUrl)
         } catch (e: MalformedURLException) {
@@ -582,20 +600,21 @@ class SubjectService(
             params["url"] = policyUrl
             params["message"] = e.message
             throw InvalidStateException(
-                    "No valid privacy-policy Url configured. Please " +
-                            "verify your project's privacy-policy url and/or general url config",
-                    EntityName.OAUTH_CLIENT,
-                    ErrorConstants.ERR_NO_VALID_PRIVACY_POLICY_URL_CONFIGURED,
-                    params
+                "No valid privacy-policy Url configured. Please " +
+                    "verify your project's privacy-policy url and/or general url config",
+                EntityName.OAUTH_CLIENT,
+                ErrorConstants.ERR_NO_VALID_PRIVACY_POLICY_URL_CONFIGURED,
+                params,
             )
         }
     }
 
     companion object {
         private val log = LoggerFactory.getLogger(SubjectService::class.java)
+
         private fun sourceTypeAttributes(
-                sourceType: SourceType,
-                subject: Subject
+            sourceType: SourceType,
+            subject: Subject,
         ): Map<String, String?> {
             val errorParams: MutableMap<String, String?> = HashMap()
             errorParams["producer"] = sourceType.producer
