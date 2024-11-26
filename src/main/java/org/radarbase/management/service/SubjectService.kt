@@ -113,14 +113,15 @@ class SubjectService(
         sourceRepository.saveAll(subject.sources)
 
         val savedSubject = subjectRepository.save(subject)
-        val subjectDto = subjectMapper.subjectToSubjectReducedProjectDTO(savedSubject)
-
-        // Update identity server identity with roles
-        userService.getUserWithAuthoritiesByLogin(login = subjectDto?.login!!)?.let { user ->
-            identityService.updateAssociatedIdentity(user, subject)
+        return subjectMapper.subjectToSubjectReducedProjectDTO(savedSubject).also {
+            userService.getUserWithAuthoritiesByLogin(login = subjectDto.login!!)?.let { user ->
+                try {
+                    identityService.updateAssociatedIdentity(user, savedSubject)
+                } catch (ex: Exception) {
+                    log.error("Failed to update associated identity for user {}: {}", user.login, ex.message)
+                }
+            }
         }
-
-        return subjectDto
     }
 
     suspend fun createSubject(
@@ -377,12 +378,15 @@ class SubjectService(
         }
         subjectRepository.save(subject)
 
-        // Update identity server identity with roles
-        userService.getUserWithAuthoritiesByLogin(login = subject.user?.login!!)?.let { user ->
-            identityService.updateAssociatedIdentity(user, subject)
+        return sourceMapper.sourceToMinimalSourceDetailsDTO(assignedSource).also {
+            userService.getUserWithAuthoritiesByLogin(login = subject.user?.login!!)?.let { user ->
+                try {
+                    identityService.updateAssociatedIdentity(user, subject)
+                } catch (ex: Exception) {
+                    log.error("Failed to update associated identity for user {}: {}", user.login, ex.message)
+                }
+            }
         }
-
-        return sourceMapper.sourceToMinimalSourceDetailsDTO(assignedSource)
     }
 
     /**
