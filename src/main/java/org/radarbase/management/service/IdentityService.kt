@@ -10,11 +10,13 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.json.Json
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
 import org.radarbase.auth.authorization.Permission
 import org.radarbase.auth.authorization.RoleAuthority
 import org.radarbase.auth.exception.IdpException
 import org.radarbase.auth.kratos.KratosSessionDTO
+import org.radarbase.auth.kratos.KratosSessionDTO.JsonMetadataPatchOperation
 import org.radarbase.management.config.ManagementPortalProperties
 import org.radarbase.management.domain.Role
 import org.radarbase.management.domain.Subject
@@ -24,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Duration
+import kotlinx.serialization.Serializable
 
 /** Service class for managing identities. */
 @Service
@@ -141,19 +144,24 @@ class IdentityService
             subject: Subject? = null,
         ): KratosSessionDTO.Identity =
             withContext(Dispatchers.IO) {
+                val json = Json { ignoreUnknownKeys = true }
                 val identityId =
                     user.identity
                         ?: subject?.externalId ?: throw IdpException("User has no identity")
-
-                val identity = getExistingIdentity(identityId)
                 val sources = subject?.sources?.map { it.sourceId.toString() } ?: emptyList()
-                identity.metadata_public = getIdentityMetadataWithRoles(user, sources)
+                val jsonPatchPayload = listOf(
+                    JsonMetadataPatchOperation(
+                        op = "replace",
+                        path = "/metadata_public",
+                        value = getIdentityMetadataWithRoles(user, sources)
+                    )
+                )
                 val response =
-                    httpClient.put {
+                    httpClient.patch {
                         url("$adminUrl/admin/identities/$identityId")
                         contentType(ContentType.Application.Json)
                         accept(ContentType.Application.Json)
-                        setBody(identity)
+                        setBody(json.encodeToString(jsonPatchPayload))
                     }
 
                 if (response.status.isSuccess()) {
