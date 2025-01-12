@@ -25,6 +25,7 @@ constructor(
         @Autowired private val subjectService: SubjectService,
         @Autowired private val subjectRepository: SubjectRepository,
         @Autowired private val projectService: ProjectService,
+        @Autowired private val identityService: IdentityService,
         @Autowired private val managementPortalProperties: ManagementPortalProperties,
 ) {
     private var sessionService: SessionService =
@@ -47,13 +48,18 @@ constructor(
         logger.debug("REST request to create subject : $webhookDTO")
         val kratosIdentity =
                 webhookDTO.identity ?: throw IllegalArgumentException("Identity is required")
+        val id = kratosIdentity.id ?: throw IllegalArgumentException("Identity ID is required")
+
+        // Verify kratos identity exists
+        val existingIdentity = identityService.getExistingIdentity(id)
+        if (!existingIdentity.equals(kratosIdentity))
+                throw IllegalArgumentException("Kratos identity does not match")
 
         if (!kratosIdentity.schema_id.equals(KRATOS_SUBJECT_SCHEMA))
                 throw IllegalArgumentException("Cannot create non-subject users")
 
-        val id = kratosIdentity.id ?: throw IllegalArgumentException("Identity ID is required")
         val project =
-                kratosIdentity.traits!!.projects?.firstOrNull()
+                kratosIdentity.traits?.projects?.firstOrNull()
                         ?: throw NotAuthorizedException("Cannot create subject without project")
         val projectUserId = project.userId ?: throw IllegalArgumentException("Project user ID is required")
         val projectDto =
@@ -84,8 +90,8 @@ constructor(
                         ?: throw IllegalArgumentException("Session token is required")
         val kratosIdentity = sessionService.getSession(token).identity
         val project =
-                kratosIdentity.traits!!.projects?.firstOrNull()
-                ?: throw NotAuthorizedException("Cannot create subject without project")
+                kratosIdentity.traits?.projects?.firstOrNull()
+                        ?: throw NotAuthorizedException("Cannot create subject without project")
         val projectUserId = project.userId ?: throw IllegalArgumentException("Project user ID is required")
 
         if (!hasPermission(kratosIdentity, id)) {
