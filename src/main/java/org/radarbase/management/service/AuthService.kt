@@ -33,8 +33,8 @@ class AuthService(
     private val httpClient =
             HttpClient(CIO) {
                 install(HttpTimeout) {
-                    connectTimeoutMillis = Duration.ofSeconds(20).toMillis()
-                    socketTimeoutMillis = Duration.ofSeconds(20).toMillis()
+                    connectTimeoutMillis = Duration.ofSeconds(10).toMillis()
+                    socketTimeoutMillis = Duration.ofSeconds(10).toMillis()
                     requestTimeoutMillis = Duration.ofSeconds(300).toMillis()
                 }
                 install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) }

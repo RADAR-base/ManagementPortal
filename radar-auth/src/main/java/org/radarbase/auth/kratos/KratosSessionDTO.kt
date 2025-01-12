@@ -6,7 +6,6 @@ import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import org.radarbase.auth.authorization.AuthorityReference
-import kotlinx.serialization.json.JsonElement
 import org.radarbase.auth.authorization.RoleAuthority
 import org.radarbase.auth.token.DataRadarToken
 import org.radarbase.auth.token.RadarToken
@@ -120,7 +119,6 @@ class KratosSessionDTO(
         val path: String,
         val value: Metadata
     )
-
 
     fun toDataRadarToken() : DataRadarToken {
         return DataRadarToken(
