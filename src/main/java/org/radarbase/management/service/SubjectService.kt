@@ -114,7 +114,6 @@ class SubjectService(
 
         val savedSubject = subjectRepository.save(subject)
         return subjectMapper.subjectToSubjectReducedProjectDTO(savedSubject).also {
-            if (identityService.enabled) {
                 userService.getUserWithAuthoritiesByLogin(login = subjectDto.login!!)?.let { user ->
                     try {
                         identityService.updateAssociatedIdentity(user, savedSubject)
@@ -122,7 +121,6 @@ class SubjectService(
                         log.error("Failed to update associated identity for user {}: {}", user.login, ex.message)
                     }
                 }
-            }
         }
     }
 
@@ -382,13 +380,11 @@ class SubjectService(
 
         return sourceMapper.sourceToMinimalSourceDetailsDTO(assignedSource).also {
             userService.getUserWithAuthoritiesByLogin(login = subject.user?.login!!)?.let { user ->
-                if (identityService.enabled) {
                     try {
                         identityService.updateAssociatedIdentity(user, subject)
                     } catch (ex: Exception) {
                         log.error("Failed to update associated identity for user {}: {}", user.login, ex.message)
                     }
-                }
             }
         }
     }

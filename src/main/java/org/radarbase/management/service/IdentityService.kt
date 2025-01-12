@@ -56,7 +56,6 @@ class IdentityService
 
         private val adminUrl = managementPortalProperties.identityServer.adminUrl()
         private val publicUrl = managementPortalProperties.identityServer.publicUrl()
-        public val enabled = !adminUrl.isNullOrEmpty() && !publicUrl.isNullOrEmpty()
 
         init {
             log.debug("Kratos serverUrl set to $publicUrl")
