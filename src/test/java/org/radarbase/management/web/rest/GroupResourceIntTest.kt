@@ -293,7 +293,7 @@ internal class GroupResourceIntTest(
 
     @Test
     @Throws(Exception::class)
-    fun deleteGroupWithSubjects() {
+    suspend fun deleteGroupWithSubjects() {
         // Initialize the database
         groupRepository.saveAndFlush<Group>(group)
         val projectDto = projectMapper.projectToProjectDTO(project)
@@ -372,7 +372,7 @@ internal class GroupResourceIntTest(
 
     @Test
     @Throws(Exception::class)
-    fun addSubjectsToGroup() {
+    suspend fun addSubjectsToGroup() {
         // Initialize the database
         groupRepository.saveAndFlush<Group>(group)
         val projectDto = projectMapper.projectToProjectDTO(project)

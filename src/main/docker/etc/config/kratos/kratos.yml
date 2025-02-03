@@ -45,7 +45,7 @@ selfservice:
       enabled: true
       use: code
       after:
-        default_browser_return_url: http://localhost:3000/consent
+        default_browser_return_url: http://localhost:3000/study-consent
 
     logout:
       after:
@@ -78,10 +78,14 @@ hashers:
     key_length: 16
 
 identity:
-  default_schema_id: user
+  default_schema_id: subject
   schemas:
-    - id: user
-      url: file:///etc/config/kratos/identities/identity.schema.user.json
+    - id: subject
+      url: file:///etc/config/kratos/identities/identity.schema.subject.json
+    - id: researcher
+      url: file:///etc/config/kratos/identities/identity.schema.researcher.json
+    - id: admin
+      url: file:///etc/config/kratos/identities/identity.schema.admin.json
 
 courier:
   smtp:

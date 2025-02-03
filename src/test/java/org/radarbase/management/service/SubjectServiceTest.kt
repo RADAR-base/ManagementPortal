@@ -28,7 +28,7 @@ class SubjectServiceTest(
 
     @Test
     @Transactional
-    fun testGetPrivacyPolicyUrl() {
+    suspend fun testGetPrivacyPolicyUrl() {
         projectService.save(createEntityDTO().project!!)
         val c = createEntityDTO()
         val created = subjectService.createSubject(c)
