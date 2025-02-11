@@ -1,0 +1,33 @@
+name: Snyk scheduled Docker test
+
+on:
+  schedule:
+    - cron: '0 3 * * 1'
+
+jobs:
+  security:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: snyk/actions/setup@master
+        with:
+          snyk-version: v1.1032.0
+
+      - name: Run Snyk to check for vulnerabilities
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: >
+          snyk container test
+          --severity-threshold=high
+          --fail-on=upgradable
+          --file=Dockerfile
+          radarbase/management-portal
+
+      - name: Report new vulnerabilities
+        uses: thehyve/report-vulnerability@master
+        with:
+          report-file: snyk.json
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        if: ${{ failure() }}
