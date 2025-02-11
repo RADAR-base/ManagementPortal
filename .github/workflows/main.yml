@@ -79,7 +79,7 @@ jobs:
 
       - name: Upload screenshots of failed e2e tests
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           path: src/test/javascript/e2e/cypress/screenshots
           if-no-files-found: ignore
