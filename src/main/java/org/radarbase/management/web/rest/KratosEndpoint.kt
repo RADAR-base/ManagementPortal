@@ -69,8 +69,9 @@ constructor(
                                 EntityName.PROJECT,
                                 "projectNotFound"
                         )
+        val email = kratosIdentity.traits?.email.orEmpty()
         val subjectDto =
-                subjectService.createSubject(projectUserId, projectDto, id)
+                subjectService.createSubject(projectUserId, projectDto, id, mapOf("email" to email))
                         ?: throw IllegalStateException("Failed to create subject for ID: $id")
 
         return ResponseEntity.created(ResourceUriService.getUri(subjectDto))
