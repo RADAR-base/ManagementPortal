@@ -23,6 +23,8 @@ jobs:
           --severity-threshold=high
           --fail-on=upgradable
           --file=Dockerfile
+          --policy-path=.snyk
+          --json-file-output=snyk.json
           radarbase/management-portal
 
       - name: Report new vulnerabilities
