@@ -61,7 +61,8 @@ constructor(
         val project =
                 kratosIdentity.traits?.projects?.firstOrNull()
                         ?: throw NotAuthorizedException("Cannot create subject without project")
-        val projectUserId = project.userId ?: throw IllegalArgumentException("Project user ID is required")
+        val projectUserId =
+                project.userId ?: throw IllegalArgumentException("Project user ID is required")
         val projectDto =
                 projectService.findOneByName(project.id!!)
                         ?: throw NotFoundException(
@@ -69,8 +70,14 @@ constructor(
                                 EntityName.PROJECT,
                                 "projectNotFound"
                         )
+        val email = kratosIdentity.traits?.email.orEmpty()
         val subjectDto =
-                subjectService.createSubject(projectUserId, projectDto, id)
+                subjectService.createSubject(
+                        projectUserId,
+                        projectDto,
+                        id,
+                        mapOf(EMAIL_ATTRIBUTE_KEY to email)
+                )
                         ?: throw IllegalStateException("Failed to create subject for ID: $id")
 
         return ResponseEntity.created(ResourceUriService.getUri(subjectDto))
@@ -92,7 +99,8 @@ constructor(
         val project =
                 kratosIdentity.traits?.projects?.firstOrNull()
                         ?: throw NotAuthorizedException("Cannot create subject without project")
-        val projectUserId = project.userId ?: throw IllegalArgumentException("Project user ID is required")
+        val projectUserId =
+                project.userId ?: throw IllegalArgumentException("Project user ID is required")
 
         if (!hasPermission(kratosIdentity, id)) {
             throw NotAuthorizedException("Not authorized to activate subject")
@@ -111,5 +119,6 @@ constructor(
     companion object {
         private val logger = LoggerFactory.getLogger(KratosEndpoint::class.java)
         private val KRATOS_SUBJECT_SCHEMA = "subject"
+        private val EMAIL_ATTRIBUTE_KEY = "email"
     }
 }

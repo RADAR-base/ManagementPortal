@@ -128,12 +128,14 @@ class SubjectService(
         id: String,
         projectDto: ProjectDTO,
         externalId: String,
+        attributes: Map<String, String> = HashMap()
     ): SubjectDTO? =
         createSubject(
             SubjectDTO().apply {
                 login = id
                 project = projectDto
                 this.externalId = externalId
+                this.attributes = attributes
             },
             activated = false,
         )

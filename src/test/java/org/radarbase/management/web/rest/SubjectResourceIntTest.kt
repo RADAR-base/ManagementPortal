@@ -39,6 +39,7 @@ import org.springframework.transaction.annotation.Transactional
 import java.util.*
 import java.util.stream.Collectors
 import javax.servlet.ServletException
+import kotlinx.coroutines.runBlocking
 
 /**
  * Test class for the SubjectResource REST controller.
@@ -80,7 +81,7 @@ internal class SubjectResourceIntTest(
     @Test
     @Transactional
     @Throws(Exception::class)
-    fun createSubject() {
+    fun createSubject() = runBlocking {
         val databaseSizeBeforeCreate = subjectRepository.findAll().size
 
         // Create the Subject
@@ -239,7 +240,7 @@ internal class SubjectResourceIntTest(
     @Test
     @Transactional
     @Throws(Exception::class)
-    fun updateNonExistingSubject() {
+    fun updateNonExistingSubject() = runBlocking {
         val databaseSizeBeforeUpdate = subjectRepository.findAll().size
 
         // Create the Subject
@@ -285,7 +286,7 @@ internal class SubjectResourceIntTest(
     @Test
     @Transactional
     @Throws(Exception::class)
-    fun dynamicSourceRegistrationWithId() {
+    fun dynamicSourceRegistrationWithId() = runBlocking {
         val databaseSizeBeforeCreate = subjectRepository.findAll().size
 
         // Create the Subject
@@ -323,7 +324,7 @@ internal class SubjectResourceIntTest(
     @Test
     @Transactional
     @Throws(Exception::class)
-    fun dynamicSourceRegistrationWithoutId() {
+    fun dynamicSourceRegistrationWithoutId() = runBlocking {
         val databaseSizeBeforeCreate = subjectRepository.findAll().size
 
         // Create the Subject
@@ -371,7 +372,7 @@ internal class SubjectResourceIntTest(
     @Test
     @Transactional
     @Throws(Exception::class)
-    fun dynamicSourceRegistrationWithoutDynamicRegistrationFlag() {
+    fun dynamicSourceRegistrationWithoutDynamicRegistrationFlag() = runBlocking {
         val databaseSizeBeforeCreate = subjectRepository.findAll().size
 
         // Create the Subject
@@ -536,7 +537,7 @@ internal class SubjectResourceIntTest(
     @Test
     @Transactional
     @Throws(Exception::class)
-    fun testDynamicRegistrationAndUpdateSourceAttributes() {
+    fun testDynamicRegistrationAndUpdateSourceAttributes() = runBlocking {
         val databaseSizeBeforeCreate = subjectRepository.findAll().size
 
         // Create the Subject
