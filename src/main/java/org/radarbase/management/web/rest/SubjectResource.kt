@@ -84,7 +84,7 @@ class SubjectResource(
     @PostMapping("/subjects")
     @Timed
     @Throws(URISyntaxException::class, NotAuthorizedException::class)
-    fun createSubject(@RequestBody subjectDto: SubjectDTO): ResponseEntity<SubjectDTO> {
+    suspend fun createSubject(@RequestBody subjectDto: SubjectDTO): ResponseEntity<SubjectDTO> {
         log.debug("REST request to save Subject : {}", subjectDto)
         val projectName = getProjectName(subjectDto)
         authService.checkPermission(Permission.SUBJECT_CREATE, { e: EntityDetails -> e.project(projectName) })
@@ -135,7 +135,7 @@ class SubjectResource(
     @PutMapping("/subjects")
     @Timed
     @Throws(URISyntaxException::class, NotAuthorizedException::class)
-    fun updateSubject(@RequestBody subjectDto: SubjectDTO): ResponseEntity<SubjectDTO> {
+    suspend fun updateSubject(@RequestBody subjectDto: SubjectDTO): ResponseEntity<SubjectDTO> {
         log.debug("REST request to update Subject : {}", subjectDto)
         if (subjectDto.id == null) {
             return createSubject(subjectDto)
@@ -385,7 +385,7 @@ class SubjectResource(
     )
     @Timed
     @Throws(URISyntaxException::class, NotAuthorizedException::class)
-    fun assignSources(
+    suspend fun assignSources(
         @PathVariable login: String?,
         @RequestBody sourceDto: MinimalSourceDetailsDTO
     ): ResponseEntity<MinimalSourceDetailsDTO> {

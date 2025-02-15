@@ -26,7 +26,7 @@ internal class RedcapIntegrationWorkFlowOnServiceLevelTest {
     @Autowired
     private val subjectService: SubjectService? = null
     @Test
-    fun testRedcapIntegrationWorkFlowOnServiceLevel() {
+    suspend fun testRedcapIntegrationWorkFlowOnServiceLevel() {
         val externalProjectUrl = "MyUrl"
         val externalProjectId = "MyId"
         val projectLocation = "London"

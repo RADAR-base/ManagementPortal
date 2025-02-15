@@ -169,7 +169,7 @@ class UserService @Autowired constructor(
         user.activated = true
         user.roles = getUserRoles(userDto.roles, mutableSetOf())
 
-        try{
+        try {
             user.identity = identityService.saveAsIdentity(user)?.id
         }
         catch (e: Throwable) {
@@ -385,6 +385,7 @@ class UserService @Autowired constructor(
         val id = identityService.saveAsIdentity(user)
         // then save the identifier and update our database
         user.identity = id?.id
+
         return userMapper.userToUserDTO(user)
             ?: throw Exception("Admin user could not be converted to DTO")
     }
@@ -402,14 +403,25 @@ class UserService @Autowired constructor(
     }
 
     /**
+     * Get the user dto with the given login.
+     * @param login the login
+     * @return an [Optional] which holds the user if one was found with the given login,
+     * and is empty otherwise
+     */
+    @Transactional(readOnly = true)
+    fun getUserDtoWithAuthoritiesByLogin(login: String): UserDTO? {
+        return userMapper.userToUserDTO(userRepository.findOneWithRolesByLogin(login))
+    }
+
+    /**
      * Get the user with the given login.
      * @param login the login
      * @return an [Optional] which holds the user if one was found with the given login,
      * and is empty otherwise
      */
     @Transactional(readOnly = true)
-    fun getUserWithAuthoritiesByLogin(login: String): UserDTO? {
-        return userMapper.userToUserDTO(userRepository.findOneWithRolesByLogin(login))
+    fun getUserWithAuthoritiesByLogin(login: String): User? {
+        return userRepository.findOneWithRolesByLogin(login)
     }
 
     @Transactional(readOnly = true)
@@ -503,8 +515,8 @@ class UserService @Autowired constructor(
     }
 
     @Throws(IdpException::class)
-    suspend fun getRecoveryLink(user: User): String {
-        return identityService.getRecoveryLink(user)
+    suspend fun sendActivationEmail(user: User): String {
+        return identityService.sendActivationEmail(user)
     }
 
     companion object {

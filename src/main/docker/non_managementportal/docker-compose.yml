@@ -13,6 +13,9 @@ networks:
     driver: bridge
     internal: true
 
+volumes:
+    pgdata:
+
 services:
   managementportal-postgresql:
     extends:
@@ -22,10 +25,10 @@ services:
       - db
       - default
 
-  kratos-selfservice-ui-node:
+  radar-self-enrolment-ui:
     extends:
       file: ../ory_stack.yml
-      service: kratos-selfservice-ui-node
+      service: radar-self-enrolment-ui
     networks:
       - ory
       - default
@@ -46,10 +49,10 @@ services:
     networks:
       - ory
 
-  postgresd-kratos:
+  postgresd-ory:
     extends:
       file: ../ory_stack.yml
-      service: postgresd-kratos
+      service: postgresd-ory
     networks:
       - ory
 
@@ -60,3 +63,19 @@ services:
     networks:
       - ory
       - default
+
+  hydra-migrate:
+    extends:
+      file: ../ory_stack.yml
+      service: hydra-migrate
+    networks:
+      - ory
+
+  hydra:
+    extends:
+      file: ../ory_stack.yml
+      service: hydra
+    networks:
+      - ory
+      - default
+
