@@ -66,7 +66,16 @@ class KratosSessionDTO(
         val updated_at: Instant? = null,
     )
     {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is Identity) return false
 
+            return schema_id == other.schema_id &&
+                   schema_url == other.schema_url &&
+                   state == other.state &&
+                   traits?.email == other.traits?.email &&
+                   metadata_public == other.metadata_public
+        }
 
         fun parseRoles(): Set<AuthorityReference> = buildSet {
             metadata_public?.authorities?.takeIf { it.isNotEmpty() }?.let { authorities ->
