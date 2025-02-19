@@ -146,11 +146,12 @@ if (project.hasProperty('prod')) {
 }
 
 ext.findbugAnnotationVersion = '3.0.2'
-// Versions passed to Spring Boot dependency plugin
+/* The entries in the block below are added here to force the version of
+*  transitive dependencies and mitigate reported vulnerabilities */
 ext['jackson.version'] = "${jackson_version}"
 ext['undertow.version'] = "${undertow_version}"
 ext['spring-security.version'] = "${spring_security_version}"
-ext['logback.version'] = "${logback_version}"
+ext['logback.version'] = "1.2.13" // Cannot upgrade this to 1.3.x or 1.4.x; causes Scala error.
 
 dependencies {
 
