@@ -1,9 +1,12 @@
-name: Snyk scheduled code base scan
+name: Snyk scheduled Docker base image scan
 
 on:
   schedule:
-    - cron: '0 2 * * 1'
+    - cron: '0 3 * * 1'
   workflow_dispatch:
+
+env:
+  DOCKER_IMAGE: radarbase/management-portal
 
 jobs:
   security:
@@ -11,23 +14,22 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: '16'
-          cache: npm
 
       - name: Run Snyk to check for vulnerabilities
-        uses: snyk/actions/gradle-jdk17@master
         continue-on-error: true # To make sure that SARIF upload gets called
+        uses: snyk/actions/docker@master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
+          image: ${{ env.DOCKER_IMAGE }}
+          # 'exclude-app-vulns' only tests vulnerabilities in the base image.
+          # Code base vulnerabilities are tested the scheduled-snyk.yaml action.
           args: >-
-            --all-projects
-            --configuration-matching='^runtimeClasspath$'
+            --file=Dockerfile
             --fail-on=upgradable
             --severity-threshold=high
             --policy-path=.snyk
+            --exclude-app-vulns
             --org=radar-base
             --sarif-file-output=snyk.sarif
 

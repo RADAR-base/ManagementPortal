@@ -150,9 +150,15 @@ ext.findbugAnnotationVersion = '3.0.2'
 ext['jackson.version'] = "${jackson_version}"
 ext['undertow.version'] = "${undertow_version}"
 ext['spring-security.version'] = "${spring_security_version}"
-ext['logback.version'] = "1.2.13" // Cannot upgrade this to 1.3.x or 1.4.x; causes Scala error.
+ext['logback.version'] = "${logback_version}"
 
 dependencies {
+
+    /* The entries in the block below are added here to force the version of
+    *  transitive dependencies and mitigate reported vulnerabilities */
+    implementation("org.yaml:snakeyaml:${snakeyaml_version}")
+    implementation('org.springframework.security:spring-security-web:5.7.13')
+
     implementation("org.jetbrains.kotlin:kotlin-reflect:${kotlin_version}")
     implementation("tech.jhipster:jhipster-framework:${jhipster_server_version}")
     implementation("tech.jhipster:jhipster-dependencies:${jhipster_server_version}")
@@ -203,7 +209,6 @@ dependencies {
     implementation("org.springframework.session:spring-session-hazelcast")
 
     implementation('org.springframework.security.oauth:spring-security-oauth2:2.5.2.RELEASE')
-    implementation('org.springframework.security:spring-security-web:5.7.8')
     implementation "org.springdoc:springdoc-openapi-ui:${springdoc_version}"
     runtimeOnly("javax.inject:javax.inject:1")
     implementation project(':radar-auth')
@@ -319,4 +324,8 @@ tasks.named("dependencyUpdates").configure {
         it.currentVersion.split('\\.')[0] != it.candidate.version.split('\\.')[0]
             || isNonStable(it.candidate.version)
     }
+}
+
+node {
+    download = true
 }
