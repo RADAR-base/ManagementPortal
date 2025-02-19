@@ -152,8 +152,6 @@ class OAuth2ServerConfiguration {
                 .logoutUrl("/api/logout")
                 .logoutSuccessHandler(logoutSuccessHandler)
                 .and()
-                .csrf()
-                .disable()
                 .addFilterBefore(
                     jwtAuthenticationFilter(),
                     UsernamePasswordAuthenticationFilter::class.java
