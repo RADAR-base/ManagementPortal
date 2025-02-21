@@ -49,6 +49,11 @@ export class SubjectService {
         return this.http.get(`${this.resourceUrl}/${encodeURIComponent(login)}/datalogs`, {params, observe: 'response'});
     }
 
+        findDataSummary(login: string, req?: any): Observable<HttpResponse<any>> {
+            const params = createRequestOption(req);
+            return this.http.get(`${this.resourceUrl}/${encodeURIComponent(login)}/datasummary`, {params, observe: 'response'});
+        }
+
     findAllExternalIds(
     ): Observable<HttpResponse<any>> {
         return this.http.get(this.resourceUrl + "/externalId", {

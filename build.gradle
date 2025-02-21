@@ -149,6 +149,8 @@ if (project.hasProperty('prod')) {
 ext.findbugAnnotationVersion = '3.0.2'
 
 dependencies {
+    implementation 'com.fasterxml.jackson.module:jackson-module-kotlin:2.16.0'
+
     implementation("org.jetbrains.kotlin:kotlin-reflect:${kotlin_version}")
     implementation("tech.jhipster:jhipster-framework:${jhipster_server_version}")
     implementation("tech.jhipster:jhipster-dependencies:${jhipster_server_version}")
@@ -186,7 +188,10 @@ dependencies {
     }
     runtimeOnly "org.springframework.boot:spring-boot-starter-security"
     implementation("org.springframework.boot:spring-boot-starter-undertow")
-
+    implementation(platform("software.amazon.awssdk:bom:2.27.21"))
+    implementation("software.amazon.awssdk:s3")
+    implementation("software.amazon.awssdk:s3-transfer-manager:2.27.9")
+    implementation("software.amazon.awssdk:core:2.27.9")
     implementation "org.hibernate:hibernate-core"
     implementation "org.hibernate:hibernate-envers"
     implementation "org.hibernate:hibernate-validator:${hibernate_validator_version}"

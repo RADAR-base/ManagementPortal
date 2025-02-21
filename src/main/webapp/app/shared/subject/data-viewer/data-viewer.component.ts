@@ -16,7 +16,7 @@ import { Observable, Subscription } from 'rxjs';
     selector: 'jhi-data-viewer',
     templateUrl: './data-viewer.component.html',
 })
-
+// @ts-nocheck
 export class SubjectDataViewerDialogComponent implements OnInit, OnDestroy {
     subject: Subject;
 
@@ -39,6 +39,25 @@ export class SubjectDataViewerDialogComponent implements OnInit, OnDestroy {
                                     acc[cur.groupingType] = new Date(cur.time).toDateString();
                                     return acc;
                                   }, {});
+            });
+
+            this.subjectService.findDataSummary(this.subject.login).subscribe((response: HttpResponse<unknown>) => {
+                console.log("data summary", response)
+
+// @ts-ignore
+                    var binaryString = window.atob(response.body.fileBytes);
+                    var binaryLen = binaryString.length;
+                    var bytes = new Uint8Array(binaryLen);
+                    for (var i = 0; i < binaryLen; i++) {
+                      var ascii = binaryString.charCodeAt(i);
+                      bytes[i] = ascii;
+                    }
+                    var blob = new Blob([bytes]);
+
+                    var link = document.createElement('a');
+                    link.href = window.URL.createObjectURL(blob);
+                    link.download = "filename.pdf";
+                    link.click();
             });
         }
     }

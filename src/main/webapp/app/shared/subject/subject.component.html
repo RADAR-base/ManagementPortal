@@ -221,6 +221,15 @@
                         <span class="fa fa-link"></span>
                         <span>User Data</span>
                     </button>
+
+                    <button [disabled]="subject.status !== 'ACTIVATED'"
+                            type="submit"
+                            [routerLink]="['/subject/data-summary', subject.login ]"                            replaceUrl="true"
+                            class="btn btn-info btn-sm">
+                        <span class="fa fa-link"></span>
+                        <span>User Data Summaries</span>
+                    </button>
+
                 </div>
             </div>
             <app-load-more (load)="loadMore()" [shownItems]="subjects.length" [totalItems]="totalItems"></app-load-more>
