@@ -7,7 +7,7 @@ import { ManagementPortalSharedModule } from '../shared.module';
 @NgModule({
     imports: [
         ManagementPortalSharedModule,
-        RouterModule.forRoot([queriesRoute], { useHash: true }),
+        RouterModule.forRoot([...queriesRoute], { useHash: true }),
     ],
     declarations: [QueriesComponent],
     entryComponents: [],
