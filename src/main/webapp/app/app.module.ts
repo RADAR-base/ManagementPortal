@@ -14,6 +14,7 @@ import { ManagementPortalAdminModule } from './admin/admin.module';
 import { PaginationConfig } from './blocks/config/uib-pagination.config';
 import { ManagementPortalEntityModule } from './entities/entity.module';
 import { ManagementPortalHomeModule } from './home';
+import { ManagementPortalQueriesModule } from './shared';
 
 import {
     ActiveMenuDirective,
@@ -53,6 +54,7 @@ export function getBaseHref(platformLocation: PlatformLocation): string {
         ManagementPortalAdminModule,
         ManagementPortalAccountModule,
         ManagementPortalEntityModule,
+        ManagementPortalQueriesModule
     ],
     declarations: [
         JhiMainComponent,
