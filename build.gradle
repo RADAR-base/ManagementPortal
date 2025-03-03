@@ -238,6 +238,8 @@ dependencies {
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
 
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.15.0")
+
 }
 
 allOpen {
