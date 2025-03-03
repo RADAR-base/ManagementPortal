@@ -25,3 +25,4 @@ export * from './auth/user-route-access-service';
 export * from './organization';
 export * from './project';
 export * from './group';
+export * from './queries'
