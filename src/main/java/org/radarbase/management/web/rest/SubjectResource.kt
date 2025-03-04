@@ -598,15 +598,26 @@ class SubjectResource(
         NotAuthorizedException::class
     )
     fun getDataSummary(@PathVariable login: String) : ResponseEntity<Map<String, List<Double>>> {
-
         authService.checkScope(Permission.SUBJECT_READ)
+        val monthlyStatistics :  Map<String, List<Double>> = mapOf()
+        val subject = subjectService.findOneByLogin(login);
 
-        val awsService =   AWSService();
-        val folderPrefix = "output/CONNECT/" + login + "/Data_summary.pdf";
+        if(subject.activeProject != null) {
+            val awsService =   AWSService();
+            val folderPrefix = "output/" + subject.activeProject?.projectName + "/" + login + "/Data_summary.pdf";
 
-    //    val url = awsService.createPresignedGetUrl("connect-dev-output",folderPrefix)
+            val keyName = subject.activeProject?.projectName + "/" + login + "/Data_summary.pdf"
 
-      val monthlyStatistics =   awsService.readLocalFile();
+            val pressignedUrl = awsService.createPresignedGetUrl("output", keyName)
+            log.info("pressigned url is ${pressignedUrl}")
+
+
+     //       val data = awsService.useHttpUrlConnectionToGetDataAsInputStream(pressignedUrl);
+
+     //       log.info("we have data $data")
+            val monthlyStatistics =   awsService.readLocalFile();
+        }
+
   //      log.info("[AWS-S3] REST request to url  : {}", url)
 
 //        val bytes = awsService.useHttpUrlConnectionToGet(url);
