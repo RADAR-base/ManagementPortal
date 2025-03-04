@@ -1,15 +1,40 @@
-import { Component, OnInit } from '@angular/core';
-
+import { Component, OnInit, Input, AfterViewInit } from '@angular/core';
+import Chart from 'chart.js/auto';
+import { ChartConfiguration, registerables } from 'chart.js';
 @Component({
-  selector: 'app-single-row-graph',
-  templateUrl: './single-row-graph.component.html',
-  styleUrls: ['./single-row-graph.component.scss']
+    selector: 'app-single-row-graph',
+    templateUrl: './single-row-graph.component.html',
+    styleUrls: ['./../data-summary.component.scss'],
 })
 export class SingleRowGraphComponent implements OnInit {
+    constructor() {}
 
-  constructor() { }
+    @Input() title: string = '';
 
-  ngOnInit(): void {
-  }
+    @Input() chart: any = {};
 
+    @Input() showTotal: boolean = false;
+
+    @Input() total: Number = 244000;
+
+    @Input() totalValue: Number = 3;
+
+    @Input() totalAverage: Number = 3;
+
+    @Input() isSingleRow: boolean = true;
+
+    @Input() logoClass = 'quetionnaire-logo';
+
+    @Input() color: string = '';
+
+    @Input() css: string = '';
+
+    ngAfterViewInit() {
+        //@ts-ignore
+        // const ctx = document.getElementById(this.chartId).getContext('2d');
+        this.chartGraph = new Chart(this.chartId, this.chart);
+    }
+    chartGraph: any = {};
+    @Input() chartId: string = '';
+    ngOnInit(): void {}
 }

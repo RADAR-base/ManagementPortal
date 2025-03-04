@@ -1,4 +1,3 @@
-
 <div id="main" class="main">
     <div class="header">
         <h1 class="text bold">CONNECT</h1>
@@ -7,170 +6,138 @@
         </div>
     </div>
 
+    <div id="linear_gradient"></div>
 
-
-    <!-- Histogram-->
-    <div class="section flex space-between">
-        <div class="flex-test" style="flex: 1">
-
-            <div>
-                <span class=" image-size quetionnaire-logo"></span>
-            </div>
-
-            <div>
-                <p class="bold break-text">Whereabouts (January) </p>
-
-            </div>
-
-        </div>
-
-
-        <canvas style="flex: 2" id="histogramChart">{{ charts["histogramChart"] }}</canvas>
-</div>
-
-
-
-    <!-- Negative emotions (Months) / Positive emotions (Months)-->
-    <div class="new-section pagebreak">
-        <div class="left-chart">
-            <div class="flex fixed-height padding-bottom space-between" >
-                <div class="label-picture">
-                    <div>
-                        <span class=" image-size hrv-log"></span>
-                    </div>
-                    <div class="column-flex main-graph-label">
-                        <label class="bold main-graph-label break-text" style="width:50px">Negative emotions</label>
-                    </div>
-                </div>
-            </div>
-            <canvas class="chart-width" id="negative_emotions_months">{{ charts["questionnaire"] }}</canvas>
-
-        </div>
-
-        <div class="right-chart">
-            <div class="flex  fixed-height padding-bottom space-between">
-                <div class="label-picture">
-                    <div>
-                        <span class="image-size heart-rate"></span>
-                    </div>
-                    <div class="column-flex main-graph-label">
-                        <label class="bold main-graph-label break-text">Positive emotions</label>
-                    </div>
-                </div>
-            </div>
-            <canvas class="chart-width" id="positive_emotions_months">{{
-                 charts["positive_emotions_months"]
-                }}</canvas>
-        </div>
-
-        <div class="border"></div>
-    </div>
-
-
-    <!-- Negative emotions (Weeks)-->
-    <div class="section flex space-between">
-        <div class="flex-test" style="flex: 1">
-
-            <div>
-                <span class=" image-size quetionnaire-logo"></span>
-            </div>
-
-            <div>
-                <p class="bold break-text">Negative emotions (Weeks)</p>
-
-            </div>
-
-        </div>
-
-
-        <canvas style="flex: 2" id="negative_emotions_weeks">{{ charts["questionnaire"] }}</canvas>
-    </div>
-
+    <!-- Histogram histogramChart
+    <app-single-row-graph
+        [isSingleRow]="false"
+        logoClass="steps-img"
+        chartId="histogramChart"
+        [chart]="charts['histogramChart']"
+        title="Whereabouts"
+    ></app-single-row-graph> -->
 
     <!-- Questionnaires -->
-    <div class="section flex space-between">
-        <div class="flex-test" style="flex: 1">
+    color="rgba(110, 37, 147, 0.9)" color="rgb(12,132, 143)"
+    <app-single-row-graph
+        logoClass="quetionnaire-logo"
+        chartId="questionnaire"
+        [chart]="charts['questionnaire']"
+        title="Questionnaires Answered"
+        [showTotal]="true"
+        color="rgb(12,132, 143)"
+    ></app-single-row-graph>
 
-            <div>
-                <span class=" image-size quetionnaire-logo"></span>
-            </div>
+    <!-- Positive and negative emtions-->
+    <app-double-row-graph
+        title1="Positive Emotions"
+        title2="Negative Emotions"
+        chartId1="positive_emotions"
+        chartId2="negative_emotions"
+        [chartGraph1Data]="charts['positive_emotions']"
+        [chartGraph2Data]="charts['negative_emotions']"
+        color="rgb(12,132, 143)"
+        css1="activity-img"
+        css2="respiratory-img"
+    ></app-double-row-graph>
 
-            <div>
-                <p class="bold break-text">Questionnaires Answered</p>
+    <!-- Dissocitation and stress-->
+    <app-double-row-graph
+        title1="Dissociation"
+        title2="Stress"
+        chartId1="dissociation"
+        chartId2="stress"
+        [chartGraph1Data]="charts['dissociation']"
+        [chartGraph2Data]="charts['stress']"
+        color="rgba(110, 37, 147, 0.9)"
+        css1="activity-img"
+        css2="respiratory-img"
+    ></app-double-row-graph>
 
-            </div>
+    <!-- Hope and mood-->
+    <app-double-row-graph
+        title1="Hope"
+        title2="Modd"
+        chartId1="hope"
+        chartId2="mood"
+        [chartGraph1Data]="charts['hope']"
+        [chartGraph2Data]="charts['mood']"
+        color="rgb(12,132, 143)"
+        css1="activity-img"
+        css2="respiratory-img"
+    ></app-double-row-graph>
 
-        </div>
-        <div class="flex-test" style="padding-right:100px">
+    <!-- Anxiety and  Self-esteem-->
+    <app-double-row-graph
+        title1="Anxiety"
+        title2="Self esteem"
+        chartId1="anxiety"
+        chartId2="self_esteem"
+        [chartGraph1Data]="charts['anxiety']"
+        [chartGraph2Data]="charts['self_esteem']"
+        color="rgba(110, 37, 147, 0.9)"
+        css1="activity-img"
+        css2="respiratory-img"
+    ></app-double-row-graph>
 
-                <label class="bold sub-label no-bottom-margin"><strong>Total</strong></label>
-                <p class="label text bold value" style="padding: 0; margin: 0">1134</p>
-                <div class="row"></div>
-                <label class="bold sub-label no-bottom-margin"><strong>Daily Average</strong></label>
-                <p class="label text bold value" style="padding: 0; margin: 0">3</p>
+    <!-- Anxiety and  Self-esteem-->
+    <app-double-row-graph
+        title1="Connectedness"
+        title2="Coping"
+        chartId1="connectedness"
+        chartId2="coping"
+        [chartGraph1Data]="charts['connectedness']"
+        [chartGraph2Data]="charts['coping']"
+        color="rgb(12,132, 143)"
+        css1="activity-img"
+        css2="respiratory-img"
+    ></app-double-row-graph>
 
-        </div>
+    <!-- Fear of relapse and  Unusual voice-->
+    <app-double-row-graph
+        title1="Fear of Relapse"
+        title2="Unusual Voices"
+        chartId1="fear_of_relapse"
+        chartId2="unusual_voices"
+        [chartGraph1Data]="charts['fear_of_relapse']"
+        [chartGraph2Data]="charts['unusual_voices']"
+        color="rgba(110, 37, 147, 0.9)"
+        css1="activity-img"
+        css2="respiratory-img"
+    ></app-double-row-graph>
 
-        <canvas style="flex: 2" id="questionnaire">{{ charts["questionnaire"] }}</canvas>
-    </div>
-
+    <!-- Fear of relapse and  Unusual voice-->
+    <app-double-row-graph
+        title1="Seeing things"
+        title2="Suspiciousness"
+        chartId1="seeing_things"
+        chartId2="suspiciousness"
+        [chartGraph1Data]="charts['seeing_things']"
+        [chartGraph2Data]="charts['suspiciousness']"
+        color="rgb(12,132, 143)"
+        css1="activity-img"
+        css2="respiratory-img"
+    ></app-double-row-graph>
 
     <!-- Heart Rate & HRV-->
-    <div class="new-section pagebreak">
-        <div class="left-chart">
-            <div class="flex fixed-height padding-bottom space-between" >
-                <div class="label-picture">
-                    <div>
-                        <span class=" image-size heart-rate"></span>
-                    </div>
-                    <div class="column-flex main-graph-label">
-                        <label class="bold main-graph-label break-text" style="width:50px">Heart Rate</label>
-                    </div>
-                </div>
-
-                <div class="data-point">
-                    <p class="bold no-bottom-margin sub-label">Total Average</p>
-                    <span
-                    ><span class="purple-color bold" style="font-size: 30px">61 </span>
-            <span class="purple-color sub-label">beats per minute</span>
-          </span>
-                </div>
-            </div>
-            <canvas class="chart-width" id="heart_rate">{{
-                 charts["heart_rate"]
-                }}</canvas>
-        </div>
-
-        <div class="right-chart">
-            <div class="flex fixed-height padding-bottom space-between">
-                <div class="label-picture">
-                    <div>
-                        <span class=" image-size hrv-log"></span>
-                    </div>
-                    <div class="column-flex main-graph-label">
-                        <label class="bold main-graph-label break-text">Heart rate Variability</label>
-
-                    </div>
-                </div>
-
-                <div class="data-point">
-                    <p class="bold no-bottom-margin sub-label">Total Average</p>
-                    <span
-                    ><span class="purple-color bold" style="font-size: 30px">61 </span>
-            <span class="purple-color sub-label">beats per minute</span>
-          </span>
-                </div>
-            </div>
-            <canvas class="chart-width" id="hrv">{{
-                 charts["hrv"]
-                }}</canvas>
-        </div>
-
-        <div class="border"></div>
-    </div>
+    <app-double-row-graph
+        title1="Heart Rate"
+        title2="Heart rate Variability"
+        chartId1="heart_rate"
+        chartId2="hrv"
+        [chartGraph1Data]="charts['heart_rate']"
+        [chartGraph2Data]="charts['hrv']"
+        color="rgb(12,132, 143)"
+        dataPoint1Title="Total average"
+        dataPoint2Title="Total average"
+        dataPoint1SubTitle="beats per minute"
+        dataPoint2SubTitle="beats per minute"
+        css1="activity-img"
+        css2="respiratory-img"
+    ></app-double-row-graph>
 
     <!-- Sleep Length -->
-    <div class="section flex sleep-section pagebreak">
+    <!-- <div class="section flex sleep-section pagebreak">
         <div class="row">
             <div class=" image-size label-picture">
                 <img src="assets/icn-sleep.svg" alt="Logo" class="logo self-centered" />
@@ -187,90 +154,32 @@
                 7 hours 23 mins
             </p>
         </div>
-    </div>
+    </div> -->
 
     <!-- Steps -->
-    <div class="section flex space-between pagebreak">
-        <div class="flex-test" style="flex: 1">
 
-            <div>
-                <span class=" image-size steps-img"></span>
-            </div>
+    <app-single-row-graph
+        logoClass="steps-img"
+        chartId="steps"
+        [chart]="charts['steps']"
+        title="Steps"
+        [showTotal]="true"
+        color="rgba(110, 37, 147, 0.9)"
+    ></app-single-row-graph>
 
-            <div>
-                <p class="bold break-text">Steps</p>
-
-            </div>
-
-        </div>
-        <div class="flex-test" style="padding-right:100px">
-
-                <label class="bold sub-label no-bottom-margin"><strong>Total</strong></label>
-                <p class="label text bold value" style="padding: 0; margin: 0">244000</p>
-                <div class="row"></div>
-                <label class="bold sub-label no-bottom-margin"><strong>Daily Average</strong></label>
-                <p class="label text bold value" style="padding: 0; margin: 0">3</p>
-
-        </div>
-
-        <canvas style="flex: 2" id="steps">{{ charts["steps"] }}</canvas>
-    </div>
-
-
-    <!-- Activity & Respiratory Rate-->
-    <div class="new-section pagebreak">
-        <div class="left-chart">
-            <div class="flex fixed-height padding-bottom space-between" >
-                <div class="label-picture">
-                    <div>
-                        <span class=" image-size activity-img"></span>
-                    </div>
-                    <div class="column-flex main-graph-label">
-                        <label class="bold main-graph-label break-text" style="width:50px">Activity</label>
-                    </div>
-                </div>
-
-                <div class="data-point">
-                    <p class="bold no-bottom-margin sub-label">Total amount</p>
-                    <span
-                    ><span class="blue-color bold" style="font-size: 30px">61 </span>
-            <span class="blue-color">  </span>
-          </span>
-                </div>
-            </div>
-            <canvas class="chart-width"   id="activity">{{
-                 charts["activity"]
-                }}</canvas>
-        </div>
-
-        <div class="right-chart">
-            <div class="flex  fixed-height padding-bottom space-between">
-                <div class="label-picture">
-                    <div>
-                        <span class="image-size respiratory-img"></span>
-                    </div>
-                    <div class="column-flex main-graph-label">
-                        <label class="bold main-graph-label break-text">Respiratory Rate</label>
-
-                    </div>
-                </div>
-
-                <div class="data-point">
-                    <p class="bold no-bottom-margin sub-label">Total Average</p>
-                    <span
-                    ><span class="blue-color bold" style="font-size: 30px">61 </span>
-            <span class="blue-color sub-label">breaths per minute</span>
-          </span>
-                </div>
-            </div>
-            <canvas class="chart-width" id="respiratory_rate">{{
-                 charts["respiratory_rate"]
-                }}</canvas>
-        </div>
-
-        <div class="border"></div>
-    </div>
-
-
+    <app-double-row-graph
+        title1="Activity"
+        title2="Respiratory Rate"
+        chartId1="activity"
+        chartId2="respiratory_rate"
+        [chartGraph1Data]="charts['respiratory_rate']"
+        [chartGraph2Data]="charts['activity']"
+        color="rgba(110, 37, 147, 0.9)"
+        dataPoint1Title="Total amount"
+        dataPoint2Title="Total average"
+        dataPoint1SubTitle=""
+        dataPoint2SubTitle="breaths per minute"
+        css1="activity-img"
+        css2="respiratory-img"
+    ></app-double-row-graph>
 </div>
-

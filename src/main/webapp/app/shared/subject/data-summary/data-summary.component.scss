@@ -1,51 +1,68 @@
-
 .image-size {
     height: 60px;
     width: 60px;
 }
-.quetionnaire-logo {
 
+.sleep-logo {
     display: block;
-    background: url("../../../../content/images/icn-questionnaires.svg") no-repeat center center;
+    background: url("../../../../content/images/icn-sleep.svg") no-repeat center
+        center;
 }
 
+.quetionnaire-logo {
+    display: block;
+
+    -webkit-mask-image: url("../../../../content/images/icn-questionnaires.svg");
+    mask-image: url("../../../../content/images/icn-questionnaires.svg");
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+}
 
 .heart-rate {
-
     display: block;
-    background: url("../../../../content/images/icn-heartrate.svg") no-repeat center center;
+    background: url("../../../../content/images/icn-heartrate.svg") no-repeat
+        center center;
 }
-
 
 .hrv-log {
-
     display: block;
-    background: url("../../../../content/images/icn-hrv.svg") no-repeat center center;
+    background: url("../../../../content/images/icn-hrv.svg") no-repeat center
+        center;
 }
-
 
 .steps-img {
-
     display: block;
-    background: url("../../../../content/images/icn-steps.svg") no-repeat center center;
+
+    -webkit-mask-image: url("../../../../content/images/icn-steps.svg");
+    mask-image: url("../../../../content/images/icn-steps.svg");
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: contain;
+    mask-size: contain;
 }
 
-
 .activity-img {
-
     display: block;
-    background: url("../../../../content/images/icn-activity.svg") no-repeat center center;
+    -webkit-mask-image: url("../../../../content/images/icn-activity.svg");
+    mask-image: url("../../../../content/images/icn-activity.svg");
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: contain;
+    mask-size: contain;
 }
 
 .respiratory-img {
-
     display: block;
-    background: url("../../../../content/images/icn-respiratory.svg") no-repeat center center;
+
+    -webkit-mask-image: url("../../../../content/images/icn-respiratory.svg");
+    mask-image: url("../../../../content/images/icn-respiratory.svg");
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: contain;
+    mask-size: contain;
 }
-
-
-
-
 
 :host {
     --bright-blue: oklch(51.01% 0.274 263.83);
@@ -60,229 +77,220 @@
     --gray-400: oklch(70.9% 0.015 304.04);
 
     --red-to-pink-to-purple-vertical-gradient: linear-gradient(
-      180deg,
-      var(--orange-red) 0%,
-      var(--vivid-pink) 50%,
-      var(--electric-violet) 100%
+        180deg,
+        var(--orange-red) 0%,
+        var(--vivid-pink) 50%,
+        var(--electric-violet) 100%
     );
 
     --red-to-pink-to-purple-horizontal-gradient: linear-gradient(
-      90deg,
-      var(--orange-red) 0%,
-      var(--vivid-pink) 50%,
-      var(--electric-violet) 100%
+        90deg,
+        var(--orange-red) 0%,
+        var(--vivid-pink) 50%,
+        var(--electric-violet) 100%
     );
 
     --pill-accent: var(--bright-blue);
 
     font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-      Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
-      "Segoe UI Symbol";
+        Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+        "Segoe UI Symbol";
     box-sizing: border-box;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-  }
+}
 
-  .header {
+.header {
     display: flex;
     align-items: center;
     justify-content: space-between;
     background: #e4f7f5 !important;
     padding: 50px;
-  }
+}
 
-  .main {
+.main {
     width: 100%;
     max-width: 900px;
     margin: 0 auto;
     padding: 20px;
-  }
+}
 
-  .bold {
+.bold {
     font-weight: bold;
-  }
+}
 
-  .text {
+.text {
     color: #08848f;
-  }
+}
 
-  .flex {
+.flex {
     display: flex;
-  }
+}
 
-  .space-between {
+.space-between {
     justify-content: space-between;
-  }
+}
 
-  .flex1 {
+.flex1 {
     flex: 1;
-  }
+}
 
-  .flex-column {
+.flex-column {
     flex-direction: column;
-  }
+}
 
-  .row {
+.row {
     padding-bottom: 20px;
-  }
+}
 
-  .section {
+.section {
     padding-top: 20px;
 
     margin-bottom: 10px;
     border-bottom: 1px black solid;
     padding-bottom: 40px;
-  }
+}
 
-  .chart {
+.chart {
     width: 95% !important;
-  }
+}
 
-  .middle {
+.middle {
     align-content: center;
     justify-items: center;
     justify-content: center;
     align-items: center;
-  }
-  h1 {
+}
+h1 {
     font-size: 24pt;
     margin-top: 0;
-  }
+}
 
-  h2 {
+h2 {
     font-size: 18pt;
-  }
+}
 
-  h3 {
+h3 {
     font-size: 14pt;
-  }
+}
 
-  /* Adjust paragraph text size for readability */
-  p {
+/* Adjust paragraph text size for readability */
+p {
     font-size: 15pt;
     margin-bottom: 1em;
-  }
+}
 
-  label {
+label {
     font-size: 20pt;
-  }
+}
 
-
-
-  .row-section {
+.row-section {
     display: flex;
     flex-direction: row;
-  }
-  .padding {
+}
+.padding {
     padding: 10px;
-  }
-  .purple-color {
+}
+.purple-color {
     color: #6e2594;
-  }
+}
 
-  .blue-color {
-    color:#08848f;
-  }
+.blue-color {
+    color: #08848f;
+}
 
-  .padding-bottom {
+.padding-bottom {
     padding-bottom: 50px;
-  }
+}
 
-  .flex-test {
+.flex-test {
     display: flex;
     align-content: flex-end;
 
     flex-direction: column;
-  }
+}
 
-  .left-chart {
+.left-chart {
     width: 50% !important; /* set width to 50% of page width */
     float: left; /* Make the element go to the left */
-  }
+}
 
-  .right-chart {
+.right-chart {
     width: 50% !important;
     float: right;
-  }
+}
 
-  .chart-width {
-
+.chart-width {
     width: 100% !important;
-  }
+}
 
-  .clear {
+.clear {
     clear: both;
-  }
+}
 
-  .new-section {
+.new-section {
     width: 100%;
     padding-top: 20px;
     margin-bottom: 10px;
     padding-bottom: 40px;
-  }
+}
 
-  .border {
+.border {
     clear: both;
     border-bottom: 1px black solid;
-  }
+}
 
-  .logo {
+.logo {
     height: 50px;
     width: 50px;
-  }
-  .label-picture {
+}
+.label-picture {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap:10px;
-  }
-  .self-centered {
+    gap: 10px;
+}
+.self-centered {
     align-self: center;
-  }
-  .main-graph-label {
+}
+.main-graph-label {
     font-size: 21px !important;
-  }
+}
 
-  .sub-label {
+.sub-label {
     font-size: 16px !important;
-
-  }
-  .column-flex {
+}
+.column-flex {
     display: flex;
     flex-direction: column;
-  }
-  .sleep-section {
+}
+.sleep-section {
     width: 100%;
     align-items: center;
     justify-content: center;
     gap: 20px;
-  }
+}
 
-  .break-text {
+.break-text {
     display: flex;
-  flex-wrap: wrap;
-  width: 200px; /* Set a specific width to force wrapping */
-  }
+    flex-wrap: wrap;
+    width: 200px; /* Set a specific width to force wrapping */
+}
 
-
-  .no-bottom-margin {
+.no-bottom-margin {
     margin-bottom: 0px !important;
-  }
+}
 
-
-
-  .fixed-height {
+.fixed-height {
     height: 95px !important;
-  }
+}
 
-
-
-  .value  {
+.value {
     font-size: 30px !important;
-  }
+}
 
-  @media print {
+@media print {
     .pagebreak {
-      page-break-before: always;
+        page-break-before: always;
     } /* page-break-after works, as well */
-  }
+}
