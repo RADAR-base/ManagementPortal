@@ -1,10 +1,12 @@
 package org.radarbase.management.service.dto
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import java.util.*
 
 /**
  * Created by nivethika on 13-6-17.
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 class MinimalSourceDetailsDTO {
     var id: Long? = null
     var sourceTypeId: Long? = null
