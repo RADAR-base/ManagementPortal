@@ -1,1 +1,17 @@
 <div>This is add query page.</div>
+<query-builder
+    [(ngModel)]="query"
+    [classNames]="bootstrapClassNames"
+    [config]="currentConfig"
+    [allowRuleset]="allowRuleset"
+    [allowCollapse]="allowCollapse"
+    [persistValueOnFieldChange]="persistValueOnFieldChange"
+>
+    <div class="col-auto" *queryInput="let rule; type: 'textarea'">
+        <textarea
+            class="form-control"
+            [(ngModel)]="rule.value"
+            placeholder="Custom Textarea"
+        ></textarea>
+    </div>
+</query-builder>
