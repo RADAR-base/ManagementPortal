@@ -30,7 +30,6 @@ import { LANGUAGES, ManagementPortalSharedModule} from './shared';
 import { ErrorHandlerInterceptor } from './blocks/interceptor/errorhandler.interceptor';
 import { NotificationInterceptor } from './blocks/interceptor/notification.interceptor';
 import { APP_BASE_HREF, PlatformLocation } from "@angular/common";
-import { QueryBuilderModule } from '@syncfusion/ej2-angular-querybuilder';
 
 export function getBaseHref(platformLocation: PlatformLocation): string {
     return platformLocation.getBaseHrefFromDOM();
@@ -56,7 +55,6 @@ export function getBaseHref(platformLocation: PlatformLocation): string {
         ManagementPortalAccountModule,
         ManagementPortalEntityModule,
         ManagementPortalQueriesModule,
-        QueryBuilderModule
     ],
     declarations: [
         JhiMainComponent,
