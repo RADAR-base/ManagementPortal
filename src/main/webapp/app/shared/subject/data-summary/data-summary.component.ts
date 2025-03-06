@@ -20,7 +20,7 @@ const barGraph: Graph = {
 
 const lineGraph: Graph = {
     type: 'line',
-    showScaleY: true,
+    showScaleY: false,
     showDataTables: true,
 };
 
@@ -110,9 +110,8 @@ export class DataSummaryComponent implements OnInit {
 
     constructor() {}
 
-    createMonthHistogram() {
-        // Sample data for each month
-        const binLabels2 = [
+    createSocialHistogram() {
+        let months = [
             'Jan',
             'Feb',
             'Mar',
@@ -126,7 +125,75 @@ export class DataSummaryComponent implements OnInit {
             'Nov',
             'Dec',
         ];
-        const binLabels = [
+
+        let binLabels2 = [
+            'On my own',
+            'with strangers',
+            'with people I know',
+            'with people I am close to',
+            'Connecting with people online or using social media',
+        ];
+
+        // Define colors for each bin
+        const binColors = [
+            'rgba(255, 99, 132, 0.6)', // 0-2
+            'rgba(54, 162, 235, 0.6)', // 2-4
+            'rgba(255, 206, 86, 0.6)', // 4-6
+            'rgba(75, 192, 192, 0.6)', // 6-8
+            'rgba(153, 102, 255, 0.6)', // 8-10
+        ];
+
+        // Generate random data for each month
+        const data = binLabels2.map(() =>
+            Array.from({ length: 12 }, () => Math.floor(Math.random() * 10 + 1))
+        );
+
+        return {
+            type: 'bar',
+            data: {
+                labels: months,
+                datasets: binLabels2.map((label, index) => ({
+                    label: label,
+                    data: data[index],
+                    backgroundColor: binColors[index],
+                    borderColor: binColors[index].replace('0.6', '1'),
+                    borderWidth: 1,
+                })),
+            },
+            options: {
+                responsive: false,
+                maintainAspectRatio: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                    },
+                },
+                plugins: {
+                    datalabels: {
+                        display: false,
+                    },
+                },
+            },
+        };
+    }
+
+    createSleepHistogram() {
+        let months = [
+            'Jan',
+            'Feb',
+            'Mar',
+            'Apr',
+            'May',
+            'Jun',
+            'Jul',
+            'Aug',
+            'Sep',
+            'Oct',
+            'Nov',
+            'Dec',
+        ];
+
+        let binLabels2 = [
             '0-2',
             '2-4',
             '4-6',
@@ -137,7 +204,70 @@ export class DataSummaryComponent implements OnInit {
             '14+',
         ];
 
-        const months = [
+        // Define colors for each bin
+        const binColors = [
+            'rgba(255, 99, 132, 0.6)', // 0-2
+            'rgba(54, 162, 235, 0.6)', // 2-4
+            'rgba(255, 206, 86, 0.6)', // 4-6
+            'rgba(75, 192, 192, 0.6)', // 6-8
+            'rgba(153, 102, 255, 0.6)', // 8-10
+            'rgba(255, 159, 64, 0.6)', // 10-12
+            'rgba(199, 199, 199, 0.6)', // 12-14
+            'rgba(83, 255, 157, 0.6)', // 14+
+        ];
+
+        // Generate random data for each month
+        const data = binLabels2.map(() =>
+            Array.from({ length: 12 }, () => Math.floor(Math.random() * 10 + 1))
+        );
+
+        return {
+            type: 'bar',
+            data: {
+                labels: months,
+                datasets: binLabels2.map((label, index) => ({
+                    label: label,
+                    data: data[index],
+                    backgroundColor: binColors[index],
+                    borderColor: binColors[index].replace('0.6', '1'),
+                    borderWidth: 1,
+                })),
+            },
+            options: {
+                responsive: false,
+                maintainAspectRatio: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                    },
+                },
+                plugins: {
+                    datalabels: {
+                        display: false,
+                    },
+                },
+            },
+        };
+    }
+
+    createMonthHistogram() {
+        // Sample data for each month
+        let months = [
+            'Jan',
+            'Feb',
+            'Mar',
+            'Apr',
+            'May',
+            'Jun',
+            'Jul',
+            'Aug',
+            'Sep',
+            'Oct',
+            'Nov',
+            'Dec',
+        ];
+
+        let binLabels2 = [
             'Relaxing',
             'Working / at school',
             'Studying',
@@ -169,41 +299,8 @@ export class DataSummaryComponent implements OnInit {
 
         // Generate random data for each month
         const data = binLabels2.map(() =>
-            Array.from({ length: 11 }, () => Math.floor(Math.random() * 10 + 1))
+            Array.from({ length: 12 }, () => Math.floor(Math.random() * 10 + 1))
         );
-
-        console.log('histogram data', data);
-        //@ts-ignore
-        // Create histogram chart
-        // const ctx = document.getElementById('histogramChart').getContext('2d');
-        // new Chart(ctx, {
-        //     type: 'bar',
-        //     data: {
-        //         labels: months,
-        //         datasets: binLabels.map((label, index) => ({
-        //             label: label,
-        //             data: data[index],
-        //             backgroundColor: binColors[index],
-        //             borderColor: binColors[index].replace('0.6', '1'),
-        //             borderWidth: 1
-        //         }))
-        //     },
-        //     options: {
-
-        //         responsive: false,
-        //         maintainAspectRatio: true,
-        //         scales: {
-        //             y: {
-        //                 beginAtZero: true
-        //             }
-        //         },
-        //         plugins: {
-        //             datalabels: {
-        //                 display: false
-        //             }
-        //         }
-        //     }
-        // });
 
         return {
             type: 'bar',
@@ -293,6 +390,7 @@ export class DataSummaryComponent implements OnInit {
                 ],
             },
             options: {
+                devicePixelRatio: 4,
                 plugins: {
                     legend: {
                         display: false,
@@ -343,6 +441,7 @@ export class DataSummaryComponent implements OnInit {
                 ],
             },
             options: {
+                devicePixelRatio: 4,
                 layout: {
                     padding: {
                         left: 30,
@@ -423,6 +522,7 @@ export class DataSummaryComponent implements OnInit {
                 ],
             },
             options: {
+                devicePixelRatio: 4,
                 responsive: false,
                 maintainAspectRatio: true,
                 scales: {
@@ -502,6 +602,9 @@ export class DataSummaryComponent implements OnInit {
         }
 
         this.charts['histogramChart'] = this.createMonthHistogram();
+
+        this.charts['sleepHistogramChart'] = this.createSleepHistogram();
+        this.charts['socialHistogram'] = this.createSocialHistogram();
 
         console.log('this charts', this.charts);
     }

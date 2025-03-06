@@ -9,15 +9,12 @@ import Chart from 'chart.js/auto';
 })
 export class DoubleRowGraphComponent implements OnInit {
     @Input() title1: string = '';
-
     @Input() title2: string = '';
 
     @Input() chartId1: string = 'test';
-
     @Input() chartId2: string = 'test1';
 
     @Input() chartGraph1Data: any = '';
-
     @Input() chartGraph2Data: any = '';
 
     @Input() color: any = '';
@@ -33,6 +30,8 @@ export class DoubleRowGraphComponent implements OnInit {
 
     @Input css1: string = '';
     @Input css2: string = '';
+
+    @Input addPageBreak: boolean = true;
 
     chartGraph1: any = {};
     chartGraph2: any = {};

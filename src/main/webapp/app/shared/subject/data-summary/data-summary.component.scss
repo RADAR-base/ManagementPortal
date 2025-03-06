@@ -1,12 +1,204 @@
+@page {
+    margin-top: 10mm;
+    margin-bottom: 0mm;
+}
+
 .image-size {
     height: 60px;
     width: 60px;
 }
 
+.main-logo-size {
+    height: 120px;
+    width: 200px;
+}
+
+.whereabouts-logo {
+    display: block;
+    -webkit-mask-image: url("../../../../content/images/icn_whereabouts.svg");
+    mask-image: url("../../../../content/images/icn_whereabouts.svg");
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+}
+
+.voices-logo {
+    display: block;
+    -webkit-mask-image: url("../../../../content/images/icn_vocies.svg");
+    mask-image: url("../../../../content/images/icn_vocies.svg");
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+}
+
+.suspiciousness-logo {
+    display: block;
+    -webkit-mask-image: url("../../../../content/images/icn_suspiciousness.svg");
+    mask-image: url("../../../../content/images/icn_suspiciousness.svg");
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+}
+
+.stress-logo {
+    display: block;
+    -webkit-mask-image: url("../../../../content/images/icn_stress.svg");
+    mask-image: url("../../../../content/images/icn_stress.svg");
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+}
+
+.social-logo {
+    display: block;
+    -webkit-mask-image: url("../../../../content/images/icn_social.svg");
+    mask-image: url("../../../../content/images/icn_social.svg");
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+}
+
+.selfesteem-logo {
+    display: block;
+    -webkit-mask-image: url("../../../../content/images/icn_self-esteem.svg");
+    mask-image: url("../../../../content/images/icn_self-esteem.svg");
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+}
+
+.seeing-logo {
+    display: block;
+    -webkit-mask-image: url("../../../../content/images/icn_seeing.svg");
+    mask-image: url("../../../../content/images/icn_seeing.svg");
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+}
+
+.relapse-logo {
+    display: block;
+    -webkit-mask-image: url("../../../../content/images/icn_relapse.svg");
+    mask-image: url("../../../../content/images/icn_relapse.svg");
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+}
+
+.positive-logo {
+    display: block;
+
+    -webkit-mask-image: url("../../../../content/images/icn_positive.svg");
+    mask-image: url("../../../../content/images/icn_positive.svg");
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+}
+
+.negative-logo {
+    display: block;
+
+    -webkit-mask-image: url("../../../../content/images/icn_negative.svg");
+    mask-image: url("../../../../content/images/icn_negative.svg");
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+}
+
+.mood-logo {
+    display: block;
+
+    -webkit-mask-image: url("../../../../content/images/icn_mood.svg");
+    mask-image: url("../../../../content/images/icn_mood.svg");
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+}
+
+.hope-logo {
+    display: block;
+
+    -webkit-mask-image: url("../../../../content/images/icn_hope.svg");
+    mask-image: url("../../../../content/images/icn_hope.svg");
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+}
+
+.dissociation-logo {
+    display: block;
+
+    -webkit-mask-image: url("../../../../content/images/icn_dissociation.svg");
+    mask-image: url("../../../../content/images/icn_dissociation.svg");
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+}
+
+.delusions-logo {
+    display: block;
+
+    -webkit-mask-image: url("../../../../content/images/icn_delusions.svg");
+    mask-image: url("../../../../content/images/icn_delusions.svg");
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+}
+
+.coping-logo {
+    display: block;
+
+    -webkit-mask-image: url("../../../../content/images/icn_coping.svg");
+    mask-image: url("../../../../content/images/icn_coping.svg");
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+}
+
+.connectedness-logo {
+    display: block;
+
+    -webkit-mask-image: url("../../../../content/images/icn_connectedness.svg");
+    mask-image: url("../../../../content/images/icn_connectedness.svg");
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+}
+
+.anxiety-logo {
+    display: block;
+    -webkit-mask-image: url("../../../../content/images/icn_anxiety.svg");
+    mask-image: url("../../../../content/images/icn_anxiety.svg");
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+}
+
 .sleep-logo {
     display: block;
-    background: url("../../../../content/images/icn-sleep.svg") no-repeat center
-        center;
+    -webkit-mask-image: url("../../../../content/images/icn-sleep.svg");
+    mask-image: url("../../../../content/images/icn-sleep.svg");
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: contain;
+    mask-size: contain;
 }
 
 .quetionnaire-logo {
@@ -22,14 +214,30 @@
 
 .heart-rate {
     display: block;
-    background: url("../../../../content/images/icn-heartrate.svg") no-repeat
-        center center;
+
+    -webkit-mask-image: url("../../../../content/images/icn-heartrate.svg");
+    mask-image: url("../../../../content/images/icn-heartrate.svg");
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+}
+
+.connect-logo-main {
+    display: block;
+    background: url("../../../../content/images/connect-logo-main.svg")
+        no-repeat center center;
 }
 
 .hrv-log {
     display: block;
-    background: url("../../../../content/images/icn-hrv.svg") no-repeat center
-        center;
+
+    -webkit-mask-image: url("../../../../content/images/icn-hrv.svg");
+    mask-image: url("../../../../content/images/icn-hrv.svg");
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: contain;
+    mask-size: contain;
 }
 
 .steps-img {
@@ -113,6 +321,7 @@
     max-width: 900px;
     margin: 0 auto;
     padding: 20px;
+    height: auto !important;
 }
 
 .bold {
@@ -144,10 +353,10 @@
 }
 
 .section {
-    padding-top: 20px;
+    padding-top: 10px;
 
     margin-bottom: 10px;
-    border-bottom: 1px black solid;
+
     padding-bottom: 40px;
 }
 
@@ -289,8 +498,18 @@ label {
     font-size: 30px !important;
 }
 
+html,
+body {
+    height: 100% !important;
+    @media print {
+        /* This fixes an issue where when printing a selection,
+         an extra blank page is printed in IE10 and IE11.
+         Solution found here: http://stackoverflow.com/a/22320644/7752 */
+        height: auto !important;
+    }
+}
 @media print {
     .pagebreak {
         page-break-before: always;
-    } /* page-break-after works, as well */
+    }
 }

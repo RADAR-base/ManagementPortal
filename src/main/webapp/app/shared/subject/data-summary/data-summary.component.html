@@ -1,24 +1,12 @@
-<div id="main" class="main">
+<div class="main">
     <div class="header">
-        <h1 class="text bold">CONNECT</h1>
+        <span class="main-logo-size connect-logo-main"></span>
         <div>
             <p class="text bold">Your Data Summary</p>
         </div>
     </div>
 
-    <div id="linear_gradient"></div>
-
-    <!-- Histogram histogramChart
-    <app-single-row-graph
-        [isSingleRow]="false"
-        logoClass="steps-img"
-        chartId="histogramChart"
-        [chart]="charts['histogramChart']"
-        title="Whereabouts"
-    ></app-single-row-graph> -->
-
     <!-- Questionnaires -->
-    color="rgba(110, 37, 147, 0.9)" color="rgb(12,132, 143)"
     <app-single-row-graph
         logoClass="quetionnaire-logo"
         chartId="questionnaire"
@@ -26,6 +14,35 @@
         title="Questionnaires Answered"
         [showTotal]="true"
         color="rgb(12,132, 143)"
+    ></app-single-row-graph>
+
+    <app-single-row-graph
+        [isSingleRow]="false"
+        logoClass="social-logo"
+        chartId="socialHistogram"
+        [chart]="charts['socialHistogram']"
+        title="Social"
+        color="rgba(110, 37, 147, 0.9)"
+    ></app-single-row-graph>
+
+    <div class="pagebreak"></div>
+
+    <app-single-row-graph
+        [isSingleRow]="false"
+        logoClass="sleep-logo"
+        chartId="sleepHistogramChart"
+        [chart]="charts['sleepHistogramChart']"
+        title="Sleep"
+        color="rgb(12,132, 143)"
+    ></app-single-row-graph>
+
+    <app-single-row-graph
+        [isSingleRow]="false"
+        logoClass="whereabouts-logo"
+        chartId="histogramChart"
+        [chart]="charts['histogramChart']"
+        title="Whereabouts"
+        color="rgba(110, 37, 147, 0.9)"
     ></app-single-row-graph>
 
     <!-- Positive and negative emtions-->
@@ -37,11 +54,12 @@
         [chartGraph1Data]="charts['positive_emotions']"
         [chartGraph2Data]="charts['negative_emotions']"
         color="rgb(12,132, 143)"
-        css1="activity-img"
-        css2="respiratory-img"
+        css1="positive-logo"
+        css2="negative-logo"
     ></app-double-row-graph>
 
     <!-- Dissocitation and stress-->
+
     <app-double-row-graph
         title1="Dissociation"
         title2="Stress"
@@ -50,21 +68,21 @@
         [chartGraph1Data]="charts['dissociation']"
         [chartGraph2Data]="charts['stress']"
         color="rgba(110, 37, 147, 0.9)"
-        css1="activity-img"
-        css2="respiratory-img"
+        css1="dissociation-logo"
+        css2="stress-logo"
     ></app-double-row-graph>
-
     <!-- Hope and mood-->
+
     <app-double-row-graph
         title1="Hope"
-        title2="Modd"
+        title2="Mood"
         chartId1="hope"
         chartId2="mood"
         [chartGraph1Data]="charts['hope']"
         [chartGraph2Data]="charts['mood']"
         color="rgb(12,132, 143)"
-        css1="activity-img"
-        css2="respiratory-img"
+        css1="hope-logo"
+        css2="mood-logo"
     ></app-double-row-graph>
 
     <!-- Anxiety and  Self-esteem-->
@@ -76,8 +94,8 @@
         [chartGraph1Data]="charts['anxiety']"
         [chartGraph2Data]="charts['self_esteem']"
         color="rgba(110, 37, 147, 0.9)"
-        css1="activity-img"
-        css2="respiratory-img"
+        css1="coping-logo"
+        css2="selfesteem-logo"
     ></app-double-row-graph>
 
     <!-- Anxiety and  Self-esteem-->
@@ -89,8 +107,8 @@
         [chartGraph1Data]="charts['connectedness']"
         [chartGraph2Data]="charts['coping']"
         color="rgb(12,132, 143)"
-        css1="activity-img"
-        css2="respiratory-img"
+        css1="connectedness-logo"
+        css2="coping-logo"
     ></app-double-row-graph>
 
     <!-- Fear of relapse and  Unusual voice-->
@@ -102,11 +120,12 @@
         [chartGraph1Data]="charts['fear_of_relapse']"
         [chartGraph2Data]="charts['unusual_voices']"
         color="rgba(110, 37, 147, 0.9)"
-        css1="activity-img"
-        css2="respiratory-img"
+        css1="relapse-logo"
+        css2="voices-logo"
     ></app-double-row-graph>
 
     <!-- Fear of relapse and  Unusual voice-->
+
     <app-double-row-graph
         title1="Seeing things"
         title2="Suspiciousness"
@@ -115,8 +134,8 @@
         [chartGraph1Data]="charts['seeing_things']"
         [chartGraph2Data]="charts['suspiciousness']"
         color="rgb(12,132, 143)"
-        css1="activity-img"
-        css2="respiratory-img"
+        css1="seeing-logo"
+        css2="suspiciousness-logo"
     ></app-double-row-graph>
 
     <!-- Heart Rate & HRV-->
@@ -132,8 +151,8 @@
         dataPoint2Title="Total average"
         dataPoint1SubTitle="beats per minute"
         dataPoint2SubTitle="beats per minute"
-        css1="activity-img"
-        css2="respiratory-img"
+        css1="heart-rate"
+        css2="hrv-log"
     ></app-double-row-graph>
 
     <!-- Sleep Length -->
@@ -166,6 +185,8 @@
         [showTotal]="true"
         color="rgba(110, 37, 147, 0.9)"
     ></app-single-row-graph>
+
+    <div class="pagebreak"></div>
 
     <app-double-row-graph
         title1="Activity"
