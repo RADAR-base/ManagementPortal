@@ -1,6 +1,8 @@
-<div class="new-section">
+<div class="new-section graph">
     <div class="left-chart">
-        <div class="flex fixed-height padding-bottom space-between">
+        <div
+            class="flex fixed-height padding-bottom space-between padding-sides"
+        >
             <div class="label-picture">
                 <div>
                     <span
@@ -29,7 +31,7 @@
                         style="font-size: 30px"
                         >{{ dataPoint1Data }}
                     </span>
-                    <span [ngStyle]="{ color: color }">
+                    <span [ngStyle]="{ color: color }" class="sub-text">
                         {{ dataPoint1SubTitle }}</span
                     >
                 </span>
@@ -39,7 +41,9 @@
     </div>
 
     <div class="right-chart">
-        <div class="flex fixed-height padding-bottom space-between">
+        <div
+            class="flex fixed-height padding-bottom space-between padding-sides"
+        >
             <div class="label-picture">
                 <div>
                     <span
@@ -67,7 +71,7 @@
                         style="font-size: 30px"
                         >{{ dataPoint2Data }}
                     </span>
-                    <span class="sub-label" [ngStyle]="{ color: color }">{{
+                    <span class="sub-text" [ngStyle]="{ color: color }">{{
                         dataPoint2SubTitle
                     }}</span>
                 </span>

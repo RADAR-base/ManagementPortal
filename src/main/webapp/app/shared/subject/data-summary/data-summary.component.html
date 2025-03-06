@@ -1,10 +1,12 @@
-<div class="main">
-    <div class="header">
-        <span class="main-logo-size connect-logo-main"></span>
-        <div>
-            <p class="text bold">Your Data Summary</p>
-        </div>
+<div class="header">
+    <span class="main-logo-size connect-logo-main"></span>
+    <div>
+        <p class="text bold">Your Data Summary</p>
     </div>
+</div>
+
+<div class="main">
+    <div class="padding-top"></div>
 
     <!-- Questionnaires -->
     <app-single-row-graph
@@ -24,8 +26,6 @@
         title="Social"
         color="rgba(110, 37, 147, 0.9)"
     ></app-single-row-graph>
-
-    <div class="pagebreak"></div>
 
     <app-single-row-graph
         [isSingleRow]="false"
@@ -185,8 +185,6 @@
         [showTotal]="true"
         color="rgba(110, 37, 147, 0.9)"
     ></app-single-row-graph>
-
-    <div class="pagebreak"></div>
 
     <app-double-row-graph
         title1="Activity"

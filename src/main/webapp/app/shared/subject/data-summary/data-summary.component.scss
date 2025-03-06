@@ -1,5 +1,5 @@
 @page {
-    margin-top: 10mm;
+    margin-top: 5mm;
     margin-bottom: 0mm;
 }
 
@@ -320,8 +320,11 @@
     width: 100%;
     max-width: 900px;
     margin: 0 auto;
-    padding: 20px;
+
     height: auto !important;
+}
+
+.graphs {
 }
 
 .bold {
@@ -469,6 +472,11 @@ label {
 .sub-label {
     font-size: 16px !important;
 }
+
+.sub-text {
+    font-size: 13px !important;
+}
+
 .column-flex {
     display: flex;
     flex-direction: column;
@@ -498,6 +506,10 @@ label {
     font-size: 30px !important;
 }
 
+.padding-sides {
+    padding: 20px !important;
+}
+
 html,
 body {
     height: 100% !important;
@@ -512,4 +524,11 @@ body {
     .pagebreak {
         page-break-before: always;
     }
+    .graph {
+        page-break-inside: avoid;
+    }
+}
+
+.padding-top {
+    padding-top: 20px;
 }

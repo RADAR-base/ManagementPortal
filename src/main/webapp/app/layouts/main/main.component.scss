@@ -1,5 +1,10 @@
-
 .jh-card {
     margin-top: 15px;
     padding: 1.5%;
+    @media print {
+        /* This fixes an issue where when printing a selection,
+         an extra blank page is printed in IE10 and IE11.
+         Solution found here: http://stackoverflow.com/a/22320644/7752 */
+        padding: 0% !important;
+    }
 }
