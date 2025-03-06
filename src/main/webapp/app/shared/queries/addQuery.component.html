@@ -1,17 +1,32 @@
-<div>This is add query page.</div>
-<query-builder
-    [(ngModel)]="query"
-    [classNames]="bootstrapClassNames"
-    [config]="currentConfig"
-    [allowRuleset]="allowRuleset"
-    [allowCollapse]="allowCollapse"
-    [persistValueOnFieldChange]="persistValueOnFieldChange"
->
-    <div class="col-auto" *queryInput="let rule; type: 'textarea'">
-        <textarea
-            class="form-control"
-            [(ngModel)]="rule.value"
-            placeholder="Custom Textarea"
-        ></textarea>
+<form>
+    <div class="inputs">
+        <mat-form-field class="text-input">
+            <mat-label>Query Group Name</mat-label>
+            <input matInput value="" class="" />
+        </mat-form-field>
+
+        <mat-form-field class="text-area">
+            <mat-label>Query Group Description</mat-label>
+            <textarea matInput></textarea>
+        </mat-form-field>
     </div>
-</query-builder>
+
+    <query-builder
+        [(ngModel)]="query"
+        [classNames]="bootstrapClassNames"
+        [config]="currentConfig"
+        [allowRuleset]="allowRuleset"
+        [allowCollapse]="allowCollapse"
+        [persistValueOnFieldChange]="persistValueOnFieldChange"
+    >
+        <div class="col-auto" *queryInput="let rule; type: 'textarea'">
+            <textarea
+                class="form-control"
+                [(ngModel)]="rule.value"
+                placeholder="Custom Textarea"
+            ></textarea>
+        </div>
+    </query-builder>
+
+    <button>Save</button>
+</form>
