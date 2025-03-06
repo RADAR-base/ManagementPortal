@@ -15,7 +15,13 @@ targetCompatibility = JavaVersion.VERSION_11
 description = 'Library for authentication and authorization of JWT tokens issued by the RADAR platform'
 
 dependencies {
-    api group: 'com.auth0', name: 'java-jwt', version: oauth_jwt_version
+    api("com.auth0:java-jwt:${oauth_jwt_version}") {
+        constraints {
+            implementation("com.fasterxml.jackson.core:jackson-databind:${jackson_version}") {
+                because("Software vulnerability exists in lower versions")
+            }
+        }
+    }
     api(platform("org.jetbrains.kotlinx:kotlinx-coroutines-bom:$coroutines_version"))
     api("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version")
 

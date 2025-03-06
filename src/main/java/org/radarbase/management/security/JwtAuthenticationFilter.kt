@@ -52,8 +52,12 @@ class JwtAuthenticationFilter(
             val stringToken = tokenFromHeader(httpRequest)
             var token: RadarToken? = null
             var exMessage = "No token provided"
-
-            if (stringToken != null) {
+            token = session?.radarToken
+                ?.takeIf { Instant.now() < it.expiresAt }
+            if (token != null) {
+                Companion.logger.debug("Using token from session")
+            }
+            else if (stringToken != null) {
                 try {
                     logger.warn("Validating token from header: $stringToken")
                     token = validator.validateBlocking(stringToken)

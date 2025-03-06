@@ -436,11 +436,12 @@ class SubjectService(
      */
     fun getSources(subject: Subject): List<MinimalSourceDetailsDTO> {
         val sources = subjectRepository.findSourcesBySubjectLogin(subject.user?.login)
-        if (sources.isEmpty()) {
-            throw org.webjars.NotFoundException(
-                "Could not find sources for user ${subject.user}",
-            )
-        }
+        if (sources.isEmpty()) throw NotFoundException(
+            "Could not find sources for user ${subject.user}",
+            EntityName.SUBJECT,
+            ErrorConstants.ERR_SOURCE_NOT_FOUND,
+            Collections.singletonMap("subjectLogin", subject.user?.login)
+        )
         return sourceMapper.sourcesToMinimalSourceDetailsDTOs(sources)
     }
 
