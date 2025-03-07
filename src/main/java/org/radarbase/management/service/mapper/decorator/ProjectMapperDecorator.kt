@@ -3,6 +3,7 @@ package org.radarbase.management.service.mapper.decorator
 import org.radarbase.management.domain.Project
 import org.radarbase.management.repository.OrganizationRepository
 import org.radarbase.management.repository.ProjectRepository
+import org.radarbase.management.service.MetaTokenService
 import org.radarbase.management.service.dto.MinimalProjectDetailsDTO
 import org.radarbase.management.service.dto.ProjectDTO
 import org.radarbase.management.service.mapper.ProjectMapper
