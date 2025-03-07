@@ -23,12 +23,13 @@ import org.radarbase.management.domain.Subject
 import org.radarbase.management.domain.User
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Duration
-import kotlinx.serialization.Serializable
 
 /** Service class for managing identities. */
+@Profile("! legacy-login")
 @Service
 @Transactional
 class IdentityService
@@ -131,6 +132,10 @@ class IdentityService
                 if (response.status.isSuccess()) {
                     response.body<KratosSessionDTO.Identity>().also {
                         log.debug("Saved identity for user ${user.login} to IDP as ${it.id}")
+                    }
+                } else if (response.status.value == 409) {
+                    response.body<KratosSessionDTO.Identity>().also {
+                        log.debug("Identity for user ${user.login} already exists at the IDP. Continuing...")
                     }
                 } else {
                     throw IdpException("Couldn't save Kratos ID to server at $adminUrl")
