@@ -1,13 +1,5 @@
 package org.radarbase.management.service
 
-import io.ktor.client.*
-import io.ktor.client.call.*
-import io.ktor.client.engine.cio.*
-import io.ktor.client.plugins.*
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.request.*
-import io.ktor.http.*
-import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.radarbase.auth.authorization.EntityDetails
@@ -55,11 +47,13 @@ class UserService @Autowired constructor(
     private val userMapper: UserMapper,
     private val revisionService: RevisionService,
     private val managementPortalProperties: ManagementPortalProperties,
-    private val authService: AuthService,
-    private val identityService: IdentityService
+    private val authService: AuthService
 ) {
     @Autowired
     lateinit var roleService: RoleService
+
+    @Autowired(required = false)
+    var identityService: IdentityService? = null
 
     /**
      * Activate a user with the given activation key.
@@ -170,9 +164,10 @@ class UserService @Autowired constructor(
         user.roles = getUserRoles(userDto.roles, mutableSetOf())
 
         try {
-            user.identity = identityService.saveAsIdentity(user)?.id
-        }
-        catch (e: Throwable) {
+            identityService?.let {
+                user.identity = it.saveAsIdentity(user)?.id
+            }
+        } catch (e: Throwable) {
             log.warn("could not save user ${user.login} as identity", e)
         }
 
@@ -276,11 +271,13 @@ class UserService @Autowired constructor(
         log.debug("Changed Information for User: {}", user)
         userRepository.save(user)
 
-        try {
-            identityService.updateAssociatedIdentity(user)
-        }
-        catch (e: Throwable){
-            log.warn(e.message, e)
+        identityService?.let {
+            try {
+                it.updateAssociatedIdentity(user)
+            }
+            catch (e: Throwable){
+                log.warn(e.message, e)
+            }
         }
     }
 
@@ -307,11 +304,14 @@ class UserService @Autowired constructor(
             managedRoles.addAll(getUserRoles(userDto.roles, oldRoles))
             user = userRepository.save(user)
             log.debug("Changed Information for User: {}", user)
-            try{
-                identityService.updateAssociatedIdentity(user)
-            }
-            catch (e: Throwable) {
-                log.warn("could not update user ${user.login} with identity ${user.identity} from IDP", e)
+
+            identityService?.let {
+                try{
+                    it.updateAssociatedIdentity(user)
+                }
+                catch (e: Throwable) {
+                    log.warn("could not update user ${user.login} with identity ${user.identity} from IDP", e)
+                }
             }
 
             userMapper.userToUserDTO(user)
@@ -328,11 +328,13 @@ class UserService @Autowired constructor(
         val user = userRepository.findOneByLogin(login)
         if (user != null) {
             userRepository.delete(user)
-            try {
-                identityService.deleteAssociatedIdentity(user.identity)
-            }
-            catch (e: Throwable){
-                log.warn(e.message, e)
+            identityService?.let {
+                try {
+                    it.deleteAssociatedIdentity(user.identity)
+                }
+                catch (e: Throwable){
+                    log.warn(e.message, e)
+                }
             }
             log.debug("Deleted User: {}", user)
         } else {
@@ -381,10 +383,12 @@ class UserService @Autowired constructor(
         user.email = email
         log.debug("Set admin email to: {}", email)
 
-        // there is no identity for this user, so we create it and save it to the IDP
-        val id = identityService.saveAsIdentity(user)
-        // then save the identifier and update our database
-        user.identity = id?.id
+        identityService?.let {
+            // there is no identity for this user, so we create it and save it to the IDP
+            val id = it.saveAsIdentity(user)
+            // then save the identifier and update our database
+            user.identity = id?.id
+        }
 
         return userMapper.userToUserDTO(user)
             ?: throw Exception("Admin user could not be converted to DTO")
@@ -506,17 +510,22 @@ class UserService @Autowired constructor(
             ?: throw Exception("could not add roles for user: $user")
         userRepository.save(user)
 
-        try {
-            identityService.updateAssociatedIdentity(user)
-        }
-        catch (e: Throwable){
-            log.warn(e.message, e)
+        identityService?.let {
+            try {
+                it.updateAssociatedIdentity(user)
+            }
+            catch (e: Throwable){
+                log.warn(e.message, e)
+            }
         }
     }
 
     @Throws(IdpException::class)
     suspend fun sendActivationEmail(user: User): String {
-        return identityService.sendActivationEmail(user)
+        identityService?.let {
+            return it.sendActivationEmail(user)
+        }
+        throw IllegalStateException("Sending emails in Ory mode requires a IdentityService bean.")
     }
 
     companion object {
