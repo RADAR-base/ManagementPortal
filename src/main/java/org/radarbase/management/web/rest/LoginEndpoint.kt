@@ -1,17 +1,17 @@
 package org.radarbase.management.web.rest
 
-import java.time.Instant
 import org.radarbase.management.config.ManagementPortalProperties
 import org.radarbase.management.service.AuthService
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.context.annotation.Profile
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.servlet.view.RedirectView
+import java.time.Instant
 
-@Profile("! legacy-login")
+@ConditionalOnProperty(prefix = "managementportal", name = ["legacyLogin"], havingValue = "false", matchIfMissing = true)
 @RestController
 @RequestMapping("/api")
 class LoginEndpoint

@@ -115,6 +115,7 @@ managementportal:
     siteSettings:
         # The line below can be uncommented to add some hidden fields for UI testing
         #hiddenSubjectFields: [person_name, date_of_birth, group]
+    legacy-login: false
     identityServer:
         adminEmail: admin-email-here@gmail.com
         serverUrl: http://localhost:4433

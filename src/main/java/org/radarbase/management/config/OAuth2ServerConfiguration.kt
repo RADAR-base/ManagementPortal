@@ -2,22 +2,18 @@ package org.radarbase.management.config
 
 import org.radarbase.auth.authorization.RoleAuthority
 import org.radarbase.management.repository.UserRepository
-import org.radarbase.management.security.ClaimsTokenEnhancer
-import org.radarbase.management.security.Http401UnauthorizedEntryPoint
-import org.radarbase.management.security.JwtAuthenticationFilter
-import org.radarbase.management.security.JwtAuthenticationFilterLegacyLogin
-import org.radarbase.management.security.PostgresApprovalStore
+import org.radarbase.management.security.*
 import org.radarbase.management.security.jwt.ManagementPortalJwtAccessTokenConverter
 import org.radarbase.management.security.jwt.ManagementPortalJwtTokenStore
 import org.radarbase.management.security.jwt.ManagementPortalOauthKeyStoreHandler
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.autoconfigure.orm.jpa.JpaProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Primary
-import org.springframework.context.annotation.Profile
 import org.springframework.core.annotation.Order
 import org.springframework.http.HttpMethod
 import org.springframework.orm.jpa.vendor.Database
@@ -51,7 +47,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler
 import javax.sql.DataSource
 
-@Profile("legacy-login")
+@ConditionalOnProperty(prefix = "managementportal", name = ["legacyLogin"], havingValue = "true")
 @Configuration
 class OAuth2ServerConfiguration {
     @Autowired
@@ -90,6 +86,7 @@ class OAuth2ServerConfiguration {
         }
     }
 
+    @ConditionalOnProperty(prefix = "managementportal", name = ["legacyLogin"], havingValue = "true")
     @Configuration
     class JwtAuthenticationFilterConfiguration {
         @Autowired
@@ -119,6 +116,7 @@ class OAuth2ServerConfiguration {
         return clientDetailsService
     }
 
+    @ConditionalOnProperty(prefix = "managementportal", name = ["legacyLogin"], havingValue = "true")
     @Configuration
     @EnableResourceServer
     protected class ResourceServerConfiguration(
@@ -200,6 +198,7 @@ class OAuth2ServerConfiguration {
         }
     }
 
+    @ConditionalOnProperty(prefix = "managementportal", name = ["legacyLogin"], havingValue = "true")
     @Configuration
     @EnableAuthorizationServer
     protected class AuthorizationServerConfiguration(

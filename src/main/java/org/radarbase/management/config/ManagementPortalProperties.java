@@ -12,6 +12,8 @@ public class ManagementPortalProperties {
 
     private final IdentityServer identityServer = new IdentityServer();
 
+    private final Boolean legacyLogin = false;
+
     private final AuthServer authServer = new AuthServer();
 
     private final Mail mail = new Mail();

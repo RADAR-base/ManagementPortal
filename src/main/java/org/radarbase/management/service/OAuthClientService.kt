@@ -3,14 +3,10 @@ package org.radarbase.management.service
 import org.radarbase.management.domain.User
 import org.radarbase.management.service.dto.ClientDetailsDTO
 import org.radarbase.management.service.mapper.ClientDetailsMapper
-import org.radarbase.management.web.rest.errors.ConflictException
-import org.radarbase.management.web.rest.errors.EntityName
-import org.radarbase.management.web.rest.errors.ErrorConstants
-import org.radarbase.management.web.rest.errors.InvalidRequestException
-import org.radarbase.management.web.rest.errors.NotFoundException
+import org.radarbase.management.web.rest.errors.*
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.context.annotation.Profile
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.authority.SimpleGrantedAuthority
@@ -29,7 +25,7 @@ import java.util.*
  * The service layer to handle OAuthClient and Token related functions.
  * Created by nivethika on 03/08/2018.
  */
-@Profile("legacy-login")
+@ConditionalOnProperty(prefix = "managementportal", name = ["legacyLogin"], havingValue = "true")
 @Service
 class OAuthClientService(
     @Autowired private val clientDetailsService: JdbcClientDetailsService,

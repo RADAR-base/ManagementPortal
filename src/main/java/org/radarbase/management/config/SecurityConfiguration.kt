@@ -10,10 +10,10 @@ import org.radarbase.management.security.JwtAuthenticationFilterImpl
 import org.radarbase.management.security.RadarAuthenticationProvider
 import org.springframework.beans.factory.BeanInitializationException
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.context.annotation.Profile
 import org.springframework.http.HttpMethod
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.DefaultAuthenticationEventPublisher
@@ -30,7 +30,7 @@ import org.springframework.security.web.authentication.logout.LogoutSuccessHandl
 import tech.jhipster.security.AjaxLogoutSuccessHandler
 import javax.annotation.PostConstruct
 
-@Profile("! legacy-login")
+@ConditionalOnProperty(prefix = "managementportal", name = ["legacyLogin"], havingValue = "false", matchIfMissing = true)
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)

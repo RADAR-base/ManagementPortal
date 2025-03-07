@@ -5,19 +5,8 @@ import org.radarbase.auth.authorization.EntityDetails
 import org.radarbase.auth.authorization.Permission
 import org.radarbase.auth.authorization.RoleAuthority
 import org.radarbase.management.config.ManagementPortalProperties
-import org.radarbase.management.domain.Authority
-import org.radarbase.management.domain.Group
-import org.radarbase.management.domain.Project
-import org.radarbase.management.domain.Role
-import org.radarbase.management.domain.Source
-import org.radarbase.management.domain.SourceType
-import org.radarbase.management.domain.Subject
-import org.radarbase.management.domain.User
-import org.radarbase.management.repository.AuthorityRepository
-import org.radarbase.management.repository.GroupRepository
-import org.radarbase.management.repository.RoleRepository
-import org.radarbase.management.repository.SourceRepository
-import org.radarbase.management.repository.SubjectRepository
+import org.radarbase.management.domain.*
+import org.radarbase.management.repository.*
 import org.radarbase.management.repository.filters.SubjectSpecification
 import org.radarbase.management.security.NotAuthorizedException
 import org.radarbase.management.service.dto.MinimalSourceDetailsDTO
@@ -28,15 +17,10 @@ import org.radarbase.management.service.mapper.ProjectMapper
 import org.radarbase.management.service.mapper.SourceMapper
 import org.radarbase.management.service.mapper.SubjectMapper
 import org.radarbase.management.web.rest.criteria.SubjectCriteria
-import org.radarbase.management.web.rest.errors.BadRequestException
-import org.radarbase.management.web.rest.errors.ConflictException
-import org.radarbase.management.web.rest.errors.EntityName
-import org.radarbase.management.web.rest.errors.ErrorConstants
-import org.radarbase.management.web.rest.errors.InvalidStateException
-import org.radarbase.management.web.rest.errors.NotFoundException
+import org.radarbase.management.web.rest.errors.*
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.context.annotation.Profile
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.data.domain.Page
 import org.springframework.data.history.Revision
 import org.springframework.stereotype.Service
@@ -51,7 +35,7 @@ import java.util.function.Predicate
 import javax.annotation.Nonnull
 
 /** Created by nivethika on 26-5-17. */
-@Profile("! legacy-login")
+@ConditionalOnProperty(prefix = "managementportal", name = ["legacyLogin"], havingValue = "false", matchIfMissing = true)
 @Service
 @Transactional
 class SubjectServiceImpl(

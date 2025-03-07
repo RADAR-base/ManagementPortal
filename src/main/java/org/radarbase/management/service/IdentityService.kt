@@ -23,13 +23,13 @@ import org.radarbase.management.domain.Subject
 import org.radarbase.management.domain.User
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.context.annotation.Profile
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Duration
 
 /** Service class for managing identities. */
-@Profile("! legacy-login")
+@ConditionalOnProperty(prefix = "managementportal", name = ["legacyLogin"], havingValue = "false", matchIfMissing = true)
 @Service
 @Transactional
 class IdentityService

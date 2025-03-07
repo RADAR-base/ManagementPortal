@@ -4,12 +4,12 @@ import kotlinx.coroutines.runBlocking
 import org.radarbase.auth.authorization.*
 import org.radarbase.auth.token.RadarToken
 import org.radarbase.management.security.NotAuthorizedException
-import org.springframework.context.annotation.Profile
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Service
 import java.util.function.Consumer
 import javax.annotation.Nullable
 
-@Profile("legacy-login")
+@ConditionalOnProperty(prefix = "managementportal", name = ["legacyLogin"], havingValue = "true")
 @Service
 class AuthServiceLegacyLogin(
     @Nullable

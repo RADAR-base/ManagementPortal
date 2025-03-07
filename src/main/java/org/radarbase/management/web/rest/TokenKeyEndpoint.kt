@@ -5,11 +5,11 @@ import org.radarbase.auth.jwks.JsonWebKeySet
 import org.radarbase.management.security.jwt.ManagementPortalOauthKeyStoreHandler
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.context.annotation.Profile
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
 
-@Profile("legacy-login")
+@ConditionalOnProperty(prefix = "managementportal", name = ["legacyLogin"], havingValue = "true")
 @RestController
 class TokenKeyEndpoint @Autowired constructor(
     private val keyStoreHandler: ManagementPortalOauthKeyStoreHandler

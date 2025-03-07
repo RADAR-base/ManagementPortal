@@ -8,20 +8,15 @@ import org.radarbase.management.security.NotAuthorizedException
 import org.radarbase.management.service.AuthService
 import org.radarbase.management.service.MetaTokenService
 import org.radarbase.management.service.dto.TokenDTO
-import org.radarbase.management.web.rest.OAuthClientsResource
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.context.annotation.Profile
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.DeleteMapping
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import java.net.MalformedURLException
 import java.time.Duration
 
-@Profile("legacy-login")
+@ConditionalOnProperty(prefix = "managementportal", name = ["legacyLogin"], havingValue = "true")
 @RestController
 @RequestMapping("/api")
 class MetaTokenResource {

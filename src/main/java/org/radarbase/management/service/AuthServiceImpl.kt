@@ -8,10 +8,6 @@ import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
-import java.time.Duration
-import java.util.*
-import java.util.function.Consumer
-import javax.annotation.Nullable
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
@@ -22,10 +18,14 @@ import org.radarbase.auth.token.RadarToken
 import org.radarbase.management.config.ManagementPortalProperties
 import org.radarbase.management.security.NotAuthorizedException
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.context.annotation.Profile
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Service
+import java.time.Duration
+import java.util.*
+import java.util.function.Consumer
+import javax.annotation.Nullable
 
-@Profile("! legacy-login")
+@ConditionalOnProperty(prefix = "managementportal", name = ["legacyLogin"], havingValue = "false", matchIfMissing = true)
 @Service
 class AuthServiceImpl (
         @Nullable private val token: RadarToken?,

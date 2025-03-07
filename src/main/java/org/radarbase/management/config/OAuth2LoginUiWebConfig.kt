@@ -1,6 +1,7 @@
 package org.radarbase.management.config
 
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Profile
 import org.springframework.security.oauth2.common.exceptions.OAuth2Exception
 import org.springframework.security.oauth2.common.util.OAuth2Utils
@@ -22,7 +23,7 @@ import javax.servlet.http.HttpServletResponse
 /**
  * Created by dverbeec on 6/07/2017.
  */
-@Profile("legacy-login")
+@ConditionalOnProperty(prefix = "managementportal", name = ["legacyLogin"], havingValue = "true")
 @Controller
 @SessionAttributes("authorizationRequest")
 class OAuth2LoginUiWebConfig {

@@ -9,15 +9,10 @@ import org.radarbase.management.security.NotAuthorizedException
 import org.radarbase.management.service.dto.ClientPairInfoDTO
 import org.radarbase.management.service.dto.TokenDTO
 import org.radarbase.management.web.rest.MetaTokenResource
-import org.radarbase.management.web.rest.errors.BadRequestException
-import org.radarbase.management.web.rest.errors.EntityName
-import org.radarbase.management.web.rest.errors.ErrorConstants
-import org.radarbase.management.web.rest.errors.InvalidStateException
-import org.radarbase.management.web.rest.errors.NotFoundException
-import org.radarbase.management.web.rest.errors.RequestGoneException
+import org.radarbase.management.web.rest.errors.*
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.context.annotation.Profile
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -38,7 +33,7 @@ import javax.validation.ConstraintViolationException
  * Service to delegate MetaToken handling.
  *
  */
-@Profile("legacy-login")
+@ConditionalOnProperty(prefix = "managementportal", name = ["legacyLogin"], havingValue = "true")
 @Service
 @Transactional
 class MetaTokenService {
