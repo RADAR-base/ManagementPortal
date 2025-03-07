@@ -15,6 +15,7 @@ import org.radarbase.auth.kratos.SessionService
 import org.radarbase.management.config.ManagementPortalProperties
 import org.radarbase.management.web.rest.util.HeaderUtil
 import org.slf4j.LoggerFactory
+import org.springframework.context.annotation.Profile
 import org.springframework.http.HttpHeaders
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
@@ -27,6 +28,7 @@ import javax.servlet.http.HttpServletRequest
 /**
  * REST controller for managing Sessions.
  */
+@Profile("! legacy-login")
 @RestController
 @RequestMapping("/api")
 class SessionResource(managementPortalProperties: ManagementPortalProperties) {

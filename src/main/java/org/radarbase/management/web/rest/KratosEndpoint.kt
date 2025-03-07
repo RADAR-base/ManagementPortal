@@ -14,12 +14,14 @@ import org.radarbase.management.web.rest.errors.NotFoundException
 import org.radarbase.management.web.rest.util.HeaderUtil
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.annotation.Profile
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
+@Profile("! legacy-login")
 @RestController
 @RequestMapping("/api/kratos")
-class KratosEndpoint
+private class KratosEndpoint
 @Autowired
 constructor(
         @Autowired private val subjectService: SubjectService,

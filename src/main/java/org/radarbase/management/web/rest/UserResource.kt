@@ -11,6 +11,7 @@ import org.radarbase.management.repository.filters.UserFilter
 import org.radarbase.management.security.Constants
 import org.radarbase.management.security.NotAuthorizedException
 import org.radarbase.management.service.AuthService
+import org.radarbase.management.service.MailService
 import org.radarbase.management.service.ResourceUriService
 import org.radarbase.management.service.UserService
 import org.radarbase.management.service.dto.RoleDTO
