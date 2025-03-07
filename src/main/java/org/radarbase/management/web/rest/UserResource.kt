@@ -24,7 +24,6 @@ import org.radarbase.management.web.rest.util.PaginationUtil
 import org.radarbase.management.web.rest.vm.ManagedUserVM
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.domain.Pageable
 import org.springframework.data.web.PageableDefault
 import org.springframework.http.HttpStatus
@@ -75,15 +74,12 @@ import java.util.*
 @RequestMapping("/api")
 class UserResource(
     @Autowired private val userRepository: UserRepository,
-    @Autowired private val mailService: MailService,
+    @Autowired(required = false) private val mailService: MailService?,
     @Autowired private val userService: UserService,
     @Autowired private val subjectRepository: SubjectRepository,
     @Autowired private val managementPortalProperties: ManagementPortalProperties,
     @Autowired private val authService: AuthService
 ) {
-
-    @Value("\${spring.profiles.active:}")
-    lateinit var activeSpringProfiles: String
 
     /**
      * POST  /users  : Creates a new user.
@@ -124,10 +120,12 @@ class UserResource(
             ).body(null)
         } else {
             val newUser: User = userService.createUser(managedUserVm)
-            if (activeSpringProfiles.contains("legacy-login"))
-                mailService.sendCreationEmail(
-                    newUser, managementPortalProperties.common.activationKeyTimeoutInSeconds.toLong()
-                )
+            if (managementPortalProperties.legacyLogin == true)
+                mailService?.let{
+                    it.sendCreationEmail(
+                        newUser, managementPortalProperties.common.activationKeyTimeoutInSeconds.toLong()
+                    )
+                }
             else {
                 userService.sendActivationEmail(newUser)
             }
