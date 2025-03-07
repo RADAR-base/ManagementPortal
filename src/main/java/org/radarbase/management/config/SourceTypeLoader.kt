@@ -23,7 +23,7 @@ class SourceTypeLoader : CommandLineRunner {
     @Autowired
     private val managementPortalProperties: ManagementPortalProperties? = null
     override fun run(vararg args: String) {
-        if (!managementPortalProperties!!.catalogueServer.isEnableAutoImport) {
+        if (!managementPortalProperties!!.catalogueServer.enableAutoImport) {
             log.info("Auto source-type import is disabled")
             return
         }

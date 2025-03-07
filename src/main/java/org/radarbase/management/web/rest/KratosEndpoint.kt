@@ -31,7 +31,7 @@ constructor(
         @Autowired private val managementPortalProperties: ManagementPortalProperties,
 ) {
     private var sessionService: SessionService =
-            SessionService(managementPortalProperties.identityServer.publicUrl())
+            SessionService(managementPortalProperties.identityServer.serverUrl)
 
     /**
      * POST /subjects : Create a new subject.

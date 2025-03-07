@@ -55,8 +55,8 @@ class IdentityService
                 }
             }
 
-        private val adminUrl = managementPortalProperties.identityServer.adminUrl()
-        private val publicUrl = managementPortalProperties.identityServer.publicUrl()
+        private val adminUrl = managementPortalProperties.identityServer.serverAdminUrl
+        private val publicUrl = managementPortalProperties.identityServer.serverUrl
 
         init {
             log.debug("Kratos serverUrl set to $publicUrl")

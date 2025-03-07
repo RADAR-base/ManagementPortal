@@ -35,7 +35,7 @@ class SessionResource(managementPortalProperties: ManagementPortalProperties) {
     private lateinit var sessionService: SessionService
 
     init {
-        sessionService = SessionService(managementPortalProperties.identityServer.publicUrl())
+        sessionService = SessionService(managementPortalProperties.identityServer.serverUrl)
     }
 
     private val httpClient = HttpClient(CIO).config {
