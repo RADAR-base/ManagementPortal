@@ -27,7 +27,7 @@ import javax.servlet.ServletException
 /**
  * Test class for the JwtAuthenticationFilter class.
  *
- * @see JwtAuthenticationFilter
+ * @see JwtAuthenticationFilterImpl
  */
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(classes = [ManagementPortalTestApp::class])

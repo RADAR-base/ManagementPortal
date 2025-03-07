@@ -8,19 +8,12 @@ import org.radarbase.auth.token.RadarToken
 import org.radarbase.management.domain.Role
 import org.radarbase.management.domain.User
 import org.radarbase.management.repository.UserRepository
-import org.slf4j.LoggerFactory
-import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpMethod
 import org.springframework.security.authentication.AuthenticationManager
-import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.oauth2.provider.OAuth2Authentication
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher
 import org.springframework.web.cors.CorsUtils
-import org.springframework.web.filter.OncePerRequestFilter
 import java.io.IOException
 import java.time.Instant
-import javax.annotation.Nonnull
 import javax.servlet.FilterChain
 import javax.servlet.ServletException
 import javax.servlet.http.HttpServletRequest
@@ -34,26 +27,12 @@ import javax.servlet.http.HttpSession
  * @param userRepository user repository to retrieve user details from.
  * @param isOptional do not fail if no authentication is provided
  */
-class JwtAuthenticationFilter @JvmOverloads constructor(
+open class JwtAuthenticationFilterLegacyLogin @JvmOverloads constructor(
     private val validator: TokenValidator,
     private val authenticationManager: AuthenticationManager,
     private val userRepository: UserRepository,
     private val isOptional: Boolean = false
-) : OncePerRequestFilter() {
-    private val ignoreUrls: MutableList<AntPathRequestMatcher> = mutableListOf()
-
-    /**
-     * Do not use JWT authentication for given paths and HTTP method.
-     * @param method HTTP method
-     * @param antPatterns Ant wildcard pattern
-     * @return the current filter
-     */
-    fun skipUrlPattern(method: HttpMethod, vararg antPatterns: String?): JwtAuthenticationFilter {
-        for (pattern in antPatterns) {
-            ignoreUrls.add(AntPathRequestMatcher(pattern, method.name))
-        }
-        return this
-    }
+) : JwtAuthenticationFilter() {
 
     @Throws(IOException::class, ServletException::class)
     override fun doFilterInternal(
@@ -62,7 +41,7 @@ class JwtAuthenticationFilter @JvmOverloads constructor(
         chain: FilterChain,
     ) {
         if (CorsUtils.isPreFlightRequest(httpRequest)) {
-            Companion.logger.debug("Skipping JWT check for preflight request")
+            log.debug("Skipping JWT check for preflight request")
             chain.doFilter(httpRequest, httpResponse)
             return
         }
@@ -77,15 +56,15 @@ class JwtAuthenticationFilter @JvmOverloads constructor(
             token = session?.radarToken
                 ?.takeIf { Instant.now() < it.expiresAt }
             if (token != null) {
-                Companion.logger.debug("Using token from session")
+                log.debug("Using token from session")
             }
             else if (stringToken != null) {
                 try {
                     token = validator.validateBlocking(stringToken)
-                    Companion.logger.debug("Using token from header")
+                    log.debug("Using token from header")
                 } catch (ex: TokenValidationException) {
                     ex.message?.let { exMessage = it }
-                    Companion.logger.info("Failed to validate token from header: {}", exMessage)
+                    log.info("Failed to validate token from header: {}", exMessage)
                 }
             }
             if (!validateToken(token, httpRequest, httpResponse, session, exMessage)) {
@@ -94,22 +73,6 @@ class JwtAuthenticationFilter @JvmOverloads constructor(
         }
         chain.doFilter(httpRequest, httpResponse)
     }
-
-    override fun shouldNotFilter(@Nonnull httpRequest: HttpServletRequest): Boolean {
-        val shouldNotFilterUrl = ignoreUrls.find { it.matches(httpRequest) }
-        return if (shouldNotFilterUrl != null) {
-            Companion.logger.debug("Skipping JWT check for {} request", shouldNotFilterUrl)
-            true
-        } else {
-            false
-        }
-    }
-
-    private fun tokenFromHeader(httpRequest: HttpServletRequest): String? =
-        httpRequest.getHeader(HttpHeaders.AUTHORIZATION)
-            ?.takeIf { it.startsWith(AUTHORIZATION_BEARER_HEADER) }
-            ?.removePrefix(AUTHORIZATION_BEARER_HEADER)
-            ?.trim { it <= ' ' }
 
     @Throws(IOException::class)
     private fun validateToken(
@@ -128,11 +91,11 @@ class JwtAuthenticationFilter @JvmOverloads constructor(
             SecurityContextHolder.getContext().authentication = authentication
             true
         } else if (isOptional) {
-            logger.debug("Skipping optional token")
+            log.debug("Skipping optional token")
             true
         } else {
-            logger.error("Unauthorized - no valid token provided")
-            httpResponse.returnUnauthorized(httpRequest, exMessage)
+            log.error("Unauthorized - no valid token provided")
+            httpResponse.returnUnauthorized(httpRequest)
             false
         }
     }
@@ -150,33 +113,12 @@ class JwtAuthenticationFilter @JvmOverloads constructor(
             token.copyWithRoles(user.authorityReferences)
         } else {
             session?.removeAttribute(TOKEN_ATTRIBUTE)
-            httpResponse.returnUnauthorized(httpRequest, "User not found")
+            httpResponse.returnUnauthorized(httpRequest)
             null
         }
     }
 
     companion object {
-        private fun HttpServletResponse.returnUnauthorized(request: HttpServletRequest, message: String?) {
-            status = HttpServletResponse.SC_UNAUTHORIZED
-            setHeader(HttpHeaders.WWW_AUTHENTICATE, AUTHORIZATION_BEARER_HEADER)
-            val fullMessage = if (message != null) {
-                "\"$message\""
-            } else {
-                "null"
-            }
-            outputStream.print(
-                """
-                {"error": "Unauthorized",
-                "status": "${HttpServletResponse.SC_UNAUTHORIZED}",
-                message": $fullMessage,
-                "path": "${request.requestURI}"}
-                """.trimIndent()
-            )
-        }
-
-        private val logger = LoggerFactory.getLogger(JwtAuthenticationFilter::class.java)
-        private const val AUTHORIZATION_BEARER_HEADER = "Bearer"
-        private const val TOKEN_ATTRIBUTE = "jwt"
 
         /**
          * Authority references for given user. The user should have its roles mapped
@@ -195,25 +137,5 @@ class JwtAuthenticationFilter @JvmOverloads constructor(
                 AuthorityReference(auth!!, referent)
             }
 
-
-
-        @get:JvmStatic
-        @set:JvmStatic
-        var HttpSession.radarToken: RadarToken?
-            get() = getAttribute(TOKEN_ATTRIBUTE) as RadarToken?
-            set(value) = setAttribute(TOKEN_ATTRIBUTE, value)
-
-        @get:JvmStatic
-        @set:JvmStatic
-        var HttpServletRequest.radarToken: RadarToken?
-            get() = getAttribute(TOKEN_ATTRIBUTE) as RadarToken?
-            set(value) = setAttribute(TOKEN_ATTRIBUTE, value)
-
-        val Authentication?.isAnonymous: Boolean
-            get() {
-                this ?: return true
-                return authorities.size == 1 &&
-                        authorities.firstOrNull()?.authority == "ROLE_ANONYMOUS"
-            }
     }
 }

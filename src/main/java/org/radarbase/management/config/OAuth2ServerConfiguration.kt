@@ -5,6 +5,7 @@ import org.radarbase.management.repository.UserRepository
 import org.radarbase.management.security.ClaimsTokenEnhancer
 import org.radarbase.management.security.Http401UnauthorizedEntryPoint
 import org.radarbase.management.security.JwtAuthenticationFilter
+import org.radarbase.management.security.JwtAuthenticationFilterLegacyLogin
 import org.radarbase.management.security.PostgresApprovalStore
 import org.radarbase.management.security.jwt.ManagementPortalJwtAccessTokenConverter
 import org.radarbase.management.security.jwt.ManagementPortalJwtTokenStore
@@ -102,7 +103,7 @@ class OAuth2ServerConfiguration {
 
         @Bean
         fun jwtAuthenticationFilter(): JwtAuthenticationFilter {
-            return JwtAuthenticationFilter(
+            return JwtAuthenticationFilterLegacyLogin(
                 keyStoreHandler!!.tokenValidator,
                 authenticationManager!!,
                 userRepository!!,
@@ -130,7 +131,7 @@ class OAuth2ServerConfiguration {
     ) : ResourceServerConfigurerAdapter() {
 
         fun jwtAuthenticationFilter(): JwtAuthenticationFilter {
-            return JwtAuthenticationFilter(
+            return JwtAuthenticationFilterLegacyLogin(
                 keyStoreHandler.tokenValidator, authenticationManager, userRepository
             )
                 .skipUrlPattern(HttpMethod.GET, "/management/health")
