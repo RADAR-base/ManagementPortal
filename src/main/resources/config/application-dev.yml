@@ -118,7 +118,7 @@ managementportal:
     identityServer:
         adminEmail: admin-email-here@gmail.com
         serverUrl: http://localhost:4433
-        serverAdminUrl: http://kratos-admin
+        serverAdminUrl: http://localhost:4434
         loginUrl: http://localhost:3000
     authServer:
         serverUrl: http://localhost:4444
