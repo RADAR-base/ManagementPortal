@@ -1,7 +1,7 @@
 package org.radarbase.management.service.dto
 
 import com.fasterxml.jackson.annotation.JsonInclude
-import reactor.util.annotation.NonNull
+import org.springframework.lang.NonNull
 import java.io.Serializable
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
