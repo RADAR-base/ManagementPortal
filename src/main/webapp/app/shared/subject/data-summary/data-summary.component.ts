@@ -5,6 +5,10 @@ import { ChartConfiguration, registerables } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 Chart.register(...registerables, ChartDataLabels);
 import { Graph } from './types';
+import { SubjectService } from '../subject.service';
+import { ActivatedRoute } from '@angular/router';
+import { Subject } from '../subject.model';
+import { HttpResponse } from '@angular/common/http';
 
 const domainGraph: Graph = {
     type: 'line',
@@ -24,6 +28,39 @@ const lineGraph: Graph = {
     showDataTables: true,
 };
 
+const whereaboutsMap = {
+    '1': 'Relaxing (e.g. watching TV, reading a book, resting, other)',
+    '2': 'Working / at School',
+    '3': 'Studying',
+    '4': 'Housekeeping',
+    '5': 'Shopping',
+    '6': 'Hygiene / Self-care activity',
+    '7': 'Eating/Drinking',
+    '8': 'Travelling',
+    '9': 'Exercising (e.g. walking, jogging, dancing, playing sport, other)',
+    '10': 'Leisure Activity (e.g. going to an event, visiting a museum, cinema or library, etc)',
+    '11': 'Nothing',
+};
+
+const socialMap = {
+    '1': 'On my own',
+    '2': 'With strangers',
+    '3': 'With people I know',
+    '4': 'With people I am close to',
+    '5': 'Connecting with people online or using social media',
+};
+
+const sleepMap = {
+    '0-2': '0-2 hrs',
+    '2-4': '2-4 hrs',
+    '4-6': '4-6 hrs',
+    '6-8': '6-8 hrs',
+    '8-10': '8-10 hrs',
+    '10-12': '10-12 hrs',
+    '12-14': '12-14 hrs',
+    '14+': '14+ hrs+',
+};
+
 @Component({
     selector: 'app-data-summary',
     templateUrl: './data-summary.component.html',
@@ -33,82 +70,67 @@ export class DataSummaryComponent implements OnInit {
     title = 'ng-chart';
     chart: any = [];
     chart_heart_rate: any = [];
-
     chart_heart_rate_variability: any = [];
-
     questionnaireDomains: any = [''];
     chart_type: { [id: string]: Graph } = {
-        //TODO: histograms
-        delusion: domainGraph, //TODO: how to handle this one
-        // negative_emotions_months: domainGraph,
-        // positive_emotions_months: domainGraph,
+        delusion: domainGraph,
         negative_emotions: domainGraph,
         positive_emotions: domainGraph,
         dissociation: domainGraph,
         stress: domainGraph,
-        sleep: domainGraph,
+        sleep_period: domainGraph,
         hope: domainGraph,
         mood: domainGraph,
         anxiety: domainGraph,
         self_esteem: domainGraph,
         connectedness: domainGraph,
         coping: domainGraph,
-        fear_of_relapse: domainGraph,
-        unusual_voices: domainGraph,
-        seeing_things: domainGraph,
-        suspiciousness: domainGraph,
+        fear: domainGraph,
+        hallucination_hear: domainGraph,
+        hallucination_vision: domainGraph,
+        threat: domainGraph,
+
         questionnaire: barGraph,
         heart_rate: lineGraph,
         hrv: lineGraph,
-        sleep_period: lineGraph,
+
         steps: barGraph,
         activity: lineGraph,
         respiratory_rate: lineGraph,
+        screen_usage: lineGraph,
+        social_1: barGraph,
+        social_2: barGraph,
+        social_3: barGraph,
+        social_4: barGraph,
+        social_5: barGraph,
     };
-    data: any = {
-        questionnaire: [10, 22, 15, 16, 6, 2, 30, 22, 11, 4, 3, 6],
-        heart_rate: [
-            75.23, 83.13, 67.34, 79.95, 69.41, 64.01, 75.2, 66.21, 62.51, 72.69,
-            65.44, 70.23,
-        ],
-        hrv: [11, 13, 20, 20, 26, 18, 20, 17, 29, 10, 14, 10],
-        //   sleep_period: [6.37, 7.04, 7.85, 8.16, 7.72, 7.14, 7.52, 6.8, 8.07, 7] ,
-        steps: [
-            7356.28, 9451.29, 7252.24, 7329.69, 7887.05, 8708.06, 8767.04,
-            7608.88, 9464.52, 7003.14, 4333, 5673,
-        ],
-        activity: [24, 10, 30, 21, 10, 15, 28, 12, 15, 28, 28, 22],
-        respiratory_rate: [15, 18, 12, 19, 14, 17, 20, 13, 16, 18, 12, 15],
-        // negative_emotions_months: [5, 10, 11, 7, 9, 14, 16, 20, 30, 35, 29, 25],
-        // negative_emotions_weeks: Array.from(
-        //     { length: 52 },
-        //     () => Math.floor(Math.random() * (35 - 5 + 1)) + 5
-        // ),
-        // positive_emotions_months: Array.from(
-        //     { length: 12 },
-        //     () => Math.floor(Math.random() * (35 - 5 + 1)) + 5
-        // ),
-        delusion: [15, 18, 12, 19, 14, 17, 20, 13, 16, 18, 12, 15],
-        negative_emotions: [15, 18, 12, 19, 14, 17, 20, 13, 16, 18, 12, 15],
-        positive_emotions: [15, 18, 12, 19, 14, 17, 20, 13, 16, 18, 12, 15],
-        dissociation: [15, 18, 12, 19, 14, 17, 20, 13, 16, 18, 12, 15],
-        stress: [15, 18, 12, 19, 14, 17, 20, 13, 16, 18, 12, 15],
-        sleep: [15, 18, 12, 19, 14, 17, 20, 13, 16, 18, 12, 15],
-        hope: [15, 18, 12, 19, 14, 17, 20, 13, 16, 18, 12, 15],
-        mood: [15, 18, 12, 19, 14, 17, 20, 13, 16, 18, 12, 15],
-        anxiety: [15, 18, 12, 19, 14, 17, 20, 13, 16, 18, 12, 15],
-        self_esteem: [15, 18, 12, 19, 14, 17, 20, 13, 16, 18, 12, 15],
-        connectedness: [15, 18, 12, 19, 14, 17, 20, 13, 16, 18, 12, 15],
-        coping: [15, 18, 12, 19, 14, 17, 20, 13, 16, 18, 12, 15],
-        fear_of_relapse: [15, 18, 12, 19, 14, 17, 20, 13, 16, 18, 12, 15],
-        unusual_voices: [15, 18, 12, 19, 14, 17, 20, 13, 16, 18, 12, 15],
-        seeing_things: [15, 18, 12, 19, 14, 17, 20, 13, 16, 18, 12, 15],
-        suspiciousness: [15, 18, 12, 19, 14, 17, 20, 13, 16, 18, 12, 15],
-    };
-
+    data: any = {};
+    monthLabelsPerGraph: any = {};
     charts: any = {};
+    monthLabels: string[] = [];
 
-    constructor() {}
+    questionnaireTotal: number = 0;
+    questionnaireAverage: number = 0;
+
+    stepsTotal: number = 0;
+    stepsAverage: number = 0;
+
+    questionnaireKey: string = 'questionnaire';
+    socialMap = {
+        '1': 'On my own',
+        '2': 'With strangers',
+        '3': 'With people I know',
+        '4': 'With people I am close to',
+        '5': 'Connecting with people online or using social media',
+    };
+    socialKeys = Object.keys(this.socialMap);
+    subject: Subject;
+    private subscription: any;
+
+    constructor(
+        private subjectService: SubjectService,
+        private route: ActivatedRoute
+    ) {}
 
     createSocialHistogram() {
         let months = [
@@ -267,19 +289,7 @@ export class DataSummaryComponent implements OnInit {
             'Dec',
         ];
 
-        let binLabels2 = [
-            'Relaxing',
-            'Working / at school',
-            'Studying',
-            'Housekeeping',
-            'Shopping',
-            'Hygiene / self care  activity',
-            'eating/drinking',
-            'travelling',
-            'exercising',
-            'Leisure activity',
-            'Nothing',
-        ];
+        let binLabels2 = ['Relaxing'];
 
         // Define colors for each bin
         const binColors = [
@@ -556,22 +566,140 @@ export class DataSummaryComponent implements OnInit {
         };
     }
 
-    ngOnInit() {
-        let lables = [
-            'Jan',
-            'Feb',
-            'Mar',
-            'Apr',
-            'May',
-            'Jun',
-            'Jul',
-            'Aug',
-            'Sep',
-            'Oct',
-            'Nov',
-            'Dec',
-        ];
+    formatMonth(monthString: string) {
+        const [year, month] = monthString.split('-').map(Number);
+        const date = new Date(year, month - 1);
 
+        return new Intl.DateTimeFormat('en-US', {
+            month: 'short',
+        }).format(date);
+    }
+
+    // this only applies to Questionnaires and Steps
+    calculateTotalsAndAverage() {
+        let questionnaireData = this.data[this.questionnaireKey];
+
+        if (questionnaireData && questionnaireData.length > 0) {
+            this.questionnaireTotal = questionnaireData.reduce(
+                (acc, num) => acc + num,
+                0
+            );
+
+            this.questionnaireAverage =
+                this.questionnaireTotal / questionnaireData.length;
+
+            this.questionnaireAverage = Number(
+                this.questionnaireAverage.toFixed(1)
+            );
+        }
+
+        let stepsData = this.data['steps'];
+
+        if (stepsData && stepsData.length > 0) {
+            this.stepsTotal = stepsData.reduce((acc, num) => acc + num, 0);
+
+            this.stepsAverage = this.stepsTotal / stepsData.length;
+
+            this.stepsAverage = Number(this.stepsAverage.toFixed(1));
+        }
+    }
+
+    addMonthPerKey(key: string, month: string) {
+        if (this.monthLabelsPerGraph[key] == undefined) {
+            this.monthLabelsPerGraph[key] = [];
+        }
+        this.monthLabelsPerGraph[key].push(this.formatMonth(month));
+    }
+    pushToData(key: string, value: number | string) {
+        if (this.data[key] == undefined) {
+            this.data[key] = [];
+        }
+        this.data[key].push(value);
+    }
+
+    cleanupEmptyData() {
+        Object.keys(this.data).forEach((key) => {
+            if (
+                Array.isArray(this.data[key]) &&
+                this.data[key].every((num) => num === 0)
+            ) {
+                delete this.data[key]; // Remove the key if the array contains only 0s
+            }
+        });
+    }
+
+    loadData(response: HttpResponse<any>) {
+        const allData = response.body.data;
+
+        const months = Object.keys(allData).sort(); // Sorts the months in order
+
+        // Step 2: Iterate over each month in chronological order
+        months.forEach((month) => {
+            const data = allData[month];
+
+            this.monthLabels.push(this.formatMonth(month));
+            const physicalKeys = Object.keys(data.physical);
+            const questionnaireKeys = Object.keys(data.questionnaire_slider);
+
+            physicalKeys.forEach((physicalKey) => {
+                const physicalData = data.physical[physicalKey];
+                if (physicalData != 0) {
+                    if (this.data[physicalKey] == undefined) {
+                        this.data[physicalKey] = [];
+                    }
+                    this.data[physicalKey].push(Math.round(physicalData));
+
+                    this.addMonthPerKey(physicalKey, month);
+                }
+            });
+
+            questionnaireKeys.forEach((questionnaireKey) => {
+                const questionnaireData =
+                    data.questionnaire_slider[questionnaireKey];
+
+                if (questionnaireData != 0) {
+                    if (this.data[questionnaireKey] == undefined) {
+                        this.data[questionnaireKey] = [];
+                    }
+                    this.data[questionnaireKey].push(questionnaireData);
+
+                    this.addMonthPerKey(questionnaireKey, month);
+                }
+            });
+
+            let questionnaireKey = 'questionnaire';
+
+            if (data.questionnaire_total != 0) {
+                if (this.data[questionnaireKey] == undefined) {
+                    this.data[questionnaireKey] = [];
+                }
+                this.data[questionnaireKey].push(data.questionnaire_total);
+
+                this.addMonthPerKey(questionnaireKey, month);
+            }
+
+            //HISTOGRAM CALCULATIONS
+
+            console.log('socialkeys', Object.keys(data.histogram.social));
+            const socialKeys = Object.keys(socialMap);
+
+            socialKeys.forEach((key) => {
+                let identifier = 'social_' + key;
+                let socialData = data.histogram.social[key];
+
+                this.pushToData(identifier, socialData ?? 0);
+                this.addMonthPerKey(identifier, month);
+
+                //  this.addMonthPerKey(questionnaireKey, month);
+            });
+        });
+
+        this.calculateTotalsAndAverage();
+
+        this.cleanupEmptyData();
+    }
+
+    createGraphs() {
         let weekLabels = [] as string[];
         for (let i = 1; i <= 52; i++) {
             weekLabels.push('Week ' + i);
@@ -580,12 +708,15 @@ export class DataSummaryComponent implements OnInit {
         for (const [key, value] of Object.entries(this.data)) {
             let values = value as number[];
             let chartType = this.chart_type[key];
+
             if (chartType.type == 'line') {
                 let labeles =
-                    chartType.timeframe == 'week' ? weekLabels : lables;
+                    chartType.timeframe == 'week'
+                        ? weekLabels
+                        : this.monthLabelsPerGraph[key];
                 this.charts[key] = this.createLineChart(
                     key,
-                    labeles,
+                    this.monthLabelsPerGraph[key],
                     values,
                     chartType.showScaleY,
                     chartType.showDataTables,
@@ -594,18 +725,29 @@ export class DataSummaryComponent implements OnInit {
             } else {
                 this.charts[key] = this.createBarChart(
                     key,
-                    lables,
+                    this.monthLabelsPerGraph[key],
                     values,
                     chartType.color
                 );
             }
         }
+    }
+    loadSubject(id) {
+        this.subjectService.find(id).subscribe((subject: Subject) => {
+            this.subject = subject;
 
-        this.charts['histogramChart'] = this.createMonthHistogram();
-
-        this.charts['sleepHistogramChart'] = this.createSleepHistogram();
-        this.charts['socialHistogram'] = this.createSocialHistogram();
-
-        console.log('this charts', this.charts);
+            if (subject)
+                this.subjectService
+                    .findDataSummary(subject!.login!)
+                    .subscribe((response: HttpResponse<any>) => {
+                        this.loadData(response);
+                        this.createGraphs();
+                    });
+        });
+    }
+    async ngOnInit() {
+        this.subscription = this.route.params.subscribe((params) => {
+            this.loadSubject(params['login']);
+        });
     }
 }

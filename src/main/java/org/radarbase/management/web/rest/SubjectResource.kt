@@ -7,12 +7,15 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import org.radarbase.auth.authorization.EntityDetails
 import org.radarbase.auth.authorization.Permission
+import org.radarbase.auth.authorization.RoleAuthority
 import org.radarbase.management.domain.Project
 import org.radarbase.management.domain.Source
 import org.radarbase.management.domain.Subject
+import org.radarbase.management.domain.User
 import org.radarbase.management.domain.enumeration.DataGroupingType
 import org.radarbase.management.repository.ConnectDataLogRepository
 import org.radarbase.management.repository.ProjectRepository
+import org.radarbase.management.repository.RoleRepository
 import org.radarbase.management.repository.SubjectRepository
 import org.radarbase.management.security.Constants
 import org.radarbase.management.security.NotAuthorizedException
@@ -42,7 +45,7 @@ import java.net.URISyntaxException
 import java.util.*
 import java.util.stream.Stream
 import javax.validation.Valid
-
+import org.hibernate.Hibernate
 /**
  * REST controller for managing Subject.
  */
@@ -58,7 +61,8 @@ class SubjectResource(
     @Autowired private val revisionService: RevisionService,
     @Autowired private val sourceService: SourceService,
     @Autowired private val authService: AuthService,
-    @Autowired private val connectDataLogRepository: ConnectDataLogRepository
+    @Autowired private val connectDataLogRepository: ConnectDataLogRepository,
+    @Autowired private val roleRepository: RoleRepository
 ) {
 
     /**
@@ -592,39 +596,83 @@ class SubjectResource(
         return ResponseEntity.ok(dataLogDTOList);
     }
 
+    @PostMapping("/subjects/{login:" + Constants.ENTITY_ID_REGEX + "}/reportready")
+    @Timed
+    @Throws (
+        NotAuthorizedException::class
+    )
+    fun makeReportReady(@PathVariable login: String) : ResponseEntity<List<DataLogDTO>> {
+
+        authService.checkScope(Permission.SUBJECT_READ)
+
+        val subject = subjectService.findOneByLogin(login);
+
+        val roles  =  roleRepository.findAllRolesByProjectName(subject.activeProject!!.projectName!!);
+        log.info("after getting roles")
+        var usersToEmail : List<User> = listOf();
+
+        for (role in roles) {
+            log.info("role ${role.authority}")
+
+            if(role.authority.toString() == RoleAuthority.PROJECT_ADMIN.authority) {
+                Hibernate.initialize(role.users) // Forces initialization
+                for(user in role.users) {
+                    usersToEmail += user
+                }
+            }
+        }
+
+        log.info("users in list ${usersToEmail}")
+
+        return ResponseEntity.ok(null);
+    }
+
+//    @GetMapping("/subjects/{login:" + Constants.ENTITY_ID_REGEX + "}/datasummary")
+//    @Timed
+//    @Throws (
+//        NotAuthorizedException::class
+//    )
+//    fun getDataSummary(@PathVariable login: String) : ResponseEntity<Map<String, List<Double>>> {
+//        authService.checkScope(Permission.SUBJECT_READ)
+//        val monthlyStatistics :  Map<String, List<Double>> = mapOf()
+//        val subject = subjectService.findOneByLogin(login);
+//
+//        if(subject.activeProject != null) {
+//            val awsService =   AWSService();
+//            val folderPrefix = "output/" + subject.activeProject?.projectName + "/" + login + "/Data_summary.pdf";
+//
+//            val keyName = subject.activeProject?.projectName + "/" + login + "/Data_summary.pdf"
+//
+//            val pressignedUrl = awsService.createPresignedGetUrl("output", keyName)
+//            log.info("pressigned url is ${pressignedUrl}")
+//
+//
+//     //       val data = awsService.useHttpUrlConnectionToGetDataAsInputStream(pressignedUrl);
+//
+//     //       log.info("we have data $data")
+//            val monthlyStatistics =   awsService.readLocalFile();
+//        }
+//
+//  //      log.info("[AWS-S3] REST request to url  : {}", url)
+//
+////        val bytes = awsService.useHttpUrlConnectionToGet(url);
+////        log.info("[AWS-S3] got the bytes")
+////        val downloadedFile: MutableMap<String, String> = HashMap()
+////        downloadedFile["fileName"] = "PDF file"
+////        downloadedFile["fileBytes"] = Base64.getEncoder().encodeToString(bytes);
+//        return ResponseEntity.ok(monthlyStatistics);
+//    }
+
+
     @GetMapping("/subjects/{login:" + Constants.ENTITY_ID_REGEX + "}/datasummary")
     @Timed
     @Throws (
         NotAuthorizedException::class
     )
-    fun getDataSummary(@PathVariable login: String) : ResponseEntity<Map<String, List<Double>>> {
+    fun getDataSummary(@PathVariable login: String) : ResponseEntity<DataSummaryResult> {
         authService.checkScope(Permission.SUBJECT_READ)
-        val monthlyStatistics :  Map<String, List<Double>> = mapOf()
-        val subject = subjectService.findOneByLogin(login);
-
-        if(subject.activeProject != null) {
-            val awsService =   AWSService();
-            val folderPrefix = "output/" + subject.activeProject?.projectName + "/" + login + "/Data_summary.pdf";
-
-            val keyName = subject.activeProject?.projectName + "/" + login + "/Data_summary.pdf"
-
-            val pressignedUrl = awsService.createPresignedGetUrl("output", keyName)
-            log.info("pressigned url is ${pressignedUrl}")
-
-
-     //       val data = awsService.useHttpUrlConnectionToGetDataAsInputStream(pressignedUrl);
-
-     //       log.info("we have data $data")
-            val monthlyStatistics =   awsService.readLocalFile();
-        }
-
-  //      log.info("[AWS-S3] REST request to url  : {}", url)
-
-//        val bytes = awsService.useHttpUrlConnectionToGet(url);
-//        log.info("[AWS-S3] got the bytes")
-//        val downloadedFile: MutableMap<String, String> = HashMap()
-//        downloadedFile["fileName"] = "PDF file"
-//        downloadedFile["fileBytes"] = Base64.getEncoder().encodeToString(bytes);
+        val awsService =   AWSService();
+        val monthlyStatistics =   awsService.startProcessing("project", "login", DataSource.CLASSPATH)
         return ResponseEntity.ok(monthlyStatistics);
     }
 

@@ -1,5 +1,5 @@
 <div class="new-section graph">
-    <div class="left-chart">
+    <div class="left-chart" *ngIf="chartGraph1Data">
         <div
             class="flex fixed-height padding-bottom space-between padding-sides"
         >
@@ -40,7 +40,7 @@
         <canvas class="chart-width" [id]="chartId1">{{ chartGraph1 }}</canvas>
     </div>
 
-    <div class="right-chart">
+    <div *ngIf="chartGraph2Data" class="right-chart">
         <div
             class="flex fixed-height padding-bottom space-between padding-sides"
         >

@@ -23,7 +23,7 @@ export class SingleRowGraphComponent implements OnInit {
 
     @Input() isSingleRow: boolean = true;
 
-    @Input() logoClass = 'quetionnaire-logo';
+    @Input() logoClass = '';
 
     @Input() color: string = '';
 

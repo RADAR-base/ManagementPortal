@@ -8,19 +8,33 @@
 <div class="main">
     <div class="padding-top"></div>
 
+    <div *ngFor="let key of socialKeys">
+        <app-single-row-graph
+            *ngIf="charts['social_' + key]"
+            logoClass="quetionnaire-logo"
+            chartId="social_{{ key }}"
+            [chart]="charts['social_' + key]"
+            title="Social"
+            color="rgb(12,132, 143)"
+        ></app-single-row-graph>
+    </div>
+
     <!-- Questionnaires -->
     <app-single-row-graph
+        *ngIf="charts['questionnaire']"
         logoClass="quetionnaire-logo"
         chartId="questionnaire"
         [chart]="charts['questionnaire']"
         title="Questionnaires Answered"
         [showTotal]="true"
         color="rgb(12,132, 143)"
+        [totalValue]="questionnaireTotal"
+        [totalAverage]="questionnaireAverage"
     ></app-single-row-graph>
 
     <app-single-row-graph
+        *ngIf="charts['socialHistogram']"
         [isSingleRow]="false"
-        logoClass="social-logo"
         chartId="socialHistogram"
         [chart]="charts['socialHistogram']"
         title="Social"
@@ -28,8 +42,8 @@
     ></app-single-row-graph>
 
     <app-single-row-graph
+        *ngIf="charts['sleepHistogramChart']"
         [isSingleRow]="false"
-        logoClass="sleep-logo"
         chartId="sleepHistogramChart"
         [chart]="charts['sleepHistogramChart']"
         title="Sleep"
@@ -37,8 +51,8 @@
     ></app-single-row-graph>
 
     <app-single-row-graph
+        *ngIf="charts['histogramChart']"
         [isSingleRow]="false"
-        logoClass="whereabouts-logo"
         chartId="histogramChart"
         [chart]="charts['histogramChart']"
         title="Whereabouts"
@@ -47,6 +61,10 @@
 
     <!-- Positive and negative emtions-->
     <app-double-row-graph
+        [bothGraphsActive]="
+            charts['positive_emotions'] && charts['negative_emotions']
+        "
+        *ngIf="charts['positive_emotions'] || charts['negative_emotions']"
         title1="Positive Emotions"
         title2="Negative Emotions"
         chartId1="positive_emotions"
@@ -54,13 +72,13 @@
         [chartGraph1Data]="charts['positive_emotions']"
         [chartGraph2Data]="charts['negative_emotions']"
         color="rgb(12,132, 143)"
-        css1="positive-logo"
-        css2="negative-logo"
     ></app-double-row-graph>
 
     <!-- Dissocitation and stress-->
 
     <app-double-row-graph
+        [bothGraphsActive]="charts['dissociation'] && charts['stress']"
+        *ngIf="charts['dissociation'] || charts['stress']"
         title1="Dissociation"
         title2="Stress"
         chartId1="dissociation"
@@ -68,12 +86,12 @@
         [chartGraph1Data]="charts['dissociation']"
         [chartGraph2Data]="charts['stress']"
         color="rgba(110, 37, 147, 0.9)"
-        css1="dissociation-logo"
-        css2="stress-logo"
     ></app-double-row-graph>
     <!-- Hope and mood-->
 
     <app-double-row-graph
+        [bothGraphsActive]="charts['dissociation'] && charts['stress']"
+        *ngIf="charts['dissociation'] || charts['stress']"
         title1="Hope"
         title2="Mood"
         chartId1="hope"
@@ -81,12 +99,12 @@
         [chartGraph1Data]="charts['hope']"
         [chartGraph2Data]="charts['mood']"
         color="rgb(12,132, 143)"
-        css1="hope-logo"
-        css2="mood-logo"
     ></app-double-row-graph>
 
     <!-- Anxiety and  Self-esteem-->
     <app-double-row-graph
+        [bothGraphsActive]="charts['anxiety'] && charts['self_esteem']"
+        *ngIf="charts['anxiety'] || charts['self_esteem']"
         title1="Anxiety"
         title2="Self esteem"
         chartId1="anxiety"
@@ -94,12 +112,12 @@
         [chartGraph1Data]="charts['anxiety']"
         [chartGraph2Data]="charts['self_esteem']"
         color="rgba(110, 37, 147, 0.9)"
-        css1="coping-logo"
-        css2="selfesteem-logo"
     ></app-double-row-graph>
 
     <!-- Anxiety and  Self-esteem-->
     <app-double-row-graph
+        [bothGraphsActive]="charts['connectedness'] && charts['coping']"
+        *ngIf="charts['connectedness'] || charts['coping']"
         title1="Connectedness"
         title2="Coping"
         chartId1="connectedness"
@@ -107,39 +125,39 @@
         [chartGraph1Data]="charts['connectedness']"
         [chartGraph2Data]="charts['coping']"
         color="rgb(12,132, 143)"
-        css1="connectedness-logo"
-        css2="coping-logo"
     ></app-double-row-graph>
 
     <!-- Fear of relapse and  Unusual voice-->
     <app-double-row-graph
+        [bothGraphsActive]="charts['fear'] && charts['hallucination_hear']"
+        *ngIf="charts['fear'] || charts['hallucination_hear']"
         title1="Fear of Relapse"
         title2="Unusual Voices"
-        chartId1="fear_of_relapse"
-        chartId2="unusual_voices"
-        [chartGraph1Data]="charts['fear_of_relapse']"
-        [chartGraph2Data]="charts['unusual_voices']"
+        chartId1="fear"
+        chartId2="hallucination_hear"
+        [chartGraph1Data]="charts['fear']"
+        [chartGraph2Data]="charts['hallucination_hear']"
         color="rgba(110, 37, 147, 0.9)"
-        css1="relapse-logo"
-        css2="voices-logo"
     ></app-double-row-graph>
 
     <!-- Fear of relapse and  Unusual voice-->
 
     <app-double-row-graph
+        [bothGraphsActive]="charts['hallucination_vision'] && charts['threat']"
+        *ngIf="charts['hallucination_vision'] || charts['threat']"
         title1="Seeing things"
-        title2="Suspiciousness"
-        chartId1="seeing_things"
-        chartId2="suspiciousness"
-        [chartGraph1Data]="charts['seeing_things']"
-        [chartGraph2Data]="charts['suspiciousness']"
+        title2="Threat"
+        chartId1="hallucination_vision"
+        chartId2="threat"
+        [chartGraph1Data]="charts['hallucination_vision']"
+        [chartGraph2Data]="charts['threat']"
         color="rgb(12,132, 143)"
-        css1="seeing-logo"
-        css2="suspiciousness-logo"
     ></app-double-row-graph>
 
     <!-- Heart Rate & HRV-->
     <app-double-row-graph
+        [bothGraphsActive]="charts['heart_rate'] && charts['hrv']"
+        *ngIf="charts['heart_rate'] || charts['hrv']"
         title1="Heart Rate"
         title2="Heart rate Variability"
         chartId1="heart_rate"
@@ -178,15 +196,20 @@
     <!-- Steps -->
 
     <app-single-row-graph
+        *ngIf="charts['steps']"
         logoClass="steps-img"
         chartId="steps"
         [chart]="charts['steps']"
         title="Steps"
         [showTotal]="true"
         color="rgba(110, 37, 147, 0.9)"
+        [totalValue]="stepsTotal"
+        [totalAverage]="stepsAverage"
     ></app-single-row-graph>
 
     <app-double-row-graph
+        [bothGraphsActive]="charts['respiratory_rate'] && charts['activity']"
+        *ngIf="charts['respiratory_rate'] || charts['activity']"
         title1="Activity"
         title2="Respiratory Rate"
         chartId1="activity"

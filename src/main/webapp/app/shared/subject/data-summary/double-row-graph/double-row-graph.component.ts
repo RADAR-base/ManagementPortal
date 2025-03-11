@@ -11,11 +11,11 @@ export class DoubleRowGraphComponent implements OnInit {
     @Input() title1: string = '';
     @Input() title2: string = '';
 
-    @Input() chartId1: string = 'test';
-    @Input() chartId2: string = 'test1';
+    @Input() chartId1: string = undefined;
+    @Input() chartId2: string = undefined;
 
-    @Input() chartGraph1Data: any = '';
-    @Input() chartGraph2Data: any = '';
+    @Input() chartGraph1Data: any = undefined;
+    @Input() chartGraph2Data: any = undefined;
 
     @Input() color: any = '';
 
@@ -36,24 +36,43 @@ export class DoubleRowGraphComponent implements OnInit {
     chartGraph1: any = {};
     chartGraph2: any = {};
 
+    @Input bothGraphsActive: boolean = true;
+
     addColourToGraphs() {
-        const ctx = document.getElementById(this.chartId1)?.getContext('2d');
+        let chartID = this.chartGraph1Data ? this.chartId1 : this.chartId2;
+        const ctx = document.getElementById(chartID)?.getContext('2d');
 
         const gradient = ctx.createLinearGradient(0, 0, 0, 400);
         gradient.addColorStop(0, this.color);
         gradient.addColorStop(1, 'rgba(255, 255, 255, 0.0)');
 
-        this.chartGraph1Data.data.datasets[0]['borderColor'] = this.color;
-        this.chartGraph2Data.data.datasets[0]['borderColor'] = this.color;
+        if (this.chartGraph1Data) {
+            this.chartGraph1Data.data.datasets[0]['borderColor'] = this.color;
+            this.chartGraph1Data.data.datasets[0]['backgroundColor'] = gradient;
+        }
 
-        this.chartGraph1Data.data.datasets[0]['backgroundColor'] = gradient;
-        this.chartGraph2Data.data.datasets[0]['backgroundColor'] = gradient;
+        if (this.chartGraph2Data) {
+            this.chartGraph2Data.data.datasets[0]['borderColor'] = this.color;
+            this.chartGraph2Data.data.datasets[0]['backgroundColor'] = gradient;
+        }
     }
+
+    ngOnInit() {
+        this.bothGraphsActive = this.chartGraph1Data && this.chartGraph2Data;
+    }
+
     // @ts-nocheck
     ngAfterViewInit() {
+        this.bothGraphsActive = this.chartGraph1Data && this.chartGraph2Data;
         this.addColourToGraphs();
-        this.chartGraph1 = new Chart(this.chartId1, this.chartGraph1Data);
-        this.chartGraph2 = new Chart(this.chartId2, this.chartGraph2Data);
+
+        if (this.chartGraph1Data) {
+            this.chartGraph1 = new Chart(this.chartId1, this.chartGraph1Data);
+        }
+
+        if (this.chartGraph2Data) {
+            this.chartGraph2 = new Chart(this.chartId2, this.chartGraph2Data);
+        }
     }
 
     constructor() {}
