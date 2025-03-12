@@ -79,7 +79,9 @@ export class DataSummaryComponent implements OnInit {
         respiratory_rate: lineGraph,
         screen_usage: lineGraph,
 
+        // ugly...sorry..no time
         social: histogramGraph,
+
         social_1: barGraph,
         social_2: barGraph,
         social_3: barGraph,
@@ -190,6 +192,7 @@ export class DataSummaryComponent implements OnInit {
         'Nothing',
     ];
 
+    histogramLabels = { social: [], sleep: [], wherearebout: [] };
     whereaboutsMapKeys = Object.keys(this.whereaboutsMap);
 
     subject: Subject;
@@ -391,6 +394,7 @@ export class DataSummaryComponent implements OnInit {
 
         return new Intl.DateTimeFormat('en-US', {
             month: 'short',
+            year: '2-digit', // This ensures a 2-digit year format
         }).format(date);
     }
 
@@ -404,8 +408,7 @@ export class DataSummaryComponent implements OnInit {
                 0
             );
 
-            this.questionnaireAverage =
-                this.questionnaireTotal / questionnaireData.length;
+            this.questionnaireAverage = this.questionnaireTotal / 12;
 
             this.questionnaireAverage = Number(
                 this.questionnaireAverage.toFixed(1)
@@ -456,7 +459,6 @@ export class DataSummaryComponent implements OnInit {
 
     loadData(response: HttpResponse<any>) {
         const allData = response.body.data;
-        console.log('all data', allData);
 
         const months = Object.keys(allData).sort();
 
@@ -488,26 +490,22 @@ export class DataSummaryComponent implements OnInit {
                 const questionnaireData =
                     data.questionnaire_slider[questionnaireKey];
 
-                if (questionnaireData != 0) {
-                    if (this.data[questionnaireKey] == undefined) {
-                        this.data[questionnaireKey] = [];
-                    }
-                    this.data[questionnaireKey].push(questionnaireData);
-
-                    this.addMonthPerKey(questionnaireKey, month);
+                if (this.data[questionnaireKey] == undefined) {
+                    this.data[questionnaireKey] = [];
                 }
+                this.data[questionnaireKey].push(questionnaireData);
+
+                this.addMonthPerKey(questionnaireKey, month);
             });
 
             let questionnaireKey = 'questionnaire';
 
-            if (data.questionnaire_total != 0) {
-                if (this.data[questionnaireKey] == undefined) {
-                    this.data[questionnaireKey] = [];
-                }
-                this.data[questionnaireKey].push(data.questionnaire_total);
-
-                this.addMonthPerKey(questionnaireKey, month);
+            if (this.data[questionnaireKey] == undefined) {
+                this.data[questionnaireKey] = [];
             }
+            this.data[questionnaireKey].push(data.questionnaire_total);
+
+            this.addMonthPerKey(questionnaireKey, month);
 
             //HISTOGRAM CALCULATIONS
 
@@ -545,11 +543,20 @@ export class DataSummaryComponent implements OnInit {
         this.cleanupEmptyData();
 
         // if there is less than 4 categories, we will display histogram as just one graph instead of it being split
-        this.createHistogramsIfNecessary('social', this.socialKeys);
-        this.createHistogramsIfNecessary('sleep', this.sleepMapKeys);
+        this.createHistogramsIfNecessary(
+            'social',
+            this.socialKeys,
+            this.socialLabels
+        );
+        this.createHistogramsIfNecessary(
+            'sleep',
+            this.sleepMapKeys,
+            this.sleepLabels
+        );
         this.createHistogramsIfNecessary(
             'wherearebout',
-            this.whereaboutsMapKeys
+            this.whereaboutsMapKeys,
+            this.whereaboutsLabels
         );
 
         console.log('this data', this.data);
@@ -572,7 +579,11 @@ export class DataSummaryComponent implements OnInit {
         });
     }
 
-    createHistogramsIfNecessary(dataKey: string, allKeys: string[]) {
+    createHistogramsIfNecessary(
+        dataKey: string,
+        allKeys: string[],
+        labels: string[]
+    ) {
         let numberOfGraphsWithData = 0;
 
         let numberOfMonths = this.monthLabelsPerGraph[dataKey].length;
@@ -584,17 +595,13 @@ export class DataSummaryComponent implements OnInit {
         });
 
         this.data[dataKey] = [];
-        if (numberOfGraphsWithData <= 4) {
+        if (numberOfGraphsWithData > 0) {
             allKeys.forEach((key, index) => {
                 let exists = this.data[`${dataKey}_` + (index + 1)];
 
                 if (exists) {
+                    this.histogramLabels[dataKey].push(labels[index]);
                     this.data[`${dataKey}`].push([...exists]);
-                } else {
-                    // push empty to account for empty categories
-                    this.data[`${dataKey}`].push(
-                        new Array(numberOfMonths).fill(0)
-                    );
                 }
 
                 delete this.data[`${dataKey}_` + (index + 1)];
@@ -627,16 +634,16 @@ export class DataSummaryComponent implements OnInit {
                 );
             } else if (chartType.type == 'histogram') {
                 let labels = this.monthLabelsPerGraph[key + '_1'];
-                console.log('labels', labels);
                 let binLabels: any = null;
 
-                if (key == 'social') {
-                    binLabels = this.socialLabels;
-                } else if (key == 'sleep') {
-                    binLabels = this.sleepLabels;
-                } else {
-                    binLabels = this.whereaboutsLabels;
-                }
+                // if (key == 'social') {
+                //     binLabels = this.socialLabels;
+                // } else if (key == 'sleep') {
+                //     binLabels = this.sleepLabels;
+                // } else {
+                //     binLabels = this.whereaboutsLabels;
+                // }
+                binLabels = this.histogramLabels[key];
 
                 this.charts[key] = this.createMonthHistogram(
                     key,

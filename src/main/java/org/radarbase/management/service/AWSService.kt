@@ -195,7 +195,7 @@ class AWSService {
             dataSummaryCategory.questionnaire_total = jsonData.questionnaire_responses.days_with_responses.toDouble()
 
             jsonData.questionnaire_responses.slider.forEach{ (feature, stats) ->
-                val totalNumber = stats.total_entries * stats.mean;
+                val totalNumber =  stats.mean;
                 dataSummaryCategory.questionnaire_slider
                     .getOrPut(feature){ totalNumber }
             }
