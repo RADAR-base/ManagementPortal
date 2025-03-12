@@ -1,9 +1,10 @@
 import { Component, ViewChild } from '@angular/core';
+
 import {
     QueryBuilderClassNames,
     QueryBuilderConfig,
-} from 'ngx-angular-query-builder';
-import { FormBuilder, FormControl, FormGroup, NgForm } from '@angular/forms';
+} from '@pri17/ngx-angular-query-builder';
+import { FormBuilder, FormControl, NgForm } from '@angular/forms';
 
 @Component({
     selector: 'jhi-queries',
@@ -73,61 +74,6 @@ export class AddQueryComponent {
         ],
     };
 
-    public entityConfig: QueryBuilderConfig = {
-        entities: {
-            physical: { name: 'Physical Attributes' },
-            nonphysical: { name: 'Nonphysical Attributes' },
-        },
-        fields: {
-            age: { name: 'Age', type: 'number', entity: 'physical' },
-            gender: {
-                name: 'Gender',
-                entity: 'physical',
-                type: 'category',
-                options: [
-                    { name: 'Male', value: 'm' },
-                    { name: 'Female', value: 'f' },
-                ],
-            },
-            name: { name: 'Name', type: 'string', entity: 'nonphysical' },
-            notes: {
-                name: 'Notes',
-                type: 'textarea',
-                operators: ['=', '!='],
-                entity: 'nonphysical',
-            },
-            educated: {
-                name: 'College Degree?',
-                type: 'boolean',
-                entity: 'nonphysical',
-            },
-            birthday: {
-                name: 'Birthday',
-                type: 'date',
-                operators: ['=', '<=', '>'],
-                defaultValue: () => new Date(),
-                entity: 'nonphysical',
-            },
-            school: {
-                name: 'School',
-                type: 'string',
-                nullable: true,
-                entity: 'nonphysical',
-            },
-            occupation: {
-                name: 'Occupation',
-                entity: 'nonphysical',
-                type: 'category',
-                options: [
-                    { name: 'Student', value: 'student' },
-                    { name: 'Teacher', value: 'teacher' },
-                    { name: 'Unemployed', value: 'unemployed' },
-                    { name: 'Scientist', value: 'scientist' },
-                ],
-            },
-        },
-    };
-
     public config: QueryBuilderConfig = {
         fields: {
             age: { name: 'Age', type: 'number' },
@@ -176,12 +122,6 @@ export class AddQueryComponent {
         //console.log(this.queryBuilderFormGroup)
         setTimeout(() => this.queryBuilderFormGroup.form.markAllAsTouched(), 0);
         //this.queryBuilderFormGroup.form.markAllAsTouched();
-    }
-
-    switchModes(event: Event) {
-        this.currentConfig = (<HTMLInputElement>event.target).checked
-            ? this.entityConfig
-            : this.config;
     }
 
     changeDisabled(event: Event) {

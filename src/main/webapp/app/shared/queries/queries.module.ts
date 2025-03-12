@@ -46,7 +46,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatTreeModule } from '@angular/material/tree';
 import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
 
-import { NgxAngularQueryBuilderModule } from "ngx-angular-query-builder";
+import { NgxAngularQueryBuilderModule } from "@pri17/ngx-angular-query-builder";
 import { AddQueryComponent } from './addQuery.component';
 
 @NgModule({
