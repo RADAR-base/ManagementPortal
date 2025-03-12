@@ -8,17 +8,6 @@
 <div class="main">
     <div class="padding-top"></div>
 
-    <div *ngFor="let key of socialKeys">
-        <app-single-row-graph
-            *ngIf="charts['social_' + key]"
-            logoClass="quetionnaire-logo"
-            chartId="social_{{ key }}"
-            [chart]="charts['social_' + key]"
-            title="Social"
-            color="rgb(12,132, 143)"
-        ></app-single-row-graph>
-    </div>
-
     <!-- Questionnaires -->
     <app-single-row-graph
         *ngIf="charts['questionnaire']"
@@ -31,6 +20,60 @@
         [totalValue]="questionnaireTotal"
         [totalAverage]="questionnaireAverage"
     ></app-single-row-graph>
+
+    <app-single-row-graph
+        [isSingleRow]="false"
+        *ngIf="charts['social']"
+        logoClass="social-logo"
+        chartId="social"
+        [chart]="charts['social']"
+        title="Social"
+        color="rgb(12,132, 143)"
+    ></app-single-row-graph>
+
+    <app-single-row-graph
+        [isSingleRow]="false"
+        *ngIf="charts['sleep']"
+        logoClass="sleep-logo"
+        chartId="sleep"
+        [chart]="charts['sleep']"
+        title="Sleep"
+        color="rgb(12,132, 143)"
+    ></app-single-row-graph>
+
+    <app-single-row-graph
+        [isSingleRow]="false"
+        *ngIf="charts['wherearebout']"
+        logoClass="sleep-logo"
+        chartId="wherearebout"
+        [chart]="charts['wherearebout']"
+        title="Whereabouts"
+        color="rgb(12,132, 143)"
+    ></app-single-row-graph>
+
+    <div *ngFor="let key of socialKeys">
+        <app-single-row-graph
+            [isSingleRow]="false"
+            *ngIf="charts['social_' + key]"
+            logoClass="social-logo"
+            chartId="social_{{ key }}"
+            [chart]="charts['social_' + key]"
+            title="Social ({{ socialMap[key] }})"
+            color="rgb(12,132, 143)"
+        ></app-single-row-graph>
+    </div>
+
+    <div *ngFor="let key of sleepMapKeys">
+        <app-single-row-graph
+            [isSingleRow]="false"
+            *ngIf="charts['sleep_' + key]"
+            logoClass="social-logo"
+            chartId="sleep_{{ key }}"
+            [chart]="charts['social_' + key]"
+            title="sleep ({{ sleepMap[key] }})"
+            color="rgb(12,132, 143)"
+        ></app-single-row-graph>
+    </div>
 
     <app-single-row-graph
         *ngIf="charts['socialHistogram']"

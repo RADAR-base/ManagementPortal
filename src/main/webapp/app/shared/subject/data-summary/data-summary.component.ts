@@ -28,37 +28,17 @@ const lineGraph: Graph = {
     showDataTables: true,
 };
 
-const whereaboutsMap = {
-    '1': 'Relaxing (e.g. watching TV, reading a book, resting, other)',
-    '2': 'Working / at School',
-    '3': 'Studying',
-    '4': 'Housekeeping',
-    '5': 'Shopping',
-    '6': 'Hygiene / Self-care activity',
-    '7': 'Eating/Drinking',
-    '8': 'Travelling',
-    '9': 'Exercising (e.g. walking, jogging, dancing, playing sport, other)',
-    '10': 'Leisure Activity (e.g. going to an event, visiting a museum, cinema or library, etc)',
-    '11': 'Nothing',
+const histogramGraph: Graph = {
+    type: 'histogram',
+    showScaleY: false,
+    showDataTables: true,
 };
-
 const socialMap = {
     '1': 'On my own',
     '2': 'With strangers',
     '3': 'With people I know',
     '4': 'With people I am close to',
     '5': 'Connecting with people online or using social media',
-};
-
-const sleepMap = {
-    '0-2': '0-2 hrs',
-    '2-4': '2-4 hrs',
-    '4-6': '4-6 hrs',
-    '6-8': '6-8 hrs',
-    '8-10': '8-10 hrs',
-    '10-12': '10-12 hrs',
-    '12-14': '12-14 hrs',
-    '14+': '14+ hrs+',
 };
 
 @Component({
@@ -98,11 +78,36 @@ export class DataSummaryComponent implements OnInit {
         activity: lineGraph,
         respiratory_rate: lineGraph,
         screen_usage: lineGraph,
+
+        social: histogramGraph,
         social_1: barGraph,
         social_2: barGraph,
         social_3: barGraph,
         social_4: barGraph,
         social_5: barGraph,
+
+        sleep: histogramGraph,
+        sleep_1: barGraph,
+        sleep_2: barGraph,
+        sleep_3: barGraph,
+        sleep_4: barGraph,
+        sleep_5: barGraph,
+        sleep_6: barGraph,
+        sleep_7: barGraph,
+        sleep_8: barGraph,
+
+        wherearebout: histogramGraph,
+        wherearebout_1: barGraph,
+        wherearebout_2: barGraph,
+        wherearebout_3: barGraph,
+        wherearebout_4: barGraph,
+        wherearebout_5: barGraph,
+        wherearebout_6: barGraph,
+        wherearebout_7: barGraph,
+        wherearebout_8: barGraph,
+        wherearebout_9: barGraph,
+        wherearebout_10: barGraph,
+        wherearebout_11: barGraph,
     };
     data: any = {};
     monthLabelsPerGraph: any = {};
@@ -123,7 +128,70 @@ export class DataSummaryComponent implements OnInit {
         '4': 'With people I am close to',
         '5': 'Connecting with people online or using social media',
     };
+
+    socialLabels = [
+        'On my own',
+        'With strangers',
+        'With people I know',
+        'With people I am close to',
+        'Connecting with people online or using social media',
+    ];
     socialKeys = Object.keys(this.socialMap);
+
+    sleepMap = {
+        '0-2': '0-2 hrs',
+        '2-4': '2-4 hrs',
+        '4-6': '4-6 hrs',
+        '6-8': '6-8 hrs',
+        '8-10': '8-10 hrs',
+        '10-12': '10-12 hrs',
+        '12-14': '12-14 hrs',
+        '14+': '14+ hrs+',
+    };
+
+    sleepLabels = [
+        '0-2 hrs',
+        '2-4 hrs',
+        '4-6 hrs',
+        '6-8 hrs',
+        '8-10 hrs',
+        '10-12 hrs',
+        '12-14 hrs',
+        '14+',
+    ];
+
+    sleepMapKeys = Object.keys(this.sleepMap);
+
+    whereaboutsMap = {
+        '1': 'Relaxing (e.g. watching TV, reading a book, resting, other)',
+        '2': 'Working / at School',
+        '3': 'Studying',
+        '4': 'Housekeeping',
+        '5': 'Shopping',
+        '6': 'Hygiene / Self-care activity',
+        '7': 'Eating/Drinking',
+        '8': 'Travelling',
+        '9': 'Exercising (e.g. walking, jogging, dancing, playing sport, other)',
+        '10': 'Leisure Activity (e.g. going to an event, visiting a museum, cinema or library, etc)',
+        '11': 'Nothing',
+    };
+
+    whereaboutsLabels = [
+        'Relaxing (e.g. watching TV, reading a book, resting, other)',
+        'Working / at School',
+        'Studying',
+        'Housekeeping',
+        'Shopping',
+        'Hygiene / Self-care activity',
+        'Eating/Drinking',
+        'Travelling',
+        'Exercising (e.g. walking, jogging, dancing, playing sport, other)',
+        'Leisure Activity (e.g. going to an event, visiting a museum, cinema or library, etc)',
+        'Nothing',
+    ];
+
+    whereaboutsMapKeys = Object.keys(this.whereaboutsMap);
+
     subject: Subject;
     private subscription: any;
 
@@ -132,43 +200,24 @@ export class DataSummaryComponent implements OnInit {
         private route: ActivatedRoute
     ) {}
 
-    createSocialHistogram() {
-        let months = [
-            'Jan',
-            'Feb',
-            'Mar',
-            'Apr',
-            'May',
-            'Jun',
-            'Jul',
-            'Aug',
-            'Sep',
-            'Oct',
-            'Nov',
-            'Dec',
-        ];
-
-        let binLabels2 = [
-            'On my own',
-            'with strangers',
-            'with people I know',
-            'with people I am close to',
-            'Connecting with people online or using social media',
-        ];
-
-        // Define colors for each bin
+    createMonthHistogram(key: string, months: string[], binLabels2: string[]) {
         const binColors = [
-            'rgba(255, 99, 132, 0.6)', // 0-2
-            'rgba(54, 162, 235, 0.6)', // 2-4
-            'rgba(255, 206, 86, 0.6)', // 4-6
-            'rgba(75, 192, 192, 0.6)', // 6-8
-            'rgba(153, 102, 255, 0.6)', // 8-10
+            'rgba(255, 99, 132, 0.6)',
+            'rgba(54, 162, 235, 0.6)',
+            'rgba(255, 206, 86, 0.6)',
+            'rgba(75, 192, 192, 0.6)',
+            'rgba(153, 102, 255, 0.6)',
+            'rgba(255, 159, 64, 0.6)',
+            'rgba(0, 204, 102, 0.6)',
+            'rgba(204, 0, 204, 0.6)',
+            'rgba(102, 102, 102, 0.6)',
+            'rgba(0, 153, 255, 0.6)',
+            'rgba(255, 51, 153, 0.6)',
         ];
 
-        // Generate random data for each month
-        const data = binLabels2.map(() =>
-            Array.from({ length: 12 }, () => Math.floor(Math.random() * 10 + 1))
-        );
+        let activeColors = binColors.slice(0, binLabels2.length);
+
+        const data = this.data[key];
 
         return {
             type: 'bar',
@@ -177,8 +226,8 @@ export class DataSummaryComponent implements OnInit {
                 datasets: binLabels2.map((label, index) => ({
                     label: label,
                     data: data[index],
-                    backgroundColor: binColors[index],
-                    borderColor: binColors[index].replace('0.6', '1'),
+                    backgroundColor: activeColors[index],
+                    borderColor: activeColors[index].replace('0.6', '1'),
                     borderWidth: 1,
                 })),
             },
@@ -197,225 +246,6 @@ export class DataSummaryComponent implements OnInit {
                 },
             },
         };
-    }
-
-    createSleepHistogram() {
-        let months = [
-            'Jan',
-            'Feb',
-            'Mar',
-            'Apr',
-            'May',
-            'Jun',
-            'Jul',
-            'Aug',
-            'Sep',
-            'Oct',
-            'Nov',
-            'Dec',
-        ];
-
-        let binLabels2 = [
-            '0-2',
-            '2-4',
-            '4-6',
-            '6-8',
-            '8-10',
-            '10-12',
-            '12-14',
-            '14+',
-        ];
-
-        // Define colors for each bin
-        const binColors = [
-            'rgba(255, 99, 132, 0.6)', // 0-2
-            'rgba(54, 162, 235, 0.6)', // 2-4
-            'rgba(255, 206, 86, 0.6)', // 4-6
-            'rgba(75, 192, 192, 0.6)', // 6-8
-            'rgba(153, 102, 255, 0.6)', // 8-10
-            'rgba(255, 159, 64, 0.6)', // 10-12
-            'rgba(199, 199, 199, 0.6)', // 12-14
-            'rgba(83, 255, 157, 0.6)', // 14+
-        ];
-
-        // Generate random data for each month
-        const data = binLabels2.map(() =>
-            Array.from({ length: 12 }, () => Math.floor(Math.random() * 10 + 1))
-        );
-
-        return {
-            type: 'bar',
-            data: {
-                labels: months,
-                datasets: binLabels2.map((label, index) => ({
-                    label: label,
-                    data: data[index],
-                    backgroundColor: binColors[index],
-                    borderColor: binColors[index].replace('0.6', '1'),
-                    borderWidth: 1,
-                })),
-            },
-            options: {
-                responsive: false,
-                maintainAspectRatio: true,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                    },
-                },
-                plugins: {
-                    datalabels: {
-                        display: false,
-                    },
-                },
-            },
-        };
-    }
-
-    createMonthHistogram() {
-        // Sample data for each month
-        let months = [
-            'Jan',
-            'Feb',
-            'Mar',
-            'Apr',
-            'May',
-            'Jun',
-            'Jul',
-            'Aug',
-            'Sep',
-            'Oct',
-            'Nov',
-            'Dec',
-        ];
-
-        let binLabels2 = ['Relaxing'];
-
-        // Define colors for each bin
-        const binColors = [
-            'rgba(255, 99, 132, 0.6)', // 0-2
-            'rgba(54, 162, 235, 0.6)', // 2-4
-            'rgba(255, 206, 86, 0.6)', // 4-6
-            'rgba(75, 192, 192, 0.6)', // 6-8
-            'rgba(153, 102, 255, 0.6)', // 8-10
-            'rgba(255, 159, 64, 0.6)', // 10-12
-            'rgba(199, 199, 199, 0.6)', // 12-14
-            'rgba(83, 255, 157, 0.6)', // 14+m
-            'rgba(203, 255, 83, 0.6)', // 14+
-            'rgba(255, 83, 183, 0.6)', // 14+
-            'rgba(83, 203, 255, 0.6)', // 14+
-            'rgba(83, 203, 255, 0.6)', // 14+
-        ];
-
-        // Generate random data for each month
-        const data = binLabels2.map(() =>
-            Array.from({ length: 12 }, () => Math.floor(Math.random() * 10 + 1))
-        );
-
-        return {
-            type: 'bar',
-            data: {
-                labels: months,
-                datasets: binLabels2.map((label, index) => ({
-                    label: label,
-                    data: data[index],
-                    backgroundColor: binColors[index],
-                    borderColor: binColors[index].replace('0.6', '1'),
-                    borderWidth: 1,
-                })),
-            },
-            options: {
-                responsive: false,
-                maintainAspectRatio: true,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                    },
-                },
-                plugins: {
-                    datalabels: {
-                        display: false,
-                    },
-                },
-            },
-        };
-    }
-
-    createHistogram() {
-        // Sample data
-        const rawData = [
-            12, 19, 3, 5, 2, 3, 10, 15, 18, 14, 7, 9, 12, 17, 22, 25, 18, 10, 8,
-            6,
-        ];
-
-        // Define bins
-        const binSize = 5;
-        const minValue = Math.min(...rawData);
-        const maxValue = Math.max(...rawData);
-        //const bins = ["On my own", "With strangers", "With people I know", "with people I am close to ", "Connecting with people online or using social media"];
-
-        const bins = [];
-        console.log('bins', bins);
-
-        for (let i = minValue; i <= maxValue; i += binSize) {
-            //@ts-ignore
-            bins.push({ range: `${i}-${i + binSize - 1}`, count: 0 });
-        }
-
-        // Populate bins
-        rawData.forEach((value) => {
-            const index = Math.floor((value - minValue) / binSize);
-            //@ts-ignore
-            bins[index].count++;
-        });
-
-        console.log('raw data', rawData);
-
-        //@ts-ignore
-        const labels = [
-            'On my own',
-            'With strangers',
-            'With people I know',
-            'with people I am close to ',
-            'Connecting with people online or using social media',
-        ];
-
-        const data = [5, 9, 15, 2, 5];
-
-        //@ts-ignore
-        const ctx = document.getElementById('histogramChart').getContext('2d');
-
-        this.charts['histogramChart'] = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [
-                    {
-                        label: 'Frequency',
-                        data: data,
-                        backgroundColor: 'rgba(75, 192, 192, 0.6)',
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        borderWidth: 1,
-                    },
-                ],
-            },
-            options: {
-                devicePixelRatio: 4,
-                plugins: {
-                    legend: {
-                        display: false,
-                        position: 'bottom',
-                    },
-                },
-                responsive: false,
-                maintainAspectRatio: true,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                    },
-                },
-            },
-        });
     }
 
     createLineChart(
@@ -426,27 +256,17 @@ export class DataSummaryComponent implements OnInit {
         showDataLables: boolean,
         color: string = 'rgba(110, 37, 147, 0.9)'
     ) {
-        //@ts-ignore
-        // const ctx = document
-        //     .getElementById('linear_gradient')
-        //     ?.getContext('2d');
-
-        // const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-        // gradient.addColorStop(0, color);
-        // gradient.addColorStop(1, 'rgba(255, 255, 255, 0.0)');
-
         let graphObject = {
             type: 'line',
             data: {
                 labels: labels,
                 datasets: [
                     {
-                        fill: true, // Enables the fill under the line
+                        fill: true,
                         tension: 0.2,
                         data: data,
                         borderWidth: 2,
-                        borderColor: color, // Line color
-                        //     backgroundColor: gradient,
+                        borderColor: color,
                     },
                 ],
             },
@@ -479,9 +299,8 @@ export class DataSummaryComponent implements OnInit {
                     datalabels: {
                         display: showDataLables,
                         align: 'top',
-                        // Alignment relative to the bar (top, middle, bottom)
-                        formatter: (value) => value, // Format the value (e.g., add units or rounding)
-                        color: '#000', // Text color
+                        formatter: (value) => value,
+                        color: '#000',
                         font: {
                             weight: 'bold',
                             size: 12,
@@ -494,9 +313,9 @@ export class DataSummaryComponent implements OnInit {
         if (showDataLables) {
             graphObject['options']['datalabels'] = {
                 align: 'top',
-                // Alignment relative to the bar (top, middle, bottom)
-                formatter: (value) => value, // Format the value (e.g., add units or rounding)
-                color: '#000', // Text color
+
+                formatter: (value) => value,
+                color: '#000',
                 font: {
                     weight: 'bold',
                     size: 12,
@@ -526,7 +345,7 @@ export class DataSummaryComponent implements OnInit {
                         data: data,
                         borderWidth: 1,
                         borderRadius: 5,
-                        barThickness: 30, // Fixed bar width,
+                        barThickness: 30,
                         backgroundColor: [barColor],
                     },
                 ],
@@ -550,10 +369,10 @@ export class DataSummaryComponent implements OnInit {
                         position: 'top',
                     },
                     datalabels: {
-                        anchor: 'end', // Positioning of the label (start, center, end)
-                        // Alignment relative to the bar (top, middle, bottom)
-                        formatter: (value) => value, // Format the value (e.g., add units or rounding)
-                        color: '#000', // Text color
+                        anchor: 'end',
+
+                        formatter: (value) => value,
+                        color: '#000',
                         font: {
                             weight: 'bold',
                             size: 8,
@@ -628,18 +447,28 @@ export class DataSummaryComponent implements OnInit {
         });
     }
 
+    pushHistogramData(key: string, dataArray: number[]) {
+        if (this.data[key] == undefined) {
+            this.data[key] = [];
+        }
+        this.data[key].push(dataArray);
+    }
+
     loadData(response: HttpResponse<any>) {
         const allData = response.body.data;
+        console.log('all data', allData);
 
-        const months = Object.keys(allData).sort(); // Sorts the months in order
+        const months = Object.keys(allData).sort();
 
-        // Step 2: Iterate over each month in chronological order
         months.forEach((month) => {
+            console.log('month', month);
             const data = allData[month];
 
             this.monthLabels.push(this.formatMonth(month));
             const physicalKeys = Object.keys(data.physical);
             const questionnaireKeys = Object.keys(data.questionnaire_slider);
+
+            // PHYSICAL KEYS CALCULATIONS (heart rate etc)
 
             physicalKeys.forEach((physicalKey) => {
                 const physicalData = data.physical[physicalKey];
@@ -652,6 +481,8 @@ export class DataSummaryComponent implements OnInit {
                     this.addMonthPerKey(physicalKey, month);
                 }
             });
+
+            // QUESTIONNAIRE CALCULATIONS
 
             questionnaireKeys.forEach((questionnaireKey) => {
                 const questionnaireData =
@@ -680,23 +511,95 @@ export class DataSummaryComponent implements OnInit {
 
             //HISTOGRAM CALCULATIONS
 
-            console.log('socialkeys', Object.keys(data.histogram.social));
-            const socialKeys = Object.keys(socialMap);
+            this.processHistogramData(
+                'social',
+                Object.keys(this.socialMap),
+                data.histogram.social,
+                month
+            );
 
-            socialKeys.forEach((key) => {
-                let identifier = 'social_' + key;
-                let socialData = data.histogram.social[key];
+            this.processHistogramData(
+                'wherearebout',
+                Object.keys(this.whereaboutsMap),
+                data.histogram.whereabouts,
+                month
+            );
 
-                this.pushToData(identifier, socialData ?? 0);
-                this.addMonthPerKey(identifier, month);
+            this.processHistogramData(
+                'sleep',
+                Object.keys(this.sleepMap),
+                data.histogram.sleep,
+                month
+            );
 
-                //  this.addMonthPerKey(questionnaireKey, month);
-            });
+            // add all availbale months per histogram category - this is used in a case where we have one histogram, instead of it being split into several ones
+            // this depends on how many "categories" are actually filled in
+            this.addMonthPerKey('social', month);
+            this.addMonthPerKey('wherearebout', month);
+            this.addMonthPerKey('sleep', month);
         });
 
         this.calculateTotalsAndAverage();
 
+        // clean any data that has just 0s
         this.cleanupEmptyData();
+
+        // if there is less than 4 categories, we will display histogram as just one graph instead of it being split
+        this.createHistogramsIfNecessary('social', this.socialKeys);
+        this.createHistogramsIfNecessary('sleep', this.sleepMapKeys);
+        this.createHistogramsIfNecessary(
+            'wherearebout',
+            this.whereaboutsMapKeys
+        );
+
+        console.log('this data', this.data);
+        console.log('month labels', this.monthLabelsPerGraph);
+    }
+
+    processHistogramData(
+        domainkey: string,
+        mapKeys: string[],
+        data: any,
+        month: string
+    ) {
+        mapKeys.forEach((key, index) => {
+            let id = index + 1;
+            let identifier = `${domainkey}_` + id;
+            let dataValue = data[key];
+
+            this.pushToData(identifier, dataValue ?? 0);
+            this.addMonthPerKey(identifier, month);
+        });
+    }
+
+    createHistogramsIfNecessary(dataKey: string, allKeys: string[]) {
+        let numberOfGraphsWithData = 0;
+
+        let numberOfMonths = this.monthLabelsPerGraph[dataKey].length;
+        allKeys.forEach((key, index) => {
+            let exists = this.data[`${dataKey}_` + (index + 1)];
+            if (exists) {
+                numberOfGraphsWithData++;
+            }
+        });
+
+        this.data[dataKey] = [];
+        if (numberOfGraphsWithData <= 4) {
+            allKeys.forEach((key, index) => {
+                let exists = this.data[`${dataKey}_` + (index + 1)];
+
+                if (exists) {
+                    this.data[`${dataKey}`].push([...exists]);
+                } else {
+                    // push empty to account for empty categories
+                    this.data[`${dataKey}`].push(
+                        new Array(numberOfMonths).fill(0)
+                    );
+                }
+
+                delete this.data[`${dataKey}_` + (index + 1)];
+            });
+        }
     }
 
     createGraphs() {
@@ -721,6 +624,24 @@ export class DataSummaryComponent implements OnInit {
                     chartType.showScaleY,
                     chartType.showDataTables,
                     chartType.color
+                );
+            } else if (chartType.type == 'histogram') {
+                let labels = this.monthLabelsPerGraph[key + '_1'];
+                console.log('labels', labels);
+                let binLabels: any = null;
+
+                if (key == 'social') {
+                    binLabels = this.socialLabels;
+                } else if (key == 'sleep') {
+                    binLabels = this.sleepLabels;
+                } else {
+                    binLabels = this.whereaboutsLabels;
+                }
+
+                this.charts[key] = this.createMonthHistogram(
+                    key,
+                    labels,
+                    binLabels
                 );
             } else {
                 this.charts[key] = this.createBarChart(
@@ -749,5 +670,8 @@ export class DataSummaryComponent implements OnInit {
         this.subscription = this.route.params.subscribe((params) => {
             this.loadSubject(params['login']);
         });
+
+        console.log('whereaboutkeys', this.whereaboutsMapKeys);
+        console.log('sleepkeys', this.sleepMapKeys);
     }
 }
