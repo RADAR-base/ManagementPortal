@@ -24,7 +24,6 @@
     <app-single-row-graph
         [isSingleRow]="false"
         *ngIf="charts['social']"
-        logoClass="social-logo"
         chartId="social"
         [chart]="charts['social']"
         title="Social"
@@ -34,7 +33,6 @@
     <app-single-row-graph
         [isSingleRow]="false"
         *ngIf="charts['sleep']"
-        logoClass="sleep-logo"
         chartId="sleep"
         [chart]="charts['sleep']"
         title="Sleep"
@@ -44,7 +42,6 @@
     <app-single-row-graph
         [isSingleRow]="false"
         *ngIf="charts['wherearebout']"
-        logoClass="sleep-logo"
         chartId="wherearebout"
         [chart]="charts['wherearebout']"
         title="Whereabouts"
@@ -189,7 +186,7 @@
         [bothGraphsActive]="charts['hallucination_vision'] && charts['threat']"
         *ngIf="charts['hallucination_vision'] || charts['threat']"
         title1="Seeing things"
-        title2="Threat"
+        title2="Suspiciousness"
         chartId1="hallucination_vision"
         chartId2="threat"
         [chartGraph1Data]="charts['hallucination_vision']"
