@@ -93,7 +93,7 @@ class AWSService {
 
 
 //Map<String, Map<String, Double>>
-    fun startProcessing(projectName: String, login: String, dataSource: DataSource) : DataSummaryResult {
+    fun startProcessing(projectName: String, login: String, dataSource: DataSource) : DataSummaryResult? {
          log.info("[PDF-EXPORT] start processing")
 
         val dataSource = dataSource  // Change this to DataSource.CLASSPATH to load from resources
@@ -119,6 +119,10 @@ class AWSService {
             listClasspathJsonFiles(resourceFolderPath)
         }
     log.info("[PDF-EXPORT] file size ${files.size}")
+
+            if(files.size == 0) {
+                return null;
+            }
 
         val monthlyFeatureStats = processJsonFiles(s3Client, bucketName, files, dataSource)
 
