@@ -124,6 +124,7 @@ export class DataSummaryComponent implements OnInit {
         delusion_11: domainGraph,
         delusion_12: domainGraph,
     };
+    isDataSummaryReady = false;
     data: any = {};
     monthLabelsPerGraph: any = {};
     charts: any = {};
@@ -293,8 +294,8 @@ export class DataSummaryComponent implements OnInit {
         color: string = 'rgba(110, 37, 147, 0.9)'
     ) {
         // this is done for graphs which has only one value
-        let labels = labelsP.push('');
-        let data = dataP.push(0);
+        // let labels = labelsP.push('');
+        // let data = dataP.push(0);
 
         let graphObject = {
             type: 'line',
@@ -495,8 +496,12 @@ export class DataSummaryComponent implements OnInit {
     }
 
     loadData(response: HttpResponse<any>) {
-        const allData = response.body.data;
+        console.log('response.body.', response.body);
 
+        if (!response.body || Object.keys(response.body.data).length === 0) {
+            return false;
+        }
+        const allData = response.body.data;
         const months = Object.keys(allData).sort();
 
         months.forEach((month) => {
@@ -711,8 +716,14 @@ export class DataSummaryComponent implements OnInit {
                 this.subjectService
                     .findDataSummary(subject!.login!)
                     .subscribe((response: HttpResponse<any>) => {
-                        this.loadData(response);
-                        this.createGraphs();
+                        let result = this.loadData(response);
+
+                        if (result == false) {
+                            this.isDataSummaryReady = false;
+                        } else {
+                            this.isDataSummaryReady = true;
+                            this.createGraphs();
+                        }
                     });
         });
     }
@@ -720,8 +731,5 @@ export class DataSummaryComponent implements OnInit {
         this.subscription = this.route.params.subscribe((params) => {
             this.loadSubject(params['login']);
         });
-
-        console.log('whereaboutkeys', this.whereaboutsMapKeys);
-        console.log('sleepkeys', this.sleepMapKeys);
     }
 }
