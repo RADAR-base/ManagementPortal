@@ -6,6 +6,10 @@
 </div>
 
 <div class="main">
+    <p *ngIf="!isDataSummaryReady">
+        Data summary is not ready yet. The DHS team will let you know when it is
+        ready to download.
+    </p>
     <div class="padding-top"></div>
 
     <!-- Questionnaires -->
