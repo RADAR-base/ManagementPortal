@@ -494,6 +494,10 @@ label {
     width: 200px; /* Set a specific width to force wrapping */
 }
 
+.long-text {
+    width: 500px !important;
+}
+
 .no-bottom-margin {
     margin-bottom: 0px !important;
 }

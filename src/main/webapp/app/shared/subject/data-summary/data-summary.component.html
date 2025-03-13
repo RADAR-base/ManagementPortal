@@ -52,7 +52,6 @@
         <app-single-row-graph
             [isSingleRow]="false"
             *ngIf="charts['social_' + key]"
-            logoClass="social-logo"
             chartId="social_{{ key }}"
             [chart]="charts['social_' + key]"
             title="Social ({{ socialMap[key] }})"
@@ -64,40 +63,36 @@
         <app-single-row-graph
             [isSingleRow]="false"
             *ngIf="charts['sleep_' + key]"
-            logoClass="social-logo"
             chartId="sleep_{{ key }}"
             [chart]="charts['social_' + key]"
-            title="sleep ({{ sleepMap[key] }})"
+            title="Sleep ({{ sleepMap[key] }})"
             color="rgb(12,132, 143)"
         ></app-single-row-graph>
     </div>
 
-    <app-single-row-graph
-        *ngIf="charts['socialHistogram']"
-        [isSingleRow]="false"
-        chartId="socialHistogram"
-        [chart]="charts['socialHistogram']"
-        title="Social"
-        color="rgba(110, 37, 147, 0.9)"
-    ></app-single-row-graph>
+    <div *ngFor="let key of whereaboutsMapKeys">
+        <app-single-row-graph
+            [isSingleRow]="false"
+            *ngIf="charts['wherearebout_' + key]"
+            chartId="wherearebout_{{ key }}"
+            [chart]="charts['wherearebout_' + key]"
+            title="Wherearebout ({{ sleepMap[key] }})"
+            color="rgb(12,132, 143)"
+        ></app-single-row-graph>
+    </div>
 
-    <app-single-row-graph
-        *ngIf="charts['sleepHistogramChart']"
-        [isSingleRow]="false"
-        chartId="sleepHistogramChart"
-        [chart]="charts['sleepHistogramChart']"
-        title="Sleep"
-        color="rgb(12,132, 143)"
-    ></app-single-row-graph>
-
-    <app-single-row-graph
-        *ngIf="charts['histogramChart']"
-        [isSingleRow]="false"
-        chartId="histogramChart"
-        [chart]="charts['histogramChart']"
-        title="Whereabouts"
-        color="rgba(110, 37, 147, 0.9)"
-    ></app-single-row-graph>
+    <div *ngFor="let key of delusionKeys">
+        <app-single-row-graph
+            [applyCustomColour]="true"
+            [longHeading]="true"
+            [isSingleRow]="false"
+            *ngIf="charts[key]"
+            chartId="{{ key }}"
+            [chart]="charts[key]"
+            title="Delusion ({{ delusions[key] }})"
+            color="rgba(110, 37, 147, 0.9)"
+        ></app-single-row-graph>
+    </div>
 
     <!-- Positive and negative emtions-->
     <app-double-row-graph

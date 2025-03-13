@@ -110,6 +110,19 @@ export class DataSummaryComponent implements OnInit {
         wherearebout_9: barGraph,
         wherearebout_10: barGraph,
         wherearebout_11: barGraph,
+
+        delusion_1: lineGraph,
+        delusion_2: lineGraph,
+        delusion_3: lineGraph,
+        delusion_4: lineGraph,
+        delusion_5: lineGraph,
+        delusion_6: lineGraph,
+        delusion_7: lineGraph,
+        delusion_8: lineGraph,
+        delusion_9: lineGraph,
+        delusion_10: lineGraph,
+        delusion_11: lineGraph,
+        delusion_12: lineGraph,
     };
     data: any = {};
     monthLabelsPerGraph: any = {};
@@ -191,6 +204,26 @@ export class DataSummaryComponent implements OnInit {
         'Leisure Activity (e.g. going to an event, visiting a museum, cinema or library, etc)',
         'Nothing',
     ];
+
+    delusions = {
+        delusion_1: "I have felt like I could read other people's thoughts",
+        delusion_2: 'I have felt like other people were reading my thoughts',
+        delusion_3:
+            'I have felt that my thoughts were being controlled or influenced',
+        delusion_4: 'I have felt like my thoughts were alien to me in some way',
+        delusion_5: 'I have felt like the world is not real',
+        delusion_6: 'I have felt like I am not real',
+        delusion_7: 'I have felt like people were not what they seemed',
+        delusion_8:
+            'I have felt like things on the TV, in books or magazines had a special meaning for me',
+        delusion_9: 'I have felt like there was a conspiracy against me',
+        delusion_10: 'I have been jealous',
+        delusion_11: 'I have felt like something bad was about to happen',
+        delusion_12:
+            'I have felt distinctly concerned about my physical health',
+    };
+
+    delusionKeys = Object.keys(this.delusions);
 
     histogramLabels = { social: [], sleep: [], wherearebout: [] };
     whereaboutsMapKeys = Object.keys(this.whereaboutsMap);
@@ -493,10 +526,13 @@ export class DataSummaryComponent implements OnInit {
                 if (this.data[questionnaireKey] == undefined) {
                     this.data[questionnaireKey] = [];
                 }
-                this.data[questionnaireKey].push(questionnaireData);
+                this.data[questionnaireKey].push(Math.round(questionnaireData));
 
                 this.addMonthPerKey(questionnaireKey, month);
             });
+
+            //TODO: temporary only because there is an issue with data but needs to be deleted once James fixes the issue
+            delete this.data['delusion_1'];
 
             let questionnaireKey = 'questionnaire';
 

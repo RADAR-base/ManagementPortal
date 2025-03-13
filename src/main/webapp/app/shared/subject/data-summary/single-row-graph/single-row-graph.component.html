@@ -8,7 +8,9 @@
         </div>
 
         <div>
-            <p class="bold break-text">{{ title }}</p>
+            <p class="bold break-text {{ longHeading ? 'long-text' : '' }}">
+                {{ title }}
+            </p>
         </div>
     </div>
 

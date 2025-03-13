@@ -31,6 +31,8 @@ export class SingleRowGraphComponent implements OnInit {
 
     @Input() applyCustomColour = false;
 
+    @Input() longHeading: boolean = false;
+
     ngAfterViewInit() {
         //@ts-ignore
         // const ctx = document.getElementById(this.charxtId).getContext('2d');
