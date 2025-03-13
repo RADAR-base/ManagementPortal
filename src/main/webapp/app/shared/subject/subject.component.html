@@ -438,7 +438,6 @@
                     </button>
 
                     <button
-                        *jhiHasAnyAuthority="['ROLE_SYS_ADMIN']"
                         [disabled]="isDataSummaryButtonDisabled(subject)"
                         type="submit"
                         [routerLink]="['/subject/data-summary', subject.login]"

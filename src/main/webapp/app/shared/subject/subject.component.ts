@@ -654,7 +654,7 @@ export class SubjectComponent implements OnInit, OnDestroy, OnChanges {
         today.setHours(0, 0, 0, 0);
 
         if (inputDate > today) {
-            return false;
+            return true;
         } else {
             //TODO: change to false
             return false;
