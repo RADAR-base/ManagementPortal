@@ -59,12 +59,12 @@
         ></app-single-row-graph>
     </div>
 
-    <div *ngFor="let key of sleepMapKeys">
+    <div *ngFor="let key of sleepMapKeys; let i = index">
         <app-single-row-graph
             [isSingleRow]="false"
-            *ngIf="charts['sleep_' + key]"
-            chartId="sleep_{{ key }}"
-            [chart]="charts['social_' + key]"
+            *ngIf="charts['sleep_' + (i + 1)]"
+            chartId="sleep_{{ i + 1 }}"
+            [chart]="charts['sleep_' + (i + 1)]"
             title="Sleep ({{ sleepMap[key] }})"
             color="rgb(12,132, 143)"
         ></app-single-row-graph>
@@ -76,7 +76,7 @@
             *ngIf="charts['wherearebout_' + key]"
             chartId="wherearebout_{{ key }}"
             [chart]="charts['wherearebout_' + key]"
-            title="Wherearebout ({{ sleepMap[key] }})"
+            title="Wherearebout ({{ whereaboutsMap[key] }})"
             color="rgb(12,132, 143)"
         ></app-single-row-graph>
     </div>

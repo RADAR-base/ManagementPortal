@@ -1,4 +1,5 @@
 package org.radarbase.management.service
+import software.amazon.awssdk.services.s3.model.S3Object
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import org.slf4j.LoggerFactory
@@ -17,6 +18,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import org.springframework.core.io.ClassPathResource
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider
 import software.amazon.awssdk.services.s3.S3Client
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Request
 import java.io.*
 import java.lang.IllegalArgumentException
 import java.nio.charset.StandardCharsets
@@ -55,6 +57,9 @@ data class SliderResponses(
 // OUTPUT
 data class DataSummaryResult(
     var data: MutableMap<String, DataSummaryCategory>,
+    val allSlider: MutableList<String>,
+    val allHistogram: MutableList<String>,
+    val allPhysical: MutableList<String>,
 
 )
 
@@ -62,7 +67,8 @@ data class DataSummaryCategory(
     var physical:  MutableMap<String, Double>,
     var questionnaire_total:  Double,
     var questionnaire_slider: MutableMap<String,  Double>,
-    var histogram: HistogramResponse
+    var histogram: HistogramResponse,
+
 
 )
 
@@ -88,11 +94,14 @@ class AWSService {
 
 //Map<String, Map<String, Double>>
     fun startProcessing(projectName: String, login: String, dataSource: DataSource) : DataSummaryResult {
+         log.info("[PDF-EXPORT] start processing")
+
         val dataSource = dataSource  // Change this to DataSource.CLASSPATH to load from resources
 
-        val keyName = projectName + "/" + login + "/export/"
+        val keyName = "output/" + projectName + "/" + login + "/export/"
+          log.info("[PDF-EXPORT] key ${keyName}")
 
-        val bucketName = "ouput"
+        val bucketName = "connect-dev-output"
         val folderPath = keyName
         val region = Region.EU_WEST_2 // Change to your AWS region
         val resourceFolderPath = "export/" // Folder inside resources
@@ -105,12 +114,11 @@ class AWSService {
 
 
         val files = if (dataSource == DataSource.S3) {
-         //   listS3JsonFiles(s3Client, bucketName, folderPath)
-            emptyList()
+            listS3JsonFiles(s3Client, bucketName, folderPath)
         } else {
             listClasspathJsonFiles(resourceFolderPath)
         }
-
+    log.info("[PDF-EXPORT] file size ${files.size}")
 
         val monthlyFeatureStats = processJsonFiles(s3Client, bucketName, files, dataSource)
 
@@ -118,7 +126,12 @@ class AWSService {
 
     }
 
-
+    fun listS3JsonFiles(s3Client: S3Client, bucket: String, prefix: String): List<String> {
+        val request = ListObjectsV2Request.builder().bucket(bucket).prefix(prefix).build()
+        val response = s3Client.listObjectsV2(request)
+        return response.contents().map(S3Object::key)
+            .filter { it != prefix } // Exclude the folder itself
+    }
     fun listClasspathJsonFiles(resourceFolderPath: String) : List<String> {
 
         val classLoader =  Thread.currentThread().contextClassLoader
@@ -142,7 +155,10 @@ class AWSService {
         val jsonMapper = jacksonObjectMapper()
         val monthlyAverages = mutableMapOf<String, MutableMap<String, MutableList<Double>>>()
         val dataSummaryResult = DataSummaryResult(
-            data = mutableMapOf()
+            data = mutableMapOf(),
+            allPhysical = mutableListOf(),
+            allHistogram = mutableListOf(),
+            allSlider = mutableListOf()
         )
 
         for (key in fileKeys) {
@@ -169,7 +185,9 @@ class AWSService {
                     whereabouts = mutableMapOf(),
                     sleep = mutableMapOf()
 
-                )
+
+                ),
+
             )
 
             dataSummaryResult.data
@@ -196,21 +214,23 @@ class AWSService {
 
             jsonData.questionnaire_responses.slider.forEach{ (feature, stats) ->
                 val totalNumber =  stats.mean;
+
                 dataSummaryCategory.questionnaire_slider
                     .getOrPut(feature){ totalNumber }
             }
 
-
             val social = jsonData.questionnaire_responses.histogram.social.get("social_1")
              if (social != null) {
+
                  social.forEach { (feature, stats) ->
+
                      val key = feature.toDouble().toInt()
                      var value = dataSummaryCategory.histogram.social.get(key.toString())
 
                      if (value == null) {
-                         dataSummaryCategory.histogram.social.put(key.toString(), 1)
+                         dataSummaryCategory.histogram.social.put(key.toString(), stats)
                      } else {
-                         value += 1
+                         value += stats
                          dataSummaryCategory.histogram.social.put(key.toString(), value)
                      }
                  }
@@ -218,38 +238,50 @@ class AWSService {
 
             val whereabouts = jsonData.questionnaire_responses.histogram.whereabouts["whereabouts_1"]
             if (whereabouts != null) {
-                whereabouts.forEach { (feature) ->
+
+                whereabouts.forEach { (feature, stats) ->
                     val key = feature.toDouble().toInt()
                     var value = dataSummaryCategory.histogram.whereabouts[key.toString()]
 
                     if (value == null) {
-                        dataSummaryCategory.histogram.whereabouts.put(key.toString(), 1)
+                        dataSummaryCategory.histogram.whereabouts.put(key.toString(), stats)
                     } else {
-                        value += 1
+                        value += stats
                         dataSummaryCategory.histogram.whereabouts.put(key.toString(), value)
                     }
                 }
             }
 
-
-
             val sleep = jsonData.questionnaire_responses.histogram.sleep["sleep_5"]
             if (sleep != null) {
-                sleep.forEach { (feature) ->
+
+                sleep.forEach { (feature, stats) ->
 
                     var value = dataSummaryCategory.histogram.sleep[feature]
 
                     if (value == null) {
-                        dataSummaryCategory.histogram.sleep.put(feature, 1)
+                        dataSummaryCategory.histogram.sleep.put(feature, stats)
                     } else {
-                        value += 1
+                        value += stats
                         dataSummaryCategory.histogram.sleep.put(feature, value)
                     }
                 }
             }
 
+            for ((summaryKey, summaryValue) in dataSummaryResult.data) {
 
+                for((sliderKey, sliderValue) in summaryValue.questionnaire_slider) {
+                   if(sliderKey !in dataSummaryResult.allSlider) {
+                       dataSummaryResult.allSlider.add(sliderKey)
+                   }
+                }
 
+                for((sliderKey, sliderValue) in summaryValue.physical) {
+                    if(sliderKey !in dataSummaryResult.allPhysical) {
+                        dataSummaryResult.allPhysical.add(sliderKey)
+                    }
+                }
+            }
 
             // histogram
 

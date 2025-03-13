@@ -672,7 +672,13 @@ class SubjectResource(
     fun getDataSummary(@PathVariable login: String) : ResponseEntity<DataSummaryResult> {
         authService.checkScope(Permission.SUBJECT_READ)
         val awsService =   AWSService();
-        val monthlyStatistics =   awsService.startProcessing("project", "login", DataSource.CLASSPATH)
+
+        val subject = subjectRepository.findOneWithEagerBySubjectLogin(login);
+        val project = subject!!.activeProject!!.projectName!!;
+
+
+
+        val monthlyStatistics =   awsService.startProcessing(project, login, DataSource.CLASSPATH)
         return ResponseEntity.ok(monthlyStatistics);
     }
 
