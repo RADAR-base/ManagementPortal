@@ -111,18 +111,18 @@ export class DataSummaryComponent implements OnInit {
         wherearebout_10: barGraph,
         wherearebout_11: barGraph,
 
-        delusion_1: lineGraph,
-        delusion_2: lineGraph,
-        delusion_3: lineGraph,
-        delusion_4: lineGraph,
-        delusion_5: lineGraph,
-        delusion_6: lineGraph,
-        delusion_7: lineGraph,
-        delusion_8: lineGraph,
-        delusion_9: lineGraph,
-        delusion_10: lineGraph,
-        delusion_11: lineGraph,
-        delusion_12: lineGraph,
+        delusion_1: domainGraph,
+        delusion_2: domainGraph,
+        delusion_3: domainGraph,
+        delusion_4: domainGraph,
+        delusion_5: domainGraph,
+        delusion_6: domainGraph,
+        delusion_7: domainGraph,
+        delusion_8: domainGraph,
+        delusion_9: domainGraph,
+        delusion_10: domainGraph,
+        delusion_11: domainGraph,
+        delusion_12: domainGraph,
     };
     data: any = {};
     monthLabelsPerGraph: any = {};
@@ -286,21 +286,25 @@ export class DataSummaryComponent implements OnInit {
 
     createLineChart(
         id: string,
-        labels: string[],
-        data: number[],
+        labelsP: string[],
+        dataP: number[],
         showScaleY: boolean,
         showDataLables: boolean,
         color: string = 'rgba(110, 37, 147, 0.9)'
     ) {
+        // this is done for graphs which has only one value
+        let labels = labelsP.push('');
+        let data = dataP.push(0);
+
         let graphObject = {
             type: 'line',
             data: {
-                labels: labels,
+                labels: labelsP,
                 datasets: [
                     {
                         fill: true,
                         tension: 0.2,
-                        data: data,
+                        data: dataP,
                         borderWidth: 2,
                         borderColor: color,
                     },
@@ -453,7 +457,7 @@ export class DataSummaryComponent implements OnInit {
         if (stepsData && stepsData.length > 0) {
             this.stepsTotal = stepsData.reduce((acc, num) => acc + num, 0);
 
-            this.stepsAverage = this.stepsTotal / stepsData.length;
+            this.stepsAverage = this.stepsTotal / 12;
 
             this.stepsAverage = Number(this.stepsAverage.toFixed(1));
         }
@@ -526,7 +530,9 @@ export class DataSummaryComponent implements OnInit {
                 if (this.data[questionnaireKey] == undefined) {
                     this.data[questionnaireKey] = [];
                 }
-                this.data[questionnaireKey].push(Math.round(questionnaireData));
+                this.data[questionnaireKey].push(
+                    Number(questionnaireData).toFixed(1)
+                );
 
                 this.addMonthPerKey(questionnaireKey, month);
             });
@@ -536,12 +542,14 @@ export class DataSummaryComponent implements OnInit {
 
             let questionnaireKey = 'questionnaire';
 
-            if (this.data[questionnaireKey] == undefined) {
-                this.data[questionnaireKey] = [];
-            }
-            this.data[questionnaireKey].push(data.questionnaire_total);
+            if (data.questionnaire_total) {
+                if (this.data[questionnaireKey] == undefined) {
+                    this.data[questionnaireKey] = [];
+                }
+                this.data[questionnaireKey].push(data.questionnaire_total);
 
-            this.addMonthPerKey(questionnaireKey, month);
+                this.addMonthPerKey(questionnaireKey, month);
+            }
 
             //HISTOGRAM CALCULATIONS
 
@@ -595,8 +603,7 @@ export class DataSummaryComponent implements OnInit {
             this.whereaboutsLabels
         );
 
-        console.log('this data', this.data);
-        console.log('month labels', this.monthLabelsPerGraph);
+        console.log('this.data', this.data);
     }
 
     processHistogramData(
