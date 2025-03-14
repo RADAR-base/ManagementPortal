@@ -91,4 +91,8 @@ export class AddQueryComponent {
 
         return this.formRuleWeakMap.get(rule);
     }
+
+    saveQueryGroupToDB(){
+        console.log("save")
+    }
 }
