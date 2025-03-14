@@ -132,6 +132,7 @@ export class DataSummaryComponent implements OnInit {
 
     questionnaireTotal: number = 0;
     questionnaireAverage: number = 0;
+    averages = {};
 
     stepsTotal: number = 0;
     stepsAverage: number = 0;
@@ -468,11 +469,26 @@ export class DataSummaryComponent implements OnInit {
         let stepsData = this.data['steps'];
 
         if (stepsData && stepsData.length > 0) {
-            this.stepsTotal = stepsData.reduce((acc, num) => acc + num, 0);
+            this.stepsTotal = stepsData.reduce(
+                (acc, num) => Number(acc) + Number(num),
+                0
+            );
 
             this.stepsAverage = this.stepsTotal / 12;
 
             this.stepsAverage = Number(this.stepsAverage.toFixed(1));
+        }
+
+        let heartRate = this.data['heart_rate'];
+        if (heartRate && heartRate.length > 0) {
+            var heartRateTotal = heartRate.reduce(
+                (acc, num) => Number(acc) + Number(num),
+                0
+            );
+            console.log('heart rate total', heartRateTotal);
+            this.averages['heart_rate'] = (Number(heartRateTotal) / 12).toFixed(
+                1
+            );
         }
     }
 
@@ -531,6 +547,8 @@ export class DataSummaryComponent implements OnInit {
         const months = Object.keys(allData).sort();
         let allMonths = this.generateMonths(months[0]);
 
+        // march , april ... next year
+
         allMonths.forEach((month) => {
             const data = allData[month];
             this.monthLabels.push(this.formatMonth(month));
@@ -561,7 +579,10 @@ export class DataSummaryComponent implements OnInit {
                 if (data) {
                     const sliderData = data.physical[sliderKey];
                     if (sliderData) {
-                        this.pushToData(sliderKey, Math.ceil(sliderData));
+                        this.pushToData(
+                            sliderKey,
+                            Number(sliderData).toFixed(1)
+                        );
                         this.addMonthPerKey(sliderKey, month);
                         return;
                     }
@@ -651,6 +672,7 @@ export class DataSummaryComponent implements OnInit {
         );
 
         console.log('this.data', this.data);
+        console.log('this month', this.monthLabelsPerGraph);
     }
 
     processHistogramData(
