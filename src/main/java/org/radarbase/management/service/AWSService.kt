@@ -151,7 +151,8 @@ class AWSService {
 
 
     fun processJsonFiles(
-        s3Client: S3Client,
+        s3
+        allPhysical = mutableListOf(),Client: S3Client,
         bucket: String,
         fileKeys: List<String>,
         dataSource: DataSource
@@ -160,13 +161,13 @@ class AWSService {
         val monthlyAverages = mutableMapOf<String, MutableMap<String, MutableList<Double>>>()
         val dataSummaryResult = DataSummaryResult(
             data = mutableMapOf(),
-            allPhysical = mutableListOf(),
             allHistogram = mutableListOf(),
             allSlider = mutableListOf()
         )
 
         for (key in fileKeys) {
             log.info("current key is ${key}")
+
 
             if(key == "export/.DS_Store") {
                 continue
@@ -177,9 +178,13 @@ class AWSService {
                 DataSource.CLASSPATH -> readClassPathJson(key)
             }
 
+
+            // gets the JSON from the file and reads it into a variable
             val jsonData: S3JsonData = jsonMapper.readValue(jsonString)
             val month = extractMonthFromFilename(key) // Extract month from filename
 
+
+            // creates an empty object that will be filled up with datat
             val dataSummaryCategory = DataSummaryCategory(
                 physical = mutableMapOf<String,  Double>(),
                 questionnaire_total = 0.0,
@@ -194,9 +199,13 @@ class AWSService {
 
             )
 
+            // puts a month in based on the file name
             dataSummaryResult.data
                 .getOrPut(month) { dataSummaryCategory }
 
+
+            // goes through the physical statistics (heart_rate , steps etc) and gets the mean value
+            // and saves it
             jsonData.feature_statistics.forEach { (feature, stats) ->
                 var mean : Double = 0.0;
                 if(stats.mean != null) {
@@ -205,23 +214,33 @@ class AWSService {
                     mean = stats.total_responses
                 }
 
+
+                //monthlyAverages not used anymore I think ?
                 monthlyAverages
                     .getOrPut(month) { mutableMapOf() }
                     .getOrPut(feature) { mutableListOf() }
                     .add(mean)
 
+                // this is where it puts steps: 3.5 as an exmaple
                 dataSummaryCategory.physical
                              .getOrPut(feature){ mean }
 
             }
+
+            // gets the questionnare_total per month
             dataSummaryCategory.questionnaire_total = jsonData.questionnaire_responses.days_with_responses.toDouble()
 
+
+            // gets the questionnaire categories ( same principle as for physical ones)
             jsonData.questionnaire_responses.slider.forEach{ (feature, stats) ->
                 val totalNumber =  stats.mean;
 
                 dataSummaryCategory.questionnaire_slider
                     .getOrPut(feature){ totalNumber }
             }
+
+
+            // the next three is hardcoded to get the histograms 
 
             val social = jsonData.questionnaire_responses.histogram.social.get("social_1")
              if (social != null) {

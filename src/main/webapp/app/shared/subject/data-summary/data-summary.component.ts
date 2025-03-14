@@ -549,6 +549,9 @@ export class DataSummaryComponent implements OnInit {
 
         // march , april ... next year
 
+        // generates for 12 months and goes throuhg each month
+        // if there is no file for that month, append 0, basically empty month
+        // otherwise process the data
         allMonths.forEach((month) => {
             const data = allData[month];
             this.monthLabels.push(this.formatMonth(month));
@@ -556,6 +559,14 @@ export class DataSummaryComponent implements OnInit {
             if (data) {
                 delete data.questionnaire_slider['delusion_1'];
             }
+
+            // this goes through the slider data (questionnaire_responses/slider in export from James)
+            // if there is a data add it to this.data
+            // add corresponding month
+            // data looks like this basically
+            // this.data [1,2,2,3,4,5,6,7,8,9,10,11]
+            // months [Apr, Mar, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec, Jan, Feb]
+            // this is then fed to createGraphs and creates an object ready for chart.js
 
             allSlider.forEach((sliderKey) => {
                 if (data) {
@@ -574,6 +585,9 @@ export class DataSummaryComponent implements OnInit {
                 this.pushToData(sliderKey, 0);
                 this.addMonthPerKey(sliderKey, month);
             });
+
+            // similar like above but this goes through physical data (heart rate etc)
+            //but same principles
 
             allPhysical.forEach((sliderKey) => {
                 if (data) {
@@ -595,6 +609,8 @@ export class DataSummaryComponent implements OnInit {
 
             let questionnaireKey = 'questionnaire';
             if (data) {
+                // gets data for the questionare (number of questionnaires per month)
+
                 this.pushToData(
                     questionnaireKey,
                     Number(data.questionnaire_total)
@@ -602,6 +618,7 @@ export class DataSummaryComponent implements OnInit {
 
                 this.addMonthPerKey(questionnaireKey, month);
 
+                // processes the histograms for social, whereabout and sleep
                 this.processHistogramData(
                     'social',
                     Object.keys(this.socialMap),
@@ -623,6 +640,7 @@ export class DataSummaryComponent implements OnInit {
                     month
                 );
             } else {
+                // if no data (there is no file for a particualr month), add 0 to the this.data
                 this.pushToData(questionnaireKey, 0);
 
                 this.addMonthPerKey(questionnaireKey, month);
@@ -649,12 +667,15 @@ export class DataSummaryComponent implements OnInit {
             this.addMonthPerKey('sleep', month);
         });
 
+        // calculates total averages for steps, heart rate, questionniare. Any other similar calculations would go here
         this.calculateTotalsAndAverage();
 
-        // clean any data that has just 0s
+        // clean any data that has just 0s. Sometimes this.data might have an array [0,0,0,0,0,0,0,0,0,0,0,0] for a key
+        // if all values are 0 we don't want to display an empty graph. This will remove those keys from the data
         this.cleanupEmptyData();
 
         // if there is less than 4 categories, we will display histogram as just one graph instead of it being split
+        // this would be used to split the histogram into multiple graphs (currently histogram is one graph, but if it is not readbale this can be used)
         this.createHistogramsIfNecessary(
             'social',
             this.socialKeys,
@@ -707,6 +728,8 @@ export class DataSummaryComponent implements OnInit {
         });
 
         this.data[dataKey] = [];
+
+        // if you set this to 4 then if a histogram has more than 4 categories I think it will split the graph)
         if (numberOfGraphsWithData > 0) {
             allKeys.forEach((key, index) => {
                 let exists = this.data[`${dataKey}_` + (index + 1)];
@@ -721,6 +744,7 @@ export class DataSummaryComponent implements OnInit {
         }
     }
 
+    // this will just take the stuff in this.data and this.monthLabelsPerGRaph and feed it into functions to create objects compatible with chart.js
     createGraphs() {
         let weekLabels = [] as string[];
         for (let i = 1; i <= 52; i++) {
