@@ -45,9 +45,9 @@ export class AddQueryComponent {
     };
 
     public query = {
-        condition: 'and',
+        logic_operator: 'and',
         rules: [
-            { field: 'heart_rate', operator: '<=' },
+            { metric: 'heart_rate', operator: '<=' },
         ],
     };
 
