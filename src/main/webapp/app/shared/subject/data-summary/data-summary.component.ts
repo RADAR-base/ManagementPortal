@@ -12,8 +12,8 @@ import { HttpResponse } from '@angular/common/http';
 
 const domainGraph: Graph = {
     type: 'line',
-    showScaleY: false,
-    showDataTables: false,
+    showScaleY: true,
+    showDataTables: true,
 };
 
 const barGraph: Graph = {
@@ -296,6 +296,16 @@ export class DataSummaryComponent implements OnInit {
         // this is done for graphs which has only one value
         // let labels = labelsP.push('');
         // let data = dataP.push(0);
+        let ticks = {};
+
+        if (showScaleY) {
+            ticks = {
+                max: 7, // End at 7
+                ticks: {
+                    stepSize: 1, // Show every integer from 1 to 7
+                },
+            };
+        }
 
         let graphObject = {
             type: 'line',
@@ -322,11 +332,13 @@ export class DataSummaryComponent implements OnInit {
                     },
                 },
                 responsive: false,
-                maintainAspectRatio: true,
+                maintainAspectRatio: false,
                 scales: {
                     y: {
+                        type: 'linear',
                         beginAtZero: true,
                         display: showScaleY,
+                        ...ticks,
                     },
                 },
                 plugins: {
@@ -495,92 +507,122 @@ export class DataSummaryComponent implements OnInit {
         this.data[key].push(dataArray);
     }
 
-    loadData(response: HttpResponse<any>) {
-        console.log('response.body.', response.body);
+    generateMonths(startMonth) {
+        let result = [];
+        let [year, month] = startMonth.split('-').map(Number);
 
-        if (!response.body || Object.keys(response.body.data).length === 0) {
+        for (let i = 0; i <= 12; i++) {
+            let newMonth = ((month + i - 1) % 12) + 1;
+            let newYear = year + Math.floor((month + i - 1) / 12);
+            result.push(`${newYear}-${String(newMonth).padStart(2, '0')}`);
+        }
+
+        return result;
+    }
+
+    loadData(response: HttpResponse<any>) {
+        if (!response.body) {
             return false;
         }
         const allData = response.body.data;
+        const allPhysical = response.body.allPhysical;
+        const allSlider = response.body.allSlider;
+        console.log('all data', response.body);
         const months = Object.keys(allData).sort();
+        let allMonths = this.generateMonths(months[0]);
 
-        months.forEach((month) => {
-            console.log('month', month);
+        allMonths.forEach((month) => {
             const data = allData[month];
-
             this.monthLabels.push(this.formatMonth(month));
-            const physicalKeys = Object.keys(data.physical);
-            const questionnaireKeys = Object.keys(data.questionnaire_slider);
 
-            // PHYSICAL KEYS CALCULATIONS (heart rate etc)
+            if (data) {
+                delete data.questionnaire_slider['delusion_1'];
+            }
 
-            physicalKeys.forEach((physicalKey) => {
-                const physicalData = data.physical[physicalKey];
-                if (physicalData != 0) {
-                    if (this.data[physicalKey] == undefined) {
-                        this.data[physicalKey] = [];
+            allSlider.forEach((sliderKey) => {
+                if (data) {
+                    const sliderData = data.questionnaire_slider[sliderKey];
+                    if (sliderData) {
+                        this.pushToData(
+                            sliderKey,
+                            Number(sliderData).toFixed(1)
+                        );
+                        this.addMonthPerKey(sliderKey, month);
+                        return;
                     }
-                    this.data[physicalKey].push(Math.round(physicalData));
-
-                    this.addMonthPerKey(physicalKey, month);
                 }
+
+                // no data then add empty data
+                this.pushToData(sliderKey, 0);
+                this.addMonthPerKey(sliderKey, month);
             });
 
-            // QUESTIONNAIRE CALCULATIONS
-
-            questionnaireKeys.forEach((questionnaireKey) => {
-                const questionnaireData =
-                    data.questionnaire_slider[questionnaireKey];
-
-                if (this.data[questionnaireKey] == undefined) {
-                    this.data[questionnaireKey] = [];
+            allPhysical.forEach((sliderKey) => {
+                if (data) {
+                    const sliderData = data.physical[sliderKey];
+                    if (sliderData) {
+                        this.pushToData(sliderKey, Math.ceil(sliderData));
+                        this.addMonthPerKey(sliderKey, month);
+                        return;
+                    }
                 }
-                this.data[questionnaireKey].push(
-                    Number(questionnaireData).toFixed(1)
+
+                // no data then add empty data
+                this.pushToData(sliderKey, 0);
+                this.addMonthPerKey(sliderKey, month);
+            });
+
+            let questionnaireKey = 'questionnaire';
+            if (data) {
+                this.pushToData(
+                    questionnaireKey,
+                    Number(data.questionnaire_total)
                 );
 
                 this.addMonthPerKey(questionnaireKey, month);
-            });
 
-            //TODO: temporary only because there is an issue with data but needs to be deleted once James fixes the issue
-            delete this.data['delusion_1'];
+                this.processHistogramData(
+                    'social',
+                    Object.keys(this.socialMap),
+                    data.histogram.social,
+                    month
+                );
 
-            let questionnaireKey = 'questionnaire';
+                this.processHistogramData(
+                    'wherearebout',
+                    Object.keys(this.whereaboutsMap),
+                    data.histogram.whereabouts,
+                    month
+                );
 
-            if (data.questionnaire_total) {
-                if (this.data[questionnaireKey] == undefined) {
-                    this.data[questionnaireKey] = [];
-                }
-                this.data[questionnaireKey].push(data.questionnaire_total);
+                this.processHistogramData(
+                    'sleep',
+                    Object.keys(this.sleepMap),
+                    data.histogram.sleep,
+                    month
+                );
+            } else {
+                this.pushToData(questionnaireKey, 0);
 
                 this.addMonthPerKey(questionnaireKey, month);
+
+                this.socialKeys.forEach((key) => {
+                    this.pushToData('social_' + key, 0);
+                    this.addMonthPerKey('social_' + key, month);
+                });
+
+                this.whereaboutsMapKeys.forEach((key) => {
+                    this.pushToData('wherearebout_' + key, 0);
+                    this.addMonthPerKey('wherearebout_' + key, month);
+                });
+
+                this.sleepMapKeys.forEach((key, index) => {
+                    let id = index + 1;
+                    this.pushToData('sleep_' + id, 0);
+                    this.addMonthPerKey('sleep_' + id, month);
+                });
             }
 
-            //HISTOGRAM CALCULATIONS
-
-            this.processHistogramData(
-                'social',
-                Object.keys(this.socialMap),
-                data.histogram.social,
-                month
-            );
-
-            this.processHistogramData(
-                'wherearebout',
-                Object.keys(this.whereaboutsMap),
-                data.histogram.whereabouts,
-                month
-            );
-
-            this.processHistogramData(
-                'sleep',
-                Object.keys(this.sleepMap),
-                data.histogram.sleep,
-                month
-            );
-
-            // add all availbale months per histogram category - this is used in a case where we have one histogram, instead of it being split into several ones
-            // this depends on how many "categories" are actually filled in
             this.addMonthPerKey('social', month);
             this.addMonthPerKey('wherearebout', month);
             this.addMonthPerKey('sleep', month);

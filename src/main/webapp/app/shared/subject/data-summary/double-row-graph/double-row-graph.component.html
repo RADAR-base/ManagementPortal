@@ -37,7 +37,9 @@
                 </span>
             </div>
         </div>
-        <canvas class="chart-width" [id]="chartId1">{{ chartGraph1 }}</canvas>
+        <canvas height="300" class="chart-width" [id]="chartId1">{{
+            chartGraph1
+        }}</canvas>
     </div>
 
     <div *ngIf="chartGraph2Data" class="right-chart">
@@ -77,7 +79,9 @@
                 </span>
             </div>
         </div>
-        <canvas class="chart-width" [id]="chartId2">{{ chartGraph2 }}</canvas>
+        <canvas height="300" class="chart-width" [id]="chartId2">{{
+            chartGraph2
+        }}</canvas>
     </div>
 
     <div class="border"></div>
