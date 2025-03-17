@@ -47,7 +47,7 @@ class QueryLogic: AbstractEntity(), Serializable  {
 
     @JvmField
     @Column(name = "logic_operator")
-   var logicOperator: QueryLogicOperator? = null;
+   var logic_operator: QueryLogicOperator? = null;
 
     @JvmField
     @OneToOne

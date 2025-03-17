@@ -5,6 +5,7 @@ import {
     QueryBuilderConfig,
 } from '@pri17/ngx-angular-query-builder';
 import { FormBuilder, FormControl, NgForm } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
     selector: 'jhi-queries',
@@ -16,6 +17,12 @@ export class AddQueryComponent {
     queryBuilderFormGroup: NgForm;
 
     public queryCtrl: FormControl;
+
+    public queryGrouName: string;
+
+    public queryGroupDesc: string;
+
+    private baseUrl = 'api/query-builder';
 
     public bootstrapClassNames: QueryBuilderClassNames = {
         removeIcon: 'fa fa-minus',
@@ -46,9 +53,7 @@ export class AddQueryComponent {
 
     public query = {
         logic_operator: 'and',
-        rules: [
-            { metric: 'heart_rate', operator: '<=' },
-        ],
+        rules: [{ metric: 'heart_rate', operator: '<=' }],
     };
 
     public config: QueryBuilderConfig = {
@@ -64,7 +69,7 @@ export class AddQueryComponent {
     public allowCollapse: boolean;
     public persistValueOnFieldChange: boolean = false;
 
-    constructor(private formBuilder: FormBuilder) {
+    constructor(private formBuilder: FormBuilder, private http: HttpClient) {
         this.queryCtrl = this.formBuilder.control(this.query);
         this.currentConfig = this.config;
     }
@@ -92,7 +97,70 @@ export class AddQueryComponent {
         return this.formRuleWeakMap.get(rule);
     }
 
-    saveQueryGroupToDB(){
-        console.log("save")
+    convertComparisonOperator(value: string) {
+        switch (value) {
+            case '>=':
+                return 'GREATER_THAN_OR_EQUALS';
+            case '=':
+                return 'EQUALS';
+            case '!=':
+                return 'NOT_EQUALS';
+            case '>':
+                return 'GREATER_THAN';
+            case '<':
+                return 'LESS_THAN';
+            case '<=':
+                return 'LESS_THAN_OR_EQUALS';
+        }
+    }
+
+    convertTimeFrame(value: number) {
+        switch (value) {
+            case 180:
+                return 'PAST_6_MONTH';
+            case 30:
+                return 'PAST_MONTH';
+            case 7:
+                return 'LAST_7_DAYS';
+            case 365:
+                return 'PAST_YEAR';
+        }
+    }
+
+    saveQueryGroupToDB() {
+        let query_group = {
+            name: this.queryGrouName,
+            description: this.queryGrouName,
+        };
+        let query_id;
+
+        this.http
+            .post(this.baseUrl + '/query-group', query_group)
+            .subscribe((id) => {
+                query_id = id;
+            });
+
+        let converted_query = [];
+        this.query.rules.forEach((element) => {
+            let newele = {
+                metric: element.metric.toUpperCase(),
+                operator: this.convertComparisonOperator(element.operator),
+                time_frame: this.convertTimeFrame(element['time_frame']),
+                value: element['value'],
+            };
+            converted_query.push({ query: newele });
+        });
+
+        let query_logic = {
+            queryGroupId: query_id,
+            logic_operator: this.query.logic_operator.toUpperCase(),
+            children: [...converted_query],
+        };
+
+        this.http
+            .post(this.baseUrl + '/query-logic', { ...query_logic })
+            .subscribe((res) => {
+                console.log(res);
+            });
     }
 }

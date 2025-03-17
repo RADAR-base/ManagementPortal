@@ -1,12 +1,12 @@
 <div class="inputs">
     <mat-form-field class="text-input">
         <mat-label>Query Group Name</mat-label>
-        <input matInput value="" class="" />
+        <input matInput [(ngModel)]="queryGrouName" class="" />
     </mat-form-field>
 
     <mat-form-field class="text-area">
         <mat-label>Query Group Description</mat-label>
-        <textarea matInput></textarea>
+        <textarea matInput [(ngModel)]="queryGroupDesc"></textarea>
     </mat-form-field>
 </div>
 

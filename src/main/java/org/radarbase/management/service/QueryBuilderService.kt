@@ -34,10 +34,10 @@ public class QueryBuilderService(
         var newQuery = Query()
 
         newQuery.queryGroup = queryGroup
-        newQuery.queryMetric = query.queryMetric
-        newQuery.comparisonOperator = query.comparisonOperator
+        newQuery.metric = query.metric
+        newQuery.operator = query.operator
         newQuery.value = query.value
-        newQuery.timeFrame = query.timeFrame
+        newQuery.time_frame = query.time_frame
 
         newQuery = queryRepository.save(newQuery);
         queryRepository.flush();
@@ -57,8 +57,8 @@ public class QueryBuilderService(
         val queryLogic = QueryLogic()
         queryLogic.queryGroup = queryGroup
         queryLogic.parent = parent
-        queryLogic.type = if (dto.logicOperator != null)  QueryLogicType.LOGIC else QueryLogicType.CONDITION
-        queryLogic.logicOperator = dto.logicOperator
+        queryLogic.type = if (dto.logic_operator != null)  QueryLogicType.LOGIC else QueryLogicType.CONDITION
+        queryLogic.logic_operator = dto.logic_operator
         queryLogic.query = query
 
         val savedCondition = queryLogicRepository.save(queryLogic)

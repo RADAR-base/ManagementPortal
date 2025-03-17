@@ -35,11 +35,11 @@ class Query: AbstractEntity(), Serializable {
 
     @JvmField
     @Column(name = "query_metric")
-     var queryMetric: QueryMetric? = null;
+     var metric: QueryMetric? = null;
 
     @JvmField
     @Column(name = "comparison_operator")
-    var comparisonOperator: ComparisonOperator? = null;
+    var operator: ComparisonOperator? = null;
 
     @JvmField
     @Column(name = "value")
@@ -48,15 +48,15 @@ class Query: AbstractEntity(), Serializable {
 
     @JvmField
     @Column(name = "time_frame")
-     var timeFrame: QueryTimeFrame? = null;
+     var time_frame: QueryTimeFrame? = null;
 
     override fun toString(): String {
         return ("Query{"
                 + "queryGroupName='" + queryGroup?.name + '\''
-                + ", queryMetric='" + queryMetric + '\''
-                + ", comparisonOperator='" + comparisonOperator + '\''
+                + ", metric='" + metric + '\''
+                + ", operator='" + operator + '\''
                 + ", value='" + value + '\''
-                + ", timeFrame='" + timeFrame + '\''
+                + ", time_frame='" + time_frame + '\''
                 + "}")
     }
 
