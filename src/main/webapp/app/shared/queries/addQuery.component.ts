@@ -130,7 +130,7 @@ export class AddQueryComponent {
     saveQueryGroupToDB() {
         let query_group = {
             name: this.queryGrouName,
-            description: this.queryGrouName,
+            description: this.queryGroupDesc,
         };
         let query_id;
 
