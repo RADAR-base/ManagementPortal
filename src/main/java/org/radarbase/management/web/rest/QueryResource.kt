@@ -2,6 +2,7 @@ package org.radarbase.management.web.rest
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import org.radarbase.management.domain.Query
 import org.radarbase.management.repository.UserRepository
 import org.radarbase.management.service.QueryBuilderService
 import org.radarbase.management.service.UserService
@@ -13,6 +14,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UserDetails
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -57,6 +59,13 @@ class QueryResource(
 
         }
         return ResponseEntity.ok(queryGroupId);
+    }
+
+    @GetMapping("queries")
+        fun getQueryList(): ResponseEntity<MutableList<Query>> {
+           var list =  queryBuilderService.getQueryList();
+
+        return  ResponseEntity.ok(list);
     }
 
     companion object {

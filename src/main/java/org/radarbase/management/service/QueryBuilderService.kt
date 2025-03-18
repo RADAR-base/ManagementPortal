@@ -93,6 +93,10 @@ public class QueryBuilderService(
 
     }
 
+    fun getQueryList(): MutableList<Query> {
+        return queryRepository.findAll();
+    }
+
     companion object {
         private val log = LoggerFactory.getLogger(QueryBuilderService::class.java)
     }
