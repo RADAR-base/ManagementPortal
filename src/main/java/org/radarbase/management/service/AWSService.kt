@@ -151,8 +151,7 @@ class AWSService {
 
 
     fun processJsonFiles(
-        s3
-        allPhysical = mutableListOf(),Client: S3Client,
+       Client: S3Client,
         bucket: String,
         fileKeys: List<String>,
         dataSource: DataSource
@@ -162,7 +161,8 @@ class AWSService {
         val dataSummaryResult = DataSummaryResult(
             data = mutableMapOf(),
             allHistogram = mutableListOf(),
-            allSlider = mutableListOf()
+            allSlider = mutableListOf(),
+            allPhysical = mutableListOf()
         )
 
         for (key in fileKeys) {
@@ -174,7 +174,7 @@ class AWSService {
             }
 
             val jsonString = when (dataSource) {
-                DataSource.S3 -> downloadS3Json(s3Client, bucket, key)
+                DataSource.S3 -> downloadS3Json(Client, bucket, key)
                 DataSource.CLASSPATH -> readClassPathJson(key)
             }
 
@@ -240,7 +240,7 @@ class AWSService {
             }
 
 
-            // the next three is hardcoded to get the histograms 
+            // the next three is hardcoded to get the histograms
 
             val social = jsonData.questionnaire_responses.histogram.social.get("social_1")
              if (social != null) {
