@@ -1,3 +1,16 @@
 <div>Query List</div>
-<div>{{ queryList }}</div>
+
+<table class="table">
+    <tr >
+        <th>Query Group Name</th>
+        <th>Date Added</th>
+        <th>Researcher</th>
+    </tr>
+    <tr *ngFor="let query of queryList">
+        <td>{{query.queryGroup.name}}</td>
+        <td>{{query.queryGroup.createdDate}}</td>
+        <td>{{query.queryGroup.createdBy.firstName}} {{query.queryGroup.createdBy.lastName}}</td>
+
+    </tr>
+</table>
 <a routerLink="/add-query">Add Query</a>
