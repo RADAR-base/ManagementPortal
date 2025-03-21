@@ -2,6 +2,9 @@ package org.radarbase.management.web.rest
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.decodeFromJsonElement
 import org.radarbase.management.domain.Query
 import org.radarbase.management.repository.UserRepository
 import org.radarbase.management.service.QueryBuilderService
@@ -14,11 +17,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UserDetails
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/query-builder")
@@ -66,6 +65,11 @@ class QueryResource(
            var list =  queryBuilderService.getQueryList();
 
         return  ResponseEntity.ok(list);
+    }
+
+    @DeleteMapping("deleteQueryById/{id}")
+    fun deleteQueryByID(@PathVariable("id")id: Long){
+        queryBuilderService.deleteQueryByID(id)
     }
 
     companion object {

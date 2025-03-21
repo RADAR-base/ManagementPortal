@@ -5,12 +5,13 @@
         <th>Query Group Name</th>
         <th>Date Added</th>
         <th>Researcher</th>
+        <th>Action</th>
     </tr>
     <tr *ngFor="let query of queryList">
         <td>{{query.queryGroup.name}}</td>
         <td>{{query.queryGroup.createdDate}}</td>
         <td>{{query.queryGroup.createdBy.firstName}} {{query.queryGroup.createdBy.lastName}}</td>
-
+        <td><button (click)="deleteQuery(query.id)">Delete</button></td>
     </tr>
 </table>
 <a routerLink="/add-query">Add Query</a>

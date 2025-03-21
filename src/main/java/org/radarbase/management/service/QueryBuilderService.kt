@@ -97,6 +97,10 @@ public class QueryBuilderService(
         return queryRepository.findAll();
     }
 
+    fun deleteQueryByID(id: Long){
+        queryRepository.deleteById(id);
+    }
+
     companion object {
         private val log = LoggerFactory.getLogger(QueryBuilderService::class.java)
     }

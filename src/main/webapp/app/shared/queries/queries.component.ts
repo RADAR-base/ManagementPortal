@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 
 @Component({
     selector: 'jhi-queries',
@@ -11,11 +11,31 @@ export class QueriesComponent implements OnInit, OnDestroy {
 
     private baseUrl = 'api/query-builder';
 
-    ngOnInit() {
+    getQueryList() {
         this.httpclient.get(this.baseUrl + '/queries').subscribe((result) => {
             this.queryList = result;
-            console.log(result);
         });
+    }
+
+    ngOnInit() {
+        this.getQueryList();
+    }
+
+    deleteQuery(id) {
+        let httpParams = new HttpParams().set('id', id);
+
+        let options = { body: { id: id } };
+
+        // this.httpclient.request('delete', this.baseUrl + '/deleteQueryById', {
+        //     body: { id: id },
+        // });
+
+        this.httpclient
+            .delete(this.baseUrl + `/deleteQueryById/${id}`)
+            .subscribe((result) => {
+                console.log(result);
+            });
+        this.getQueryList();
     }
 
     ngOnDestroy() {}
