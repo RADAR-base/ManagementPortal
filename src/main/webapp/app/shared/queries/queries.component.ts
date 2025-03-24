@@ -22,20 +22,11 @@ export class QueriesComponent implements OnInit, OnDestroy {
     }
 
     deleteQuery(id) {
-        let httpParams = new HttpParams().set('id', id);
-
-        let options = { body: { id: id } };
-
-        // this.httpclient.request('delete', this.baseUrl + '/deleteQueryById', {
-        //     body: { id: id },
-        // });
-
         this.httpclient
             .delete(this.baseUrl + `/deleteQueryById/${id}`)
             .subscribe((result) => {
-                console.log(result);
+                this.getQueryList();
             });
-        this.getQueryList();
     }
 
     ngOnDestroy() {}
