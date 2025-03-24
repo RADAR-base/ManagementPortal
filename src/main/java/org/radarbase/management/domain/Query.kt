@@ -29,7 +29,7 @@ class Query: AbstractEntity(), Serializable {
     @JvmField
     @ManyToOne
     @JoinColumn(unique = true, name = "query_group_id")
-    @Cascade(CascadeType.ALL)
+    @Cascade(CascadeType.PERSIST)
     var queryGroup: QueryGroup? = null
 
 
