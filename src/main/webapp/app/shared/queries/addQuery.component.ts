@@ -134,12 +134,6 @@ export class AddQueryComponent {
         };
         let query_id;
 
-        this.http
-            .post(this.baseUrl + '/query-group', query_group)
-            .subscribe((id) => {
-                query_id = id;
-            });
-
         let converted_query = [];
         this.query.rules.forEach((element) => {
             let newele = {
@@ -151,16 +145,21 @@ export class AddQueryComponent {
             converted_query.push({ query: newele });
         });
 
-        let query_logic = {
-            queryGroupId: query_id,
-            logic_operator: this.query.logic_operator.toUpperCase(),
-            children: [...converted_query],
-        };
-
         this.http
-            .post(this.baseUrl + '/query-logic', { ...query_logic })
-            .subscribe((res) => {
-                console.log(res);
+            .post(this.baseUrl + '/query-group', query_group)
+            .subscribe((id) => {
+                query_id = id;
+                let query_logic = {
+                    queryGroupId: query_id,
+                    logic_operator: this.query.logic_operator.toUpperCase(),
+                    children: [...converted_query],
+                };
+
+                this.http
+                    .post(this.baseUrl + '/query-logic', query_logic)
+                    .subscribe((res) => {
+                        console.log(res);
+                    });
             });
     }
 }

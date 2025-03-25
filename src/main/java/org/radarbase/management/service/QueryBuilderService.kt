@@ -30,6 +30,7 @@ public class QueryBuilderService(
     private var userRepository: UserRepository
 ) {
 
+    @Transactional
     fun saveQuery(queryGroup: QueryGroup, query: QueryDTO): Query {
         var newQuery = Query()
 
@@ -71,6 +72,7 @@ public class QueryBuilderService(
 
     @Transactional
     fun processQueryLogicJson(queryLogicDTO: QueryLogicDTO){
+        println(queryLogicDTO);
         if(queryLogicDTO.queryGroupId != null) {
             val queryGroup = queryGroupRepository.findById(queryLogicDTO.queryGroupId!!).get()
             this.saveQueryConditions(queryGroup, null, queryLogicDTO)
