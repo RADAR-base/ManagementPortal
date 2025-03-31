@@ -2,21 +2,20 @@ package org.radarbase.management.web.rest
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import org.radarbase.management.domain.QueryGroup
 import org.radarbase.management.repository.UserRepository
 import org.radarbase.management.service.QueryBuilderService
 import org.radarbase.management.service.UserService
 import org.radarbase.management.service.dto.QueryGroupDTO
 import org.radarbase.management.service.dto.QueryLogicDTO
+import org.radarbase.management.service.dto.QueryParticipantDTO
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UserDetails
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/query-builder")
@@ -57,6 +56,31 @@ class QueryResource(
 
         }
         return ResponseEntity.ok(queryGroupId);
+    }
+
+    @GetMapping("querygroups")
+    fun getQueryGroupList(): ResponseEntity<MutableList<QueryGroup>> {
+        var list =  queryBuilderService.getQueryGroupList();
+
+        return  ResponseEntity.ok(list);
+    }
+
+    @PostMapping("assignQueryGroup")
+    fun assignQueryGroup(@RequestBody queryJson: String?):ResponseEntity<*>{
+        var queryParticipantId: Long? = null
+
+        if(queryJson.isNullOrEmpty() == false) {
+
+            val objectMapper = jacksonObjectMapper()
+            val queryParticipantDTO: QueryParticipantDTO = objectMapper.readValue(queryJson)
+            val user = userService.getUserWithAuthorities()
+
+            println(queryParticipantDTO)
+            if(user != null) {
+                queryParticipantId = queryBuilderService.assignQueryGroup(queryParticipantDTO)
+            }
+        }
+        return ResponseEntity.ok(queryParticipantId)
     }
 
     companion object {

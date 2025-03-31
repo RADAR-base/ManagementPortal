@@ -48,5 +48,6 @@
     <include file="classpath:config/liquibase/changelog/20230918100400_add_log_table.xml" relativeToChangelogFile="false"/>
     <include file="classpath:config/liquibase/changelog/20231114150000_add_user_identity.xml" relativeToChangelogFile="false"/>
     <include file="classpath:config/liquibase/changelog/20250221155500_added_initial_rp_tables.xml" relativeToChangelogFile="false"/>
+    <include file="classpath:config/liquibase/changelog/20250331152700_modify_query_participant.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-constraints-changelog - JHipster will add liquibase constraints changelogs here -->
 </databaseChangeLog>
