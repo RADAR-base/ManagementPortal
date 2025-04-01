@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <property name="now" value="now()" dbms="mysql,hsqldb"/>
+    <property name="now" value="current_timestamp" dbms="postgresql"/>
+    <property name="now" value="sysdate" dbms="oracle"/>
+    <property name="now" value="GETDATE()" dbms="mssql"/>
+
+    <property name="autoIncrement" value="true" dbms="mysql,h2,postgresql,oracle,mssql"/>
+
+    <property name="floatType" value="float4" dbms="postgresql,hsqldb"/>
+    <property name="floatType" value="float" dbms="mysql, oracle, mssql"/>    
+    
+    <!--Add id field to query participant table-->
+    <changeSet id="20250331152700" author="Gwen Zhou">
+       
+        <createTable tableName="query_participant">
+            <column name="id" type="bigint" autoIncrement="${autoIncrement}">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="query_group_id" type="bigint">
+                <constraints nullable="false" />
+            </column>
+            <column name="subject_id" type="bigint">
+                <constraints nullable="false" />
+            </column>
+
+
+            <column name="created_date" type="timestamp" defaultValueDate="${now}">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="updated_date" type="timestamp" defaultValueDate="${now}">
+                <constraints nullable="true"/>
+            </column>
+
+            <column name="created_by" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+
+        </createTable>
+         <addForeignKeyConstraint baseColumnNames="query_group_id"
+                                 baseTableName="query_participant"
+                                 constraintName="fk_query_participant_query_group_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="query_group"/>
+
+        <addForeignKeyConstraint baseColumnNames="subject_id"
+                                 baseTableName="query_participant"
+                                 constraintName="fk_query_participant_subject_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="subject"/>
+
+        <addForeignKeyConstraint baseColumnNames="created_by"
+                                 baseTableName="query_participant"
+                                 constraintName="fk_query_participant_created_by"
+                                 referencedColumnNames="id"
+                                 referencedTableName="radar_user"/>
+
+    </changeSet>
+</databaseChangeLog>
