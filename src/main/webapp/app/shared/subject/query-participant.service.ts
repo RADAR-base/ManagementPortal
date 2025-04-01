@@ -20,4 +20,17 @@ export class QueryParticipantService {
             queryParticipant
         );
     }
+
+    getAllAssignedQueries(subjectID: number) {
+        let params = {
+            subjectID: subjectID,
+        };
+        return this.http.get(this.baseURL + '/getAssignedQueryGroups', {
+            params: params,
+        });
+    }
+
+    deleteAssignedQueryGroup(subjectID:number, queryGroupId:number){
+        return this.http.delete(this.baseURL+`/deleteAssignedQueryGroup/${subjectID}/${queryGroupId}`)
+    }
 }

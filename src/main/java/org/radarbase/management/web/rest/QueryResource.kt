@@ -75,13 +75,23 @@ class QueryResource(
             val queryParticipantDTO: QueryParticipantDTO = objectMapper.readValue(queryJson)
             val user = userService.getUserWithAuthorities()
 
-            println(queryParticipantDTO)
             if(user != null) {
                 queryParticipantId = queryBuilderService.assignQueryGroup(queryParticipantDTO)
             }
         }
         return ResponseEntity.ok(queryParticipantId)
     }
+
+    @GetMapping("getAssignedQueryGroups")
+    fun getAssignedQueries(@RequestParam subjectID:Long):ResponseEntity<*>{
+        return ResponseEntity.ok(queryBuilderService.getAssignedQueryGroups(subjectID))
+    }
+
+    @DeleteMapping("deleteAssignedQueryGroup/{subjectid}/{querygroupid}")
+    fun deleteAssignedQueryGroup(@PathVariable("subjectid")subjectID: Long, @PathVariable("querygroupid")querygroupid:Long){
+            queryBuilderService.deleteQueryParticipantByQueryGroup(subjectID,querygroupid)
+    }
+
 
     companion object {
         private val log = LoggerFactory.getLogger(QueryResource::class.java)

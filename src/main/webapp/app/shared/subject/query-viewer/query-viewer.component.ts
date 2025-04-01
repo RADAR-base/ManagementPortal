@@ -24,6 +24,8 @@ export class QueryViewerComponent implements OnInit, OnDestroy {
 
     queryPriticipant: QueryParticipant = {};
 
+    assignedQueryGroups: QueryGroup[];
+
     private subscriptions: Subscription = new Subscription();
 
     constructor(
@@ -39,7 +41,15 @@ export class QueryViewerComponent implements OnInit, OnDestroy {
                 .subscribe((res) => {
                     this.queryGroupList = res;
                 });
+
+            this.getAllAssignedGroups();
         }
+    }
+
+    getAllAssignedGroups() {
+        this.queryParticipantService
+            .getAllAssignedQueries(this.subject.id)
+            .subscribe((res: QueryGroup[]) => (this.assignedQueryGroups = res));
     }
 
     changeSelectGroup() {
@@ -54,9 +64,17 @@ export class QueryViewerComponent implements OnInit, OnDestroy {
             this.queryParticipantService
                 .assignQueryGroup(this.queryPriticipant)
                 .subscribe((res) => {
-                    console.log(res);
+                    this.getAllAssignedGroups();
                 });
         }
+    }
+
+    deleteAssignedGroup(queryGroupId: number) {
+        this.queryParticipantService
+            .deleteAssignedQueryGroup(this.subject.id, queryGroupId)
+            .subscribe(() => {
+                this.getAllAssignedGroups();
+            });
     }
 
     ngOnDestroy() {

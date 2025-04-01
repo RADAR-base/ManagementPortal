@@ -44,7 +44,20 @@
         </div>
 
         <label class="form-control-label"> Assigned Queries</label>
-        <div class="table-responsive"></div>
+        <table class="table">
+            <tr >
+                <th>Query Group Name</th>
+                <th>Date Added</th>
+                <th>Researcher</th>
+                <th>Action</th>
+            </tr>
+            <tr *ngFor="let query of assignedQueryGroups">
+                <td>{{query.name}}</td>
+                <td>{{query.createdDate}}</td>
+                <td>{{query.createdBy.firstName}} {{query.createdBy.lastName}}</td>
+                <td><button (click)="deleteAssignedGroup(query.id)">Delete</button></td>
+            </tr>
+        </table>
     </div>
     <div class="modal-footer"></div>
 </div>

@@ -111,7 +111,25 @@ public class QueryBuilderService(
         return queryParticipant.id;
     }
 
+    fun getAssignedQueryGroups(subjectId: Long): MutableList<QueryGroup> {
+        var queryParticipantList =  queryParticipantRepository.findBySubjectId(subjectId)
+
+        var queryGroups = mutableListOf<QueryGroup>()
+
+        for(queryParticipant in queryParticipantList ){
+            var group = queryGroupRepository.findById(queryParticipant.queryGroup!!.id).get()
+            queryGroups.add(group)
+        }
+        return queryGroups;
+    }
+
+    fun deleteQueryParticipantByQueryGroup(subjectID: Long, queryGroupID: Long){
+        queryParticipantRepository.deleteByQueryGroup(subjectID,queryGroupID)
+
+    }
+
     companion object {
         private val log = LoggerFactory.getLogger(QueryBuilderService::class.java)
     }
 }
+
