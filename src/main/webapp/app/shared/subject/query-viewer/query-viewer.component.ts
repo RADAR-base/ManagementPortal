@@ -40,23 +40,32 @@ export class QueryViewerComponent implements OnInit, OnDestroy {
                 .getAllQueryGroups()
                 .subscribe((res) => {
                     this.queryGroupList = res;
+                    this.getAllAssignedGroups();
                 });
-
-            this.getAllAssignedGroups();
         }
     }
 
     getAllAssignedGroups() {
+        //also need to remove already assigned group
+
         this.queryParticipantService
             .getAllAssignedQueries(this.subject.id)
-            .subscribe((res: QueryGroup[]) => (this.assignedQueryGroups = res));
+            .subscribe((res: QueryGroup[]) => {
+                this.assignedQueryGroups = res;
+                this.queryGroupList = this.queryGroupList.filter(
+                    (o1) =>
+                        !this.assignedQueryGroups.some(
+                            (o2) => o1.name === o2.name
+                        )
+                );
+            });
     }
 
     changeSelectGroup() {
         console.log(this.selectedGroup);
     }
 
-    assignQueryGroup() {
+    async assignQueryGroup() {
         if (this.selectedGroup) {
             this.queryPriticipant.queryGroupId = this.selectedGroup;
             this.queryPriticipant.subjectId = this.subject.id;
@@ -65,8 +74,16 @@ export class QueryViewerComponent implements OnInit, OnDestroy {
                 .assignQueryGroup(this.queryPriticipant)
                 .subscribe((res) => {
                     this.getAllAssignedGroups();
+                    this.removeQueryGroupFromList(this.selectedGroup);
                 });
         }
+    }
+
+    removeQueryGroupFromList(queryGroupId) {
+        console.log(queryGroupId);
+        this.queryGroupList = this.queryGroupList.filter((item) => {
+            return item.id != queryGroupId;
+        });
     }
 
     deleteAssignedGroup(queryGroupId: number) {
