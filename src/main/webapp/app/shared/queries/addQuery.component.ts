@@ -6,6 +6,7 @@ import {
 } from '@pri17/ngx-angular-query-builder';
 import { FormBuilder, FormControl, NgForm } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { QueryString } from './queries.model';
 
 @Component({
     selector: 'jhi-queries',
@@ -59,7 +60,7 @@ export class AddQueryComponent {
     public config: QueryBuilderConfig = {
         fields: {
             heart_rate: { name: 'Heart Rate', type: 'number' },
-            sleep: { name: 'Sleep', type: 'number' },
+            sleep_length: { name: 'Sleep', type: 'number' },
             wake_up_time: { name: 'Wake Up Time', type: 'number' },
         },
     };
@@ -73,7 +74,6 @@ export class AddQueryComponent {
         this.queryCtrl = this.formBuilder.control(this.query);
         this.currentConfig = this.config;
     }
-
 
     changeDisabled(event: Event) {
         (<HTMLInputElement>event.target).checked
@@ -130,12 +130,12 @@ export class AddQueryComponent {
         let query_id;
 
         let converted_query = [];
-        this.query.rules.forEach((element) => {
+        this.query.rules.forEach((element: QueryString) => {
             let newele = {
                 metric: element.field.toUpperCase(),
                 operator: this.convertComparisonOperator(element.operator),
-                time_frame: this.convertTimeFrame(element['time_frame']),
-                value: element['value'],
+                time_frame: this.convertTimeFrame(element.timeFame),
+                value: element.value,
             };
             converted_query.push({ query: newele });
         });
