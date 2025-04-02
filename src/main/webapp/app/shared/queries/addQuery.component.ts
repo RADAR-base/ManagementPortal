@@ -52,8 +52,8 @@ export class AddQueryComponent {
     };
 
     public query = {
-        logic_operator: 'and',
-        rules: [{ metric: 'heart_rate', operator: '<=' }],
+        condition: 'and',
+        rules: [{ field: 'heart_rate', operator: '<=' }],
     };
 
     public config: QueryBuilderConfig = {
@@ -74,11 +74,6 @@ export class AddQueryComponent {
         this.currentConfig = this.config;
     }
 
-    ngAfterViewInit() {
-        //console.log(this.queryBuilderFormGroup)
-        setTimeout(() => this.queryBuilderFormGroup.form.markAllAsTouched(), 0);
-        //this.queryBuilderFormGroup.form.markAllAsTouched();
-    }
 
     changeDisabled(event: Event) {
         (<HTMLInputElement>event.target).checked
@@ -137,7 +132,7 @@ export class AddQueryComponent {
         let converted_query = [];
         this.query.rules.forEach((element) => {
             let newele = {
-                metric: element.metric.toUpperCase(),
+                metric: element.field.toUpperCase(),
                 operator: this.convertComparisonOperator(element.operator),
                 time_frame: this.convertTimeFrame(element['time_frame']),
                 value: element['value'],
@@ -151,7 +146,7 @@ export class AddQueryComponent {
                 query_id = id;
                 let query_logic = {
                     queryGroupId: query_id,
-                    logic_operator: this.query.logic_operator.toUpperCase(),
+                    logic_operator: this.query.condition.toUpperCase(),
                     children: [...converted_query],
                 };
 
