@@ -88,8 +88,8 @@ class QueryResource(
     }
 
     @DeleteMapping("deleteAssignedQueryGroup/{subjectid}/{querygroupid}")
-    fun deleteAssignedQueryGroup(@PathVariable("subjectid")subjectID: Long, @PathVariable("querygroupid")querygroupid:Long){
-            queryBuilderService.deleteQueryParticipantByQueryGroup(subjectID,querygroupid)
+    fun deleteAssignedQueryGroup(@PathVariable subjectid: Long, @PathVariable querygroupid:Long){
+            queryBuilderService.deleteQueryParticipantByQueryGroup(subjectid,querygroupid)
     }
 
 

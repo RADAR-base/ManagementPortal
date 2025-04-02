@@ -30,7 +30,7 @@ export class QueryParticipantService {
         });
     }
 
-    deleteAssignedQueryGroup(subjectID:number, queryGroupId:number){
-        return this.http.delete(this.baseURL+`/deleteAssignedQueryGroup/${subjectID}/${queryGroupId}`)
+    deleteAssignedQueryGroup(subjectid:number, querygroupid:number){
+        return this.http.delete(this.baseURL+`/deleteAssignedQueryGroup/${subjectid}/${querygroupid}`)
     }
 }
