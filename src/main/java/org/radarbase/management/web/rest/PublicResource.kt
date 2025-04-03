@@ -44,22 +44,5 @@ class PublicResource(
         private val log = LoggerFactory.getLogger(PublicResource::class.java)
     }
 
-  //  ResponseEntity< Map<String, Map<String, Double>>>
-    @GetMapping("datasummary")
-    @Timed
-    fun getDataSummary() : ResponseEntity< DataSummaryResult> {
 
-//        val folderPrefix = "output/CONNECT/" + login + "/Data_summary.pdf";
-        //    val url = awsService.createPresignedGetUrl("connect-dev-output",folderPrefix)
-
-        //        val bytes = awsService.useHttpUrlConnectionToGet(url);
-//        log.info("[AWS-S3] got the bytes")
-//        val downloadedFile: MutableMap<String, String> = HashMap()
-//        downloadedFile["fileName"] = "PDF file"
-//        downloadedFile["fileBytes"] = Base64.getEncoder().encodeToString(bytes);
-        //      log.info("[AWS-S3] REST request to url  : {}", url)
-        val awsService =   AWSService();
-        val monthlyStatistics =   awsService.startProcessing("project", "login", DataSource.CLASSPATH)
-        return ResponseEntity.ok(monthlyStatistics);
-    }
 }

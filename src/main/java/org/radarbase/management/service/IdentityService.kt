@@ -64,16 +64,12 @@ class IdentityService(
     @Throws(IdpException::class)
     suspend fun saveAsIdentity(user: User): KratosSessionDTO.Identity? {
         val kratosIdentity: KratosSessionDTO.Identity?
-        log.info("identity created")
 
         withContext(Dispatchers.IO) {
             val identity = createIdentity(user)
 
 
-            val objectMapper = ObjectMapper()
-            val jsonString = objectMapper.writeValueAsString(identity)
 
-            log.info("identity created ${jsonString}")
             val postRequestBuilder = HttpRequestBuilder().apply {
                 url("${adminUrl}/admin/identities")
                 contentType(ContentType.Application.Json)
@@ -81,7 +77,7 @@ class IdentityService(
                 setBody(identity)
             }
             val response = httpClient.post(postRequestBuilder)
-            log.info("identity response ${response}")
+
             if (response.status.isSuccess()) {
                 kratosIdentity = response.body<KratosSessionDTO.Identity>()
                 log.debug("saved identity for user ${user.login} to IDP as ${kratosIdentity.id}")
@@ -99,7 +95,7 @@ class IdentityService(
     @Throws(IdpException::class)
     suspend fun updateAssociatedIdentity(user: User): KratosSessionDTO.Identity? {
         val kratosIdentity: KratosSessionDTO.Identity?
-        log.info("updating the identity");
+
         user.identity ?: throw IdpException(
             "user ${user.login} could not be updated on the IDP. No identity was set",
         )
@@ -159,7 +155,6 @@ class IdentityService(
      */
     @Throws(IdpException::class)
     private fun createIdentity(user: User): KratosSessionDTO.Identity {
-        log.info("creating identity, ${user}")
         try {
             return KratosSessionDTO.Identity(
                 schema_id = "user",
