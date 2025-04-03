@@ -23,7 +23,7 @@ export class QueriesComponent implements OnInit, OnDestroy {
 
     deleteQuery(id) {
         this.httpclient
-            .delete(this.baseUrl + `/deleteQueryById/${id}`)
+            .delete(this.baseUrl + `/query/${id}`)
             .subscribe((result) => {
                 this.getQueryList();
             });
