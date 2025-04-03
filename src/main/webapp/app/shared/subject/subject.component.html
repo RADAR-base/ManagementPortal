@@ -438,6 +438,7 @@
                     </button>
 
                     <button
+                            *jhiHasAnyAuthority="['ROLE_SYS_ADMIN']"
                         [disabled]="isDataSummaryButtonDisabled(subject)"
                         type="submit"
                         [routerLink]="['/subject/data-summary', subject.login]"
@@ -448,14 +449,7 @@
                         <span>User Data Summary</span>
                     </button>
 
-                    <button
-                        *jhiHasAnyAuthority="['ROLE_SYS_ADMIN']"
-                        class="btn btn-warning btn-sm"
-                        (click)="makeReportAvailable(subject)"
-                    >
-                        <span class="fa fa-link"></span>
-                        <span>Make report available</span>
-                    </button>
+
                 </div>
             </div>
             <app-load-more

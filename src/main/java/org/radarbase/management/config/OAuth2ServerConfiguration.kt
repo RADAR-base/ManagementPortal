@@ -130,7 +130,6 @@ class OAuth2ServerConfiguration(
                 .skipUrlPattern(HttpMethod.POST, "/oauth/token")
                 .skipUrlPattern(HttpMethod.GET, "/api/meta-token/*")
                 .skipUrlPattern(HttpMethod.GET, "/api/public/projects")
-                .skipUrlPattern(HttpMethod.GET, "/api/public/datasummary")
                 .skipUrlPattern(HttpMethod.GET, "/api/sitesettings")
                 .skipUrlPattern(HttpMethod.GET, "/api/redirect/**")
                 .skipUrlPattern(HttpMethod.GET, "/api/logout-url")
@@ -176,7 +175,6 @@ class OAuth2ServerConfiguration(
                 .antMatchers("/api/profile-info").permitAll()
                 .antMatchers("/api/sitesettings").permitAll()
                 .antMatchers("/api/public/projects").permitAll()
-                .antMatchers("/api/public/datasummary").permitAll()
                 .antMatchers("/api/logout-url").permitAll()
 
                 .antMatchers("/api/**")

@@ -678,7 +678,7 @@ class SubjectResource(
 
 
 
-        val monthlyStatistics =   awsService.startProcessing(project, login, DataSource.CLASSPATH)
+        val monthlyStatistics =   awsService.startProcessing(project, login, DataSource.S3)
         return ResponseEntity.ok(monthlyStatistics);
     }
 
