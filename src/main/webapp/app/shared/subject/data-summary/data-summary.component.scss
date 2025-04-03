@@ -1,0 +1,538 @@
+@page {
+    margin-top: 5mm;
+    margin-bottom: 0mm;
+}
+
+.image-size {
+    height: 60px;
+    width: 60px;
+}
+
+.main-logo-size {
+    height: 120px;
+    width: 200px;
+}
+
+.whereabouts-logo {
+    display: block;
+    -webkit-mask-image: url("../../../../content/images/icn_whereabouts.svg");
+    mask-image: url("../../../../content/images/icn_whereabouts.svg");
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+}
+
+.voices-logo {
+    display: block;
+    -webkit-mask-image: url("../../../../content/images/icn_vocies.svg");
+    mask-image: url("../../../../content/images/icn_vocies.svg");
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+}
+
+.suspiciousness-logo {
+    display: block;
+    -webkit-mask-image: url("../../../../content/images/icn_suspiciousness.svg");
+    mask-image: url("../../../../content/images/icn_suspiciousness.svg");
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+}
+
+.stress-logo {
+    display: block;
+    -webkit-mask-image: url("../../../../content/images/icn_stress.svg");
+    mask-image: url("../../../../content/images/icn_stress.svg");
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+}
+
+.social-logo {
+    display: block;
+    -webkit-mask-image: url("../../../../content/images/icn_social.svg");
+    mask-image: url("../../../../content/images/icn_social.svg");
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+}
+
+.selfesteem-logo {
+    display: block;
+    -webkit-mask-image: url("../../../../content/images/icn_self-esteem.svg");
+    mask-image: url("../../../../content/images/icn_self-esteem.svg");
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+}
+
+.seeing-logo {
+    display: block;
+    -webkit-mask-image: url("../../../../content/images/icn_seeing.svg");
+    mask-image: url("../../../../content/images/icn_seeing.svg");
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+}
+
+.relapse-logo {
+    display: block;
+    -webkit-mask-image: url("../../../../content/images/icn_relapse.svg");
+    mask-image: url("../../../../content/images/icn_relapse.svg");
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+}
+
+.positive-logo {
+    display: block;
+
+    -webkit-mask-image: url("../../../../content/images/icn_positive.svg");
+    mask-image: url("../../../../content/images/icn_positive.svg");
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+}
+
+.negative-logo {
+    display: block;
+
+    -webkit-mask-image: url("../../../../content/images/icn_negative.svg");
+    mask-image: url("../../../../content/images/icn_negative.svg");
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+}
+
+.mood-logo {
+    display: block;
+
+    -webkit-mask-image: url("../../../../content/images/icn_mood.svg");
+    mask-image: url("../../../../content/images/icn_mood.svg");
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+}
+
+.hope-logo {
+    display: block;
+
+    -webkit-mask-image: url("../../../../content/images/icn_hope.svg");
+    mask-image: url("../../../../content/images/icn_hope.svg");
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+}
+
+.dissociation-logo {
+    display: block;
+
+    -webkit-mask-image: url("../../../../content/images/icn_dissociation.svg");
+    mask-image: url("../../../../content/images/icn_dissociation.svg");
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+}
+
+.delusions-logo {
+    display: block;
+
+    -webkit-mask-image: url("../../../../content/images/icn_delusions.svg");
+    mask-image: url("../../../../content/images/icn_delusions.svg");
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+}
+
+.coping-logo {
+    display: block;
+
+    -webkit-mask-image: url("../../../../content/images/icn_coping.svg");
+    mask-image: url("../../../../content/images/icn_coping.svg");
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+}
+
+.connectedness-logo {
+    display: block;
+
+    -webkit-mask-image: url("../../../../content/images/icn_connectedness.svg");
+    mask-image: url("../../../../content/images/icn_connectedness.svg");
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+}
+
+.anxiety-logo {
+    display: block;
+    -webkit-mask-image: url("../../../../content/images/icn_anxiety.svg");
+    mask-image: url("../../../../content/images/icn_anxiety.svg");
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+}
+
+.sleep-logo {
+    display: block;
+    -webkit-mask-image: url("../../../../content/images/icn-sleep.svg");
+    mask-image: url("../../../../content/images/icn-sleep.svg");
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+}
+
+.quetionnaire-logo {
+    display: block;
+
+    -webkit-mask-image: url("../../../../content/images/icn-questionnaires.svg");
+    mask-image: url("../../../../content/images/icn-questionnaires.svg");
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+}
+
+.heart-rate {
+    display: block;
+
+    -webkit-mask-image: url("../../../../content/images/icn-heartrate.svg");
+    mask-image: url("../../../../content/images/icn-heartrate.svg");
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+}
+
+.connect-logo-main {
+    display: block;
+    background: url("../../../../content/images/connect-logo-main.svg")
+        no-repeat center center;
+}
+
+.hrv-log {
+    display: block;
+
+    -webkit-mask-image: url("../../../../content/images/icn-hrv.svg");
+    mask-image: url("../../../../content/images/icn-hrv.svg");
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+}
+
+.steps-img {
+    display: block;
+
+    -webkit-mask-image: url("../../../../content/images/icn-steps.svg");
+    mask-image: url("../../../../content/images/icn-steps.svg");
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+}
+
+.activity-img {
+    display: block;
+    -webkit-mask-image: url("../../../../content/images/icn-activity.svg");
+    mask-image: url("../../../../content/images/icn-activity.svg");
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+}
+
+.respiratory-img {
+    display: block;
+
+    -webkit-mask-image: url("../../../../content/images/icn-respiratory.svg");
+    mask-image: url("../../../../content/images/icn-respiratory.svg");
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+}
+
+:host {
+    --bright-blue: oklch(51.01% 0.274 263.83);
+    --electric-violet: oklch(53.18% 0.28 296.97);
+    --french-violet: oklch(47.66% 0.246 305.88);
+    --vivid-pink: oklch(69.02% 0.277 332.77);
+    --hot-red: oklch(61.42% 0.238 15.34);
+    --orange-red: oklch(63.32% 0.24 31.68);
+
+    --gray-900: oklch(19.37% 0.006 300.98);
+    --gray-700: oklch(36.98% 0.014 302.71);
+    --gray-400: oklch(70.9% 0.015 304.04);
+
+    --red-to-pink-to-purple-vertical-gradient: linear-gradient(
+        180deg,
+        var(--orange-red) 0%,
+        var(--vivid-pink) 50%,
+        var(--electric-violet) 100%
+    );
+
+    --red-to-pink-to-purple-horizontal-gradient: linear-gradient(
+        90deg,
+        var(--orange-red) 0%,
+        var(--vivid-pink) 50%,
+        var(--electric-violet) 100%
+    );
+
+    --pill-accent: var(--bright-blue);
+
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+        "Segoe UI Symbol";
+    box-sizing: border-box;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #e4f7f5 !important;
+    padding: 50px;
+}
+
+.main {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+
+    height: auto !important;
+}
+
+.graphs {
+}
+
+.bold {
+    font-weight: bold;
+}
+
+.text {
+    color: #08848f;
+}
+
+.flex {
+    display: flex;
+}
+
+.space-between {
+    justify-content: space-between;
+}
+
+.flex1 {
+    flex: 1;
+}
+
+.flex-column {
+    flex-direction: column;
+}
+
+.row {
+    padding-bottom: 20px;
+}
+
+.section {
+    padding-top: 10px;
+
+    margin-bottom: 10px;
+
+    padding-bottom: 40px;
+}
+
+.chart {
+    width: 95% !important;
+}
+
+.middle {
+    align-content: center;
+    justify-items: center;
+    justify-content: center;
+    align-items: center;
+}
+h1 {
+    font-size: 24pt;
+    margin-top: 0;
+}
+
+h2 {
+    font-size: 18pt;
+}
+
+h3 {
+    font-size: 14pt;
+}
+
+/* Adjust paragraph text size for readability */
+p {
+    font-size: 15pt;
+    margin-bottom: 1em;
+}
+
+label {
+    font-size: 20pt;
+}
+
+.row-section {
+    display: flex;
+    flex-direction: row;
+}
+.padding {
+    padding: 10px;
+}
+.purple-color {
+    color: #6e2594;
+}
+
+.blue-color {
+    color: #08848f;
+}
+
+.padding-bottom {
+    padding-bottom: 50px;
+}
+
+.flex-test {
+    display: flex;
+    align-content: flex-end;
+
+    flex-direction: column;
+}
+
+.left-chart {
+    width: 50% !important; /* set width to 50% of page width */
+    float: left; /* Make the element go to the left */
+}
+
+.right-chart {
+    width: 50% !important;
+    float: right;
+}
+
+.chart-width {
+    width: 100% !important;
+}
+
+.clear {
+    clear: both;
+}
+
+.new-section {
+    width: 100%;
+    padding-top: 20px;
+    margin-bottom: 10px;
+    padding-bottom: 40px;
+}
+
+.border {
+    clear: both;
+    border-bottom: 1px black solid;
+}
+
+.logo {
+    height: 50px;
+    width: 50px;
+}
+.label-picture {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+.self-centered {
+    align-self: center;
+}
+.main-graph-label {
+    font-size: 21px !important;
+}
+
+.sub-label {
+    font-size: 16px !important;
+}
+
+.sub-text {
+    font-size: 13px !important;
+}
+
+.column-flex {
+    display: flex;
+    flex-direction: column;
+}
+.sleep-section {
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+
+.break-text {
+    display: flex;
+    flex-wrap: wrap;
+    width: 200px; /* Set a specific width to force wrapping */
+}
+
+.long-text {
+    width: 500px !important;
+}
+
+.no-bottom-margin {
+    margin-bottom: 0px !important;
+}
+
+.fixed-height {
+    height: 95px !important;
+}
+
+.value {
+    font-size: 30px !important;
+}
+
+.padding-sides {
+    padding: 20px !important;
+}
+
+html,
+body {
+    height: 100% !important;
+    @media print {
+        /* This fixes an issue where when printing a selection,
+         an extra blank page is printed in IE10 and IE11.
+         Solution found here: http://stackoverflow.com/a/22320644/7752 */
+        height: auto !important;
+    }
+}
+@media print {
+    .pagebreak {
+        page-break-before: always;
+    }
+    .graph {
+        page-break-inside: avoid;
+    }
+}
+
+.padding-top {
+    padding-top: 20px;
+}

@@ -1,0 +1,268 @@
+<div class="header">
+    <span class="main-logo-size connect-logo-main"></span>
+    <div>
+        <p class="text bold">Your Data Summary</p>
+    </div>
+</div>
+
+<div class="main">
+    <p *ngIf="!isDataSummaryReady">
+        Data summary is not ready yet. The DHS team will let you know when it is
+        ready to download.
+    </p>
+    <div class="padding-top"></div>
+
+    <!-- Questionnaires -->
+    <app-single-row-graph
+        *ngIf="charts['questionnaire']"
+        logoClass="quetionnaire-logo"
+        chartId="questionnaire"
+        [chart]="charts['questionnaire']"
+        title="Questionnaires Answered"
+        [showTotal]="true"
+        color="rgb(12,132, 143)"
+        [totalValue]="questionnaireTotal"
+        [totalAverage]="questionnaireAverage"
+    ></app-single-row-graph>
+
+    <app-single-row-graph
+        [isSingleRow]="false"
+        *ngIf="charts['social']"
+        chartId="social"
+        [chart]="charts['social']"
+        title="Social"
+        color="rgb(12,132, 143)"
+    ></app-single-row-graph>
+
+    <app-single-row-graph
+        [isSingleRow]="false"
+        *ngIf="charts['sleep']"
+        chartId="sleep"
+        [chart]="charts['sleep']"
+        title="Sleep"
+        color="rgb(12,132, 143)"
+    ></app-single-row-graph>
+
+    <app-single-row-graph
+        [isSingleRow]="false"
+        *ngIf="charts['wherearebout']"
+        chartId="wherearebout"
+        [chart]="charts['wherearebout']"
+        title="Whereabouts"
+        color="rgb(12,132, 143)"
+    ></app-single-row-graph>
+
+    <div *ngFor="let key of socialKeys">
+        <app-single-row-graph
+            [isSingleRow]="false"
+            *ngIf="charts['social_' + key]"
+            chartId="social_{{ key }}"
+            [chart]="charts['social_' + key]"
+            title="Social ({{ socialMap[key] }})"
+            color="rgb(12,132, 143)"
+        ></app-single-row-graph>
+    </div>
+
+    <div *ngFor="let key of sleepMapKeys; let i = index">
+        <app-single-row-graph
+            [isSingleRow]="false"
+            *ngIf="charts['sleep_' + (i + 1)]"
+            chartId="sleep_{{ i + 1 }}"
+            [chart]="charts['sleep_' + (i + 1)]"
+            title="Sleep ({{ sleepMap[key] }})"
+            color="rgb(12,132, 143)"
+        ></app-single-row-graph>
+    </div>
+
+    <div *ngFor="let key of whereaboutsMapKeys">
+        <app-single-row-graph
+            [isSingleRow]="false"
+            *ngIf="charts['wherearebout_' + key]"
+            chartId="wherearebout_{{ key }}"
+            [chart]="charts['wherearebout_' + key]"
+            title="Wherearebout ({{ whereaboutsMap[key] }})"
+            color="rgb(12,132, 143)"
+        ></app-single-row-graph>
+    </div>
+
+    <div *ngFor="let key of delusionKeys">
+        <app-single-row-graph
+            [applyCustomColour]="true"
+            [longHeading]="true"
+            [isSingleRow]="false"
+            *ngIf="charts[key]"
+            chartId="{{ key }}"
+            [chart]="charts[key]"
+            title="Statement ({{ delusions[key] }})"
+            color="rgba(110, 37, 147, 0.9)"
+        ></app-single-row-graph>
+    </div>
+
+    <!-- Positive and negative emtions-->
+    <app-double-row-graph
+        [bothGraphsActive]="
+            charts['positive_emotions'] && charts['negative_emotions']
+        "
+        *ngIf="charts['positive_emotions'] || charts['negative_emotions']"
+        title1="Positive Emotions"
+        title2="Negative Emotions"
+        chartId1="positive_emotions"
+        chartId2="negative_emotions"
+        [chartGraph1Data]="charts['positive_emotions']"
+        [chartGraph2Data]="charts['negative_emotions']"
+        color="rgb(12,132, 143)"
+    ></app-double-row-graph>
+
+    <!-- Dissocitation and stress-->
+
+    <app-double-row-graph
+        [bothGraphsActive]="charts['dissociation'] && charts['stress']"
+        *ngIf="charts['dissociation'] || charts['stress']"
+        title1="Dissociation"
+        title2="Stress"
+        chartId1="dissociation"
+        chartId2="stress"
+        [chartGraph1Data]="charts['dissociation']"
+        [chartGraph2Data]="charts['stress']"
+        color="rgba(110, 37, 147, 0.9)"
+    ></app-double-row-graph>
+    <!-- Hope and mood-->
+
+    <app-double-row-graph
+        [bothGraphsActive]="charts['dissociation'] && charts['stress']"
+        *ngIf="charts['dissociation'] || charts['stress']"
+        title1="Hope"
+        title2="Mood"
+        chartId1="hope"
+        chartId2="mood"
+        [chartGraph1Data]="charts['hope']"
+        [chartGraph2Data]="charts['mood']"
+        color="rgb(12,132, 143)"
+    ></app-double-row-graph>
+
+    <!-- Anxiety and  Self-esteem-->
+    <app-double-row-graph
+        [bothGraphsActive]="charts['anxiety'] && charts['self_esteem']"
+        *ngIf="charts['anxiety'] || charts['self_esteem']"
+        title1="Anxiety"
+        title2="Self esteem"
+        chartId1="anxiety"
+        chartId2="self_esteem"
+        [chartGraph1Data]="charts['anxiety']"
+        [chartGraph2Data]="charts['self_esteem']"
+        color="rgba(110, 37, 147, 0.9)"
+    ></app-double-row-graph>
+
+    <!-- Anxiety and  Self-esteem-->
+    <app-double-row-graph
+        [bothGraphsActive]="charts['connectedness'] && charts['coping']"
+        *ngIf="charts['connectedness'] || charts['coping']"
+        title1="Connectedness"
+        title2="Coping"
+        chartId1="connectedness"
+        chartId2="coping"
+        [chartGraph1Data]="charts['connectedness']"
+        [chartGraph2Data]="charts['coping']"
+        color="rgb(12,132, 143)"
+    ></app-double-row-graph>
+
+    <!-- Fear of relapse and  Unusual voice-->
+    <app-double-row-graph
+        [bothGraphsActive]="charts['fear'] && charts['hallucination_hear']"
+        *ngIf="charts['fear'] || charts['hallucination_hear']"
+        title1="Fear of Relapse"
+        title2="Unusual Voices"
+        chartId1="fear"
+        chartId2="hallucination_hear"
+        [chartGraph1Data]="charts['fear']"
+        [chartGraph2Data]="charts['hallucination_hear']"
+        color="rgba(110, 37, 147, 0.9)"
+    ></app-double-row-graph>
+
+    <!-- Fear of relapse and  Unusual voice-->
+
+    <app-double-row-graph
+        [bothGraphsActive]="charts['hallucination_vision'] && charts['threat']"
+        *ngIf="charts['hallucination_vision'] || charts['threat']"
+        title1="Seeing things"
+        title2="Suspiciousness"
+        chartId1="hallucination_vision"
+        chartId2="threat"
+        [chartGraph1Data]="charts['hallucination_vision']"
+        [chartGraph2Data]="charts['threat']"
+        color="rgb(12,132, 143)"
+    ></app-double-row-graph>
+
+    <!-- Heart Rate & HRV-->
+    <app-double-row-graph
+        [bothGraphsActive]="charts['heart_rate'] && charts['hrv']"
+        *ngIf="charts['heart_rate'] || charts['hrv']"
+        title1="Heart Rate"
+        title2="Heart rate Variability"
+        chartId1="heart_rate"
+        chartId2="hrv"
+        [chartGraph1Data]="charts['heart_rate']"
+        [chartGraph2Data]="charts['hrv']"
+        color="rgb(12,132, 143)"
+        [dataPoint1Data]="averages['heart_rate']"
+        dataPoint1Title="Total average"
+        dataPoint2Title="Total average"
+        dataPoint1SubTitle="beats per minute"
+        dataPoint2SubTitle="beats per minute"
+        css1="heart-rate"
+        css2="hrv-log"
+    ></app-double-row-graph>
+
+    <!-- Sleep Length -->
+    <!-- <div class="section flex sleep-section pagebreak">
+        <div class="row">
+            <div class=" image-size label-picture">
+                <img src="assets/icn-sleep.svg" alt="Logo" class="logo self-centered" />
+                <div class="column-flex main-graph-label">
+                    <label class="bold main-graph-label">Sleep</label>
+                    <label class="bold main-graph-label">Length</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <label class="bold"><strong>Average length</strong></label>
+            <p class="label text bold" style="padding: 0; margin: 0">
+                7 hours 23 mins
+            </p>
+        </div>
+    </div> -->
+
+    <!-- Steps -->
+
+    <app-single-row-graph
+        [applyCustomColour]="true"
+        *ngIf="charts['steps']"
+        logoClass="steps-img"
+        chartId="steps"
+        [chart]="charts['steps']"
+        title="Steps"
+        [showTotal]="true"
+        color="rgba(110, 37, 147, 0.9)"
+        [totalValue]="stepsTotal"
+        [totalAverage]="stepsAverage"
+    ></app-single-row-graph>
+
+    <app-double-row-graph
+        [bothGraphsActive]="charts['respiratory_rate'] && charts['activity']"
+        *ngIf="charts['respiratory_rate'] || charts['activity']"
+        title1="Activity"
+        title2="Respiratory Rate"
+        chartId1="activity"
+        chartId2="respiratory_rate"
+        [chartGraph1Data]="charts['respiratory_rate']"
+        [chartGraph2Data]="charts['activity']"
+        color="rgba(110, 37, 147, 0.9)"
+        dataPoint1Title="Total amount"
+        dataPoint2Title="Total average"
+        dataPoint1SubTitle=""
+        dataPoint2SubTitle="breaths per minute"
+        css1="activity-img"
+        css2="respiratory-img"
+    ></app-double-row-graph>
+</div>

@@ -16,30 +16,61 @@ import { Observable, Subscription } from 'rxjs';
     selector: 'jhi-data-viewer',
     templateUrl: './data-viewer.component.html',
 })
-
+// @ts-nocheck
 export class SubjectDataViewerDialogComponent implements OnInit, OnDestroy {
     subject: Subject;
 
-    dataLogs:any = {};
+    dataLogs: any = {};
 
     private subscriptions: Subscription = new Subscription();
 
     constructor(
-            public activeModal: NgbActiveModal,
-            private alertService: AlertService,
-            private subjectService: SubjectService,
-    ) {
-    }
+        public activeModal: NgbActiveModal,
+        private alertService: AlertService,
+        private subjectService: SubjectService
+    ) {}
 
     ngOnInit() {
         if (this.subject.id !== null) {
+            this.subjectService
+                .findDataLogs(this.subject.login)
+                .subscribe((response: HttpResponse<any>) => {
+                    this.dataLogs = response.body.reduce(function (
+                        acc,
+                        cur,
+                        i
+                    ) {
+                        acc[cur.groupingType] = new Date(
+                            cur.time
+                        ).toDateString();
+                        return acc;
+                    },
+                    {});
+                });
 
-            this.subjectService.findDataLogs(this.subject.login).subscribe((response: HttpResponse<any>) => {
-                  this.dataLogs = response.body.reduce(function(acc, cur, i) {
-                                    acc[cur.groupingType] = new Date(cur.time).toDateString();
-                                    return acc;
-                                  }, {});
-            });
+            this.subjectService.findDataSummary(this.subject.login).subscribe(
+                (response: HttpResponse<unknown>) => {
+                    console.log('data summary', response);
+
+                    // @ts-ignore
+                    var binaryString = window.atob(response.body.fileBytes);
+                    var binaryLen = binaryString.length;
+                    var bytes = new Uint8Array(binaryLen);
+                    for (var i = 0; i < binaryLen; i++) {
+                        var ascii = binaryString.charCodeAt(i);
+                        bytes[i] = ascii;
+                    }
+                    var blob = new Blob([bytes]);
+
+                    var link = document.createElement('a');
+                    link.href = window.URL.createObjectURL(blob);
+                    link.download = 'filename.pdf';
+                    link.click();
+                },
+                (response) => {
+                    console.log('console log error', response);
+                }
+            );
         }
     }
 
@@ -63,12 +94,16 @@ export class SubjectDataViewerDialogComponent implements OnInit, OnDestroy {
 export class SubjectDataViewerPopupComponent extends ObservablePopupComponent {
     constructor(
         route: ActivatedRoute,
-        private subjectPopupService: SubjectPopupService,
+        private subjectPopupService: SubjectPopupService
     ) {
         super(route);
     }
 
     createModalRef(params: Params): Observable<NgbModalRef> {
-        return this.subjectPopupService.open(SubjectDataViewerDialogComponent, params['login'], false);
+        return this.subjectPopupService.open(
+            SubjectDataViewerDialogComponent,
+            params['login'],
+            false
+        );
     }
 }

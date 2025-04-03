@@ -13,6 +13,8 @@ import { SubjectRevisionComponent } from './subject-revision.component';
 import { ResolvePagingParams } from '../commons';
 import { SubjectDataViewerPopupComponent } from './data-viewer/data-viewer.component';
 
+import {DataSummaryComponent} from "./data-summary/data-summary.component";
+
 export const subjectRoute: Routes = [
     {
         path: 'subject/:login',
@@ -23,6 +25,15 @@ export const subjectRoute: Routes = [
         },
         canActivate: [UserRouteAccessService],
     },
+        {
+            path: 'subject/data-summary/:login',
+            component: DataSummaryComponent,
+            data: {
+                authorities: [SYSTEM_ADMIN, ORGANIZATION_ADMIN, PROJECT_ADMIN],
+                pageTitle: 'managementPortalApp.subject.home.title',
+            },
+            canActivate: [UserRouteAccessService],
+        },
     {
         path: 'subject/:login/revisions',
         component: SubjectRevisionListComponent,

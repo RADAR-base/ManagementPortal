@@ -1,6 +1,7 @@
 package org.radarbase.management.service
 
 import org.radarbase.management.config.ManagementPortalProperties
+import org.radarbase.management.domain.Subject
 import org.radarbase.management.domain.User
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -142,10 +143,25 @@ class MailService(
         val subject = messageSource.getMessage("email.reset.title", null, locale)
         sendEmail(user.email, subject, content, false, true)
     }
+    @Async
+    fun sendReportReadyEmail(user: User, participant: Subject) {
+        val locale = Locale.forLanguageTag(user.langKey)
+        val context = Context(locale)
+        context.setVariable(USER, user)
+        context.setVariable(
+            BASE_URL,
+            managementPortalProperties.common.managementPortalBaseUrl
+        )
+        context.setVariable(PARTICIPANT_NAME, participant.externalId)
 
+        val content = templateEngine.process("reportReadyEmail", context)
+        val subject = messageSource.getMessage("email.reset.title", null, locale)
+        sendEmail(user.email, subject, content, false, true)
+    }
     companion object {
         private val log = LoggerFactory.getLogger(MailService::class.java)
         private const val USER = "user"
+        private const val PARTICIPANT_NAME = "participantName"
         private const val BASE_URL = "baseUrl"
         private const val EXPIRY = "expiry"
     }

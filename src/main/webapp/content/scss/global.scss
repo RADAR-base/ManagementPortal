@@ -1,13 +1,16 @@
-
-@import '~bootstrap/scss/bootstrap';
-@import '~font-awesome/css/font-awesome';
+@import "~bootstrap/scss/bootstrap";
+@import "~font-awesome/css/font-awesome";
 @import "print";
 
 /* ==============================================================
 Bootstrap tweaks
 ===============================================================*/
 
-body, h1, h2, h3, h4 {
+body,
+h1,
+h2,
+h3,
+h4 {
     font-weight: 300;
 }
 
@@ -16,18 +19,25 @@ Generic styles
 ========================================================================== */
 
 /* Error highlight on input fields */
-.ng-valid[required], .ng-valid.required  {
-  border-left: 5px solid green;
+.ng-valid[required],
+.ng-valid.required {
+    border-left: 5px solid green;
 }
 
-.ng-invalid:not(form)  {
-  border-left: 5px solid red;
+.ng-invalid:not(form) {
+    border-left: 5px solid red;
 }
 
 /* other generic styles */
 
 .jh-card {
     padding: 1.5%;
+    @media print {
+        /* This fixes an issue where when printing a selection,
+         an extra blank page is printed in IE10 and IE11.
+         Solution found here: http://stackoverflow.com/a/22320644/7752 */
+        padding: 0% !important;
+    }
     margin-top: 20px;
     border: none;
 }
@@ -51,7 +61,7 @@ Generic styles
 
 .break {
     white-space: normal;
-    word-break:break-all;
+    word-break: break-all;
 }
 
 .readonly {
@@ -60,21 +70,22 @@ Generic styles
 }
 
 /*FIXME this is to support grids in table class; */
-table td[class*=col-], table th[class*=col-] {
+table td[class*="col-"],
+table th[class*="col-"] {
     position: static;
     display: table-cell;
     float: none;
 }
 
 .footer {
-    border-top: 1px solid rgba(0,0,0,.125);
+    border-top: 1px solid rgba(0, 0, 0, 0.125);
 }
 
 /* ==========================================================================
 make sure browsers use the pointer cursor for anchors, even with no href
 ========================================================================== */
 a:hover {
-  cursor: pointer;
+    cursor: pointer;
 }
 
 .hand {
@@ -87,7 +98,7 @@ Custom alerts for notification
 .alerts {
     .alert {
         text-overflow: ellipsis;
-        pre{
+        pre {
             background: none;
             border: none;
             font: inherit;
@@ -130,7 +141,7 @@ entity tables helpers
 /* Remove Bootstrap padding from the element
    http://stackoverflow.com/questions/19562903/remove-padding-from-columns-in-bootstrap-3 */
 @mixin no-padding($side) {
-    @if $side == 'all' {
+    @if $side == "all" {
         .no-padding {
             padding: 0 !important;
         }
@@ -148,17 +159,19 @@ entity tables helpers
 
 /* bootstrap 3 input-group 100% width
    http://stackoverflow.com/questions/23436430/bootstrap-3-input-group-100-width */
-.width-min { width: 1% !important; }
+.width-min {
+    width: 1% !important;
+}
 
 /* Makes toolbar not wrap on smaller screens
    http://www.sketchingwithcss.com/samplechapter/cheatsheet.html#right */
 .flex-btn-group-container {
-   display: -webkit-flex;
-   display: flex;
-   -webkit-flex-direction: row;
-   flex-direction: row;
-   -webkit-justify-content: flex-end;
-   justify-content: flex-end;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-direction: row;
+    flex-direction: row;
+    -webkit-justify-content: flex-end;
+    justify-content: flex-end;
 }
 
 /* ==========================================================================
@@ -186,17 +199,20 @@ entity detail page css
 /* ==========================================================================
 ui bootstrap tweaks
 ========================================================================== */
-.nav, .pagination, .carousel, .panel-title a {
+.nav,
+.pagination,
+.carousel,
+.panel-title a {
     cursor: pointer;
 }
 
 .datetime-picker-dropdown > li.date-picker-menu div > table .btn-default,
-.uib-datepicker-popup  > li > div.uib-datepicker > table .btn-default {
+.uib-datepicker-popup > li > div.uib-datepicker > table .btn-default {
     border: 0;
 }
 
 .datetime-picker-dropdown > li.date-picker-menu div > table:focus,
-.uib-datepicker-popup  > li > div.uib-datepicker > table:focus {
+.uib-datepicker-popup > li > div.uib-datepicker > table:focus {
     outline: none;
 }
 
@@ -205,22 +221,24 @@ Material design icons - self hosting
 http://google.github.io/material-design-icons/
 ========================================================================== */
 @font-face {
-    font-family: 'Material Icons';
+    font-family: "Material Icons";
     font-style: normal;
     font-weight: 400;
     src: url(~material-design-icons/iconfont/MaterialIcons-Regular.eot); /* For IE6-8 */
-    src: local('Material Icons'),
-    local('MaterialIcons-Regular'),
-    url(~material-design-icons/iconfont/MaterialIcons-Regular.woff2) format('woff2'),
-    url(~material-design-icons/iconfont/MaterialIcons-Regular.woff) format('woff'),
-    url(~material-design-icons/iconfont/MaterialIcons-Regular.ttf) format('truetype');
+    src: local("Material Icons"), local("MaterialIcons-Regular"),
+        url(~material-design-icons/iconfont/MaterialIcons-Regular.woff2)
+            format("woff2"),
+        url(~material-design-icons/iconfont/MaterialIcons-Regular.woff)
+            format("woff"),
+        url(~material-design-icons/iconfont/MaterialIcons-Regular.ttf)
+            format("truetype");
 }
 
 .material-icons {
-    font-family: 'Material Icons';
+    font-family: "Material Icons";
     font-weight: normal;
     font-style: normal;
-    font-size: 24px;  /* Preferred icon size */
+    font-size: 24px; /* Preferred icon size */
     display: inline-flex;
     line-height: 1;
     text-transform: none;
@@ -240,7 +258,7 @@ http://google.github.io/material-design-icons/
     -moz-osx-font-smoothing: grayscale;
 
     /* Support for IE. */
-    font-feature-settings: 'liga';
+    font-feature-settings: "liga";
 
     &.md-18 {
         font-size: 18px;
@@ -263,10 +281,10 @@ http://google.github.io/material-design-icons/
     white-space: nowrap;
 }
 
-
-button.calendar, button.calendar:active {
+button.calendar,
+button.calendar:active {
     width: 2.75rem;
-    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACIAAAAcCAYAAAAEN20fAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAOxAAADsQBlSsOGwAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAEUSURBVEiJ7ZQxToVAEIY/YCHGxN6XGOIpnpaEsBSeQC9ArZbm9TZ6ADyBNzAhQGGl8Riv4BLAWAgmkpBYkH1b8FWT2WK/zJ8ZJ4qiI6XUI3ANnGKWBnht2/ZBDRK3hgVGNsCd7/ui+JkEIrKtqurLpEWaphd933+IyI3LEIdpCYCiKD6HcuOa/nwOa0ScJEnk0BJg0UTUWJRl6RxCYEzEmomsIlPU3IPW+grIAbquy+q6fluy/28RIBeRMwDXdXMgXLj/B2uimRXpui4D9sBeRLKl+1N+L+t6RwbWrZliTTTr1oxYtzVWiTQAcRxvTX+eJMnlUDaO1vpZRO5NS0x48sIwfPc87xg4B04MCzQi8hIEwe4bl1DnFMCN2zsAAAAASUVORK5CYII=') !important;
+    background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACIAAAAcCAYAAAAEN20fAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAOxAAADsQBlSsOGwAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAEUSURBVEiJ7ZQxToVAEIY/YCHGxN6XGOIpnpaEsBSeQC9ArZbm9TZ6ADyBNzAhQGGl8Riv4BLAWAgmkpBYkH1b8FWT2WK/zJ8ZJ4qiI6XUI3ANnGKWBnht2/ZBDRK3hgVGNsCd7/ui+JkEIrKtqurLpEWaphd933+IyI3LEIdpCYCiKD6HcuOa/nwOa0ScJEnk0BJg0UTUWJRl6RxCYEzEmomsIlPU3IPW+grIAbquy+q6fluy/28RIBeRMwDXdXMgXLj/B2uimRXpui4D9sBeRLKl+1N+L+t6RwbWrZliTTTr1oxYtzVWiTQAcRxvTX+eJMnlUDaO1vpZRO5NS0x48sIwfPc87xg4B04MCzQi8hIEwe4bl1DnFMCN2zsAAAAASUVORK5CYII=") !important;
     background-repeat: no-repeat;
     background-size: 23px;
     background-position: center;
