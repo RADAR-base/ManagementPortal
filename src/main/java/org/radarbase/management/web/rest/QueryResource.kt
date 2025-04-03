@@ -67,7 +67,7 @@ class QueryResource(
         return  ResponseEntity.ok(list);
     }
 
-    @DeleteMapping("deleteQueryById/{id}")
+    @DeleteMapping("query/{id}")
     fun deleteQueryByID(@PathVariable("id")id: Long){
         queryBuilderService.deleteQueryByID(id)
     }
