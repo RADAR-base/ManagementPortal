@@ -66,7 +66,7 @@
                 </td>
                 <td>
                     <button
-                        (click)="deleteAssignedGroup(query.id)"
+                        (click)="deleteAssignedGroup(query)"
                         class="btn btn-secondary"
                     >
                         Delete
@@ -75,5 +75,8 @@
             </tr>
         </table>
     </div>
-    <div class="modal-footer"></div>
-</div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal" (click)="clear()">
+            <span class="fa fa-ban"></span>&nbsp;<span [translate]="'entity.action.close'"></span>
+        </button>
+    </div></div>

@@ -6,7 +6,6 @@ import { ActivatedRoute, Params } from '@angular/router';
 import { AlertService } from '../../util/alert.service';
 import { Subject } from '../subject.model';
 import { QueryParticipantService } from '../query-participant.service';
-import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { SubjectPopupService } from '../subject-popup.service';
 import { QueryGroup, QueryParticipant } from 'app/shared/queries/query.model';
 
@@ -81,11 +80,12 @@ export class QueryViewerComponent implements OnInit, OnDestroy {
         });
     }
 
-    deleteAssignedGroup(queryGroupId: number) {
+    deleteAssignedGroup(queryGroup: QueryGroup) {
         this.queryParticipantService
-            .deleteAssignedQueryGroup(this.subject.id, queryGroupId)
+            .deleteAssignedQueryGroup(this.subject.id, queryGroup.id)
             .subscribe(() => {
                 this.getAllAssignedGroups();
+                this.queryGroupList.push(queryGroup);
             });
     }
 
