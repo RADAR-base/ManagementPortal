@@ -80,8 +80,8 @@ server:
 # ===================================================================
 managementportal:
   common:
-    baseUrl: http://127.0.0.1:8080/managementportal # Modify according to your server's URL
-    managementPortalBaseUrl: http://127.0.0.1:8080/managementportal
+    baseUrl: http://my-server-url-to-change-here # Modify according to your server's URL
+    managementPortalBaseUrl: http://localhost:8080/managementportal
     privacyPolicyUrl: http://info.thehyve.nl/radar-cns-privacy-policy
     adminPassword:
     activationKeyTimeoutInSeconds: 86400
@@ -100,10 +100,10 @@ managementportal:
   catalogueServer:
     enableAutoImport: false
   identityServer:
-    adminEmail: jiawen.zhou@manchester.ac.uk
-    serverUrl: http://127.0.0.1:4433
-    serverAdminUrl: http://127.0.0.1:4434
-    loginUrl: http://127.0.0.1:3000
+    adminEmail: bdegraaf1234@gmail.com
+    serverUrl: https://radar-k3s-test.thehyve.net/kratos
+    serverAdminUrl: http://kratos-admin
+    loginUrl: http://localhost:3000
 
 # ===================================================================
 # JHipster specific properties
