@@ -122,6 +122,23 @@ export class AddQueryComponent {
         }
     }
 
+    covertQuery(original_query: [QueryString], converted_query): any {
+        original_query.forEach((query) => {
+            if (query.rules) {
+                return this.covertQuery(query.rules, converted_query);
+            } else {
+                let newele = {
+                    metric: query.field.toUpperCase(),
+                    operator: this.convertComparisonOperator(query.operator),
+                    time_frame: this.convertTimeFrame(query.timeFame),
+                    value: query.value,
+                };
+                converted_query.push({ query: newele });
+                return converted_query;
+            }
+        });
+    }
+
     saveQueryGroupToDB() {
         let query_group = {
             name: this.queryGrouName,
@@ -131,30 +148,31 @@ export class AddQueryComponent {
 
         let converted_query = [];
         this.query.rules.forEach((element: QueryString) => {
-            let newele = {
-                metric: element.field.toUpperCase(),
-                operator: this.convertComparisonOperator(element.operator),
-                time_frame: this.convertTimeFrame(element.timeFame),
-                value: element.value,
-            };
-            converted_query.push({ query: newele });
+            if (element.rules) {
+                converted_query = this.covertQuery(
+                    element.rules,
+                    converted_query
+                );
+            }
         });
 
-        this.http
-            .post(this.baseUrl + '/query-group', query_group)
-            .subscribe((id) => {
-                query_id = id;
-                let query_logic = {
-                    queryGroupId: query_id,
-                    logic_operator: this.query.condition.toUpperCase(),
-                    children: [...converted_query],
-                };
+        console.log(converted_query);
 
-                this.http
-                    .post(this.baseUrl + '/query-logic', query_logic)
-                    .subscribe((res) => {
-                        console.log(res);
-                    });
-            });
+        // this.http
+        //     .post(this.baseUrl + '/query-group', query_group)
+        //     .subscribe((id) => {
+        //         query_id = id;
+        //         let query_logic = {
+        //             queryGroupId: query_id,
+        //             logic_operator: this.query.condition.toUpperCase(),
+        //             children: [...converted_query],
+        //         };
+
+        //         this.http
+        //             .post(this.baseUrl + '/query-logic', query_logic)
+        //             .subscribe((res) => {
+        //                 console.log(res);
+        //             });
+        //     });
     }
 }

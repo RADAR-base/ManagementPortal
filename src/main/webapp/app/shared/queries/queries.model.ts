@@ -25,4 +25,5 @@ export interface QueryString {
     operator?: string;
     timeFame?: any;
     value?: any;
+    rules?: [QueryString];
 }
