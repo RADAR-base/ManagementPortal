@@ -65,7 +65,7 @@ class QueryResource(
         return  ResponseEntity.ok(list);
     }
 
-    @PostMapping("assignQueryGroup")
+    @PostMapping("queryparticipant")
     fun assignQueryGroup(@RequestBody queryJson: String?):ResponseEntity<*>{
         var queryParticipantId: Long? = null
 
@@ -82,12 +82,12 @@ class QueryResource(
         return ResponseEntity.ok(queryParticipantId)
     }
 
-    @GetMapping("getAssignedQueryGroups")
-    fun getAssignedQueries(@RequestParam subjectID:Long):ResponseEntity<*>{
-        return ResponseEntity.ok(queryBuilderService.getAssignedQueryGroups(subjectID))
+    @GetMapping("querygroups/subject/{subjectid}")
+    fun getAssignedQueries(@PathVariable subjectid:Long):ResponseEntity<*>{
+        return ResponseEntity.ok(queryBuilderService.getAssignedQueryGroups(subjectid))
     }
 
-    @DeleteMapping("deleteAssignedQueryGroup/{subjectid}/{querygroupid}")
+    @DeleteMapping("querygroups/{subjectid}/subject/{querygroupid}")
     fun deleteAssignedQueryGroup(@PathVariable subjectid: Long, @PathVariable querygroupid:Long){
             queryBuilderService.deleteQueryParticipantByQueryGroup(subjectid,querygroupid)
     }

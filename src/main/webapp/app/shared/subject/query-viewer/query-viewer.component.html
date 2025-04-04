@@ -33,6 +33,7 @@
         <label class="form-control-label"> Query Groups</label>
         <div class="flex-box">
             <select
+                class="form-control"
                 [(ngModel)]="selectedGroup"
                 (ngModelChange)="changeSelectGroup()"
             >
@@ -65,7 +66,10 @@
                     {{ query.createdBy.lastName }}
                 </td>
                 <td>
-                    <button (click)="deleteAssignedGroup(query.id)">
+                    <button
+                        (click)="deleteAssignedGroup(query.id)"
+                        class="btn btn-secondary"
+                    >
                         Delete
                     </button>
                 </td>

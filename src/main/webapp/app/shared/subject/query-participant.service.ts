@@ -16,21 +16,21 @@ export class QueryParticipantService {
 
     assignQueryGroup(queryParticipant: QueryParticipant) {
         return this.http.post(
-            this.baseURL + '/assignQueryGroup',
+            this.baseURL + '/queryparticipant',
             queryParticipant
         );
     }
 
-    getAllAssignedQueries(subjectID: number) {
-        let params = {
-            subjectID: subjectID,
-        };
-        return this.http.get(this.baseURL + '/getAssignedQueryGroups', {
-            params: params,
-        });
+    getAllAssignedQueries(subjectid: number) {
+        return this.http.get(
+            this.baseURL + `/querygroups/subject/${subjectid}`
+        );
     }
 
-    deleteAssignedQueryGroup(subjectid:number, querygroupid:number){
-        return this.http.delete(this.baseURL+`/deleteAssignedQueryGroup/${subjectid}/${querygroupid}`)
+    deleteAssignedQueryGroup(subjectid: number, querygroupid: number) {
+        return this.http.delete(
+            this.baseURL +
+                `/querygroups/${subjectid}/subject/${querygroupid}`
+        );
     }
 }
