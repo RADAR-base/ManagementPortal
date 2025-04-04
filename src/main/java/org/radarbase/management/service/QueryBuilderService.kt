@@ -123,8 +123,13 @@ public class QueryBuilderService(
         return queryGroups;
     }
 
-    fun deleteQueryParticipantByQueryGroup(subjectID: Long, queryGroupID: Long){
-        queryParticipantRepository.deleteByQueryGroup(subjectID,queryGroupID)
+    fun deleteQueryParticipantByQueryGroup(subjectID: Long, queryGroupID: Long) {
+        queryParticipantRepository.delete(
+            queryParticipantRepository.findBySubjectIdAndQueryGroupId(
+                subjectID,
+                queryGroupID
+            )
+        )
 
     }
 

@@ -12,7 +12,6 @@ interface QueryParticipantRepository : JpaRepository<QueryParticipant, Long>  {
 
     fun findBySubjectId(Subject_id: Long): List<QueryParticipant>
 
-    @Query(value = "delete from query_participant where subject_id = :subjectID and query_group_id = :queryGroupID;",nativeQuery = true)
-    fun deleteByQueryGroup(@Param("subjectID") subjectID: Long, @Param("queryGroupID") queryGroupID: Long)
-
+    fun findBySubjectIdAndQueryGroupId(Subject_id: Long, queryGroupID: Long) : QueryParticipant
+    
 }

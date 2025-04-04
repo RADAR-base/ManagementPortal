@@ -40,22 +40,35 @@
                     {{ query.name }}
                 </option>
             </select>
-            <button class="btn btn-primary" type="submit" (click)="assignQueryGroup()">Assign</button>
+            <button
+                class="btn btn-primary"
+                type="submit"
+                (click)="assignQueryGroup()"
+            >
+                Assign
+            </button>
         </div>
 
         <label class="form-control-label"> Assigned Queries</label>
         <table class="table">
-            <tr >
+            <tr>
                 <th>Query Group Name</th>
                 <th>Date Added</th>
                 <th>Researcher</th>
                 <th>Action</th>
             </tr>
             <tr *ngFor="let query of assignedQueryGroups">
-                <td>{{query.name}}</td>
-                <td>{{query.createdDate}}</td>
-                <td>{{query.createdBy.firstName}} {{query.createdBy.lastName}}</td>
-                <td><button (click)="deleteAssignedGroup(query.id)">Delete</button></td>
+                <td>{{ query.name }}</td>
+                <td>{{ query.createdDate | date : "yyyy-MM-dd" }}</td>
+                <td>
+                    {{ query.createdBy.firstName }}
+                    {{ query.createdBy.lastName }}
+                </td>
+                <td>
+                    <button (click)="deleteAssignedGroup(query.id)">
+                        Delete
+                    </button>
+                </td>
             </tr>
         </table>
     </div>
