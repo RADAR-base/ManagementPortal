@@ -117,17 +117,19 @@ public class QueryBuilderService(
         var queryGroups = mutableListOf<QueryGroup>()
 
         for(queryParticipant in queryParticipantList ){
-            var group = queryGroupRepository.findById(queryParticipant.queryGroup!!.id).get()
-            queryGroups.add(group)
+            var group =queryParticipant.queryGroup
+            if (group != null) {
+                queryGroups.add(group)
+            }
         }
         return queryGroups;
     }
 
-    fun deleteQueryParticipantByQueryGroup(subjectID: Long, queryGroupID: Long) {
+    fun deleteQueryParticipantByQueryGroup(subjectId: Long, queryGroupId: Long) {
         queryParticipantRepository.delete(
             queryParticipantRepository.findBySubjectIdAndQueryGroupId(
-                subjectID,
-                queryGroupID
+                subjectId,
+                queryGroupId
             )
         )
 

@@ -10,8 +10,8 @@ import org.springframework.data.repository.query.Param
 @RepositoryDefinition(domainClass = QueryParticipant::class, idClass = Long::class)
 interface QueryParticipantRepository : JpaRepository<QueryParticipant, Long>  {
 
-    fun findBySubjectId(Subject_id: Long): List<QueryParticipant>
+    fun findBySubjectId(subjectId: Long): List<QueryParticipant>
 
-    fun findBySubjectIdAndQueryGroupId(Subject_id: Long, queryGroupID: Long) : QueryParticipant
+    fun findBySubjectIdAndQueryGroupId(subjectId: Long, queryGroupId: Long) : QueryParticipant
     
 }

@@ -82,14 +82,14 @@ class QueryResource(
         return ResponseEntity.ok(queryParticipantId)
     }
 
-    @GetMapping("querygroups/subject/{subjectid}")
-    fun getAssignedQueries(@PathVariable subjectid:Long):ResponseEntity<*>{
-        return ResponseEntity.ok(queryBuilderService.getAssignedQueryGroups(subjectid))
+    @GetMapping("querygroups/subject/{subjectId}")
+    fun getAssignedQueries(@PathVariable subjectId:Long):ResponseEntity<*>{
+        return ResponseEntity.ok(queryBuilderService.getAssignedQueryGroups(subjectId))
     }
 
-    @DeleteMapping("querygroups/{subjectid}/subject/{querygroupid}")
-    fun deleteAssignedQueryGroup(@PathVariable subjectid: Long, @PathVariable querygroupid:Long){
-            queryBuilderService.deleteQueryParticipantByQueryGroup(subjectid,querygroupid)
+    @DeleteMapping("querygroups/{subjectId}/subject/{queryGroupId}")
+    fun deleteAssignedQueryGroup(@PathVariable subjectId: Long, @PathVariable queryGroupId:Long){
+            queryBuilderService.deleteQueryParticipantByQueryGroup(subjectId,queryGroupId)
     }
 
 

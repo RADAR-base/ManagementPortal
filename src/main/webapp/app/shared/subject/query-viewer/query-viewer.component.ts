@@ -61,10 +61,6 @@ export class QueryViewerComponent implements OnInit, OnDestroy {
             });
     }
 
-    changeSelectGroup() {
-        console.log(this.selectedGroup);
-    }
-
     async assignQueryGroup() {
         if (this.selectedGroup) {
             this.queryPriticipant.queryGroupId = this.selectedGroup;
@@ -80,7 +76,6 @@ export class QueryViewerComponent implements OnInit, OnDestroy {
     }
 
     removeQueryGroupFromList(queryGroupId) {
-        console.log(queryGroupId);
         this.queryGroupList = this.queryGroupList.filter((item) => {
             return item.id != queryGroupId;
         });

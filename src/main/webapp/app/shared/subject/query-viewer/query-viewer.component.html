@@ -35,7 +35,6 @@
             <select
                 class="form-control"
                 [(ngModel)]="selectedGroup"
-                (ngModelChange)="changeSelectGroup()"
             >
                 <option *ngFor="let query of queryGroupList" [value]="query.id">
                     {{ query.name }}
