@@ -20,6 +20,7 @@ import javax.validation.constraints.Email
 import javax.validation.constraints.NotNull
 import javax.validation.constraints.Pattern
 import javax.validation.constraints.Size
+import kotlin.jvm.Transient
 
 /**
  * A user.
@@ -29,7 +30,7 @@ import javax.validation.constraints.Size
 @EntityListeners(
     AbstractEntityListener::class
 )
-class QueryLogic: AbstractEntity(), Serializable  {
+ class QueryLogic: AbstractEntity(), Serializable  {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
     @SequenceGenerator(name = "sequenceGenerator", initialValue = 1000, sequenceName = "hibernate_sequence")
@@ -43,10 +44,12 @@ class QueryLogic: AbstractEntity(), Serializable  {
 
     @JvmField
     @Column(name = "type")
+    @Enumerated(EnumType.STRING)
     var type: QueryLogicType? = null;
 
     @JvmField
     @Column(name = "logic_operator")
+    @Enumerated(EnumType.STRING)
    var logic_operator: QueryLogicOperator? = null;
 
     @JvmField
@@ -60,6 +63,10 @@ class QueryLogic: AbstractEntity(), Serializable  {
     @JoinColumn(unique = true, name = "parent_id")
     @Cascade(CascadeType.ALL)
     var parent: QueryLogic? = null
+
+
+    @Transient
+    var children: MutableList<QueryLogic> = mutableListOf()
 
 
     companion object {

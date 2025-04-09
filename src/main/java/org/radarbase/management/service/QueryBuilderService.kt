@@ -1,11 +1,11 @@
 package org.radarbase.management.service
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import org.radarbase.management.domain.Query
 import org.radarbase.management.domain.QueryGroup
 import org.radarbase.management.domain.QueryLogic
 import org.radarbase.management.domain.User
 import org.radarbase.management.domain.enumeration.QueryLogicType
+import org.radarbase.management.domain.enumeration.QueryMetric
+import org.radarbase.management.domain.enumeration.QueryTimeFrame
 import org.radarbase.management.repository.QueryGroupRepository
 import org.radarbase.management.repository.QueryLogicRepository
 import org.radarbase.management.repository.QueryRepository
@@ -14,11 +14,14 @@ import org.radarbase.management.service.dto.QueryDTO
 import org.radarbase.management.service.dto.QueryGroupDTO
 import org.radarbase.management.service.dto.QueryLogicDTO
 import org.slf4j.LoggerFactory
-import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.io.IOException
+import java.time.LocalDate
 import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+import java.time.format.TextStyle
+import java.util.*
 
 
 @Service

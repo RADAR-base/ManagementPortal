@@ -35,10 +35,12 @@ class Query: AbstractEntity(), Serializable {
 
     @JvmField
     @Column(name = "query_metric")
+    @Enumerated(EnumType.STRING)
      var metric: QueryMetric? = null;
 
     @JvmField
     @Column(name = "comparison_operator")
+    @Enumerated(EnumType.STRING)
     var operator: ComparisonOperator? = null;
 
     @JvmField
@@ -48,6 +50,7 @@ class Query: AbstractEntity(), Serializable {
 
     @JvmField
     @Column(name = "time_frame")
+    @Enumerated(EnumType.STRING)
      var time_frame: QueryTimeFrame? = null;
 
     override fun toString(): String {

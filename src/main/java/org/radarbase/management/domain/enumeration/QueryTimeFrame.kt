@@ -1,10 +1,8 @@
 package org.radarbase.management.domain.enumeration
 
-enum class QueryTimeFrame {
-    LAST_7_DAYS,
-    PAST_MONTH,
-    PAST_6_MONTH,
-    PAST_YEAR,
-    GREATER_THAN_OR_EQUALS,
-    LESS_THAN_OR_EQUALS
+enum class QueryTimeFrame(val symbol: String) {
+    LAST_7_DAYS("7"),
+    PAST_MONTH("30"),
+    PAST_6_MONTH("180"),
+    PAST_YEAR("365"),
 }
