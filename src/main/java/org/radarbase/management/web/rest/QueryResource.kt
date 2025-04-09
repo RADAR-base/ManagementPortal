@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/api/query-builder")
 class QueryResource(
     @Autowired private val queryBuilderService: QueryBuilderService,
-    @Autowired private var userRepository: UserRepository,
     @Autowired private val userService: UserService
 
 ) {
