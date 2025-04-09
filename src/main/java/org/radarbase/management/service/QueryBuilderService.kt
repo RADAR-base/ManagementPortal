@@ -97,8 +97,20 @@ public class QueryBuilderService(
         return queryRepository.findAll();
     }
 
+    @Transactional
     fun deleteQueryByID(id: Long){
-        queryRepository.deleteById(id);
+        // need to delete all related query group; query logics and query participants
+        var query = queryRepository.findById(id).get()
+        var queryGroup = queryGroupRepository.findById(query.queryGroup?.id).orElseThrow()
+
+        var queryLogics =  queryLogicRepository.findByQueryGroupId(query.queryGroup?.id!!)
+
+        println(queryGroup)
+        queryGroupRepository.delete(queryGroup)
+        queryRepository.deleteById(id)
+        queryLogicRepository.deleteAll(queryLogics)
+
+        queryGroupRepository.flush()
     }
 
     companion object {
