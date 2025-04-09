@@ -1,19 +1,15 @@
 package org.radarbase.management.service
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import org.radarbase.management.domain.Query
-import org.radarbase.management.domain.QueryGroup
-import org.radarbase.management.domain.QueryLogic
-import org.radarbase.management.domain.User
+import org.radarbase.management.domain.*
 import org.radarbase.management.domain.enumeration.QueryLogicType
-import org.radarbase.management.repository.QueryGroupRepository
-import org.radarbase.management.repository.QueryLogicRepository
-import org.radarbase.management.repository.QueryRepository
-import org.radarbase.management.repository.UserRepository
+import org.radarbase.management.repository.*
 import org.radarbase.management.service.dto.QueryDTO
 import org.radarbase.management.service.dto.QueryGroupDTO
 import org.radarbase.management.service.dto.QueryLogicDTO
+import org.radarbase.management.service.dto.QueryParticipantDTO
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -27,7 +23,10 @@ public class QueryBuilderService(
     private val queryLogicRepository:  QueryLogicRepository,
     private val queryGroupRepository: QueryGroupRepository,
     private val queryRepository: QueryRepository,
-    private var userRepository: UserRepository
+    private var userRepository: UserRepository,
+    private val subjectRepository: SubjectRepository,
+    @Autowired private val userService: UserService,
+    private var queryParticipantRepository: QueryParticipantRepository
 ) {
 
     fun saveQuery(queryGroup: QueryGroup, query: QueryDTO): Query {
@@ -111,9 +110,51 @@ public class QueryBuilderService(
         queryLogicRepository.deleteAll(queryLogics)
 
         queryGroupRepository.flush()
+    fun getQueryGroupList(): MutableList<QueryGroup> {
+        return queryGroupRepository.findAll();
+    }
+
+    fun assignQueryGroup(queryParticipantDTO: QueryParticipantDTO): Long?{
+        var queryParticipant = QueryParticipant()
+        val queryGroup = queryGroupRepository.findById(queryParticipantDTO.queryGroupId!!).get()
+        val user = userService.getUserWithAuthorities()
+
+        queryParticipant.queryGroup= queryGroup
+        queryParticipant.createdBy= user
+        queryParticipant.subject = subjectRepository.findById(queryParticipantDTO.subjectId!!).get();
+        queryParticipant.createdDate = ZonedDateTime.now();
+        queryParticipant = queryParticipantRepository.save(queryParticipant)
+        queryGroupRepository.flush()
+
+        return queryParticipant.id;
+    }
+
+    fun getAssignedQueryGroups(subjectId: Long): MutableList<QueryGroup> {
+        var queryParticipantList =  queryParticipantRepository.findBySubjectId(subjectId)
+
+        var queryGroups = mutableListOf<QueryGroup>()
+
+        for(queryParticipant in queryParticipantList ){
+            var group =queryParticipant.queryGroup
+            if (group != null) {
+                queryGroups.add(group)
+            }
+        }
+        return queryGroups;
+    }
+
+    fun deleteQueryParticipantByQueryGroup(subjectId: Long, queryGroupId: Long) {
+        queryParticipantRepository.delete(
+            queryParticipantRepository.findBySubjectIdAndQueryGroupId(
+                subjectId,
+                queryGroupId
+            )
+        )
+
     }
 
     companion object {
         private val log = LoggerFactory.getLogger(QueryBuilderService::class.java)
     }
 }
+

@@ -9,26 +9,17 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.radarbase.auth.authorization.RoleAuthority
 import org.radarbase.management.ManagementPortalTestApp
-import org.radarbase.management.domain.Authority
-import org.radarbase.management.domain.QueryGroup
-import org.radarbase.management.domain.Role
-import org.radarbase.management.domain.User
+import org.radarbase.management.domain.*
 import org.radarbase.management.domain.audit.CustomRevisionEntity
 import org.radarbase.management.domain.enumeration.ComparisonOperator
 import org.radarbase.management.domain.enumeration.QueryLogicOperator
 import org.radarbase.management.domain.enumeration.QueryMetric
 import org.radarbase.management.domain.enumeration.QueryTimeFrame
-import org.radarbase.management.repository.QueryGroupRepository
-import org.radarbase.management.repository.QueryLogicRepository
-import org.radarbase.management.repository.QueryRepository
-import org.radarbase.management.repository.UserRepository
+import org.radarbase.management.repository.*
 import org.radarbase.management.repository.filters.UserFilter
 import org.radarbase.management.security.Constants
 import org.radarbase.management.security.NotAuthorizedException
-import org.radarbase.management.service.dto.QueryDTO
-import org.radarbase.management.service.dto.QueryGroupDTO
-import org.radarbase.management.service.dto.QueryLogicDTO
-import org.radarbase.management.service.dto.UserDTO
+import org.radarbase.management.service.dto.*
 import org.radarbase.management.service.mapper.UserMapper
 import org.radarbase.management.web.rest.TestUtil
 import org.springframework.beans.factory.annotation.Autowired
@@ -45,9 +36,9 @@ import javax.persistence.EntityManager
 import javax.persistence.EntityManagerFactory
 
 /**
- * Test class for the UserResource REST controller.
+ * Test class for the QueryResource REST controller.
  *
- * @see UserService
+ * @see QueryResource
  */
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(classes = [ManagementPortalTestApp::class])
@@ -56,11 +47,8 @@ class QueryServiceTest(
     @Autowired private val queryService: QueryBuilderService,
     @Autowired private val userRepository: UserRepository,
     @Autowired private val queryGroupRepository: QueryGroupRepository,
-    @Autowired private val queryLogicRepository: QueryLogicRepository
-
-
-
-
+    @Autowired private val queryLogicRepository: QueryLogicRepository,
+    @Autowired private val queryParticipantRepository: QueryParticipantRepository
 ) {
     private lateinit var entityManager: EntityManager
     private lateinit var userDto: UserDTO
@@ -93,8 +81,6 @@ class QueryServiceTest(
 
     @Test
     fun processQueryLogicJson() {
-        val sizeBefore = queryLogicRepository.findAll().size
-
         val queryGroupDTO = QueryGroupDTO();
         queryGroupDTO.name = "QueryGroup"
         queryGroupDTO.description = "This is description"
@@ -123,12 +109,58 @@ class QueryServiceTest(
         Assertions.assertThat(queryLogicRepository.findAll().size).isEqualTo(3)
     }
 
+    @Test
+    fun assignQueryGroup(){
+        val id = createQueryGroup(userRepository, queryService);
 
-    /**
-     * Create an expired user, save it and return the saved object.
-     * @param userRepository The UserRepository that will be used to save the object
-     * @return the saved object
-     */
+
+        val queryParticipant = createQueryParticipantDTO(id, 1)
+
+        queryService.assignQueryGroup(queryParticipant)
+
+        Assertions.assertThat(queryParticipantRepository.findAll().size).isEqualTo(1)
+    }
+
+    @Test
+    fun getQueryGroupList(){
+         createQueryGroup(userRepository, queryService);
+
+        val queryGroup = queryService.getQueryGroupList()
+
+        Assertions.assertThat(queryGroup.get(0).name).isEqualTo("QueryGroup")
+        Assertions.assertThat(queryGroup.get(0).description).isEqualTo("This is description")
+    }
+
+    @Test
+    fun getAssignedQueryGroups(){
+        val user = userRepository.findOneByLogin("admin");
+        val id = createQueryGroup(userRepository, queryService);
+
+        val queryParticipant = createQueryParticipantDTO(id,user?.id!!)
+
+        queryService.assignQueryGroup(queryParticipant)
+
+        val queryGroups = queryService.getAssignedQueryGroups(user?.id!!)
+
+        Assertions.assertThat(queryGroups.get(0).id).isEqualTo(id)
+    }
+
+    @Test
+    fun deleteQueryParticipantByQueryGroup(){
+        val user = userRepository.findOneByLogin("admin");
+        val id = createQueryGroup(userRepository, queryService);
+
+        val queryParticipant = createQueryParticipantDTO(id,user?.id!!)
+
+        queryService.assignQueryGroup(queryParticipant)
+
+        val size = queryParticipantRepository.findAll().size
+
+        queryService.deleteQueryParticipantByQueryGroup(user?.id!!,id)
+
+        Assertions.assertThat(queryParticipantRepository.findAll().size).isEqualTo(size-1)
+
+    }
 
 
     companion object {
@@ -141,14 +173,56 @@ class QueryServiceTest(
             return query
         }
 
-    fun createQueryLogicDTOWithQuery(queryDTO: QueryDTO) : QueryLogicDTO{
-            val queryLogicDTO = QueryLogicDTO()
-            queryLogicDTO.query = queryDTO;
-            return queryLogicDTO;
+        fun createQueryLogicDTOWithQuery(queryDTO: QueryDTO) : QueryLogicDTO{
+                val queryLogicDTO = QueryLogicDTO()
+                queryLogicDTO.query = queryDTO;
+                return queryLogicDTO;
+            }
+
+
+        fun createQueryGroup(userRepository: UserRepository, queryService: QueryBuilderService): Long{
+            val queryGroupDTO = QueryGroupDTO();
+            queryGroupDTO.name = "QueryGroup"
+            queryGroupDTO.description = "This is description"
+
+            val user = userRepository.findOneByLogin("admin")
+
+            val id = queryService.createQueryGroup(queryGroupDTO, user!!)
+
+            return id!!
+        }
+
+        fun createQueryParticipantDTO(queryGroupId: Long, subjectId: Long) : QueryParticipantDTO{
+            val queryParticipant = QueryParticipantDTO()
+            val userDTO = createUserDTO();
+
+
+            queryParticipant.queryGroupId = queryGroupId
+            queryParticipant.subjectId = subjectId
+            queryParticipant.createdBy = userDTO
+
+            return queryParticipant
         }
 
 
 
+        fun createUserDTO(): UserDTO{
+            val roles: MutableSet<RoleDTO> = HashSet()
+            val role = RoleDTO()
+            role.authorityName = RoleAuthority.SYS_ADMIN_AUTHORITY
+            roles.add(role)
+            val testUser = UserDTO()
+            testUser.login = "admin"
+            testUser.firstName = "admin"
+            testUser.lastName = "admin"
+            testUser.email = "admin@example.com"
+            testUser.isActivated = true
+            testUser.langKey = "en"
+            testUser.roles = roles
+
+
+            return testUser
+        }
 
     }
 }
