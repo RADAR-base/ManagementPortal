@@ -46,8 +46,9 @@ class QueryResource(
             else -> null
         }
     }
-        @PostMapping("query-group")
-        fun createQueryGroup(@RequestBody queryJson: String?): ResponseEntity<Long?> {
+
+    @PostMapping("query-group")
+    fun createQueryGroup(@RequestBody queryJson: String?): ResponseEntity<Long?> {
             var queryGroupId: Long? = null
         if(queryJson.isNullOrEmpty() == false) {
             val objectMapper = jacksonObjectMapper()
@@ -62,45 +63,48 @@ class QueryResource(
     }
 
     @GetMapping("queries")
-        fun getQueryList(): ResponseEntity<MutableList<Query>> {
-           var list =  queryBuilderService.getQueryList();
+    fun getQueryList(): ResponseEntity<MutableList<Query>> {
+        var list = queryBuilderService.getQueryList()
+        return ResponseEntity.ok(list)
+    }
+
     @GetMapping("querygroups")
     fun getQueryGroupList(): ResponseEntity<MutableList<QueryGroup>> {
-        var list =  queryBuilderService.getQueryGroupList();
-
-        return  ResponseEntity.ok(list);
+            var list = queryBuilderService.getQueryGroupList()
+            return ResponseEntity.ok(list)
     }
 
     @DeleteMapping("query/{id}")
-    fun deleteQueryByID(@PathVariable("id")id: Long){
-        queryBuilderService.deleteQueryByID(id)
+    fun deleteQueryByID(@PathVariable("id") id: Long) {
+            queryBuilderService.deleteAllRelatedByQueryId(id)
     }
 
     @PostMapping("queryparticipant")
-    fun assignQueryGroup(@RequestBody queryJson: String?):ResponseEntity<*>{
-        var queryParticipantId: Long? = null
+    fun assignQueryGroup(@RequestBody queryJson: String?): ResponseEntity<*> {
+            var queryParticipantId: Long? = null
 
-        if(queryJson.isNullOrEmpty() == false) {
+            if (queryJson.isNullOrEmpty() == false) {
 
-            val objectMapper = jacksonObjectMapper()
-            val queryParticipantDTO: QueryParticipantDTO = objectMapper.readValue(queryJson)
-            val user = userService.getUserWithAuthorities()
+                val objectMapper = jacksonObjectMapper()
+                val queryParticipantDTO: QueryParticipantDTO = objectMapper.readValue(queryJson)
+                val user = userService.getUserWithAuthorities()
 
-            if(user != null) {
-                queryParticipantId = queryBuilderService.assignQueryGroup(queryParticipantDTO)
+                if (user != null) {
+                    queryParticipantId = queryBuilderService.assignQueryGroup(queryParticipantDTO)
+                }
             }
+            return ResponseEntity.ok(queryParticipantId)
         }
-        return ResponseEntity.ok(queryParticipantId)
-    }
 
     @GetMapping("querygroups/subject/{subjectId}")
-    fun getAssignedQueries(@PathVariable subjectId:Long):ResponseEntity<*>{
-        return ResponseEntity.ok(queryBuilderService.getAssignedQueryGroups(subjectId))
+    fun getAssignedQueries(@PathVariable subjectId: Long): ResponseEntity<*> {
+            return ResponseEntity.ok(queryBuilderService.getAssignedQueryGroups(subjectId))
     }
 
     @DeleteMapping("querygroups/{subjectId}/subject/{queryGroupId}")
-    fun deleteAssignedQueryGroup(@PathVariable subjectId: Long, @PathVariable queryGroupId:Long){
-            queryBuilderService.deleteQueryParticipantByQueryGroup(subjectId,queryGroupId)
+    fun deleteAssignedQueryGroup(@PathVariable subjectId: Long, @PathVariable queryGroupId: Long) {
+
+            queryBuilderService.deleteQueryParticipantByQueryGroup(subjectId, queryGroupId)
     }
 
 

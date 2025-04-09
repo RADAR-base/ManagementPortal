@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.io.IOException
 import java.time.ZonedDateTime
+import javax.persistence.EntityNotFoundException
 
 
 @Service
@@ -93,23 +94,24 @@ public class QueryBuilderService(
     }
 
     fun getQueryList(): MutableList<Query> {
-        return queryRepository.findAll();
+        return queryRepository.findAll()
     }
 
     @Transactional
-    fun deleteQueryByID(id: Long){
-        // need to delete all related query group; query logics and query participants
-        var query = queryRepository.findById(id).get()
-        var queryGroup = queryGroupRepository.findById(query.queryGroup?.id).orElseThrow()
+    fun deleteAllRelatedByQueryId(queryId: Long) {
+        val query = queryRepository.findById(queryId)
+            .orElseThrow { EntityNotFoundException("Query with id=$queryId not found") }
 
-        var queryLogics =  queryLogicRepository.findByQueryGroupId(query.queryGroup?.id!!)
+        val groupId = query.queryGroup?.id
+            ?: throw IllegalStateException("Query with id=$queryId has no associated QueryGroup")
 
-        println(queryGroup)
-        queryGroupRepository.delete(queryGroup)
-        queryRepository.deleteById(id)
-        queryLogicRepository.deleteAll(queryLogics)
+        val group = queryGroupRepository.findById(groupId)
+            .orElseThrow { EntityNotFoundException("QueryGroup with id=$groupId not found") }
 
-        queryGroupRepository.flush()
+        queryGroupRepository.delete(group)
+    }
+
+
     fun getQueryGroupList(): MutableList<QueryGroup> {
         return queryGroupRepository.findAll();
     }
