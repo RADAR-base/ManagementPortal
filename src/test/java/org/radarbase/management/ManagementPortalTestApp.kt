@@ -2,6 +2,7 @@ package org.radarbase.management
 
 import KratosContainer
 import org.radarbase.management.config.ApplicationProperties
+import org.radarbase.management.config.KratosProperties
 import org.radarbase.management.config.ManagementPortalProperties
 import org.slf4j.LoggerFactory
 import org.springframework.boot.SpringApplication
@@ -31,7 +32,10 @@ import javax.annotation.PostConstruct
 )
 @EnableAutoConfiguration
 @EnableConfigurationProperties(
-    LiquibaseProperties::class, ApplicationProperties::class, ManagementPortalProperties::class
+    LiquibaseProperties::class,
+    ApplicationProperties::class,
+    ManagementPortalProperties::class,
+    KratosProperties::class
 )
 class ManagementPortalTestApp(private val env: Environment) {
     private val kratosContainer = KratosContainer()
@@ -51,24 +55,34 @@ class ManagementPortalTestApp(private val env: Environment) {
      */
     @PostConstruct
     fun initApplication() {
-        if (env.acceptsProfiles(Profiles.of(JHipsterConstants.SPRING_PROFILE_DEVELOPMENT))
-            && env.acceptsProfiles(Profiles.of(JHipsterConstants.SPRING_PROFILE_PRODUCTION))
-        ) {
-            log.error(
-                "You have misconfigured your application! It should not run "
-                        + "with both the 'dev' and 'prod' profiles at the same time."
-            )
-        }
-        if (env.acceptsProfiles(Profiles.of(JHipsterConstants.SPRING_PROFILE_DEVELOPMENT))
-            && env.acceptsProfiles(Profiles.of(JHipsterConstants.SPRING_PROFILE_CLOUD))
-        ) {
-            log.error(
-                "You have misconfigured your application! It should not"
-                        + "run with both the 'dev' and 'cloud' profiles at the same time."
-            )
-        }
+       if (env.acceptsProfiles(Profiles.of(JHipsterConstants.SPRING_PROFILE_DEVELOPMENT))
+        && env.acceptsProfiles(Profiles.of(JHipsterConstants.SPRING_PROFILE_PRODUCTION))
+    ) {
+        log.error(
+            "You have misconfigured your application! It should not run "
+                    + "with both the 'dev' and 'prod' profiles at the same time."
+        )
+    }
+    if (env.acceptsProfiles(Profiles.of(JHipsterConstants.SPRING_PROFILE_DEVELOPMENT))
+        && env.acceptsProfiles(Profiles.of(JHipsterConstants.SPRING_PROFILE_CLOUD))
+    ) {
+        log.error(
+            "You have misconfigured your application! It should not"
+                    + "run with both the 'dev' and 'cloud' profiles at the same time."
+        )
+    }
 
-        kratosContainer.start()
+    kratosContainer.start()
+
+    val kratosPublicPort = kratosContainer.getPublicUrl()
+    val kratosAdminPort = kratosContainer.getAdminUrl()
+
+    log.info("KratosContainer started:")
+    log.info("Public API at: $kratosPublicPort")
+    log.info("Admin API at:  $kratosAdminPort")
+
+    System.setProperty("kratos.public-url", kratosContainer.getPublicUrl())
+    System.setProperty("kratos.admin-url", kratosContainer.getAdminUrl())
     }
 
     companion object {
