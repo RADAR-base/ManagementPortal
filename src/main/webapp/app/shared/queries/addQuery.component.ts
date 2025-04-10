@@ -7,6 +7,8 @@ import {
 import { FormBuilder, FormControl, NgForm } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { QueryString } from './queries.model';
+import { Router } from '@angular/router';
+import { Location } from '@angular/common';
 
 @Component({
     selector: 'jhi-queries',
@@ -70,11 +72,24 @@ export class AddQueryComponent {
     public allowCollapse: boolean;
     public persistValueOnFieldChange: boolean = false;
 
-    constructor(private formBuilder: FormBuilder, private http: HttpClient) {
+    private canGoBack: boolean = false;
+
+    constructor(
+        private formBuilder: FormBuilder,
+        private http: HttpClient,
+        private router: Router,
+        private readonly location: Location
+    ) {
         this.queryCtrl = this.formBuilder.control(this.query);
         this.currentConfig = this.config;
+        this.canGoBack =
+            !!this.router.getCurrentNavigation()?.previousNavigation;
     }
-
+    goBack(): void {
+        if (this.canGoBack) {
+            this.location.back();
+        }
+    }
     changeDisabled(event: Event) {
         (<HTMLInputElement>event.target).checked
             ? this.queryCtrl.disable()
@@ -122,57 +137,45 @@ export class AddQueryComponent {
         }
     }
 
-    covertQuery(original_query: [QueryString], converted_query): any {
-        original_query.forEach((query) => {
-            if (query.rules) {
-                return this.covertQuery(query.rules, converted_query);
+    covertQuery(original_query: QueryString[]): any[] {
+        return original_query.reduce((acc, query) => {
+            if (Array.isArray(query.rules) && query.rules.length > 0) {
+                return acc.concat(this.covertQuery(query.rules));
             } else {
-                let newele = {
-                    metric: query.field.toUpperCase(),
+                const newele = {
+                    metric: query.field?.toUpperCase() || '',
                     operator: this.convertComparisonOperator(query.operator),
                     time_frame: this.convertTimeFrame(query.timeFame),
                     value: query.value,
                 };
-                converted_query.push({ query: newele });
-                return converted_query;
+                return acc.concat({ query: newele });
             }
-        });
+        }, []);
     }
 
     saveQueryGroupToDB() {
-        let query_group = {
+        const query_group = {
             name: this.queryGrouName,
             description: this.queryGroupDesc,
         };
-        let query_id;
 
-        let converted_query = [];
-        this.query.rules.forEach((element: QueryString) => {
-            if (element.rules) {
-                converted_query = this.covertQuery(
-                    element.rules,
-                    converted_query
-                );
-            }
-        });
-
+        const converted_query = this.covertQuery(this.query.rules);
         console.log(converted_query);
 
-        // this.http
-        //     .post(this.baseUrl + '/query-group', query_group)
-        //     .subscribe((id) => {
-        //         query_id = id;
-        //         let query_logic = {
-        //             queryGroupId: query_id,
-        //             logic_operator: this.query.condition.toUpperCase(),
-        //             children: [...converted_query],
-        //         };
+        this.http
+            .post(this.baseUrl + '/query-group', query_group)
+            .subscribe((id) => {
+                let query_logic = {
+                    queryGroupId: id,
+                    logic_operator: this.query.condition.toUpperCase(),
+                    children: [...converted_query],
+                };
 
-        //         this.http
-        //             .post(this.baseUrl + '/query-logic', query_logic)
-        //             .subscribe((res) => {
-        //                 console.log(res);
-        //             });
-        //     });
+                this.http
+                    .post(this.baseUrl + '/query-logic', query_logic)
+                    .subscribe((res) => {
+                        this.goBack();
+                    });
+            });
     }
 }
