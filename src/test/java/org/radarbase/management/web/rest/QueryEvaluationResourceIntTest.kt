@@ -32,9 +32,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.test.web.servlet.setup.StandaloneMockMvcBuilder
 import org.springframework.transaction.annotation.Transactional
 import java.lang.Boolean
-import java.time.Instant
-import java.time.ZoneId
-import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import javax.servlet.ServletException
 import kotlin.Exception
@@ -50,7 +47,7 @@ import kotlin.to
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(classes = [ManagementPortalTestApp::class])
 @WithMockUser
-internal class QueryResourceIntTest(
+internal class QueryEvaluationResourceIntTest(
     @Autowired private val queryResource: QueryResource,
 
     @Autowired private val projectRepository: ProjectRepository,
