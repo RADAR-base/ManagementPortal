@@ -1,9 +1,7 @@
 package org.radarbase.management.web.rest
 
-import org.junit.jupiter.api.Assertions.assertTrue
-
 import kotlinx.coroutines.runBlocking
-import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -55,6 +53,7 @@ internal class QueryEvaluationResourceIntTest(
     @Autowired private val queryRepository: QueryRepository,
     @Autowired private val queryGroupRepository: QueryGroupRepository,
     @Autowired private val queryLogicRepository: QueryLogicRepository,
+    @Autowired private val queryEvaluationRepository: QueryEvaluationRepository,
 
     @Autowired private val userRepository: UserRepository ,
     @Autowired private val subjectRepository: SubjectRepository,
@@ -64,6 +63,8 @@ internal class QueryEvaluationResourceIntTest(
     @Autowired private val jacksonMessageConverter: MappingJackson2HttpMessageConverter,
     @Autowired private val exceptionTranslator: ExceptionTranslator,
     @Autowired private val passwordService: PasswordService,
+
+
 
 
     ) {
@@ -135,6 +136,9 @@ internal class QueryEvaluationResourceIntTest(
     @Transactional
     @Throws(Exception::class)
     fun evaluateQuery() {
+
+       var queryEvaluationSize = queryEvaluationRepository.findAll().size;
+
         var subject = subjectRepository.findAll()[0]
 
         val queryGroup = createQueryGroup();
@@ -157,7 +161,7 @@ internal class QueryEvaluationResourceIntTest(
                     DataPoint("2024-05", 55.0)
                 ),
                 "SLEEP_LENGTH" to listOf(
-                    DataPoint("2024-01", 8.0),
+                    DataPoint("2024-01", 7.0),
                     DataPoint("2024-02", 8.0),
                     DataPoint("2024-03", 8.0),
                     DataPoint("2024-04", 8.0),
@@ -185,7 +189,15 @@ internal class QueryEvaluationResourceIntTest(
         val content: String = returnValue.getResponse().getContentAsString()
         val response = Boolean.parseBoolean(content)
 
-        assertTrue(response)
+        assertFalse(response)
+
+
+        var queryEvaluationNewSize = queryEvaluationRepository.findAll().size;
+       assertEquals(queryEvaluationSize + 1, queryEvaluationNewSize)
+
+
+       var queryEvaluation =   queryEvaluationRepository.findAll()[0]
+        assertEquals(false, queryEvaluation.result)
 
 
         userData = UserData(
@@ -198,7 +210,7 @@ internal class QueryEvaluationResourceIntTest(
                     DataPoint("2024-05", 55.0)
                 ),
                 "SLEEP_LENGTH" to listOf(
-                    DataPoint("2024-01", 7.0),
+                    DataPoint("2024-01", 8.0),
                     DataPoint("2024-02", 8.0),
                     DataPoint("2024-03", 8.0),
                     DataPoint("2024-04", 8.0),
@@ -225,7 +237,14 @@ internal class QueryEvaluationResourceIntTest(
         val content1: String = returnValue1.getResponse().getContentAsString()
         val response1 = Boolean.parseBoolean(content1)
 
-        assertFalse(response1)
+        assertTrue(response1)
+
+         queryEvaluationNewSize = queryEvaluationRepository.findAll().size;
+        assertEquals(queryEvaluationSize + 1, queryEvaluationNewSize)
+
+
+         queryEvaluation =   queryEvaluationRepository.findAll()[0]
+        assertEquals(true, queryEvaluation.result)
 
 
     }
