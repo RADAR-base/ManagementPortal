@@ -54,7 +54,7 @@ export class AddQueryComponent {
         inputControlSize: 'col-auto',
     };
 
-    public query = {
+    public query: QueryString = {
         condition: 'and',
         rules: [{ field: 'heart_rate', operator: '<=' }],
     };
@@ -85,6 +85,8 @@ export class AddQueryComponent {
         this.canGoBack =
             !!this.router.getCurrentNavigation()?.previousNavigation;
     }
+
+    
     goBack(): void {
         if (this.canGoBack) {
             this.location.back();
@@ -121,6 +123,8 @@ export class AddQueryComponent {
                 return 'LESS_THAN';
             case '<=':
                 return 'LESS_THAN_OR_EQUALS';
+            default:
+                return null;
         }
     }
 
@@ -134,23 +138,29 @@ export class AddQueryComponent {
                 return 'LAST_7_DAYS';
             case 365:
                 return 'PAST_YEAR';
+            default:
+                return null;
         }
     }
 
-    covertQuery(original_query: QueryString[]): any[] {
-        return original_query.reduce((acc, query) => {
-            if (Array.isArray(query.rules) && query.rules.length > 0) {
-                return acc.concat(this.covertQuery(query.rules));
-            } else {
-                const newele = {
-                    metric: query.field?.toUpperCase() || '',
-                    operator: this.convertComparisonOperator(query.operator),
-                    time_frame: this.convertTimeFrame(query.timeFame),
-                    value: query.value,
-                };
-                return acc.concat({ query: newele });
-            }
-        }, []);
+    convertQuery(query: QueryString): any {
+        if (query.rules && query.rules.length > 0) {
+            return {
+                logic_operator: query.condition?.toUpperCase() || 'AND',
+                children: query.rules.map((rule) => this.convertQuery(rule)),
+            };
+        } else {
+            const queryDTO = {
+                metric: query.field?.toUpperCase() || '',
+                operator: this.convertComparisonOperator(query.operator),
+                time_frame: this.convertTimeFrame(query.timeFame),
+                value: query.value,
+            };
+
+            return {
+                query: queryDTO,
+            };
+        }
     }
 
     saveQueryGroupToDB() {
@@ -159,16 +169,13 @@ export class AddQueryComponent {
             description: this.queryGroupDesc,
         };
 
-        const converted_query = this.covertQuery(this.query.rules);
-        console.log(converted_query);
-
+        // Submit query group metadata first
         this.http
             .post(this.baseUrl + '/query-group', query_group)
             .subscribe((id) => {
-                let query_logic = {
+                const query_logic = {
                     queryGroupId: id,
-                    logic_operator: this.query.condition.toUpperCase(),
-                    children: [...converted_query],
+                    ...this.convertQuery(this.query),
                 };
 
                 this.http

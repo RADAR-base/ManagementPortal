@@ -26,4 +26,5 @@ export interface QueryString {
     timeFame?: any;
     value?: any;
     rules?: QueryString[];
+    condition?: string;
 }
