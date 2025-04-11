@@ -43,7 +43,7 @@ html {
     max-width: 500px;
     width: 100%;
     height: 100px;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
 }
 
 mat-label {
@@ -59,4 +59,9 @@ mat-label {
 .query_group {
     display: flex;
     flex-direction: column;
+}
+
+.saveBtn{
+    margin-top: 30px;
+    float: right;
 }
