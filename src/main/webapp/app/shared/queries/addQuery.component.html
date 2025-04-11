@@ -1,13 +1,12 @@
 <div class="inputs">
-    <mat-form-field class="text-input">
+    <div class="query_group">
         <mat-label>Query Group Name</mat-label>
-        <input matInput [(ngModel)]="queryGrouName" class="" />
-    </mat-form-field>
-
-    <mat-form-field class="text-area">
+        <input matInput [(ngModel)]="queryGrouName" class="form-control" />
+    </div>
+    <div class="query_group">
         <mat-label>Query Group Description</mat-label>
-        <textarea matInput [(ngModel)]="queryGroupDesc"></textarea>
-    </mat-form-field>
+        <input matInput [(ngModel)]="queryGroupDesc" class="form-control" />
+    </div>
 </div>
 
 <query-builder
@@ -27,6 +26,6 @@
     </div>
 </query-builder>
 
-<button (click)="saveQueryGroupToDB()">Save</button>
+<button (click)="saveQueryGroupToDB()" class="btn btn-primary">Save</button>
 <div>For test purposes</div>
 <div>{{ query | json }}</div>

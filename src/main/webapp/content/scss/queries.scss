@@ -42,14 +42,21 @@ html {
     min-width: 150px;
     max-width: 500px;
     width: 100%;
+    height: 100px;
+    margin-bottom: 30px;
 }
 
 mat-label {
-    padding-bottom: 20px;
+    padding-bottom: 10px;
     font-weight: 600 !important;
 }
 
 
 .mat-input-element {
     margin-top: 20px;
+}
+
+.query_group {
+    display: flex;
+    flex-direction: column;
 }
