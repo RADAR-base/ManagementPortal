@@ -18,11 +18,11 @@ import java.time.format.TextStyle
 import java.util.*
 
 data class DataPoint(
-    val month: String,  // Format: "YYYY-MM"
+    val month: String,
     val value: Double
 )
 data class UserData(
-    val metrics: Map<String, List<DataPoint>> // Example: "heart_rate" → [{month: "2024-01", value: 70}]
+    val metrics: Map<String, List<DataPoint>>
 )
 @Service
 @Transactional
@@ -30,6 +30,7 @@ public class QueryEValuationService(
     private val queryLogicRepository:  QueryLogicRepository,
     private val queryGroupRepository: QueryGroupRepository,
     private val queryEvaluationRepository: QueryEvaluationRepository,
+
     private val subjectRepository: SubjectRepository
 
 ) {
@@ -56,14 +57,13 @@ public class QueryEValuationService(
 
            val average = relevantData.map { it.value }.average();
 
-            log.info("query logic id {} and comparsion operator {} and metric {}, average {}", queryLogic.query?.id, comparisonOperator,  queryLogic.query?.metric, average)
-
            return when (comparisonOperator){
                ">" -> average  > expectedValue.toDouble()
                "<" -> average < expectedValue.toDouble()
                ">=" -> average  >= expectedValue.toDouble()
                "<=" -> average <= expectedValue.toDouble()
-               "=" -> average == expectedValue.toDouble()
+               "==" -> average == expectedValue.toDouble()
+               "!=" -> average != expectedValue.toDouble()
                else -> false
            }
     }
@@ -82,9 +82,6 @@ public class QueryEValuationService(
         }
     }
 
-
-
-    //TODO: adjust it to the our expected timeframe
     fun extractTimeframeMonths(timeframe: QueryTimeFrame, currentMonth: String): List<String> {
         val currentDateFormatter = DateTimeFormatter.ofPattern("MMMM-yyyy-dd")
 
@@ -106,27 +103,22 @@ public class QueryEValuationService(
             currentDate.minusMonths(it.toLong()).format(outputFormatter)
         }
 
-        //TODO replace with actual dates once out of testing phase
+        //TODO: replace with actual dates once out of testing phase
         return listOf("2024-01", "2024-02", "2024-03", "2024-04", "2024-05")
     }
 
 
 
     //TODO: this will be replaced by a real data and automatic worker
-    fun testLogicEvaluation(queryGroupId: Long, subjectId: Long) : Boolean  {
+    fun testLogicEvaluation(queryGroupId: Long, subjectId: Long, customUserData: UserData?) : Boolean  {
         val subjectOpt = subjectRepository.findById(subjectId)
         val queryGroupOpt  = queryGroupRepository.findById(queryGroupId);
 
-        log.info("[QUERY] subject exists {} ", subjectOpt.isEmpty)
-        log.info("[QUERY] queryGroupOpt exists {} ", queryGroupOpt.isEmpty)
-
-
         if(subjectOpt.isPresent && queryGroupOpt.isPresent ) {
-            log.info("[QUERY] inside")
             val subject = subjectOpt.get();
             val queryGroup = queryGroupOpt.get();
 
-            val userData = UserData(
+            var userData = UserData(
                 metrics = mapOf(
                     "HEART_RATE" to listOf(
                         DataPoint("2024-01", 55.0),
@@ -152,13 +144,16 @@ public class QueryEValuationService(
                 )
             )
 
+            if(customUserData != null) {
+                userData = customUserData;
+            }
+
             val flatConditions = queryLogicRepository.findByQueryGroupId(queryGroupId)
             val root = buildLogicTree(flatConditions) ?: return false;
 
-            //TODO: figure out the currentMonth part of the code
             val currentDate = LocalDate.now()
-            val month = currentDate.month // e.g., Month.APRIL
-            val monthName = month.getDisplayName(TextStyle.FULL, Locale.ENGLISH) // "April"
+            val month = currentDate.month
+            val monthName = month.getDisplayName(TextStyle.FULL, Locale.ENGLISH)
 
             val result =   evaluteQueryCondition(root, userData, monthName);
 
@@ -172,24 +167,18 @@ public class QueryEValuationService(
     }
 
     fun saveQueryEvaluationResult(result: Boolean, subject: Subject, queryGroup: QueryGroup) {
-
-        log.info("[QUERY] saving the result")
         val queryEvaluationList = queryEvaluationRepository.findBySubjectAndQueryGroup(subject, queryGroup) ;
 
-
         if(queryEvaluationList.isNotEmpty()) {
-            log.info("[QUERY] exissting row")
             val existingQueryEvaluation = queryEvaluationList[0]
 
             if(existingQueryEvaluation.result == false && result) {
-                log.info("[QUERY] updating existing row")
                 existingQueryEvaluation.updatedDate = ZonedDateTime.now()
                 existingQueryEvaluation.result = true
                 queryEvaluationRepository.save(existingQueryEvaluation)
             }
 
         } else {
-            log.info("[QUERY] saving new row")
             val newQueryEvaluation = QueryEvaluation();
 
             newQueryEvaluation.queryGroup = queryGroup
@@ -199,7 +188,6 @@ public class QueryEValuationService(
 
             queryEvaluationRepository.save(newQueryEvaluation);
         }
-
         queryEvaluationRepository.flush();
     }
     fun buildLogicTree(conditions: List<QueryLogic>): QueryLogic? {

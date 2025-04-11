@@ -12,6 +12,9 @@ import { SubjectRevisionListComponent } from './subject-revision-list.component'
 import { SubjectRevisionComponent } from './subject-revision.component';
 import { ResolvePagingParams } from '../commons';
 import { SubjectDataViewerPopupComponent } from './data-viewer/data-viewer.component';
+import { QueryEvaluationPopupComponent } from './query-evaluation/query-evaluation.component';
+
+
 
 export const subjectRoute: Routes = [
     {
@@ -100,6 +103,17 @@ export const subjectPopupRoute: Routes = [
         {
             path: 'subject/:login/dataViewer',
             component: SubjectDataViewerPopupComponent,
+            data: {
+                authorities: [SYSTEM_ADMIN, ORGANIZATION_ADMIN, PROJECT_ADMIN],
+                pageTitle: 'managementPortalApp.subject.home.title',
+            },
+            canActivate: [UserRouteAccessService],
+            outlet: 'popup',
+        },
+
+        {
+            path: 'subject/:login/query',
+            component: QueryEvaluationPopupComponent,
             data: {
                 authorities: [SYSTEM_ADMIN, ORGANIZATION_ADMIN, PROJECT_ADMIN],
                 pageTitle: 'managementPortalApp.subject.home.title',

@@ -37,6 +37,10 @@ import {
 
 
 
+import {
+          QueryEvaluationPopupComponent,
+            QueryEvaluationDialogComponent
+} from './query-evaluation/query-evaluation.component';
 
 
 
@@ -69,7 +73,8 @@ const ENTITY_STATES = [
         SubjectPairPopupComponent,
         SubjectSourceAssignerDialogComponent,
         SubjectSourceAssignerPopupComponent,
-
+   QueryEvaluationPopupComponent,
+            QueryEvaluationDialogComponent,
         SubjectDataViewerPopupComponent,
         SubjectDataViewerDialogComponent
 
@@ -84,7 +89,8 @@ const ENTITY_STATES = [
         SubjectPairPopupComponent,
         SubjectSourceAssignerDialogComponent,
         SubjectSourceAssignerPopupComponent,
-
+   QueryEvaluationPopupComponent,
+            QueryEvaluationDialogComponent,
               SubjectDataViewerPopupComponent,
                 SubjectDataViewerDialogComponent
     ],

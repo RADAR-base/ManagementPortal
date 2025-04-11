@@ -4,6 +4,7 @@ import io.micrometer.core.annotation.Timed
 import org.radarbase.management.service.ProjectService
 import org.radarbase.management.service.QueryBuilderService
 import org.radarbase.management.service.QueryEValuationService
+import org.radarbase.management.service.UserData
 import org.radarbase.management.web.rest.util.PaginationUtil
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -11,10 +12,7 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.web.PageableDefault
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/public")
@@ -41,17 +39,15 @@ class PublicResource(
     }
 
 
-    @GetMapping("query/evaluate")
-    @Timed
-    fun testLogicEvaluation(
-    ): ResponseEntity<*> {
-        log.debug("REST request to get Projects for public endpoint")
-
-        queryEValuationService.testLogicEvaluation(2L, 1201 );
-
-        return ResponseEntity.ok("test")
-    }
-
+//    @PostMapping("query/evaluate")
+//    @Timed
+//    fun testLogicEvaluation(
+//        @RequestBody userData: UserData?
+//    ): ResponseEntity<*> {
+//
+//        val result = queryEValuationService.testLogicEvaluation(2L, 1201, userData  );
+//        return ResponseEntity.ok(result)
+//    }
 
     companion object {
         private val log = LoggerFactory.getLogger(PublicResource::class.java)
