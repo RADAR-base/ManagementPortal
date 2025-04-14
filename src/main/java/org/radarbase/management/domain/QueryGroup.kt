@@ -48,6 +48,17 @@ class QueryGroup : AbstractEntity(), Serializable {
     @OneToMany(mappedBy = "queryGroup", cascade = [CascadeType.ALL], orphanRemoval = true)
     var queryLogics: MutableList<QueryLogic> = mutableListOf()
 
+    override fun toString(): String {
+        return ("QueryGroup{"
+                + "id='" + id + '\''
+                + "name='" + name + '\''
+                + ", description='" + description + '\''
+                + ", createdBy='" + createdBy + '\''
+                + ", updateBy='" + updateBy + '\''
+                + ", createdDate='" + createdDate + '\''
+                + ", updatedDate='" + updatedDate + '\''
+                + "}")
+    }
     companion object {
         private const val serialVersionUID = 1L
     }

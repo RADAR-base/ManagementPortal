@@ -34,6 +34,16 @@ class QueryParticipant : AbstractEntity(), Serializable {
     @JoinColumn(name = "created_by")
     var createdBy: User? = null
 
+    override fun toString(): String {
+        return ("QueryParticipant{"
+                + "id='" + id + '\''
+                + "queryGroupId='" + queryGroup + '\''
+                + ", createdBy='" + createdBy + '\''
+                + ", createdDate='" + createdDate + '\''
+                + ", updatedDate='" + updatedDate + '\''
+                + "}")
+    }
+
     companion object {
         private const val serialVersionUID = 1L
     }

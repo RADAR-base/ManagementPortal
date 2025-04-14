@@ -39,6 +39,15 @@ class Query : AbstractEntity(), Serializable {
     @Column(name = "time_frame")
     var timeFrame: QueryTimeFrame? = null
 
+    override fun toString(): String {return ("Query{"
+            + "queryGroupName='" + queryGroup?.name + '\''
+            + ", queryMetric='" + queryMetric + '\''
+            + ", comparisonOperator='" + comparisonOperator + '\''
+            + ", value='" + value + '\''
+            + ", timeFrame='" + timeFrame + '\''
+            + "}")
+    }
+
     companion object {
         private const val serialVersionUID = 1L
     }

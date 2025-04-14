@@ -38,6 +38,17 @@ class QueryLogic : AbstractEntity(), Serializable {
     @JoinColumn(name = "parent_id")
     var parent: QueryLogic? = null
 
+    override fun toString(): String {
+        return ("QueryLogic{"
+                + "id='" + id + '\''
+                + "queryGroupId='" + queryGroup + '\''
+                + ", type='" + type + '\''
+                + ", logicOperator='" + logicOperator + '\''
+                + ", query_id='" + query + '\''
+                + ", parent='" + parent + '\''
+                + "}")
+    }
+
     companion object {
         private const val serialVersionUID = 1L
     }
