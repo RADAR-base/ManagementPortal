@@ -22,9 +22,11 @@ class QueryLogic : AbstractEntity(), Serializable {
     @JoinColumn(name = "query_group_id")
     var queryGroup: QueryGroup? = null
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "type")
     var type: QueryLogicType? = null
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "logic_operator")
     var logicOperator: QueryLogicOperator? = null
 
@@ -32,8 +34,8 @@ class QueryLogic : AbstractEntity(), Serializable {
     @JoinColumn(name = "query_id", unique = true)
     var query: Query? = null
 
-    @OneToOne
-    @JoinColumn(name = "parent_id", unique = true)
+    @ManyToOne
+    @JoinColumn(name = "parent_id")
     var parent: QueryLogic? = null
 
     companion object {

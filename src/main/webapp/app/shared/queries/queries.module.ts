@@ -1,6 +1,6 @@
 import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
 import { queriesRoute } from './queries.route';
-import { QueriesComponent } from './queries.component';
+import { QueryGroupListComponent } from './queryGroupList.component';
 import { RouterModule } from '@angular/router';
 import { ManagementPortalSharedModule } from '../shared.module';
 
@@ -9,7 +9,7 @@ import { ManagementPortalSharedModule } from '../shared.module';
         ManagementPortalSharedModule,
         RouterModule.forRoot([...queriesRoute], { useHash: true }),
     ],
-    declarations: [QueriesComponent],
+    declarations: [QueryGroupListComponent],
     entryComponents: [],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })

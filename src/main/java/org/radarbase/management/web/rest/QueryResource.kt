@@ -74,9 +74,9 @@ class QueryResource(
             return ResponseEntity.ok(list)
     }
 
-    @DeleteMapping("query/{id}")
-    fun deleteQueryByID(@PathVariable("id") id: Long) {
-            queryBuilderService.deleteAllRelatedByQueryId(id)
+    @DeleteMapping("querygroup/{id}")
+    fun deleteQueriesByID(@PathVariable("id") id: Long) {
+            queryBuilderService.deleteAllRelatedByQueryGroupId(id)
     }
 
     @PostMapping("queryparticipant")

@@ -98,15 +98,10 @@ public class QueryBuilderService(
     }
 
     @Transactional
-    fun deleteAllRelatedByQueryId(queryId: Long) {
-        val query = queryRepository.findById(queryId)
-            .orElseThrow { EntityNotFoundException("Query with id=$queryId not found") }
+    fun deleteAllRelatedByQueryGroupId(queryGroupId: Long) {
 
-        val groupId = query.queryGroup?.id
-            ?: throw IllegalStateException("Query with id=$queryId has no associated QueryGroup")
-
-        val group = queryGroupRepository.findById(groupId)
-            .orElseThrow { EntityNotFoundException("QueryGroup with id=$groupId not found") }
+        val group = queryGroupRepository.findById(queryGroupId)
+            .orElseThrow { EntityNotFoundException("QueryGroup with id=$queryGroupId not found") }
 
         queryGroupRepository.delete(group)
     }
