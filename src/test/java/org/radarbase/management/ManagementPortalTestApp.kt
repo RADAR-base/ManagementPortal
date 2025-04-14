@@ -1,6 +1,6 @@
 package org.radarbase.management
 
-import KratosContainer
+import org.radarbase.management.containers.KratosContainer
 import org.radarbase.management.config.ApplicationProperties
 import org.radarbase.management.config.KratosProperties
 import org.radarbase.management.config.ManagementPortalProperties

@@ -1,16 +1,19 @@
-import org.testcontainers.containers.GenericContainer
+package org.radarbase.management.containers
+
 import org.testcontainers.containers.wait.strategy.Wait
+import org.testcontainers.containers.GenericContainer
 import org.testcontainers.utility.MountableFile
 
-class KratosContainer {
-    private val kratos = GenericContainer<Nothing>("oryd/kratos:v1.0.0")
+class KratosContainer : GenericContainer<KratosContainer>("oryd/kratos:latest") {
+
+    private val kratos = GenericContainer("oryd/kratos:v1.0.0")
         .withCommand("serve -c /etc/config/kratos/kratos.yml --dev --watch-courier")
         .waitingFor(Wait.forHttp("/health/ready").forPort(4434).forStatusCode(200))
         .withCopyFileToContainer(MountableFile.forClasspathResource("kratos-config.yaml"), "/etc/config/kratos/kratos.yml")
         .withCopyFileToContainer(MountableFile.forClasspathResource("identity.schema.user.json"), "/etc/config/kratos/identities/identity.schema.user.json")
-        .withExposedPorts(4433, 4434) 
+        .withExposedPorts(4433, 4434)
 
-    fun start() {
+    fun startKratos() {
         kratos.start()
     }
 
