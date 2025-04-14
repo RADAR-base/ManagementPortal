@@ -1,4 +1,4 @@
-<div>Query List</div>
+<h4>Query List</h4>
 
 <table class="table">
     <tr>
@@ -14,7 +14,7 @@
             {{ group.createdBy.firstName }}
             {{ group.createdBy.lastName }}
         </td>
-        <td><button (click)="deleteQueryGroup(group.id)">Delete</button></td>
+        <td><button class="btn btn-secondary" (click)="deleteQueryGroup(group.id)">Delete</button></td>
     </tr>
 </table>
 <a routerLink="/add-query">Add Query</a>
