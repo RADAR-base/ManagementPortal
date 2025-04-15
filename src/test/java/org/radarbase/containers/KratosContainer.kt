@@ -1,21 +1,22 @@
+package org.radarbase.management.containers
 
-import org.testcontainers.containers.GenericContainer
 import org.testcontainers.containers.wait.strategy.Wait
+import org.testcontainers.containers.GenericContainer
 import org.testcontainers.utility.MountableFile
-import java.util.*
 
-class KratosContainer {
-    private val KRATOS_IMAGE = "oryd/kratos:v1.0.0"
-    private val CONFIG_PATH = "/etc/config/kratos/kratos.yml" // Path inside the container where the config file will be mounted
+class KratosContainer : GenericContainer<KratosContainer>("oryd/kratos:latest") {
 
-    private val kratos: GenericContainer<*> = GenericContainer(KRATOS_IMAGE)
-        .withCommand("serve -c $CONFIG_PATH --dev --watch-courier")
+    private val kratos = GenericContainer("oryd/kratos:v1.0.0")
+        .withCommand("serve -c /etc/config/kratos/kratos.yml --dev --watch-courier")
         .waitingFor(Wait.forHttp("/health/ready").forPort(4434).forStatusCode(200))
-        .withCopyFileToContainer(MountableFile.forClasspathResource("kratos-config.yaml"), CONFIG_PATH)
+        .withCopyFileToContainer(MountableFile.forClasspathResource("kratos-config.yaml"), "/etc/config/kratos/kratos.yml")
         .withCopyFileToContainer(MountableFile.forClasspathResource("identity.schema.user.json"), "/etc/config/kratos/identities/identity.schema.user.json")
+        .withExposedPorts(4433, 4434)
 
-    fun start() {
-        kratos.setPortBindings(Arrays.asList("4433:4433", "4434:4434"))
+    fun startKratos() {
         kratos.start()
     }
+
+    fun getPublicUrl(): String = "http://localhost:${kratos.getMappedPort(4433)}"
+    fun getAdminUrl(): String = "http://localhost:${kratos.getMappedPort(4434)}"
 }
