@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.io.IOException
 import java.time.ZonedDateTime
+import javax.persistence.EntityNotFoundException
 
 
 @Service
@@ -92,6 +93,20 @@ public class QueryBuilderService(
         return queryGroup.id;
 
     }
+
+    fun getQueryList(): MutableList<Query> {
+        return queryRepository.findAll()
+    }
+
+    @Transactional
+    fun deleteAllRelatedByQueryGroupId(queryGroupId: Long) {
+
+        val group = queryGroupRepository.findById(queryGroupId)
+            .orElseThrow { EntityNotFoundException("QueryGroup with id=$queryGroupId not found") }
+
+        queryGroupRepository.delete(group)
+    }
+
 
     fun getQueryGroupList(): MutableList<QueryGroup> {
         return queryGroupRepository.findAll();
