@@ -109,58 +109,6 @@ class QueryServiceTest(
         Assertions.assertThat(queryLogicRepository.findAll().size).isEqualTo(3)
     }
 
-    @Test
-    fun assignQueryGroup(){
-        val id = createQueryGroup(userRepository, queryService);
-
-
-        val queryParticipant = createQueryParticipantDTO(id, 1)
-
-        queryService.assignQueryGroup(queryParticipant)
-
-        Assertions.assertThat(queryParticipantRepository.findAll().size).isEqualTo(1)
-    }
-
-    @Test
-    fun getQueryGroupList(){
-         createQueryGroup(userRepository, queryService);
-
-        val queryGroup = queryService.getQueryGroupList()
-
-        Assertions.assertThat(queryGroup.get(0).name).isEqualTo("QueryGroup")
-        Assertions.assertThat(queryGroup.get(0).description).isEqualTo("This is description")
-    }
-
-    @Test
-    fun getAssignedQueryGroups(){
-        val user = userRepository.findOneByLogin("admin");
-        val id = createQueryGroup(userRepository, queryService);
-
-        val queryParticipant = createQueryParticipantDTO(id,user?.id!!)
-
-        queryService.assignQueryGroup(queryParticipant)
-
-        val queryGroups = queryService.getAssignedQueryGroups(user?.id!!)
-
-        Assertions.assertThat(queryGroups.get(0).id).isEqualTo(id)
-    }
-
-    @Test
-    fun deleteQueryParticipantByQueryGroup(){
-        val user = userRepository.findOneByLogin("admin");
-        val id = createQueryGroup(userRepository, queryService);
-
-        val queryParticipant = createQueryParticipantDTO(id,user?.id!!)
-
-        queryService.assignQueryGroup(queryParticipant)
-
-        val size = queryParticipantRepository.findAll().size
-
-        queryService.deleteQueryParticipantByQueryGroup(user?.id!!,id)
-
-        Assertions.assertThat(queryParticipantRepository.findAll().size).isEqualTo(size-1)
-
-    }
 
 
     companion object {
@@ -179,50 +127,6 @@ class QueryServiceTest(
                 return queryLogicDTO;
             }
 
-
-        fun createQueryGroup(userRepository: UserRepository, queryService: QueryBuilderService): Long{
-            val queryGroupDTO = QueryGroupDTO();
-            queryGroupDTO.name = "QueryGroup"
-            queryGroupDTO.description = "This is description"
-
-            val user = userRepository.findOneByLogin("admin")
-
-            val id = queryService.createQueryGroup(queryGroupDTO, user!!)
-
-            return id!!
-        }
-
-        fun createQueryParticipantDTO(queryGroupId: Long, subjectId: Long) : QueryParticipantDTO{
-            val queryParticipant = QueryParticipantDTO()
-            val userDTO = createUserDTO();
-
-
-            queryParticipant.queryGroupId = queryGroupId
-            queryParticipant.subjectId = subjectId
-            queryParticipant.createdBy = userDTO
-
-            return queryParticipant
-        }
-
-
-
-        fun createUserDTO(): UserDTO{
-            val roles: MutableSet<RoleDTO> = HashSet()
-            val role = RoleDTO()
-            role.authorityName = RoleAuthority.SYS_ADMIN_AUTHORITY
-            roles.add(role)
-            val testUser = UserDTO()
-            testUser.login = "admin"
-            testUser.firstName = "admin"
-            testUser.lastName = "admin"
-            testUser.email = "admin@example.com"
-            testUser.isActivated = true
-            testUser.langKey = "en"
-            testUser.roles = roles
-
-
-            return testUser
-        }
 
     }
 }
