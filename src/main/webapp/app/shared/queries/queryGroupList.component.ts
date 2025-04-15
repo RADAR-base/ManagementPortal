@@ -4,6 +4,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 @Component({
     selector: 'jhi-queries',
     templateUrl: './queryGroupList.component.html',
+    styleUrls: ['./queryGroupList.component.scss'],
 })
 export class QueryGroupListComponent implements OnInit, OnDestroy {
     constructor(private httpclient: HttpClient) {}

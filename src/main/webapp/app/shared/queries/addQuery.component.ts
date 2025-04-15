@@ -9,6 +9,7 @@ import { HttpClient } from '@angular/common/http';
 import { QueryString } from './queries.model';
 import { Router } from '@angular/router';
 import { Location } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
     selector: 'jhi-queries',
@@ -78,7 +79,8 @@ export class AddQueryComponent {
         private formBuilder: FormBuilder,
         private http: HttpClient,
         private router: Router,
-        private readonly location: Location
+        private readonly location: Location,
+              private route: ActivatedRoute,
     ) {
         this.queryCtrl = this.formBuilder.control(this.query);
         this.currentConfig = this.config;
@@ -86,7 +88,13 @@ export class AddQueryComponent {
             !!this.router.getCurrentNavigation()?.previousNavigation;
     }
 
-    
+    ngOnInit() {
+        this.route.params.subscribe((params) => {
+              console.log("route params", params['query-id'])
+        });
+    }
+
+
     goBack(): void {
         if (this.canGoBack) {
             this.location.back();
