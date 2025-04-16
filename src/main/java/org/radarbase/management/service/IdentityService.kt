@@ -24,7 +24,6 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Duration
 
-
 /**
  * Service class for managing identities.
  */
@@ -32,8 +31,7 @@ import java.time.Duration
 @Transactional
 class IdentityService(
     @Autowired private val managementPortalProperties: ManagementPortalProperties,
-    @Autowired private val authService: AuthService,
-
+    @Autowired private val authService: AuthService
 ) {
     private val httpClient = HttpClient(CIO).config {
         install(HttpTimeout) {

@@ -56,8 +56,6 @@ services:
             - /tmp/ui-node/logs:/root/.npm/_logs
 
     kratos:
-      public-url: ${kratos.public-url:http://localhost:4433}
-      admin-url: ${kratos.admin-url:http://localhost:4434}
       depends_on:
         - kratos-migrate
       image: oryd/kratos:v1.0.0
