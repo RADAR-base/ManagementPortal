@@ -1,16 +1,11 @@
 package org.radarbase.management.service
 import org.radarbase.management.domain.*
 import org.radarbase.management.domain.enumeration.QueryLogicType
-import org.radarbase.management.domain.enumeration.QueryMetric
 import org.radarbase.management.domain.enumeration.QueryTimeFrame
 import org.radarbase.management.repository.*
-import org.radarbase.management.service.dto.QueryDTO
-import org.radarbase.management.service.dto.QueryGroupDTO
-import org.radarbase.management.service.dto.QueryLogicDTO
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.io.IOException
 import java.time.LocalDate
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -43,8 +38,8 @@ public class QueryEValuationService(
     }
 
     fun evaluateSingleCondition(queryLogic: QueryLogic, userData: UserData, currentMonth: String): Boolean {
-           val metricValuesData = userData.metrics[queryLogic.query?.metric?.name]  ?: return false
-           val timeFrame  = queryLogic.query?.time_frame ?: return false
+           val metricValuesData = userData.metrics[queryLogic.query?.queryMetric?.name]  ?: return false
+           val timeFrame  = queryLogic.query?.timeFrame ?: return false
            val timeframeMonths = extractTimeframeMonths(timeFrame, currentMonth);
            val relevantData = metricValuesData.filter { it.month in timeframeMonths};
 
@@ -52,7 +47,7 @@ public class QueryEValuationService(
                 return false
             }
 
-           val comparisonOperator = queryLogic.query?.operator?.symbol ?: return false ;
+           val comparisonOperator = queryLogic.query?.comparisonOperator?.symbol ?: return false ;
            val expectedValue = queryLogic.query?.value ?: return false;
 
            val average = relevantData.map { it.value }.average();
@@ -75,7 +70,7 @@ public class QueryEValuationService(
             evaluteQueryCondition(it, userData, currentMonth)
         }
 
-        return when (queryLogic.logic_operator.toString()) {
+        return when (queryLogic.logicOperator.toString()) {
             "AND" -> results.all { it }
             "OR" -> results.any { it }
             else -> false;
