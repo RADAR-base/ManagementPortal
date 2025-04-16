@@ -1,13 +1,11 @@
 package org.radarbase.management.service
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import io.ktor.util.*
 import org.radarbase.management.domain.*
 import org.radarbase.management.domain.enumeration.QueryLogicType
 import org.radarbase.management.repository.*
-import org.radarbase.management.service.dto.QueryDTO
-import org.radarbase.management.service.dto.QueryGroupDTO
-import org.radarbase.management.service.dto.QueryLogicDTO
-import org.radarbase.management.service.dto.QueryParticipantDTO
+import org.radarbase.management.service.dto.*
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
@@ -15,6 +13,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.io.IOException
 import java.time.ZonedDateTime
+import java.util.*
 import javax.persistence.EntityNotFoundException
 
 
@@ -42,7 +41,6 @@ public class QueryBuilderService(
 
         newQuery = queryRepository.save(newQuery);
         queryRepository.flush();
-
         return newQuery;
     }
 
@@ -79,6 +77,17 @@ public class QueryBuilderService(
     }
 
 
+    @Transactional
+    fun deleteAllQueryLogic(queryGroupId: Long) {
+        val queryLogicList = queryLogicRepository.findByQueryGroupId(queryGroupId)
+        queryLogicRepository.deleteAll(queryLogicList);
+        queryLogicRepository.flush();
+
+        val queryList = queryRepository.findByQueryGroupId(queryGroupId);
+        queryRepository.deleteAll(queryList);
+        queryRepository.flush()
+    }
+
     @Throws(IOException::class)
     fun createQueryGroup(queryGroupDTO: QueryGroupDTO, user : User): Long? {
         var queryGroup = QueryGroup();
@@ -93,6 +102,27 @@ public class QueryBuilderService(
         return queryGroup.id;
 
     }
+
+    @Throws(IOException::class)
+    fun updateQueryGroup(queryGroupId: Long, queryGroupDTO: QueryGroupDTO, user : User) {
+        val existingQueryGroupOpt = queryGroupRepository.findById(queryGroupId);
+
+        if(existingQueryGroupOpt.isPresent) {
+            val existingQueryGroup = existingQueryGroupOpt.get();
+
+            existingQueryGroup.name = queryGroupDTO.name
+            existingQueryGroup.description = queryGroupDTO.description
+            existingQueryGroup.updatedDate  = ZonedDateTime.now()
+            existingQueryGroup.updateBy = user;
+
+            queryGroupRepository.saveAndFlush(existingQueryGroup);
+        }
+        else {
+           throw  EntityNotFoundException("QueryGroup with id=$queryGroupId not found")
+        }
+    }
+
+
 
     fun getQueryList(): MutableList<Query> {
         return queryRepository.findAll()
@@ -149,6 +179,63 @@ public class QueryBuilderService(
             )
         )
 
+    }
+
+
+    fun buildQueryLogicTree(queryGroupId: Long): AngularQueryBuilderDTO?  {
+        val queryLogicList = queryLogicRepository.findByQueryGroupId(queryGroupId);
+
+        val conditionMap = queryLogicList.associateBy { it.id }
+
+        data class QueryLogicDTOBuilder (
+            val entity: QueryLogic,
+            val children: MutableList<QueryLogicDTOBuilder> = mutableListOf()
+        )
+
+        val dtoMap = mutableMapOf<Long, QueryLogicDTOBuilder>()
+
+
+        // first pass: wrap entities in builders
+        queryLogicList.forEach { entity ->
+            dtoMap[entity.id!!] = QueryLogicDTOBuilder(entity)
+        }
+
+        // second pass: attach children to parents
+
+        queryLogicList.forEach { entity ->
+        val parentId = entity.parent?.id
+            if(parentId != null) {
+                dtoMap[parentId]?.children?.add(dtoMap[entity.id]!!)
+            }
+        }
+
+        val rootBuilder = dtoMap.values.find { it.entity.parent == null} ?: return null
+
+
+        fun toDto(builder: QueryLogicDTOBuilder) : AngularQueryBuilderDTO {
+            val queryLogicDTO = AngularQueryBuilderDTO()
+            val query = builder.entity.query
+            queryLogicDTO.condition = builder.entity.logicOperator.toString().lowercase(Locale.getDefault())
+            queryLogicDTO.field = query?.queryMetric.toString().lowercase(Locale.getDefault())
+            queryLogicDTO.operator = query?.comparisonOperator?.symbol
+            queryLogicDTO.timeFame = query?.timeFrame?.symbol
+            queryLogicDTO.value = query?.value
+
+            if(builder.children.size > 0) {
+                queryLogicDTO.rules = builder.children.map { toDto(it) }
+            }
+            queryLogicDTO.type = builder.entity.type
+
+            return queryLogicDTO
+
+        }
+
+        val resultDto = toDto(rootBuilder)
+
+        resultDto.queryGroupName = rootBuilder.entity.queryGroup?.name
+        resultDto.queryGroupDescription = rootBuilder.entity.queryGroup?.description
+
+        return resultDto
     }
 
     companion object {

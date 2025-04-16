@@ -6,10 +6,11 @@ import {
 } from '@pri17/ngx-angular-query-builder';
 import { FormBuilder, FormControl, NgForm } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { QueryString } from './queries.model';
+import { QueryDTO, QueryNode, QueryString } from './queries.model';
 import { Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
+import { QueryGroup } from './query.model';
 
 @Component({
     selector: 'jhi-queries',
@@ -25,6 +26,8 @@ export class AddQueryComponent {
     public queryGrouName: string;
 
     public queryGroupDesc: string;
+
+    public queryGroupId: any | null;
 
     private baseUrl = 'api/query-builder';
 
@@ -55,7 +58,7 @@ export class AddQueryComponent {
         inputControlSize: 'col-auto',
     };
 
-    public query: QueryString = {
+    public query: QueryString | any = {
         condition: 'and',
         rules: [{ field: 'heart_rate', operator: '<=' }],
     };
@@ -90,10 +93,22 @@ export class AddQueryComponent {
 
     ngOnInit() {
         this.route.params.subscribe((params) => {
-              console.log("route params", params['query-id'])
+            console.log("route params", params['query-id'])
+            let queryId = params["query-id"];
+            this.queryGroupId = queryId;
+            if (queryId) {
+
+                this.http
+                .get(this.baseUrl + '/querygroups/' + queryId)
+                    .subscribe((response: any) => {
+                        this.query = response
+
+                        this.queryGrouName = response.queryGroupName;
+                        this.queryGroupDesc = response.queryGroupDescription;
+                });
+            }
         });
     }
-
 
     goBack(): void {
         if (this.canGoBack) {
@@ -117,7 +132,7 @@ export class AddQueryComponent {
         return this.formRuleWeakMap.get(rule);
     }
 
-    convertComparisonOperator(value: string) {
+    convertComparisonOperator(value?: string) {
         switch (value) {
             case '>=':
                 return 'GREATER_THAN_OR_EQUALS';
@@ -151,14 +166,14 @@ export class AddQueryComponent {
         }
     }
 
-    convertQuery(query: QueryString): any {
+    convertQuery(query: QueryString): QueryNode {
         if (query.rules && query.rules.length > 0) {
             return {
                 logic_operator: query.condition?.toUpperCase() || 'AND',
                 children: query.rules.map((rule) => this.convertQuery(rule)),
             };
         } else {
-            const queryDTO = {
+            const queryDTO  : QueryDTO = {
                 metric: query.field?.toUpperCase() || '',
                 operator: this.convertComparisonOperator(query.operator),
                 time_frame: this.convertTimeFrame(query.timeFame),
@@ -172,25 +187,55 @@ export class AddQueryComponent {
     }
 
     saveQueryGroupToDB() {
-        const query_group = {
+        const query_group  : QueryGroup = {
             name: this.queryGrouName,
             description: this.queryGroupDesc,
         };
 
-        // Submit query group metadata first
+        if (this.queryGroupId) {
+            this.updateQueryGroup(query_group);
+        } else {
+            this.saveNewQueryGroup(query_group);
+        }
+    }
+
+    saveNewQueryGroup(queryGroup: QueryGroup) {
         this.http
-            .post(this.baseUrl + '/query-group', query_group)
+            .post(this.baseUrl + '/query-group', queryGroup)
+            .subscribe((id) => {
+                const query_logic = {
+                    queryGroupId: id,
+                    ...this.convertQuery(this.query),
+                };
+                this.queryGroupId = id
+                this.saveIndividualQueries(query_logic)
+            });
+    }
+    updateQueryGroup(queryGroup: QueryGroup) {
+        this.http
+            .put(this.baseUrl + '/querygroups/' + this.queryGroupId , queryGroup)
             .subscribe((id) => {
                 const query_logic = {
                     queryGroupId: id,
                     ...this.convertQuery(this.query),
                 };
 
-                this.http
-                    .post(this.baseUrl + '/query-logic', query_logic)
-                    .subscribe((res) => {
-                        this.goBack();
-                    });
+                this.updateIndividualQueries(query_logic)
             });
+    }
+    saveIndividualQueries(query_logic: QueryNode) {
+        this.http
+        .post(this.baseUrl + '/query-logic', query_logic)
+        .subscribe((res) => {
+            this.goBack();
+        });
+    }
+
+    updateIndividualQueries(query_logic: QueryNode) {
+        this.http
+        .put(this.baseUrl + '/querylogic', query_logic)
+        .subscribe((res) => {
+            this.goBack();
+        });
     }
 }

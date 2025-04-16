@@ -10,6 +10,7 @@ import org.radarbase.management.domain.QueryGroup
 import org.radarbase.management.repository.UserRepository
 import org.radarbase.management.service.QueryBuilderService
 import org.radarbase.management.service.UserService
+import org.radarbase.management.service.dto.AngularQueryBuilderDTO
 import org.radarbase.management.service.dto.QueryGroupDTO
 import org.radarbase.management.service.dto.QueryLogicDTO
 import org.radarbase.management.service.dto.QueryParticipantDTO
@@ -30,13 +31,29 @@ class QueryResource(
 ) {
     @PostMapping("query-logic")
     fun saveQueryLogic(@RequestBody queryJson: String?): ResponseEntity<*> {
-            if(queryJson.isNullOrEmpty() == false) {
+        log.info("[QUERY] endpoint hit")
+
+        if(queryJson.isNullOrEmpty() == false) {
                 val objectMapper = jacksonObjectMapper()
                 val queryLogicDTO: QueryLogicDTO = objectMapper.readValue(queryJson)
                 queryBuilderService.processQueryLogicJson(queryLogicDTO);
             }
             return ResponseEntity.ok(null);
+    }
+
+    @PutMapping("querylogic")
+    fun updateQueryLogic(@RequestBody queryJson: String?): ResponseEntity<*> {
+        if(queryJson.isNullOrEmpty() == false) {
+            val objectMapper = jacksonObjectMapper()
+            val queryLogicDTO: QueryLogicDTO = objectMapper.readValue(queryJson)
+            if(queryLogicDTO.queryGroupId != null) {
+                queryBuilderService.deleteAllQueryLogic(queryLogicDTO.queryGroupId!!);
+                queryBuilderService.processQueryLogicJson(queryLogicDTO);
+            }
+
         }
+        return ResponseEntity.ok(null);
+    }
 
     fun getCurrentUsername(): String? {
         val authentication = SecurityContextHolder.getContext().authentication
@@ -49,7 +66,7 @@ class QueryResource(
 
     @PostMapping("query-group")
     fun createQueryGroup(@RequestBody queryJson: String?): ResponseEntity<Long?> {
-            var queryGroupId: Long? = null
+        var queryGroupId: Long? = null
         if(queryJson.isNullOrEmpty() == false) {
             val objectMapper = jacksonObjectMapper()
             val queryGroupDTO: QueryGroupDTO = objectMapper.readValue(queryJson)
@@ -62,6 +79,20 @@ class QueryResource(
         return ResponseEntity.ok(queryGroupId);
     }
 
+    @PutMapping("querygroups/{queryGroupId}")
+    fun updateQueryGroup(@PathVariable("queryGroupId") id: Long, @RequestBody queryJson: String?): ResponseEntity<*> {
+        if(!queryJson.isNullOrEmpty()) {
+            val objectMapper = jacksonObjectMapper()
+            val queryGroupDTO: QueryGroupDTO = objectMapper.readValue(queryJson)
+            val user = userService.getUserWithAuthorities()
+            if(user != null) {
+                queryBuilderService.updateQueryGroup(id, queryGroupDTO, user!!);
+            }
+
+        }
+        return ResponseEntity.ok(id)
+    }
+
     @GetMapping("queries")
     fun getQueryList(): ResponseEntity<MutableList<Query>> {
         var list = queryBuilderService.getQueryList()
@@ -72,6 +103,13 @@ class QueryResource(
     fun getQueryGroupList(): ResponseEntity<MutableList<QueryGroup>> {
             var list = queryBuilderService.getQueryGroupList()
             return ResponseEntity.ok(list)
+    }
+
+
+    @GetMapping("querygroups/{id}")
+    fun getQueryLogicTreeFromQueryGroup(@PathVariable("id") id: Long): ResponseEntity<AngularQueryBuilderDTO> {
+        var list = queryBuilderService.buildQueryLogicTree(id);
+        return ResponseEntity.ok(list)
     }
 
     @DeleteMapping("querygroup/{id}")
