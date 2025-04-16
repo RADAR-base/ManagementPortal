@@ -25,6 +25,8 @@ export class QueryViewerComponent implements OnInit, OnDestroy {
 
     assignedQueryGroups: QueryGroup[];
 
+    ifDisable: boolean = true;
+
     private subscriptions: Subscription = new Subscription();
 
     constructor(
@@ -76,6 +78,7 @@ export class QueryViewerComponent implements OnInit, OnDestroy {
 
     removeQueryGroupFromList(queryGroupId) {
         this.queryGroupList = this.queryGroupList.filter((item) => {
+            this.ifDisable = true;
             return item.id != queryGroupId;
         });
     }
@@ -95,6 +98,10 @@ export class QueryViewerComponent implements OnInit, OnDestroy {
 
     clear() {
         this.activeModal.dismiss('cancel');
+    }
+
+    onGroupChange($event: any) {
+        if ($event) this.ifDisable = false;
     }
 
     private onError(error) {
