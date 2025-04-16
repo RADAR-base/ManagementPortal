@@ -85,7 +85,7 @@ export class QueryViewerComponent implements OnInit, OnDestroy {
 
     deleteAssignedGroup(queryGroup: QueryGroup) {
         this.queryParticipantService
-            .deleteAssignedQueryGroup(this.subject.id, queryGroup.id)
+            .deleteAssignedQueryGroup(queryGroup.id, this.subject.id)
             .subscribe(() => {
                 this.getAllAssignedGroups();
                 this.queryGroupList.push(queryGroup);
