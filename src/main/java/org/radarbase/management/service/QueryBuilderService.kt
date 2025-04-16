@@ -4,24 +4,24 @@ import org.radarbase.management.domain.QueryGroup
 import org.radarbase.management.domain.QueryLogic
 import org.radarbase.management.domain.User
 import org.radarbase.management.domain.enumeration.QueryLogicType
-import org.radarbase.management.domain.enumeration.QueryMetric
-import org.radarbase.management.domain.enumeration.QueryTimeFrame
 import org.radarbase.management.repository.QueryGroupRepository
 import org.radarbase.management.repository.QueryLogicRepository
 import org.radarbase.management.repository.QueryRepository
 import org.radarbase.management.repository.UserRepository
+import org.radarbase.management.domain.*
+import org.radarbase.management.repository.*
 import org.radarbase.management.service.dto.QueryDTO
 import org.radarbase.management.service.dto.QueryGroupDTO
 import org.radarbase.management.service.dto.QueryLogicDTO
+import org.radarbase.management.service.dto.QueryParticipantDTO
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.io.IOException
-import java.time.LocalDate
 import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
-import java.time.format.TextStyle
 import java.util.*
+import javax.persistence.EntityNotFoundException
 
 
 @Service
@@ -30,7 +30,10 @@ public class QueryBuilderService(
     private val queryLogicRepository:  QueryLogicRepository,
     private val queryGroupRepository: QueryGroupRepository,
     private val queryRepository: QueryRepository,
-    private var userRepository: UserRepository
+    private var userRepository: UserRepository,
+    private val subjectRepository: SubjectRepository,
+    @Autowired private val userService: UserService,
+    private var queryParticipantRepository: QueryParticipantRepository
 ) {
 
     @Transactional
@@ -38,10 +41,10 @@ public class QueryBuilderService(
         var newQuery = Query()
 
         newQuery.queryGroup = queryGroup
-        newQuery.metric = query.metric
-        newQuery.operator = query.operator
+        newQuery.queryMetric = query.metric
+        newQuery.comparisonOperator = query.operator
         newQuery.value = query.value
-        newQuery.time_frame = query.time_frame
+        newQuery.timeFrame = query.time_frame
 
         newQuery = queryRepository.save(newQuery);
         queryRepository.flush();
@@ -62,7 +65,7 @@ public class QueryBuilderService(
         queryLogic.queryGroup = queryGroup
         queryLogic.parent = parent
         queryLogic.type = if (dto.logic_operator != null)  QueryLogicType.LOGIC else QueryLogicType.CONDITION
-        queryLogic.logic_operator = dto.logic_operator
+        queryLogic.logicOperator = dto.logic_operator
         queryLogic.query = query
 
         val savedCondition = queryLogicRepository.save(queryLogic)
@@ -97,7 +100,65 @@ public class QueryBuilderService(
 
     }
 
+    fun getQueryList(): MutableList<Query> {
+        return queryRepository.findAll()
+    }
+
+    @Transactional
+    fun deleteAllRelatedByQueryGroupId(queryGroupId: Long) {
+
+        val group = queryGroupRepository.findById(queryGroupId)
+            .orElseThrow { EntityNotFoundException("QueryGroup with id=$queryGroupId not found") }
+
+        queryGroupRepository.delete(group)
+    }
+
+
+    fun getQueryGroupList(): MutableList<QueryGroup> {
+        return queryGroupRepository.findAll();
+    }
+
+    fun assignQueryGroup(queryParticipantDTO: QueryParticipantDTO): Long?{
+        var queryParticipant = QueryParticipant()
+        val queryGroup = queryGroupRepository.findById(queryParticipantDTO.queryGroupId!!).get()
+        val user = userService.getUserWithAuthorities()
+
+        queryParticipant.queryGroup= queryGroup
+        queryParticipant.createdBy= user
+        queryParticipant.subject = subjectRepository.findById(queryParticipantDTO.subjectId!!).get();
+        queryParticipant.createdDate = ZonedDateTime.now();
+        queryParticipant = queryParticipantRepository.save(queryParticipant)
+        queryGroupRepository.flush()
+
+        return queryParticipant.id;
+    }
+
+    fun getAssignedQueryGroups(subjectId: Long): MutableList<QueryGroup> {
+        val queryParticipantList =  queryParticipantRepository.findBySubjectId(subjectId)
+
+        val queryGroups = mutableListOf<QueryGroup>()
+
+        for(queryParticipant in queryParticipantList ){
+            val group =queryParticipant.queryGroup
+            if (group != null) {
+                queryGroups.add(group)
+            }
+        }
+        return queryGroups;
+    }
+
+    fun deleteQueryParticipantByQueryGroup(subjectId: Long, queryGroupId: Long) {
+        queryParticipantRepository.delete(
+            queryParticipantRepository.findBySubjectIdAndQueryGroupId(
+                subjectId,
+                queryGroupId
+            )
+        )
+
+    }
+
     companion object {
         private val log = LoggerFactory.getLogger(QueryBuilderService::class.java)
     }
 }
+

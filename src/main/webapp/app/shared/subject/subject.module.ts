@@ -33,6 +33,7 @@ import {
           SubjectDataViewerPopupComponent,
             SubjectDataViewerDialogComponent
 } from './data-viewer/data-viewer.component';
+import { QueryViewerComponent } from './query-viewer/query-viewer.component';
 
 
 
@@ -76,7 +77,8 @@ const ENTITY_STATES = [
    QueryEvaluationPopupComponent,
             QueryEvaluationDialogComponent,
         SubjectDataViewerPopupComponent,
-        SubjectDataViewerDialogComponent
+        SubjectDataViewerDialogComponent,
+        QueryViewerComponent
 
     ],
     entryComponents: [

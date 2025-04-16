@@ -17,14 +17,5 @@ export interface QueryParticipant {
     id?: any;
     queryGroupId?: number;
     subjectId?: number;
-    createdBy?: User;
-}
-
-export interface QueryString {
-    field?: string;
-    operator?: string;
-    timeFame?: any;
-    value?: any;
-    rules?: QueryString[];
-    condition?: string;
+    createdBy?: User
 }

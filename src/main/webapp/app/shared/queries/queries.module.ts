@@ -1,6 +1,6 @@
 import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
 import { queriesRoute } from './queries.route';
-import { QueriesComponent } from './queries.component';
+import { QueryGroupListComponent } from './queryGroupList.component';
 import { RouterModule } from '@angular/router';
 import { ManagementPortalSharedModule } from '../shared.module';
 
@@ -21,7 +21,8 @@ import { AddQueryComponent } from './addQuery.component';
         ReactiveFormsModule,
         NgxAngularQueryBuilderModule,
     ],
-    declarations: [QueriesComponent, AddQueryComponent],
+    declarations: [QueryGroupListComponent,AddQueryComponent],
+    entryComponents: [],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class ManagementPortalQueriesModule {}

@@ -7,6 +7,8 @@ import {
 import { FormBuilder, FormControl, NgForm } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { QueryString } from './queries.model';
+import { Router } from '@angular/router';
+import { Location } from '@angular/common';
 
 @Component({
     selector: 'jhi-queries',
@@ -52,7 +54,7 @@ export class AddQueryComponent {
         inputControlSize: 'col-auto',
     };
 
-    public query = {
+    public query: QueryString = {
         condition: 'and',
         rules: [{ field: 'heart_rate', operator: '<=' }],
     };
@@ -70,11 +72,26 @@ export class AddQueryComponent {
     public allowCollapse: boolean;
     public persistValueOnFieldChange: boolean = false;
 
-    constructor(private formBuilder: FormBuilder, private http: HttpClient) {
+    private canGoBack: boolean = false;
+
+    constructor(
+        private formBuilder: FormBuilder,
+        private http: HttpClient,
+        private router: Router,
+        private readonly location: Location
+    ) {
         this.queryCtrl = this.formBuilder.control(this.query);
         this.currentConfig = this.config;
+        this.canGoBack =
+            !!this.router.getCurrentNavigation()?.previousNavigation;
     }
 
+    
+    goBack(): void {
+        if (this.canGoBack) {
+            this.location.back();
+        }
+    }
     changeDisabled(event: Event) {
         (<HTMLInputElement>event.target).checked
             ? this.queryCtrl.disable()
@@ -106,6 +123,8 @@ export class AddQueryComponent {
                 return 'LESS_THAN';
             case '<=':
                 return 'LESS_THAN_OR_EQUALS';
+            default:
+                return null;
         }
     }
 
@@ -119,60 +138,51 @@ export class AddQueryComponent {
                 return 'LAST_7_DAYS';
             case 365:
                 return 'PAST_YEAR';
+            default:
+                return null;
         }
     }
 
-    covertQuery(original_query: [QueryString], converted_query): any {
-        original_query.forEach((query) => {
-            if (query.rules) {
-                return this.covertQuery(query.rules, converted_query);
-            } else {
-                let newele = {
-                    metric: query.field.toUpperCase(),
-                    operator: this.convertComparisonOperator(query.operator),
-                    time_frame: this.convertTimeFrame(query.timeFame),
-                    value: query.value,
-                };
-                converted_query.push({ query: newele });
-                return converted_query;
-            }
-        });
+    convertQuery(query: QueryString): any {
+        if (query.rules && query.rules.length > 0) {
+            return {
+                logic_operator: query.condition?.toUpperCase() || 'AND',
+                children: query.rules.map((rule) => this.convertQuery(rule)),
+            };
+        } else {
+            const queryDTO = {
+                metric: query.field?.toUpperCase() || '',
+                operator: this.convertComparisonOperator(query.operator),
+                time_frame: this.convertTimeFrame(query.timeFame),
+                value: query.value,
+            };
+
+            return {
+                query: queryDTO,
+            };
+        }
     }
 
     saveQueryGroupToDB() {
-        let query_group = {
+        const query_group = {
             name: this.queryGrouName,
             description: this.queryGroupDesc,
         };
-        let query_id;
 
-        let converted_query = [];
-        this.query.rules.forEach((element: QueryString) => {
-            if (element.rules) {
-                converted_query = this.covertQuery(
-                    element.rules,
-                    converted_query
-                );
-            }
-        });
+        // Submit query group metadata first
+        this.http
+            .post(this.baseUrl + '/query-group', query_group)
+            .subscribe((id) => {
+                const query_logic = {
+                    queryGroupId: id,
+                    ...this.convertQuery(this.query),
+                };
 
-        console.log(converted_query);
-
-        // this.http
-        //     .post(this.baseUrl + '/query-group', query_group)
-        //     .subscribe((id) => {
-        //         query_id = id;
-        //         let query_logic = {
-        //             queryGroupId: query_id,
-        //             logic_operator: this.query.condition.toUpperCase(),
-        //             children: [...converted_query],
-        //         };
-
-        //         this.http
-        //             .post(this.baseUrl + '/query-logic', query_logic)
-        //             .subscribe((res) => {
-        //                 console.log(res);
-        //             });
-        //     });
+                this.http
+                    .post(this.baseUrl + '/query-logic', query_logic)
+                    .subscribe((res) => {
+                        this.goBack();
+                    });
+            });
     }
 }

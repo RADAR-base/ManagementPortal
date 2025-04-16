@@ -2,7 +2,11 @@ import { Routes } from '@angular/router';
 
 import { UserRouteAccessService } from '../../shared';
 
-import {ORGANIZATION_ADMIN, PROJECT_ADMIN, SYSTEM_ADMIN} from '../constants/common.constants';
+import {
+    ORGANIZATION_ADMIN,
+    PROJECT_ADMIN,
+    SYSTEM_ADMIN,
+} from '../constants/common.constants';
 import { SubjectSourceAssignerPopupComponent } from './source-assigner/source-assigner.component';
 import { SubjectDeletePopupComponent } from './subject-delete-dialog.component';
 import { SubjectDetailComponent } from './subject-detail.component';
@@ -15,6 +19,7 @@ import { SubjectDataViewerPopupComponent } from './data-viewer/data-viewer.compo
 import { QueryEvaluationPopupComponent } from './query-evaluation/query-evaluation.component';
 
 
+import { SubjectQueriesViewerPopupComponent } from './query-viewer/query-viewer.component';
 
 export const subjectRoute: Routes = [
     {
@@ -30,7 +35,7 @@ export const subjectRoute: Routes = [
         path: 'subject/:login/revisions',
         component: SubjectRevisionListComponent,
         resolve: {
-            'pagingParams': ResolvePagingParams,
+            pagingParams: ResolvePagingParams,
         },
         data: {
             authorities: [SYSTEM_ADMIN, ORGANIZATION_ADMIN, PROJECT_ADMIN],
@@ -100,16 +105,16 @@ export const subjectPopupRoute: Routes = [
         canActivate: [UserRouteAccessService],
         outlet: 'popup',
     },
-        {
-            path: 'subject/:login/dataViewer',
-            component: SubjectDataViewerPopupComponent,
-            data: {
-                authorities: [SYSTEM_ADMIN, ORGANIZATION_ADMIN, PROJECT_ADMIN],
-                pageTitle: 'managementPortalApp.subject.home.title',
-            },
-            canActivate: [UserRouteAccessService],
-            outlet: 'popup',
+    {
+        path: 'subject/:login/dataViewer',
+        component: SubjectDataViewerPopupComponent,
+        data: {
+            authorities: [SYSTEM_ADMIN, ORGANIZATION_ADMIN, PROJECT_ADMIN],
+            pageTitle: 'managementPortalApp.subject.home.title',
         },
+        canActivate: [UserRouteAccessService],
+        outlet: 'popup',
+    },
 
         {
             path: 'subject/:login/query',
@@ -128,6 +133,16 @@ export const subjectPopupRoute: Routes = [
         data: {
             authorities: [SYSTEM_ADMIN, ORGANIZATION_ADMIN, PROJECT_ADMIN],
             pageTitle: 'managementPortalApp.subject.home.title',
+        },
+        canActivate: [UserRouteAccessService],
+        outlet: 'popup',
+    },
+    {
+        path: 'subject/:login/queries',
+        component: SubjectQueriesViewerPopupComponent,
+        data: {
+            authorities: [SYSTEM_ADMIN, ORGANIZATION_ADMIN, PROJECT_ADMIN],
+            pageTitle: 'managementPortalApp.subject.queries.title',
         },
         canActivate: [UserRouteAccessService],
         outlet: 'popup',

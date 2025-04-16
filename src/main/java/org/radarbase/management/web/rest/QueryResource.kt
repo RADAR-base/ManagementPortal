@@ -3,6 +3,11 @@ package org.radarbase.management.web.rest
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.micrometer.core.annotation.Timed
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.decodeFromJsonElement
+import org.radarbase.management.domain.Query
+import org.radarbase.management.domain.QueryGroup
 import org.radarbase.management.repository.UserRepository
 import org.radarbase.management.service.QueryBuilderService
 import org.radarbase.management.service.QueryEValuationService
@@ -12,6 +17,7 @@ import org.radarbase.management.service.dto.QueryGroupDTO
 import org.radarbase.management.service.dto.QueryLogicDTO
 import org.radarbase.management.web.rest.errors.ErrorConstants
 import org.radarbase.management.web.rest.errors.ErrorVM
+import org.radarbase.management.service.dto.QueryParticipantDTO
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
@@ -48,8 +54,9 @@ class QueryResource(
             else -> null
         }
     }
-        @PostMapping("query-group")
-        fun createQueryGroup(@RequestBody queryJson: String?): ResponseEntity<Long?> {
+
+    @PostMapping("query-group")
+    fun createQueryGroup(@RequestBody queryJson: String?): ResponseEntity<Long?> {
             var queryGroupId: Long? = null
         if(queryJson.isNullOrEmpty() == false) {
             val objectMapper = jacksonObjectMapper()
@@ -81,6 +88,52 @@ class QueryResource(
                 .body(ErrorVM(ErrorConstants.ERR_VALIDATION, "Subject ID or QueryGroupId is missing"))
         }
     }
+
+    @GetMapping("queries")
+    fun getQueryList(): ResponseEntity<MutableList<Query>> {
+        var list = queryBuilderService.getQueryList()
+        return ResponseEntity.ok(list)
+    }
+
+    @GetMapping("querygroups")
+    fun getQueryGroupList(): ResponseEntity<MutableList<QueryGroup>> {
+            var list = queryBuilderService.getQueryGroupList()
+            return ResponseEntity.ok(list)
+    }
+
+    @DeleteMapping("querygroup/{id}")
+    fun deleteQueriesByID(@PathVariable("id") id: Long) {
+            queryBuilderService.deleteAllRelatedByQueryGroupId(id)
+    }
+
+    @PostMapping("queryparticipant")
+    fun assignQueryGroup(@RequestBody queryJson: String?): ResponseEntity<*> {
+            var queryParticipantId: Long? = null
+
+            if (queryJson.isNullOrEmpty() == false) {
+
+                val objectMapper = jacksonObjectMapper()
+                val queryParticipantDTO: QueryParticipantDTO = objectMapper.readValue(queryJson)
+                val user = userService.getUserWithAuthorities()
+
+                if (user != null) {
+                    queryParticipantId = queryBuilderService.assignQueryGroup(queryParticipantDTO)
+                }
+            }
+            return ResponseEntity.ok(queryParticipantId)
+        }
+
+    @GetMapping("querygroups/subject/{subjectId}")
+    fun getAssignedQueries(@PathVariable subjectId: Long): ResponseEntity<*> {
+            return ResponseEntity.ok(queryBuilderService.getAssignedQueryGroups(subjectId))
+    }
+
+    @DeleteMapping("querygroups/{subjectId}/subject/{queryGroupId}")
+    fun deleteAssignedQueryGroup(@PathVariable subjectId: Long, @PathVariable queryGroupId: Long) {
+
+            queryBuilderService.deleteQueryParticipantByQueryGroup(subjectId, queryGroupId)
+    }
+
 
     companion object {
         private val log = LoggerFactory.getLogger(QueryResource::class.java)
