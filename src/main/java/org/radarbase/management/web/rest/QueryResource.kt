@@ -72,16 +72,18 @@ class QueryResource(
 
 
     //TODO: this will be eventually replaced by a worker
-    @PostMapping("query/evaluate/{subjectId}/querygroup/{queryGroupId}")
+    @PostMapping("evaluate/{subjectId}")
     @Timed
     fun testLogicEvaluation(
         @PathVariable subjectId: Long?,
-        @PathVariable queryGroupId: Long?,
         @RequestBody userData: UserData?
     ): ResponseEntity<*> {
-        return if(subjectId != null && queryGroupId != null) {
+
+        log.info("[QUERY] endpoint is being hit")
+
+        return if(subjectId != null) {
             //TODO: get queryGroup based on assigned query once the PR for that is completed
-            val result = queryEValuationService.testLogicEvaluation(queryGroupId, subjectId, userData  );
+            val result = queryEValuationService.testLogicEvaluation(subjectId, userData  );
             ResponseEntity.ok(result)
         } else {
             ResponseEntity.badRequest()

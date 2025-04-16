@@ -24,7 +24,7 @@ export class QueryEvaluationDialogComponent implements OnInit, OnDestroy {
 
     public dataexample: string;
 
-    private baseUrl = 'api/public';
+    private baseUrl = 'api/query-builder';
     dataLogs:any = {};
 
     private subscriptions: Subscription = new Subscription();
@@ -62,12 +62,17 @@ export class QueryEvaluationDialogComponent implements OnInit, OnDestroy {
     }
 
     evaluate() {
-        var json = JSON.parse(this.dataexample);
-
+        var json = this.dataexample ? JSON.parse(this.dataexample) : null;
         this.http
-                .post(this.baseUrl + '/query/evaluate', json)
-                .subscribe((id) => {
-                   console.log("response", id)
+                .post(this.baseUrl + '/evaluate/' + this.subject.id, json)
+                .subscribe((response) => {
+                    for (const [key, value] of Object.entries(response)) {
+                        if (value) {
+                            this.alertService.success(key + ": Passed");
+                        } else {
+                            this.alertService.error(key + ": Didn't passed");
+                        }
+                      }
                    });
     }
 }

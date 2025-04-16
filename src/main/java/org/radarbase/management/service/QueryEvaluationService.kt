@@ -25,8 +25,8 @@ public class QueryEValuationService(
     private val queryLogicRepository:  QueryLogicRepository,
     private val queryGroupRepository: QueryGroupRepository,
     private val queryEvaluationRepository: QueryEvaluationRepository,
-
-    private val subjectRepository: SubjectRepository
+    private val subjectRepository: SubjectRepository,
+    private val queryParticipantRepository: QueryParticipantRepository
 
 ) {
     fun evaluteQueryCondition(queryLogic: QueryLogic, userData: UserData, currentMonth: String) : Boolean {
@@ -105,22 +105,26 @@ public class QueryEValuationService(
 
 
     //TODO: this will be replaced by a real data and automatic worker
-    fun testLogicEvaluation(queryGroupId: Long, subjectId: Long, customUserData: UserData?) : Boolean  {
+    fun testLogicEvaluation(subjectId: Long, customUserData: UserData?) : MutableMap<String, Boolean>  {
         val subjectOpt = subjectRepository.findById(subjectId)
-        val queryGroupOpt  = queryGroupRepository.findById(queryGroupId);
+        val queryParticipant = queryParticipantRepository.findBySubjectId(subjectId);
+        val results: MutableMap<String, Boolean> = mutableMapOf()
 
-        if(subjectOpt.isPresent && queryGroupOpt.isPresent ) {
+        log.info("[QUERY] subject exists {}", subjectOpt.isPresent)
+        log.info("[QUERY] assigned query exists {}", subjectOpt.isPresent)
+
+
+        if(subjectOpt.isPresent && queryParticipant.isNotEmpty()) {
             val subject = subjectOpt.get();
-            val queryGroup = queryGroupOpt.get();
 
             var userData = UserData(
                 metrics = mapOf(
                     "HEART_RATE" to listOf(
-                        DataPoint("2024-01", 55.0),
-                        DataPoint("2024-02", 55.0),
-                        DataPoint("2024-03", 55.0),
-                        DataPoint("2024-04", 55.0),
-                        DataPoint("2024-05", 55.0)
+                        DataPoint("2024-01", 80.0),
+                        DataPoint("2024-02", 80.0),
+                        DataPoint("2024-03", 80.0),
+                        DataPoint("2024-04", 80.0),
+                        DataPoint("2024-05", 80.0)
                     ),
                     "SLEEP_LENGTH" to listOf(
                         DataPoint("2024-01", 8.0),
@@ -143,22 +147,26 @@ public class QueryEValuationService(
                 userData = customUserData;
             }
 
-            val flatConditions = queryLogicRepository.findByQueryGroupId(queryGroupId)
-            val root = buildLogicTree(flatConditions) ?: return false;
+            for (queryParticipant: QueryParticipant in queryParticipant) {
+                val queryGroup = queryParticipant.queryGroup ?: continue
+                val queryGroupId = queryGroup.id ?: continue
 
-            val currentDate = LocalDate.now()
-            val month = currentDate.month
-            val monthName = month.getDisplayName(TextStyle.FULL, Locale.ENGLISH)
+                val flatConditions = queryLogicRepository.findByQueryGroupId(queryGroupId)
+                val root = buildLogicTree(flatConditions) ?: return results;
 
-            val result =   evaluteQueryCondition(root, userData, monthName);
 
-            saveQueryEvaluationResult(result, subject, queryGroup)
+                val currentDate = LocalDate.now()
+                val month = currentDate.month
+                val monthName = month.getDisplayName(TextStyle.FULL, Locale.ENGLISH)
 
-            return result
+                val result =   evaluteQueryCondition(root, userData, monthName);
+
+                saveQueryEvaluationResult(result, subject, queryGroup)
+
+                results[queryGroup.name!!] = result;
+            }
         }
-
-        return false;
-
+        return results;
     }
 
     fun saveQueryEvaluationResult(result: Boolean, subject: Subject, queryGroup: QueryGroup) {
