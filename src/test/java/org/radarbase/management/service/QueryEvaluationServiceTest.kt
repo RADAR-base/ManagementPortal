@@ -77,10 +77,10 @@ class QueryEvaluationServiceTest(
         var query = Query();
 
         query.queryGroup = queryGroup
-        query.metric = queryMetric
-        query.operator = queryOperator
+        query.queryMetric = queryMetric
+        query.comparisonOperator = queryOperator
         query.value = value
-        query.time_frame = timeframe
+        query.timeFrame = timeframe
 
         return query
     }
@@ -90,7 +90,7 @@ class QueryEvaluationServiceTest(
         queryLogic.id =  Random.nextLong()
         queryLogic.queryGroup = queryGroup
         queryLogic.type = type
-        queryLogic.logic_operator = logicOperator
+        queryLogic.logicOperator = logicOperator
         queryLogic.query = query;
         queryLogic.parent = parentQueryLogic
 
@@ -149,7 +149,7 @@ class QueryEvaluationServiceTest(
     @Test
     @Transactional
     fun testEvaluateSingleConditionLessThan() {
-        val hrQueyr  = createQuery(null, QueryMetric.HEART_RATE, ComparisonOperator.LESS_THAN, QueryTimeFrame.PAST_6_MONTH, "64.2");
+        val hrQueyr  = createQuery(null, QueryMetric.HEART_RATE, ComparisonOperator.LESS_THAN, QueryTimeFrame.PAST_6_MONTH, "64.3");
         val queryLogic1 = createQueryLogic(null, QueryLogicType.CONDITION, null, hrQueyr, null );
         val result = queryEValuationService.evaluateSingleCondition(queryLogic1, userData, "April") ;
 

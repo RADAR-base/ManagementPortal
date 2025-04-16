@@ -1,5 +1,6 @@
 package org.radarbase.management.web.rest
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
@@ -36,7 +37,7 @@ import kotlin.Exception
 import kotlin.String
 import kotlin.Throws
 import kotlin.to
-
+import com.fasterxml.jackson.core.type.TypeReference
 /**
  * Test class for the ProjectResource REST controller.
  *
@@ -54,19 +55,15 @@ internal class QueryEvaluationResourceIntTest(
     @Autowired private val queryGroupRepository: QueryGroupRepository,
     @Autowired private val queryLogicRepository: QueryLogicRepository,
     @Autowired private val queryEvaluationRepository: QueryEvaluationRepository,
+    @Autowired private val queryParticipantRepository: QueryParticipantRepository,
 
     @Autowired private val userRepository: UserRepository ,
     @Autowired private val subjectRepository: SubjectRepository,
-
 
     @Autowired private val pageableArgumentResolver: PageableHandlerMethodArgumentResolver,
     @Autowired private val jacksonMessageConverter: MappingJackson2HttpMessageConverter,
     @Autowired private val exceptionTranslator: ExceptionTranslator,
     @Autowired private val passwordService: PasswordService,
-
-
-
-
     ) {
     private lateinit var restQueryMockMvc: MockMvc
     private lateinit var user: User
@@ -112,10 +109,10 @@ internal class QueryEvaluationResourceIntTest(
         var query = Query();
 
         query.queryGroup = queryGroup
-        query.metric = queryMetric
-        query.operator = queryOperator
+        query.queryMetric = queryMetric
+        query.comparisonOperator = queryOperator
         query.value = value
-        query.time_frame = timeframe
+        query.timeFrame = timeframe
 
         return queryRepository.saveAndFlush(query);
     }
@@ -125,11 +122,34 @@ internal class QueryEvaluationResourceIntTest(
         val queryLogic = QueryLogic() ;
         queryLogic.queryGroup = queryGroup
         queryLogic.type = type
-        queryLogic.logic_operator = logicOperator
+        queryLogic.logicOperator = logicOperator
         queryLogic.query = query;
         queryLogic.parent = parentQueryLogic
 
         return queryLogicRepository.saveAndFlush(queryLogic)
+    }
+
+    fun createQueryParticipantAssignment(queryGroup: QueryGroup) {
+        val user = userRepository.findAll()[0];
+        val subject = subjectRepository.findAll()[0];
+
+        val queryParticipant = QueryParticipant();
+        queryParticipant.queryGroup = queryGroup;
+        queryParticipant.createdBy = user;
+        queryParticipant.subject = subject;
+        queryParticipant.createdDate = ZonedDateTime.now();
+
+        queryParticipantRepository.saveAndFlush(queryParticipant);
+    }
+
+    fun convertStringToBoolean(content: String, queryGroupName: String) : kotlin.Boolean {
+        val objectMapper = ObjectMapper()
+        val resultMap: MutableMap<String, Boolean> = objectMapper.readValue(
+            content,
+            object : TypeReference<MutableMap<String, Boolean>>() {}
+        )
+        val result = Boolean.parseBoolean(resultMap[queryGroupName]!!.toString())
+        return result;
     }
 
     @Test
@@ -149,6 +169,11 @@ internal class QueryEvaluationResourceIntTest(
         val parentQueryLogic = createQueryLogic(queryGroup,QueryLogicType.LOGIC, QueryLogicOperator.AND, null,null);
         createQueryLogic(queryGroup,QueryLogicType.CONDITION, null, query,parentQueryLogic);
         createQueryLogic(queryGroup,QueryLogicType.CONDITION, null, query1,parentQueryLogic);
+
+
+        // create participant assignemnt
+
+        createQueryParticipantAssignment(queryGroup);
 
 
         var userData = UserData(
@@ -179,7 +204,7 @@ internal class QueryEvaluationResourceIntTest(
 
 
         val returnValue = restQueryMockMvc.perform(
-            MockMvcRequestBuilders.post("/api/query-builder/query/evaluate/" + subject.id + "/querygroup/" + queryGroup.id)
+            MockMvcRequestBuilders.post("/api/query-builder/evaluate/" + subject.id)
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(userData))
         )
@@ -187,10 +212,10 @@ internal class QueryEvaluationResourceIntTest(
             .andReturn()
 
         val content: String = returnValue.getResponse().getContentAsString()
-        val response = Boolean.parseBoolean(content)
 
-        assertFalse(response)
+        val result = convertStringToBoolean(content, queryGroup.name!!)
 
+        assertFalse(result)
 
         var queryEvaluationNewSize = queryEvaluationRepository.findAll().size;
        assertEquals(queryEvaluationSize + 1, queryEvaluationNewSize)
@@ -227,7 +252,7 @@ internal class QueryEvaluationResourceIntTest(
         )
 
         val returnValue1 = restQueryMockMvc.perform(
-            MockMvcRequestBuilders.post("/api/query-builder/query/evaluate/" + subject.id + "/querygroup/" + queryGroup.id)
+            MockMvcRequestBuilders.post("/api/query-builder/evaluate/" + subject.id)
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(userData))
         )
@@ -235,9 +260,10 @@ internal class QueryEvaluationResourceIntTest(
             .andReturn()
 
         val content1: String = returnValue1.getResponse().getContentAsString()
-        val response1 = Boolean.parseBoolean(content1)
 
-        assertTrue(response1)
+        val result1 = convertStringToBoolean(content1, queryGroup.name!!)
+
+        assertTrue(result1)
 
          queryEvaluationNewSize = queryEvaluationRepository.findAll().size;
         assertEquals(queryEvaluationSize + 1, queryEvaluationNewSize)
