@@ -24,17 +24,29 @@ class Query : AbstractEntity(), Serializable {
     @JoinColumn(name = "query_group_id")
     var queryGroup: QueryGroup? = null
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "query_metric")
     var queryMetric: QueryMetric? = null
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "comparison_operator")
     var comparisonOperator: ComparisonOperator? = null
 
     @Column(name = "value")
     var value: String? = null
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "time_frame")
     var timeFrame: QueryTimeFrame? = null
+
+    override fun toString(): String {return ("Query{"
+            + "queryGroupName='" + queryGroup?.name + '\''
+            + ", queryMetric='" + queryMetric + '\''
+            + ", comparisonOperator='" + comparisonOperator + '\''
+            + ", value='" + value + '\''
+            + ", timeFrame='" + timeFrame + '\''
+            + "}")
+    }
 
     companion object {
         private const val serialVersionUID = 1L

@@ -74,9 +74,9 @@ class QueryResource(
             return ResponseEntity.ok(list)
     }
 
-    @DeleteMapping("query/{id}")
-    fun deleteQueryByID(@PathVariable("id") id: Long) {
-            queryBuilderService.deleteAllRelatedByQueryId(id)
+    @DeleteMapping("querygroup/{id}")
+    fun deleteQueriesByID(@PathVariable("id") id: Long) {
+            queryBuilderService.deleteAllRelatedByQueryGroupId(id)
     }
 
     @PostMapping("queryparticipant")
@@ -90,7 +90,7 @@ class QueryResource(
                 val user = userService.getUserWithAuthorities()
 
                 if (user != null) {
-                    queryParticipantId = queryBuilderService.assignQueryGroup(queryParticipantDTO)
+                    queryParticipantId = queryBuilderService.assignQueryGroup(queryParticipantDTO, user)
                 }
             }
             return ResponseEntity.ok(queryParticipantId)
@@ -101,9 +101,8 @@ class QueryResource(
             return ResponseEntity.ok(queryBuilderService.getAssignedQueryGroups(subjectId))
     }
 
-    @DeleteMapping("querygroups/{subjectId}/subject/{queryGroupId}")
+    @DeleteMapping("querygroups/{queryGroupId}/subject/{subjectId}")
     fun deleteAssignedQueryGroup(@PathVariable subjectId: Long, @PathVariable queryGroupId: Long) {
-
             queryBuilderService.deleteQueryParticipantByQueryGroup(subjectId, queryGroupId)
     }
 
