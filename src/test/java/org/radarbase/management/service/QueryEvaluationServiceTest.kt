@@ -15,7 +15,9 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.transaction.annotation.Transactional
+import java.time.YearMonth
 import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.random.Random
 
@@ -33,33 +35,67 @@ class QueryEvaluationServiceTest(
     @Autowired private val userRepository: UserRepository
 ) {
       lateinit var userData: UserData
+
+    fun generateUserData(valueHeartRate: Double, valueSleep: Long, HRV: Long)  : UserData{
+        val currentMonth = YearMonth.now()
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM")
+
+        val heartRateData =
+            (0L until 6L).map { monthsAgo ->
+                val month = currentMonth.minusMonths(monthsAgo).format(formatter)
+                val value = valueHeartRate
+                DataPoint(month, value.toDouble())
+            }.reversed()
+
+
+        val sleepData =   (0L until 6L).map { monthsAgo ->
+            val month = currentMonth.minusMonths(monthsAgo).format(formatter)
+            val value = valueSleep
+            DataPoint(month, value.toDouble())
+        }.reversed()
+
+
+        val HRV =   (0L until 6L).map { monthsAgo ->
+            val month = currentMonth.minusMonths(monthsAgo).format(formatter)
+            val value = valueSleep
+            DataPoint(month, value.toDouble())
+        }.reversed()
+
+        return UserData(
+            metrics = mapOf(
+                "HEART_RATE" to heartRateData,
+                "SLEEP_LENGTH" to sleepData,
+                "HRV" to HRV)
+        )
+    }
     @BeforeEach
     fun initTest() {
-         userData = UserData(
-            metrics = mapOf(
-                "HEART_RATE" to listOf(
-                    DataPoint("2024-01", 56.0),
-                    DataPoint("2024-02", 60.0),
-                    DataPoint("2024-03", 65.0),
-                    DataPoint("2024-04", 70.0),
-                    DataPoint("2024-05", 70.0)
-                ),
-                "SLEEP_LENGTH" to listOf(
-                    DataPoint("2024-01", 8.0),
-                    DataPoint("2024-02", 8.0),
-                    DataPoint("2024-03", 8.0),
-                    DataPoint("2024-04", 8.0),
-                    DataPoint("2024-05", 8.0)
-                ),
-                "HRV" to listOf(
-                    DataPoint("2024-01", 50.0),
-                    DataPoint("2024-02", 45.0),
-                    DataPoint("2024-03", 47.0),
-                    DataPoint("2024-04", 45.0),
-                    DataPoint("2024-05", 42.0)
-                )
-            )
-        )
+        userData = generateUserData(64.2,8, 50)
+//         userData = UserData(
+//            metrics = mapOf(
+//                "HEART_RATE" to listOf(
+//                    DataPoint("2024-01", 56.0),
+//                    DataPoint("2024-02", 60.0),
+//                    DataPoint("2024-03", 65.0),
+//                    DataPoint("2024-04", 70.0),
+//                    DataPoint("2024-05", 70.0)
+//                ),
+//                "SLEEP_LENGTH" to listOf(
+//                    DataPoint("2024-01", 8.0),
+//                    DataPoint("2024-02", 8.0),
+//                    DataPoint("2024-03", 8.0),
+//                    DataPoint("2024-04", 8.0),
+//                    DataPoint("2024-05", 8.0)
+//                ),
+//                "HRV" to listOf(
+//                    DataPoint("2024-01", 50.0),
+//                    DataPoint("2024-02", 45.0),
+//                    DataPoint("2024-03", 47.0),
+//                    DataPoint("2024-04", 45.0),
+//                    DataPoint("2024-05", 42.0)
+//                )
+//            )
+//        )
     }
     fun createQueryGroup(): QueryGroup {
         val user = userRepository.findAll()[0];

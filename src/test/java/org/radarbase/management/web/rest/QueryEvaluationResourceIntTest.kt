@@ -38,6 +38,9 @@ import kotlin.String
 import kotlin.Throws
 import kotlin.to
 import com.fasterxml.jackson.core.type.TypeReference
+import java.time.YearMonth
+import java.time.format.DateTimeFormatter
+
 /**
  * Test class for the ProjectResource REST controller.
  *
@@ -152,6 +155,30 @@ internal class QueryEvaluationResourceIntTest(
         return result;
     }
 
+    fun generateUserData(valueHeartRate: Long, valueSleep: Long)  : UserData{
+        val currentMonth = YearMonth.now()
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM")
+
+        val heartRateData =
+            (0L until 6L).map { monthsAgo ->
+                val month = currentMonth.minusMonths(monthsAgo).format(formatter)
+                val value = valueHeartRate
+                DataPoint(month, value.toDouble())
+            }.reversed()
+
+
+        val sleepData =   (0L until 6L).map { monthsAgo ->
+            val month = currentMonth.minusMonths(monthsAgo).format(formatter)
+            val value = valueSleep
+            DataPoint(month, value.toDouble())
+        }.reversed()
+
+        return UserData(
+            metrics = mapOf(
+                "HEART_RATE" to heartRateData,
+                "SLEEP_LENGTH" to sleepData)
+        )
+        }
     @Test
     @Transactional
     @Throws(Exception::class)
@@ -175,33 +202,7 @@ internal class QueryEvaluationResourceIntTest(
 
         createQueryParticipantAssignment(queryGroup);
 
-
-        var userData = UserData(
-            metrics = mapOf(
-                "HEART_RATE" to listOf(
-                    DataPoint("2024-01", 55.0),
-                    DataPoint("2024-02", 55.0),
-                    DataPoint("2024-03", 55.0),
-                    DataPoint("2024-04", 55.0),
-                    DataPoint("2024-05", 55.0)
-                ),
-                "SLEEP_LENGTH" to listOf(
-                    DataPoint("2024-01", 7.0),
-                    DataPoint("2024-02", 8.0),
-                    DataPoint("2024-03", 8.0),
-                    DataPoint("2024-04", 8.0),
-                    DataPoint("2024-05", 8.0)
-                ),
-                "HRV" to listOf(
-                    DataPoint("2024-01", 50.0),
-                    DataPoint("2024-02", 45.0),
-                    DataPoint("2024-03", 47.0),
-                    DataPoint("2024-04", 45.0),
-                    DataPoint("2024-05", 42.0)
-                )
-            )
-        )
-
+        var userData = generateUserData(55, 7);
 
         val returnValue = restQueryMockMvc.perform(
             MockMvcRequestBuilders.post("/api/query-builder/evaluate/" + subject.id)
@@ -224,32 +225,7 @@ internal class QueryEvaluationResourceIntTest(
        var queryEvaluation =   queryEvaluationRepository.findAll()[0]
         assertEquals(false, queryEvaluation.result)
 
-
-        userData = UserData(
-            metrics = mapOf(
-                "HEART_RATE" to listOf(
-                    DataPoint("2024-01", 55.0),
-                    DataPoint("2024-02", 55.0),
-                    DataPoint("2024-03", 55.0),
-                    DataPoint("2024-04", 55.0),
-                    DataPoint("2024-05", 55.0)
-                ),
-                "SLEEP_LENGTH" to listOf(
-                    DataPoint("2024-01", 8.0),
-                    DataPoint("2024-02", 8.0),
-                    DataPoint("2024-03", 8.0),
-                    DataPoint("2024-04", 8.0),
-                    DataPoint("2024-05", 8.0)
-                ),
-                "HRV" to listOf(
-                    DataPoint("2024-01", 50.0),
-                    DataPoint("2024-02", 45.0),
-                    DataPoint("2024-03", 47.0),
-                    DataPoint("2024-04", 45.0),
-                    DataPoint("2024-05", 42.0)
-                )
-            )
-        )
+        userData = generateUserData(55, 8)
 
         val returnValue1 = restQueryMockMvc.perform(
             MockMvcRequestBuilders.post("/api/query-builder/evaluate/" + subject.id)

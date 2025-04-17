@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
+import java.time.YearMonth
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
@@ -98,12 +99,47 @@ public class QueryEValuationService(
             currentDate.minusMonths(it.toLong()).format(outputFormatter)
         }
 
+        return result;
+
+
         //TODO: replace with actual dates once out of testing phase
-        return listOf("2024-01", "2024-02", "2024-03", "2024-04", "2024-05")
+   //     return listOf("2024-01", "2024-02", "2024-03", "2024-04", "2024-05")
     }
 
 
+    //TODO: delete later, only added  for Sandra evaluation purposes
+    private fun generateUserData(valueHeartRate: Double, valueSleep: Long, HRV: Long)  : UserData{
+        val currentMonth = YearMonth.now()
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM")
 
+        val heartRateData =
+            (0L until 12L).map { monthsAgo ->
+                val month = currentMonth.minusMonths(monthsAgo).format(formatter)
+                val value = valueHeartRate
+                DataPoint(month, value.toDouble())
+            }.reversed()
+
+
+        val sleepData =   (0L until 12L).map { monthsAgo ->
+            val month = currentMonth.minusMonths(monthsAgo).format(formatter)
+            val value = valueSleep
+            DataPoint(month, value.toDouble())
+        }.reversed()
+
+
+        val HRV =   (0L until 12L).map { monthsAgo ->
+            val month = currentMonth.minusMonths(monthsAgo).format(formatter)
+            val value = valueSleep
+            DataPoint(month, value.toDouble())
+        }.reversed()
+
+        return UserData(
+            metrics = mapOf(
+                "HEART_RATE" to heartRateData,
+                "SLEEP_LENGTH" to sleepData,
+                "HRV" to HRV)
+        )
+    }
     //TODO: this will be replaced by a real data and automatic worker
     fun testLogicEvaluation(subjectId: Long, customUserData: UserData?) : MutableMap<String, Boolean>  {
         val subjectOpt = subjectRepository.findById(subjectId)
@@ -117,31 +153,7 @@ public class QueryEValuationService(
         if(subjectOpt.isPresent && queryParticipant.isNotEmpty()) {
             val subject = subjectOpt.get();
 
-            var userData = UserData(
-                metrics = mapOf(
-                    "HEART_RATE" to listOf(
-                        DataPoint("2024-01", 80.0),
-                        DataPoint("2024-02", 80.0),
-                        DataPoint("2024-03", 80.0),
-                        DataPoint("2024-04", 80.0),
-                        DataPoint("2024-05", 80.0)
-                    ),
-                    "SLEEP_LENGTH" to listOf(
-                        DataPoint("2024-01", 8.0),
-                        DataPoint("2024-02", 8.0),
-                        DataPoint("2024-03", 8.0),
-                        DataPoint("2024-04", 8.0),
-                        DataPoint("2024-05", 8.0)
-                    ),
-                    "HRV" to listOf(
-                        DataPoint("2024-01", 50.0),
-                        DataPoint("2024-02", 45.0),
-                        DataPoint("2024-03", 47.0),
-                        DataPoint("2024-04", 45.0),
-                        DataPoint("2024-05", 42.0)
-                    )
-                )
-            )
+            var userData = generateUserData(80.0,8, 55)
 
             if(customUserData != null) {
                 userData = customUserData;
