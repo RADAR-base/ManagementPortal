@@ -25,6 +25,8 @@ export class QueryViewerComponent implements OnInit, OnDestroy {
 
     assignedQueryGroups: QueryGroup[];
 
+    ifDisable: boolean = true;
+
     private subscriptions: Subscription = new Subscription();
 
     constructor(
@@ -76,13 +78,14 @@ export class QueryViewerComponent implements OnInit, OnDestroy {
 
     removeQueryGroupFromList(queryGroupId) {
         this.queryGroupList = this.queryGroupList.filter((item) => {
+            this.ifDisable = true;
             return item.id != queryGroupId;
         });
     }
 
     deleteAssignedGroup(queryGroup: QueryGroup) {
         this.queryParticipantService
-            .deleteAssignedQueryGroup(this.subject.id, queryGroup.id)
+            .deleteAssignedQueryGroup(queryGroup.id, this.subject.id)
             .subscribe(() => {
                 this.getAllAssignedGroups();
                 this.queryGroupList.push(queryGroup);
@@ -95,6 +98,10 @@ export class QueryViewerComponent implements OnInit, OnDestroy {
 
     clear() {
         this.activeModal.dismiss('cancel');
+    }
+
+    onGroupChange($event: any) {
+        if ($event) this.ifDisable = false;
     }
 
     private onError(error) {

@@ -4,6 +4,11 @@ import org.radarbase.management.domain.enumeration.*
 import org.radarbase.management.domain.support.AbstractEntityListener
 import java.io.Serializable
 import javax.persistence.*
+import javax.validation.constraints.Email
+import javax.validation.constraints.NotNull
+import javax.validation.constraints.Pattern
+import javax.validation.constraints.Size
+import kotlin.jvm.Transient
 
 /**
  * Query Logic
@@ -48,6 +53,10 @@ class QueryLogic : AbstractEntity(), Serializable {
                 + ", parent='" + parent + '\''
                 + "}")
     }
+
+    @Transient
+    var children: MutableList<QueryLogic> = mutableListOf()
+
 
     companion object {
         private const val serialVersionUID = 1L

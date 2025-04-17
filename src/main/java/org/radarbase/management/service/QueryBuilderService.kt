@@ -3,12 +3,20 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.ktor.util.*
 import org.radarbase.management.domain.*
+import org.radarbase.management.domain.Query
+import org.radarbase.management.domain.QueryGroup
+import org.radarbase.management.domain.QueryLogic
+import org.radarbase.management.domain.User
 import org.radarbase.management.domain.enumeration.QueryLogicType
+import org.radarbase.management.repository.QueryGroupRepository
+import org.radarbase.management.repository.QueryLogicRepository
+import org.radarbase.management.repository.QueryRepository
+import org.radarbase.management.repository.UserRepository
+import org.radarbase.management.domain.*
 import org.radarbase.management.repository.*
 import org.radarbase.management.service.dto.*
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.io.IOException
@@ -142,10 +150,9 @@ public class QueryBuilderService(
         return queryGroupRepository.findAll();
     }
 
-    fun assignQueryGroup(queryParticipantDTO: QueryParticipantDTO): Long?{
+    fun assignQueryGroup(queryParticipantDTO: QueryParticipantDTO, user: User): Long?{
         var queryParticipant = QueryParticipant()
         val queryGroup = queryGroupRepository.findById(queryParticipantDTO.queryGroupId!!).get()
-        val user = userService.getUserWithAuthorities()
 
         queryParticipant.queryGroup= queryGroup
         queryParticipant.createdBy= user
@@ -158,12 +165,12 @@ public class QueryBuilderService(
     }
 
     fun getAssignedQueryGroups(subjectId: Long): MutableList<QueryGroup> {
-        var queryParticipantList =  queryParticipantRepository.findBySubjectId(subjectId)
+        val queryParticipantList =  queryParticipantRepository.findBySubjectId(subjectId)
 
-        var queryGroups = mutableListOf<QueryGroup>()
+        val queryGroups = mutableListOf<QueryGroup>()
 
         for(queryParticipant in queryParticipantList ){
-            var group =queryParticipant.queryGroup
+            val group =queryParticipant.queryGroup
             if (group != null) {
                 queryGroups.add(group)
             }
