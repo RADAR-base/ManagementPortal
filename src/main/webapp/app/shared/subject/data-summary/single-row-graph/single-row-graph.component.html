@@ -15,8 +15,9 @@
     </div>
 
     <div class="flex-test" style="padding-right: 100px" *ngIf="showTotal">
+      <div *ngIf="showTotalAverage">
         <label class="bold sub-label no-bottom-margin"
-            ><strong>Total</strong></label
+            ><strong>Total average</strong></label
         >
         <p
             class="label text bold value"
@@ -25,8 +26,12 @@
         >
             {{ totalValue }}
         </p>
+      </div>
+
         <div class="row"></div>
-        <label class="bold sub-label no-bottom-margin"
+
+        <div>
+            <label class="bold sub-label no-bottom-margin"
             ><strong>Monthly Average</strong></label
         >
         <p
@@ -36,6 +41,8 @@
         >
             {{ totalAverage }}
         </p>
+        </div>
+
     </div>
 
     <canvas class="chart-width" [id]="chartId">{{ chartGraph }}</canvas>

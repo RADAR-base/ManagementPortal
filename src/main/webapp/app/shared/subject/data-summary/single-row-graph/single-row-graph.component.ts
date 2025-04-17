@@ -21,6 +21,8 @@ export class SingleRowGraphComponent implements OnInit {
 
     @Input() totalAverage: Number = 3;
 
+    @Input() showTotalAverage: boolean = true;
+
     @Input() isSingleRow: boolean = true;
 
     @Input() logoClass = '';
