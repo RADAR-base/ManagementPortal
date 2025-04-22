@@ -25,6 +25,7 @@ plugins {
     id 'org.jetbrains.kotlin.plugin.serialization' version '1.9.22' apply false
     id 'org.jetbrains.dokka' version "1.8.20"
     id "org.jetbrains.kotlin.plugin.allopen" version "1.9.10"
+
 }
 
 apply plugin: 'org.springframework.boot'
@@ -239,6 +240,8 @@ dependencies {
 
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.15.0")
+    implementation("com.google.code.gson:gson:2.10.1")
+
 
 }
 
