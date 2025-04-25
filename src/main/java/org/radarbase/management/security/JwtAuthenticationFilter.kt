@@ -1,6 +1,5 @@
 package org.radarbase.management.security
 
-import io.ktor.http.*
 import java.io.IOException
 import java.time.Instant
 import javax.annotation.Nonnull
