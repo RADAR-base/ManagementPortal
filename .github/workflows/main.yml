@@ -86,6 +86,7 @@ jobs:
 
       - name: Has SNAPSHOT version
         id: is-snapshot
+        if: github.ref == 'refs/heads/dev'
         run: grep "version =\\? \\?'.*-SNAPSHOT'" build.gradle
 
       - name: Install gpg secret key
