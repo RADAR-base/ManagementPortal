@@ -17,7 +17,7 @@
     <div class="flex-test" style="padding-right: 100px" *ngIf="showTotal">
       <div *ngIf="showTotalAverage">
         <label class="bold sub-label no-bottom-margin"
-            ><strong>Total average</strong></label
+            ><strong>{{totalAverageText}}</strong></label
         >
         <p
             class="label text bold value"
@@ -30,7 +30,7 @@
 
         <div class="row"></div>
 
-        <div>
+        <div *ngIf="showMonthlyAverage">
             <label class="bold sub-label no-bottom-margin"
             ><strong>Monthly Average</strong></label
         >

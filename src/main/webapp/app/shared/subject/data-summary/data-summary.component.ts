@@ -357,7 +357,7 @@ export class DataSummaryComponent implements OnInit {
                         color: '#000',
                         font: {
                             weight: 'bold',
-                            size: 12,
+                            size: 10,
                         },
                     },
                 },

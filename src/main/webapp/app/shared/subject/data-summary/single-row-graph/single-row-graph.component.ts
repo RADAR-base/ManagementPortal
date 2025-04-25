@@ -35,6 +35,11 @@ export class SingleRowGraphComponent implements OnInit {
 
     @Input() longHeading: boolean = false;
 
+    @Input() showMonthlyAverage: boolean = true;
+
+    @Input() totalAverageText = "Total"
+
+
     ngAfterViewInit() {
         //@ts-ignore
         // const ctx = document.getElementById(this.charxtId).getContext('2d');
