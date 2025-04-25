@@ -1,4 +1,4 @@
-name: Snyk test
+name: Snyk test on PR commits
 
 on:
  - pull_request
@@ -9,31 +9,20 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - uses: snyk/actions/setup@master
-        with:
-          snyk-version: v1.1032.0
-
       - uses: actions/setup-node@v3
         with:
           node-version: '16'
           cache: npm
 
-      - uses: actions/setup-java@v3
-        with:
-          distribution: temurin
-          java-version: 17
-
-      - name: Setup Gradle
-        uses: gradle/gradle-build-action@v2
-
       - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/gradle-jdk17@master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        run: >
-          snyk test
-          --all-projects
-          --configuration-matching="^runtimeClasspath$"
-          --fail-on=upgradable
-          --org=radar-base
-          --policy-path=.snyk
-          --severity-threshold=high
+        with:
+          args: >-
+            --all-projects
+            --configuration-matching='^runtimeClasspath$'
+            --fail-on=upgradable
+            --severity-threshold=high
+            --policy-path=.snyk
+            --org=radar-base
