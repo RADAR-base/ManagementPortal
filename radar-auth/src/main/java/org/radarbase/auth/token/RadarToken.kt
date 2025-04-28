@@ -90,7 +90,7 @@ interface RadarToken {
      * @return true if the client credentials flow was certainly used, false otherwise.
      */
     val isClientCredentials: Boolean
-        get() = grantType == CLIENT_CREDENTIALS
+        get() = grantType == CLIENT_CREDENTIALS || (subject != null && subject == clientId)
 
     fun copyWithRoles(roles: Set<AuthorityReference>): RadarToken
 

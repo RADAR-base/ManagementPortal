@@ -9,7 +9,7 @@ cp src/test/resources/config/keystore.p12 src/main/docker/etc/config
 cp src/test/resources/config/keystore.p12 src/main/resources/config
 
 ./gradlew bootrun -Pe2e-prod-test -x test -x javadocJar &
-docker-compose -f src/main/docker/postgresql.yml up -d # spin up production mode application
+docker compose -f src/main/docker/postgresql.yml up -d # spin up production mode application
 set +e
 
 if ./gradlew generateOpenApiSpec && yarn run e2e-prod; then
@@ -18,5 +18,5 @@ else
   EXIT_STATUS=1
 fi
 
-docker-compose -f src/main/docker/postgresql.yml down -v # clean up containers and volumes
+docker compose -f src/main/docker/postgresql.yml down -v # clean up containers and volumes
 exit $EXIT_STATUS

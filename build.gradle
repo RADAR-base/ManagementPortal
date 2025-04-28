@@ -20,9 +20,9 @@ plugins {
     id 'de.undercouch.download' version '5.5.0' apply false
     id "io.github.gradle-nexus.publish-plugin" version "1.3.0"
     id("com.github.ben-manes.versions") version "0.47.0"
-    id 'org.jetbrains.kotlin.jvm' version "1.9.10"
-    id "org.jetbrains.kotlin.kapt" version "1.9.10"
-    id 'org.jetbrains.kotlin.plugin.serialization' version '1.9.10' apply false
+    id 'org.jetbrains.kotlin.jvm' version "1.9.22"
+    id "org.jetbrains.kotlin.kapt" version "1.9.22"
+    id 'org.jetbrains.kotlin.plugin.serialization' version '1.9.22' apply false
     id 'org.jetbrains.dokka' version "1.8.20"
     id "org.jetbrains.kotlin.plugin.allopen" version "1.9.10"
 }
@@ -34,7 +34,7 @@ apply plugin: 'io.spring.dependency-management'
 
 allprojects {
     group 'org.radarbase'
-    version '2.1.2' // project version
+    version '2.1.9' // project version
 
     // The comment on the previous line is only there to identify the project version line easily
     // with a sed command, to auto-update the version number with the prepare-release-branch.sh
@@ -181,7 +181,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-autoconfigure")
     implementation "org.springframework.boot:spring-boot-starter-mail"
     runtimeOnly "org.springframework.boot:spring-boot-starter-logging"
-    runtimeOnly ("org.springframework.boot:spring-boot-starter-data-jpa") {
+    runtimeOnly("org.springframework.boot:spring-boot-starter-data-jpa") {
         exclude group: 'org.hibernate', module: 'hibernate-entitymanager'
     }
     implementation "org.springframework.security:spring-security-data"
@@ -190,7 +190,7 @@ dependencies {
         exclude module: 'spring-boot-starter-tomcat'
     }
     runtimeOnly "org.springframework.boot:spring-boot-starter-security"
-    implementation ("org.springframework.boot:spring-boot-starter-undertow")
+    implementation("org.springframework.boot:spring-boot-starter-undertow")
 
     implementation "org.hibernate:hibernate-core"
     implementation "org.hibernate:hibernate-envers"

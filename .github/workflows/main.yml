@@ -100,7 +100,7 @@ jobs:
         env:
           OSSRH_USER: ${{ secrets.OSSRH_USER }}
           OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
-        run: ./gradlew -Psigning.gnupg.keyName=${{ secrets.OSSRH_GPG_SECRET_KEY_ID }} -Psigning.gnupg.executable=gpg -Psigning.gnupg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} publish
+        run: ./gradlew -Psigning.gnupg.keyName=${{ secrets.OSSRH_GPG_SECRET_KEY_NAME }} -Psigning.gnupg.executable=gpg -Psigning.gnupg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} publish
 
   # Check that the docker image builds correctly
   docker:
@@ -209,9 +209,9 @@ jobs:
 #        run: |
 #          cp src/test/resources/config/keystore.p12 src/main/docker/etc/config
 #          ./gradlew -Pprod buildDocker -x test -x javadocJar
-#          docker-compose -f src/main/docker/app.yml up -d
+#          docker compose -f src/main/docker/app.yml up -d
 #          yarn run e2e-prod
-#          docker-compose -f src/main/docker/app.yml down -v
+#          docker compose -f src/main/docker/app.yml down -v
 
       # Temp fix
       # https://github.com/docker/build-push-action/issues/252

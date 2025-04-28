@@ -63,10 +63,10 @@ jobs:
         id: e2e
         run: |
           cp src/test/resources/config/keystore.p12 src/main/resources/config/keystore.p12
-          docker-compose -f src/main/docker/postgresql.yml up -d
+          docker compose -f src/main/docker/postgresql.yml up -d
           ./gradlew bootRun -Pprod -Pe2e-prod-test &>mp.log </dev/null &
           yarn run e2e-prod
-          docker-compose -f src/main/docker/postgresql.yml down -v
+          docker compose -f src/main/docker/postgresql.yml down -v
           ./gradlew --stop
 
       - name: Upload screenshots of failed e2e tests
