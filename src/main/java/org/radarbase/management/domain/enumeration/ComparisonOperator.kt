@@ -1,7 +1,7 @@
 package org.radarbase.management.domain.enumeration
 
 enum class ComparisonOperator(val symbol: String) {
-    EQUALS("="),
+    EQUALS("=="),
     NOT_EQUALS("!="),
     GREATER_THAN(">"),
     LESS_THAN("<"),

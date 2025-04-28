@@ -13,6 +13,7 @@ import org.radarbase.management.service.QueryBuilderService
 import org.radarbase.management.service.UserService
 import org.radarbase.management.service.dto.QueryGroupDTO
 import org.radarbase.management.service.dto.QueryLogicDTO
+import org.radarbase.management.service.dto.QueryDTO
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
@@ -53,7 +54,7 @@ import org.radarbase.management.repository.*
 import org.radarbase.management.security.RadarAuthentication
 import org.radarbase.management.service.PasswordService
 import org.radarbase.management.service.UserServiceIntTest
-import org.radarbase.management.service.dto.QueryDTO
+
 import org.radarbase.management.service.dto.QueryParticipantDTO
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
@@ -183,11 +184,11 @@ internal class QueryResourceTest(
         val queryGroup = createAndAddQueryGroupToDB()
         val queryLogicParentDTO = QueryLogicDTO()
 
-        val queryDTO = QueryDTO()
-        queryDTO.metric = QueryMetric.SLEEP_LENGTH;
+        val queryDTO = QueryDTO(QueryMetric.SLEEP_LENGTH,ComparisonOperator.LESS_THAN_OR_EQUALS,"80", QueryTimeFrame.LAST_7_DAYS)
+        queryDTO.metric = QueryMetric.SLEEP_LENGTH
         queryDTO.value = "80"
-        queryDTO.time_frame = QueryTimeFrame.LAST_7_DAYS;
-        queryDTO.operator = ComparisonOperator.LESS_THAN_OR_EQUALS;
+        queryDTO.time_frame = QueryTimeFrame.LAST_7_DAYS
+        queryDTO.operator = ComparisonOperator.LESS_THAN_OR_EQUALS
 
         queryLogicParentDTO.queryGroupId = queryGroup.id
         queryLogicParentDTO.logic_operator = QueryLogicOperator.AND

@@ -96,6 +96,7 @@ public class QueryEValuationService(
         val outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM")
 
         var result =  (0 until monthsBack + 1).map {
+        var result =  (0 until monthsBack).map {
             currentDate.minusMonths(it.toLong()).format(outputFormatter)
         }
 
