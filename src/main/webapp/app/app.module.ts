@@ -54,7 +54,7 @@ export function getBaseHref(platformLocation: PlatformLocation): string {
         ManagementPortalAdminModule,
         ManagementPortalAccountModule,
         ManagementPortalEntityModule,
-        ManagementPortalQueriesModule
+        ManagementPortalQueriesModule,
     ],
     declarations: [
         JhiMainComponent,

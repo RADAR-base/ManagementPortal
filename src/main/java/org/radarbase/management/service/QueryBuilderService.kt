@@ -30,14 +30,15 @@ public class QueryBuilderService(
     private var queryParticipantRepository: QueryParticipantRepository
 ) {
 
+    @Transactional
     fun saveQuery(queryGroup: QueryGroup, query: QueryDTO): Query {
         var newQuery = Query()
 
         newQuery.queryGroup = queryGroup
-        newQuery.queryMetric = query.queryMetric
-        newQuery.comparisonOperator = query.comparisonOperator
+        newQuery.queryMetric = query.metric
+        newQuery.comparisonOperator = query.operator
         newQuery.value = query.value
-        newQuery.timeFrame = query.timeFrame
+        newQuery.timeFrame = query.time_frame
 
         newQuery = queryRepository.save(newQuery);
         queryRepository.flush();
@@ -57,8 +58,8 @@ public class QueryBuilderService(
         val queryLogic = QueryLogic()
         queryLogic.queryGroup = queryGroup
         queryLogic.parent = parent
-        queryLogic.type = if (dto.logicOperator != null)  QueryLogicType.LOGIC else QueryLogicType.CONDITION
-        queryLogic.logicOperator = dto.logicOperator
+        queryLogic.type = if (dto.logic_operator != null)  QueryLogicType.LOGIC else QueryLogicType.CONDITION
+        queryLogic.logicOperator = dto.logic_operator
         queryLogic.query = query
 
         val savedCondition = queryLogicRepository.save(queryLogic)
