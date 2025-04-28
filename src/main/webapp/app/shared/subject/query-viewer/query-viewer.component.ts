@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input } from '@angular/core';
 import { ObservablePopupComponent } from '../../util/observable-popup.component';
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { Observable, Subscription } from 'rxjs';
@@ -17,13 +17,15 @@ import { QueryGroup, QueryParticipant } from 'app/shared/queries/query.model';
 export class QueryViewerComponent implements OnInit, OnDestroy {
     subject: Subject;
 
-    queryGroupList: QueryGroup[];
+    @Input() queryGroupList: QueryGroup[];
 
-    selectedGroup: number;
+    @Input() selectedGroup: number | null = null;
 
     queryPriticipant: QueryParticipant = {};
 
-    assignedQueryGroups: QueryGroup[];
+    @Input() assignedQueryGroups: QueryGroup[];
+
+    ifDisable: boolean = true;
 
     private subscriptions: Subscription = new Subscription();
 
@@ -76,16 +78,18 @@ export class QueryViewerComponent implements OnInit, OnDestroy {
 
     removeQueryGroupFromList(queryGroupId) {
         this.queryGroupList = this.queryGroupList.filter((item) => {
+            this.ifDisable = true;
             return item.id != queryGroupId;
         });
     }
 
     deleteAssignedGroup(queryGroup: QueryGroup) {
         this.queryParticipantService
-            .deleteAssignedQueryGroup(this.subject.id, queryGroup.id)
+            .deleteAssignedQueryGroup(queryGroup.id, this.subject.id)
             .subscribe(() => {
                 this.getAllAssignedGroups();
                 this.queryGroupList.push(queryGroup);
+                this.selectedGroup = null;
             });
     }
 
@@ -95,6 +99,10 @@ export class QueryViewerComponent implements OnInit, OnDestroy {
 
     clear() {
         this.activeModal.dismiss('cancel');
+    }
+
+    onGroupChange($event: any) {
+        if ($event) this.ifDisable = false;
     }
 
     private onError(error) {

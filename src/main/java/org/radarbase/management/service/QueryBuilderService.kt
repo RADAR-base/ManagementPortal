@@ -112,10 +112,9 @@ public class QueryBuilderService(
         return queryGroupRepository.findAll();
     }
 
-    fun assignQueryGroup(queryParticipantDTO: QueryParticipantDTO): Long?{
+    fun assignQueryGroup(queryParticipantDTO: QueryParticipantDTO, user: User): Long?{
         var queryParticipant = QueryParticipant()
         val queryGroup = queryGroupRepository.findById(queryParticipantDTO.queryGroupId!!).get()
-        val user = userService.getUserWithAuthorities()
 
         queryParticipant.queryGroup= queryGroup
         queryParticipant.createdBy= user

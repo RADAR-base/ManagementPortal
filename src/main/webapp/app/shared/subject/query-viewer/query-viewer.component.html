@@ -35,6 +35,7 @@
             <select
                 class="form-control"
                 [(ngModel)]="selectedGroup"
+                (ngModelChange)="onGroupChange($event)"
             >
                 <option *ngFor="let query of queryGroupList" [value]="query.id">
                     {{ query.name }}
@@ -44,6 +45,7 @@
                 class="btn btn-primary"
                 type="submit"
                 (click)="assignQueryGroup()"
+                [disabled]="ifDisable"
             >
                 Assign
             </button>
@@ -67,7 +69,7 @@
                 <td>
                     <button
                         (click)="deleteAssignedGroup(query)"
-                        class="btn btn-secondary"
+                        class="btn btn-danger"
                     >
                         Delete
                     </button>
