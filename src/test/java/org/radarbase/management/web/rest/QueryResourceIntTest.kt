@@ -184,13 +184,13 @@ internal class QueryResourceTest(
         val queryLogicParentDTO = QueryLogicDTO()
 
         val queryDTO = QueryDTO()
-        queryDTO.queryMetric = QueryMetric.SLEEP_LENGTH;
+        queryDTO.metric = QueryMetric.SLEEP_LENGTH;
         queryDTO.value = "80"
-        queryDTO.timeFrame = QueryTimeFrame.LAST_7_DAYS;
-        queryDTO.comparisonOperator = ComparisonOperator.LESS_THAN_OR_EQUALS;
+        queryDTO.time_frame = QueryTimeFrame.LAST_7_DAYS;
+        queryDTO.operator = ComparisonOperator.LESS_THAN_OR_EQUALS;
 
         queryLogicParentDTO.queryGroupId = queryGroup.id
-        queryLogicParentDTO.logicOperator = QueryLogicOperator.AND
+        queryLogicParentDTO.logic_operator = QueryLogicOperator.AND
 
         val queryLogicChild = QueryLogicDTO();
         queryLogicChild.query = queryDTO
