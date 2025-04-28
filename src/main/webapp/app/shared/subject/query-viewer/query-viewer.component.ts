@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input } from '@angular/core';
 import { ObservablePopupComponent } from '../../util/observable-popup.component';
 import { NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { Observable, Subscription } from 'rxjs';
@@ -17,13 +17,13 @@ import { QueryGroup, QueryParticipant } from 'app/shared/queries/query.model';
 export class QueryViewerComponent implements OnInit, OnDestroy {
     subject: Subject;
 
-    queryGroupList: QueryGroup[];
+    @Input() queryGroupList: QueryGroup[];
 
-    selectedGroup: number;
+    @Input() selectedGroup: number | null = null;
 
     queryPriticipant: QueryParticipant = {};
 
-    assignedQueryGroups: QueryGroup[];
+    @Input() assignedQueryGroups: QueryGroup[];
 
     ifDisable: boolean = true;
 
@@ -89,6 +89,7 @@ export class QueryViewerComponent implements OnInit, OnDestroy {
             .subscribe(() => {
                 this.getAllAssignedGroups();
                 this.queryGroupList.push(queryGroup);
+                this.selectedGroup = null;
             });
     }
 
