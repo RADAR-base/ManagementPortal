@@ -146,14 +146,11 @@ public class QueryEValuationService(
         val queryParticipant = queryParticipantRepository.findBySubjectId(subjectId);
         val results: MutableMap<String, Boolean> = mutableMapOf()
 
-        log.info("[QUERY] subject exists {}", subjectOpt.isPresent)
-        log.info("[QUERY] assigned query exists {}", subjectOpt.isPresent)
-
 
         if(subjectOpt.isPresent && queryParticipant.isNotEmpty()) {
             val subject = subjectOpt.get();
 
-            var userData = generateUserData(80.0,8, 55)
+            var userData = generateUserData(87.0,8, 55)
 
             if(customUserData != null) {
                 userData = customUserData;
