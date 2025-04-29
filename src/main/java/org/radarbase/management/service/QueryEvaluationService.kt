@@ -58,7 +58,7 @@ public class QueryEValuationService(
                "<" -> average < expectedValue.toDouble()
                ">=" -> average  >= expectedValue.toDouble()
                "<=" -> average <= expectedValue.toDouble()
-               "==" -> average == expectedValue.toDouble()
+               "=" -> average == expectedValue.toDouble()
                "!=" -> average != expectedValue.toDouble()
                else -> false
            }
@@ -130,7 +130,7 @@ public class QueryEValuationService(
 
         val HRV =   (0L until 12L).map { monthsAgo ->
             val month = currentMonth.minusMonths(monthsAgo).format(formatter)
-            val value = valueSleep
+            val value = HRV
             DataPoint(month, value.toDouble())
         }.reversed()
 

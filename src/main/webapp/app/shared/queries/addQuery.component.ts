@@ -67,7 +67,7 @@ export class AddQueryComponent {
         fields: {
             heart_rate: { name: 'Heart Rate', type: 'number' },
             sleep_length: { name: 'Sleep', type: 'number' },
-            wake_up_time: { name: 'Wake Up Time', type: 'number' },
+            hrv: { name: 'HRV', type: 'number' },
         },
     };
 
