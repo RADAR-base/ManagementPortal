@@ -39,16 +39,6 @@ class PublicResource(
     }
 
 
-//    @PostMapping("query/evaluate")
-//    @Timed
-//    fun testLogicEvaluation(
-//        @RequestBody userData: UserData?
-//    ): ResponseEntity<*> {
-//
-//        val result = queryEValuationService.testLogicEvaluation(2L, 1201, userData  );
-//        return ResponseEntity.ok(result)
-//    }
-
     companion object {
         private val log = LoggerFactory.getLogger(PublicResource::class.java)
     }

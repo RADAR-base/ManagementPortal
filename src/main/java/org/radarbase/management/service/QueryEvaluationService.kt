@@ -102,9 +102,6 @@ public class QueryEValuationService(
 
         return result;
 
-
-        //TODO: replace with actual dates once out of testing phase
-   //     return listOf("2024-01", "2024-02", "2024-03", "2024-04", "2024-05")
     }
 
 

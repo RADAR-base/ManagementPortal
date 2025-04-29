@@ -39,8 +39,6 @@ class QueryResource(
 ) {
     @PostMapping("query-logic")
     fun saveQueryLogic(@RequestBody queryJson: String?): ResponseEntity<*> {
-        log.info("[QUERY] endpoint hit")
-
         if(queryJson.isNullOrEmpty() == false) {
                 val objectMapper = jacksonObjectMapper()
                 val queryLogicDTO: QueryLogicDTO = objectMapper.readValue(queryJson)
@@ -108,9 +106,6 @@ class QueryResource(
         @PathVariable subjectId: Long?,
         @RequestBody userData: UserData?
     ): ResponseEntity<*> {
-
-        log.info("[QUERY] endpoint is being hit")
-
         return if(subjectId != null) {
             //TODO: get queryGroup based on assigned query once the PR for that is completed
             val result = queryEValuationService.testLogicEvaluation(subjectId, userData  );
