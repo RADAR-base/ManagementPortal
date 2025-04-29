@@ -201,7 +201,7 @@ export class AddQueryComponent {
 
     saveNewQueryGroup(queryGroup: QueryGroup) {
         this.http
-            .post(this.baseUrl + '/query-group', queryGroup)
+            .post(this.baseUrl + '/querygroups', queryGroup)
             .subscribe((id) => {
                 const query_logic = {
                     queryGroupId: id,
@@ -225,7 +225,7 @@ export class AddQueryComponent {
     }
     saveIndividualQueries(query_logic: QueryNode) {
         this.http
-        .post(this.baseUrl + '/query-logic', query_logic)
+        .post(this.baseUrl + '/querylogic', query_logic)
         .subscribe((res) => {
             this.goBack();
         });

@@ -37,7 +37,7 @@ class QueryResource(
     @Autowired private val queryEValuationService: QueryEValuationService
 
 ) {
-    @PostMapping("query-logic")
+    @PostMapping("querylogic")
     fun saveQueryLogic(@RequestBody queryJson: String?): ResponseEntity<*> {
         if(queryJson.isNullOrEmpty() == false) {
                 val objectMapper = jacksonObjectMapper()
@@ -70,7 +70,7 @@ class QueryResource(
         }
     }
 
-    @PostMapping("query-group")
+    @PostMapping("querygroups")
     fun createQueryGroup(@RequestBody queryJson: String?): ResponseEntity<Long?> {
         var queryGroupId: Long? = null
         if(queryJson.isNullOrEmpty() == false) {
@@ -135,7 +135,7 @@ class QueryResource(
         return ResponseEntity.ok(list)
     }
 
-    @DeleteMapping("querygroup/{id}")
+    @DeleteMapping("querygroups/{id}")
     fun deleteQueriesByID(@PathVariable("id") id: Long) {
             queryBuilderService.deleteAllRelatedByQueryGroupId(id)
     }

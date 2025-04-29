@@ -202,7 +202,7 @@ internal class QueryResourceTest(
 
         val json = objectMapper.writeValueAsString(queryLogicParentDTO)
 
-        mockMvc.perform(post("/api/query-builder/query-logic")
+        mockMvc.perform(post("/api/query-builder/querylogic")
             .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(json)))
             .andExpect(status().isOk)
@@ -225,7 +225,7 @@ internal class QueryResourceTest(
         queryGroupDTO.description = "desc"
         val json = objectMapper.writeValueAsString(queryGroupDTO)
 
-        mockMvc.perform(post("/api/query-builder/query-group")
+        mockMvc.perform(post("/api/query-builder/querygroups")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(json)))
             .andExpect(status().isOk)
@@ -304,7 +304,7 @@ internal class QueryResourceTest(
     fun shouldDeleteQueryGroupAndAllRelatedEntities() {
         val query = createAndAddQueryToDB();
 
-        mockMvc.perform(delete("/api/query-builder/querygroup/" + query.queryGroup?.id))
+        mockMvc.perform(delete("/api/query-builder/querygroups/" + query.queryGroup?.id))
             .andExpect(status().isOk)
 
     }

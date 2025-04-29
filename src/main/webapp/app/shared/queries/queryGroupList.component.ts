@@ -24,7 +24,7 @@ export class QueryGroupListComponent implements OnInit, OnDestroy {
 
     deleteQueryGroup(id) {
         this.httpclient
-            .delete(this.baseUrl + `/querygroup/${id}`)
+            .delete(this.baseUrl + `/querygroups/${id}`)
             .subscribe((result) => {
                 this.getQueryGroupList();
             });
