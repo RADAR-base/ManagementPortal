@@ -15,17 +15,23 @@ targetCompatibility = JavaVersion.VERSION_11
 description = 'Library for authentication and authorization of JWT tokens issued by the RADAR platform'
 
 dependencies {
-    api group: 'com.auth0', name: 'java-jwt', version: oauth_jwt_version
+    api("com.auth0:java-jwt:${oauth_jwt_version}") {
+        constraints {
+            implementation("com.fasterxml.jackson.core:jackson-databind:${jackson_version}") {
+                because("Software vulnerability exists in lower versions")
+            }
+        }
+    }
     api(platform("org.jetbrains.kotlinx:kotlinx-coroutines-bom:$coroutines_version"))
     api("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version")
 
     implementation("org.radarbase:radar-commons-kotlin:$radar_commons_version")
 
     implementation(platform("io.ktor:ktor-bom:$ktor_version"))
-    implementation("io.ktor:ktor-client-core:$ktor_version")
-    implementation("io.ktor:ktor-client-cio:$ktor_version")
-    implementation("io.ktor:ktor-client-content-negotiation:$ktor_version")
-    implementation("io.ktor:ktor-serialization-kotlinx-json:$ktor_version")
+    implementation("io.ktor:ktor-client-core")
+    implementation("io.ktor:ktor-client-cio")
+    implementation("io.ktor:ktor-client-content-negotiation")
+    implementation("io.ktor:ktor-serialization-kotlinx-json")
 
     implementation group: 'org.slf4j', name: 'slf4j-api', version: slf4j_version
 

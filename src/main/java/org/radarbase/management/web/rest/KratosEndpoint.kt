@@ -1,7 +1,6 @@
 package org.radarbase.management.web.rest
 
 import io.micrometer.core.annotation.Timed
-import java.net.URISyntaxException
 import org.radarbase.auth.kratos.KratosSessionDTO
 import org.radarbase.auth.kratos.SessionService
 import org.radarbase.management.config.ManagementPortalProperties
@@ -14,12 +13,15 @@ import org.radarbase.management.web.rest.errors.NotFoundException
 import org.radarbase.management.web.rest.util.HeaderUtil
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import java.net.URISyntaxException
 
+@ConditionalOnProperty(prefix = "managementportal", name = ["legacyLogin"], havingValue = "false", matchIfMissing = true)
 @RestController
 @RequestMapping("/api/kratos")
-class KratosEndpoint
+private class KratosEndpoint
 @Autowired
 constructor(
         @Autowired private val subjectService: SubjectService,
@@ -29,7 +31,7 @@ constructor(
         @Autowired private val managementPortalProperties: ManagementPortalProperties,
 ) {
     private var sessionService: SessionService =
-            SessionService(managementPortalProperties.identityServer.publicUrl())
+            SessionService(managementPortalProperties.identityServer.serverUrl)
 
     /**
      * POST /subjects : Create a new subject.

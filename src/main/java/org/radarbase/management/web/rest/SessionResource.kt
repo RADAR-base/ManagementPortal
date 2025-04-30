@@ -15,6 +15,7 @@ import org.radarbase.auth.kratos.SessionService
 import org.radarbase.management.config.ManagementPortalProperties
 import org.radarbase.management.web.rest.util.HeaderUtil
 import org.slf4j.LoggerFactory
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.http.HttpHeaders
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
@@ -27,13 +28,14 @@ import javax.servlet.http.HttpServletRequest
 /**
  * REST controller for managing Sessions.
  */
+@ConditionalOnProperty(prefix = "managementportal", name = ["legacyLogin"], havingValue = "false", matchIfMissing = true)
 @RestController
 @RequestMapping("/api")
 class SessionResource(managementPortalProperties: ManagementPortalProperties) {
     private lateinit var sessionService: SessionService
 
     init {
-        sessionService = SessionService(managementPortalProperties.identityServer.publicUrl())
+        sessionService = SessionService(managementPortalProperties.identityServer.serverUrl)
     }
 
     private val httpClient = HttpClient(CIO).config {

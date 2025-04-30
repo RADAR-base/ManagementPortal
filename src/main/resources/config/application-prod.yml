@@ -99,6 +99,7 @@ managementportal:
     persistentMetaTokenTimeout: P31D #timeout should be specified as the ISO-8601 duration format {@code PnDTnHnMn.nS}.
   catalogueServer:
     enableAutoImport: false
+  legacy-login: false
   identityServer:
     adminEmail: bdegraaf1234@gmail.com
     serverUrl: http://localhost:4433

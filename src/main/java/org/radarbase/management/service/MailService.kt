@@ -4,9 +4,9 @@ import org.radarbase.management.config.ManagementPortalProperties
 import org.radarbase.management.domain.User
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.MessageSource
 import org.springframework.mail.javamail.JavaMailSender
-import org.springframework.mail.javamail.JavaMailSenderImpl
 import org.springframework.mail.javamail.MimeMessageHelper
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
@@ -21,6 +21,7 @@ import java.util.*
  *
  * We use the @Async annotation to send emails asynchronously.
  */
+@ConditionalOnProperty(prefix = "managementportal", name = ["legacyLogin"], havingValue = "true")
 @Service
 class MailService(
     @Autowired private val managementPortalProperties: ManagementPortalProperties,

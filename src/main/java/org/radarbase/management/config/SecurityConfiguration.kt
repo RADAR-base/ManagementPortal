@@ -6,9 +6,11 @@ import org.radarbase.auth.jwks.JwksTokenVerifierLoader
 import org.radarbase.management.repository.UserRepository
 import org.radarbase.management.security.Http401UnauthorizedEntryPoint
 import org.radarbase.management.security.JwtAuthenticationFilter
+import org.radarbase.management.security.JwtAuthenticationFilterImpl
 import org.radarbase.management.security.RadarAuthenticationProvider
 import org.springframework.beans.factory.BeanInitializationException
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -28,6 +30,7 @@ import org.springframework.security.web.authentication.logout.LogoutSuccessHandl
 import tech.jhipster.security.AjaxLogoutSuccessHandler
 import javax.annotation.PostConstruct
 
+@ConditionalOnProperty(prefix = "managementportal", name = ["legacyLogin"], havingValue = "false", matchIfMissing = true)
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
@@ -75,7 +78,7 @@ class SecurityConfiguration
 
         @Bean
         fun jwtAuthenticationFilter(): JwtAuthenticationFilter =
-            JwtAuthenticationFilter(tokenValidator, authenticationManager())
+            JwtAuthenticationFilterImpl(tokenValidator, authenticationManager())
                 .skipUrlPattern(HttpMethod.GET, "/")
                 .skipUrlPattern(HttpMethod.GET, "/*.{js,ico,css,html}")
                 .skipUrlPattern(HttpMethod.GET, "/i18n/**")

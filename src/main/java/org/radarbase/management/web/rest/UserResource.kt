@@ -11,6 +11,7 @@ import org.radarbase.management.repository.filters.UserFilter
 import org.radarbase.management.security.Constants
 import org.radarbase.management.security.NotAuthorizedException
 import org.radarbase.management.service.AuthService
+import org.radarbase.management.service.MailService
 import org.radarbase.management.service.ResourceUriService
 import org.radarbase.management.service.UserService
 import org.radarbase.management.service.dto.RoleDTO
@@ -73,6 +74,7 @@ import java.util.*
 @RequestMapping("/api")
 class UserResource(
     @Autowired private val userRepository: UserRepository,
+    @Autowired(required = false) private val mailService: MailService?,
     @Autowired private val userService: UserService,
     @Autowired private val subjectRepository: SubjectRepository,
     @Autowired private val managementPortalProperties: ManagementPortalProperties,
@@ -117,10 +119,16 @@ class UserResource(
                 )
             ).body(null)
         } else {
-            val newUser: User;
-            newUser = userService.createUser(managedUserVm)
-            userService.sendActivationEmail(newUser)
-
+            val newUser: User = userService.createUser(managedUserVm)
+            if (managementPortalProperties.legacyLogin == true)
+                mailService?.let{
+                    it.sendCreationEmail(
+                        newUser, managementPortalProperties.common.activationKeyTimeoutInSeconds.toLong()
+                    )
+                }
+            else {
+                userService.sendActivationEmail(newUser)
+            }
             ResponseEntity.created(ResourceUriService.getUri(newUser)).headers(
                 HeaderUtil.createAlert(
                     "userManagement.created", newUser.login
