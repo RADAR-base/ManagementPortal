@@ -3,7 +3,7 @@ import { Component, ViewChild } from '@angular/core';
 import {
     QueryBuilderClassNames,
     QueryBuilderConfig,
-} from '@pri17/ngx-angular-query-builder';
+} from '@uom-digital-health-software/ngx-angular-query-builder';
 import { FormBuilder, FormControl, NgForm } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { QueryDTO, QueryNode, QueryString } from './queries.model';

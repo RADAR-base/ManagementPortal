@@ -8,7 +8,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
-import { NgxAngularQueryBuilderModule } from '@pri17/ngx-angular-query-builder';
+import { NgxAngularQueryBuilderModule } from "@uom-digital-health-software/ngx-angular-query-builder";
 import { AddQueryComponent } from './addQuery.component';
 
 @NgModule({
