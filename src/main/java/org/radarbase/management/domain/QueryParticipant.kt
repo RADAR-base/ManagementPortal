@@ -1,17 +1,15 @@
 package org.radarbase.management.domain
 
-import org.radarbase.management.domain.enumeration.*
 import org.radarbase.management.domain.support.AbstractEntityListener
 import java.io.Serializable
+import java.time.ZonedDateTime
 import javax.persistence.*
 
-/**
- * Query Logic
- */
+
 @Entity
-@Table(name = "query_logic")
+@Table(name = "query_participant")
 @EntityListeners(AbstractEntityListener::class)
-class QueryLogic : AbstractEntity(), Serializable {
+class QueryParticipant : AbstractEntity(), Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
@@ -22,30 +20,27 @@ class QueryLogic : AbstractEntity(), Serializable {
     @JoinColumn(name = "query_group_id")
     var queryGroup: QueryGroup? = null
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "type")
-    var type: QueryLogicType? = null
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "logic_operator")
-    var logicOperator: QueryLogicOperator? = null
-
-    @OneToOne
-    @JoinColumn(name = "query_id", unique = true)
-    var query: Query? = null
-
     @ManyToOne
-    @JoinColumn(name = "parent_id")
-    var parent: QueryLogic? = null
+    @JoinColumn(name = "subject_id")
+    var subject: Subject? = null
+
+    @Column(name = "created_date")
+    var createdDate: ZonedDateTime? = null
+
+    @Column(name = "updated_date")
+    var updatedDate: ZonedDateTime? = null
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "created_by")
+    var createdBy: User? = null
 
     override fun toString(): String {
-        return ("QueryLogic{"
+        return ("QueryParticipant{"
                 + "id='" + id + '\''
                 + "queryGroupId='" + queryGroup + '\''
-                + ", type='" + type + '\''
-                + ", logicOperator='" + logicOperator + '\''
-                + ", query_id='" + query + '\''
-                + ", parent='" + parent + '\''
+                + ", createdBy='" + createdBy + '\''
+                + ", createdDate='" + createdDate + '\''
+                + ", updatedDate='" + updatedDate + '\''
                 + "}")
     }
 

@@ -1,0 +1,20 @@
+<h4>Query List</h4>
+
+<table class="table">
+    <tr>
+        <th>Query Group Name</th>
+        <th>Date Added</th>
+        <th>Researcher</th>
+        <th>Action</th>
+    </tr>
+    <tr *ngFor="let group of queryGroupList">
+        <td>{{ group.name }}</td>
+        <td>{{ group.createdDate | date : "yyyy-MM-dd" }}</td>
+        <td>
+            {{ group.createdBy.firstName }}
+            {{ group.createdBy.lastName }}
+        </td>
+        <td><button class="btn btn-danger" (click)="deleteQueryGroup(group.id)">Delete</button></td>
+    </tr>
+</table>
+<a routerLink="/add-query">Add Query</a>

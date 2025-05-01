@@ -1,6 +1,7 @@
 package org.radarbase.management.domain.enumeration
 
 enum class QueryMetric {
-    HEAR_RATE,
-    SLEEP_LENGTH
+    HEART_RATE,
+    SLEEP_LENGTH,
+    WAKE_UP_TIME
 }

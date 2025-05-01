@@ -4,7 +4,7 @@ import org.radarbase.management.domain.enumeration.QueryLogicOperator
 
 class QueryLogicDTO {
     var queryGroupId: Long? = null
-    var logicOperator: QueryLogicOperator? = null
+    var logic_operator: QueryLogicOperator? = null
     var query: QueryDTO?  = null
     var children: List<QueryLogicDTO>? = null
 
@@ -12,7 +12,7 @@ class QueryLogicDTO {
     override fun toString(): String {
         return ("QueryLogicDTO{"
                 + "queryGroupId='" + queryGroupId + '\''
-                + ", logicOperator='" + logicOperator + '\''
+                + ", logic_operator='" + logic_operator + '\''
                 + ", query='" + query + '\''
                 + ", children='" + children + '\''
                 + "}")

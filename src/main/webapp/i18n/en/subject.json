@@ -1,6 +1,6 @@
 {
     "managementPortalApp": {
-        "subject" : {
+        "subject": {
             "home": {
                 "title": "Participants",
                 "createLabel": "Create a new Participant",
@@ -54,35 +54,36 @@
             "actions": "Actions",
             "pairApp": "Pair App",
             "pairSources": {
-                "button" : "Pair Sources",
-                "title" : "Assign or Remove sources ",
-                "Id" : "Id",
-                "sourceDescription" : "Source Description",
-                "remove" : "Remove",
-                "assignedSources" : "Assigned sources",
-                "availableSources" : "Available sources",
+                "button": "Pair Sources",
+                "title": "Assign or Remove sources ",
+                "Id": "Id",
+                "sourceDescription": "Source Description",
+                "remove": "Remove",
+                "assignedSources": "Assigned sources",
+                "availableSources": "Available sources",
                 "sourceType": "Device type",
                 "sourceId": "Source ID",
                 "sourceName": "Source Name",
                 "expectedSourceName": "Physical ID"
             },
-            "dataViewer":  {
+            "dataViewer": {
                 "title": "Data Viewer"
             },
+            "queries": { "title": "Queries" },
             "clientApp": "Client app",
             "resource": "Protected resource",
-            "attributeData" : "Attributes",
-            "status" : {
-                "title" : "Status",
-                "discontinued" : "DISCONTINUED",
-                "active" : "ACTIVATED",
-                "deactivated" : "DEACTIVATED",
+            "attributeData": "Attributes",
+            "status": {
+                "title": "Status",
+                "discontinued": "DISCONTINUED",
+                "active": "ACTIVATED",
+                "deactivated": "DEACTIVATED",
                 "invalid": "INVALID"
             },
-            "discontinue" : {
-                "operation" : "Discontinue",
-                "title" : "Confirm discontinue operation",
-                "question" : "Are you sure you want to discontinue Subject {{ id }}? This operation cannot be undone."
+            "discontinue": {
+                "operation": "Discontinue",
+                "title": "Confirm discontinue operation",
+                "question": "Are you sure you want to discontinue Subject {{ id }}? This operation cannot be undone."
             },
             "discontinued": "A Subject is discontinued with identifier {{ param }}",
             "sorting": {
@@ -95,9 +96,9 @@
                 "asc": "Ascending",
                 "desc": "Descending"
             },
-            "subjectId" : "Subject Id",
-            "baseUrl" : "Base Url",
-            "tokenName" : "Token Name",
+            "subjectId": "Subject Id",
+            "baseUrl": "Base Url",
+            "tokenName": "Token Name",
             "tokenTimeoutHour": "1 hour",
             "tokenTimeoutHours": "{{hours}} hours",
             "tokenTimeoutDays": "{{days}} days",
@@ -117,7 +118,7 @@
     },
     "error": {
         "patientEmailRequired": "A valid email is required to activate the subject account",
-        "subjectExists" : "A subject with given project-id and external-id already exists",
+        "subjectExists": "A subject with given project-id and external-id already exists",
         "validation": "Validation error, check the entered values in the fields.",
         "loginNotParticipant": "Supplied login is not a participant in any study",
         "loginRequired": "A subject login is required",
