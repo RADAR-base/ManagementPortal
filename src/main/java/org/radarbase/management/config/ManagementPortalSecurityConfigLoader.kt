@@ -89,7 +89,7 @@ class ManagementPortalSecurityConfigLoader {
         val frontend = managementPortalProperties!!.frontend
         val details = BaseClientDetails()
         details.clientId = frontend.clientId
-        details.clientSecret = null
+        details.clientSecret = frontend.clientSecret
         details.accessTokenValiditySeconds = frontend.accessTokenValiditySeconds
         details.refreshTokenValiditySeconds = frontend.refreshTokenValiditySeconds
         details.setResourceIds(
@@ -102,6 +102,12 @@ class ManagementPortalSecurityConfigLoader {
             mutableListOf(
                 "password", "refresh_token",
                 "authorization_code"
+            )
+        )
+        details.setRegisteredRedirectUri(
+            setOf(
+                managementPortalProperties.common.managementPortalBaseUrl + "/api/redirect/login",
+                managementPortalProperties.common.managementPortalBaseUrl + "/api/redirect/account"
             )
         )
         details.setAdditionalInformation(Collections.singletonMap("protected", true))

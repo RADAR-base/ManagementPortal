@@ -29,7 +29,6 @@ import javax.validation.Valid
 /**
  * Created by dverbeec on 5/09/2017.
  */
-@ConditionalOnProperty(prefix = "managementportal", name = ["legacyLogin"], havingValue = "true")
 @RestController
 @RequestMapping("/api")
 class OAuthClientsResource(

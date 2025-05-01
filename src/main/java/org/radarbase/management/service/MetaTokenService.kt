@@ -33,7 +33,6 @@ import javax.validation.ConstraintViolationException
  * Service to delegate MetaToken handling.
  *
  */
-@ConditionalOnProperty(prefix = "managementportal", name = ["legacyLogin"], havingValue = "true")
 @Service
 @Transactional
 class MetaTokenService {

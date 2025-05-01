@@ -6,7 +6,6 @@ import org.radarbase.auth.jwks.JwksTokenVerifierLoader
 import org.radarbase.management.repository.UserRepository
 import org.radarbase.management.security.Http401UnauthorizedEntryPoint
 import org.radarbase.management.security.JwtAuthenticationFilter
-import org.radarbase.management.security.JwtAuthenticationFilterImpl
 import org.radarbase.management.security.RadarAuthenticationProvider
 import org.springframework.beans.factory.BeanInitializationException
 import org.springframework.beans.factory.annotation.Autowired
@@ -24,24 +23,26 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.http.SessionCreationPolicy
+import org.springframework.security.core.userdetails.UserDetailsService
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.data.repository.query.SecurityEvaluationContextExtension
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler
 import tech.jhipster.security.AjaxLogoutSuccessHandler
 import javax.annotation.PostConstruct
 
-@ConditionalOnProperty(prefix = "managementportal", name = ["legacyLogin"], havingValue = "false", matchIfMissing = true)
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
 class SecurityConfiguration
 /** Security configuration constructor. */
-    @Autowired
-    constructor(
+    @Autowired constructor(
         private val authenticationManagerBuilder: AuthenticationManagerBuilder,
+        private val userDetailsService: UserDetailsService,
         private val applicationEventPublisher: ApplicationEventPublisher,
-        private val userRepository: UserRepository,
-        @Autowired private val managementPortalProperties: ManagementPortalProperties,
+        private val passwordEncoder: PasswordEncoder,
+        private val managementPortalProperties: ManagementPortalProperties,
+        private val userRepository: UserRepository
     ) : WebSecurityConfigurerAdapter() {
         val tokenValidator: TokenValidator
             /** Get the default token validator. */
@@ -62,23 +63,32 @@ class SecurityConfiguration
         fun init() {
             try {
                 authenticationManagerBuilder
-                    .authenticationProvider(RadarAuthenticationProvider())
-                    .authenticationEventPublisher(
-                        DefaultAuthenticationEventPublisher(applicationEventPublisher),
-                    )
+                    .userDetailsService(userDetailsService) // Legacy username/password authentication
+                    .passwordEncoder(passwordEncoder)
+                    .and()
+                    .authenticationProvider(RadarAuthenticationProvider()) // Internal authentication provider
+                    .authenticationEventPublisher(DefaultAuthenticationEventPublisher(applicationEventPublisher))
             } catch (e: Exception) {
                 throw BeanInitializationException("Security configuration failed", e)
             }
         }
 
-        @Bean fun logoutSuccessHandler(): LogoutSuccessHandler = AjaxLogoutSuccessHandler()
+        @Bean
+        fun logoutSuccessHandler(): LogoutSuccessHandler = AjaxLogoutSuccessHandler()
 
         @Bean
         fun http401UnauthorizedEntryPoint(): Http401UnauthorizedEntryPoint = Http401UnauthorizedEntryPoint()
 
         @Bean
-        fun jwtAuthenticationFilter(): JwtAuthenticationFilter =
-            JwtAuthenticationFilterImpl(tokenValidator, authenticationManager())
+        fun jwtAuthenticationFilter(): JwtAuthenticationFilter {
+            val useInternalAuth = managementPortalProperties.authServer.internal
+
+            return JwtAuthenticationFilter(
+                validator = tokenValidator,
+                authenticationManager = authenticationManager(),
+                enableUserLookup = useInternalAuth,
+                userRepository = if (useInternalAuth) userRepository else null,
+                isOptional = false)
                 .skipUrlPattern(HttpMethod.GET, "/")
                 .skipUrlPattern(HttpMethod.GET, "/*.{js,ico,css,html}")
                 .skipUrlPattern(HttpMethod.GET, "/i18n/**")
@@ -96,6 +106,7 @@ class SecurityConfiguration
                 .skipUrlPattern(HttpMethod.GET, "/css/**")
                 .skipUrlPattern(HttpMethod.GET, "/js/**")
                 .skipUrlPattern(HttpMethod.GET, "/radar-baseRR.png")
+        }
 
         override fun configure(web: WebSecurity) {
             web.ignoring()
@@ -116,6 +127,7 @@ class SecurityConfiguration
                 .antMatchers("/api/sitesettings")
                 .antMatchers("/api/redirect/**")
                 .antMatchers("/api/kratos/**")
+                .antMatchers("/api/register")
                 .antMatchers("/api/account/reset_password/init")
                 .antMatchers("/api/account/reset_password/finish")
                 .antMatchers("/test/**")
@@ -138,7 +150,7 @@ class SecurityConfiguration
                     UsernamePasswordAuthenticationFilter::class.java,
                 )
                 .authorizeRequests()
-                .anyRequest().authenticated()
+                .anyRequest().authenticated() // Allow all requests if authenticated
                 .and()
                 .logout().invalidateHttpSession(true)
                 .logoutUrl("/api/logout")
@@ -146,12 +158,16 @@ class SecurityConfiguration
 
         @Bean
         @Throws(Exception::class)
-        override fun authenticationManagerBean(): AuthenticationManager = super.authenticationManagerBean()
+        override fun authenticationManagerBean(): AuthenticationManager {
+            return super.authenticationManagerBean()
+        }
 
         @Bean
-        fun securityEvaluationContextExtension(): SecurityEvaluationContextExtension = SecurityEvaluationContextExtension()
+        fun securityEvaluationContextExtension(): SecurityEvaluationContextExtension {
+            return SecurityEvaluationContextExtension()
+        }
 
         companion object {
             const val RES_MANAGEMENT_PORTAL = "res_ManagementPortal"
         }
-    }
+}

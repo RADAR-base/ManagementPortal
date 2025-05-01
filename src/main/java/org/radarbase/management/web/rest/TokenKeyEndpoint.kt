@@ -9,7 +9,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
 
-@ConditionalOnProperty(prefix = "managementportal", name = ["legacyLogin"], havingValue = "true")
 @RestController
 class TokenKeyEndpoint @Autowired constructor(
     private val keyStoreHandler: ManagementPortalOauthKeyStoreHandler

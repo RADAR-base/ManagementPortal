@@ -42,7 +42,7 @@ import javax.validation.Valid
 @RequestMapping("/api")
 class AccountResource(
     @Autowired private val userService: UserService,
-    @Autowired(required = false) private val mailService: MailService?,
+    @Autowired private val mailService: MailService,
     @Autowired private val userMapper: UserMapper,
     @Autowired private val managementPortalProperties: ManagementPortalProperties,
     @Autowired private val authService: AuthService,
@@ -179,14 +179,11 @@ class AccountResource(
                     "Cannot find a deactivated user with login $login",
                     EntityName.Companion.USER, ErrorConstants.ERR_EMAIL_NOT_REGISTERED
                 )
-        if (managementPortalProperties.legacyLogin == true) {
-            mailService?.let {
-                it.sendCreationEmail(
-                    user, managementPortalProperties.common
-                        .activationKeyTimeoutInSeconds.toLong()
-                )
-            }
-        }
+
+        mailService.sendCreationEmail(
+            user, managementPortalProperties.common
+                .activationKeyTimeoutInSeconds.toLong()
+        )
         return ResponseEntity(HttpStatus.NO_CONTENT)
     }
 
@@ -205,11 +202,7 @@ class AccountResource(
                     "email address not registered",
                     EntityName.Companion.USER, ErrorConstants.ERR_EMAIL_NOT_REGISTERED
                 )
-        if (managementPortalProperties.legacyLogin == true) {
-            mailService?.let {
-                it.sendPasswordResetMail(user)
-            }
-        }
+        mailService.sendPasswordResetMail(user)
         return ResponseEntity(HttpStatus.NO_CONTENT)
     }
 

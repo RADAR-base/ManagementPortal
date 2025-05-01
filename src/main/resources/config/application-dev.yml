@@ -57,6 +57,8 @@ spring:
         cache: false
     liquibase:
         contexts: dev
+    main:
+      allow-bean-definition-overriding: true
 
 # ===================================================================
 # To enable SSL, generate a certificate using:
@@ -115,13 +117,13 @@ managementportal:
     siteSettings:
         # The line below can be uncommented to add some hidden fields for UI testing
         #hiddenSubjectFields: [person_name, date_of_birth, group]
-    legacy-login: false
     identityServer:
         adminEmail: admin-email-here@gmail.com
         serverUrl: http://localhost:4433
         serverAdminUrl: http://localhost:4434
         loginUrl: http://localhost:3000
     authServer:
+        internal: true
         serverUrl: http://localhost:4444
         serverAdminUrl: http://localhost:4445
         loginUrl:  http://localhost:4444

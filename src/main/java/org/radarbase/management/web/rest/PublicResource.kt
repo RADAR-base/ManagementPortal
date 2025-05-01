@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
-@ConditionalOnProperty(prefix = "managementportal", name = ["legacyLogin"], havingValue = "false", matchIfMissing = true)
 @RestController
 @RequestMapping("/api/public")
 class PublicResource(

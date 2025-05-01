@@ -21,7 +21,6 @@ import java.util.*
  *
  * We use the @Async annotation to send emails asynchronously.
  */
-@ConditionalOnProperty(prefix = "managementportal", name = ["legacyLogin"], havingValue = "true")
 @Service
 class MailService(
     @Autowired private val managementPortalProperties: ManagementPortalProperties,

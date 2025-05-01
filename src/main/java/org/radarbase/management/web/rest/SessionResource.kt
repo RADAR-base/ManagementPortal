@@ -28,7 +28,6 @@ import javax.servlet.http.HttpServletRequest
 /**
  * REST controller for managing Sessions.
  */
-@ConditionalOnProperty(prefix = "managementportal", name = ["legacyLogin"], havingValue = "false", matchIfMissing = true)
 @RestController
 @RequestMapping("/api")
 class SessionResource(managementPortalProperties: ManagementPortalProperties) {

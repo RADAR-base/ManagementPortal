@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.*
 import java.net.MalformedURLException
 import java.time.Duration
 
-@ConditionalOnProperty(prefix = "managementportal", name = ["legacyLogin"], havingValue = "true")
 @RestController
 @RequestMapping("/api")
 class MetaTokenResource {

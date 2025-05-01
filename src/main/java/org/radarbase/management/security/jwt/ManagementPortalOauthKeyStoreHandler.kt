@@ -223,7 +223,7 @@ class ManagementPortalOauthKeyStoreHandler @Autowired constructor(
             val jwksLoader = JwksTokenVerifierLoader(
                 "$managementPortalBaseUrl/oauth/token_key", "res_ManagementPortal", JwkAlgorithmParser()
             )
-            return TokenValidator(java.util.List.of(jwksLoader))
+            return TokenValidator(listOf(jwksLoader))
         }
 
     companion object {

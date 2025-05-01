@@ -18,6 +18,8 @@ spring:
       enabled: false
     livereload:
       enabled: false
+  main:
+    allow-bean-definition-overriding: true
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
     driverClassName: org.postgresql.Driver
@@ -99,13 +101,13 @@ managementportal:
     persistentMetaTokenTimeout: P31D #timeout should be specified as the ISO-8601 duration format {@code PnDTnHnMn.nS}.
   catalogueServer:
     enableAutoImport: false
-  legacy-login: false
   identityServer:
     adminEmail: bdegraaf1234@gmail.com
     serverUrl: http://localhost:4433
     serverAdminUrl: http://kratos-admin
     loginUrl: http://localhost:3000
   authServer:
+    internal: true
     serverUrl: http://hydra:4444
     serverAdminUrl: http://hydra:4445
     loginUrl:  http://localhost:4444

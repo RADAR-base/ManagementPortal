@@ -29,7 +29,6 @@ import org.springframework.transaction.annotation.Transactional
 import java.time.Duration
 
 /** Service class for managing identities. */
-@ConditionalOnProperty(prefix = "managementportal", name = ["legacyLogin"], havingValue = "false", matchIfMissing = true)
 @Service
 @Transactional
 class IdentityService
@@ -90,13 +89,11 @@ class IdentityService
                             }
                         },
                     authorities = authorities,
-                    scope =
-                        Permission.scopes().filter { scope ->
-                            authService.mayBeGranted(
-                                roles.mapNotNull { it.role },
-                                Permission.ofScope(scope),
-                            )
-                        },
+                    scope = Permission.scopes().filter { scope ->
+                        roles.mapNotNull { it.role }.any { roleAuthority ->
+                            authService.mayBeGranted(roleAuthority, Permission.ofScope(scope))
+                        }
+                    },
                     mp_login = login,
                 )
             } catch (e: Throwable) {

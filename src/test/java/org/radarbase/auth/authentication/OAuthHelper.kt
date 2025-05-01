@@ -11,7 +11,6 @@ import org.radarbase.management.domain.Role
 import org.radarbase.management.domain.User
 import org.radarbase.management.repository.UserRepository
 import org.radarbase.management.security.JwtAuthenticationFilter
-import org.radarbase.management.security.JwtAuthenticationFilterImpl
 import org.slf4j.LoggerFactory
 import org.springframework.mock.web.MockHttpServletRequest
 import org.springframework.security.core.Authentication
@@ -128,7 +127,7 @@ object OAuthHelper {
         Mockito.`when`(userRepository.findOneByLogin(ArgumentMatchers.anyString())).thenReturn(
             createAdminUser()
         )
-        return JwtAuthenticationFilterImpl(createTokenValidator(), { auth: Authentication? -> auth })
+        return JwtAuthenticationFilter(createTokenValidator(), { auth: Authentication? -> auth })
     }
 
     /**

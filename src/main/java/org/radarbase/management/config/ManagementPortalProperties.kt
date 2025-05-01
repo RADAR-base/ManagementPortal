@@ -5,7 +5,6 @@ import org.springframework.boot.context.properties.ConstructorBinding
 
 @ConfigurationProperties(prefix = "managementportal", ignoreUnknownFields = false)
 data class ManagementPortalProperties @ConstructorBinding constructor(
-    val legacyLogin: Boolean? = false,
     val identityServer: IdentityServer,
     val authServer: AuthServer,
     val mail: Mail,
@@ -24,6 +23,7 @@ data class ManagementPortalProperties @ConstructorBinding constructor(
     )
 
     data class AuthServer @ConstructorBinding constructor(
+        val internal: Boolean = true,
         val serverUrl: String,
         val serverAdminUrl: String,
         val loginUrl: String,

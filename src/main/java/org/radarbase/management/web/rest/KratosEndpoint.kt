@@ -18,7 +18,6 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import java.net.URISyntaxException
 
-@ConditionalOnProperty(prefix = "managementportal", name = ["legacyLogin"], havingValue = "false", matchIfMissing = true)
 @RestController
 @RequestMapping("/api/kratos")
 private class KratosEndpoint
