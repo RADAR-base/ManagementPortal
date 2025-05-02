@@ -12,6 +12,7 @@ import { Location } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { QueryGroup } from './query.model';
 
+
 @Component({
     selector: 'jhi-queries',
     templateUrl: './addQuery.component.html',

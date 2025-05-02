@@ -1,0 +1,15 @@
+<div>
+    <div *ngIf="item.type == ContentType.PARAGRAPH">
+        <query-paragraph-item></query-paragraph-item>
+    </div>
+
+
+    <div *ngIf="item.type == ContentType.IMAGE">
+        <query-image-item></query-image-item>
+    </div>
+
+
+    <div *ngIf="item.type == ContentType.VIDEO">
+        <query-video-item></query-video-item>
+    </div>
+</div>

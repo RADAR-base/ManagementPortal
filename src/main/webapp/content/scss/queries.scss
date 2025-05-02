@@ -3,6 +3,13 @@ html {
     margin: 30px;
 }
 
+.button-row {
+  padding-bottom: 2%;
+  padding-top: 2%;
+  justify-content: center;
+  gap: 10px;;
+  display: flex;
+}
 
 .mat-icon-button {
     outline: none;

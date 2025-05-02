@@ -50,3 +50,19 @@ export interface QueryString {
     rules?: QueryString[];
     condition?: string;
 }
+
+
+export enum ContentType {
+    PARAGRAPH = 'PARAGRAPH',
+    IMAGE = 'IMAGE',
+    VIDEO = 'VIDEO',
+}
+
+
+export interface ContentItem {
+    type: ContentType;
+    value?: String | Number;
+    imageValue?: String;
+
+
+}
