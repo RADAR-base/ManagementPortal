@@ -39,6 +39,8 @@ data class ManagementPortalProperties @ConstructorBinding constructor(
         val accessTokenValiditySeconds: Int,
         val refreshTokenValiditySeconds: Int,
         val sessionTimeout: Int,
+        val audience: String,
+        val scopes: List<String> = listOf()
     )
 
     data class Oauth @ConstructorBinding constructor(
