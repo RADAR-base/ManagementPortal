@@ -3,6 +3,7 @@ package org.radarbase.management.security.jwt
 import com.auth0.jwt.JWT
 import com.auth0.jwt.JWTVerifier
 import com.auth0.jwt.algorithms.Algorithm
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.radarbase.auth.authentication.TokenValidator
 import org.radarbase.auth.jwks.JsonWebKeySet
 import org.radarbase.auth.jwks.JwkAlgorithmParser
@@ -40,6 +41,12 @@ import kotlin.collections.Map.Entry
  * [org.springframework.security.oauth2.provider.token.store.KeyStoreKeyFactory]. However,
  * this class does not assume a specific key type, while the Spring factory assumes RSA keys.
  */
+
+ @ConditionalOnProperty(
+    name = ["managementportal.authServer.internal"],
+    havingValue = "true",
+    matchIfMissing = true
+)
 @Component
 class ManagementPortalOauthKeyStoreHandler @Autowired constructor(
     environment: Environment, servletContext: ServletContext, managementPortalProperties: ManagementPortalProperties

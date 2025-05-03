@@ -9,6 +9,11 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
 
+@ConditionalOnProperty(
+    name = ["managementportal.authServer.internal"],
+    havingValue = "true",
+    matchIfMissing = true
+)
 @RestController
 class TokenKeyEndpoint @Autowired constructor(
     private val keyStoreHandler: ManagementPortalOauthKeyStoreHandler

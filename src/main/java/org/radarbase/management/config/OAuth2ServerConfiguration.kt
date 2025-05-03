@@ -68,6 +68,11 @@ class OAuth2ServerConfiguration(
         }
     }
 
+    @ConditionalOnProperty(
+        name = ["managementportal.authServer.internal"],
+        havingValue = "true",
+        matchIfMissing = true
+    )
     @Configuration
     class JwtAuthenticationFilterConfiguration(
         @Autowired private val authenticationManager: AuthenticationManager,
@@ -93,6 +98,11 @@ class OAuth2ServerConfiguration(
         return clientDetailsService
     }
 
+    @ConditionalOnProperty(
+        name = ["managementportal.authServer.internal"],
+        havingValue = "true",
+        matchIfMissing = true
+    )
     @Configuration
     @EnableResourceServer
     protected class ResourceServerConfiguration(
@@ -107,11 +117,6 @@ class OAuth2ServerConfiguration(
             http
                 .exceptionHandling()
                 .authenticationEntryPoint(http401UnauthorizedEntryPoint)
-                .and()
-                .logout()
-                .invalidateHttpSession(true)
-                .logoutUrl("/api/logout")
-                .logoutSuccessHandler(logoutSuccessHandler)
                 .and()
                 .addFilterBefore(
                     jwtAuthenticationFilter,
@@ -155,6 +160,11 @@ class OAuth2ServerConfiguration(
         }
     }
 
+    @ConditionalOnProperty(
+        name = ["managementportal.authServer.internal"],
+        havingValue = "true",
+        matchIfMissing = true
+    )
     @Configuration
     @EnableAuthorizationServer
     protected class AuthorizationServerConfiguration(

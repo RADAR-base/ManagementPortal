@@ -25,6 +25,11 @@ import java.util.*
  * The service layer to handle OAuthClient and Token related functions.
  * Created by nivethika on 03/08/2018.
  */
+@ConditionalOnProperty(
+    name = ["managementportal.authServer.internal"],
+    havingValue = "true",
+    matchIfMissing = true
+)
 @Service
 class OAuthClientService(
     @Autowired private val clientDetailsService: JdbcClientDetailsService,

@@ -2,6 +2,7 @@ package org.radarbase.management.config
 
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -40,6 +41,11 @@ import kotlin.collections.set
 /**
  * Created by dverbeec on 6/07/2017.
  */
+@ConditionalOnProperty(
+    name = ["managementportal.authServer.internal"],
+    havingValue = "true",
+    matchIfMissing = true
+)
 @Controller
 @SessionAttributes("authorizationRequest")
 class OAuth2LoginUiWebConfig(
