@@ -3,6 +3,7 @@ package org.radarbase.management.web.rest
 import io.micrometer.core.annotation.Timed
 import org.radarbase.auth.authorization.EntityDetails
 import org.radarbase.auth.authorization.Permission
+import org.radarbase.management.config.AuthServerEnabled
 import org.radarbase.management.security.Constants
 import org.radarbase.management.security.NotAuthorizedException
 import org.radarbase.management.service.*
@@ -29,11 +30,7 @@ import javax.validation.Valid
 /**
  * Created by dverbeec on 5/09/2017.
  */
-@ConditionalOnProperty(
-    name = ["managementportal.authServer.internal"],
-    havingValue = "true",
-    matchIfMissing = true
-)
+@AuthServerEnabled
 @RestController
 @RequestMapping("/api")
 class OAuthClientsResource(

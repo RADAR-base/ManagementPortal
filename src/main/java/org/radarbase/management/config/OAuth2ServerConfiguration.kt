@@ -8,7 +8,6 @@ import org.radarbase.management.security.jwt.*
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.*
 import org.springframework.boot.autoconfigure.orm.jpa.JpaProperties
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.*
 import org.springframework.core.annotation.Order
 import org.springframework.http.HttpMethod
@@ -31,17 +30,14 @@ import org.springframework.security.oauth2.provider.token.*
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler
 
-@ConditionalOnProperty(
-    name = ["managementportal.authServer.internal"],
-    havingValue = "true",
-    matchIfMissing = true
-)
+
 @Configuration
 class OAuth2ServerConfiguration(
     @Autowired private val dataSource: DataSource,
     @Autowired private val passwordEncoder: PasswordEncoder
 ) {
 
+    @AuthServerEnabled
     @Configuration
     @Order(-20)
     protected class LoginConfig(
@@ -68,11 +64,7 @@ class OAuth2ServerConfiguration(
         }
     }
 
-    @ConditionalOnProperty(
-        name = ["managementportal.authServer.internal"],
-        havingValue = "true",
-        matchIfMissing = true
-    )
+    @AuthServerEnabled
     @Configuration
     class JwtAuthenticationFilterConfiguration(
         @Autowired private val authenticationManager: AuthenticationManager,
@@ -98,11 +90,7 @@ class OAuth2ServerConfiguration(
         return clientDetailsService
     }
 
-    @ConditionalOnProperty(
-        name = ["managementportal.authServer.internal"],
-        havingValue = "true",
-        matchIfMissing = true
-    )
+    @AuthServerEnabled
     @Configuration
     @EnableResourceServer
     protected class ResourceServerConfiguration(
@@ -160,11 +148,7 @@ class OAuth2ServerConfiguration(
         }
     }
 
-    @ConditionalOnProperty(
-        name = ["managementportal.authServer.internal"],
-        havingValue = "true",
-        matchIfMissing = true
-    )
+    @AuthServerEnabled
     @Configuration
     @EnableAuthorizationServer
     protected class AuthorizationServerConfiguration(

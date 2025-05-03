@@ -1,5 +1,6 @@
 package org.radarbase.management.service
 
+import org.radarbase.management.config.AuthServerEnabled
 import org.radarbase.management.domain.User
 import org.radarbase.management.service.dto.ClientDetailsDTO
 import org.radarbase.management.service.mapper.ClientDetailsMapper
@@ -25,11 +26,7 @@ import java.util.*
  * The service layer to handle OAuthClient and Token related functions.
  * Created by nivethika on 03/08/2018.
  */
-@ConditionalOnProperty(
-    name = ["managementportal.authServer.internal"],
-    havingValue = "true",
-    matchIfMissing = true
-)
+@AuthServerEnabled
 @Service
 class OAuthClientService(
     @Autowired private val clientDetailsService: JdbcClientDetailsService,
