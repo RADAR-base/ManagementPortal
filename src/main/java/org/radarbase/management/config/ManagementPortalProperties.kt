@@ -19,7 +19,6 @@ data class ManagementPortalProperties @ConstructorBinding constructor(
         val serverUrl: String,
         val serverAdminUrl: String,
         val adminEmail: String,
-        val loginUrl: String,
     )
 
     data class AuthServer @ConstructorBinding constructor(
@@ -45,7 +44,7 @@ data class ManagementPortalProperties @ConstructorBinding constructor(
 
     data class Oauth @ConstructorBinding constructor(
         val requireAal2: Boolean,
-        val clientsFile: String,
+        val clientsFile: String?,
         val signingKeyAlias: String,
         val checkingKeyAliases: List<String>?,
         val keyStorePassword: String,

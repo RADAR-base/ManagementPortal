@@ -150,7 +150,6 @@ managementportal:
     adminEmail: bdegraaf1234@gmail.com
     serverUrl: http://localhost:4433
     serverAdminUrl: http://kratos-admin
-    loginUrl: http://localhost:3000
   authServer:
     internal: true
     serverUrl: http://hydra:4444

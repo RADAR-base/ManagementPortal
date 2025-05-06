@@ -20,6 +20,9 @@ spring:
     url: jdbc:postgresql://localhost:5432/managementportal
   liquibase:
     contexts: dev
+  main:
+    allow-circular-references: true
+    allow-bean-definition-overriding: true
 
 
 # ===================================================================

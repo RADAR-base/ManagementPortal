@@ -58,6 +58,7 @@ spring:
         host: localhost
     main:
         allow-circular-references: true
+        allow-bean-definition-overriding: true
     messages:
         basename: i18n/messages
     thymeleaf:
@@ -114,3 +115,8 @@ managementportal:
       serverUrl: http://127.0.0.1:4433
       serverAdminUrl: http://127.0.0.1:4434
       admin-email: admin@localhost
+    authServer:
+      internal: true
+      serverUrl: http://hydra:4444
+      serverAdminUrl: http://hydra:4445
+      loginUrl:  http://localhost:4444

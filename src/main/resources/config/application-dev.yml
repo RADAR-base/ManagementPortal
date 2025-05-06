@@ -166,7 +166,6 @@ managementportal:
         adminEmail: admin-email-here@gmail.com
         serverUrl: http://localhost:4433
         serverAdminUrl: http://localhost:4434
-        loginUrl: http://localhost:3000
     authServer:
         internal: true
         serverUrl: http://localhost:4444

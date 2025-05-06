@@ -123,7 +123,7 @@ class ManagementPortalSecurityConfigLoader {
      */
     @EventListener(ContextRefreshedEvent::class)
     fun loadOAuthClientsFromFile() {
-        val path = managementPortalProperties!!.oauth.clientsFile
+        val path = managementPortalProperties?.oauth?.clientsFile
         if (Objects.isNull(path) || path == "") {
             logger.info("No OAuth clients file specified, not loading additional clients")
             return
