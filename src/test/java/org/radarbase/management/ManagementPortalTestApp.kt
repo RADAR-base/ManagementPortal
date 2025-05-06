@@ -1,6 +1,5 @@
 package org.radarbase.management
 
-import KratosContainer
 import org.radarbase.management.config.ApplicationProperties
 import org.radarbase.management.config.ManagementPortalProperties
 import org.slf4j.LoggerFactory
@@ -34,8 +33,6 @@ import javax.annotation.PostConstruct
     LiquibaseProperties::class, ApplicationProperties::class, ManagementPortalProperties::class
 )
 class ManagementPortalTestApp(private val env: Environment) {
-    private val kratosContainer = KratosContainer()
-
     /**
      * Initializes ManagementPortal.
      *
@@ -67,8 +64,6 @@ class ManagementPortalTestApp(private val env: Environment) {
                         + "run with both the 'dev' and 'cloud' profiles at the same time."
             )
         }
-
-        kratosContainer.start()
     }
 
     companion object {
