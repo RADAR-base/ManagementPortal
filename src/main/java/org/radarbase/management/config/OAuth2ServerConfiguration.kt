@@ -30,14 +30,13 @@ import org.springframework.security.oauth2.provider.token.*
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler
 
-
+@AuthServerEnabled
 @Configuration
 class OAuth2ServerConfiguration(
     @Autowired private val dataSource: DataSource,
     @Autowired private val passwordEncoder: PasswordEncoder
 ) {
 
-    @AuthServerEnabled
     @Configuration
     @Order(-20)
     protected class LoginConfig(
