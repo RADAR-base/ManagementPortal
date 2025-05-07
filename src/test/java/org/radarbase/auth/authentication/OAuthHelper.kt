@@ -13,6 +13,7 @@ import org.radarbase.management.repository.UserRepository
 import org.radarbase.management.security.JwtAuthenticationFilter
 import org.slf4j.LoggerFactory
 import org.springframework.mock.web.MockHttpServletRequest
+import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.core.Authentication
 import org.springframework.test.web.servlet.request.RequestPostProcessor
 import java.security.KeyStore
@@ -127,7 +128,17 @@ object OAuthHelper {
         Mockito.`when`(userRepository.findOneByLogin(ArgumentMatchers.anyString())).thenReturn(
             createAdminUser()
         )
-        return JwtAuthenticationFilter(createTokenValidator(), { auth: Authentication? -> auth })
+        val authenticationManager = Mockito.mock(AuthenticationManager::class.java)
+        Mockito.`when`(authenticationManager.authenticate(ArgumentMatchers.any())).thenAnswer { invocation ->
+            invocation.getArgument<Authentication>(0)
+        }
+        return JwtAuthenticationFilter(
+            validator = createTokenValidator(),
+            authenticationManager = authenticationManager,
+            enableUserLookup = true,
+            userRepository = userRepository,
+            isOptional = false
+        )
     }
 
     /**
@@ -146,7 +157,6 @@ object OAuthHelper {
         user.setLogin("admin")
         user.activated = true
         user.roles = mutableSetOf(Role(Authority("ROLE_SYS_ADMIN")))
-
         return user
     }
 

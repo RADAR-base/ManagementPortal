@@ -13,15 +13,11 @@
 # http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
 # ===================================================================
 
-
 spring:
     application:
         name: ManagementPortal
     profiles:
-        # The commented value for `active` can be replaced with valid Spring profiles to load.
-        # Otherwise, it will be filled in by gradle when building the WAR file
-        # Either way, it can be overridden by `--spring.profiles.active` value passed in the commandline or `-Dspring.profiles.active` set in `JAVA_OPTS`
-        active: #spring.profiles.active#
+        active: test
     jackson:
         serialization.write_dates_as_timestamps: false
     cache:
@@ -70,6 +66,8 @@ liquibase:
 server:
     port: 10344
     address: localhost
+    servlet:
+        context-path: /managementportal
 
 # ===================================================================
 # JHipster specific properties
@@ -86,7 +84,6 @@ jhipster:
         authentication:
             jwt:
                 secret: my-secret-token-to-change-in-production
-                # Token is valid 30 minutes
                 token-validity-in-seconds: 1800
 
 # ===================================================================
@@ -108,7 +105,7 @@ managementportal:
         clientSecret: secret
         accessTokenValiditySeconds: 14400
         refreshTokenValiditySeconds: 259200
-        sessionTimeout : 86400 # session for rft cookie
+        sessionTimeout: 86400
         audience: res_ManagementPortal
         scopes:
             - SOURCEDATA.CREATE
@@ -143,4 +140,4 @@ managementportal:
       serverAdminUrl: http://hydra:4445
       loginUrl:  http://localhost:4444
     siteSettings:
-      hiddenSubjectFields: [ ]
+      hiddenSubjectFields: []
