@@ -21,6 +21,8 @@ export class SingleRowGraphComponent implements OnInit {
 
     @Input() totalAverage: Number = 3;
 
+    @Input() showTotalAverage: boolean = true;
+
     @Input() isSingleRow: boolean = true;
 
     @Input() logoClass = '';
@@ -32,6 +34,11 @@ export class SingleRowGraphComponent implements OnInit {
     @Input() applyCustomColour = false;
 
     @Input() longHeading: boolean = false;
+
+    @Input() showMonthlyAverage: boolean = true;
+
+    @Input() totalAverageText = "Total"
+
 
     ngAfterViewInit() {
         //@ts-ignore

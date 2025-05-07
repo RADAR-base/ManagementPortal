@@ -101,7 +101,7 @@ class AWSService {
         val keyName = "output/" + projectName + "/" + login + "/export/"
           log.info("[PDF-EXPORT] key ${keyName}")
 
-        val bucketName = "connect-dev-output"
+        val bucketName = "connect-output-storage"
         val folderPath = keyName
         val region = Region.EU_WEST_2 // Change to your AWS region
         val resourceFolderPath = "export/" // Folder inside resources

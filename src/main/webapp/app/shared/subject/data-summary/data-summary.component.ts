@@ -357,7 +357,7 @@ export class DataSummaryComponent implements OnInit {
                         color: '#000',
                         font: {
                             weight: 'bold',
-                            size: 12,
+                            size: 10,
                         },
                     },
                 },
@@ -485,8 +485,13 @@ export class DataSummaryComponent implements OnInit {
                 (acc, num) => Number(acc) + Number(num),
                 0
             );
-            console.log('heart rate total', heartRateTotal);
-            this.averages['heart_rate'] = (Number(heartRateTotal) / 12).toFixed(
+
+            let numberOfValues = 0;
+            heartRate.forEach((value) => {
+                numberOfValues += value > 0 ? 1 : 0;
+            })
+
+            this.averages['heart_rate'] = (Number(heartRateTotal) / numberOfValues).toFixed(
                 1
             );
         }

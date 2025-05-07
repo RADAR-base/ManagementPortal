@@ -90,6 +90,7 @@ out/
 # Gradle
 ######################
 .gradle/
+*/build/
 /build/
 .gradletasknamecache
 
