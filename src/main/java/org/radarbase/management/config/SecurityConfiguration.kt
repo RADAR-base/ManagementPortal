@@ -105,6 +105,7 @@ class SecurityConfiguration
                 .skipUrlPattern(HttpMethod.GET, "/css/**")
                 .skipUrlPattern(HttpMethod.GET, "/js/**")
                 .skipUrlPattern(HttpMethod.GET, "/radar-baseRR.png")
+                .skipUrlPattern(HttpMethod.GET, "/login")
         }
 
         override fun configure(web: WebSecurity) {
