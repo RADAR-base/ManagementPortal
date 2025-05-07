@@ -1,8 +1,17 @@
-<div>
-    <label class="form-control-label" for="redirectUri">
-        Heading
-    </label>
-    <input type="text" class="form-control" id="redirectUri" name="redirectUri" [(ngModel)]="heading"
-   />
-    <textarea [id]="editorUUID"></textarea>
+<div class="padding-topbottom ">
+
+
+    <div class="flex" >
+        <label class="form-control-label" for="redirectUri">
+            Heading
+        </label>
+
+        <div class="padding">
+            <button class="btn btn-danger saveBtn" (click)="onDeleteItem(item.id)">Delete</button>
+        </div>
+
+        </div>
+
+        <input type="text" class="form-control" id="redirectUri" name="redirectUri" [(ngModel)]="heading" />
+        <textarea [id]="item.id"></textarea>
 </div>

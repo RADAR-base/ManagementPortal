@@ -1,15 +1,15 @@
-<div>
-    <div *ngIf="item.type == ContentType.PARAGRAPH">
-        <query-paragraph-item></query-paragraph-item>
+<div class="full-width">
+    <div *ngIf="item.type == ContentType.PARAGRAPH" class="full-width">
+            <query-paragraph-item (triggerDeleteItemFunction)="deleteItem($event)" [item]="item"></query-paragraph-item>
     </div>
 
 
     <div *ngIf="item.type == ContentType.IMAGE">
-        <query-image-item></query-image-item>
+        <query-image-item [item]="item"></query-image-item>
     </div>
 
 
     <div *ngIf="item.type == ContentType.VIDEO">
-        <query-video-item></query-video-item>
+        <query-video-item [item]="item"></query-video-item>
     </div>
 </div>

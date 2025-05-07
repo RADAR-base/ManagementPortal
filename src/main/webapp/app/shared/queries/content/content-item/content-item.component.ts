@@ -1,26 +1,25 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { ContentItem, ContentType } from '../../queries.model';
 @Component({
-  selector: 'app-content-item',
-  templateUrl: './content-item.component.html',
-  styleUrls: ['./content-item.component.scss']
+    selector: 'app-content-item',
+    templateUrl: './content-item.component.html',
+    styleUrls: ['./content-item.component.scss']
 })
 export class ContentItemComponent implements OnInit {
- ContentType = ContentType
+    @Output() triggerDeleteItemFunction = new EventEmitter<string>();
+
+    ContentType = ContentType
 
     content = "hello world"
 
-    @Input() item : ContentItem
+    @Input() item: ContentItem
 
-    public editorUUID: String = "";
-
-    constructor() {
-        const id = Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
-        this.editorUUID = id;
+    ngOnInit(): void {
     }
 
 
-  ngOnInit(): void {
-  }
+    deleteItem(id: string) {
+        this.triggerDeleteItemFunction.emit(id);
+    }
 
 }

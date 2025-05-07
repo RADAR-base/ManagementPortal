@@ -9,7 +9,7 @@ import { ContentItem, ContentType } from '../queries.model';
 export class ContentComponent implements OnInit {
     ContentType = ContentType;
 
-    public items: [ContentItem?] = []
+    public items: ContentItem[] = [{ id: "idspecial", type: ContentType.PARAGRAPH }]
 
 
     constructor() { }
@@ -20,9 +20,12 @@ export class ContentComponent implements OnInit {
 
 
     addContent(contentType: ContentType) {
-        console.log("content is being added" + contentType)
+        const id = Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+        this.items.push({ id: id, type: contentType })
+    }
 
-        this.items.push({ type: contentType })
+    deleteContent(id: string) {
+        this.items = this.items.filter(item => item.id !== id);
     }
 
 

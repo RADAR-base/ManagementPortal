@@ -17,7 +17,7 @@
 
     <div class="content-column">
         <div *ngFor="let item of items">
-            <app-content-item [item]="item"></app-content-item>
+            <app-content-item (triggerDeleteItemFunction)="deleteContent($event)" [item]="item"></app-content-item>
         </div>
     </div>
 

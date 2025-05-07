@@ -1,5 +1,5 @@
 import {
-    Component, OnInit, AfterViewInit
+    Component, OnInit, AfterViewInit, Output, EventEmitter, Input
 
 } from '@angular/core';
 import tinymce from 'tinymce/tinymce';
@@ -10,6 +10,8 @@ import 'tinymce/icons/default';
 import 'tinymce/plugins/code';
 import 'tinymce/plugins/lists';
 import 'tinymce/plugins/link';
+import { ContentItem } from '../../queries.model';
+
 
 @Component({
     selector: 'query-paragraph-item',
@@ -17,21 +19,19 @@ import 'tinymce/plugins/link';
     styleUrls: ['./paragraph-item.component.scss']
 })
 export class ParagraphItemComponent implements OnInit {
-    public editorUUID: String = "";
+    @Output() triggerDeleteItemFunction = new EventEmitter<string>();
+
     public heading: String = "";
     private editorInstance: any;
 
-    constructor() {
-        const id = Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
-        this.editorUUID = id;
-    }
+    @Input() item : ContentItem
 
     ngOnInit(): void {
     }
 
     ngAfterViewInit() {
         tinymce.init({
-            selector: `#${this.editorUUID}`,
+            selector: `#${this.item.id}`,
             plugins: 'code lists link',
             toolbar: 'undo redo | bold italic | alignleft aligncenter alignright | code',
             skin_url: '/assets/tinymce/skins/ui/oxide',
@@ -55,5 +55,9 @@ export class ParagraphItemComponent implements OnInit {
         if (this.editorInstance) {
             tinymce.remove(this.editorInstance);
         }
+    }
+
+    onDeleteItem(id:string) {
+        this.triggerDeleteItemFunction.emit(id)
     }
 }

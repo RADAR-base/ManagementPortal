@@ -60,6 +60,7 @@ export enum ContentType {
 
 
 export interface ContentItem {
+    id: string;
     type: ContentType;
     value?: String | Number;
     imageValue?: String;
