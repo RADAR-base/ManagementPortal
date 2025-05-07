@@ -675,9 +675,7 @@ class SubjectResource(
 
         val subject = subjectRepository.findOneWithEagerBySubjectLogin(login);
         val project = subject!!.activeProject!!.projectName!!;
-
-
-
+        
         val monthlyStatistics =   awsService.startProcessing(project, login, DataSource.S3)
         return ResponseEntity.ok(monthlyStatistics);
     }
