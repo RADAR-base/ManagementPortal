@@ -54,6 +54,11 @@ class SecurityConfiguration
                             RES_MANAGEMENT_PORTAL,
                             JwkAlgorithmParser(),
                         ),
+                        JwksTokenVerifierLoader(
+                            managementPortalProperties.common.managementPortalBaseUrl +"/oauth/token_key",
+                            RES_MANAGEMENT_PORTAL,
+                            JwkAlgorithmParser()
+                        )
                     )
                 return TokenValidator(loaderList)
             }
