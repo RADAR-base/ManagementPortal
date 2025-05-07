@@ -93,6 +93,7 @@ class SecurityConfiguration
                 .skipUrlPattern(HttpMethod.GET, "/i18n/**")
                 .skipUrlPattern(HttpMethod.GET, "/management/health")
                 .skipUrlPattern(HttpMethod.POST, "/oauth/token")
+                .skipUrlPattern(HttpMethod.GET, "/oauth/token_key")
                 .skipUrlPattern(HttpMethod.GET, "/api/meta-token/*")
                 .skipUrlPattern(HttpMethod.GET, "/api/public/projects")
                 .skipUrlPattern(HttpMethod.GET, "/api/sitesettings")
