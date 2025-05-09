@@ -10,222 +10,261 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.json.Json
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
 import org.radarbase.auth.authorization.Permission
 import org.radarbase.auth.authorization.RoleAuthority
 import org.radarbase.auth.exception.IdpException
 import org.radarbase.auth.kratos.KratosSessionDTO
+import org.radarbase.auth.kratos.KratosSessionDTO.JsonMetadataPatchOperation
 import org.radarbase.management.config.ManagementPortalProperties
 import org.radarbase.management.domain.Role
+import org.radarbase.management.domain.Subject
 import org.radarbase.management.domain.User
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Duration
 
-/**
- * Service class for managing identities.
- */
+/** Service class for managing identities. */
 @Service
 @Transactional
-class IdentityService(
-    @Autowired private val managementPortalProperties: ManagementPortalProperties,
-    @Autowired private val authService: AuthService
-) {
-    private val httpClient = HttpClient(CIO).config {
-        install(HttpTimeout) {
-            connectTimeoutMillis = Duration.ofSeconds(10).toMillis()
-            socketTimeoutMillis = Duration.ofSeconds(10).toMillis()
-            requestTimeoutMillis = Duration.ofSeconds(300).toMillis()
-        }
-        install(ContentNegotiation) {
-            json(Json {
-                ignoreUnknownKeys = true
-                coerceInputValues = true
-            })
-        }
-    }
-
-    lateinit var adminUrl: String
-    lateinit var publicUrl: String
-
-    init {
-        adminUrl = managementPortalProperties.identityServer.adminUrl()
-        publicUrl = managementPortalProperties.identityServer.publicUrl()
-
-        log.debug("kratos serverUrl set to ${managementPortalProperties.identityServer.publicUrl()}")
-        log.debug("kratos serverAdminUrl set to ${managementPortalProperties.identityServer.adminUrl()}")
-    }
-
-    /** Save a [User] to the IDP as an identity. Returns the generated [KratosSessionDTO.Identity] */
-    @Throws(IdpException::class)
-    suspend fun saveAsIdentity(user: User): KratosSessionDTO.Identity? {
-        val kratosIdentity: KratosSessionDTO.Identity?
-
-        withContext(Dispatchers.IO) {
-            val identity = createIdentity(user)
-
-            val postRequestBuilder = HttpRequestBuilder().apply {
-                url("${adminUrl}/admin/identities")
-                contentType(ContentType.Application.Json)
-                accept(ContentType.Application.Json)
-                setBody(identity)
+class IdentityService
+    @Autowired
+    constructor(
+        private val managementPortalProperties: ManagementPortalProperties,
+        private val authService: AuthService,
+    ) {
+        private val httpClient =
+            HttpClient(CIO) {
+                install(HttpTimeout) {
+                    connectTimeoutMillis = Duration.ofSeconds(10).toMillis()
+                    socketTimeoutMillis = Duration.ofSeconds(10).toMillis()
+                    requestTimeoutMillis = Duration.ofSeconds(300).toMillis()
+                }
+                install(ContentNegotiation) {
+                    json(
+                        Json {
+                            ignoreUnknownKeys = true
+                            coerceInputValues = true
+                        },
+                    )
+                }
             }
-            val response = httpClient.post(postRequestBuilder)
 
-            if (response.status.isSuccess()) {
-                kratosIdentity = response.body<KratosSessionDTO.Identity>()
-                log.debug("saved identity for user ${user.login} to IDP as ${kratosIdentity.id}")
-            } else {
-                throw IdpException(
-                    "couldn't save Kratos ID to server at " + adminUrl,
-                )
-            }
+        private val adminUrl = managementPortalProperties.identityServer.serverAdminUrl
+        private val publicUrl = managementPortalProperties.identityServer.serverUrl
+
+        init {
+            log.debug("Kratos serverUrl set to $publicUrl")
+            log.debug("Kratos serverAdminUrl set to $adminUrl")
         }
 
-        return kratosIdentity
-    }
-
-    /** Update a [User] as to the IDP as an identity. Returns the updated [KratosSessionDTO.Identity] */
-    @Throws(IdpException::class)
-    suspend fun updateAssociatedIdentity(user: User): KratosSessionDTO.Identity? {
-        val kratosIdentity: KratosSessionDTO.Identity?
-
-        user.identity ?: throw IdpException(
-            "user ${user.login} could not be updated on the IDP. No identity was set",
-        )
-
-        withContext(Dispatchers.IO) {
-            val identity = createIdentity(user)
-            val response = httpClient.put {
-                url("${adminUrl}/admin/identities/${user.identity}")
-                contentType(ContentType.Application.Json)
-                accept(ContentType.Application.Json)
-                setBody(identity)
-            }
-
-
-            if (response.status.isSuccess()) {
-                kratosIdentity = response.body<KratosSessionDTO.Identity>()
-                log.debug("Updated identity for user ${user.login} to IDP as ${kratosIdentity.id}")
-            } else {
-                throw IdpException(
-                    "Couldn't update identity to server at $adminUrl"
-                )
-            }
-        }
-
-        return kratosIdentity
-    }
-
-    /** Delete a [User] as to the IDP as an identity. */
-    @Throws(IdpException::class)
-    suspend fun deleteAssociatedIdentity(userIdentity: String?) {
-        withContext(Dispatchers.IO) {
-            userIdentity ?: throw IdpException(
-                "user with ID ${userIdentity} could not be deleted from the IDP. No identity was set"
-            )
-
-            val response = httpClient.delete {
-                url("${adminUrl}/admin/identities/${userIdentity}")
-                contentType(ContentType.Application.Json)
-                accept(ContentType.Application.Json)
-            }
-
-
-            if (response.status.isSuccess()) {
-                log.debug("Deleted identity for user ${userIdentity}")
-            } else {
-                throw IdpException(
-                    "Couldn't delete identity from server at " + managementPortalProperties.identityServer.serverUrl
-                )
-            }
-        }
-    }
-
-    /**
-     * Convert a [User] to a [KratosSessionDTO.Identity] object.
-     * @param user The object to convert
-     * @return the newly created DTO object
-     */
-    @Throws(IdpException::class)
-    private fun createIdentity(user: User): KratosSessionDTO.Identity {
-        try {
-            return KratosSessionDTO.Identity(
-                schema_id = "user",
-                traits = KratosSessionDTO.Traits(email = user.email),
-                metadata_public = KratosSessionDTO.Metadata(
+        /**
+         * Builds metadata for a user based on roles, authorities, and sources.
+         */
+        private fun buildMetadata(
+            roles: Set<Role>,
+            authorities: Set<String>,
+            login: String,
+            sources: List<String> = emptyList(),
+        ): KratosSessionDTO.Metadata =
+            try {
+                KratosSessionDTO.Metadata(
                     aud = emptyList(),
-                    sources = emptyList(), //empty at the time of creation
-                    roles = user.roles.mapNotNull { role: Role ->
-                        val auth = role.authority?.name
-                        when (role.role?.scope) {
-                            RoleAuthority.Scope.GLOBAL -> auth
-                            RoleAuthority.Scope.ORGANIZATION -> role.organization!!.name + ":" + auth
-                            RoleAuthority.Scope.PROJECT -> role.project!!.projectName + ":" + auth
-                            null -> null
-                        }
-                    }.toList(),
-                    authorities = user.authorities,
+                    sources = sources,
+                    roles =
+                        roles.mapNotNull { role ->
+                            role.authority?.name?.let { auth ->
+                                when (role.role?.scope) {
+                                    RoleAuthority.Scope.GLOBAL -> auth
+                                    RoleAuthority.Scope.ORGANIZATION ->
+                                        "${role.organization!!.name}:$auth"
+                                    RoleAuthority.Scope.PROJECT ->
+                                        "${role.project!!.projectName}:$auth"
+                                    null -> null
+                                }
+                            }
+                        },
+                    authorities = authorities,
                     scope = Permission.scopes().filter { scope ->
-                        val permission = Permission.ofScope(scope)
-                        val auths = user.roles.mapNotNull { it.role }
-
-                        return@filter authService.mayBeGranted(auths, permission)
+                        roles.mapNotNull { it.role }.any { roleAuthority ->
+                            authService.mayBeGranted(roleAuthority, Permission.ofScope(scope))
+                        }
                     },
-                    mp_login = user.login
+                    mp_login = login,
                 )
+            } catch (e: Throwable) {
+                val message = "Could not build metadata for user $login"
+                log.error(message)
+                throw IdpException(message, e)
+            }
+
+        private fun createIdentity(user: User): KratosSessionDTO.Identity =
+            KratosSessionDTO.Identity(
+                schema_id = "researcher",
+                traits = KratosSessionDTO.Traits(email = user.email),
+                metadata_public =
+                    buildMetadata(
+                        roles = user.roles,
+                        authorities = user.authorities,
+                        login = user.login!!,
+                    ),
             )
-        }
-        catch (e: Throwable){
-            val message = "could not convert user ${user.login} to identity"
-            log.error(message)
-            throw IdpException(message, e)
-        }
-    }
 
-    /**
-     * get a recovery link from the identityprovider in the response, which expires in 24 hours.
-     * @param user The user for whom the recovery link is requested.
-     * @return The recovery link obtained from the server response.
-     * @throws IdpException If there is an issue with the identity or if the recovery link cannot be obtained from the server.
-     */
-    @Throws(IdpException::class)
-    suspend fun getRecoveryLink(user: User): String {
-        val recoveryLink: String
+        @Throws(IdpException::class)
+        suspend fun saveAsIdentity(user: User): KratosSessionDTO.Identity =
+            withContext(Dispatchers.IO) {
+                val identity = createIdentity(user)
+                val response =
+                    httpClient.post {
+                        url("$adminUrl/admin/identities")
+                        contentType(ContentType.Application.Json)
+                        accept(ContentType.Application.Json)
+                        setBody(identity)
+                    }
 
-        user.identity ?: throw IdpException(
-            "user ${user.login} could not be recovered on the IDP. No identity was set",
-        )
+                if (response.status.isSuccess()) {
+                    response.body<KratosSessionDTO.Identity>().also {
+                        log.debug("Saved identity for user ${user.login} to IDP as ${it.id}")
+                    }
+                } else if (response.status.value == 409) {
+                    response.body<KratosSessionDTO.Identity>().also {
+                        log.debug("Identity for user ${user.login} already exists at the IDP. Continuing...")
+                    }
+                } else {
+                    throw IdpException("Couldn't save Kratos ID to server at $adminUrl")
+                }
+            }
 
-        withContext(Dispatchers.IO) {
-            val response = httpClient.post {
-                url("${adminUrl}/admin/recovery/link")
-                contentType(ContentType.Application.Json)
-                accept(ContentType.Application.Json)
-                setBody(
-                    mapOf(
-                        "expires_in" to "24h",
-                        "identity_id" to user.identity
+        @Throws(IdpException::class)
+        suspend fun updateAssociatedIdentity(
+            user: User,
+            subject: Subject? = null,
+        ): KratosSessionDTO.Identity =
+            withContext(Dispatchers.IO) {
+                val json = Json { ignoreUnknownKeys = true }
+                val identityId =
+                    user.identity
+                        ?: subject?.externalId ?: throw IdpException("User has no identity")
+                val sources = subject?.sources?.map { it.sourceId.toString() } ?: emptyList()
+                val jsonPatchPayload = listOf(
+                    JsonMetadataPatchOperation(
+                        op = "replace",
+                        path = "/metadata_public",
+                        value = getIdentityMetadataWithRoles(user, sources)
                     )
                 )
+                val response =
+                    httpClient.patch {
+                        url("$adminUrl/admin/identities/$identityId")
+                        contentType(ContentType.Application.Json)
+                        accept(ContentType.Application.Json)
+                        setBody(json.encodeToString(jsonPatchPayload))
+                    }
+
+                if (response.status.isSuccess()) {
+                    response.body<KratosSessionDTO.Identity>().also {
+                        log.debug("Updated identity for user ${user.login} on IDP as ${it.id}")
+                    }
+                } else {
+                    throw IdpException("Couldn't update identity on server at $adminUrl")
+                }
             }
 
-            if (response.status.isSuccess()) {
-                recoveryLink = response.body<Map<String, String>>()["recovery_link"]!!
-                log.debug("recovery link for user ${user.login} is $recoveryLink")
-            } else {
-                throw IdpException(
-                    "couldn't get recovery link from server at $adminUrl"
+        @Throws(IdpException::class)
+        suspend fun getExistingIdentity(identityId: String): KratosSessionDTO.Identity =
+            withContext(Dispatchers.IO) {
+                val response =
+                    httpClient.get {
+                        url("$adminUrl/admin/identities/$identityId")
+                        contentType(ContentType.Application.Json)
+                        accept(ContentType.Application.Json)
+                    }
+
+                if (response.status.isSuccess()) {
+                    response.body<KratosSessionDTO.Identity>().also {
+                        log.debug("Retrieved identity for ${it.id}")
+                    }
+                } else {
+                    throw IdpException("Couldn't retrieve identity from server at $adminUrl")
+                }
+            }
+
+        @Throws(IdpException::class)
+        suspend fun getIdentityMetadataWithRoles(
+            user: User,
+            sources: List<String>,
+        ): KratosSessionDTO.Metadata =
+            withContext(Dispatchers.IO) {
+                buildMetadata(
+                    roles = user.roles,
+                    authorities = user.authorities,
+                    login = user.login!!,
+                    sources = sources,
                 )
             }
+
+        @Throws(IdpException::class)
+        suspend fun deleteAssociatedIdentity(userIdentity: String?) =
+            withContext(Dispatchers.IO) {
+                val identityId =
+                    userIdentity
+                        ?: throw IdpException(
+                            "User with ID $userIdentity could not be deleted from the IDP. No identity was set",
+                        )
+
+                val response =
+                    httpClient.delete {
+                        url("$adminUrl/admin/identities/$identityId")
+                        contentType(ContentType.Application.Json)
+                        accept(ContentType.Application.Json)
+                    }
+
+                if (response.status.isSuccess()) {
+                    log.debug("Deleted identity for user $identityId")
+                } else {
+                    throw IdpException("Couldn't delete identity from server at $adminUrl")
+                }
+            }
+
+        @Throws(IdpException::class)
+        suspend fun sendActivationEmail(user: User): String =
+            withContext(Dispatchers.IO) {
+                val flowResponse =
+                    httpClient
+                        .get {
+                            url("$publicUrl/self-service/verification/api")
+                            contentType(ContentType.Application.Json)
+                            accept(ContentType.Application.Json)
+                        }.body<KratosSessionDTO.Verification>()
+
+                val flowId = flowResponse.id
+
+                if (flowId == null) {
+                    throw IdpException("Failed to initiate verification flow for ${user.email}")
+                }
+
+                val activationResponse =
+                    httpClient.post {
+                        url("$publicUrl/self-service/verification?flow=$flowId")
+                        contentType(ContentType.Application.Json)
+                        accept(ContentType.Application.Json)
+                        setBody(mapOf("email" to user.email, "method" to "code"))
+                    }
+
+                if (!activationResponse.status.isSuccess()) {
+                    throw IdpException("Failed to trigger verification email for ${user.email}")
+                }
+
+                flowId.also {
+                    log.debug("Activation email sent for user ${user.login} with flow ID $it")
+                }
+            }
+
+        companion object {
+            private val log = LoggerFactory.getLogger(IdentityService::class.java)
         }
-
-        return recoveryLink
     }
-
-    companion object {
-        private val log = LoggerFactory.getLogger(IdentityService::class.java)
-    }
-}

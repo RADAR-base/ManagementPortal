@@ -32,7 +32,6 @@ import org.springframework.data.web.PageableHandlerMethodArgumentResolver
 import org.springframework.http.MediaType
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter
 import org.springframework.mock.web.MockFilterConfig
-import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
@@ -49,7 +48,6 @@ import javax.servlet.ServletException
  */
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(classes = [ManagementPortalTestApp::class])
-@WithMockUser
 internal class GroupResourceIntTest(
     @Autowired private val groupResource: GroupResource,
 
@@ -293,7 +291,7 @@ internal class GroupResourceIntTest(
 
     @Test
     @Throws(Exception::class)
-    fun deleteGroupWithSubjects() {
+    suspend fun deleteGroupWithSubjects() {
         // Initialize the database
         groupRepository.saveAndFlush<Group>(group)
         val projectDto = projectMapper.projectToProjectDTO(project)
@@ -372,7 +370,7 @@ internal class GroupResourceIntTest(
 
     @Test
     @Throws(Exception::class)
-    fun addSubjectsToGroup() {
+    suspend fun addSubjectsToGroup() {
         // Initialize the database
         groupRepository.saveAndFlush<Group>(group)
         val projectDto = projectMapper.projectToProjectDTO(project)

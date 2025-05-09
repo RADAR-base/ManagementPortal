@@ -1,36 +1,40 @@
 package org.radarbase.management.web.rest
 
-import org.radarbase.management.config.ManagementPortalProperties
-import org.slf4j.LoggerFactory
+import org.radarbase.auth.exception.IdpException
+import org.radarbase.management.service.LoginService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.servlet.view.RedirectView
 
 @RestController
 @RequestMapping("/api")
-class LoginEndpoint
-    @Autowired
-    constructor(
-        @Autowired private val managementPortalProperties: ManagementPortalProperties,
-    ) {
-        @GetMapping("/redirect/login")
-        fun loginRedirect(): RedirectView {
-            val redirectView = RedirectView()
-            redirectView.url = managementPortalProperties.identityServer.loginUrl +
-                                "/login?return_to=" + managementPortalProperties.common.managementPortalBaseUrl
-            return redirectView
-        }
+class LoginEndpoint @Autowired constructor(
+    private val loginService: LoginService
+) {
+    @GetMapping("/redirect/login")
+    suspend fun loginRedirect(@RequestParam(required = false) code: String?): RedirectView {
+        val redirectView = RedirectView()
 
-        @GetMapping("/redirect/account")
-        fun settingsRedirect(): RedirectView {
-            val redirectView = RedirectView()
-            redirectView.url = managementPortalProperties.identityServer.loginUrl + "/settings"
-            return redirectView
+        if (code == null) {
+            redirectView.url = loginService.buildAuthUrl()
+        } else {
+            try {
+                val accessToken = loginService.fetchAccessToken(code)
+                redirectView.url = "/managementportal/#/?access_token=$accessToken"
+            } catch (e: IdpException) {
+                redirectView.url = "/error?message=Unable%20to%20authenticate"
+            }
         }
-
-        companion object {
-            private val logger = LoggerFactory.getLogger(TokenKeyEndpoint::class.java)
-        }
+        return redirectView
     }
+
+    @GetMapping("/redirect/account")
+    fun settingsRedirect(): RedirectView {
+        val redirectView = RedirectView()
+        redirectView.url = "/managementportal/settings"
+        return redirectView
+    }
+}

@@ -76,6 +76,7 @@ spring:
             non_contextual_creation: true
   main:
     allow-circular-references: true
+    allow-bean-definition-overriding: true
   messages:
     basename: i18n/messages
   thymeleaf:

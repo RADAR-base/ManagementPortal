@@ -40,6 +40,7 @@ import kotlin.collections.set
 /**
  * Created by dverbeec on 6/07/2017.
  */
+@AuthServerEnabled
 @Controller
 @SessionAttributes("authorizationRequest")
 class OAuth2LoginUiWebConfig(

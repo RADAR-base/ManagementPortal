@@ -57,6 +57,8 @@ spring:
         cache: false
     liquibase:
         contexts: dev
+    main:
+      allow-bean-definition-overriding: true
 
 # ===================================================================
 # To enable SSL, generate a certificate using:
@@ -101,10 +103,55 @@ managementportal:
         from: ManagementPortal@localhost
     frontend:
         clientId: ManagementPortalapp
-        clientSecret: my-secret-token-to-change-in-production
+        clientSecret: secret
         accessTokenValiditySeconds: 14400
         refreshTokenValiditySeconds: 259200
         sessionTimeout : 86400 # session for rft cookie
+        audience: res_ManagementPortal
+        scopes:
+            - SOURCEDATA.CREATE
+            - SOURCETYPE.UPDATE
+            - SOURCETYPE.DELETE
+            - AUTHORITY.UPDATE
+            - MEASUREMENT.DELETE
+            - PROJECT.READ
+            - AUDIT.CREATE
+            - USER.DELETE
+            - AUTHORITY.DELETE
+            - SUBJECT.DELETE
+            - MEASUREMENT.UPDATE
+            - SOURCEDATA.UPDATE
+            - SUBJECT.READ
+            - USER.UPDATE
+            - SOURCETYPE.CREATE
+            - AUTHORITY.READ
+            - USER.CREATE
+            - SOURCE.CREATE
+            - SOURCE.READ
+            - SUBJECT.CREATE
+            - ROLE.UPDATE
+            - ROLE.READ
+            - MEASUREMENT.READ
+            - PROJECT.UPDATE
+            - PROJECT.DELETE
+            - ROLE.DELETE
+            - SOURCE.DELETE
+            - SOURCETYPE.READ
+            - ROLE.CREATE
+            - SOURCEDATA.DELETE
+            - SUBJECT.UPDATE
+            - SOURCE.UPDATE
+            - PROJECT.CREATE
+            - AUDIT.READ
+            - MEASUREMENT.CREATE
+            - AUDIT.DELETE
+            - AUDIT.UPDATE
+            - AUTHORITY.CREATE
+            - USER.READ
+            - ORGANIZATION.READ
+            - ORGANIZATION.CREATE
+            - ORGANIZATION.UPDATE
+            - SOURCEDATA.READ
     oauth:
         clientsFile: src/main/docker/etc/config/oauth_client_details.csv
         metaTokenTimeout: PT1H #timeout should be specified as the ISO-8601 duration format {@code PnDTnHnMn.nS}.
@@ -116,9 +163,15 @@ managementportal:
         # The line below can be uncommented to add some hidden fields for UI testing
         #hiddenSubjectFields: [person_name, date_of_birth, group]
     identityServer:
+        adminEmail: admin-email-here@gmail.com
         serverUrl: http://localhost:4433
         serverAdminUrl: http://localhost:4434
-        loginUrl: http://localhost:3000
+    authServer:
+        internal: true
+        serverUrl: http://localhost:4444
+        serverAdminUrl: http://localhost:4445
+        loginUrl:  http://localhost:4444
+
 
 # ===================================================================
 # JHipster specific properties

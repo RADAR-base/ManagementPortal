@@ -11,9 +11,9 @@ import org.radarbase.management.domain.Role
 import org.radarbase.management.domain.User
 import org.radarbase.management.repository.UserRepository
 import org.radarbase.management.security.JwtAuthenticationFilter
-import org.radarbase.management.security.jwt.ManagementPortalJwtAccessTokenConverter
 import org.slf4j.LoggerFactory
 import org.springframework.mock.web.MockHttpServletRequest
+import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.core.Authentication
 import org.springframework.test.web.servlet.request.RequestPostProcessor
 import java.security.KeyStore
@@ -38,7 +38,7 @@ object OAuthHelper {
     val AUTHORITIES = arrayOf("ROLE_SYS_ADMIN")
     val ROLES = arrayOf("ROLE_SYS_ADMIN")
     val SOURCES = arrayOf<String>()
-    val AUD = arrayOf(ManagementPortalJwtAccessTokenConverter.RES_MANAGEMENT_PORTAL)
+    val AUD = arrayOf("res_ManagementPortal")
     const val CLIENT = "unit_test"
     const val USER = "admin"
     const val ISS = "RADAR"
@@ -110,7 +110,7 @@ object OAuthHelper {
                 validRsaToken = createValidToken(rsa)
                 val verifierList = listOf(ecdsa, rsa)
                     .map { alg: Algorithm? ->
-                        alg?.toTokenVerifier(ManagementPortalJwtAccessTokenConverter.RES_MANAGEMENT_PORTAL)
+                        alg?.toTokenVerifier("res_ManagementPortal")
                     }
                     .requireNoNulls()
                     .toList()
@@ -128,7 +128,17 @@ object OAuthHelper {
         Mockito.`when`(userRepository.findOneByLogin(ArgumentMatchers.anyString())).thenReturn(
             createAdminUser()
         )
-        return JwtAuthenticationFilter(createTokenValidator(), { auth: Authentication? -> auth }, userRepository)
+        val authenticationManager = Mockito.mock(AuthenticationManager::class.java)
+        Mockito.`when`(authenticationManager.authenticate(ArgumentMatchers.any())).thenAnswer { invocation ->
+            invocation.getArgument<Authentication>(0)
+        }
+        return JwtAuthenticationFilter(
+            validator = createTokenValidator(),
+            authenticationManager = authenticationManager,
+            enableUserLookup = true,
+            userRepository = userRepository,
+            isOptional = false
+        )
     }
 
     /**
@@ -147,7 +157,6 @@ object OAuthHelper {
         user.setLogin("admin")
         user.activated = true
         user.roles = mutableSetOf(Role(Authority("ROLE_SYS_ADMIN")))
-
         return user
     }
 
@@ -164,7 +173,6 @@ object OAuthHelper {
             .withArrayClaim("authorities", AUTHORITIES)
             .withArrayClaim("roles", ROLES)
             .withArrayClaim("sources", SOURCES)
-            .withArrayClaim("aud", AUD)
             .withClaim("client_id", CLIENT)
             .withClaim("user_name", USER)
             .withClaim("jti", JTI)

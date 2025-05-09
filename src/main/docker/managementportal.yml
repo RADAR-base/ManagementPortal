@@ -14,6 +14,9 @@ services:
             - MANAGEMENTPORTAL_IDENTITYSERVER_SERVERURL=http://kratos:4433
             - MANAGEMENTPORTAL_IDENTITYSERVER_LOGINURL=http://localhost:3000
             - MANAGEMENTPORTAL_IDENTITYSERVER_SERVERADMINURL=http://kratos:4434
+            - MANAGEMENTPORTAL_AUTHSERVER_SERVERURL=http://hydra:4444
+            - MANAGEMENTPORTAL_AUTHSERVER_LOGINURL=http://localhost:4444
+            - MANAGEMENTPORTAL_AUTHSERVER_SERVERADMINURL=http://hydra:4445
             - JHIPSTER_SLEEP=10 # gives time for the database to boot before the application
             - JAVA_OPTS=-Xmx512m -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 #enables remote debugging
         ports:

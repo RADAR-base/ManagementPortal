@@ -145,25 +145,19 @@ if (project.hasProperty('prod')) {
     apply from: 'gradle/profile_dev.gradle'
 }
 
-//ext.moduleDescription = 'Management Portal application'
 ext.findbugAnnotationVersion = '3.0.2'
+/* The entries in the block below are added here to force the version of
+*  transitive dependencies and mitigate reported vulnerabilities */
+ext['jackson.version'] = "${jackson_version}"
+ext['undertow.version'] = "${undertow_version}"
+ext['spring-security.version'] = "${spring_security_version}"
+ext['logback.version'] = "1.2.13" // Cannot upgrade this to 1.3.x or 1.4.x; causes Scala error.
 
 dependencies {
 
     /* The entries in the block below are added here to force the version of
     *  transitive dependencies and mitigate reported vulnerabilities */
-    implementation("io.undertow:undertow-servlet:${undertow_version}")
-    implementation("io.undertow:undertow-core:${undertow_version}")
-    implementation("io.undertow:undertow-websockets-jsr:${undertow_version}")
     implementation("org.yaml:snakeyaml:${snakeyaml_version}")
-    runtimeOnly "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jackson_version}"
-    implementation "com.fasterxml.jackson.datatype:jackson-datatype-hibernate5:${jackson_version}"
-    implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-csv:${jackson_version}"
-    implementation "com.fasterxml.jackson.core:jackson-annotations:${jackson_version}"
-    implementation "com.fasterxml.jackson.core:jackson-databind:${jackson_version}"
-    implementation "com.fasterxml.jackson.core:jackson-core:${jackson_version}"
-    implementation("ch.qos.logback:logback-classic:${logback_version}")
-    implementation("ch.qos.logback:logback-core:${logback_version}")
     implementation('org.springframework.security:spring-security-web:5.7.13')
 
     implementation("org.jetbrains.kotlin:kotlin-reflect:${kotlin_version}")
@@ -212,9 +206,9 @@ dependencies {
     runtimeOnly "org.hsqldb:hsqldb:${hsqldb_version}"
 
     // Fix vulnerabilities
-    runtimeOnly("io.undertow:undertow-websockets-jsr:${undertow_version}")
-    runtimeOnly("io.undertow:undertow-servlet:${undertow_version}")
-    runtimeOnly("io.undertow:undertow-core:${undertow_version}")
+    runtimeOnly("io.undertow:undertow-websockets-jsr")
+    runtimeOnly("io.undertow:undertow-servlet")
+    runtimeOnly("io.undertow:undertow-core")
 
     implementation "org.springframework.boot:spring-boot-starter-thymeleaf"
     runtimeOnly("org.thymeleaf:thymeleaf:${thymeleaf_version}")
@@ -281,7 +275,7 @@ tasks.register('cleanResources', Delete) {
 }
 
 wrapper {
-    gradleVersion '8.3'
+    gradleVersion '8.8'
 }
 
 tasks.register('stage') {

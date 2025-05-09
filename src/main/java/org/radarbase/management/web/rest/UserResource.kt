@@ -11,7 +11,6 @@ import org.radarbase.management.repository.filters.UserFilter
 import org.radarbase.management.security.Constants
 import org.radarbase.management.security.NotAuthorizedException
 import org.radarbase.management.service.AuthService
-import org.radarbase.management.service.MailService
 import org.radarbase.management.service.ResourceUriService
 import org.radarbase.management.service.UserService
 import org.radarbase.management.service.dto.RoleDTO
@@ -74,7 +73,6 @@ import java.util.*
 @RequestMapping("/api")
 class UserResource(
     @Autowired private val userRepository: UserRepository,
-    @Autowired private val mailService: MailService,
     @Autowired private val userService: UserService,
     @Autowired private val subjectRepository: SubjectRepository,
     @Autowired private val managementPortalProperties: ManagementPortalProperties,
@@ -121,19 +119,7 @@ class UserResource(
         } else {
             val newUser: User;
             newUser = userService.createUser(managedUserVm)
-
-            val recoveryLink = userService.getRecoveryLink(newUser)
-
-            mailService.sendEmail(
-                newUser.email,
-                "Account Activation",
-                "Please click the link to activate your account:\n\n" +
-                        "$recoveryLink \n\n" +
-                        "Please activate your account before the link expires in 24 hours, and activate 2FA to enable" +
-                        " access to the managementportal",
-                false,
-                false
-            )
+            userService.sendActivationEmail(newUser)
 
             ResponseEntity.created(ResourceUriService.getUri(newUser)).headers(
                 HeaderUtil.createAlert(
@@ -228,7 +214,7 @@ class UserResource(
         log.debug("REST request to get User : {}", login)
         authService.checkPermission(Permission.USER_READ, { e: EntityDetails -> e.user(login) })
         return ResponseUtil.wrapOrNotFound(
-            Optional.ofNullable(userService.getUserWithAuthoritiesByLogin(login))
+            Optional.ofNullable(userService.getUserDtoWithAuthoritiesByLogin(login))
         )
     }
 
@@ -265,7 +251,7 @@ class UserResource(
         log.debug("REST request to read User roles: {}", login)
         authService.checkPermission(Permission.ROLE_READ, { e: EntityDetails -> e.user(login) })
         return ResponseUtil.wrapOrNotFound(
-            Optional.ofNullable(userService.getUserWithAuthoritiesByLogin(login).let { obj: UserDTO? -> obj?.roles })
+            Optional.ofNullable(userService.getUserDtoWithAuthoritiesByLogin(login).let { obj: UserDTO? -> obj?.roles })
         )
     }
 

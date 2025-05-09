@@ -7,10 +7,9 @@ import org.radarbase.auth.authentication.TokenValidator
 import org.radarbase.auth.jwks.JsonWebKeySet
 import org.radarbase.auth.jwks.JwkAlgorithmParser
 import org.radarbase.auth.jwks.JwksTokenVerifierLoader
-import org.radarbase.auth.kratos.KratosTokenVerifierLoader
+import org.radarbase.management.config.AuthServerEnabled
 import org.radarbase.management.config.ManagementPortalProperties
 import org.radarbase.management.config.ManagementPortalProperties.Oauth
-import org.radarbase.management.security.jwt.ManagementPortalJwtAccessTokenConverter.Companion.RES_MANAGEMENT_PORTAL
 import org.radarbase.management.security.jwt.algorithm.EcdsaJwtAlgorithm
 import org.radarbase.management.security.jwt.algorithm.JwtAlgorithm
 import org.radarbase.management.security.jwt.algorithm.RsaJwtAlgorithm
@@ -42,9 +41,11 @@ import kotlin.collections.Map.Entry
  * [org.springframework.security.oauth2.provider.token.store.KeyStoreKeyFactory]. However,
  * this class does not assume a specific key type, while the Spring factory assumes RSA keys.
  */
+
+@AuthServerEnabled
 @Component
 class ManagementPortalOauthKeyStoreHandler @Autowired constructor(
-    environment: Environment, servletContext: ServletContext, private val managementPortalProperties: ManagementPortalProperties
+    environment: Environment, servletContext: ServletContext, managementPortalProperties: ManagementPortalProperties
 ) {
     private val password: CharArray
     private val store: KeyStore
@@ -222,15 +223,10 @@ class ManagementPortalOauthKeyStoreHandler @Autowired constructor(
     val tokenValidator: TokenValidator
         /** Get the default token validator.  */
         get() {
-            val loaderList = listOf(
-                JwksTokenVerifierLoader(
-                    managementPortalBaseUrl + "/oauth/token_key",
-                    RES_MANAGEMENT_PORTAL,
-                    JwkAlgorithmParser()
-                ),
-                KratosTokenVerifierLoader(managementPortalProperties.identityServer.publicUrl(), requireAal2 = managementPortalProperties.oauth.requireAal2),
+            val jwksLoader = JwksTokenVerifierLoader(
+                "$managementPortalBaseUrl/oauth/token_key", "res_ManagementPortal", JwkAlgorithmParser()
             )
-            return TokenValidator(loaderList)
+            return TokenValidator(listOf(jwksLoader))
         }
 
     companion object {

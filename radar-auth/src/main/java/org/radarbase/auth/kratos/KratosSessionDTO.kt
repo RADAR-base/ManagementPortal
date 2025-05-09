@@ -45,34 +45,49 @@ class KratosSessionDTO(
     )
 
     @Serializable
-    class Identity(
+    data class  Verification(
         val id: String? = null,
+        val type: String? = null
+    )
+
+    @Serializable
+    data class Identity(
+        var id: String? = null,
         val schema_id: String? = null,
         val schema_url: String? = null,
         val state: String? = null,
         @Serializable(with = InstantSerializer::class)
         val state_changed_at: Instant? = null,
         val traits: Traits? = null,
-        val metadata_public: Metadata? = null,
+        var metadata_public: Metadata? = null,
         @Serializable(with = InstantSerializer::class)
         val created_at: Instant? = null,
         @Serializable(with = InstantSerializer::class)
         val updated_at: Instant? = null,
     )
     {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is Identity) return false
 
+            return schema_id == other.schema_id &&
+                   schema_url == other.schema_url &&
+                   state == other.state &&
+                   traits?.email == other.traits?.email &&
+                   metadata_public == other.metadata_public
+        }
 
         fun parseRoles(): Set<AuthorityReference> = buildSet {
-            if (metadata_public?.authorities?.isNotEmpty() == true) {
-                for (roleValue in metadata_public.authorities) {
+            metadata_public?.authorities?.takeIf { it.isNotEmpty() }?.let { authorities ->
+                for (roleValue in authorities) {
                     val authority = RoleAuthority.valueOfAuthorityOrNull(roleValue)
                     if (authority?.scope == RoleAuthority.Scope.GLOBAL) {
                         add(AuthorityReference(authority))
                     }
                 }
             }
-            if (metadata_public?.roles?.isNotEmpty() == true) {
-                for (roleValue in metadata_public.roles) {
+            metadata_public?.roles?.takeIf { it.isNotEmpty() }?.let { roles ->
+                for (roleValue in roles) {
                     val role = RoleAuthority.valueOfAuthorityOrNull(roleValue)
                     if (role?.scope == RoleAuthority.Scope.GLOBAL) {
                         add(AuthorityReference(role))
@@ -87,16 +102,31 @@ class KratosSessionDTO(
     class Traits (
         val name: String? = null,
         val email: String? = null,
+        val projects: List<Project>? = null,
+    )
+
+    @Serializable
+    class Project (
+        val id: String? = null,
+        val userId: String? = null,
+        val name: String? = null,
     )
 
     @Serializable
     class Metadata (
-        val roles: List<String>,
-        val authorities: Set<String>,
-        val scope: List<String>,
-        val sources: List<String>,
-        val aud: List<String>,
-        val mp_login: String?
+        val roles: List<String> = emptyList(),
+        val authorities: Set<String> = emptySet(),
+        val scope: List<String> = emptyList(),
+        val sources: List<String> = emptyList(),
+        val aud: List<String> = emptyList(),
+        val mp_login: String? = null,
+    )
+
+    @Serializable
+    data class JsonMetadataPatchOperation(
+        val op: String,
+        val path: String,
+        val value: Metadata
     )
 
     fun toDataRadarToken() : DataRadarToken {
