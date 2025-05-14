@@ -219,6 +219,45 @@ public class QueryEValuationService(
         return root;
     }
 
+    fun getActiveQueries(participantId: Long): Map<Long, List<Map<String, Any>>> {
+        val result = mutableMapOf<Long, List<Map<String, Any>>>()
+
+        val queryParticipantList = queryParticipantRepository.findBySubjectId(participantId)
+        if (queryParticipantList.isEmpty()) return result
+
+        val subjectOpt = subjectRepository.findById(participantId)
+        if (!subjectOpt.isPresent) return result
+
+        val subject = subjectOpt.get()
+
+        // Fetch all successful evaluations for the subject
+        val evaluations = queryEvaluationRepository.findBySubject(subject)
+            .filter { it.result == true }
+
+        for (evaluation in evaluations) {
+            val queryGroup = evaluation.queryGroup ?: continue
+            val queryGroupId = queryGroup.id ?: continue
+
+            val content = getQueryGroupContent(queryGroupId)
+
+            result[queryGroupId] = content
+        }
+
+        return result
+    }
+
+    private fun getQueryGroupContent(queryGroupId: Long): List<Map<String, Any>> {
+        return listOf(
+            mapOf("type" to "TITLE", "text_value" to "How to sleep better"),
+            mapOf("type" to "PARAGRAPH", "text_value" to "text"),
+            mapOf("type" to "HEADING", "text_value" to "text"),
+            mapOf("type" to "VIDEO", "text_value" to "youtube_video_value"),
+            mapOf("type" to "IMAGE", "image" to "image_blob_placeholder")
+        )
+    }
+
+
+
     companion object {
         private val log = LoggerFactory.getLogger(QueryBuilderService::class.java)
     }

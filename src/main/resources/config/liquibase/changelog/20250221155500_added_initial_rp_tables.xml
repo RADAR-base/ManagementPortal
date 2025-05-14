@@ -179,44 +179,44 @@
                                  referencedColumnNames="id"
                                  referencedTableName="radar_user"/>
 
-        </changeSet>
 
-<!--query evaluation-->
-       <changeSet id="create-query_evaluation" author="auto">
-    <preConditions onFail="MARK_RAN">
-        <not><tableExists tableName="query_evaluation"/></not>
-    </preConditions>
-    <createTable tableName="query_evaluation">
-        <column name="id" type="bigint" autoIncrement="${autoIncrement}">
-            <constraints primaryKey="true" nullable="false"/>
-        </column>
-        <column name="query_group_id" type="bigint">
-            <constraints nullable="false" />
-        </column>
-        <column name="created_date" type="timestamp" defaultValueDate="${now}">
-            <constraints nullable="false"/>
-        </column>
-        <column name="updated_date" type="timestamp">
-            <constraints nullable="true"/>
-        </column>
-        <column name="subject_id" type="bigint">
-            <constraints nullable="false"/>
-        </column>
-        <column name="result" type="boolean">
-            <constraints nullable="false"/>
-        </column>
-    </createTable>
-</changeSet>
 
-<changeSet id="fk-query_evaluation-subject" author="auto">
-    <preConditions onFail="MARK_RAN">
-        <not><foreignKeyConstraintExists foreignKeyName="fk_query_evaluation_subject_id"/></not>
-    </preConditions>
-    <addForeignKeyConstraint baseColumnNames="subject_id"
-                             baseTableName="query_evaluation"
-                             constraintName="fk_query_evaluation_subject_id"
-                             referencedColumnNames="id"
-                             referencedTableName="subject"/>
-</changeSet>
 
+        <createTable tableName="query_evaluation">
+            <column name="id" type="bigint" autoIncrement="${autoIncrement}">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="query_group_id" type="bigint">
+                <constraints nullable="false" />
+            </column>
+
+            <column name="created_date" type="timestamp" defaultValueDate="${now}">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="updated_date" type="timestamp">
+                <constraints nullable="true"/>
+            </column>
+
+            <column name="subject_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="result" type="boolean" >
+                <constraints nullable="false"/>
+            </column>
+
+
+
+        </createTable>
+
+
+        <addForeignKeyConstraint baseColumnNames="subject_id"
+                                 baseTableName="query_evaluation"
+                                 constraintName="fk_query_evaluation_subject_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="subject"/>
+
+
+    </changeSet>
 </databaseChangeLog>
