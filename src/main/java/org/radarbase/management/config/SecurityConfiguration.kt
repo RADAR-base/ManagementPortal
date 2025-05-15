@@ -140,6 +140,8 @@ class SecurityConfiguration
                 .antMatchers("/test/**")
                 .antMatchers("/management/health")
                 .antMatchers(HttpMethod.GET, "/api/meta-token/**")
+                .antMatchers("/oauth/authorize")
+                .antMatchers("/login")
         }
 
         @Throws(Exception::class)
@@ -157,6 +159,9 @@ class SecurityConfiguration
                     UsernamePasswordAuthenticationFilter::class.java,
                 )
                 .authorizeRequests()
+                .antMatchers("/oauth/authorize").permitAll()
+                .antMatchers("/login").permitAll()
+                .antMatchers("/oauth/token").authenticated()
                 .anyRequest().authenticated() // Allow all requests if authenticated
                 .and()
                 .logout().invalidateHttpSession(true)
