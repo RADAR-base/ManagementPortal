@@ -106,7 +106,8 @@ class SecurityConfiguration
                 .skipUrlPattern(HttpMethod.GET, "/api/profile-info")
                 .skipUrlPattern(HttpMethod.GET, "/api/logout-url")
                 .skipUrlPattern(HttpMethod.POST, "/api/kratos/**")
-                .skipUrlPattern(HttpMethod.GET, "/oauth2/authorize")
+                .skipUrlPattern(HttpMethod.GET, "/oauth/authorize")
+                .skipUrlPattern(HttpMethod.POST, "/oauth/authorize")
                 .skipUrlPattern(HttpMethod.GET, "/images/**")
                 .skipUrlPattern(HttpMethod.GET, "/css/**")
                 .skipUrlPattern(HttpMethod.GET, "/js/**")
@@ -140,6 +141,8 @@ class SecurityConfiguration
                 .antMatchers("/test/**")
                 .antMatchers("/management/health")
                 .antMatchers(HttpMethod.GET, "/api/meta-token/**")
+                .antMatchers("/oauth/authorize")
+                .antMatchers("/login")
         }
 
         @Throws(Exception::class)
@@ -157,7 +160,15 @@ class SecurityConfiguration
                     UsernamePasswordAuthenticationFilter::class.java,
                 )
                 .authorizeRequests()
+                .antMatchers("/oauth/authorize").authenticated()
+                .antMatchers("/login").permitAll()
+                .antMatchers("/oauth/token").authenticated()
                 .anyRequest().authenticated() // Allow all requests if authenticated
+                .and()
+                .formLogin()
+                .loginPage("/login")
+                .loginProcessingUrl("/login")
+                .defaultSuccessUrl("/oauth/authorize", true)
                 .and()
                 .logout().invalidateHttpSession(true)
                 .logoutUrl("/api/logout")
