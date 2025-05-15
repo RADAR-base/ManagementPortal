@@ -168,7 +168,7 @@ class QueryResource(
     }
 
     @GetMapping("/active/{participantId}")
-    fun getActiveQueries(@PathVariable participantId: Long): ResponseEntity<Map<Long, List<Map<String, Any>>>> {
+    fun getActiveQueries(@PathVariable participantId: Long): ResponseEntity<*> {
         val result = queryEValuationService.getActiveQueries(participantId)
         return ResponseEntity.ok(result)
     }
