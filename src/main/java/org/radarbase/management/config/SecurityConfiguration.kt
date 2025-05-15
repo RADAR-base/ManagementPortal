@@ -160,10 +160,15 @@ class SecurityConfiguration
                     UsernamePasswordAuthenticationFilter::class.java,
                 )
                 .authorizeRequests()
-                .antMatchers("/oauth/authorize").permitAll()
+                .antMatchers("/oauth/authorize").authenticated()
                 .antMatchers("/login").permitAll()
                 .antMatchers("/oauth/token").authenticated()
                 .anyRequest().authenticated() // Allow all requests if authenticated
+                .and()
+                .formLogin()
+                .loginPage("/login")
+                .loginProcessingUrl("/login")
+                .defaultSuccessUrl("/oauth/authorize", true)
                 .and()
                 .logout().invalidateHttpSession(true)
                 .logoutUrl("/api/logout")
