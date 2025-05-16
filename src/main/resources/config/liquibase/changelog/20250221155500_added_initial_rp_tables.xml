@@ -219,4 +219,37 @@
 
 
     </changeSet>
+
+
+    <changeSet id="create-query_content" author="generated">
+        <createTable tableName="query_content">
+            <column name="id" type="bigint" autoIncrement="${autoIncrement}">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="type" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="text_value" type="${clobType}">
+                <constraints nullable="true" />
+            </column>
+            <column name="image" type="mediumblob">
+                <constraints nullable="true" />
+            </column>
+            <column name="query_group_id" type="bigint">
+                <constraints nullable="false" />
+            </column>
+            <column name="image_alternative_text" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+        </createTable>
+
+
+        <addForeignKeyConstraint baseColumnNames="query_group_id"
+                                 baseTableName="query_content"
+                                 constraintName="fk_query_content_query_group_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="query_group"/>
+    </changeSet>
+
+
 </databaseChangeLog>
