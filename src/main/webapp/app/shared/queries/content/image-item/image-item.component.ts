@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { ContentItem } from '../../queries.model';
 
 @Component({
@@ -7,6 +7,8 @@ import { ContentItem } from '../../queries.model';
     styleUrls: ['./image-item.component.scss']
 })
 export class ImageItemComponent implements OnInit {
+    @Output() triggerDeleteItemFunction = new EventEmitter<string>();
+
     public imageValue: String
 
     @Input() item: ContentItem
@@ -14,5 +16,10 @@ export class ImageItemComponent implements OnInit {
     constructor() { }
 
     ngOnInit(): void {
+    }
+
+
+    onDeleteItem(id: string) {
+        this.triggerDeleteItemFunction.emit(id)
     }
 }

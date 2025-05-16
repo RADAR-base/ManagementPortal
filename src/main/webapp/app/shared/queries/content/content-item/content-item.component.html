@@ -5,11 +5,11 @@
 
 
     <div *ngIf="item.type == ContentType.IMAGE">
-        <query-image-item [item]="item"></query-image-item>
+        <query-image-item [item]="item" (triggerDeleteItemFunction)="deleteItem($event)"></query-image-item>
     </div>
 
 
     <div *ngIf="item.type == ContentType.VIDEO">
-        <query-video-item [item]="item"></query-video-item>
+        <query-video-item [item]="item" (triggerDeleteItemFunction)="deleteItem($event)"></query-video-item>
     </div>
 </div>

@@ -10,9 +10,22 @@
 }
 
 .floatleft {
+    display:flex;
     float:left;
+    align-items: center;
+    justify-content: center;
+    justify-items: center;
 }
 
 .padding  {
     padding: 10px;
+}
+
+
+.image-item {
+      width: 60%;
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: 80px;
+  margin-bottom: 3em;
 }

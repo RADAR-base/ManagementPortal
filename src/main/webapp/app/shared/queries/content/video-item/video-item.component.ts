@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { ContentItem } from '../../queries.model';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
@@ -8,6 +8,7 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
   styleUrls: ['./video-item.component.scss']
 })
 export class VideoItemComponent implements OnInit {
+    @Output() triggerDeleteItemFunction = new EventEmitter<string>();
 
     @Input() item: ContentItem
 
@@ -21,4 +22,10 @@ export class VideoItemComponent implements OnInit {
             return this.sanitizer.bypassSecurityTrustResourceUrl('https://www.youtube.com/embed/' + this.item.value + '?autoplay=0')
     }
 
+
+
+    onDeleteItem(id: string) {
+        this.triggerDeleteItemFunction.emit(id)
+
+    }
 }

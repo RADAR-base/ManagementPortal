@@ -11,7 +11,7 @@ import { ModalContentComponent } from './modal-content/modal-content.component';
 export class ContentComponent implements OnInit {
     ContentType = ContentType;
 
-    @Input() public items: ContentItem[] = [{ id: "idspecial", type: ContentType.IMAGE }]
+    @Input() public items: ContentItem[] = [{ id: "idspecial", type: ContentType.VIDEO, value: "nx1Ts7V8tk8" }]
 
     private differ: any;
 

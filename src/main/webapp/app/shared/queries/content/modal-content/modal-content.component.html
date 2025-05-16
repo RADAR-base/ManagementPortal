@@ -1,33 +1,28 @@
 <div class="modal-header">
-    <h4 class="modal-title">Add videos</h4>
-    <button type="button" class="btn-close" aria-label="Close" (click)="activeModal.dismiss()"></button>
-  </div>
-  <div class="modal-body">
+    <div *ngIf="type == ContentType.VIDEO; else elseBlock">
+        <h4 class="modal-title">Add Video</h4>
+    </div>
 
+    <ng-template #elseBlock>
+        <h4 class="modal-title">Add Image</h4>
+    </ng-template>
 
+</div>
+<div class="modal-body">
     <div *ngIf="type == ContentType.VIDEO">
         <p>Youtube URL</p>
         <input type="text" class="form-control" id="redirectUri" name="redirectUri" [(ngModel)]="content" />
     </div>
 
-
-
     <div *ngIf="type == ContentType.IMAGE">
         <p>Image</p>
-      <input
-        id="image-upload"
-        type="file"
-        accept="image/png, image/gif, image/jpeg"
+        <input id="image-upload" type="file" accept="image/png, image/gif, image/jpeg"
+            (change)="onImageSelected($event)" />
+    </div>
 
-
-        (change)="onImageSelected($event)"
-
-      />    </div>
-
-
-  </div>
-  <div class="modal-footer">
+</div>
+<div class="modal-footer">
     <button class="btn btn-success" (click)="addItem()">Add</button>
 
     <button class="btn btn-outline-dark" (click)="activeModal.close('Close click')">Close</button>
-  </div>
+</div>
