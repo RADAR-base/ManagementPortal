@@ -1,0 +1,18 @@
+.flex {
+    display:flex;
+    justify-content:space-between;
+    flex-direction: column;
+}
+
+.delete-section {
+    align-items: flex-end;
+    align-self: flex-end;
+}
+
+.floatleft {
+    float:left;
+}
+
+.padding  {
+    padding: 10px;
+}

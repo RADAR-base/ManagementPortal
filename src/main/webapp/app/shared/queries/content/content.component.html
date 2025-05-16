@@ -1,24 +1,29 @@
-<h1>Content</h1>
+<div class="content-block">
+    <h1>Content</h1>
 
-<div class="flex-column">
-    <div class="button-row">
-        <button type="button" class="btn btn-primary" (click)="addContent(ContentType.PARAGRAPH)">
-            <span class="">Add Paragraph</span>
-        </button>
+    <div class="flex-column">
+        <div class="button-row">
+            <button type="button" class="btn btn-primary" (click)="addContent(ContentType.PARAGRAPH)">
+                <span class="">Add Paragraph</span>
+            </button>
 
-        <button type="button" class="btn btn-primary" (click)="addContent(ContentType.VIDEO)">
-            <span class="">Add Video</span>
-        </button>
+            <button type="button" class="btn btn-primary" (click)="addContent(ContentType.VIDEO)"
+                [disabled]="isMultimediaDisabled()">
+                <span class="">Add Video</span>
+            </button>
 
-        <button type="button" class="btn btn-primary" (click)="addContent(ContentType.IMAGE)">
-            <span class="">Add Image</span>
-        </button>
-    </div>
-
-    <div class="content-column">
-        <div *ngFor="let item of items">
-            <app-content-item (triggerDeleteItemFunction)="deleteContent($event)" [item]="item"></app-content-item>
+            <button type="button" class="btn btn-primary" (click)="addContent(ContentType.IMAGE)"
+                [disabled]="isMultimediaDisabled()">
+                <span class="">Add Image</span>
+            </button>
         </div>
-    </div>
 
+
+        <div class="content-column">
+            <div *ngFor="let item of items">
+                <app-content-item (triggerDeleteItemFunction)="deleteContent($event)" [item]="item"></app-content-item>
+            </div>
+        </div>
+
+    </div>
 </div>

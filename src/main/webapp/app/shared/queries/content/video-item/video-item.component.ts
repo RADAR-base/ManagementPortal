@@ -1,4 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
+import { ContentItem } from '../../queries.model';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 @Component({
   selector: 'query-video-item',
@@ -7,9 +9,16 @@ import { Component, OnInit } from '@angular/core';
 })
 export class VideoItemComponent implements OnInit {
 
-  constructor() { }
+    @Input() item: ContentItem
 
-  ngOnInit(): void {
-  }
+    constructor(private sanitizer: DomSanitizer) {
+
+    }
+    ngOnInit(): void {
+    }
+
+    getSafeUrl(): SafeResourceUrl {
+            return this.sanitizer.bypassSecurityTrustResourceUrl('https://www.youtube.com/embed/' + this.item.value + '?autoplay=0')
+    }
 
 }

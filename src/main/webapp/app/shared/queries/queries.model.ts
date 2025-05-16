@@ -64,6 +64,7 @@ export interface ContentItem {
     type: ContentType;
     value?: String | Number;
     imageValue?: String;
+    isValidImage?: Boolean;
 
 
 }

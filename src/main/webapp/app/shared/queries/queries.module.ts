@@ -16,6 +16,7 @@ import { VideoItemComponent } from './content/video-item/video-item.component';
 import { ParagraphItemComponent } from './content/paragraph-item/paragraph-item.component';
 import { ImageItemComponent } from './content/image-item/image-item.component';
 import { EditorModule } from '@tinymce/tinymce-angular';
+import { ModalContentComponent } from './content/modal-content/modal-content.component';
 
 @NgModule({
     imports: [
@@ -29,7 +30,7 @@ import { EditorModule } from '@tinymce/tinymce-angular';
         EditorModule
 
     ],
-    declarations: [QueryGroupListComponent,AddQueryComponent, ContentItemComponent, ContentComponent, VideoItemComponent, ParagraphItemComponent, ImageItemComponent],
+    declarations: [QueryGroupListComponent,AddQueryComponent, ContentItemComponent, ContentComponent, VideoItemComponent, ParagraphItemComponent, ImageItemComponent, ModalContentComponent],
     entryComponents: [],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })

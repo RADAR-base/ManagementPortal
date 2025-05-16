@@ -1,41 +1,33 @@
 <div class="gray-background">
-    <h1>Query Builder</h1>
-    <div class="inputs">
-        <div class="query_group">
-            <mat-label>Query Group Name</mat-label>
-            <input matInput [(ngModel)]="queryGrouName" class="form-control" />
-        </div>
-        <div class="query_group">
-            <mat-label>Query Group Description</mat-label>
-            <input matInput [(ngModel)]="queryGroupDesc" class="form-control" />
-        </div>
-    </div>
-
-    <query-builder
-        [(ngModel)]="query"
-        [classNames]="bootstrapClassNames"
-        [config]="currentConfig"
-        [allowRuleset]="allowRuleset"
-        [allowCollapse]="allowCollapse"
-        [persistValueOnFieldChange]="persistValueOnFieldChange"
-    >
-        <div class="col-auto" *queryInput="let rule; type: 'textarea'">
-            <textarea
-                class="form-control"
-                [(ngModel)]="rule.value"
-                placeholder="Custom Textarea"
-            ></textarea>
-        </div>
-    </query-builder>
 
 
-    <div>
-        <query-content></query-content>
+    <div class="block">
+        <h1>Query Builder</h1>
+        <div class="inputs">
+            <div class="query_group">
+                <mat-label>Query Group Name</mat-label>
+                <input matInput [(ngModel)]="queryGrouName" class="form-control" />
+            </div>
+            <div class="query_group">
+                <mat-label>Query Group Description</mat-label>
+                <input matInput [(ngModel)]="queryGroupDesc" class="form-control" />
+            </div>
+        </div>
+
+        <query-builder [(ngModel)]="query" [classNames]="bootstrapClassNames" [config]="currentConfig"
+            [allowRuleset]="allowRuleset" [allowCollapse]="allowCollapse"
+            [persistValueOnFieldChange]="persistValueOnFieldChange">
+            <div class="col-auto" *queryInput="let rule; type: 'textarea'">
+                <textarea class="form-control" [(ngModel)]="rule.value" placeholder="Custom Textarea"></textarea>
+            </div>
+        </query-builder>
     </div>
 
 
+
+    <div class="block ">
+        <query-content class="content-block"></query-content>
+    </div>
 
     <button (click)="saveQueryGroupToDB()" class="btn btn-primary saveBtn">Save</button>
-
-
 </div>
