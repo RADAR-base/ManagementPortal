@@ -21,20 +21,19 @@ class QueryContent : AbstractEntity(), Serializable {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "type")
-    private val type: ContentType? = null
+    public var type: ContentType? = null
 
 
-    @Lob
     @Column(name = "text_value")
-    private val value: String? = null
+    public var value: String? = null
 
-    @Lob
-    @Column(name = "image", columnDefinition = "MEDIUMBLOB")
-    private val imageBlob: ByteArray? = null
+
+    @Column(name = "image")
+    public var imageBlob: ByteArray? = null
 
 
     @Column(name = "image_alternative_text")
-    private val imageAltText: String? = null
+    public val imageAltText: String? = null
 
     @ManyToOne
     @JoinColumn(unique = true, name = "query_group_id")

@@ -60,11 +60,13 @@ export enum ContentType {
 
 
 export interface ContentItem {
-    id: string;
+    id?: number;
+
     type: ContentType;
     value?: String | Number;
     imageValue?: String;
     isValidImage?: Boolean;
-
-
+    queryGroupId?: Number;
 }
+
+

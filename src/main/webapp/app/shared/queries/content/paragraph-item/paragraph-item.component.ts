@@ -20,11 +20,13 @@ import { ContentItem } from '../../queries.model';
 })
 export class ParagraphItemComponent implements OnInit {
     @Output() triggerDeleteItemFunction = new EventEmitter<string>();
+    @Output() triggerContentChangeFunction = new EventEmitter<string>();
+
 
     public heading: String = "";
     private editorInstance: any;
 
-    @Input() item : ContentItem
+    @Input() item: ContentItem
 
     ngOnInit(): void {
     }
@@ -41,6 +43,10 @@ export class ParagraphItemComponent implements OnInit {
             content_css: '/assets/tinymce/skins/content/default/content.min.css',
             setup: editor => {
                 this.editorInstance = editor;
+                editor.on('change', () => {
+                    const content = editor.getContent();
+                    this.triggerContentChangeFunction.emit(content)
+                });
             },
             height: 300
         });
@@ -57,7 +63,7 @@ export class ParagraphItemComponent implements OnInit {
         }
     }
 
-    onDeleteItem(id:string) {
-        this.triggerDeleteItemFunction.emit(id)
+    onDeleteItem() {
+        this.triggerDeleteItemFunction.emit()
     }
 }

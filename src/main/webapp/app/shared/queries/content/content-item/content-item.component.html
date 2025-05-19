@@ -1,15 +1,15 @@
 <div class="full-width">
     <div *ngIf="item.type == ContentType.PARAGRAPH" class="full-width">
-            <query-paragraph-item (triggerDeleteItemFunction)="deleteItem($event)" [item]="item"></query-paragraph-item>
+            <query-paragraph-item (triggerDeleteItemFunction)="deleteItem()" [item]="item" (triggerContentChangeFunction)="updateTextContent($event)"></query-paragraph-item>
     </div>
 
 
     <div *ngIf="item.type == ContentType.IMAGE">
-        <query-image-item [item]="item" (triggerDeleteItemFunction)="deleteItem($event)"></query-image-item>
+        <query-image-item [item]="item" (triggerDeleteItemFunction)="deleteItem()"  ></query-image-item>
     </div>
 
 
     <div *ngIf="item.type == ContentType.VIDEO">
-        <query-video-item [item]="item" (triggerDeleteItemFunction)="deleteItem($event)"></query-video-item>
+        <query-video-item [item]="item" (triggerDeleteItemFunction)="deleteItem()"></query-video-item>
     </div>
 </div>

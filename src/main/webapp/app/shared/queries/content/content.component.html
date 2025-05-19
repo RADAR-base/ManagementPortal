@@ -20,8 +20,8 @@
 
 
         <div class="content-column">
-            <div *ngFor="let item of items">
-                <app-content-item (triggerDeleteItemFunction)="deleteContent($event)" [item]="item"></app-content-item>
+            <div *ngFor="let item of items; index as i">
+                <app-content-item (triggerDeleteItemFunction)="deleteContent($event)" (triggerUpdateContentFunction)="updateContent($event)" [item]="item" [index]="i"></app-content-item>
             </div>
         </div>
 

@@ -183,7 +183,6 @@ export class ModalContentComponent implements OnInit {
         console.log("rtn", rtn)
 
         this.contentItem = {
-             id: generateUUID(),
             type: ContentType.IMAGE,
             value: rtn.imageBase64Data,
             isValidImage: rtn.isImageValid
@@ -226,7 +225,6 @@ export class ModalContentComponent implements OnInit {
 
             const youtubeId = getYoutubeIdRegex.exec(this.content)[1];
             const contentItem: ContentItem = {
-                id: generateUUID(),
                 type: ContentType.VIDEO,
                 value: youtubeId
             }

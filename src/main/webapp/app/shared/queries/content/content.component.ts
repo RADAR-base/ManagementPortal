@@ -1,4 +1,4 @@
-import { Component, OnInit, SimpleChanges, Input, IterableDiffers} from '@angular/core';
+import { Component, OnInit, SimpleChanges, Input, IterableDiffers } from '@angular/core';
 import { ContentItem, ContentType } from '../queries.model';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ModalContentComponent } from './modal-content/modal-content.component';
@@ -11,21 +11,16 @@ import { ModalContentComponent } from './modal-content/modal-content.component';
 export class ContentComponent implements OnInit {
     ContentType = ContentType;
 
-    @Input() public items: ContentItem[] = [{ id: "idspecial", type: ContentType.VIDEO, value: "nx1Ts7V8tk8" }]
+    @Input() public items: ContentItem[] = []
 
     private differ: any;
 
     constructor(private modalService: NgbModal, private differs: IterableDiffers) {
-
         this.differ = this.differs.find([]).create();
-
-
-
     }
 
     ngOnInit(): void {
     }
-
 
     ngDoCheck(): void {
         const changes = this.differ.diff(this.items);
@@ -36,13 +31,9 @@ export class ContentComponent implements OnInit {
 
     }
 
-
-
     addContent(contentType: ContentType) {
-        console.log("this items", this.items)
         if (contentType == ContentType.PARAGRAPH) {
-            const id = Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
-            this.items.push({ id: id, type: contentType })
+            this.items.push({  type: contentType })
         }
 
         if (contentType == ContentType.VIDEO || contentType == ContentType.IMAGE) {
@@ -62,15 +53,21 @@ export class ContentComponent implements OnInit {
 
     }
 
-    deleteContent(id: string) {
-        this.items = this.items.filter(item => item.id !== id);
+    updateContent(event: { content: string; index: string }) {
+        console.log("event index", event.index)
+        console.log("event context", event.content)
+
+        const content = this.items.find((item, itemIndex) => itemIndex == Number(event.index))
+        content.value = event.content;
+    }
+
+    deleteContent(index: string) {
+        this.items = this.items.filter((item,itemIndex) => itemIndex !== Number(index));
     }
 
 
     isMultimediaDisabled() {
-
         const isMultimediaPresent = this.items.find((item) => item.type == ContentType.IMAGE || item.type == ContentType.VIDEO)
-
         return !!isMultimediaPresent
     }
 

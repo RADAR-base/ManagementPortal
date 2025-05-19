@@ -22,10 +22,8 @@ export class VideoItemComponent implements OnInit {
             return this.sanitizer.bypassSecurityTrustResourceUrl('https://www.youtube.com/embed/' + this.item.value + '?autoplay=0')
     }
 
-
-
-    onDeleteItem(id: string) {
-        this.triggerDeleteItemFunction.emit(id)
+    onDeleteItem() {
+        this.triggerDeleteItemFunction.emit()
 
     }
 }

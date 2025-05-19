@@ -7,6 +7,7 @@ import { ContentItem, ContentType } from '../../queries.model';
 })
 export class ContentItemComponent implements OnInit {
     @Output() triggerDeleteItemFunction = new EventEmitter<string>();
+    @Output() triggerUpdateContentFunction = new EventEmitter <{ content: string; index: string }>();
 
     ContentType = ContentType
 
@@ -14,12 +15,21 @@ export class ContentItemComponent implements OnInit {
 
     @Input() item: ContentItem
 
+    @Input() index: string;
+
     ngOnInit(): void {
+
     }
 
 
-    deleteItem(id: string) {
-        this.triggerDeleteItemFunction.emit(id);
+    updateTextContent(text: string) {
+        this.triggerUpdateContentFunction.emit({ content: text, index: this.index });
+
+    }
+
+
+    deleteItem() {
+        this.triggerDeleteItemFunction.emit(this.index);
     }
 
 }

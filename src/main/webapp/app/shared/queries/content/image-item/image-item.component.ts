@@ -19,7 +19,7 @@ export class ImageItemComponent implements OnInit {
     }
 
 
-    onDeleteItem(id: string) {
-        this.triggerDeleteItemFunction.emit(id)
+    onDeleteItem() {
+        this.triggerDeleteItemFunction.emit()
     }
 }

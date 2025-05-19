@@ -599,7 +599,6 @@ class SubjectResource(
 
             val connectDataLog = connectDataLogRepository.findDataLogsByUserIdAndDataGroupingType(login, groupingType.toString()).orElse(null);
 
-
             if(connectDataLog != null) {
                 val dataLogDTO = DataLogDTO();
 
