@@ -249,10 +249,10 @@ public class QueryEValuationService(
     private fun getQueryGroupContent(queryGroupId: Long): List<Map<String, Any>> {
         return listOf(
             mapOf("type" to "TITLE", "text_value" to "How to sleep better"),
-            mapOf("type" to "PARAGRAPH", "text_value" to "text"),
-            mapOf("type" to "HEADING", "text_value" to "text"),
-            mapOf("type" to "VIDEO", "text_value" to "youtube_video_value"),
-            mapOf("type" to "IMAGE", "image" to "image_blob_placeholder")
+            mapOf("type" to "PARAGRAPH", "text_value" to "paragraph content"),
+            mapOf("type" to "HEADING", "text_value" to "test heading"),
+            mapOf("type" to "VIDEO", "text_value" to "https://www.youtube.com/embed/ff5Dc_M1ycw"),
+            mapOf("type" to "IMAGE", "image" to "https://picsum.photos/200/300")
         )
     }
 
