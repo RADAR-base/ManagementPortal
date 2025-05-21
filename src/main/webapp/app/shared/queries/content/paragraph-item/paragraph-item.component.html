@@ -6,12 +6,23 @@
             Heading
         </label>
 
-        <div class="padding">
+        <div class="">
             <button class="btn btn-danger saveBtn" (click)="onDeleteItem()">Delete</button>
         </div>
 
         </div>
 
+        <div class="">
         <input type="text" class="form-control" id="redirectUri" name="redirectUri" [(ngModel)]="item.heading" />
+
+        </div>
+
+
+        <div class="padding-vertical">
+        <label class="form-control-label bold" for="redirectUri">
+            Text
+        </label>
         <textarea [id]="textAreaId" ></textarea>
+        </div>
+
 </div>

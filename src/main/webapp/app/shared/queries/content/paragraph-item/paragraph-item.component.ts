@@ -36,8 +36,9 @@ export class ParagraphItemComponent implements OnInit {
     ngAfterViewInit() {
         tinymce.init({
             selector: `#${this.textAreaId}`,
-            plugins: 'code lists link',
-            toolbar: 'undo redo | bold italic | alignleft aligncenter alignright | code',
+            menubar: false,
+            plugins: 'lists',
+            toolbar: 'undo redo | bold italic underline | link | bullist numlist | alignleft aligncenter alignright',
             skin_url: '/assets/tinymce/skins/ui/oxide',
             icons_url: '/assets/tinymce/icons/default/icons.min.js',
             models_url: '/assets/tinymce/models/dom/model.min.js',
@@ -52,7 +53,9 @@ export class ParagraphItemComponent implements OnInit {
 
                 editor.on('init', () => {
                     const text = this.item.value as string
-                    editor.setContent(text);
+                    if (text) {
+                        editor.setContent(text);
+                    }
                 });
             },
             height: 300
