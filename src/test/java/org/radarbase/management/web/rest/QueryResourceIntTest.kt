@@ -7,10 +7,6 @@ import org.hamcrest.Matchers
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
-import org.radarbase.management.domain.Query
-import org.radarbase.management.domain.QueryGroup
-import org.radarbase.management.service.QueryBuilderService
-import org.radarbase.management.service.UserService
 import org.radarbase.management.service.dto.QueryGroupDTO
 import org.radarbase.management.service.dto.QueryLogicDTO
 import org.radarbase.management.service.dto.QueryDTO
@@ -44,16 +40,14 @@ import javax.servlet.ServletException
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 import org.radarbase.auth.token.RadarToken
-import org.radarbase.management.domain.QueryParticipant
-import org.radarbase.management.domain.User
+import org.radarbase.management.domain.*
 import org.radarbase.management.domain.enumeration.ComparisonOperator
 import org.radarbase.management.domain.enumeration.QueryLogicOperator
 import org.radarbase.management.domain.enumeration.QueryMetric
 import org.radarbase.management.domain.enumeration.QueryTimeFrame
 import org.radarbase.management.repository.*
 import org.radarbase.management.security.RadarAuthentication
-import org.radarbase.management.service.PasswordService
-import org.radarbase.management.service.UserServiceIntTest
+import org.radarbase.management.service.*
 
 import org.radarbase.management.service.dto.QueryParticipantDTO
 import org.springframework.security.core.context.SecurityContextHolder
@@ -75,7 +69,8 @@ internal class QueryResourceTest(
     @Autowired private val userRepository: UserRepository,
     @Autowired private val subjectRepository: SubjectRepository,
     @Autowired private val queryParticipantRepository: QueryParticipantRepository,
-    @Autowired private val queryLogicRepository: QueryLogicRepository
+    @Autowired private val queryLogicRepository: QueryLogicRepository,
+    @Autowired private val queryEvaluationRepository: QueryEvaluationRepository
 
     ) {
 
@@ -370,4 +365,26 @@ internal class QueryResourceTest(
 
         Assertions.assertThat(queryParticipantRepository.findAll().size).isEqualTo(0)
     }
+
+    @Test
+    @Transactional
+    fun shouldReturnActiveQueries() {
+        val queryParticipant = createAndAddQueryParticipantToDB()
+        val subject = queryParticipant.subject!!
+        val queryGroup = queryParticipant.queryGroup!!
+
+        val evaluation = QueryEvaluation().apply {
+            this.subject = subject
+            this.queryGroup = queryGroup
+            this.result = true
+            this.createdDate = ZonedDateTime.now()
+        }
+        queryEvaluationRepository.saveAndFlush(evaluation)
+
+        mockMvc.perform(get("/api/query-builder/active/${subject.id}"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.${queryGroup.id}").exists())
+    }
+
+
 }

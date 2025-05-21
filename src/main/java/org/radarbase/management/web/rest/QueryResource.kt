@@ -167,6 +167,11 @@ class QueryResource(
             queryBuilderService.deleteQueryParticipantByQueryGroup(subjectId, queryGroupId)
     }
 
+    @GetMapping("/active/{participantId}")
+    fun getActiveQueries(@PathVariable participantId: Long): ResponseEntity<*> {
+        val result = queryEValuationService.getActiveQueries(participantId)
+        return ResponseEntity.ok(result)
+    }
 
     companion object {
         private val log = LoggerFactory.getLogger(QueryResource::class.java)
