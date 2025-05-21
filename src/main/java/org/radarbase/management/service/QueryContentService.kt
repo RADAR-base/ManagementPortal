@@ -105,6 +105,19 @@ public class QueryContentService(
         val allContent = queryContentRepository.findAllByQueryGroupId(queryGroupId);
         queryContentRepository.deleteAll(allContent);
     }
+
+
+    public fun getContentByQueryGroupId(queryGroupId: Long): List<QueryContentDTO> {
+        var queryContentList = queryContentRepository.findAllByQueryGroupId(queryGroupId);
+        var result : List<QueryContentDTO> = mutableListOf()
+
+        for(queryContentItem in queryContentList) {
+            val queryContentDTO = queryContentMapper.queryContentToQueryContentDTO(queryContentItem);
+            result += queryContentDTO!!;
+        }
+
+        return result;
+    }
     companion object {
         private val log = LoggerFactory.getLogger(QueryContentService::class.java)
     }

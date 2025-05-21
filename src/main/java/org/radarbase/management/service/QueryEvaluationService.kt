@@ -3,6 +3,7 @@ import org.radarbase.management.domain.*
 import org.radarbase.management.domain.enumeration.QueryLogicType
 import org.radarbase.management.domain.enumeration.QueryTimeFrame
 import org.radarbase.management.repository.*
+import org.radarbase.management.service.dto.QueryContentDTO
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -24,6 +25,7 @@ data class UserData(
 @Transactional
 public class QueryEValuationService(
     private val queryLogicRepository:  QueryLogicRepository,
+    private val queryContentService: QueryContentService,
     private val queryGroupRepository: QueryGroupRepository,
     private val queryEvaluationRepository: QueryEvaluationRepository,
     private val subjectRepository: SubjectRepository,
@@ -219,8 +221,8 @@ public class QueryEValuationService(
         return root;
     }
 
-    fun getActiveQueries(participantId: Long): Map<Long, List<Map<String, Any>>> {
-        val result = mutableMapOf<Long, List<Map<String, Any>>>()
+    fun getActiveQueries(participantId: Long): Map<Long, List<QueryContentDTO>> {
+        val result = mutableMapOf<Long, List<QueryContentDTO>>()
 
         val queryParticipantList = queryParticipantRepository.findBySubjectId(participantId)
         if (queryParticipantList.isEmpty()) return result
@@ -238,9 +240,9 @@ public class QueryEValuationService(
             val queryGroup = evaluation.queryGroup ?: continue
             val queryGroupId = queryGroup.id ?: continue
 
-            val content = getQueryGroupContent(queryGroupId)
+            val content = queryContentService.getContentByQueryGroupId(queryGroupId)
 
-            result[queryGroupId] = content
+            result[queryGroupId] = content;
         }
 
         return result
