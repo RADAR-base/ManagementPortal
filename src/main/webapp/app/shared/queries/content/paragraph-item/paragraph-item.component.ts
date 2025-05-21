@@ -11,6 +11,7 @@ import 'tinymce/plugins/code';
 import 'tinymce/plugins/lists';
 import 'tinymce/plugins/link';
 import { ContentItem } from '../../queries.model';
+import { generateUUID } from '../../utils';
 
 
 @Component({
@@ -20,7 +21,6 @@ import { ContentItem } from '../../queries.model';
 })
 export class ParagraphItemComponent implements OnInit {
     @Output() triggerDeleteItemFunction = new EventEmitter<string>();
-    @Output() triggerContentChangeFunction = new EventEmitter<string>();
 
 
     public heading: String = "";
@@ -28,12 +28,14 @@ export class ParagraphItemComponent implements OnInit {
 
     @Input() item: ContentItem
 
+    textAreaId = generateUUID();
+
     ngOnInit(): void {
     }
 
     ngAfterViewInit() {
         tinymce.init({
-            selector: `#${this.item.id}`,
+            selector: `#${this.textAreaId}`,
             plugins: 'code lists link',
             toolbar: 'undo redo | bold italic | alignleft aligncenter alignright | code',
             skin_url: '/assets/tinymce/skins/ui/oxide',
@@ -45,16 +47,16 @@ export class ParagraphItemComponent implements OnInit {
                 this.editorInstance = editor;
                 editor.on('change', () => {
                     const content = editor.getContent();
-                    this.triggerContentChangeFunction.emit(content)
+                    this.item.value = content;
+                });
+
+                editor.on('init', () => {
+                    const text = this.item.value as string
+                    editor.setContent(text);
                 });
             },
             height: 300
         });
-    }
-
-
-    getContent(): string {
-        return this.editorInstance?.getContent() || '';
     }
 
     ngOnDestroy(): void {

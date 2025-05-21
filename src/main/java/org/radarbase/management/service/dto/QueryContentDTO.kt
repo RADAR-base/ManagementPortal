@@ -6,8 +6,9 @@ class QueryContentDTO {
 
     var id : Long? = null ;
     var type: ContentType? = null
+    var heading: String? = null
     var value: String?  = null
-    var imageBlob: ByteArray? = null
+    var imageBlob: String? = null
     var imageAltText: String? = null
     var queryGroupId: Long? = null
 }

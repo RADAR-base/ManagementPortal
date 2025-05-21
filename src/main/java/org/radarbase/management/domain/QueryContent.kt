@@ -13,6 +13,9 @@ import javax.persistence.*
 )
 class QueryContent : AbstractEntity(), Serializable {
 
+
+
+
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
     @SequenceGenerator(name = "sequenceGenerator", initialValue = 1000, sequenceName = "hibernate_sequence")
@@ -22,6 +25,11 @@ class QueryContent : AbstractEntity(), Serializable {
     @Enumerated(EnumType.STRING)
     @Column(name = "type")
     public var type: ContentType? = null
+
+
+    @Column(name = "heading")
+    public var heading: String? = null
+
 
 
     @Column(name = "text_value")

@@ -99,9 +99,8 @@ export class AddQueryComponent {
             !!this.router.getCurrentNavigation()?.previousNavigation;
     }
 
-    ngOnInit() {
+    async ngOnInit() {
         this.route.params.subscribe((params) => {
-            console.log("route params", params['query-id'])
             let queryId = params["query-id"];
             this.queryGroupId = queryId;
             if (queryId) {
@@ -113,6 +112,16 @@ export class AddQueryComponent {
                         this.queryGrouName = response.queryGroupName;
                         this.queryGroupDesc = response.queryGroupDescription;
                     });
+
+                this.http
+                    .get('api/querycontent/querygroup/' + queryId)
+                    .subscribe((response: any) => {
+
+                        this.contentComponent.items = response;
+                        console.log("content response", response)
+                    });
+
+                // ask for the content if querygroups id exists
             }
         });
     }
@@ -127,6 +136,8 @@ export class AddQueryComponent {
             ? this.queryCtrl.disable()
             : this.queryCtrl.enable();
     }
+
+
 
     private _counter = 0;
     formRuleWeakMap = new WeakMap();
@@ -221,6 +232,8 @@ export class AddQueryComponent {
 
     async saveContent() {
         let content = this.contentComponent.items;
+
+        console.log("content before saving", content)
 
         await this.queryService.saveContent(this.queryGroupId, content);
 

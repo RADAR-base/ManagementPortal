@@ -1,7 +1,13 @@
 <div class="content-block">
     <h1>Content</h1>
 
+
+
     <div class="flex-column">
+        <label>Title</label>
+        <input type="text" class="form-control" [(ngModel)]="getTitleItem().value"  />
+
+
         <div class="button-row">
             <button type="button" class="btn btn-primary" (click)="addContent(ContentType.PARAGRAPH)">
                 <span class="">Add Paragraph</span>
@@ -21,7 +27,7 @@
 
         <div class="content-column">
             <div *ngFor="let item of items; index as i">
-                <app-content-item (triggerDeleteItemFunction)="deleteContent($event)" (triggerUpdateContentFunction)="updateContent($event)" [item]="item" [index]="i"></app-content-item>
+                <app-content-item (triggerDeleteItemFunction)="deleteContent($event)" [item]="item" [index]="i"></app-content-item>
             </div>
         </div>
 

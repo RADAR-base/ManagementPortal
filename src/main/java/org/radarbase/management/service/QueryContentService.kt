@@ -6,6 +6,7 @@ import org.radarbase.management.domain.enumeration.ContentType
 import org.radarbase.management.repository.QueryContentRepository
 import org.radarbase.management.repository.QueryGroupRepository
 import org.radarbase.management.service.dto.QueryContentDTO
+import org.radarbase.management.service.mapper.QueryContentMapper
 import org.radarbase.management.web.rest.QueryContentResource
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -17,7 +18,8 @@ import java.util.*
 @Transactional
 public class QueryContentService(
     private val queryContentRepository: QueryContentRepository,
-    private val queryGroupRepository: QueryGroupRepository
+    private val queryGroupRepository: QueryGroupRepository,
+    private val queryContentMapper: QueryContentMapper
 
 ) {
 
@@ -63,9 +65,10 @@ public class QueryContentService(
                 queryContent.type = queryContentDTO.type
 
                 if(queryContent.type == ContentType.IMAGE ) {
-                    queryContent.imageBlob = convertImgStringToByteArray(queryContentDTO.value!!)
+                    queryContent.imageBlob = convertImgStringToByteArray(queryContentDTO.imageBlob!!)
                 } else {
                     queryContent.value = queryContentDTO.value
+                    queryContent.heading = queryContentDTO.heading
                 }
                 queryContentRepository.save((queryContent));
             }
@@ -83,6 +86,20 @@ public class QueryContentService(
    public fun delete() {
 
    }
+
+
+    public fun findAllByQueryGroupId(queryGroupId: Long) : List<QueryContentDTO> {
+        val queryContentList  = queryContentRepository.findAllByQueryGroupId(queryGroupId);
+
+        val result : MutableList<QueryContentDTO> = mutableListOf();
+
+        for(queryContent in queryContentList) {
+            val queryContentDTO =  queryContentMapper.queryContentToQueryContentDTO(queryContent);
+            result += queryContentDTO!!
+        }
+
+        return result;
+    }
 
     public fun deleteAllByQueryGroupId(queryGroupId: Long) {
         val allContent = queryContentRepository.findAllByQueryGroupId(queryGroupId);

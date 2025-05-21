@@ -229,6 +229,11 @@
             <column name="type" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
+
+            <column name="heading" type="TEXT">
+                <constraints nullable="true" />
+            </column>
+
             <column name="text_value" type="TEXT">
                 <constraints nullable="true" />
             </column>

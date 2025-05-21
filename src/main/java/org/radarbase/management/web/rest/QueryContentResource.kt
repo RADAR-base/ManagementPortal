@@ -29,9 +29,16 @@ class QueryContentResource(
     fun saveQueryContent(@PathVariable queryGroupId: Long, @RequestBody queryContentDTO: List<QueryContentDTO>): ResponseEntity<*> {
 
         log.info("[QUERY-CONTENT] query group id is {} and the size of list is {}", queryGroupId, queryContentDTO.size)
-
+        log.info("[QUERY-CONTENT] and the DTO is {}",  queryContentDTO)
         queryContentService.saveAll(queryGroupId, queryContentDTO);
         return ResponseEntity.ok(null);
+    }
+
+    @GetMapping("querycontent/querygroup/{queryGroupId}")
+    fun getQueryContent(@PathVariable queryGroupId: Long): ResponseEntity<*> {
+      val result =  queryContentService.findAllByQueryGroupId(queryGroupId)
+
+        return ResponseEntity.ok(result)
     }
 
 

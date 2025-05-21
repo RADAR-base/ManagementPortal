@@ -113,11 +113,8 @@ export class ModalContentComponent implements OnInit {
 
         }) as string;
 
-        console.log("after original base 64")
-
         const image = new Image();
 
-        console.log("before onload")
         await new Promise(resolve => {
             image.onload = () => {
                 console.log("image loaded")
@@ -125,8 +122,6 @@ export class ModalContentComponent implements OnInit {
             }
             image.src = originalBase64;
         });
-
-        console.log("after onload")
 
         return { image, originalBase64 };
 
@@ -145,13 +140,7 @@ export class ModalContentComponent implements OnInit {
 
         const file = input.files[0];
 
-
-        console.log("before get image")
-
         const { image, originalBase64 } = await this.getImage(file);
-
-        console.log("after image")
-
 
         const isResizeNeeded = this.isImageSizeValid({
 
@@ -180,11 +169,9 @@ export class ModalContentComponent implements OnInit {
             };
         }
 
-        console.log("rtn", rtn)
-
         this.contentItem = {
             type: ContentType.IMAGE,
-            value: rtn.imageBase64Data,
+            imageBlob: rtn.imageBase64Data,
             isValidImage: rtn.isImageValid
             }
 
@@ -231,9 +218,6 @@ export class ModalContentComponent implements OnInit {
 
             this.activeModal.close(contentItem)
         } else {
-            // process image
-            console.log("this content", this.contentItem)
-
             this.activeModal.close(this.contentItem)
         }
 

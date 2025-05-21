@@ -13,16 +13,33 @@ export class ContentComponent implements OnInit {
 
     @Input() public items: ContentItem[] = []
 
+    title: String = "";
+
     private differ: any;
+
+    @Input() titleItem: ContentItem = { type: ContentType.TITLE, value: "this is title" }
+
 
     constructor(private modalService: NgbModal, private differs: IterableDiffers) {
         this.differ = this.differs.find([]).create();
+
     }
 
     ngOnInit(): void {
+        this.items = [...this.items, this.titleItem]; // creates new array reference
+
     }
 
+
+    ngOnChanges(changes: SimpleChanges) {
+        if (changes['titleItem']) {
+            console.log('Object changed:', changes['titleItem'].currentValue);
+        }
+    }
+
+
     ngDoCheck(): void {
+        //   console.log("ngDoCheck", this.titleItem)
         const changes = this.differ.diff(this.items);
 
         if (changes) {
@@ -32,8 +49,9 @@ export class ContentComponent implements OnInit {
     }
 
     addContent(contentType: ContentType) {
+        console.log("items", this.items)
         if (contentType == ContentType.PARAGRAPH) {
-            this.items.push({  type: contentType })
+            this.items.push({ type: contentType })
         }
 
         if (contentType == ContentType.VIDEO || contentType == ContentType.IMAGE) {
@@ -41,7 +59,7 @@ export class ContentComponent implements OnInit {
             modalRef.componentInstance.type = contentType
 
             modalRef.result.then((result) => {
-                if (result) {
+                if (typeof result === 'object') {
                     this.items = [result, ...this.items]
                 }
 
@@ -50,6 +68,10 @@ export class ContentComponent implements OnInit {
             });
         }
 
+
+    }
+
+    updateTitle() {
 
     }
 
@@ -62,13 +84,18 @@ export class ContentComponent implements OnInit {
     }
 
     deleteContent(index: string) {
-        this.items = this.items.filter((item,itemIndex) => itemIndex !== Number(index));
+        this.items = this.items.filter((item, itemIndex) => itemIndex !== Number(index));
     }
 
 
     isMultimediaDisabled() {
         const isMultimediaPresent = this.items.find((item) => item.type == ContentType.IMAGE || item.type == ContentType.VIDEO)
         return !!isMultimediaPresent
+    }
+
+    getTitleItem() {
+        let titleItem = this.items.find((item) => item.type == ContentType.TITLE);
+        return titleItem
     }
 
 }

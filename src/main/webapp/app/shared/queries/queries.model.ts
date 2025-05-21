@@ -53,6 +53,7 @@ export interface QueryString {
 
 
 export enum ContentType {
+    TITLE = "TITLE",
     PARAGRAPH = 'PARAGRAPH',
     IMAGE = 'IMAGE',
     VIDEO = 'VIDEO',
@@ -61,10 +62,11 @@ export enum ContentType {
 
 export interface ContentItem {
     id?: number;
-
+    heading?: String;
     type: ContentType;
     value?: String | Number;
     imageValue?: String;
+    imageBlob?: String;
     isValidImage?: Boolean;
     queryGroupId?: Number;
 }
