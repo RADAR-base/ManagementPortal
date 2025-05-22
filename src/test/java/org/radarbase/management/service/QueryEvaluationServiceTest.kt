@@ -329,7 +329,7 @@ class QueryEvaluationServiceTest(
 
         queryRepository.saveAndFlush(query)
 
-        val result = queryEValuationService.getActiveQueries(subject.id!!)
+        val result = queryEValuationService.getActiveQueryContentForParticipant(subject.id!!)
 
         Assertions.assertTrue(result.isNotEmpty())
         Assertions.assertNotNull(result[queryGroup.id!!])

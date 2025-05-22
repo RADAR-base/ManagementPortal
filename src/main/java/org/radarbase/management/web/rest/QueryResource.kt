@@ -3,9 +3,6 @@ package org.radarbase.management.web.rest
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.micrometer.core.annotation.Timed
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.decodeFromJsonElement
 import org.radarbase.management.domain.Query
 import org.radarbase.management.domain.QueryGroup
 import org.radarbase.management.repository.UserRepository
@@ -22,11 +19,9 @@ import org.radarbase.management.service.dto.QueryParticipantDTO
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
-import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.web.bind.annotation.*
-import org.springframework.web.client.HttpClientErrorException.BadRequest
 
 @RestController
 @RequestMapping("/api/query-builder")
@@ -167,11 +162,7 @@ class QueryResource(
             queryBuilderService.deleteQueryParticipantByQueryGroup(subjectId, queryGroupId)
     }
 
-    @GetMapping("/active/{participantId}")
-    fun getActiveQueries(@PathVariable participantId: Long): ResponseEntity<*> {
-        val result = queryEValuationService.getActiveQueries(participantId)
-        return ResponseEntity.ok(result)
-    }
+
 
     companion object {
         private val log = LoggerFactory.getLogger(QueryResource::class.java)

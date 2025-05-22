@@ -46,7 +46,7 @@ public class QueryEValuationService(
            val timeframeMonths = extractTimeframeMonths(timeFrame, currentMonth);
            val relevantData = metricValuesData.filter { it.month in timeframeMonths};
 
-            if (relevantData.isEmpty()) {
+            if (relevantData.isEmpty()  || relevantData.size != timeframeMonths.size) {
                 return false
             }
 
@@ -98,9 +98,11 @@ public class QueryEValuationService(
         val outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM")
 
 
-        var result =  (0 until monthsBack).map {
+        var result =  (1 until   monthsBack + 1).map {
             currentDate.minusMonths(it.toLong()).format(outputFormatter)
         }
+
+        log.info("[QUERY-CONTENT] months {}", result)
 
         return result;
 
@@ -221,7 +223,7 @@ public class QueryEValuationService(
         return root;
     }
 
-    fun getActiveQueries(participantId: Long): Map<Long, List<QueryContentDTO>> {
+    fun getActiveQueryContentForParticipant(participantId: Long): Map<Long, List<QueryContentDTO>> {
         val result = mutableMapOf<Long, List<QueryContentDTO>>()
 
         val queryParticipantList = queryParticipantRepository.findBySubjectId(participantId)

@@ -39,11 +39,11 @@ export class ParagraphItemComponent implements OnInit {
             menubar: false,
             plugins: 'lists',
             toolbar: 'undo redo | bold italic underline | link | bullist numlist | alignleft aligncenter alignright',
-            skin_url: '/assets/tinymce/skins/ui/oxide',
-            icons_url: '/assets/tinymce/icons/default/icons.min.js',
-            models_url: '/assets/tinymce/models/dom/model.min.js',
-            base_url: '/assets/tinymce',
-            content_css: '/assets/tinymce/skins/content/default/content.min.css',
+            skin_url: '/managementportal/assets/tinymce/skins/ui/oxide',
+            icons_url: '/managementportal/assets/tinymce/icons/default/icons.min.js',
+            models_url: '/managementportal/assets/tinymce/models/dom/model.min.js',
+            base_url: '/managementportal/assets/tinymce',
+            content_css: '/managementportal/assets/tinymce/skins/content/default/content.min.css',
             setup: editor => {
                 this.editorInstance = editor;
                 editor.on('change', () => {

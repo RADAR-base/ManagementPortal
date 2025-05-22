@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/api")
 class QueryContentResource(
 
-
+    @Autowired private val queryEValuationService: QueryEValuationService,
     @Autowired private val queryContentService: QueryContentService,
 ) {
 
@@ -38,6 +38,12 @@ class QueryContentResource(
     fun getQueryContent(@PathVariable queryGroupId: Long): ResponseEntity<*> {
       val result =  queryContentService.findAllByQueryGroupId(queryGroupId)
 
+        return ResponseEntity.ok(result)
+    }
+
+    @GetMapping("querycontent/active/{participantId}")
+    fun getActiveQueryContentForParticipant(@PathVariable participantId: Long): ResponseEntity<*> {
+        val result = queryEValuationService.getActiveQueryContentForParticipant(participantId)
         return ResponseEntity.ok(result)
     }
 
