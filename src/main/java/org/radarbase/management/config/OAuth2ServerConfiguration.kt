@@ -29,6 +29,9 @@ import org.springframework.security.oauth2.provider.code.*
 import org.springframework.security.oauth2.provider.token.*
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler
+import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.security.web.savedrequest.SavedRequest
+import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler
 
 @AuthServerEnabled
 @Configuration
@@ -46,15 +49,31 @@ class OAuth2ServerConfiguration(
         @Throws(Exception::class)
         override fun configure(http: HttpSecurity) {
             http
-                .formLogin().loginPage("/login").permitAll()
+                .requestMatchers()
+                .antMatchers("/login", "/oauth/authorize", "/oauth/confirm_access", "/css/**", "/images/**", "/js/**")
                 .and()
                 .authorizeRequests()
-                .antMatchers("/oauth/token").permitAll()
+                .antMatchers("/login", "/css/**", "/images/**", "/js/**").permitAll()
+                .antMatchers("/oauth/authorize", "/oauth/confirm_access").authenticated()
                 .and()
-                .requestMatchers()
-                .antMatchers("/login", "/oauth/authorize", "/oauth/confirm_access")
+                .formLogin()
+                .loginPage("/login")
+                .successHandler { request, response, authentication ->
+                    request.session.setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext())
+                    val savedRequest = request.session.getAttribute("SPRING_SECURITY_SAVED_REQUEST") as? SavedRequest
+                    val redirectUrl = if (savedRequest != null) {
+                        savedRequest.redirectUrl
+                    } else {
+                        request.requestURI + if (request.queryString != null) "?${request.queryString}" else ""
+                    }
+
+                    response.sendRedirect(redirectUrl)
+                }
+                .permitAll()
                 .and()
-                .authorizeRequests().anyRequest().authenticated()
+                .csrf().disable()  // Disable CSRF for OAuth endpoints
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
         }
 
         @Throws(Exception::class)
@@ -102,16 +121,10 @@ class OAuth2ServerConfiguration(
         @Throws(Exception::class)
         override fun configure(http: HttpSecurity) {
             http
-                .exceptionHandling()
-                .authenticationEntryPoint(http401UnauthorizedEntryPoint)
+                .requestMatchers()
+                .antMatchers("/api/**", "/management/**")
                 .and()
-                .addFilterBefore(
-                    jwtAuthenticationFilter,
-                    UsernamePasswordAuthenticationFilter::class.java
-                )
                 .authorizeRequests()
-                .antMatchers("/oauth/**").permitAll()
-                .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .antMatchers("/api/register").hasAuthority(RoleAuthority.SYS_ADMIN_AUTHORITY)
                 .antMatchers("/api/profile-info").permitAll()
                 .antMatchers("/api/sitesettings").permitAll()
@@ -120,17 +133,22 @@ class OAuth2ServerConfiguration(
                 .antMatchers("/api/**").authenticated()
                 .antMatchers("/management/health").permitAll()
                 .antMatchers("/management/**").hasAuthority(RoleAuthority.SYS_ADMIN_AUTHORITY)
-                .antMatchers("/v2/api-docs/**").permitAll()
-                .antMatchers("/swagger-resources/configuration/ui").permitAll()
-                .antMatchers("/swagger-ui/index.html").hasAuthority(RoleAuthority.SYS_ADMIN_AUTHORITY)
                 .and()
-                .logout().invalidateHttpSession(true)
+                .exceptionHandling()
+                .authenticationEntryPoint(http401UnauthorizedEntryPoint)
+                .and()
+                .addFilterBefore(
+                    jwtAuthenticationFilter,
+                    UsernamePasswordAuthenticationFilter::class.java
+                )
+                .csrf().disable()
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                .and()
+                .logout()
+                .invalidateHttpSession(true)
                 .logoutUrl("/api/logout")
                 .logoutSuccessHandler(logoutSuccessHandler)
-                .and()
-                .headers().frameOptions().disable()
-                .and()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
         }
 
         @Throws(Exception::class)
