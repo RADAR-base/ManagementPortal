@@ -23,13 +23,8 @@ class QueryContentResource(
     @Autowired private val queryEValuationService: QueryEValuationService,
     @Autowired private val queryContentService: QueryContentService,
 ) {
-
-
     @PostMapping("querycontent/querygroup/{queryGroupId}")
     fun saveQueryContent(@PathVariable queryGroupId: Long, @RequestBody queryContentDTO: List<QueryContentDTO>): ResponseEntity<*> {
-
-        log.info("[QUERY-CONTENT] query group id is {} and the size of list is {}", queryGroupId, queryContentDTO.size)
-        log.info("[QUERY-CONTENT] and the DTO is {}",  queryContentDTO)
         queryContentService.saveAll(queryGroupId, queryContentDTO);
         return ResponseEntity.ok(null);
     }
@@ -37,16 +32,8 @@ class QueryContentResource(
     @GetMapping("querycontent/querygroup/{queryGroupId}")
     fun getQueryContent(@PathVariable queryGroupId: Long): ResponseEntity<*> {
       val result =  queryContentService.findAllByQueryGroupId(queryGroupId)
-
         return ResponseEntity.ok(result)
     }
-
-    @GetMapping("querycontent/active/{participantId}")
-    fun getActiveQueryContentForParticipant(@PathVariable participantId: Long): ResponseEntity<*> {
-        val result = queryEValuationService.getActiveQueryContentForParticipant(participantId)
-        return ResponseEntity.ok(result)
-    }
-
 
     companion object {
         private val log = LoggerFactory.getLogger(QueryContentResource::class.java)

@@ -6,6 +6,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.radarbase.management.ManagementPortalTestApp
+import org.radarbase.management.config.BasePostgresIntegrationTest
 import org.radarbase.management.domain.*
 import org.radarbase.management.domain.enumeration.*
 import org.radarbase.management.repository.*
@@ -37,7 +38,7 @@ class QueryEvaluationServiceTest(
     @Autowired private val queryEvaluationRepository: QueryEvaluationRepository,
     @Autowired private val queryRepository: QueryRepository
 
-) {
+) : BasePostgresIntegrationTest() {
       lateinit var userData: UserData
 
     fun generateUserData(valueHeartRate: Double, valueSleep: Long, HRV: Long)  : UserData{
@@ -45,21 +46,21 @@ class QueryEvaluationServiceTest(
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM")
 
         val heartRateData =
-            (0L until 6L).map { monthsAgo ->
+            (1L until 8L).map { monthsAgo ->
                 val month = currentMonth.minusMonths(monthsAgo).format(formatter)
                 val value = valueHeartRate
                 DataPoint(month, value.toDouble())
             }.reversed()
 
 
-        val sleepData =   (0L until 6L).map { monthsAgo ->
+        val sleepData =   (1L until 8L).map { monthsAgo ->
             val month = currentMonth.minusMonths(monthsAgo).format(formatter)
             val value = valueSleep
             DataPoint(month, value.toDouble())
         }.reversed()
 
 
-        val HRV =   (0L until 6L).map { monthsAgo ->
+        val HRV =   (1L until 8L ).map { monthsAgo ->
             val month = currentMonth.minusMonths(monthsAgo).format(formatter)
             val value = valueSleep
             DataPoint(month, value.toDouble())

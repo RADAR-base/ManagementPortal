@@ -9,6 +9,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.MockitoAnnotations
 import org.radarbase.auth.authentication.OAuthHelper
 import org.radarbase.management.ManagementPortalApp
+import org.radarbase.management.config.BasePostgresIntegrationTest
 import org.radarbase.management.service.OAuthClientServiceTestUtil
 import org.radarbase.management.service.dto.ClientDetailsDTO
 import org.radarbase.management.web.rest.errors.ExceptionTranslator
@@ -43,7 +44,7 @@ internal class OAuthClientsResourceIntTest @Autowired constructor(
     @Autowired private val jacksonMessageConverter: MappingJackson2HttpMessageConverter,
     @Autowired private val pageableArgumentResolver: PageableHandlerMethodArgumentResolver,
     @Autowired private val exceptionTranslator: ExceptionTranslator,
-) {
+) : BasePostgresIntegrationTest() {
     private lateinit var restOauthClientMvc: MockMvc
     private lateinit var details: ClientDetailsDTO
     private var databaseSizeBeforeCreate: Int = 0

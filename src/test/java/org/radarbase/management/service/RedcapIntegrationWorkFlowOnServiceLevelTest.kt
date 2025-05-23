@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.radarbase.management.ManagementPortalTestApp
+import org.radarbase.management.config.BasePostgresIntegrationTest
 import org.radarbase.management.domain.enumeration.ProjectStatus
 import org.radarbase.management.service.dto.ProjectDTO
 import org.radarbase.management.service.dto.SubjectDTO
@@ -19,7 +20,7 @@ import java.util.*
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(classes = [ManagementPortalTestApp::class])
 @Transactional
-internal open class RedcapIntegrationWorkFlowOnServiceLevelTest {
+internal open class RedcapIntegrationWorkFlowOnServiceLevelTest : BasePostgresIntegrationTest() {
     @Autowired
     private val projectService: ProjectService? = null
 

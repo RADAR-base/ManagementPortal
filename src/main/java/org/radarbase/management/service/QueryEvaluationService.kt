@@ -46,7 +46,10 @@ public class QueryEValuationService(
            val timeframeMonths = extractTimeframeMonths(timeFrame, currentMonth);
            val relevantData = metricValuesData.filter { it.month in timeframeMonths};
 
-            if (relevantData.isEmpty()  || relevantData.size != timeframeMonths.size) {
+            log.info("[QUERY] relevant data {}", relevantData);
+        log.info("[QUERY] timeframeMonths {}", timeframeMonths);
+
+        if (relevantData.isEmpty()  || relevantData.size != timeframeMonths.size) {
                 return false
             }
 

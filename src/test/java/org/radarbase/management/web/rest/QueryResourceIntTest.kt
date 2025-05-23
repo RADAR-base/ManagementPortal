@@ -40,6 +40,7 @@ import javax.servlet.ServletException
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 import org.radarbase.auth.token.RadarToken
+import org.radarbase.management.config.BasePostgresIntegrationTest
 import org.radarbase.management.domain.*
 import org.radarbase.management.domain.enumeration.ComparisonOperator
 import org.radarbase.management.domain.enumeration.QueryLogicOperator
@@ -54,9 +55,7 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import java.time.ZonedDateTime
 
-@ExtendWith(SpringExtension::class)
-@SpringBootTest(classes = [ManagementPortalTestApp::class])
-@WithMockUser
+
 internal class QueryResourceTest(
     @Autowired private val queryResource : QueryResource,
     @Autowired private val pageableArgumentResolver: PageableHandlerMethodArgumentResolver,
@@ -72,7 +71,7 @@ internal class QueryResourceTest(
     @Autowired private val queryLogicRepository: QueryLogicRepository,
     @Autowired private val queryEvaluationRepository: QueryEvaluationRepository
 
-    ) {
+    ) : BasePostgresIntegrationTest() {
 
     private lateinit var mockMvc: MockMvc
     private val objectMapper = ObjectMapper()
@@ -381,10 +380,31 @@ internal class QueryResourceTest(
         }
         queryEvaluationRepository.saveAndFlush(evaluation)
 
-        mockMvc.perform(get("/api/query-builder/active/${subject.id}"))
+        mockMvc.perform(get("/api/query-builder/querycontent/active/${subject.id}"))
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.${queryGroup.id}").exists())
     }
+
+    @Test
+    @Transactional
+    fun shouldReturnActiveQueries() {
+        val queryParticipant = createAndAddQueryParticipantToDB()
+        val subject = queryParticipant.subject!!
+        val queryGroup = queryParticipant.queryGroup!!
+
+        val evaluation = QueryEvaluation().apply {
+            this.subject = subject
+            this.queryGroup = queryGroup
+            this.result = true
+            this.createdDate = ZonedDateTime.now()
+        }
+        queryEvaluationRepository.saveAndFlush(evaluation)
+
+        mockMvc.perform(get("/api/query-builder/querycontent/active/${subject.id}"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.${queryGroup.id}").exists())
+    }
+
 
 
 }
