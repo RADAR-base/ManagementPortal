@@ -165,6 +165,7 @@ class QueryResource(
 
     @PostMapping("querycontent/querygroup/{queryGroupId}")
     fun saveQueryContent(@PathVariable queryGroupId: Long, @RequestBody queryContentDTO: List<QueryContentDTO>): ResponseEntity<*> {
+        log.info("[QUUERY] hit the content endpoint")
         queryContentService.saveAll(queryGroupId, queryContentDTO);
         return ResponseEntity.ok(null);
     }

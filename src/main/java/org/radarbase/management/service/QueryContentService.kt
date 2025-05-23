@@ -24,7 +24,7 @@ public class QueryContentService(
 ) {
 
 
-    private fun convertImgStringToByteArray(imgString: String): ByteArray {
+    public fun convertImgStringToByteArray(imgString: String): ByteArray {
         val decoder = Base64.getDecoder()
         val partSeparator = ",";
 
@@ -73,7 +73,9 @@ public class QueryContentService(
                 queryContentRepository.save((queryContent));
             }
         }
+        log.info("[QUERY] before flush")
         queryContentRepository.flush();
+        log.info("[QUERY] after flush")
     }
 
     public fun findAll() {
