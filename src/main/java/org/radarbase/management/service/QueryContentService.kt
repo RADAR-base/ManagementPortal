@@ -1,13 +1,11 @@
 package org.radarbase.management.service
 
 import org.radarbase.management.domain.QueryContent
-import org.radarbase.management.domain.QueryGroup
 import org.radarbase.management.domain.enumeration.ContentType
 import org.radarbase.management.repository.QueryContentRepository
 import org.radarbase.management.repository.QueryGroupRepository
 import org.radarbase.management.service.dto.QueryContentDTO
 import org.radarbase.management.service.mapper.QueryContentMapper
-import org.radarbase.management.web.rest.QueryContentResource
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -50,7 +48,7 @@ public class QueryContentService(
         val decoder = Base64.getDecoder()
         val partSeparator = ",";
 
-        if(queryContentDTOList.size > 0 ) {
+        if(queryContentDTOList.isNotEmpty()) {
             val queryGroupOptional = queryGroupRepository.findById(queryGroupId)
 
             if(!queryGroupOptional.isPresent) {
@@ -73,21 +71,10 @@ public class QueryContentService(
                 queryContentRepository.save((queryContent));
             }
         }
-        log.info("[QUERY] before flush")
+
         queryContentRepository.flush();
-        log.info("[QUERY] after flush")
     }
 
-    public fun findAll() {
-
-    }
-
-   public fun findOne() {
-
-   }
-   public fun delete() {
-
-   }
 
 
     public fun findAllByQueryGroupId(queryGroupId: Long) : List<QueryContentDTO> {
@@ -103,23 +90,7 @@ public class QueryContentService(
         return result;
     }
 
-    public fun deleteAllByQueryGroupId(queryGroupId: Long) {
-        val allContent = queryContentRepository.findAllByQueryGroupId(queryGroupId);
-        queryContentRepository.deleteAll(allContent);
-    }
 
-
-    public fun getContentByQueryGroupId(queryGroupId: Long): List<QueryContentDTO> {
-        var queryContentList = queryContentRepository.findAllByQueryGroupId(queryGroupId);
-        var result : List<QueryContentDTO> = mutableListOf()
-
-        for(queryContentItem in queryContentList) {
-            val queryContentDTO = queryContentMapper.queryContentToQueryContentDTO(queryContentItem);
-            result += queryContentDTO!!;
-        }
-
-        return result;
-    }
     companion object {
         private val log = LoggerFactory.getLogger(QueryContentService::class.java)
     }

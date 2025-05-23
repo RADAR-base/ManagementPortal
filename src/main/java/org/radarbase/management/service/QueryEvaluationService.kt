@@ -46,9 +46,6 @@ public class QueryEValuationService(
            val timeframeMonths = extractTimeframeMonths(timeFrame, currentMonth);
            val relevantData = metricValuesData.filter { it.month in timeframeMonths};
 
-            log.info("[QUERY] relevant data {}", relevantData);
-        log.info("[QUERY] timeframeMonths {}", timeframeMonths);
-
         if (relevantData.isEmpty()  || relevantData.size != timeframeMonths.size) {
                 return false
             }
@@ -105,10 +102,7 @@ public class QueryEValuationService(
             currentDate.minusMonths(it.toLong()).format(outputFormatter)
         }
 
-        log.info("[QUERY-CONTENT] months {}", result)
-
         return result;
-
     }
 
 
@@ -245,22 +239,12 @@ public class QueryEValuationService(
             val queryGroup = evaluation.queryGroup ?: continue
             val queryGroupId = queryGroup.id ?: continue
 
-            val content = queryContentService.getContentByQueryGroupId(queryGroupId)
+            val content = queryContentService.findAllByQueryGroupId(queryGroupId)
 
             result[queryGroupId] = content;
         }
 
         return result
-    }
-
-    private fun getQueryGroupContent(queryGroupId: Long): List<Map<String, Any>> {
-        return listOf(
-            mapOf("type" to "TITLE", "text_value" to "How to sleep better"),
-            mapOf("type" to "PARAGRAPH", "text_value" to "paragraph content"),
-            mapOf("type" to "HEADING", "text_value" to "test heading"),
-            mapOf("type" to "VIDEO", "text_value" to "https://www.youtube.com/embed/ff5Dc_M1ycw"),
-            mapOf("type" to "IMAGE", "image" to "https://picsum.photos/200/300")
-        )
     }
 
 
