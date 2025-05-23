@@ -114,7 +114,7 @@ export class AddQueryComponent {
                     });
 
                 this.http
-                    .get('api/querycontent/querygroup/' + queryId)
+                    .get('api/query-builder/querycontent/querygroup/' + queryId)
                     .subscribe((response: any) => {
 
                         this.contentComponent.items = response;

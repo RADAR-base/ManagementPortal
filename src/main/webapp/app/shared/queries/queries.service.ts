@@ -14,6 +14,6 @@ export class QueriesService {
     // }
 
     saveContent(queryGroupId: number, contentList: ContentItem[]) {
-        return this.http.post('api/querycontent/querygroup/' + queryGroupId, contentList).toPromise();
+        return this.http.post('api/query-builder/querycontent/querygroup/' + queryGroupId, contentList).toPromise();
     }
 }
