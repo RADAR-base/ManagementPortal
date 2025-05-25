@@ -106,6 +106,8 @@ constructor(
         if (!hasPermission(kratosIdentity, id)) {
             throw NotAuthorizedException("Not authorized to activate subject")
         }
+
+        val subject = subjectService.findOneByLogin(projectUserId) ?: createSubject(webhookDTO)
         subjectService.activateSubject(projectUserId)
         return ResponseEntity.ok()
                 .headers(HeaderUtil.createEntityUpdateAlert(EntityName.SUBJECT, id))

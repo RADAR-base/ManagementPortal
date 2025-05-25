@@ -98,6 +98,8 @@ class SubjectService(
         user.resetDate = ZonedDateTime.now()
         // default subject is activated.
         user.activated = activated!!
+        // default identity is externalId
+        user.identity = subject.externalId
         // set if any devices are set as assigned
         if (subject.sources.isNotEmpty()) {
             subject.sources.forEach(
