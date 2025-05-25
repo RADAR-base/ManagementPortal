@@ -129,6 +129,13 @@ class KratosSessionDTO(
         val value: Metadata
     )
 
+    @Serializable
+    data class JsonStringPatchOperation(
+        val op: String,
+        val path: String,
+        val value: String
+    )
+
     fun toDataRadarToken() : DataRadarToken {
         return DataRadarToken(
             roles = this.identity.parseRoles(),

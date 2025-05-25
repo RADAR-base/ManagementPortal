@@ -17,6 +17,7 @@ import org.radarbase.auth.authorization.RoleAuthority
 import org.radarbase.auth.exception.IdpException
 import org.radarbase.auth.kratos.KratosSessionDTO
 import org.radarbase.auth.kratos.KratosSessionDTO.JsonMetadataPatchOperation
+import org.radarbase.auth.kratos.KratosSessionDTO.JsonStringPatchOperation
 import org.radarbase.management.config.ManagementPortalProperties
 import org.radarbase.management.domain.Role
 import org.radarbase.management.domain.Subject
@@ -24,6 +25,7 @@ import org.radarbase.management.domain.User
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Duration
@@ -53,7 +55,7 @@ class IdentityService
                     )
                 }
             }
-
+        private val json = Json { ignoreUnknownKeys = true }
         private val adminUrl = managementPortalProperties.identityServer.serverAdminUrl
         private val publicUrl = managementPortalProperties.identityServer.serverUrl
 
@@ -104,7 +106,7 @@ class IdentityService
 
         private fun createIdentity(user: User): KratosSessionDTO.Identity =
             KratosSessionDTO.Identity(
-                schema_id = "researcher",
+                schema_id = getSchemaIdFromUserRoles(user),
                 traits = KratosSessionDTO.Traits(email = user.email),
                 metadata_public =
                     buildMetadata(
@@ -114,6 +116,15 @@ class IdentityService
                     ),
             )
 
+        private fun getSchemaIdFromUserRoles(user: User): String {
+            val roles = user.roles.map { it.role?.scope }.distinct()
+            return when {
+                roles.contains(RoleAuthority.Scope.GLOBAL) -> "admin"
+                roles.contains(RoleAuthority.Scope.ORGANIZATION) -> "researcher"
+                roles.contains(RoleAuthority.Scope.PROJECT) -> "researcher"
+                else -> "researcher"
+            }
+        }
         @Throws(IdpException::class)
         suspend fun saveAsIdentity(user: User): KratosSessionDTO.Identity =
             withContext(Dispatchers.IO) {
@@ -145,7 +156,6 @@ class IdentityService
             subject: Subject? = null,
         ): KratosSessionDTO.Identity =
             withContext(Dispatchers.IO) {
-                val json = Json { ignoreUnknownKeys = true }
                 val identityId =
                     user.identity
                         ?: subject?.externalId ?: throw IdpException("User has no identity")
@@ -173,6 +183,41 @@ class IdentityService
                     throw IdpException("Couldn't update identity on server at $adminUrl")
                 }
             }
+
+        @Throws(IdpException::class)
+        suspend fun updatePassword(
+            user: User,
+            newPassword: String,
+        ): KratosSessionDTO.Identity =
+            withContext(Dispatchers.IO) {
+                val identityId =
+                    user.identity ?: throw IdpException("User has no identity to update password")
+                val encodedPassword = BCryptPasswordEncoder().encode(newPassword)
+                log.debug("Updating password to $encodedPassword for user ${user.login}")
+                val jsonPatchPayload = listOf(
+                    JsonStringPatchOperation(
+                        op = "replace",
+                        path = "/credentials/password/config/hashed_password",
+                        value = encodedPassword,
+                    ),
+                )
+                val response =
+                    httpClient.patch {
+                        url("$adminUrl/admin/identities/$identityId")
+                        contentType(ContentType.Application.Json)
+                        accept(ContentType.Application.Json)
+                        setBody(json.encodeToString(jsonPatchPayload))
+                    }
+
+                if (response.status.isSuccess()) {
+                    response.body<KratosSessionDTO.Identity>().also {
+                        log.debug("Updated password for user ${user.login} on IDP as ${it.id}")
+                    }
+                } else {
+                    throw IdpException("Couldn't update password on server at $adminUrl")
+                }
+            }
+
 
         @Throws(IdpException::class)
         suspend fun getExistingIdentity(identityId: String): KratosSessionDTO.Identity =
