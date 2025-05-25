@@ -157,7 +157,7 @@ class AccountResource(
      */
     @PostMapping(path = ["/account/change_password"], produces = [MediaType.TEXT_PLAIN_VALUE])
     @Timed
-    fun changePassword(@RequestBody password: String): ResponseEntity<String> {
+    suspend fun changePassword(@RequestBody password: String): ResponseEntity<String> {
         passwordService.checkPasswordStrength(password)
         userService.changePassword(password)
         return ResponseEntity(HttpStatus.NO_CONTENT)
