@@ -67,7 +67,13 @@ class OAuth2ServerConfiguration(
                         request.requestURI + if (request.queryString != null) "?${request.queryString}" else ""
                     }
 
-                    response.sendRedirect(redirectUrl)
+                    val safeRedirectUrl = if (redirectUrl.startsWith("/") || redirectUrl.startsWith(request.contextPath)) {
+                        redirectUrl
+                    } else {
+                        "/"
+                    }
+
+                    response.sendRedirect(safeRedirectUrl)
                 }
                 .permitAll()
                 .and()
