@@ -1,1 +1,15 @@
-<p>radar-data works!</p>
+<div *ngIf="groupedSubjects$ | async as grouped">
+    <div *ngFor="let org of grouped">
+      <h2>{{ org.organization.name }}</h2>
+      <div *ngFor="let proj of org.projects">
+        <h4>{{ proj.project.projectName }}</h4>
+        <ul>
+          <li *ngFor="let subj of proj.subjects">
+            {{ subj.login }} ({{ subj.externalId }})
+            
+          </li>
+        </ul>
+      </div>
+      <hr />
+    </div>
+  </div>
