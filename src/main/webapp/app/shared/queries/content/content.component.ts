@@ -1,4 +1,4 @@
-import { Component, OnInit, SimpleChanges, Input, IterableDiffers } from '@angular/core';
+import { Component, OnInit, Input, IterableDiffers } from '@angular/core';
 import { ContentItem, ContentType } from '../queries.model';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ModalContentComponent } from './modal-content/modal-content.component';
@@ -26,30 +26,11 @@ export class ContentComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        this.items = [...this.items, this.titleItem]; // creates new array reference
-
-    }
-
-
-    ngOnChanges(changes: SimpleChanges) {
-        if (changes['titleItem']) {
-            console.log('Object changed:', changes['titleItem'].currentValue);
-        }
-    }
-
-
-    ngDoCheck(): void {
-        //   console.log("ngDoCheck", this.titleItem)
-        const changes = this.differ.diff(this.items);
-
-        if (changes) {
-            console.log(" there are changes in the array", changes)
-        }
+        this.items = [...this.items, this.titleItem];
 
     }
 
     addContent(contentType: ContentType) {
-        console.log("items", this.items)
         if (contentType == ContentType.PARAGRAPH) {
             this.items.push({ type: contentType })
         }
@@ -67,8 +48,6 @@ export class ContentComponent implements OnInit {
                 console.log('Modal dismissed:', reason);
             });
         }
-
-
     }
 
     updateTitle() {
@@ -76,9 +55,6 @@ export class ContentComponent implements OnInit {
     }
 
     updateContent(event: { content: string; index: string }) {
-        console.log("event index", event.index)
-        console.log("event context", event.content)
-
         const content = this.items.find((item, itemIndex) => itemIndex == Number(event.index))
         content.value = event.content;
     }

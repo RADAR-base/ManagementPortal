@@ -11,8 +11,6 @@ export class ContentItemComponent implements OnInit {
 
     ContentType = ContentType
 
-    content = "hello world"
-
     @Input() item: ContentItem
 
     @Input() index: string;
