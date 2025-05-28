@@ -1,5 +1,10 @@
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
-import { Observable, combineLatest, forkJoin, of } from 'rxjs';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    OnInit,
+    OnDestroy,
+} from '@angular/core';
+import { combineLatest, forkJoin, Observable, Subscription, of } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 import {
     ProjectService,
@@ -12,7 +17,7 @@ import { Subject as Participant } from 'app/shared/subject';
 import { HttpResponse } from '@angular/common/http';
 
 interface SubjectWithDataLogs extends Participant {
-    dataLogs?: { [type: string]: string }; // e.g., {"PASSIVE_ANDROID_PHONE": "2024-05-01", ...}
+    dataLogs?: { [type: string]: string };
 }
 
 interface GroupedSubjects {
@@ -20,6 +25,8 @@ interface GroupedSubjects {
     projects: {
         project: Project;
         subjects: SubjectWithDataLogs[];
+        totalItems: number;
+        page: number;
     }[];
 }
 
@@ -29,17 +36,19 @@ interface GroupedSubjects {
     styleUrls: ['./radar-data.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class RadarDataComponent implements OnInit {
+export class RadarDataComponent implements OnInit, OnDestroy {
     groupedSubjects$: Observable<GroupedSubjects[]>;
-    test$ = of('hello');
+    groupedSubjectsData: GroupedSubjects[] | null = null;
+
+    private subscriptions = new Subscription();
+
+    readonly itemsPerPage = 20;
 
     constructor(
         private projectService: ProjectService,
         private subjectService: SubjectService,
         private organizationService: OrganizationService
     ) {}
-
-    groupedSubjectsData: GroupedSubjects[] | null = null;
 
     ngOnInit(): void {
         this.groupedSubjects$ = this.organizationService.findAll().pipe(
@@ -93,13 +102,23 @@ export class RadarDataComponent implements OnInit {
                 );
 
                 return combineLatest(orgObservables);
+            }),
+            map((data) => {
+                return data;
             })
         );
+    }
+
+    ngOnDestroy() {
+        this.subscriptions.unsubscribe();
     }
 
     fetchDataLogsForSubjects(
         subjects: SubjectWithDataLogs[]
     ): Observable<SubjectWithDataLogs[]> {
+        if (!subjects.length) {
+            return of([]);
+        }
         return forkJoin(
             subjects.map((subject) =>
                 this.subjectService.findDataLogs(subject.login).pipe(
@@ -119,5 +138,27 @@ export class RadarDataComponent implements OnInit {
                 )
             )
         );
+    }
+
+    visibleSubjectsCount: { [projectName: string]: number } = {};
+    defaultVisibleCount = 10;
+
+    getVisibleSubjects(
+        projectName: string,
+        subjects: SubjectWithDataLogs[]
+    ): SubjectWithDataLogs[] {
+        const count =
+            this.visibleSubjectsCount[projectName] ?? this.defaultVisibleCount;
+        return subjects.slice(0, count);
+    }
+
+    showMore(projectName: string, totalSubjects: number): void {
+        const current =
+            this.visibleSubjectsCount[projectName] ?? this.defaultVisibleCount;
+        const next = Math.min(
+            current + this.defaultVisibleCount,
+            totalSubjects
+        );
+        this.visibleSubjectsCount[projectName] = next;
     }
 }
