@@ -9,10 +9,6 @@ export class QueriesService {
     constructor(private http: HttpClient) {
     }
 
-    // get(): Observable<Account> {
-    //     return this.http.get<Account>('api/account');
-    // }
-
     saveContent(queryGroupId: number, contentList: ContentItem[]) {
         return this.http.post('api/query-builder/querycontent/querygroup/' + queryGroupId, contentList).toPromise();
     }

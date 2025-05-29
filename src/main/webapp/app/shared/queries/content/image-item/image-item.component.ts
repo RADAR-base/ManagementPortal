@@ -13,11 +13,8 @@ export class ImageItemComponent implements OnInit {
 
     @Input() item: ContentItem
 
-    constructor() { }
-
     ngOnInit(): void {
     }
-
 
     onDeleteItem() {
         this.triggerDeleteItemFunction.emit()

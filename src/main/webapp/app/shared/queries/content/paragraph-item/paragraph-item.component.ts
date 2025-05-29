@@ -4,7 +4,7 @@ import {
 } from '@angular/core';
 import tinymce from 'tinymce/tinymce';
 
-// Import what you need
+
 import 'tinymce/themes/silver';
 import 'tinymce/icons/default';
 import 'tinymce/plugins/code';

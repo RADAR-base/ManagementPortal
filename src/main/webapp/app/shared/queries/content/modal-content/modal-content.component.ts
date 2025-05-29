@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit,  Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { ContentItem, ContentType } from '../../queries.model';
 import { generateUUID } from '../../utils';
@@ -28,19 +28,17 @@ type SelectedImageBase64 = {
 export class ModalContentComponent implements OnInit {
 
     ContentType = ContentType;
-    public content: string
+    @Input() public content: string = null
+    @Input() public isAddButtonDisabled = true
     public type: ContentType
     public imageBase64: string
     public contentItem: ContentItem
-
 
     constructor(public activeModal: NgbActiveModal) {
 
     }
 
-
     ngOnInit(): void {
-        console.log("type modal", this.type)
     }
 
     isImageSizeValid(args: ImageSizeValidType) {
@@ -54,11 +52,7 @@ export class ModalContentComponent implements OnInit {
     }
 
     getBase64FromImage(file: File, targetWidth: number, targetHeight: number) {
-
-
-
     }
-
 
     getScaledImageBase64(image: HTMLImageElement, resizeRatio: number) {
         const [imageWidth, imageHeight] = [
@@ -103,7 +97,6 @@ export class ModalContentComponent implements OnInit {
     async getImage(file: File) {
         const reader = new FileReader();
 
-        console.log("before original base 64")
         const originalBase64 = await new Promise<string | ArrayBuffer>(resolve => {
              reader.onload = (event) => {
                 resolve(event.target.result)
@@ -117,7 +110,6 @@ export class ModalContentComponent implements OnInit {
 
         await new Promise(resolve => {
             image.onload = () => {
-                console.log("image loaded")
                 resolve("true")
             }
             image.src = originalBase64;
@@ -173,33 +165,9 @@ export class ModalContentComponent implements OnInit {
             type: ContentType.IMAGE,
             imageBlob: rtn.imageBase64Data,
             isValidImage: rtn.isImageValid
-            }
+        }
 
-        // const reader = new FileReader();
-
-        // reader.onload = () => {
-        //     const base64 = reader.result as string;
-        //     this.imageBase64 = reader.result as string;
-        //     console.log('Base64 Image:', this.imageBase64);
-
-        //     const img = new Image();
-        //     img.onload = () => {
-        //         const width = img.naturalWidth;
-
-        //         const height = img.naturalHeight;
-        //         const aspectRatio = width / height;
-
-        //         console.log('Width:', width);
-        //         console.log('Height:', height);
-        //         console.log('Aspect Ratio:', aspectRatio);
-        //     };
-        //     img.src = base64;
-
-
-
-        // };
-
-        // reader.readAsDataURL(file);
+        this.isAddButtonDisabled = false;
     }
 
     addItem() {
@@ -221,6 +189,16 @@ export class ModalContentComponent implements OnInit {
             this.activeModal.close(this.contentItem)
         }
 
+    }
+
+    onChangeUrl() {
+
+        if (this.content) {
+            this.isAddButtonDisabled = false
+            return
+
+        }
+        this.isAddButtonDisabled = true
     }
 
 }

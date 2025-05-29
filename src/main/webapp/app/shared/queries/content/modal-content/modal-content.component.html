@@ -11,7 +11,7 @@
 <div class="modal-body">
     <div *ngIf="type == ContentType.VIDEO">
         <p>Youtube URL</p>
-        <input type="text" class="form-control" id="redirectUri" name="redirectUri" [(ngModel)]="content" />
+        <input type="text" class="form-control" id="redirectUri" name="redirectUri" [(ngModel)]="content" (ngModelChange)="onChangeUrl($event)" />
     </div>
 
     <div *ngIf="type == ContentType.IMAGE">
@@ -22,7 +22,7 @@
 
 </div>
 <div class="modal-footer">
-    <button class="btn btn-success" (click)="addItem()">Add</button>
+    <button class="btn btn-success" (click)="addItem()" [disabled]="isAddButtonDisabled"> Add</button>
 
     <button class="btn btn-outline-dark" (click)="activeModal.close('Close click')">Close</button>
 </div>

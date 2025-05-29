@@ -21,7 +21,7 @@
         "@ngx-translate/core": "13.0.0",
         "@ngx-translate/http-loader": "6.0.0",
         "@tinymce/tinymce-angular": "^6",
-        "@uom-digital-health-software/ngx-angular-query-builder": "0.0.3",
+        "@uom-digital-health-software/ngx-angular-query-builder": "0.0.4",
         "bootstrap": "^4.6.1",
         "font-awesome": "4.7.0",
         "jquery": "3.5.0",

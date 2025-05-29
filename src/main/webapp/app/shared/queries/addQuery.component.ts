@@ -118,10 +118,7 @@ export class AddQueryComponent {
                     .subscribe((response: any) => {
 
                         this.contentComponent.items = response;
-                        console.log("content response", response)
                     });
-
-                // ask for the content if querygroups id exists
             }
         });
     }
@@ -217,26 +214,17 @@ export class AddQueryComponent {
         } else {
             this.queryGroupId = await this.saveNewQueryGroup(query_group)
             await this.saveIndividualQueries();
-            console.log("after save")
         }
 
        await this.saveContent();
 
         this.goBack();
-
-        console.log("after going back")
-
-
-
     }
 
     async saveContent() {
         let content = this.contentComponent.items;
 
-        console.log("content before saving", content)
-
         await this.queryService.saveContent(this.queryGroupId, content);
-
     }
 
     saveNewQueryGroup(queryGroup: QueryGroup) {
