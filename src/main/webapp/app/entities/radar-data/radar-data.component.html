@@ -23,10 +23,9 @@
                     <tbody>
                         <tr
                             *ngFor="
-                                let subject of getVisibleSubjects(
-                                    proj.project.projectName,
-                                    proj.subjects
-                                )
+                                let subject of visibleSubjectsMap[
+                                    proj.project.projectName
+                                ]
                             "
                         >
                             <td>{{ subject.login }}</td>
@@ -55,29 +54,23 @@
                         </tr>
                     </tbody>
                 </table>
-                <div
-                    class="text-center mt-2"
-                    *ngIf="
-                        proj.subjects.length >
-                        getVisibleSubjects(
-                            proj.project.projectName,
-                            proj.subjects
-                        ).length
-                    "
-                >
-                    <button
-                        class="btn btn-sm btn-primary"
-                        (click)="
-                            showMore(
-                                proj.project.projectName,
-                                proj.subjects.length
-                            )
-                        "
-                    >
-                        Show more
-                    </button>
-                </div>
             </div>
+
+
+            <app-load-more
+                [totalItems]="proj.totalItems"
+                [shownItems]="
+                    visibleSubjectsCount[proj.project.projectName] ||
+                    defaultVisibleCount
+                "
+                (load)="
+                    showMore(
+                        proj.project.projectName,
+                        proj.totalItems,
+                        proj.subjects
+                    )
+                "
+            ></app-load-more>
         </div>
     </div>
 </div>

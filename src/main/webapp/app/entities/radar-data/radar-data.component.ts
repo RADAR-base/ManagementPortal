@@ -18,6 +18,7 @@ import { HttpResponse } from '@angular/common/http';
 
 interface SubjectWithDataLogs extends Participant {
     dataLogs?: { [type: string]: string };
+    _loading?: boolean; 
 }
 
 interface GroupedSubjects {
@@ -42,7 +43,10 @@ export class RadarDataComponent implements OnInit, OnDestroy {
 
     private subscriptions = new Subscription();
 
-    readonly itemsPerPage = 20;
+    visibleSubjectsCount: { [projectName: string]: number } = {};
+    defaultVisibleCount = 10;
+
+    visibleSubjectsMap: { [projectName: string]: SubjectWithDataLogs[] } = {};
 
     constructor(
         private projectService: ProjectService,
@@ -65,36 +69,30 @@ export class RadarDataComponent implements OnInit, OnDestroy {
                                     )
                                     .pipe(
                                         map((res) => res.body || []),
-                                        switchMap(
-                                            (
-                                                subjects: SubjectWithDataLogs[]
-                                            ) => {
-                                                if (!subjects.length)
-                                                    return of({
-                                                        project,
-                                                        subjects: [],
-                                                    });
-
-                                                return this.fetchDataLogsForSubjects(
-                                                    subjects
-                                                ).pipe(
-                                                    map((subjectsWithLogs) => ({
-                                                        project,
-                                                        subjects:
-                                                            subjectsWithLogs,
-                                                    }))
-                                                );
-                                            }
-                                        )
+                                        map((subjects: SubjectWithDataLogs[]) => ({
+                                            project,
+                                            subjects,
+                                            totalItems: subjects.length,
+                                            page: 0,
+                                        }))
                                     )
                             );
 
                             return projectObservables.length
                                 ? forkJoin(projectObservables).pipe(
-                                      map((projectsWithSubjects) => ({
-                                          organization: org,
-                                          projects: projectsWithSubjects,
-                                      }))
+                                      map((projectsWithSubjects) => {
+                                          projectsWithSubjects.forEach(({project, subjects}) => {
+                                              this.visibleSubjectsCount[project.projectName] = this.defaultVisibleCount;
+                                              this.visibleSubjectsMap[project.projectName] = subjects.slice(0, this.defaultVisibleCount);
+
+                                              this.loadDataLogsForSubjects(project.projectName, this.visibleSubjectsMap[project.projectName]);
+                                          });
+
+                                          return {
+                                              organization: org,
+                                              projects: projectsWithSubjects,
+                                          };
+                                      })
                                   )
                                 : of({ organization: org, projects: [] });
                         })
@@ -109,16 +107,15 @@ export class RadarDataComponent implements OnInit, OnDestroy {
         );
     }
 
-    ngOnDestroy() {
+    ngOnDestroy(): void {
         this.subscriptions.unsubscribe();
     }
 
     fetchDataLogsForSubjects(
         subjects: SubjectWithDataLogs[]
     ): Observable<SubjectWithDataLogs[]> {
-        if (!subjects.length) {
-            return of([]);
-        }
+        if (!subjects.length) return of([]);
+
         return forkJoin(
             subjects.map((subject) =>
                 this.subjectService.findDataLogs(subject.login).pipe(
@@ -140,25 +137,24 @@ export class RadarDataComponent implements OnInit, OnDestroy {
         );
     }
 
-    visibleSubjectsCount: { [projectName: string]: number } = {};
-    defaultVisibleCount = 10;
+    loadDataLogsForSubjects(projectName: string, subjects: SubjectWithDataLogs[]): void {
+        const subjectsToLoad = subjects.filter(s => !s.dataLogs && !s._loading);
+        if (!subjectsToLoad.length) return;
 
-    getVisibleSubjects(
-        projectName: string,
-        subjects: SubjectWithDataLogs[]
-    ): SubjectWithDataLogs[] {
-        const count =
-            this.visibleSubjectsCount[projectName] ?? this.defaultVisibleCount;
-        return subjects.slice(0, count);
+        subjectsToLoad.forEach(s => s._loading = true);
+
+        this.fetchDataLogsForSubjects(subjectsToLoad).subscribe(() => {
+            subjectsToLoad.forEach(s => s._loading = false);
+        });
     }
 
-    showMore(projectName: string, totalSubjects: number): void {
-        const current =
-            this.visibleSubjectsCount[projectName] ?? this.defaultVisibleCount;
-        const next = Math.min(
-            current + this.defaultVisibleCount,
-            totalSubjects
-        );
+    showMore(projectName: string, totalSubjects: number, allSubjects: SubjectWithDataLogs[]): void {
+        const current = this.visibleSubjectsCount[projectName] ?? this.defaultVisibleCount;
+        const next = Math.min(current + this.defaultVisibleCount, totalSubjects);
         this.visibleSubjectsCount[projectName] = next;
+
+        this.visibleSubjectsMap[projectName] = allSubjects.slice(0, next);
+
+        this.loadDataLogsForSubjects(projectName, this.visibleSubjectsMap[projectName]);
     }
 }
