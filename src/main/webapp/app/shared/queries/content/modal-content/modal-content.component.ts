@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit,  Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { ContentItem, ContentType } from '../../queries.model';
 import { generateUUID } from '../../utils';
@@ -28,7 +28,8 @@ type SelectedImageBase64 = {
 export class ModalContentComponent implements OnInit {
 
     ContentType = ContentType;
-    public content: string
+    @Input() public content: string = null
+    @Input() public isAddButtonDisabled = true
     public type: ContentType
     public imageBase64: string
     public contentItem: ContentItem
@@ -164,7 +165,9 @@ export class ModalContentComponent implements OnInit {
             type: ContentType.IMAGE,
             imageBlob: rtn.imageBase64Data,
             isValidImage: rtn.isImageValid
-            }
+        }
+
+        this.isAddButtonDisabled = false;
     }
 
     addItem() {
@@ -186,6 +189,16 @@ export class ModalContentComponent implements OnInit {
             this.activeModal.close(this.contentItem)
         }
 
+    }
+
+    onChangeUrl() {
+
+        if (this.content) {
+            this.isAddButtonDisabled = false
+            return
+
+        }
+        this.isAddButtonDisabled = true
     }
 
 }
