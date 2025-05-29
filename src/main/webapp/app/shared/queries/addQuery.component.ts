@@ -166,15 +166,14 @@ export class AddQueryComponent {
         }
     }
 
-    convertTimeFrame(value: number) {
+    convertTimeFrame(value: string) {
+
         switch (value) {
-            case 180:
+            case "6_months":
                 return 'PAST_6_MONTH';
-            case 30:
+            case "1_months":
                 return 'PAST_MONTH';
-            case 7:
-                return 'LAST_7_DAYS';
-            case 365:
+            case "1_years":
                 return 'PAST_YEAR';
             default:
                 return null;
@@ -216,7 +215,7 @@ export class AddQueryComponent {
             await this.saveIndividualQueries();
         }
 
-       await this.saveContent();
+      await this.saveContent();
 
         this.goBack();
     }
