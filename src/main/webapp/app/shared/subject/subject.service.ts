@@ -135,6 +135,7 @@ export interface SubjectPaginationParams {
     last?: SubjectLastParams;
     size?: number;
     sort?: [string];
+    page?: number;
 }
 
 export interface SubjectLastParams {

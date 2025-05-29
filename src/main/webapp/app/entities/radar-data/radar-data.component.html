@@ -1,0 +1,83 @@
+<div *ngIf="groupedSubjects$ | async as groups">
+    <div *ngFor="let group of groups">
+        <h2>Organization: {{ group.organization.name }}</h2>
+
+        <div *ngFor="let proj of group.projects" class="mb-4">
+            <h4>Project- {{ proj.project.projectName }}</h4>
+
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Subject id</th>
+                            <th>Participant id</th>
+                            <th>Android Phone</th>
+                            <th>Health Connect</th>
+                            <th>iOS Phone</th>
+                            <th>iOS Health Kit</th>
+                            <th>iOS Sensor Kit</th>
+                            <th>Fitbit</th>
+                            <th>Questionnaire</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr
+                            *ngFor="
+                                let subject of getVisibleSubjects(
+                                    proj.project.projectName,
+                                    proj.subjects
+                                )
+                            "
+                        >
+                            <td>{{ subject.login }}</td>
+                            <td>{{ subject.externalId }}</td>
+                            <td>
+                                {{ subject.dataLogs?.['PASSIVE_ANDROID_PHONE'] || '-' }}
+                            </td>
+                            <td>
+                                {{ subject.dataLogs?.['PASSIVE_GOOGLE_CONNECT'] || '-' }}
+                            </td>
+                            <td>
+                                {{ subject.dataLogs?.['PASSIVE_IOS_PHONE'] || '-' }}
+                            </td>
+                            <td>
+                                {{ subject.dataLogs?.['PASSIVE_HEALTH_KIT'] || '-' }}
+                            </td>
+                            <td>
+                                {{ subject.dataLogs?.['PASSIVE_SENSOR_KIT'] || '-' }}
+                            </td>
+                            <td>
+                                {{ subject.dataLogs?.['PASSIVE_FITBIT'] || '-' }}
+                            </td>
+                            <td>
+                                {{ subject.dataLogs?.['ACTIVE_QUESTIONNAIRE'] || '-' }}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div
+                    class="text-center mt-2"
+                    *ngIf="
+                        proj.subjects.length >
+                        getVisibleSubjects(
+                            proj.project.projectName,
+                            proj.subjects
+                        ).length
+                    "
+                >
+                    <button
+                        class="btn btn-sm btn-primary"
+                        (click)="
+                            showMore(
+                                proj.project.projectName,
+                                proj.subjects.length
+                            )
+                        "
+                    >
+                        Show more
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
