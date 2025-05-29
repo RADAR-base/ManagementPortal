@@ -9,6 +9,7 @@ import Chart from 'chart.js/auto';
 })
 export class DoubleRowGraphComponent implements OnInit {
     @Input() title1: string = '';
+      @Input() subtitle1: string = '';
     @Input() title2: string = '';
 
     @Input() chartId1: string = undefined;
