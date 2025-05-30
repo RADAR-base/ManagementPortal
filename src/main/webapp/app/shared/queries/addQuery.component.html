@@ -29,7 +29,7 @@
         <query-content></query-content>
     </div>
 
-    <button (click)="saveQueryGroupToDB()" class="btn btn-primary saveBtn">Save</button>
+    <button (click)="saveQueryGroupToDB()" class="btn btn-primary saveBtn" [disabled]="isSaveButtonDisabled">Save</button>
 
     </div>
 

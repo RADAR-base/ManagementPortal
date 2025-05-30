@@ -258,4 +258,12 @@ export class AddQueryComponent {
             .put(this.baseUrl + '/querylogic', query_logic).toPromise();
 
     }
+
+    get isSaveButtonDisabled(): boolean {
+        const hasName = !!this.queryGrouName;
+        const hasDesc = !!this.queryGroupDesc;
+        const hasQuery = this.query && this.query.rules.length > 0;
+
+        return !(hasName && hasDesc && hasQuery);
+    }
 }
