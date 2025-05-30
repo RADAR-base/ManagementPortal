@@ -15,10 +15,11 @@ import {
 import { SubjectService } from 'app/shared/subject';
 import { Subject as Participant } from 'app/shared/subject';
 import { HttpResponse } from '@angular/common/http';
+import { ChangeDetectorRef } from '@angular/core';
 
 interface SubjectWithDataLogs extends Participant {
     dataLogs?: { [type: string]: string };
-    _loading?: boolean; 
+    _loading?: boolean;
 }
 
 interface GroupedSubjects {
@@ -51,7 +52,8 @@ export class RadarDataComponent implements OnInit, OnDestroy {
     constructor(
         private projectService: ProjectService,
         private subjectService: SubjectService,
-        private organizationService: OrganizationService
+        private organizationService: OrganizationService,
+        private cdr: ChangeDetectorRef
     ) {}
 
     ngOnInit(): void {
@@ -69,24 +71,42 @@ export class RadarDataComponent implements OnInit, OnDestroy {
                                     )
                                     .pipe(
                                         map((res) => res.body || []),
-                                        map((subjects: SubjectWithDataLogs[]) => ({
-                                            project,
-                                            subjects,
-                                            totalItems: subjects.length,
-                                            page: 0,
-                                        }))
+                                        map(
+                                            (
+                                                subjects: SubjectWithDataLogs[]
+                                            ) => ({
+                                                project,
+                                                subjects,
+                                                totalItems: subjects.length,
+                                                page: 0,
+                                            })
+                                        )
                                     )
                             );
 
                             return projectObservables.length
                                 ? forkJoin(projectObservables).pipe(
                                       map((projectsWithSubjects) => {
-                                          projectsWithSubjects.forEach(({project, subjects}) => {
-                                              this.visibleSubjectsCount[project.projectName] = this.defaultVisibleCount;
-                                              this.visibleSubjectsMap[project.projectName] = subjects.slice(0, this.defaultVisibleCount);
+                                          projectsWithSubjects.forEach(
+                                              ({ project, subjects }) => {
+                                                  this.visibleSubjectsCount[
+                                                      project.projectName
+                                                  ] = this.defaultVisibleCount;
+                                                  this.visibleSubjectsMap[
+                                                      project.projectName
+                                                  ] = subjects.slice(
+                                                      0,
+                                                      this.defaultVisibleCount
+                                                  );
 
-                                              this.loadDataLogsForSubjects(project.projectName, this.visibleSubjectsMap[project.projectName]);
-                                          });
+                                                  this.loadDataLogsForSubjects(
+                                                      project.projectName,
+                                                      this.visibleSubjectsMap[
+                                                          project.projectName
+                                                      ]
+                                                  );
+                                              }
+                                          );
 
                                           return {
                                               organization: org,
@@ -137,24 +157,41 @@ export class RadarDataComponent implements OnInit, OnDestroy {
         );
     }
 
-    loadDataLogsForSubjects(projectName: string, subjects: SubjectWithDataLogs[]): void {
-        const subjectsToLoad = subjects.filter(s => !s.dataLogs && !s._loading);
+    loadDataLogsForSubjects(
+        projectName: string,
+        subjects: SubjectWithDataLogs[]
+    ): void {
+        const subjectsToLoad = subjects.filter(
+            (s) => !s.dataLogs && !s._loading
+        );
         if (!subjectsToLoad.length) return;
 
-        subjectsToLoad.forEach(s => s._loading = true);
+        subjectsToLoad.forEach((s) => (s._loading = true));
 
         this.fetchDataLogsForSubjects(subjectsToLoad).subscribe(() => {
-            subjectsToLoad.forEach(s => s._loading = false);
+            subjectsToLoad.forEach((s) => (s._loading = false));
+            this.cdr.markForCheck();
         });
     }
 
-    showMore(projectName: string, totalSubjects: number, allSubjects: SubjectWithDataLogs[]): void {
-        const current = this.visibleSubjectsCount[projectName] ?? this.defaultVisibleCount;
-        const next = Math.min(current + this.defaultVisibleCount, totalSubjects);
+    showMore(
+        projectName: string,
+        totalSubjects: number,
+        allSubjects: SubjectWithDataLogs[]
+    ): void {
+        const current =
+            this.visibleSubjectsCount[projectName] ?? this.defaultVisibleCount;
+        const next = Math.min(
+            current + this.defaultVisibleCount,
+            totalSubjects
+        );
         this.visibleSubjectsCount[projectName] = next;
 
         this.visibleSubjectsMap[projectName] = allSubjects.slice(0, next);
 
-        this.loadDataLogsForSubjects(projectName, this.visibleSubjectsMap[projectName]);
+        this.loadDataLogsForSubjects(
+            projectName,
+            this.visibleSubjectsMap[projectName]
+        );
     }
 }
