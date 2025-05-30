@@ -14,7 +14,8 @@
                 "oauth-clients": "OAuth Clients",
                 "sourceData": "Source Data",
                 "subject": "Subject",
-                "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)"
+                "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)",
+                "RadarData":"Radar Data"
             },
             "account": {
                 "main": "Account",
