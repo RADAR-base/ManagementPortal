@@ -4,6 +4,7 @@ import {
     HttpClientModule,
     HTTP_INTERCEPTORS,
 } from '@angular/common/http';
+
 import { BrowserModule } from '@angular/platform-browser';
 import { NgxWebstorageModule } from 'ngx-webstorage';
 import { TranslateLoader, TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -24,6 +25,7 @@ import {
     LayoutRoutingModule,
     NavbarComponent,
     PageRibbonComponent,
+
 } from './layouts';
 
 import { LANGUAGES, ManagementPortalSharedModule} from './shared';
@@ -55,6 +57,7 @@ export function getBaseHref(platformLocation: PlatformLocation): string {
         ManagementPortalAccountModule,
         ManagementPortalEntityModule,
         ManagementPortalQueriesModule,
+
     ],
     declarations: [
         JhiMainComponent,

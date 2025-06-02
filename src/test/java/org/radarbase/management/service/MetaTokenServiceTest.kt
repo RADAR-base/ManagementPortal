@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.radarbase.management.ManagementPortalTestApp
+import org.radarbase.management.config.BasePostgresIntegrationTest
 import org.radarbase.management.domain.MetaToken
 import org.radarbase.management.repository.MetaTokenRepository
 import org.radarbase.management.service.dto.SubjectDTO
@@ -34,7 +35,7 @@ internal class MetaTokenServiceTest(
     @Autowired private val subjectService: SubjectService,
     @Autowired private val subjectMapper: SubjectMapper,
     @Autowired private val oAuthClientService: OAuthClientService,
-) {
+) : BasePostgresIntegrationTest() {
     private lateinit var clientDetails: ClientDetails
     private lateinit var subjectDto: SubjectDTO
 

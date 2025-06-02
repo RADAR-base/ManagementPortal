@@ -8,6 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.MockitoAnnotations
 import org.radarbase.auth.authentication.OAuthHelper
 import org.radarbase.management.ManagementPortalTestApp
+import org.radarbase.management.config.BasePostgresIntegrationTest
 import org.radarbase.management.domain.SourceData
 import org.radarbase.management.repository.SourceDataRepository
 import org.radarbase.management.service.AuthService
@@ -47,7 +48,7 @@ internal class SourceDataResourceIntTest(
     @Autowired private val pageableArgumentResolver: PageableHandlerMethodArgumentResolver,
     @Autowired private val exceptionTranslator: ExceptionTranslator,
     @Autowired private val authService: AuthService
-) {
+) : BasePostgresIntegrationTest() {
     private lateinit var restSourceDataMockMvc: MockMvc
     private lateinit var sourceData: SourceData
 

@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.radarbase.management.ManagementPortalTestApp
+import org.radarbase.management.config.BasePostgresIntegrationTest
 import org.radarbase.management.web.rest.errors.BadRequestException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -20,7 +21,7 @@ import java.util.*
 
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(classes = [ManagementPortalTestApp::class])
-internal class PasswordServiceTest {
+internal class PasswordServiceTest : BasePostgresIntegrationTest() {
     @Autowired
     private val passwordService: PasswordService? = null
     @Test

@@ -11,6 +11,7 @@ import org.mockito.MockitoAnnotations
 import org.radarbase.auth.authentication.OAuthHelper
 import org.radarbase.auth.authorization.RoleAuthority
 import org.radarbase.management.ManagementPortalTestApp
+import org.radarbase.management.config.BasePostgresIntegrationTest
 import org.radarbase.management.domain.Authority
 import org.radarbase.management.domain.Project
 import org.radarbase.management.domain.Role
@@ -61,7 +62,7 @@ internal class UserResourceIntTest(
     @Autowired private val exceptionTranslator: ExceptionTranslator,
     @Autowired private val passwordService: PasswordService,
     @Autowired private val projectRepository: ProjectRepository,
-) {
+) : BasePostgresIntegrationTest() {
     private lateinit var restUserMockMvc: MockMvc
     private lateinit var user: User
     private var project: Project? = null

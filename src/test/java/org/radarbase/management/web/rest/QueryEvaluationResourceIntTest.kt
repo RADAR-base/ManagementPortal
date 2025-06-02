@@ -43,6 +43,7 @@ import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 import org.radarbase.auth.token.RadarToken
+import org.radarbase.management.config.BasePostgresIntegrationTest
 import org.radarbase.management.security.RadarAuthentication
 import org.radarbase.management.service.*
 import org.radarbase.management.service.dto.QueryDTO
@@ -75,7 +76,7 @@ internal class QueryEvaluationResourceIntTest(
     @Autowired private val jacksonMessageConverter: MappingJackson2HttpMessageConverter,
     @Autowired private val exceptionTranslator: ExceptionTranslator,
     @Autowired private val passwordService: PasswordService,
-    ) {
+    )  : BasePostgresIntegrationTest() {
     private lateinit var restQueryMockMvc: MockMvc
     private lateinit var user: User
     @Autowired private lateinit var mockUserService: UserService

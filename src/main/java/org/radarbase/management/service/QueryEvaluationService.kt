@@ -3,6 +3,7 @@ import org.radarbase.management.domain.*
 import org.radarbase.management.domain.enumeration.QueryLogicType
 import org.radarbase.management.domain.enumeration.QueryTimeFrame
 import org.radarbase.management.repository.*
+import org.radarbase.management.service.dto.QueryContentDTO
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -24,6 +25,7 @@ data class UserData(
 @Transactional
 public class QueryEValuationService(
     private val queryLogicRepository:  QueryLogicRepository,
+    private val queryContentService: QueryContentService,
     private val queryGroupRepository: QueryGroupRepository,
     private val queryEvaluationRepository: QueryEvaluationRepository,
     private val subjectRepository: SubjectRepository,
@@ -44,7 +46,7 @@ public class QueryEValuationService(
            val timeframeMonths = extractTimeframeMonths(timeFrame, currentMonth);
            val relevantData = metricValuesData.filter { it.month in timeframeMonths};
 
-            if (relevantData.isEmpty()) {
+        if (relevantData.isEmpty()  || relevantData.size != timeframeMonths.size) {
                 return false
             }
 
@@ -96,12 +98,11 @@ public class QueryEValuationService(
         val outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM")
 
 
-        var result =  (0 until monthsBack).map {
+        var result =  (1 until   monthsBack + 1).map {
             currentDate.minusMonths(it.toLong()).format(outputFormatter)
         }
 
         return result;
-
     }
 
 
@@ -218,6 +219,35 @@ public class QueryEValuationService(
 
         return root;
     }
+
+    fun getActiveQueryContentForParticipant(participantId: Long): Map<Long, List<QueryContentDTO>> {
+        val result = mutableMapOf<Long, List<QueryContentDTO>>()
+
+        val queryParticipantList = queryParticipantRepository.findBySubjectId(participantId)
+        if (queryParticipantList.isEmpty()) return result
+
+        val subjectOpt = subjectRepository.findById(participantId)
+        if (!subjectOpt.isPresent) return result
+
+        val subject = subjectOpt.get()
+
+        // Fetch all successful evaluations for the subject
+        val evaluations = queryEvaluationRepository.findBySubject(subject)
+            .filter { it.result == true }
+
+        for (evaluation in evaluations) {
+            val queryGroup = evaluation.queryGroup ?: continue
+            val queryGroupId = queryGroup.id ?: continue
+
+            val content = queryContentService.findAllByQueryGroupId(queryGroupId)
+
+            result[queryGroupId] = content;
+        }
+
+        return result
+    }
+
+
 
     companion object {
         private val log = LoggerFactory.getLogger(QueryBuilderService::class.java)

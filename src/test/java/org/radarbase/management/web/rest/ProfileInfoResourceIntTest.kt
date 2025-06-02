@@ -7,6 +7,7 @@ import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
 import org.radarbase.management.ManagementPortalTestApp
+import org.radarbase.management.config.BasePostgresIntegrationTest
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.core.env.Environment
@@ -26,7 +27,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders
 @SpringBootTest(classes = [ManagementPortalTestApp::class])
 internal class ProfileInfoResourceIntTest(
     @Autowired private val profileInfoResource: ProfileInfoResource
-) {
+) : BasePostgresIntegrationTest() {
 
     @Mock private lateinit var environment: Environment
     private lateinit var restProfileMockMvc: MockMvc

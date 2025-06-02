@@ -1,0 +1,11 @@
+<div class="padding-topbottom">
+    <div class="flex">
+        <div class="padding delete-section">
+            <button class="btn btn-danger saveBtn delete-section" (click)="onDeleteItem()">Delete</button>
+        </div>
+
+        <div class="floatleft">
+            <img class="image-item" [src]="'data:image/jpeg;base64,' + item.imageBlob" />
+        </div>
+    </div>
+</div>

@@ -15,7 +15,7 @@ class QueryTimeFrameConverter : AttributeConverter<QueryTimeFrame, String> {
 
     override fun convertToEntityAttribute(dbData: String?): QueryTimeFrame? {
         return dbData?.let { symbol ->
-            QueryTimeFrame.fromSymbol(symbol.toInt())
+            QueryTimeFrame.fromSymbol(symbol)
         }
     }
 }

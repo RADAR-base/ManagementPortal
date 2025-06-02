@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.radarbase.management.ManagementPortalTestApp
+import org.radarbase.management.config.BasePostgresIntegrationTest
 import org.radarbase.management.service.dto.ProjectDTO
 import org.radarbase.management.service.dto.SubjectDTO
 import org.radarbase.management.service.dto.SubjectDTO.SubjectStatus
@@ -24,7 +25,7 @@ import java.util.*
 class SubjectServiceTest(
     @Autowired private val subjectService: SubjectService,
     @Autowired private val projectService: ProjectService
-) {
+) : BasePostgresIntegrationTest() {
 
     @Test
     @Transactional

@@ -6,11 +6,10 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.radarbase.management.ManagementPortalTestApp
-import org.radarbase.management.domain.Query
-import org.radarbase.management.domain.QueryGroup
-import org.radarbase.management.domain.QueryLogic
+import org.radarbase.management.config.BasePostgresIntegrationTest
+import org.radarbase.management.domain.*
 import org.radarbase.management.domain.enumeration.*
-import org.radarbase.management.repository.UserRepository
+import org.radarbase.management.repository.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.junit.jupiter.SpringExtension
@@ -32,8 +31,14 @@ import kotlin.random.Random
 @Transactional
 class QueryEvaluationServiceTest(
     @Autowired private val queryEValuationService: QueryEValuationService,
-    @Autowired private val userRepository: UserRepository
-) {
+    @Autowired private val userRepository: UserRepository,
+    @Autowired private val subjectRepository: SubjectRepository,
+    @Autowired private val queryGroupRepository: QueryGroupRepository,
+    @Autowired private val queryParticipantRepository: QueryParticipantRepository,
+    @Autowired private val queryEvaluationRepository: QueryEvaluationRepository,
+    @Autowired private val queryRepository: QueryRepository
+
+) : BasePostgresIntegrationTest() {
       lateinit var userData: UserData
 
     fun generateUserData(valueHeartRate: Double, valueSleep: Long, HRV: Long)  : UserData{
@@ -41,21 +46,21 @@ class QueryEvaluationServiceTest(
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM")
 
         val heartRateData =
-            (0L until 6L).map { monthsAgo ->
+            (1L until 8L).map { monthsAgo ->
                 val month = currentMonth.minusMonths(monthsAgo).format(formatter)
                 val value = valueHeartRate
                 DataPoint(month, value.toDouble())
             }.reversed()
 
 
-        val sleepData =   (0L until 6L).map { monthsAgo ->
+        val sleepData =   (1L until 8L).map { monthsAgo ->
             val month = currentMonth.minusMonths(monthsAgo).format(formatter)
             val value = valueSleep
             DataPoint(month, value.toDouble())
         }.reversed()
 
 
-        val HRV =   (0L until 6L).map { monthsAgo ->
+        val HRV =   (1L until 8L ).map { monthsAgo ->
             val month = currentMonth.minusMonths(monthsAgo).format(formatter)
             val value = valueSleep
             DataPoint(month, value.toDouble())
@@ -277,6 +282,60 @@ class QueryEvaluationServiceTest(
         Assertions.assertTrue(result);
 
     }
+
+    @Test
+    @Transactional
+    fun testGetActiveQueries() {
+        val user = User().apply {
+            setLogin("test_user")
+            password = "123456789012345678901234567890123456789012345678901234567890"  // 60 chars
+            activated = true
+            email = "test@example.com"
+        }
+        userRepository.saveAndFlush(user)
+
+        val subject = Subject().apply {
+            removed = false
+            this.user = user
+        }
+        subjectRepository.saveAndFlush(subject)
+
+
+        val queryGroup = createQueryGroup();
+        queryGroupRepository.saveAndFlush(queryGroup)
+
+        val participant = QueryParticipant().apply {
+            this.subject = subject
+            this.queryGroup = queryGroup
+            this.createdBy = user
+            this.createdDate = ZonedDateTime.now()
+        }
+        queryParticipantRepository.saveAndFlush(participant)
+
+        val evaluation = QueryEvaluation().apply {
+            this.subject = subject
+            this.queryGroup = queryGroup
+            this.result = true
+            this.createdDate = ZonedDateTime.now()
+        }
+        try {
+            queryEvaluationRepository.saveAndFlush(evaluation)
+        } catch (ex: Exception) {
+            println("Failed entity: $evaluation")
+            ex.printStackTrace()
+            throw ex
+        }
+
+        val query  = createQuery(queryGroup, QueryMetric.HEART_RATE, ComparisonOperator.EQUALS, QueryTimeFrame.PAST_6_MONTH, "64.2");
+
+        queryRepository.saveAndFlush(query)
+
+        val result = queryEValuationService.getActiveQueryContentForParticipant(subject.id!!)
+
+        Assertions.assertTrue(result.isNotEmpty())
+        Assertions.assertNotNull(result[queryGroup.id!!])
+    }
+
 
 
     private fun getRoot(listQueries:  Map<String, Query>, rootLogic: QueryLogicOperator, innerRootLogic: QueryLogicOperator): QueryLogic? {

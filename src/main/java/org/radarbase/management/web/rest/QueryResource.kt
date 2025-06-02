@@ -3,30 +3,19 @@ package org.radarbase.management.web.rest
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.micrometer.core.annotation.Timed
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.decodeFromJsonElement
 import org.radarbase.management.domain.Query
 import org.radarbase.management.domain.QueryGroup
 import org.radarbase.management.repository.UserRepository
-import org.radarbase.management.service.QueryBuilderService
-import org.radarbase.management.service.QueryEValuationService
-import org.radarbase.management.service.UserData
-import org.radarbase.management.service.UserService
-import org.radarbase.management.service.dto.AngularQueryBuilderDTO
-import org.radarbase.management.service.dto.QueryGroupDTO
-import org.radarbase.management.service.dto.QueryLogicDTO
+import org.radarbase.management.service.*
+import org.radarbase.management.service.dto.*
 import org.radarbase.management.web.rest.errors.ErrorConstants
 import org.radarbase.management.web.rest.errors.ErrorVM
-import org.radarbase.management.service.dto.QueryParticipantDTO
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
-import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.web.bind.annotation.*
-import org.springframework.web.client.HttpClientErrorException.BadRequest
 
 @RestController
 @RequestMapping("/api/query-builder")
@@ -34,7 +23,8 @@ class QueryResource(
     @Autowired private val queryBuilderService: QueryBuilderService,
     @Autowired private var userRepository: UserRepository,
     @Autowired private val userService: UserService,
-    @Autowired private val queryEValuationService: QueryEValuationService
+    @Autowired private val queryEValuationService: QueryEValuationService,
+    @Autowired private val queryContentService: QueryContentService
 
 ) {
     @PostMapping("querylogic")
@@ -167,6 +157,23 @@ class QueryResource(
             queryBuilderService.deleteQueryParticipantByQueryGroup(subjectId, queryGroupId)
     }
 
+    @GetMapping("querycontent/active/{participantId}")
+    fun getActiveQueryContentForParticipant(@PathVariable participantId: Long): ResponseEntity<*> {
+        val result = queryEValuationService.getActiveQueryContentForParticipant(participantId)
+        return ResponseEntity.ok(result)
+    }
+
+    @PostMapping("querycontent/querygroup/{queryGroupId}")
+    fun saveQueryContent(@PathVariable queryGroupId: Long, @RequestBody queryContentDTO: List<QueryContentDTO>): ResponseEntity<*> {
+        queryContentService.saveAll(queryGroupId, queryContentDTO);
+        return ResponseEntity.ok(null);
+    }
+
+    @GetMapping("querycontent/querygroup/{queryGroupId}")
+    fun getQueryContent(@PathVariable queryGroupId: Long): ResponseEntity<*> {
+        val result =  queryContentService.findAllByQueryGroupId(queryGroupId)
+        return ResponseEntity.ok(result)
+    }
 
     companion object {
         private val log = LoggerFactory.getLogger(QueryResource::class.java)

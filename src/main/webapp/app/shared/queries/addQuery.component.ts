@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild, AfterViewInit } from '@angular/core';
 
 import {
     QueryBuilderClassNames,
@@ -11,6 +11,10 @@ import { Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { QueryGroup } from './query.model';
+import { QueriesService } from './queries.service';
+import { ContentComponent } from './content/content.component';
+
+
 
 @Component({
     selector: 'jhi-queries',
@@ -18,7 +22,10 @@ import { QueryGroup } from './query.model';
     styleUrls: ['../../../content/scss/queries.scss'],
 })
 export class AddQueryComponent {
-    @ViewChild('queryForm', { static: true })
+
+
+    @ViewChild(ContentComponent) contentComponent!: ContentComponent;
+
     queryBuilderFormGroup: NgForm;
 
     public queryCtrl: FormControl;
@@ -27,7 +34,7 @@ export class AddQueryComponent {
 
     public queryGroupDesc: string;
 
-    public queryGroupId: any | null;
+    public queryGroupId: number | any |  null;
 
     private baseUrl = 'api/query-builder';
 
@@ -79,11 +86,12 @@ export class AddQueryComponent {
     private canGoBack: boolean = false;
 
     constructor(
+        private queryService: QueriesService,
         private formBuilder: FormBuilder,
         private http: HttpClient,
         private router: Router,
         private readonly location: Location,
-              private route: ActivatedRoute,
+        private route: ActivatedRoute,
     ) {
         this.queryCtrl = this.formBuilder.control(this.query);
         this.currentConfig = this.config;
@@ -91,21 +99,26 @@ export class AddQueryComponent {
             !!this.router.getCurrentNavigation()?.previousNavigation;
     }
 
-    ngOnInit() {
+    async ngOnInit() {
         this.route.params.subscribe((params) => {
-            console.log("route params", params['query-id'])
             let queryId = params["query-id"];
             this.queryGroupId = queryId;
             if (queryId) {
 
                 this.http
-                .get(this.baseUrl + '/querygroups/' + queryId)
+                    .get(this.baseUrl + '/querygroups/' + queryId)
                     .subscribe((response: any) => {
                         this.query = response
-
                         this.queryGrouName = response.queryGroupName;
                         this.queryGroupDesc = response.queryGroupDescription;
-                });
+                    });
+
+                this.http
+                    .get('api/query-builder/querycontent/querygroup/' + queryId)
+                    .subscribe((response: any) => {
+
+                        this.contentComponent.items = response;
+                    });
             }
         });
     }
@@ -120,6 +133,8 @@ export class AddQueryComponent {
             ? this.queryCtrl.disable()
             : this.queryCtrl.enable();
     }
+
+
 
     private _counter = 0;
     formRuleWeakMap = new WeakMap();
@@ -151,15 +166,14 @@ export class AddQueryComponent {
         }
     }
 
-    convertTimeFrame(value: number) {
+    convertTimeFrame(value: string) {
+
         switch (value) {
-            case 180:
+            case "6_months":
                 return 'PAST_6_MONTH';
-            case 30:
+            case "1_months":
                 return 'PAST_MONTH';
-            case 7:
-                return 'LAST_7_DAYS';
-            case 365:
+            case "1_years":
                 return 'PAST_YEAR';
             default:
                 return null;
@@ -173,7 +187,7 @@ export class AddQueryComponent {
                 children: query.rules.map((rule) => this.convertQuery(rule)),
             };
         } else {
-            const queryDTO  : QueryDTO = {
+            const queryDTO: QueryDTO = {
                 metric: query.field?.toUpperCase() || '',
                 operator: this.convertComparisonOperator(query.operator),
                 time_frame: this.convertTimeFrame(query.timeFame),
@@ -186,56 +200,70 @@ export class AddQueryComponent {
         }
     }
 
-    saveQueryGroupToDB() {
-        const query_group  : QueryGroup = {
+    async saveQueryGroupToDB() {
+        const query_group: QueryGroup = {
             name: this.queryGrouName,
             description: this.queryGroupDesc,
         };
 
+
         if (this.queryGroupId) {
-            this.updateQueryGroup(query_group);
+            this.queryGroupId = await this.updateQueryGroup(query_group);
+            await this.updateIndividualQueries();
         } else {
-            this.saveNewQueryGroup(query_group);
+            this.queryGroupId = await this.saveNewQueryGroup(query_group)
+            await this.saveIndividualQueries();
         }
+
+      await this.saveContent();
+
+        this.goBack();
+    }
+
+    async saveContent() {
+        let content = this.contentComponent.items;
+
+        await this.queryService.saveContent(this.queryGroupId, content);
     }
 
     saveNewQueryGroup(queryGroup: QueryGroup) {
-        this.http
-            .post(this.baseUrl + '/querygroups', queryGroup)
-            .subscribe((id) => {
-                const query_logic = {
-                    queryGroupId: id,
-                    ...this.convertQuery(this.query),
-                };
-                this.queryGroupId = id
-                this.saveIndividualQueries(query_logic)
-            });
+        return this.http
+            .post(this.baseUrl + '/querygroups', queryGroup).toPromise()
+
+
     }
     updateQueryGroup(queryGroup: QueryGroup) {
-        this.http
-            .put(this.baseUrl + '/querygroups/' + this.queryGroupId , queryGroup)
-            .subscribe((id) => {
-                const query_logic = {
-                    queryGroupId: id,
-                    ...this.convertQuery(this.query),
-                };
+        return this.http
+            .put(this.baseUrl + '/querygroups/' + this.queryGroupId, queryGroup).toPromise()
 
-                this.updateIndividualQueries(query_logic)
-            });
     }
-    saveIndividualQueries(query_logic: QueryNode) {
-        this.http
-        .post(this.baseUrl + '/querylogic', query_logic)
-        .subscribe((res) => {
-            this.goBack();
-        });
+    saveIndividualQueries() {
+        const query_logic = {
+            queryGroupId: this.queryGroupId,
+            ...this.convertQuery(this.query),
+        };
+
+        return this.http
+            .post(this.baseUrl + '/querylogic', query_logic).toPromise()
+
     }
 
-    updateIndividualQueries(query_logic: QueryNode) {
-        this.http
-        .put(this.baseUrl + '/querylogic', query_logic)
-        .subscribe((res) => {
-            this.goBack();
-        });
+    updateIndividualQueries() {
+        const query_logic = {
+            queryGroupId: this.queryGroupId,
+            ...this.convertQuery(this.query),
+        };
+
+        return this.http
+            .put(this.baseUrl + '/querylogic', query_logic).toPromise();
+
+    }
+
+    get isSaveButtonDisabled(): boolean {
+        const hasName = !!this.queryGrouName;
+        const hasDesc = !!this.queryGroupDesc;
+        const hasQuery = this.query && this.query.rules.length > 0;
+
+        return !(hasName && hasDesc && hasQuery);
     }
 }

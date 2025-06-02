@@ -27,6 +27,7 @@ abstract class ProjectMapperDecorator : ProjectMapper {
 
     override fun projectToProjectDTO(project: Project?): ProjectDTO? {
         val dto = delegate.projectToProjectDTO(project)
+
         dto?.humanReadableProjectName = project?.attributes?.get(ProjectDTO.HUMAN_READABLE_PROJECT_NAME)
         try {
             dto?.persistentTokenTimeout = metaTokenService.getMetaTokenTimeout(true, project).toMillis()

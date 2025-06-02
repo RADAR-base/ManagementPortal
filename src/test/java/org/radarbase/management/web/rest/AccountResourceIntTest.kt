@@ -13,6 +13,7 @@ import org.mockito.kotlin.whenever
 import org.radarbase.auth.authorization.RoleAuthority
 import org.radarbase.auth.token.RadarToken
 import org.radarbase.management.ManagementPortalTestApp
+import org.radarbase.management.config.BasePostgresIntegrationTest
 import org.radarbase.management.config.ManagementPortalProperties
 import org.radarbase.management.domain.Authority
 import org.radarbase.management.domain.Role
@@ -54,7 +55,7 @@ internal class AccountResourceIntTest(
     @Autowired private val managementPortalProperties: ManagementPortalProperties,
     @Autowired private val authService: AuthService,
     @Autowired private val passwordService: PasswordService
-) {
+) : BasePostgresIntegrationTest() {
     @Autowired private lateinit var mockUserService: UserService
     @Autowired private lateinit var mockMailService: MailService
     private lateinit var restUserMockMvc: MockMvc

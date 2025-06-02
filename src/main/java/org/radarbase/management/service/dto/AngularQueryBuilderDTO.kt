@@ -12,7 +12,7 @@ class AngularQueryBuilderDTO {
     var field: String? = null
     var operator: String? = null
     var value: String? = null
-    var timeFame : Int? = null
+    var timeFame : String? = null
 
     var rules: List<AngularQueryBuilderDTO>? = null
     var type: QueryLogicType? = null

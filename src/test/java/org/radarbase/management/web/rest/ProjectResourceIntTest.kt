@@ -8,6 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.MockitoAnnotations
 import org.radarbase.auth.authentication.OAuthHelper
 import org.radarbase.management.ManagementPortalTestApp
+import org.radarbase.management.config.BasePostgresIntegrationTest
 import org.radarbase.management.domain.Organization
 import org.radarbase.management.domain.Project
 import org.radarbase.management.domain.enumeration.ProjectStatus
@@ -61,7 +62,7 @@ internal class ProjectResourceIntTest(
 
     @Autowired private val projectMapper: ProjectMapper,
     @Autowired private val organizationRepository: OrganizationRepository,
-) {
+) : BasePostgresIntegrationTest() {
     private lateinit var restProjectMockMvc: MockMvc
     private lateinit var project: Project
 

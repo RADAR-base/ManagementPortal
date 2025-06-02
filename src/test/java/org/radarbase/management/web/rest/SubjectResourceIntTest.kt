@@ -9,6 +9,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.MockitoAnnotations
 import org.radarbase.auth.authentication.OAuthHelper
 import org.radarbase.management.ManagementPortalTestApp
+import org.radarbase.management.config.BasePostgresIntegrationTest
 import org.radarbase.management.domain.Subject
 import org.radarbase.management.repository.SubjectRepository
 import org.radarbase.management.service.SourceService
@@ -58,7 +59,7 @@ internal class SubjectResourceIntTest(
     @Autowired private val jacksonMessageConverter: MappingJackson2HttpMessageConverter,
     @Autowired private val pageableArgumentResolver: PageableHandlerMethodArgumentResolver,
     @Autowired private val exceptionTranslator: ExceptionTranslator,
-) {
+) : BasePostgresIntegrationTest() {
     private lateinit var restSubjectMockMvc: MockMvc
 
     @BeforeEach

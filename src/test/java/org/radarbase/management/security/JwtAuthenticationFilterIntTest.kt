@@ -6,6 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.MockitoAnnotations
 import org.radarbase.auth.authentication.OAuthHelper
 import org.radarbase.management.ManagementPortalTestApp
+import org.radarbase.management.config.BasePostgresIntegrationTest
 import org.radarbase.management.service.AuthService
 import org.radarbase.management.service.ProjectService
 import org.radarbase.management.web.rest.ProjectResource
@@ -41,7 +42,7 @@ internal class JwtAuthenticationFilterIntTest(
     @Autowired private val jacksonMessageConverter: MappingJackson2HttpMessageConverter,
     @Autowired private val pageableArgumentResolver: PageableHandlerMethodArgumentResolver,
     @Autowired private val exceptionTranslator: ExceptionTranslator,
-) {
+) : BasePostgresIntegrationTest() {
     private lateinit var rsaRestProjectMockMvc: MockMvc
     private lateinit var ecRestProjectMockMvc: MockMvc
 

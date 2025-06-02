@@ -1,0 +1,30 @@
+.flex {
+    display:flex;
+    justify-content:space-between;
+    flex-direction: column;
+}
+
+.delete-section {
+    align-items: flex-end;
+    align-self: flex-end;
+}
+
+.floatleft {
+    display:flex;
+    float:left;
+    align-items: center;
+    justify-content: center;
+    justify-items: center;
+}
+
+.padding  {
+    padding: 10px;
+}
+
+
+.image-item {
+  width: 30%;
+  display: inline-block;
+  vertical-align: middle;
+  margin-bottom: 3em;
+}

@@ -195,6 +195,9 @@ dependencies {
     runtimeOnly "org.postgresql:postgresql:${postgresql_version}"
     runtimeOnly "org.hsqldb:hsqldb:${hsqldb_version}"
 
+    testImplementation("org.testcontainers:junit-jupiter:1.19.1")
+    testImplementation("org.testcontainers:postgresql:1.19.1")
+
     // Fix vulnerabilities
     runtimeOnly("io.undertow:undertow-websockets-jsr:${undertow_version}")
     runtimeOnly("io.undertow:undertow-servlet:${undertow_version}")
