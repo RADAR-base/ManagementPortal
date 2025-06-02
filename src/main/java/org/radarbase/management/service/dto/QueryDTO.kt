@@ -2,35 +2,39 @@ package org.radarbase.management.service.dto
 
 import org.radarbase.management.domain.Query
 import org.radarbase.management.domain.enumeration.ComparisonOperator
-import org.radarbase.management.domain.enumeration.QueryMetric
 import org.radarbase.management.domain.enumeration.QueryTimeFrame
 
 class QueryDTO {
     constructor(query: Query?) {
-        this.metric = query?.queryMetric;
-        this.operator = query?.comparisonOperator
+        this.field = query?.field;
+        this.operator = query?.operator
         this.value = query?.value
-        this.time_frame = query?.timeFrame
+        this.timeFrame = query?.timeFrame
+        this.entity = query?.entity
     }
 
-    constructor(metric: QueryMetric?, operator: ComparisonOperator?, value: String?, timeFrame: QueryTimeFrame?) {
-        this.metric = metric;
+    constructor(metric: String?, operator: ComparisonOperator?, value: String?, timeFrame: QueryTimeFrame?, entity: String? ) {
+        this.field = metric.toString();
         this.operator = operator
         this.value = value
-        this.time_frame = timeFrame
+        this.timeFrame = timeFrame
+        this.entity = entity
     }
 
-    var metric: QueryMetric? = null
+
+
+    var entity: String? = null
+    var field: String? = null
     var operator: ComparisonOperator? = null
     var value: String? = null
-    var time_frame : QueryTimeFrame? = null
+    var timeFrame : QueryTimeFrame? = null
 
     override fun toString(): String {
         return ("QueryDTO{"
-                + "metric='" + metric + '\''
+                + "metric='" + field + '\''
                 + ", operator='" + operator + '\''
                 + ", value='" + value + '\''
-                + ", time_frame='" + time_frame + '\''
+                + ", time_frame='" + timeFrame + '\''
                 + "}")
     }
 }

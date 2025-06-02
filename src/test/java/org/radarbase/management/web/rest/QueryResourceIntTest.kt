@@ -113,9 +113,9 @@ internal class QueryResourceTest(
 
     private fun createQuery(queryGroup: QueryGroup) : Query {
         val query = Query()
-        query.queryMetric = QueryMetric.SLEEP_LENGTH
+        query.field = QueryMetric.SLEEP_LENGTH.toString()
         query.queryGroup = queryGroup
-        query.comparisonOperator = ComparisonOperator.LESS_THAN_OR_EQUALS
+        query.operator = ComparisonOperator.LESS_THAN_OR_EQUALS
         query.timeFrame = QueryTimeFrame.LAST_7_DAYS
         query.value = "80"
 
@@ -168,10 +168,9 @@ internal class QueryResourceTest(
         val queryGroup = createAndAddQueryGroupToDB()
         val queryLogicParentDTO = QueryLogicDTO()
 
-        val queryDTO = QueryDTO(QueryMetric.SLEEP_LENGTH,ComparisonOperator.LESS_THAN_OR_EQUALS,"80", QueryTimeFrame.LAST_7_DAYS)
-        queryDTO.metric = QueryMetric.SLEEP_LENGTH
+        val queryDTO = QueryDTO(QueryMetric.SLEEP_LENGTH.toString(), ComparisonOperator.LESS_THAN_OR_EQUALS, "80", QueryTimeFrame.LAST_7_DAYS, "domain")
         queryDTO.value = "80"
-        queryDTO.time_frame = QueryTimeFrame.LAST_7_DAYS
+        queryDTO.timeFrame = QueryTimeFrame.LAST_7_DAYS
         queryDTO.operator = ComparisonOperator.LESS_THAN_OR_EQUALS
 
         queryLogicParentDTO.queryGroupId = queryGroup.id

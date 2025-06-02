@@ -34,7 +34,6 @@ import kotlin.String
 import kotlin.Throws
 import kotlin.to
 import com.fasterxml.jackson.core.type.TypeReference
-import kotlinx.serialization.json.Json
 import org.radarbase.management.service.dto.QueryGroupDTO
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
@@ -127,8 +126,8 @@ internal class QueryEvaluationResourceIntTest(
         var query = Query();
 
         query.queryGroup = queryGroup
-        query.queryMetric = queryMetric
-        query.comparisonOperator = queryOperator
+        query.field = queryMetric.toString()
+        query.operator = queryOperator
         query.value = value
         query.timeFrame = timeframe
 
@@ -250,7 +249,7 @@ internal class QueryEvaluationResourceIntTest(
         queryLogicDTO.logic_operator = QueryLogicOperator.OR
         queryLogicDTO.type = QueryLogicType.LOGIC
 
-        val queryDTO = QueryDTO(QueryMetric.HEART_RATE, ComparisonOperator.LESS_THAN_OR_EQUALS, "65", QueryTimeFrame.LAST_7_DAYS)
+        val queryDTO = QueryDTO(QueryMetric.HEART_RATE.toString(), ComparisonOperator.LESS_THAN_OR_EQUALS, "65", QueryTimeFrame.LAST_7_DAYS, "domain")
 
         val queryLogicChildDTO = QueryLogicDTO()
         queryLogicChildDTO.query = queryDTO
@@ -276,7 +275,7 @@ internal class QueryEvaluationResourceIntTest(
         assertEquals(querySizeAfter, querySizeBefore)
 
         assertEquals(QueryLogicOperator.OR, updateQueryLogic.logicOperator)
-        assertEquals(ComparisonOperator.LESS_THAN_OR_EQUALS, updatedQuery.comparisonOperator)
+        assertEquals(ComparisonOperator.LESS_THAN_OR_EQUALS, updatedQuery.operator)
         assertEquals(QueryTimeFrame.LAST_7_DAYS, updatedQuery.timeFrame)
 
         assertEquals("65", updatedQuery.value)

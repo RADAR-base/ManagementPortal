@@ -14,7 +14,12 @@ import { QueryGroup } from './query.model';
 import { QueriesService } from './queries.service';
 import { ContentComponent } from './content/content.component';
 
+import { delusions, questionnaire } from './questionnaire';
 
+const sliderOptions = Array.from({ length: 7 }, (_, i) => {
+    const val = String(i + 1);
+    return { name: val, value: val };
+});
 
 @Component({
     selector: 'jhi-queries',
@@ -34,7 +39,7 @@ export class AddQueryComponent {
 
     public queryGroupDesc: string;
 
-    public queryGroupId: number | any |  null;
+    public queryGroupId: number | any | null;
 
     private baseUrl = 'api/query-builder';
 
@@ -67,21 +72,30 @@ export class AddQueryComponent {
 
     public query: QueryString | any = {
         condition: 'and',
-        rules: [{ field: 'heart_rate', operator: '<=' }],
+        rules: [],
     };
 
     public config: QueryBuilderConfig = {
+        entities: {
+            passive_data: { name: "Passive data" },
+            questionnaire: { name: "Questionnaire Slider" },
+            questionnaire_radio: { name: "Questionnaire Multichoice" },
+            questionnaire_group: { name: "Questionnaire Group" },
+            delusions: { name: "Delusions" }
+        },
         fields: {
-            heart_rate: { name: 'Heart Rate', type: 'number' },
-            sleep_length: { name: 'Sleep', type: 'number' },
-            hrv: { name: 'HRV', type: 'number' },
+            heart_rate: { name: 'Heart Rate', type: 'number', entity: "passive_data" },
+            sleep_length: { name: 'Sleep', type: 'number', entity: "passive_data" },
+            hrv: { name: 'HRV', type: 'number', entity: "passive_data" },
         },
     };
 
     public currentConfig: QueryBuilderConfig;
     public allowRuleset: boolean = true;
     public allowCollapse: boolean;
-    public persistValueOnFieldChange: boolean = false;
+    public persistValueOnFieldChange: boolean = true;
+
+
 
     private canGoBack: boolean = false;
 
@@ -97,6 +111,68 @@ export class AddQueryComponent {
         this.currentConfig = this.config;
         this.canGoBack =
             !!this.router.getCurrentNavigation()?.previousNavigation;
+
+        // process the config
+
+        this.addQuestionnaireItemsToQueryBuilder();
+
+        this.addDelusionsToQueryBuilder();
+    }
+
+    private addQuestionnaireItemsToQueryBuilder() {
+        // histogram to include only
+        let histogramQuestionsToInclude = ["whereabouts_1", "sleep_5", "social_1"];
+
+        for (const question of questionnaire) {
+            const field = {
+                name: `${question.field_label} ${question.field_sublabel ? question.field_sublabel : ""}`,
+                type: "category",
+                entity: "questionnaire",
+                operators: null
+            }
+            if (question.field_type == "slider") {
+                field["options"] = sliderOptions
+            } else if(histogramQuestionsToInclude.includes(question.field_name)) {
+                field.name = `${question.field_label}`
+                field.entity = "questionnaire_radio"
+                field.operators = ["IS"]
+                let mappedOptions = question.select_choices_or_calculations.map((item) => {
+                    return {
+                        name: item.label,
+                        value: item.code
+                    }
+
+                })
+                field["options"] = mappedOptions
+            }
+
+            if (!this.config.fields[question.group_name]) {
+                const group = {
+                    name: `${question.group_name}`,
+                    type: "category",
+                    entity: "questionnaire_group",
+                    options: sliderOptions
+                }
+                this.config.fields[question.group_name] = group
+            }
+            this.config.fields[question.field_name] = field
+        }
+
+    }
+
+    private addDelusionsToQueryBuilder() {
+
+        for (const delusion of delusions) {
+            const field = {
+                name: `${delusion.field_label} ${delusion.field_sublabel ? delusion.field_sublabel : ""}`,
+                type: "category",
+                entity: "delusions",
+                options: sliderOptions
+
+            }
+
+            this.config.fields[delusion.field_name] = field
+        }
     }
 
     async ngOnInit() {
@@ -161,6 +237,9 @@ export class AddQueryComponent {
                 return 'LESS_THAN';
             case '<=':
                 return 'LESS_THAN_OR_EQUALS';
+            case 'IS':
+                return "IS"
+
             default:
                 return null;
         }
@@ -188,10 +267,11 @@ export class AddQueryComponent {
             };
         } else {
             const queryDTO: QueryDTO = {
-                metric: query.field?.toUpperCase() || '',
+                field: query.field?.toUpperCase() || '',
                 operator: this.convertComparisonOperator(query.operator),
-                time_frame: this.convertTimeFrame(query.timeFame),
+                timeFrame: this.convertTimeFrame(query.timeFame),
                 value: query.value,
+                entity: query.entity
             };
 
             return {
@@ -215,7 +295,7 @@ export class AddQueryComponent {
             await this.saveIndividualQueries();
         }
 
-      await this.saveContent();
+        await this.saveContent();
 
         this.goBack();
     }

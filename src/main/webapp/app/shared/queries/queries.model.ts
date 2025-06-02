@@ -16,12 +16,13 @@ export type QueryNode =
 
 
 export interface QueryDTO {
-    metric?: optionalString,
+    field?: optionalString,
     operator?: optionalString,
-    time_frame?: optionalString,
+    timeFrame?: optionalString,
     value?: optionalString,
     logic_operator?: optionalString,
     children?: QueryDTO[],
+    entity?: optionalString
 
 }
 
@@ -49,6 +50,7 @@ export interface QueryString {
     value?: any;
     rules?: QueryString[];
     condition?: string;
+    entity?: string;
 }
 
 

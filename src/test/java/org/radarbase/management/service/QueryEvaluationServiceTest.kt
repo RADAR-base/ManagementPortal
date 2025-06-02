@@ -118,8 +118,8 @@ class QueryEvaluationServiceTest(
         var query = Query();
 
         query.queryGroup = queryGroup
-        query.queryMetric = queryMetric
-        query.comparisonOperator = queryOperator
+        query.field = queryMetric.toString()
+        query.operator = queryOperator
         query.value = value
         query.timeFrame = timeframe
 
