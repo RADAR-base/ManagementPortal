@@ -8,6 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.MockitoAnnotations
 import org.radarbase.auth.authentication.OAuthHelper
 import org.radarbase.management.ManagementPortalTestApp
+import org.radarbase.management.config.BasePostgresIntegrationTest
 import org.radarbase.management.domain.Project
 import org.radarbase.management.domain.Source
 import org.radarbase.management.repository.ProjectRepository
@@ -42,10 +43,8 @@ import javax.servlet.ServletException
  *
  * @see SourceResource
  */
-@ExtendWith(SpringExtension::class)
-@SpringBootTest(classes = [ManagementPortalTestApp::class])
-@WithMockUser
-internal class SourceResourceIntTest(
+
+internal class SourceResourceIntTest (
     @Autowired private val sourceResource: SourceResource,
 
     @Autowired private val sourceRepository: SourceRepository,
@@ -56,7 +55,7 @@ internal class SourceResourceIntTest(
     @Autowired private val pageableArgumentResolver: PageableHandlerMethodArgumentResolver,
     @Autowired private val exceptionTranslator: ExceptionTranslator,
     @Autowired private val projectRepository: ProjectRepository,
-) {
+) : BasePostgresIntegrationTest() {
     private lateinit var restDeviceMockMvc: MockMvc
     private lateinit var source: Source
     private lateinit var project: Project

@@ -4,6 +4,8 @@ import org.radarbase.management.domain.enumeration.ComparisonOperator
 import org.radarbase.management.domain.enumeration.QueryMetric
 import org.radarbase.management.domain.enumeration.QueryTimeFrame
 import org.radarbase.management.domain.support.AbstractEntityListener
+import org.radarbase.management.domain.support.ComparisonOperatorConverter
+import org.radarbase.management.domain.support.QueryTimeFrameConverter
 import java.io.Serializable
 import javax.persistence.*
 
@@ -28,14 +30,14 @@ class Query : AbstractEntity(), Serializable {
     @Column(name = "query_metric")
     var queryMetric: QueryMetric? = null
 
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = ComparisonOperatorConverter::class)
     @Column(name = "comparison_operator")
     var comparisonOperator: ComparisonOperator? = null
 
     @Column(name = "value")
     var value: String? = null
 
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = QueryTimeFrameConverter::class)
     @Column(name = "time_frame")
     var timeFrame: QueryTimeFrame? = null
 

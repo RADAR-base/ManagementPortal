@@ -270,11 +270,23 @@ Before you can build this project, you must install and configure the following 
 3. Local SMTP server: currently a simple docker-compose is provided with a local SMTP server. Create `smtp.env` from `smtp.env.template` and modify `application.yml` accordingly.  
 
 After installing Node, you should be able to run the following command to install development tools.
+
+One of the package we use is our own fork version of [ngx-angular-query-builder ](https://github.com/UoM-Digital-Health-Software/ngx-angular-query-builder/packages)
+
+You will need to generate a personal Github token that can read packages in order to be able to install it. Before doing the yarn install, please run the following command in your terminal: 
+
+```
+export GITHUB_TOKEN=<your_generated_github_token>
+```
+
+
 You will only need to run this command when dependencies change in [package.json](package.json).
 
     yarn install
 
 We use yarn scripts and [Webpack][] as our build system.
+
+
 
 
 Run the following commands in two separate terminals to create a blissful development experience where your browser

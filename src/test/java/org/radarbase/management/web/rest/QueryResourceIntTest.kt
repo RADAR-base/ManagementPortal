@@ -1,67 +1,45 @@
 package org.radarbase.management.web.rest
 
+
+import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions
 import org.hamcrest.Matchers
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-
-import org.radarbase.management.domain.Query
-import org.radarbase.management.domain.QueryGroup
-import org.radarbase.management.service.QueryBuilderService
-import org.radarbase.management.service.UserService
-import org.radarbase.management.service.dto.QueryGroupDTO
-import org.radarbase.management.service.dto.QueryLogicDTO
-
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.MediaType
-import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
-
-
-import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.MockitoAnnotations
 import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
 import org.radarbase.auth.authentication.OAuthHelper
-import org.radarbase.management.ManagementPortalTestApp
+import org.radarbase.auth.token.RadarToken
+import org.radarbase.management.config.BasePostgresIntegrationTest
+import org.radarbase.management.domain.*
+import org.radarbase.management.domain.enumeration.*
+import org.radarbase.management.repository.*
+import org.radarbase.management.security.RadarAuthentication
+import org.radarbase.management.service.*
+import org.radarbase.management.service.dto.*
 import org.radarbase.management.web.rest.errors.ExceptionTranslator
-
-import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver
+import org.springframework.http.MediaType
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter
 import org.springframework.mock.web.MockFilterConfig
-
-import org.springframework.security.test.context.support.WithMockUser
-import org.springframework.test.context.junit.jupiter.SpringExtension
+import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.test.web.servlet.setup.StandaloneMockMvcBuilder
 import org.springframework.transaction.annotation.Transactional
-import javax.servlet.ServletException
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.whenever
-import org.radarbase.auth.token.RadarToken
-import org.radarbase.management.domain.QueryParticipant
-import org.radarbase.management.domain.User
-import org.radarbase.management.domain.enumeration.ComparisonOperator
-import org.radarbase.management.domain.enumeration.QueryLogicOperator
-import org.radarbase.management.domain.enumeration.QueryMetric
-import org.radarbase.management.domain.enumeration.QueryTimeFrame
-import org.radarbase.management.repository.*
-import org.radarbase.management.security.RadarAuthentication
-import org.radarbase.management.service.PasswordService
-import org.radarbase.management.service.UserServiceIntTest
-import org.radarbase.management.service.dto.QueryDTO
-import org.radarbase.management.service.dto.QueryParticipantDTO
-import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import java.time.ZonedDateTime
+import javax.servlet.ServletException
 
-@ExtendWith(SpringExtension::class)
-@SpringBootTest(classes = [ManagementPortalTestApp::class])
-@WithMockUser
+
 internal class QueryResourceTest(
     @Autowired private val queryResource : QueryResource,
     @Autowired private val pageableArgumentResolver: PageableHandlerMethodArgumentResolver,
@@ -74,14 +52,21 @@ internal class QueryResourceTest(
     @Autowired private val userRepository: UserRepository,
     @Autowired private val subjectRepository: SubjectRepository,
     @Autowired private val queryParticipantRepository: QueryParticipantRepository,
-    @Autowired private val queryLogicRepository: QueryLogicRepository
+    @Autowired private val queryLogicRepository: QueryLogicRepository,
+    @Autowired private val queryEvaluationRepository: QueryEvaluationRepository,
+    @Autowired private val queryContentRepository: QueryContentRepository,
+    @Autowired private val queryContentService: QueryContentService
 
-    ) {
+    ) : BasePostgresIntegrationTest() {
 
     private lateinit var mockMvc: MockMvc
     private val objectMapper = ObjectMapper()
     @Autowired private lateinit var mockUserService: UserService
     @Autowired private  lateinit  var queryBuilderService: QueryBuilderService
+
+    private val imageBlob = "/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAoHBwgHBgoICAgLCgoLDhgQDg0NDh0VFhEYIx8lJCIfIiEmKzcvJik0KSEiMEExNDk7Pj4+JS5ESUM8SDc9Pjv/2wBDAQoLCw4NDhwQEBw7KCIoOzs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozv/wAARCAAUABQDASIAAhEBAxEB/8QAGgABAAIDAQAAAAAAAAAAAAAAAAMEAQIFB//EACQQAAICAgEDBAMAAAAAAAAAAAECAwQAIRESMUEFExQiUVJh/8QAFwEAAwEAAAAAAAAAAAAAAAAAAAECA//EABkRAQEBAAMAAAAAAAAAAAAAAAABESExQf/aAAwDAQACEQMRAD8A9hsCc15BWZFm6foZASoP94ytV9Qa1ZWOONXi9kO8wfjhidAL3IOzz21klupWlb5EyMWSNkBVyD0nuNHzlCG6ayWbl1pBHS5id2hKAKACXH7D8ka1oDfNeM7cvNx2cZpFIk0SSxsGR1DKw8g9sZLRHap17qIliISLHIsigk6ZTyDkxAIII5B8YxgWTtnGMYG//9k="
+
+
 
     private lateinit var user: User
 
@@ -183,11 +168,11 @@ internal class QueryResourceTest(
         val queryGroup = createAndAddQueryGroupToDB()
         val queryLogicParentDTO = QueryLogicDTO()
 
-        val queryDTO = QueryDTO()
-        queryDTO.metric = QueryMetric.SLEEP_LENGTH;
+        val queryDTO = QueryDTO(QueryMetric.SLEEP_LENGTH,ComparisonOperator.LESS_THAN_OR_EQUALS,"80", QueryTimeFrame.LAST_7_DAYS)
+        queryDTO.metric = QueryMetric.SLEEP_LENGTH
         queryDTO.value = "80"
-        queryDTO.time_frame = QueryTimeFrame.LAST_7_DAYS;
-        queryDTO.operator = ComparisonOperator.LESS_THAN_OR_EQUALS;
+        queryDTO.time_frame = QueryTimeFrame.LAST_7_DAYS
+        queryDTO.operator = ComparisonOperator.LESS_THAN_OR_EQUALS
 
         queryLogicParentDTO.queryGroupId = queryGroup.id
         queryLogicParentDTO.logic_operator = QueryLogicOperator.AND
@@ -201,7 +186,7 @@ internal class QueryResourceTest(
 
         val json = objectMapper.writeValueAsString(queryLogicParentDTO)
 
-        mockMvc.perform(post("/api/query-builder/query-logic")
+        mockMvc.perform(post("/api/query-builder/querylogic")
             .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(json)))
             .andExpect(status().isOk)
@@ -224,7 +209,7 @@ internal class QueryResourceTest(
         queryGroupDTO.description = "desc"
         val json = objectMapper.writeValueAsString(queryGroupDTO)
 
-        mockMvc.perform(post("/api/query-builder/query-group")
+        mockMvc.perform(post("/api/query-builder/querygroups")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(json)))
             .andExpect(status().isOk)
@@ -303,7 +288,7 @@ internal class QueryResourceTest(
     fun shouldDeleteQueryGroupAndAllRelatedEntities() {
         val query = createAndAddQueryToDB();
 
-        mockMvc.perform(delete("/api/query-builder/querygroup/" + query.queryGroup?.id))
+        mockMvc.perform(delete("/api/query-builder/querygroups/" + query.queryGroup?.id))
             .andExpect(status().isOk)
 
     }
@@ -369,4 +354,185 @@ internal class QueryResourceTest(
 
         Assertions.assertThat(queryParticipantRepository.findAll().size).isEqualTo(0)
     }
+
+    @Test
+    @Transactional
+    fun shouldReturnActiveQueries() {
+        val queryParticipant = createAndAddQueryParticipantToDB()
+        val subject = queryParticipant.subject!!
+        val queryGroup = queryParticipant.queryGroup!!
+
+        val evaluation = QueryEvaluation().apply {
+            this.subject = subject
+            this.queryGroup = queryGroup
+            this.result = true
+            this.createdDate = ZonedDateTime.now()
+        }
+        queryEvaluationRepository.saveAndFlush(evaluation)
+
+        mockMvc.perform(get("/api/query-builder/querycontent/active/${subject.id}"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.${queryGroup.id}").exists())
+    }
+
+    @Test
+    @Transactional
+    fun shouldSaveQueryContent() {
+        val heading = "heading";
+        val paragraph = "this is a paragraph"
+        val videoLink = "video-link"
+        val title = "this is a title"
+
+        val sizeBefore = queryContentRepository.findAll().size
+
+        val queryParticipant = createAndAddQueryParticipantToDB()
+        val subject = queryParticipant.subject!!
+        val queryGroup = queryParticipant.queryGroup!!
+
+        var queryContentList : List<QueryContentDTO> = mutableListOf();
+
+        val paragraphContent = QueryContentDTO();
+        paragraphContent.queryGroupId = queryGroup.id
+        paragraphContent.type = ContentType.PARAGRAPH;
+        paragraphContent.heading = heading
+        paragraphContent.value = paragraph
+        queryContentList += paragraphContent;
+
+
+        val videoContent = QueryContentDTO();
+        videoContent.type = ContentType.VIDEO
+        videoContent.value = videoLink;
+        queryContentList += videoContent;
+
+
+        val imageContent = QueryContentDTO();
+        imageContent.type = ContentType.IMAGE;
+        imageContent.imageBlob = imageBlob;
+        queryContentList += imageContent;
+
+
+
+        val titleContent = QueryContentDTO();
+        imageContent.type = ContentType.TITLE;
+        imageContent.value = title;
+        queryContentList += titleContent;
+
+        mockMvc.perform(post("/api/query-builder/querycontent/querygroup/${queryGroup.id}")
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(queryContentList)))
+            .andExpect(status().isOk)
+
+
+        val sizeAfter = queryContentRepository.findAll().size
+        Assertions.assertThat(sizeAfter).isEqualTo(sizeBefore + 4)
+
+        val newContentList = queryContentRepository.findAll();
+
+        for(content in newContentList) {
+            if(content.type == ContentType.PARAGRAPH) {
+                Assertions.assertThat(content.heading).isEqualTo(heading)
+                Assertions.assertThat(content.value).isEqualTo(paragraph)
+            }
+
+            if(content.type == ContentType.IMAGE) {
+                Assertions.assertThat(content.value).isNull()
+                Assertions.assertThat(content.imageBlob).isNotNull();
+
+            }
+
+            if(content.type == ContentType.VIDEO) {
+                Assertions.assertThat(content.value).isEqualTo(videoLink)
+            }
+
+            if(content.type == ContentType.TITLE) {
+                Assertions.assertThat(content.value).isEqualTo(title)
+            }
+        }
+
+    }
+    @Test
+    @Transactional
+    fun shouldRetrieveQueryContent() {
+        val heading = "heading";
+        val paragraph = "this is a paragraph"
+        val videoLink = "video-link"
+        val title = "this is a title"
+
+        val sizeBefore = queryContentRepository.findAll().size
+
+        val queryParticipant = createAndAddQueryParticipantToDB()
+        val subject = queryParticipant.subject!!
+        val queryGroup = queryParticipant.queryGroup!!
+
+        var queryContentList : List<QueryContent> = mutableListOf();
+
+        val paragraphContent = QueryContent();
+        paragraphContent.queryGroup = queryGroup
+        paragraphContent.type = ContentType.PARAGRAPH;
+        paragraphContent.heading = heading
+        paragraphContent.value = paragraph
+        queryContentRepository.save(paragraphContent);
+
+        val videoContent = QueryContent();
+        videoContent.queryGroup = queryGroup
+        videoContent.type = ContentType.VIDEO
+        videoContent.value = videoLink;
+        queryContentRepository.save(videoContent);
+
+
+        val imageContent = QueryContent();
+        imageContent.queryGroup = queryGroup
+        imageContent.type = ContentType.IMAGE;
+        imageContent.imageBlob = queryContentService.convertImgStringToByteArray(imageBlob);
+        queryContentRepository.save(imageContent);
+
+        val titleContent = QueryContent();
+        titleContent.queryGroup = queryGroup
+        titleContent.type = ContentType.TITLE;
+        titleContent.value = title;
+        queryContentRepository.save(titleContent);
+
+
+        val returnedValue = mockMvc.perform(get("/api/query-builder/querycontent/querygroup/${queryGroup.id}")
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(queryContentList)))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.length()").value(4))
+            .andReturn()
+
+        val mapper = ObjectMapper()
+
+
+        val queryContentDTOList: List<QueryContentDTO> = mapper.readValue(
+            returnedValue.getResponse().getContentAsByteArray(),
+            object : TypeReference<List<QueryContentDTO>>() {}
+        )
+
+        Assertions.assertThat(queryContentDTOList.size).isEqualTo(4)
+
+
+        for(queryContentDTO in queryContentDTOList) {
+
+            if(queryContentDTO.type == ContentType.PARAGRAPH) {
+                queryContentDTO.value = paragraph
+                queryContentDTO.heading = heading
+            }
+
+            if(queryContentDTO.type == ContentType.VIDEO) {
+                queryContentDTO.value = videoLink
+            }
+
+            if(queryContentDTO.type == ContentType.TITLE) {
+                queryContentDTO.value = title
+            }
+
+
+            if(queryContentDTO.type == ContentType.IMAGE) {
+                queryContentDTO.imageBlob = imageBlob
+            }
+        }
+
+
+    }
+
 }

@@ -37,7 +37,9 @@
                 [(ngModel)]="selectedGroup"
                 (ngModelChange)="onGroupChange($event)"
             >
-                <option *ngFor="let query of queryGroupList" [value]="query.id">
+            <option [ngValue]="null">Select a query group</option>
+
+                <option *ngFor="let query of queryGroupList" [ngValue]="query.id">
                     {{ query.name }}
                 </option>
             </select>

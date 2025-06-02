@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.MockitoAnnotations
 import org.radarbase.management.ManagementPortalTestApp
+import org.radarbase.management.config.BasePostgresIntegrationTest
 import org.radarbase.management.web.rest.vm.LoggerVM
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
@@ -21,7 +22,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders
  */
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(classes = [ManagementPortalTestApp::class])
-internal class LogsResourceIntTest {
+internal class LogsResourceIntTest : BasePostgresIntegrationTest() {
     private var restLogsMockMvc: MockMvc? = null
     @BeforeEach
     fun setUp() {

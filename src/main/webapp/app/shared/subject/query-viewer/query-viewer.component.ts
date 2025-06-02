@@ -19,7 +19,7 @@ export class QueryViewerComponent implements OnInit, OnDestroy {
 
     @Input() queryGroupList: QueryGroup[];
 
-    @Input() selectedGroup: number | null = null;
+    @Input() selectedGroup: number | null | undefined = undefined;
 
     queryPriticipant: QueryParticipant = {};
 
@@ -37,11 +37,13 @@ export class QueryViewerComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         if (this.subject.id !== null) {
+
             this.queryParticipantService
                 .getAllQueryGroups()
                 .subscribe((res) => {
                     this.queryGroupList = res;
                     this.getAllAssignedGroups();
+                    this.selectedGroup = undefined;
                 });
         }
     }
@@ -53,12 +55,14 @@ export class QueryViewerComponent implements OnInit, OnDestroy {
             .getAllAssignedQueries(this.subject.id)
             .subscribe((res: QueryGroup[]) => {
                 this.assignedQueryGroups = res;
-                this.queryGroupList = this.queryGroupList.filter(
+                let fileteredQueryGroupList = this.queryGroupList.filter(
                     (o1) =>
                         !this.assignedQueryGroups.some(
                             (o2) => o1.name === o2.name
                         )
-                );
+                )
+
+                this.queryGroupList = fileteredQueryGroupList.slice()
             });
     }
 
@@ -102,7 +106,12 @@ export class QueryViewerComponent implements OnInit, OnDestroy {
     }
 
     onGroupChange($event: any) {
-        if ($event) this.ifDisable = false;
+        console.log("even", $event)
+        if ($event)
+        { this.ifDisable = false }
+        else {
+            this.ifDisable = true;
+        }
     }
 
     private onError(error) {

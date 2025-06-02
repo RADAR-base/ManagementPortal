@@ -1,7 +1,7 @@
 package org.radarbase.management.domain.enumeration
 
 enum class ComparisonOperator(val symbol: String) {
-    EQUALS("=="),
+    EQUALS("="),
     NOT_EQUALS("!="),
     GREATER_THAN(">"),
     LESS_THAN("<"),
@@ -16,6 +16,13 @@ enum class ComparisonOperator(val symbol: String) {
             LESS_THAN -> a < b
             GREATER_THAN_OR_EQUALS -> a >= b
             LESS_THAN_OR_EQUALS -> a <= b
+        }
+    }
+
+    companion object {
+        fun fromSymbol(symbol: String): ComparisonOperator {
+            return values().find { it.symbol == symbol }
+                ?: throw IllegalArgumentException("[ComparisonOperator] Unknown symbol: $symbol")
         }
     }
 }

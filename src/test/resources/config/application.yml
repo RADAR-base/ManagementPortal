@@ -26,15 +26,9 @@ spring:
         serialization.write_dates_as_timestamps: false
     cache:
         type: none
-    datasource:
-        type: com.zaxxer.hikari.HikariDataSource
-        url: jdbc:hsqldb:mem:ManagementPortal;DB_CLOSE_DELAY=-1
-        name:
-        username:
-        password:
+
     jpa:
-        database-platform: org.hibernate.dialect.HSQLDialect
-        database: HSQL
+
         open-in-view: false
         show-sql: false
         hibernate:

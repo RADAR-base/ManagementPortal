@@ -1,16 +1,28 @@
 package org.radarbase.management.service.dto
 
+import org.radarbase.management.domain.Query
 import org.radarbase.management.domain.enumeration.ComparisonOperator
 import org.radarbase.management.domain.enumeration.QueryMetric
 import org.radarbase.management.domain.enumeration.QueryTimeFrame
 
 class QueryDTO {
-    var metric: QueryMetric? = null // e.g., "heart_rate"
+    constructor(query: Query?) {
+        this.metric = query?.queryMetric;
+        this.operator = query?.comparisonOperator
+        this.value = query?.value
+        this.time_frame = query?.timeFrame
+    }
 
-    var operator: ComparisonOperator? = null // e.g., ">"
+    constructor(metric: QueryMetric?, operator: ComparisonOperator?, value: String?, timeFrame: QueryTimeFrame?) {
+        this.metric = metric;
+        this.operator = operator
+        this.value = value
+        this.time_frame = timeFrame
+    }
 
-    var value: String? = null // e.g., 60.0
-
+    var metric: QueryMetric? = null
+    var operator: ComparisonOperator? = null
+    var value: String? = null
     var time_frame : QueryTimeFrame? = null
 
     override fun toString(): String {

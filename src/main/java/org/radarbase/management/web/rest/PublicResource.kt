@@ -2,6 +2,9 @@ package org.radarbase.management.web.rest
 
 import io.micrometer.core.annotation.Timed
 import org.radarbase.management.service.ProjectService
+import org.radarbase.management.service.QueryBuilderService
+import org.radarbase.management.service.QueryEValuationService
+import org.radarbase.management.service.UserData
 import org.radarbase.management.web.rest.util.PaginationUtil
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -9,14 +12,13 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.web.PageableDefault
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/public")
 class PublicResource(
-    @Autowired private val projectService: ProjectService
+    @Autowired private val projectService: ProjectService,
+    @Autowired private val queryEValuationService: QueryEValuationService
 ) {
 
     /**
@@ -35,6 +37,7 @@ class PublicResource(
             .generatePaginationHttpHeaders(page, "/api/public/projects")
         return ResponseEntity(page.content, headers, HttpStatus.OK)
     }
+
 
     companion object {
         private val log = LoggerFactory.getLogger(PublicResource::class.java)

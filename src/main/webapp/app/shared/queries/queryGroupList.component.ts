@@ -4,6 +4,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 @Component({
     selector: 'jhi-queries',
     templateUrl: './queryGroupList.component.html',
+    styleUrls: ['./queryGroupList.component.scss'],
 })
 export class QueryGroupListComponent implements OnInit, OnDestroy {
     constructor(private httpclient: HttpClient) {}
@@ -23,7 +24,7 @@ export class QueryGroupListComponent implements OnInit, OnDestroy {
 
     deleteQueryGroup(id) {
         this.httpclient
-            .delete(this.baseUrl + `/querygroup/${id}`)
+            .delete(this.baseUrl + `/querygroups/${id}`)
             .subscribe((result) => {
                 this.getQueryGroupList();
             });

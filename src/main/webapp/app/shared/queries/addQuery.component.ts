@@ -1,14 +1,20 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild, AfterViewInit } from '@angular/core';
 
 import {
     QueryBuilderClassNames,
     QueryBuilderConfig,
-} from '@pri17/ngx-angular-query-builder';
+} from '@uom-digital-health-software/ngx-angular-query-builder';
 import { FormBuilder, FormControl, NgForm } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { QueryString } from './queries.model';
+import { QueryDTO, QueryNode, QueryString } from './queries.model';
 import { Router } from '@angular/router';
 import { Location } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
+import { QueryGroup } from './query.model';
+import { QueriesService } from './queries.service';
+import { ContentComponent } from './content/content.component';
+
+
 
 @Component({
     selector: 'jhi-queries',
@@ -16,7 +22,10 @@ import { Location } from '@angular/common';
     styleUrls: ['../../../content/scss/queries.scss'],
 })
 export class AddQueryComponent {
-    @ViewChild('queryForm', { static: true })
+
+
+    @ViewChild(ContentComponent) contentComponent!: ContentComponent;
+
     queryBuilderFormGroup: NgForm;
 
     public queryCtrl: FormControl;
@@ -24,6 +33,8 @@ export class AddQueryComponent {
     public queryGrouName: string;
 
     public queryGroupDesc: string;
+
+    public queryGroupId: number | any |  null;
 
     private baseUrl = 'api/query-builder';
 
@@ -54,7 +65,7 @@ export class AddQueryComponent {
         inputControlSize: 'col-auto',
     };
 
-    public query: QueryString = {
+    public query: QueryString | any = {
         condition: 'and',
         rules: [{ field: 'heart_rate', operator: '<=' }],
     };
@@ -63,7 +74,7 @@ export class AddQueryComponent {
         fields: {
             heart_rate: { name: 'Heart Rate', type: 'number' },
             sleep_length: { name: 'Sleep', type: 'number' },
-            wake_up_time: { name: 'Wake Up Time', type: 'number' },
+            hrv: { name: 'HRV', type: 'number' },
         },
     };
 
@@ -75,10 +86,12 @@ export class AddQueryComponent {
     private canGoBack: boolean = false;
 
     constructor(
+        private queryService: QueriesService,
         private formBuilder: FormBuilder,
         private http: HttpClient,
         private router: Router,
-        private readonly location: Location
+        private readonly location: Location,
+        private route: ActivatedRoute,
     ) {
         this.queryCtrl = this.formBuilder.control(this.query);
         this.currentConfig = this.config;
@@ -86,7 +99,30 @@ export class AddQueryComponent {
             !!this.router.getCurrentNavigation()?.previousNavigation;
     }
 
-    
+    async ngOnInit() {
+        this.route.params.subscribe((params) => {
+            let queryId = params["query-id"];
+            this.queryGroupId = queryId;
+            if (queryId) {
+
+                this.http
+                    .get(this.baseUrl + '/querygroups/' + queryId)
+                    .subscribe((response: any) => {
+                        this.query = response
+                        this.queryGrouName = response.queryGroupName;
+                        this.queryGroupDesc = response.queryGroupDescription;
+                    });
+
+                this.http
+                    .get('api/query-builder/querycontent/querygroup/' + queryId)
+                    .subscribe((response: any) => {
+
+                        this.contentComponent.items = response;
+                    });
+            }
+        });
+    }
+
     goBack(): void {
         if (this.canGoBack) {
             this.location.back();
@@ -97,6 +133,8 @@ export class AddQueryComponent {
             ? this.queryCtrl.disable()
             : this.queryCtrl.enable();
     }
+
+
 
     private _counter = 0;
     formRuleWeakMap = new WeakMap();
@@ -109,7 +147,7 @@ export class AddQueryComponent {
         return this.formRuleWeakMap.get(rule);
     }
 
-    convertComparisonOperator(value: string) {
+    convertComparisonOperator(value?: string) {
         switch (value) {
             case '>=':
                 return 'GREATER_THAN_OR_EQUALS';
@@ -128,29 +166,28 @@ export class AddQueryComponent {
         }
     }
 
-    convertTimeFrame(value: number) {
+    convertTimeFrame(value: string) {
+
         switch (value) {
-            case 180:
+            case "6_months":
                 return 'PAST_6_MONTH';
-            case 30:
+            case "1_months":
                 return 'PAST_MONTH';
-            case 7:
-                return 'LAST_7_DAYS';
-            case 365:
+            case "1_years":
                 return 'PAST_YEAR';
             default:
                 return null;
         }
     }
 
-    convertQuery(query: QueryString): any {
+    convertQuery(query: QueryString): QueryNode {
         if (query.rules && query.rules.length > 0) {
             return {
                 logic_operator: query.condition?.toUpperCase() || 'AND',
                 children: query.rules.map((rule) => this.convertQuery(rule)),
             };
         } else {
-            const queryDTO = {
+            const queryDTO: QueryDTO = {
                 metric: query.field?.toUpperCase() || '',
                 operator: this.convertComparisonOperator(query.operator),
                 time_frame: this.convertTimeFrame(query.timeFame),
@@ -163,26 +200,70 @@ export class AddQueryComponent {
         }
     }
 
-    saveQueryGroupToDB() {
-        const query_group = {
+    async saveQueryGroupToDB() {
+        const query_group: QueryGroup = {
             name: this.queryGrouName,
             description: this.queryGroupDesc,
         };
 
-        // Submit query group metadata first
-        this.http
-            .post(this.baseUrl + '/query-group', query_group)
-            .subscribe((id) => {
-                const query_logic = {
-                    queryGroupId: id,
-                    ...this.convertQuery(this.query),
-                };
 
-                this.http
-                    .post(this.baseUrl + '/query-logic', query_logic)
-                    .subscribe((res) => {
-                        this.goBack();
-                    });
-            });
+        if (this.queryGroupId) {
+            this.queryGroupId = await this.updateQueryGroup(query_group);
+            await this.updateIndividualQueries();
+        } else {
+            this.queryGroupId = await this.saveNewQueryGroup(query_group)
+            await this.saveIndividualQueries();
+        }
+
+      await this.saveContent();
+
+        this.goBack();
+    }
+
+    async saveContent() {
+        let content = this.contentComponent.items;
+
+        await this.queryService.saveContent(this.queryGroupId, content);
+    }
+
+    saveNewQueryGroup(queryGroup: QueryGroup) {
+        return this.http
+            .post(this.baseUrl + '/querygroups', queryGroup).toPromise()
+
+
+    }
+    updateQueryGroup(queryGroup: QueryGroup) {
+        return this.http
+            .put(this.baseUrl + '/querygroups/' + this.queryGroupId, queryGroup).toPromise()
+
+    }
+    saveIndividualQueries() {
+        const query_logic = {
+            queryGroupId: this.queryGroupId,
+            ...this.convertQuery(this.query),
+        };
+
+        return this.http
+            .post(this.baseUrl + '/querylogic', query_logic).toPromise()
+
+    }
+
+    updateIndividualQueries() {
+        const query_logic = {
+            queryGroupId: this.queryGroupId,
+            ...this.convertQuery(this.query),
+        };
+
+        return this.http
+            .put(this.baseUrl + '/querylogic', query_logic).toPromise();
+
+    }
+
+    get isSaveButtonDisabled(): boolean {
+        const hasName = !!this.queryGrouName;
+        const hasDesc = !!this.queryGroupDesc;
+        const hasQuery = this.query && this.query.rules.length > 0;
+
+        return !(hasName && hasDesc && hasQuery);
     }
 }

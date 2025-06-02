@@ -222,6 +222,14 @@
                         <span>User Data</span>
                     </button>
 
+                    <button
+                            type="submit"
+                            [routerLink]="['/', { outlets: { popup: 'subject/' + subject.login + '/query' } }]"
+                            replaceUrl="true"
+                            class="btn btn-info btn-sm">
+                        <span class="fa fa-link"></span>
+                        <span>Query Evaluation</span>
+                    </button>
                     <button [disabled]="subject.status !== 'ACTIVATED'"
                             type="submit"
                             [routerLink]="['/', { outlets: { popup: 'subject/' + subject.login + '/queries' } }]"

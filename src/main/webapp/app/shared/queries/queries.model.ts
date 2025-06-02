@@ -1,7 +1,29 @@
 import { Subject } from '../subject';
 import { User } from '../user/user.model';
 
-export interface Query {}
+
+type optionalString = string | null | undefined
+
+
+export type QueryNode =
+  | {
+      query: QueryDTO;
+    }
+  | {
+      logic_operator: string;
+      children: QueryNode[];
+    };
+
+
+export interface QueryDTO {
+    metric?: optionalString,
+    operator?: optionalString,
+    time_frame?: optionalString,
+    value?: optionalString,
+    logic_operator?: optionalString,
+    children?: QueryDTO[],
+
+}
 
 export interface QueryGroup {
     id?: any;
@@ -28,3 +50,25 @@ export interface QueryString {
     rules?: QueryString[];
     condition?: string;
 }
+
+
+export enum ContentType {
+    TITLE = "TITLE",
+    PARAGRAPH = 'PARAGRAPH',
+    IMAGE = 'IMAGE',
+    VIDEO = 'VIDEO',
+}
+
+
+export interface ContentItem {
+    id?: number;
+    heading?: String;
+    type: ContentType;
+    value?: String | Number;
+    imageValue?: String;
+    imageBlob?: String;
+    isValidImage?: Boolean;
+    queryGroupId?: Number;
+}
+
+

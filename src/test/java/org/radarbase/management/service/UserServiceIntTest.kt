@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.radarbase.auth.authorization.RoleAuthority
 import org.radarbase.management.ManagementPortalTestApp
+import org.radarbase.management.config.BasePostgresIntegrationTest
 import org.radarbase.management.domain.Authority
 import org.radarbase.management.domain.Role
 import org.radarbase.management.domain.User
@@ -48,7 +49,7 @@ class UserServiceIntTest(
 
     @Autowired private val entityManagerFactory: EntityManagerFactory,
     @Autowired private val passwordService: PasswordService,
-) {
+) : BasePostgresIntegrationTest() {
     private lateinit var entityManager: EntityManager
     private lateinit var userDto: UserDTO
 

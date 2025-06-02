@@ -7,6 +7,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.MockitoAnnotations
 import org.radarbase.auth.authentication.OAuthHelper
 import org.radarbase.management.ManagementPortalTestApp
+import org.radarbase.management.config.BasePostgresIntegrationTest
 import org.radarbase.management.config.audit.AuditEventConverter
 import org.radarbase.management.domain.PersistentAuditEvent
 import org.radarbase.management.repository.PersistenceAuditEventRepository
@@ -45,7 +46,7 @@ internal class AuditResourceIntTest(
     @Autowired private val formattingConversionService: FormattingConversionService,
     @Autowired private val pageableArgumentResolver: PageableHandlerMethodArgumentResolver,
     @Autowired private val authService: AuthService
-) {
+)  : BasePostgresIntegrationTest() {
     private lateinit var auditEvent: PersistentAuditEvent
     private lateinit var restAuditMockMvc: MockMvc
     @BeforeEach

@@ -1,10 +1,15 @@
 package org.radarbase.management.domain.enumeration
 
-enum class QueryTimeFrame {
-    LAST_7_DAYS,
-    PAST_MONTH,
-    PAST_6_MONTH,
-    PAST_YEAR,
-    GREATER_THAN_OR_EQUALS,
-    LESS_THAN_OR_EQUALS
+enum class QueryTimeFrame(val symbol: String) {
+    LAST_7_DAYS("7_days"),
+    PAST_MONTH("1_months"),
+    PAST_6_MONTH("6_months"),
+    PAST_YEAR("1_years");
+
+    companion object {
+        fun fromSymbol(symbol: String): QueryTimeFrame {
+            return values().find { it.symbol == symbol }
+                ?: throw IllegalArgumentException("[ComparisonOperator] Unknown symbol: $symbol")
+        }
+    }
 }

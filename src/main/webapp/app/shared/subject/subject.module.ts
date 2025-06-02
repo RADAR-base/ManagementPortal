@@ -38,6 +38,10 @@ import { QueryViewerComponent } from './query-viewer/query-viewer.component';
 
 
 
+import {
+          QueryEvaluationPopupComponent,
+            QueryEvaluationDialogComponent
+} from './query-evaluation/query-evaluation.component';
 
 
 
@@ -70,7 +74,8 @@ const ENTITY_STATES = [
         SubjectPairPopupComponent,
         SubjectSourceAssignerDialogComponent,
         SubjectSourceAssignerPopupComponent,
-
+   QueryEvaluationPopupComponent,
+            QueryEvaluationDialogComponent,
         SubjectDataViewerPopupComponent,
         SubjectDataViewerDialogComponent,
         QueryViewerComponent
@@ -86,7 +91,8 @@ const ENTITY_STATES = [
         SubjectPairPopupComponent,
         SubjectSourceAssignerDialogComponent,
         SubjectSourceAssignerPopupComponent,
-
+   QueryEvaluationPopupComponent,
+            QueryEvaluationDialogComponent,
               SubjectDataViewerPopupComponent,
                 SubjectDataViewerDialogComponent
     ],

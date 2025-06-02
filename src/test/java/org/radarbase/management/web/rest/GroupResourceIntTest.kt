@@ -11,6 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.MockitoAnnotations
 import org.radarbase.auth.authentication.OAuthHelper
 import org.radarbase.management.ManagementPortalTestApp
+import org.radarbase.management.config.BasePostgresIntegrationTest
 import org.radarbase.management.domain.Group
 import org.radarbase.management.domain.Project
 import org.radarbase.management.domain.Subject
@@ -64,7 +65,7 @@ internal class GroupResourceIntTest(
     @Autowired private val subjectService: SubjectService,
     @Autowired private val groupMapper: GroupMapper,
     @Autowired private val groupRepository: GroupRepository
-) {
+) : BasePostgresIntegrationTest() {
     private lateinit var restGroupMockMvc: MockMvc
     private lateinit var group: Group
     private lateinit var project: Project

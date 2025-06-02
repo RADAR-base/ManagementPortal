@@ -10,4 +10,6 @@ import org.springframework.data.repository.RepositoryDefinition
 interface QueryLogicRepository : JpaRepository<QueryLogic, Long>{
     fun findByQueryGroupId(queryGroupId: Long): List<QueryLogic>
 
+
+
 }

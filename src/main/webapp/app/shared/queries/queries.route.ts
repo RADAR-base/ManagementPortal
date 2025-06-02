@@ -20,4 +20,13 @@ export const queriesRoute: Routes = [
             pageTitle: 'global.menu.queries',
         },
     },
+
+    {
+        path: 'edit-query/:query-id',
+        component: AddQueryComponent,
+        data: {
+            authorities: [],
+            pageTitle: 'global.menu.queries',
+        },
+    },
 ];
