@@ -17,6 +17,7 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.web.bind.annotation.*
 
+
 @RestController
 @RequestMapping("/api/query-builder")
 class QueryResource(
@@ -174,6 +175,16 @@ class QueryResource(
         val result =  queryContentService.findAllByQueryGroupId(queryGroupId)
         return ResponseEntity.ok(result)
     }
+
+    @DeleteMapping("queryevaluation/remove-content")
+    fun deleteQueryEvaluationContent(
+        @RequestParam queryGroupId: Long,
+        @RequestParam subjectId: Long
+    ): ResponseEntity<Void> {
+        queryEValuationService.removeContentByQueryGroupAndSubject(queryGroupId, subjectId)
+        return ResponseEntity.ok().build()
+    }
+
 
     companion object {
         private val log = LoggerFactory.getLogger(QueryResource::class.java)
