@@ -176,12 +176,12 @@ class QueryResource(
         return ResponseEntity.ok(result)
     }
 
-    @DeleteMapping("queryevaluation/remove-content")
+    @DeleteMapping("queryevaluation/querygroup/{querygroupid}/subject/{subjectid}")
     fun deleteQueryEvaluationContent(
-        @RequestParam queryGroupId: Long,
-        @RequestParam subjectId: Long
+        @PathVariable querygroupid: Long,
+        @PathVariable subjectid: Long
     ): ResponseEntity<Void> {
-        queryEValuationService.removeContentByQueryGroupAndSubject(queryGroupId, subjectId)
+        queryEValuationService.removeQueryEvaluationByQueryGroupAndSubject(querygroupid, subjectid)
         return ResponseEntity.ok().build()
     }
 

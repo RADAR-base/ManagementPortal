@@ -9,7 +9,7 @@ import { QueryParticipantService } from '../query-participant.service';
 import { SubjectPopupService } from '../subject-popup.service';
 import { QueryGroup, QueryParticipant } from 'app/shared/queries/query.model';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { DeleteQueryConfirmDialogComponent } from './delete-query-confirm-dialog.component'; // 路径按实际项目修改
+import { DeleteQueryConfirmDialogComponent } from './delete-query-confirm-dialog.component'; 
 
 @Component({
     selector: 'app-query-viewer',

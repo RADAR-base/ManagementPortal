@@ -38,7 +38,7 @@ export class QueryParticipantService {
         subjectId: number
     ): Observable<any> {
         return this.http.delete(
-            this.baseURL+`/queryevaluation/remove-content?queryGroupId=${queryGroupId}&subjectId=${subjectId}`
+            this.baseURL+`/queryevaluation/querygroup/${queryGroupId}/subject/${subjectId}`
         );
     }
 }

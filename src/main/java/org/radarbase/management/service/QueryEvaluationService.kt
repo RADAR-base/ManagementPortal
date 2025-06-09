@@ -285,7 +285,7 @@ public class QueryEValuationService(
     }
 
     @Transactional
-    fun removeContentByQueryGroupAndSubject(queryGroupId: Long, subjectId: Long) {
+    fun  removeQueryEvaluationByQueryGroupAndSubject(queryGroupId: Long, subjectId: Long) {
         queryEvaluationRepository.deleteByQueryGroupIdAndSubjectId(queryGroupId, subjectId)
     }
 
