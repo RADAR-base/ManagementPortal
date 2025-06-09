@@ -40,7 +40,7 @@ import java.time.ZonedDateTime
 import javax.servlet.ServletException
 
 
-internal class QueryResourceTest(
+internal class QueryResourceIntTest(
     @Autowired private val queryResource : QueryResource,
     @Autowired private val pageableArgumentResolver: PageableHandlerMethodArgumentResolver,
     @Autowired private val jacksonMessageConverter: MappingJackson2HttpMessageConverter,
@@ -533,5 +533,35 @@ internal class QueryResourceTest(
 
 
     }
+    @Test
+    @Transactional
+    fun shouldDeleteQueryEvaluationContent() {
+        val queryParticipant = createAndAddQueryParticipantToDB()
+        val queryGroup = queryParticipant.queryGroup!!
+        val subject = queryParticipant.subject!!
+
+        val evaluation = QueryEvaluation().apply {
+            this.queryGroup = queryGroup
+            this.subject = subject
+            this.result = true
+            this.createdDate = ZonedDateTime.now()
+        }
+        queryEvaluationRepository.saveAndFlush(evaluation)
+
+        Assertions.assertThat(queryEvaluationRepository.findAll().size).isEqualTo(1)
+
+        mockMvc.perform(
+            delete("/api/query-builder/queryevaluation/querygroup/${queryGroup.id}/subject/${subject.id}")
+        )
+            .andExpect(status().isOk)
+
+        Assertions.assertThat(
+            queryEvaluationRepository.findAll().any {
+                it.queryGroup?.id == queryGroup.id && it.subject?.id == subject.id
+            }
+        ).isFalse()
+    }
+
+
 
 }
