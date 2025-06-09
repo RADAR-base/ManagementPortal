@@ -45,7 +45,7 @@ export class RadarDataComponent implements OnInit, OnDestroy {
     private subscriptions = new Subscription();
 
     visibleSubjectsCount: { [projectName: string]: number } = {};
-    defaultVisibleCount = 10;
+    defaultVisibleCount = 5;
 
     visibleSubjectsMap: { [projectName: string]: SubjectWithDataLogs[] } = {};
 
