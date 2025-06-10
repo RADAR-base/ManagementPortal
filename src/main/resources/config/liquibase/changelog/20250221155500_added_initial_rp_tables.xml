@@ -71,7 +71,10 @@
             <column name="query_group_id" type="bigint">
                 <constraints nullable="false" />
             </column>
-            <column name="query_metric" type="varchar(32)">
+            <column name="entity" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="query_metric" type="varchar(255)">
                 <constraints nullable="false" />
             </column>
             <column name="comparison_operator" type="varchar(32)">

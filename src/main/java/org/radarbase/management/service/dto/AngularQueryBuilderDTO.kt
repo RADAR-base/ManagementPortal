@@ -16,6 +16,7 @@ class AngularQueryBuilderDTO {
 
     var rules: List<AngularQueryBuilderDTO>? = null
     var type: QueryLogicType? = null
+    var entity : String? = null
 
     override fun toString(): String {
         return ("QueryLogicDTO{"
@@ -27,7 +28,7 @@ class AngularQueryBuilderDTO {
                 + ", operator='" + operator + '\''
                 + ", value='" + value + '\''
                 + ", timeFrame='" + timeFame + '\''
-
+                + ", entity='" + entity + '\''
                 + ", rules='" + rules + '\''
                 + ", type='" + type + '\''
                 + "}")

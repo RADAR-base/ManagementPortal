@@ -16,7 +16,9 @@ import java.util.*
 
 data class DataPoint(
     val month: String,
-    val value: Double
+    val value: Double? = null,
+    val histogramDataPoints: Map<String, Int> = mapOf()
+
 )
 data class UserData(
     val metrics: Map<String, List<DataPoint>>
@@ -40,30 +42,58 @@ public class QueryEValuationService(
         }
     }
 
+    private fun evaluateAgainstHistogramData(relevantData: List<DataPoint>, expectedValue: String) : Boolean {
+        val aggregated = mutableMapOf<String, Int>()
+
+        relevantData.forEach {
+            for((range, count) in it.histogramDataPoints){
+                aggregated[range] = aggregated.getOrDefault(range, 0) + count
+            }
+        }
+
+        val maxRange = aggregated.maxByOrNull { it.value }
+
+        val result = maxRange != null && maxRange.key == expectedValue
+
+        return result
+    }
+
+
+    private fun evaluateAgainstAveragedData(relevantData: List<DataPoint>, expectedValue: String, comparsionOperator: String ): Boolean {
+        val average = relevantData.map { it.value!! }.average();
+        val sum = relevantData.map { it.value!! }.sum();
+        return when (comparsionOperator){
+            ">" -> average  > expectedValue.toDouble()
+            "<" -> average < expectedValue.toDouble()
+            ">=" -> average  >= expectedValue.toDouble()
+            "<=" -> average <= expectedValue.toDouble()
+            "=" -> average == expectedValue.toDouble()
+            "!=" -> average != expectedValue.toDouble()
+            else -> false
+        }
+    }
+
     fun evaluateSingleCondition(queryLogic: QueryLogic, userData: UserData, currentMonth: String): Boolean {
-           val metricValuesData = userData.metrics[queryLogic.query?.queryMetric?.name]  ?: return false
+
+           val metricValuesData = userData.metrics[queryLogic.query?.field]  ?: return false
            val timeFrame  = queryLogic.query?.timeFrame ?: return false
            val timeframeMonths = extractTimeframeMonths(timeFrame, currentMonth);
            val relevantData = metricValuesData.filter { it.month in timeframeMonths};
+
 
         if (relevantData.isEmpty()  || relevantData.size != timeframeMonths.size) {
                 return false
             }
 
-           val comparisonOperator = queryLogic.query?.comparisonOperator?.symbol ?: return false ;
+           val comparisonOperator = queryLogic.query?.operator?.symbol ?: return false ;
            val expectedValue = queryLogic.query?.value ?: return false;
 
-           val average = relevantData.map { it.value }.average();
+        if(comparisonOperator == "IS") {
+            return evaluateAgainstHistogramData(relevantData,expectedValue)
+         } else {
+            return evaluateAgainstAveragedData(relevantData, expectedValue, comparisonOperator)
+         }
 
-           return when (comparisonOperator){
-               ">" -> average  > expectedValue.toDouble()
-               "<" -> average < expectedValue.toDouble()
-               ">=" -> average  >= expectedValue.toDouble()
-               "<=" -> average <= expectedValue.toDouble()
-               "=" -> average == expectedValue.toDouble()
-               "!=" -> average != expectedValue.toDouble()
-               else -> false
-           }
     }
 
     fun evaluateLogicalCondition(queryLogic: QueryLogic, userData: UserData, currentMonth: String) : Boolean {
@@ -105,7 +135,6 @@ public class QueryEValuationService(
         return result;
     }
 
-
     //TODO: delete later, only added  for Sandra evaluation purposes
     private fun generateUserData(valueHeartRate: Double, valueSleep: Long, HRV: Long)  : UserData{
         val currentMonth = YearMonth.now()
@@ -132,11 +161,19 @@ public class QueryEValuationService(
             DataPoint(month, value.toDouble())
         }.reversed()
 
+
+        val sleepHistogram =   (0L until 12L).map { monthsAgo ->
+            val month = currentMonth.minusMonths(monthsAgo).format(formatter)
+            val value =  mapOf("6-8" to 2, "8-10" to 18, "4-6" to 2, "10-12" to 5)
+            DataPoint(month, null, value)
+        }.reversed()
+
         return UserData(
             metrics = mapOf(
                 "HEART_RATE" to heartRateData,
                 "SLEEP_LENGTH" to sleepData,
-                "HRV" to HRV)
+                "HRV" to HRV,
+                "SLEEP_5" to sleepHistogram)
         )
     }
     //TODO: this will be replaced by a real data and automatic worker

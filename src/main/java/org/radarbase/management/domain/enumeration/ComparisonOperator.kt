@@ -6,7 +6,8 @@ enum class ComparisonOperator(val symbol: String) {
     GREATER_THAN(">"),
     LESS_THAN("<"),
     GREATER_THAN_OR_EQUALS(">="),
-    LESS_THAN_OR_EQUALS("<=");
+    LESS_THAN_OR_EQUALS("<="),
+    IS("IS");
 
     fun apply(a: Int, b: Int): Boolean {
         return when (this) {
@@ -16,6 +17,7 @@ enum class ComparisonOperator(val symbol: String) {
             LESS_THAN -> a < b
             GREATER_THAN_OR_EQUALS -> a >= b
             LESS_THAN_OR_EQUALS -> a <= b
+            IS -> true
         }
     }
 

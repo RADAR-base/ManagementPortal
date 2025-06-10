@@ -1,6 +1,4 @@
 package org.radarbase.management.service
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import io.ktor.util.*
 import org.radarbase.management.domain.*
 import org.radarbase.management.domain.Query
@@ -12,7 +10,6 @@ import org.radarbase.management.repository.QueryGroupRepository
 import org.radarbase.management.repository.QueryLogicRepository
 import org.radarbase.management.repository.QueryRepository
 import org.radarbase.management.repository.UserRepository
-import org.radarbase.management.domain.*
 import org.radarbase.management.repository.*
 import org.radarbase.management.service.dto.*
 import org.slf4j.LoggerFactory
@@ -42,10 +39,11 @@ public class QueryBuilderService(
         var newQuery = Query()
 
         newQuery.queryGroup = queryGroup
-        newQuery.queryMetric = query.metric
-        newQuery.comparisonOperator = query.operator
+        newQuery.field = query.field
+        newQuery.operator = query.operator
         newQuery.value = query.value
-        newQuery.timeFrame = query.time_frame
+        newQuery.timeFrame = query.timeFrame
+        newQuery.entity = query.entity;
 
         newQuery = queryRepository.save(newQuery);
         queryRepository.flush();
@@ -223,10 +221,11 @@ public class QueryBuilderService(
             val queryLogicDTO = AngularQueryBuilderDTO()
             val query = builder.entity.query
             queryLogicDTO.condition = builder.entity.logicOperator.toString().lowercase(Locale.getDefault())
-            queryLogicDTO.field = query?.queryMetric.toString().lowercase(Locale.getDefault())
-            queryLogicDTO.operator = query?.comparisonOperator?.symbol
+            queryLogicDTO.field = query?.field.toString().lowercase(Locale.getDefault())
+            queryLogicDTO.operator = query?.operator?.symbol
             queryLogicDTO.timeFame = query?.timeFrame?.symbol
             queryLogicDTO.value = query?.value
+            queryLogicDTO.entity = query?.entity
 
             if(builder.children.size > 0) {
                 queryLogicDTO.rules = builder.children.map { toDto(it) }

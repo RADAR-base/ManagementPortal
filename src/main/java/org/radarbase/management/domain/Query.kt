@@ -1,7 +1,6 @@
 package org.radarbase.management.domain
 
 import org.radarbase.management.domain.enumeration.ComparisonOperator
-import org.radarbase.management.domain.enumeration.QueryMetric
 import org.radarbase.management.domain.enumeration.QueryTimeFrame
 import org.radarbase.management.domain.support.AbstractEntityListener
 import org.radarbase.management.domain.support.ComparisonOperatorConverter
@@ -26,13 +25,18 @@ class Query : AbstractEntity(), Serializable {
     @JoinColumn(name = "query_group_id")
     var queryGroup: QueryGroup? = null
 
-    @Enumerated(EnumType.STRING)
+    @Column(name = "entity")
+    var entity: String? = null
+
+    //RP-469 currently unclear how many items and what items we will have, changing this to string temporarily
+    // once we are deviced on this (based on the next Sandra feedback) we can provide a more robust solution
+    //  @Enumerated(EnumType.STRING)
     @Column(name = "query_metric")
-    var queryMetric: QueryMetric? = null
+    var field: String? = null
 
     @Convert(converter = ComparisonOperatorConverter::class)
     @Column(name = "comparison_operator")
-    var comparisonOperator: ComparisonOperator? = null
+    var operator: ComparisonOperator? = null
 
     @Column(name = "value")
     var value: String? = null
@@ -43,8 +47,9 @@ class Query : AbstractEntity(), Serializable {
 
     override fun toString(): String {return ("Query{"
             + "queryGroupName='" + queryGroup?.name + '\''
-            + ", queryMetric='" + queryMetric + '\''
-            + ", comparisonOperator='" + comparisonOperator + '\''
+            + ", entity='" + entity + '\''
+            + ", queryMetric='" + field + '\''
+            + ", comparisonOperator='" + operator + '\''
             + ", value='" + value + '\''
             + ", timeFrame='" + timeFrame + '\''
             + "}")
