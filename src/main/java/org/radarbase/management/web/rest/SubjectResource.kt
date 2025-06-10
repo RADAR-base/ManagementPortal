@@ -1,29 +1,26 @@
 package org.radarbase.management.web.rest
 
 
-import org.radarbase.management.domain.enumeration.DataGroupingType;
 import io.micrometer.core.annotation.Timed
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import org.radarbase.auth.authorization.EntityDetails
 import org.radarbase.auth.authorization.Permission
-import org.radarbase.management.domain.ConnectDataLog
+import org.radarbase.auth.authorization.RoleAuthority
 import org.radarbase.management.domain.Project
 import org.radarbase.management.domain.Source
 import org.radarbase.management.domain.Subject
+import org.radarbase.management.domain.User
+import org.radarbase.management.domain.enumeration.DataGroupingType
 import org.radarbase.management.repository.ConnectDataLogRepository
 import org.radarbase.management.repository.ProjectRepository
+import org.radarbase.management.repository.RoleRepository
 import org.radarbase.management.repository.SubjectRepository
 import org.radarbase.management.security.Constants
 import org.radarbase.management.security.NotAuthorizedException
 import org.radarbase.management.security.SecurityUtils
-import org.radarbase.management.service.AuthService
-import org.radarbase.management.service.ResourceUriService
-import org.radarbase.management.service.RevisionService
-import org.radarbase.management.service.SourceService
-import org.radarbase.management.service.SourceTypeService
-import org.radarbase.management.service.SubjectService
+import org.radarbase.management.service.*
 import org.radarbase.management.service.dto.DataLogDTO
 import org.radarbase.management.service.dto.MinimalSourceDetailsDTO
 import org.radarbase.management.service.dto.RevisionDTO
@@ -31,11 +28,7 @@ import org.radarbase.management.service.dto.SubjectDTO
 import org.radarbase.management.service.mapper.SubjectMapper
 import org.radarbase.management.web.rest.criteria.SubjectAuthority
 import org.radarbase.management.web.rest.criteria.SubjectCriteria
-import org.radarbase.management.web.rest.errors.BadRequestException
-import org.radarbase.management.web.rest.errors.EntityName
-import org.radarbase.management.web.rest.errors.ErrorConstants
-import org.radarbase.management.web.rest.errors.InvalidRequestException
-import org.radarbase.management.web.rest.errors.NotFoundException
+import org.radarbase.management.web.rest.errors.*
 import org.radarbase.management.web.rest.util.HeaderUtil
 import org.radarbase.management.web.rest.util.PaginationUtil
 import org.slf4j.LoggerFactory
@@ -45,25 +38,14 @@ import org.springframework.boot.actuate.audit.AuditEventRepository
 import org.springframework.data.domain.Pageable
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.DeleteMapping
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import tech.jhipster.web.util.ResponseUtil
 import java.io.Serializable
 import java.net.URISyntaxException
 import java.util.*
-import java.util.stream.Collector
-import java.util.stream.Collectors
 import java.util.stream.Stream
 import javax.validation.Valid
-import kotlin.collections.ArrayList
-
+import org.hibernate.Hibernate
 /**
  * REST controller for managing Subject.
  */
@@ -79,7 +61,8 @@ class SubjectResource(
     @Autowired private val revisionService: RevisionService,
     @Autowired private val sourceService: SourceService,
     @Autowired private val authService: AuthService,
-    @Autowired private val connectDataLogRepository: ConnectDataLogRepository
+    @Autowired private val connectDataLogRepository: ConnectDataLogRepository,
+    @Autowired private val roleRepository: RoleRepository
 ) {
 
     /**
@@ -610,6 +593,90 @@ class SubjectResource(
             }
         }
         return ResponseEntity.ok(dataLogDTOList);
+    }
+
+    @PostMapping("/subjects/{login:" + Constants.ENTITY_ID_REGEX + "}/reportready")
+    @Timed
+    @Throws (
+        NotAuthorizedException::class
+    )
+    fun makeReportReady(@PathVariable login: String) : ResponseEntity<List<DataLogDTO>> {
+
+        authService.checkScope(Permission.SUBJECT_READ)
+
+        val subject = subjectService.findOneByLogin(login);
+
+        val roles  =  roleRepository.findAllRolesByProjectName(subject.activeProject!!.projectName!!);
+        log.info("after getting roles")
+        var usersToEmail : List<User> = listOf();
+
+        for (role in roles) {
+            log.info("role ${role.authority}")
+
+            if(role.authority.toString() == RoleAuthority.PROJECT_ADMIN.authority) {
+                Hibernate.initialize(role.users) // Forces initialization
+                for(user in role.users) {
+                    usersToEmail += user
+                }
+            }
+        }
+
+        log.info("users in list ${usersToEmail}")
+
+        return ResponseEntity.ok(null);
+    }
+
+//    @GetMapping("/subjects/{login:" + Constants.ENTITY_ID_REGEX + "}/datasummary")
+//    @Timed
+//    @Throws (
+//        NotAuthorizedException::class
+//    )
+//    fun getDataSummary(@PathVariable login: String) : ResponseEntity<Map<String, List<Double>>> {
+//        authService.checkScope(Permission.SUBJECT_READ)
+//        val monthlyStatistics :  Map<String, List<Double>> = mapOf()
+//        val subject = subjectService.findOneByLogin(login);
+//
+//        if(subject.activeProject != null) {
+//            val awsService =   AWSService();
+//            val folderPrefix = "output/" + subject.activeProject?.projectName + "/" + login + "/Data_summary.pdf";
+//
+//            val keyName = subject.activeProject?.projectName + "/" + login + "/Data_summary.pdf"
+//
+//            val pressignedUrl = awsService.createPresignedGetUrl("output", keyName)
+//            log.info("pressigned url is ${pressignedUrl}")
+//
+//
+//     //       val data = awsService.useHttpUrlConnectionToGetDataAsInputStream(pressignedUrl);
+//
+//     //       log.info("we have data $data")
+//            val monthlyStatistics =   awsService.readLocalFile();
+//        }
+//
+//  //      log.info("[AWS-S3] REST request to url  : {}", url)
+//
+////        val bytes = awsService.useHttpUrlConnectionToGet(url);
+////        log.info("[AWS-S3] got the bytes")
+////        val downloadedFile: MutableMap<String, String> = HashMap()
+////        downloadedFile["fileName"] = "PDF file"
+////        downloadedFile["fileBytes"] = Base64.getEncoder().encodeToString(bytes);
+//        return ResponseEntity.ok(monthlyStatistics);
+//    }
+
+
+    @GetMapping("/subjects/{login:" + Constants.ENTITY_ID_REGEX + "}/datasummary")
+    @Timed
+    @Throws (
+        NotAuthorizedException::class
+    )
+    fun getDataSummary(@PathVariable login: String) : ResponseEntity<DataSummaryResult> {
+        authService.checkScope(Permission.SUBJECT_READ)
+        val awsService =   AWSService();
+
+        val subject = subjectRepository.findOneWithEagerBySubjectLogin(login);
+        val project = subject!!.activeProject!!.projectName!!;
+        
+        val monthlyStatistics =   awsService.startProcessing(project, login, DataSource.S3)
+        return ResponseEntity.ok(monthlyStatistics);
     }
 
 

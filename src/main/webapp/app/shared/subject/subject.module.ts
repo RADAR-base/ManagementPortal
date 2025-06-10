@@ -34,6 +34,10 @@ import {
             SubjectDataViewerDialogComponent
 } from './data-viewer/data-viewer.component';
 import { QueryViewerComponent } from './query-viewer/query-viewer.component';
+import { DataSummaryComponent } from './data-summary/data-summary.component';
+import { SingleRowGraphComponent } from './data-summary/single-row-graph/single-row-graph.component';
+import { YOURCOMPONENTNAMEComponent } from './data-summary/yourcomponentname/yourcomponentname.component';
+import { DoubleRowGraphComponent } from './data-summary/double-row-graph/double-row-graph.component';
 
 
 
@@ -78,7 +82,11 @@ const ENTITY_STATES = [
             QueryEvaluationDialogComponent,
         SubjectDataViewerPopupComponent,
         SubjectDataViewerDialogComponent,
-        QueryViewerComponent
+        QueryViewerComponent,
+        DataSummaryComponent,
+        SingleRowGraphComponent,
+        YOURCOMPONENTNAMEComponent,
+        DoubleRowGraphComponent,
 
     ],
     entryComponents: [
