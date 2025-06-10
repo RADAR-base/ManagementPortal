@@ -7,7 +7,7 @@ import { AlertService } from '../../util/alert.service';
 import { Subject } from '../subject.model';
 import { QueryParticipantService } from '../query-participant.service';
 import { SubjectPopupService } from '../subject-popup.service';
-import { QueryGroup, QueryParticipant } from 'app/shared/queries/query.model';
+import { QueryGroup, QueryParticipant } from 'app/shared/queries/queries.model';
 
 @Component({
     selector: 'app-query-viewer',

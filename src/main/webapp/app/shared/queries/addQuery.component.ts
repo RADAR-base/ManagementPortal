@@ -10,7 +10,7 @@ import { QueryDTO, QueryNode, QueryString } from './queries.model';
 import { Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
-import { QueryGroup } from './query.model';
+import { QueryGroup } from './queries.model';
 import { QueriesService } from './queries.service';
 import { ContentComponent } from './content/content.component';
 

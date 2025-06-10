@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-import { QueryGroup, QueryParticipant } from '../queries/query.model';
+import { QueryGroup, QueryParticipant } from '../queries/queries.model';
 
 @Injectable({ providedIn: 'root' })
 export class QueryParticipantService {
