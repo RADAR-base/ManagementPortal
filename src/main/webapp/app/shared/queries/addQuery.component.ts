@@ -16,7 +16,7 @@ import { ContentComponent } from './content/content.component';
 
 import { delusions, questionnaire } from './questionnaire';
 
-import { ContentItem , ContentType} from './queries.model';
+import { ContentItem, ContentType } from './queries.model';
 
 const sliderOptions = Array.from({ length: 7 }, (_, i) => {
     const val = String(i + 1);
@@ -29,9 +29,7 @@ const sliderOptions = Array.from({ length: 7 }, (_, i) => {
     styleUrls: ['../../../content/scss/queries.scss'],
 })
 export class AddQueryComponent {
-
-    public contentGroups: { name: string, items: ContentItem[] }[] = [];
-
+    public contentGroups: { name: string; items: ContentItem[] }[] = [];
 
     @ViewChild(ContentComponent) contentComponent!: ContentComponent;
 
@@ -81,16 +79,24 @@ export class AddQueryComponent {
 
     public config: QueryBuilderConfig = {
         entities: {
-            passive_data: { name: "Passive data" },
-            questionnaire: { name: "Questionnaire Slider" },
-            questionnaire_radio: { name: "Questionnaire Multichoice" },
-            questionnaire_group: { name: "Questionnaire Group" },
-            delusions: { name: "Delusions" }
+            passive_data: { name: 'Passive data' },
+            questionnaire: { name: 'Questionnaire Slider' },
+            questionnaire_radio: { name: 'Questionnaire Multichoice' },
+            questionnaire_group: { name: 'Questionnaire Group' },
+            delusions: { name: 'Delusions' },
         },
         fields: {
-            heart_rate: { name: 'Heart Rate', type: 'number', entity: "passive_data" },
-            sleep_length: { name: 'Sleep', type: 'number', entity: "passive_data" },
-            hrv: { name: 'HRV', type: 'number', entity: "passive_data" },
+            heart_rate: {
+                name: 'Heart Rate',
+                type: 'number',
+                entity: 'passive_data',
+            },
+            sleep_length: {
+                name: 'Sleep',
+                type: 'number',
+                entity: 'passive_data',
+            },
+            hrv: { name: 'HRV', type: 'number', entity: 'passive_data' },
         },
     };
 
@@ -98,8 +104,6 @@ export class AddQueryComponent {
     public allowRuleset: boolean = true;
     public allowCollapse: boolean;
     public persistValueOnFieldChange: boolean = true;
-
-
 
     private canGoBack: boolean = false;
 
@@ -109,7 +113,7 @@ export class AddQueryComponent {
         private http: HttpClient,
         private router: Router,
         private readonly location: Location,
-        private route: ActivatedRoute,
+        private route: ActivatedRoute
     ) {
         this.queryCtrl = this.formBuilder.control(this.query);
         this.currentConfig = this.config;
@@ -125,79 +129,92 @@ export class AddQueryComponent {
 
     private addQuestionnaireItemsToQueryBuilder() {
         // histogram to include only
-        let histogramQuestionsToInclude = ["whereabouts_1", "sleep_5", "social_1"];
+        let histogramQuestionsToInclude = [
+            'whereabouts_1',
+            'sleep_5',
+            'social_1',
+        ];
 
         for (const question of questionnaire) {
             const field = {
-                name: `${question.field_label} ${question.field_sublabel ? question.field_sublabel : ""}`,
-                type: "category",
-                entity: "questionnaire",
-                operators: null
-            }
-            if (question.field_type == "slider") {
-                field["options"] = sliderOptions
-            } else if(histogramQuestionsToInclude.includes(question.field_name)) {
-                field.name = `${question.field_label}`
-                field.entity = "questionnaire_radio"
-                field.operators = ["IS"]
-                let mappedOptions = question.select_choices_or_calculations.map((item) => {
-                    return {
-                        name: item.label,
-                        value: item.code
+                name: `${question.field_label} ${
+                    question.field_sublabel ? question.field_sublabel : ''
+                }`,
+                type: 'category',
+                entity: 'questionnaire',
+                operators: null,
+            };
+            if (question.field_type == 'slider') {
+                field['options'] = sliderOptions;
+            } else if (
+                histogramQuestionsToInclude.includes(question.field_name)
+            ) {
+                field.name = `${question.field_label}`;
+                field.entity = 'questionnaire_radio';
+                field.operators = ['IS'];
+                let mappedOptions = question.select_choices_or_calculations.map(
+                    (item) => {
+                        return {
+                            name: item.label,
+                            value: item.code,
+                        };
                     }
-
-                })
-                field["options"] = mappedOptions
+                );
+                field['options'] = mappedOptions;
             }
 
             if (!this.config.fields[question.group_name]) {
                 const group = {
                     name: `${question.group_name}`,
-                    type: "category",
-                    entity: "questionnaire_group",
-                    options: sliderOptions
-                }
-                this.config.fields[question.group_name] = group
+                    type: 'category',
+                    entity: 'questionnaire_group',
+                    options: sliderOptions,
+                };
+                this.config.fields[question.group_name] = group;
             }
-            this.config.fields[question.field_name] = field
+            this.config.fields[question.field_name] = field;
         }
-
     }
 
     private addDelusionsToQueryBuilder() {
-
         for (const delusion of delusions) {
             const field = {
-                name: `${delusion.field_label} ${delusion.field_sublabel ? delusion.field_sublabel : ""}`,
-                type: "category",
-                entity: "delusions",
-                options: sliderOptions
+                name: `${delusion.field_label} ${
+                    delusion.field_sublabel ? delusion.field_sublabel : ''
+                }`,
+                type: 'category',
+                entity: 'delusions',
+                options: sliderOptions,
+            };
 
-            }
-
-            this.config.fields[delusion.field_name] = field
+            this.config.fields[delusion.field_name] = field;
         }
     }
 
     async ngOnInit() {
         this.route.params.subscribe((params) => {
-            let queryId = params["query-id"];
+            let queryId = params['query-id'];
             this.queryGroupId = queryId;
             if (queryId) {
-
                 this.http
                     .get(this.baseUrl + '/querygroups/' + queryId)
                     .subscribe((response: any) => {
-                        this.query = response
+                        this.query = response;
                         this.queryGrouName = response.queryGroupName;
                         this.queryGroupDesc = response.queryGroupDescription;
                     });
-
+                //load query content
                 this.http
-                    .get('api/query-builder/querycontent/querygroup/' + queryId)
+                    .get(
+                        this.baseUrl +
+                            '/querycontent/querygroup/' +
+                            queryId
+                    )
                     .subscribe((response: any) => {
-
-                        this.contentComponent.items = response;
+                        this.contentGroups = response.map((group: any) => ({
+                            name: group.contentGroupName,
+                            items: group.queryContentDTOList || [],
+                        }));
                     });
             }
         });
@@ -213,8 +230,6 @@ export class AddQueryComponent {
             ? this.queryCtrl.disable()
             : this.queryCtrl.enable();
     }
-
-
 
     private _counter = 0;
     formRuleWeakMap = new WeakMap();
@@ -242,7 +257,7 @@ export class AddQueryComponent {
             case '<=':
                 return 'LESS_THAN_OR_EQUALS';
             case 'IS':
-                return "IS"
+                return 'IS';
 
             default:
                 return null;
@@ -250,13 +265,12 @@ export class AddQueryComponent {
     }
 
     convertTimeFrame(value: string) {
-
         switch (value) {
-            case "6_months":
+            case '6_months':
                 return 'PAST_6_MONTH';
-            case "1_months":
+            case '1_months':
                 return 'PAST_MONTH';
-            case "1_years":
+            case '1_years':
                 return 'PAST_YEAR';
             default:
                 return null;
@@ -275,7 +289,7 @@ export class AddQueryComponent {
                 operator: this.convertComparisonOperator(query.operator),
                 timeFrame: this.convertTimeFrame(query.timeFame),
                 value: query.value,
-                entity: query.entity
+                entity: query.entity,
             };
 
             return {
@@ -290,12 +304,11 @@ export class AddQueryComponent {
             description: this.queryGroupDesc,
         };
 
-
         if (this.queryGroupId) {
             this.queryGroupId = await this.updateQueryGroup(query_group);
             await this.updateIndividualQueries();
         } else {
-            this.queryGroupId = await this.saveNewQueryGroup(query_group)
+            this.queryGroupId = await this.saveNewQueryGroup(query_group);
             await this.saveIndividualQueries();
         }
 
@@ -306,11 +319,13 @@ export class AddQueryComponent {
 
     async saveContent() {
         for (const group of this.contentGroups) {
-            await this.queryService.saveContentGroup({
+            const payload = {
                 queryGroupId: this.queryGroupId,
                 contentGroupName: group.name,
-                items: group.items
-            });
+                queryContentDTOList: group.items
+            };
+            console.log('Payload to saveContentGroup:', JSON.stringify(payload, null, 2));
+            await this.queryService.saveContentGroup(payload);
         }
     }
     
@@ -318,23 +333,24 @@ export class AddQueryComponent {
     addContentGroup() {
         this.contentGroups.push({
             name: '',
-            items: [{
-                type: ContentType.TITLE,
-                value: "this is title"
-            }]
+            items: [
+                {
+                    type: ContentType.TITLE,
+                    value: 'this is title',
+                },
+            ],
         });
     }
-    
+
     saveNewQueryGroup(queryGroup: QueryGroup) {
         return this.http
-            .post(this.baseUrl + '/querygroups', queryGroup).toPromise()
-
-
+            .post(this.baseUrl + '/querygroups', queryGroup)
+            .toPromise();
     }
     updateQueryGroup(queryGroup: QueryGroup) {
         return this.http
-            .put(this.baseUrl + '/querygroups/' + this.queryGroupId, queryGroup).toPromise()
-
+            .put(this.baseUrl + '/querygroups/' + this.queryGroupId, queryGroup)
+            .toPromise();
     }
     saveIndividualQueries() {
         const query_logic = {
@@ -343,8 +359,8 @@ export class AddQueryComponent {
         };
 
         return this.http
-            .post(this.baseUrl + '/querylogic', query_logic).toPromise()
-
+            .post(this.baseUrl + '/querylogic', query_logic)
+            .toPromise();
     }
 
     updateIndividualQueries() {
@@ -354,8 +370,8 @@ export class AddQueryComponent {
         };
 
         return this.http
-            .put(this.baseUrl + '/querylogic', query_logic).toPromise();
-
+            .put(this.baseUrl + '/querylogic', query_logic)
+            .toPromise();
     }
 
     get isSaveButtonDisabled(): boolean {

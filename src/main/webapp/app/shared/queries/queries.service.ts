@@ -10,15 +10,8 @@ export class QueriesService {
     constructor(private http: HttpClient) {
     }
 
-    saveContent(queryGroupId: number, contentList: ContentItem[]) {
-        return this.http.post(this.baseURL+"/querycontent/querygroup/" + queryGroupId, contentList).toPromise();
+    saveContentGroup(contentGroupData: { queryGroupId: number, contentGroupName: string, queryContentDTOList: ContentItem[] }) {
+      return this.http.post(this.baseURL+ "/querygroupcontent", contentGroupData).toPromise();
     }
-
-    saveContentGroup(data: {
-        queryGroupId: number;
-        contentGroupName: string;
-        items: any[];
-      }) {
-        return this.http.post(`${this.baseURL}/querycontentgroup`, data).toPromise();
-      }
+    
 }

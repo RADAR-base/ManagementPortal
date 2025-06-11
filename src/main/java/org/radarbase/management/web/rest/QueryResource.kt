@@ -167,12 +167,15 @@ class QueryResource(
         return ResponseEntity.ok(result)
     }
 
-    @PostMapping("querycontent/querygroup/{queryGroupId}")
-    fun saveQueryContent(@PathVariable queryGroupId: Long, @RequestBody queryContentDTO: List<QueryContentDTO>): ResponseEntity<*> {
-        queryContentService.saveAll(queryGroupId, queryContentDTO);
-        return ResponseEntity.ok(null);
+    @PostMapping("querygroupcontent")
+    fun saveAll(@RequestBody request: QueryGroupContentSaveRequest): ResponseEntity<Void> {
+        queryContentService.saveAll(
+            request.queryGroupId,
+            request.contentGroupName,
+            request.queryContentDTOList
+        )
+        return ResponseEntity.ok().build()
     }
-
     @GetMapping("querycontent/querygroup/{queryGroupId}")
     fun getQueryContent(@PathVariable queryGroupId: Long): ResponseEntity<*> {
         val result =  queryContentService.findAllByQueryGroupId(queryGroupId)
@@ -180,12 +183,6 @@ class QueryResource(
     }
 
 
-    @PostMapping("querygroupcontent")
-    fun createContentGroup(@RequestBody dto: QueryGroupContentDTO): ResponseEntity<QueryGroupContent> {
-        val result = queryContentService.saveContentGroup(dto)
-        return ResponseEntity.status(HttpStatus.CREATED).body(result)
-
-    }
     @DeleteMapping("queryevaluation/querygroup/{querygroupid}/subject/{subjectid}")
     fun deleteQueryEvaluationContent(
         @PathVariable querygroupid: Long,
@@ -195,6 +192,11 @@ class QueryResource(
         return ResponseEntity.ok().build()
     }
 
+    data class QueryGroupContentSaveRequest(
+        val queryGroupId: Long,
+        val contentGroupName: String,
+        val queryContentDTOList: List<QueryContentDTO>
+    )
 
     companion object {
         private val log = LoggerFactory.getLogger(QueryResource::class.java)

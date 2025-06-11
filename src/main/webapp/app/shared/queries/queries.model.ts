@@ -88,5 +88,3 @@ export interface ContentItem {
     isValidImage?: Boolean;
     queryGroupId?: Number;
 }
-
-
