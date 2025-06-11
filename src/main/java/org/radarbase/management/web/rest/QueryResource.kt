@@ -20,6 +20,7 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.web.bind.annotation.*
 
+
 @RestController
 @RequestMapping("/api/query-builder")
 class QueryResource(
@@ -183,6 +184,15 @@ class QueryResource(
     fun createContentGroup(@RequestBody dto: QueryGroupContentDTO): ResponseEntity<QueryGroupContent> {
         val result = queryContentService.saveContentGroup(dto)
         return ResponseEntity.status(HttpStatus.CREATED).body(result)
+
+    }
+    @DeleteMapping("queryevaluation/querygroup/{querygroupid}/subject/{subjectid}")
+    fun deleteQueryEvaluationContent(
+        @PathVariable querygroupid: Long,
+        @PathVariable subjectid: Long
+    ): ResponseEntity<Void> {
+        queryEValuationService.removeQueryEvaluationByQueryGroupAndSubject(querygroupid, subjectid)
+        return ResponseEntity.ok().build()
     }
 
 

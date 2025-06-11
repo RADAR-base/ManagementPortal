@@ -64,14 +64,14 @@ export class AddQueryComponent {
         ruleSet: 'border',
         invalidRuleSet: 'alert alert-danger',
         emptyWarning: 'text-danger mx-auto',
-        operatorControl: 'form-control',
+        operatorControl: 'query-builder-field',
         operatorControlSize: 'col-auto pr-0',
-        fieldControl: 'form-control',
+        fieldControl: 'query-builder-field',
         fieldControlSize: 'col-auto pr-0',
-        entityControl: 'form-control',
+        entityControl: 'query-builder-field',
         entityControlSize: 'col-auto pr-0',
-        inputControl: 'form-control',
-        inputControlSize: 'col-auto',
+        inputControl: 'query-builder-field',
+        inputControlSize: 'col-auto pr-0',
     };
 
     public query: QueryString | any = {

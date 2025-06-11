@@ -15,4 +15,7 @@ interface QueryEvaluationRepository : JpaRepository<QueryEvaluation, Long>  {
     fun findBySubjectAndQueryGroup(subject: Subject, queryGroup: QueryGroup): List<QueryEvaluation>
 
     fun findBySubject(subject: Subject): List<QueryEvaluation>
+
+    fun deleteByQueryGroupIdAndSubjectId(queryGroupId: Long, subjectId: Long)
+
 }

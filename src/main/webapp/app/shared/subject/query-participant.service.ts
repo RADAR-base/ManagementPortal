@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpResponse } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 import { QueryGroup, QueryParticipant } from '../queries/queries.model';
@@ -29,8 +29,16 @@ export class QueryParticipantService {
 
     deleteAssignedQueryGroup(subjectid: number, querygroupid: number) {
         return this.http.delete(
-            this.baseURL +
-                `/querygroups/${subjectid}/subject/${querygroupid}`
+            this.baseURL + `/querygroups/${subjectid}/subject/${querygroupid}`
+        );
+    }
+
+    deleteQueryEvaluationContent(
+        queryGroupId: number,
+        subjectId: number
+    ): Observable<any> {
+        return this.http.delete(
+            this.baseURL+`/queryevaluation/querygroup/${queryGroupId}/subject/${subjectId}`
         );
     }
 }
