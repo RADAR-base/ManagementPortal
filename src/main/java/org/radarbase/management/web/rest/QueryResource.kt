@@ -1,10 +1,12 @@
 package org.radarbase.management.web.rest
 
+import QueryGroupContentDTO
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.micrometer.core.annotation.Timed
 import org.radarbase.management.domain.Query
 import org.radarbase.management.domain.QueryGroup
+import org.radarbase.management.domain.QueryGroupContent
 import org.radarbase.management.repository.UserRepository
 import org.radarbase.management.service.*
 import org.radarbase.management.service.dto.*
@@ -12,6 +14,7 @@ import org.radarbase.management.web.rest.errors.ErrorConstants
 import org.radarbase.management.web.rest.errors.ErrorVM
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UserDetails
@@ -174,6 +177,14 @@ class QueryResource(
         val result =  queryContentService.findAllByQueryGroupId(queryGroupId)
         return ResponseEntity.ok(result)
     }
+
+
+    @PostMapping("querygroupcontent")
+    fun createContentGroup(@RequestBody dto: QueryGroupContentDTO): ResponseEntity<QueryGroupContent> {
+        val result = queryContentService.saveContentGroup(dto)
+        return ResponseEntity.status(HttpStatus.CREATED).body(result)
+    }
+
 
     companion object {
         private val log = LoggerFactory.getLogger(QueryResource::class.java)

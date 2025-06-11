@@ -16,6 +16,8 @@ import { ContentComponent } from './content/content.component';
 
 import { delusions, questionnaire } from './questionnaire';
 
+import { ContentItem , ContentType} from './queries.model';
+
 const sliderOptions = Array.from({ length: 7 }, (_, i) => {
     const val = String(i + 1);
     return { name: val, value: val };
@@ -27,6 +29,8 @@ const sliderOptions = Array.from({ length: 7 }, (_, i) => {
     styleUrls: ['../../../content/scss/queries.scss'],
 })
 export class AddQueryComponent {
+
+    public contentGroups: { name: string, items: ContentItem[] }[] = [];
 
 
     @ViewChild(ContentComponent) contentComponent!: ContentComponent;
@@ -301,11 +305,26 @@ export class AddQueryComponent {
     }
 
     async saveContent() {
-        let content = this.contentComponent.items;
-
-        await this.queryService.saveContent(this.queryGroupId, content);
+        for (const group of this.contentGroups) {
+            await this.queryService.saveContentGroup({
+                queryGroupId: this.queryGroupId,
+                contentGroupName: group.name,
+                items: group.items
+            });
+        }
     }
+    
 
+    addContentGroup() {
+        this.contentGroups.push({
+            name: '',
+            items: [{
+                type: ContentType.TITLE,
+                value: "this is title"
+            }]
+        });
+    }
+    
     saveNewQueryGroup(queryGroup: QueryGroup) {
         return this.http
             .post(this.baseUrl + '/querygroups', queryGroup).toPromise()

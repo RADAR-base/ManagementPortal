@@ -1,23 +1,30 @@
 package org.radarbase.management.service
 
+import QueryGroupContentDTO
 import org.radarbase.management.domain.QueryContent
+import org.radarbase.management.domain.QueryGroupContent
 import org.radarbase.management.domain.enumeration.ContentType
 import org.radarbase.management.repository.QueryContentRepository
+import org.radarbase.management.repository.QueryGroupContentRepository
 import org.radarbase.management.repository.QueryGroupRepository
 import org.radarbase.management.service.dto.QueryContentDTO
 import org.radarbase.management.service.mapper.QueryContentMapper
 import org.slf4j.LoggerFactory
+import org.springframework.data.jpa.domain.AbstractAuditable_.createdDate
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.nio.charset.StandardCharsets
+import java.time.ZonedDateTime
 import java.util.*
+import javax.persistence.EntityNotFoundException
 
 @Service
 @Transactional
 public class QueryContentService(
     private val queryContentRepository: QueryContentRepository,
     private val queryGroupRepository: QueryGroupRepository,
-    private val queryContentMapper: QueryContentMapper
+    private val queryContentMapper: QueryContentMapper,
+    private val queryGroupContentRepository: QueryGroupContentRepository
 
 ) {
 
@@ -88,6 +95,24 @@ public class QueryContentService(
         }
 
         return result;
+    }
+
+    fun saveContentGroup(dto: QueryGroupContentDTO): QueryGroupContent {
+        val queryGroup = queryGroupRepository.findById(dto.queryGroupId)
+            .orElseThrow { EntityNotFoundException("QueryGroup not found: ${dto.queryGroupId}") }
+
+        val queryContent = queryContentRepository.findById(dto.queryContentId)
+            .orElseThrow { EntityNotFoundException("QueryContent not found: ${dto.queryContentId}") }
+
+        val contentGroup = QueryGroupContent().apply {
+            contentGroupName = dto.contentGroupName
+            this.queryGroup = queryGroup
+            this.queryContent = queryContent
+            createdDate = ZonedDateTime.now()
+            updatedDate = ZonedDateTime.now()
+        }
+
+        return queryGroupContentRepository.save(contentGroup)
     }
 
 

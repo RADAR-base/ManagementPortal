@@ -1,15 +1,24 @@
 import { Injectable } from '@angular/core';
-import { Observable, throwError } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import { Account } from "../user/account.model";
 import { ContentItem } from './queries.model';
 
 @Injectable({ providedIn: 'root' })
 export class QueriesService {
+
+    private baseURL = 'api/query-builder';
+
     constructor(private http: HttpClient) {
     }
 
     saveContent(queryGroupId: number, contentList: ContentItem[]) {
-        return this.http.post('api/query-builder/querycontent/querygroup/' + queryGroupId, contentList).toPromise();
+        return this.http.post(this.baseURL+"/querycontent/querygroup/" + queryGroupId, contentList).toPromise();
     }
+
+    saveContentGroup(data: {
+        queryGroupId: number;
+        contentGroupName: string;
+        items: any[];
+      }) {
+        return this.http.post(`${this.baseURL}/querycontentgroup`, data).toPromise();
+      }
 }
