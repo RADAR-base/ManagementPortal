@@ -15,13 +15,22 @@ import java.time.Duration
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 
 import com.fasterxml.jackson.module.kotlin.readValue
+import org.radarbase.management.domain.MetricAverage
+import org.radarbase.management.domain.enumeration.AggregationPeriod
+import org.radarbase.management.domain.enumeration.AggregationType
+import org.radarbase.management.repository.MetricAveragesRepository
 import org.springframework.core.io.ClassPathResource
+import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider
 import software.amazon.awssdk.services.s3.S3Client
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Request
 import java.io.*
 import java.lang.IllegalArgumentException
 import java.nio.charset.StandardCharsets
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.ZonedDateTime
 
 enum class DataSource {
     S3, CLASSPATH
@@ -85,7 +94,17 @@ data class HistogramResponse(
     val whereabouts: MutableMap<String,  Int>,
     val sleep: MutableMap<String,  Int>)
 
-class AWSService {
+
+
+@Service
+@Transactional
+class AWSService(
+    private val metricAveragesRepository: MetricAveragesRepository,
+    private val subjectService: SubjectService,
+    private val metricAverageService: MetricAverageService
+
+
+) {
     private val log = LoggerFactory.getLogger(javaClass)
     private var s3AsyncClient: S3AsyncClient? = null
     private var bucketName: String? = null
@@ -150,180 +169,6 @@ class AWSService {
     }
 
 
-    fun processJsonFiles(
-       Client: S3Client,
-        bucket: String,
-        fileKeys: List<String>,
-        dataSource: DataSource
-    ): DataSummaryResult {
-        val jsonMapper = jacksonObjectMapper()
-        val monthlyAverages = mutableMapOf<String, MutableMap<String, MutableList<Double>>>()
-        val dataSummaryResult = DataSummaryResult(
-            data = mutableMapOf(),
-            allHistogram = mutableListOf(),
-            allSlider = mutableListOf(),
-            allPhysical = mutableListOf()
-        )
-
-        for (key in fileKeys) {
-            log.info("current key is ${key}")
-
-
-            if(key == "export/.DS_Store") {
-                continue
-            }
-
-            val jsonString = when (dataSource) {
-                DataSource.S3 -> downloadS3Json(Client, bucket, key)
-                DataSource.CLASSPATH -> readClassPathJson(key)
-            }
-
-
-            // gets the JSON from the file and reads it into a variable
-            val jsonData: S3JsonData = jsonMapper.readValue(jsonString)
-            val month = extractMonthFromFilename(key) // Extract month from filename
-
-
-            // creates an empty object that will be filled up with datat
-            val dataSummaryCategory = DataSummaryCategory(
-                physical = mutableMapOf<String,  Double>(),
-                questionnaire_total = 0.0,
-                questionnaire_slider = mutableMapOf(),
-                histogram = HistogramResponse(
-                    social = mutableMapOf(),
-                    whereabouts = mutableMapOf(),
-                    sleep = mutableMapOf()
-
-
-                ),
-
-            )
-
-            // puts a month in based on the file name
-            dataSummaryResult.data
-                .getOrPut(month) { dataSummaryCategory }
-
-
-            // goes through the physical statistics (heart_rate , steps etc) and gets the mean value
-            // and saves it
-            jsonData.feature_statistics.forEach { (feature, stats) ->
-                var mean : Double = 0.0;
-                if(stats.mean != null) {
-                    mean = stats.mean
-                } else if (stats.total_responses != null) {
-                    mean = stats.total_responses
-                }
-
-
-                //monthlyAverages not used anymore I think ?
-                monthlyAverages
-                    .getOrPut(month) { mutableMapOf() }
-                    .getOrPut(feature) { mutableListOf() }
-                    .add(mean)
-
-                // this is where it puts steps: 3.5 as an exmaple
-                dataSummaryCategory.physical
-                             .getOrPut(feature){ mean }
-
-            }
-
-            // gets the questionnare_total per month
-            dataSummaryCategory.questionnaire_total = jsonData.questionnaire_responses.days_with_responses.toDouble()
-
-
-            // gets the questionnaire categories ( same principle as for physical ones)
-            jsonData.questionnaire_responses.slider.forEach{ (feature, stats) ->
-                val totalNumber =  stats.mean;
-
-                dataSummaryCategory.questionnaire_slider
-                    .getOrPut(feature){ totalNumber }
-            }
-
-
-            // the next three is hardcoded to get the histograms
-
-            val social = jsonData.questionnaire_responses.histogram.social.get("social_1")
-             if (social != null) {
-
-                 social.forEach { (feature, stats) ->
-
-                     val key = feature.toDouble().toInt()
-                     var value = dataSummaryCategory.histogram.social.get(key.toString())
-
-                     if (value == null) {
-                         dataSummaryCategory.histogram.social.put(key.toString(), stats)
-                     } else {
-                         value += stats
-                         dataSummaryCategory.histogram.social.put(key.toString(), value)
-                     }
-                 }
-             }
-
-            val whereabouts = jsonData.questionnaire_responses.histogram.whereabouts["whereabouts_1"]
-            if (whereabouts != null) {
-
-                whereabouts.forEach { (feature, stats) ->
-                    val key = feature.toDouble().toInt()
-                    var value = dataSummaryCategory.histogram.whereabouts[key.toString()]
-
-                    if (value == null) {
-                        dataSummaryCategory.histogram.whereabouts.put(key.toString(), stats)
-                    } else {
-                        value += stats
-                        dataSummaryCategory.histogram.whereabouts.put(key.toString(), value)
-                    }
-                }
-            }
-
-            val sleep = jsonData.questionnaire_responses.histogram.sleep["sleep_5"]
-            if (sleep != null) {
-
-                sleep.forEach { (feature, stats) ->
-
-                    var value = dataSummaryCategory.histogram.sleep[feature]
-
-                    if (value == null) {
-                        dataSummaryCategory.histogram.sleep.put(feature, stats)
-                    } else {
-                        value += stats
-                        dataSummaryCategory.histogram.sleep.put(feature, value)
-                    }
-                }
-            }
-
-            for ((summaryKey, summaryValue) in dataSummaryResult.data) {
-
-                for((sliderKey, sliderValue) in summaryValue.questionnaire_slider) {
-                   if(sliderKey !in dataSummaryResult.allSlider) {
-                       dataSummaryResult.allSlider.add(sliderKey)
-                   }
-                }
-
-                for((sliderKey, sliderValue) in summaryValue.physical) {
-                    if(sliderKey !in dataSummaryResult.allPhysical) {
-                        dataSummaryResult.allPhysical.add(sliderKey)
-                    }
-                }
-            }
-
-            // histogram
-
-     //       jsonData.questionnaire_responses.
-
-//            log.info("questionnaire data is ${jsonData.questionnaire_responses.total_responses}")
-//            monthlyAverages
-//                .getOrPut(month) { mutableMapOf() }
-//                .getOrPut("questionnaire_responses") { mutableListOf() }
-//                .add(jsonData.questionnaire_responses.total_responses.toDouble())
-
-        }
-
-//        return monthlyAverages.mapValues { (_, features) ->
-//            features.mapValues { (_, means) -> means.average() }
-//        }
-
-        return dataSummaryResult
-    }
 
     fun extractMonthFromFilename(filename: String): String {
         val regex = """_(\d{4}-\d{2})""".toRegex() // Looks for _YYYY-MM in filename
@@ -347,8 +192,95 @@ class AWSService {
     }
 
 
+    fun processJsonFiles(
+        client: S3Client,
+        bucket: String,
+        fileKeys: List<String>,
+        dataSource: DataSource
+    ): DataSummaryResult {
+        val jsonMapper = jacksonObjectMapper()
+        val dataSummaryResult = DataSummaryResult(
+            data = mutableMapOf(),
+            allHistogram = mutableListOf(),
+            allSlider = mutableListOf(),
+            allPhysical = mutableListOf()
+        )
 
+        for (key in fileKeys) {
+            if (key == "export/.DS_Store") continue
 
+            val jsonString = when (dataSource) {
+                DataSource.S3 -> downloadS3Json(client, bucket, key)
+                DataSource.CLASSPATH -> readClassPathJson(key)
+            }
+
+            val jsonData: S3JsonData = jsonMapper.readValue(jsonString)
+            val month = extractMonthFromFilename(key)
+
+            val dataSummaryCategory = dataSummaryResult.data.getOrPut(month) {
+                DataSummaryCategory(
+                    physical = mutableMapOf(),
+                    questionnaire_total = 0.0,
+                    questionnaire_slider = mutableMapOf(),
+                    histogram = HistogramResponse(
+                        social = mutableMapOf(),
+                        whereabouts = mutableMapOf(),
+                        sleep = mutableMapOf()
+                    )
+                )
+            }
+
+            // Process physical features
+            jsonData.feature_statistics.forEach { (feature, stats) ->
+                val mean = stats.mean ?: stats.total_responses ?: 0.0
+                dataSummaryCategory.physical[feature] = mean
+
+                if (feature !in dataSummaryResult.allPhysical) {
+                    dataSummaryResult.allPhysical.add(feature)
+                }
+            }
+
+            // Questionnaire summary
+            dataSummaryCategory.questionnaire_total = jsonData.questionnaire_responses.days_with_responses.toDouble()
+
+            // Questionnaire items
+            jsonData.questionnaire_responses.slider.forEach { (feature, stats) ->
+                dataSummaryCategory.questionnaire_slider[feature] = stats.mean
+
+                if (feature !in dataSummaryResult.allSlider) {
+                    dataSummaryResult.allSlider.add(feature)
+                }
+            }
+
+            // Histogram items
+            processHistogramCategory(
+                jsonData.questionnaire_responses.histogram.social["social_1"],
+                dataSummaryCategory.histogram.social
+            )
+
+            processHistogramCategory(
+                jsonData.questionnaire_responses.histogram.whereabouts["whereabouts_1"],
+                dataSummaryCategory.histogram.whereabouts
+            )
+
+            processHistogramCategory(
+                jsonData.questionnaire_responses.histogram.sleep["sleep_5"],
+                dataSummaryCategory.histogram.sleep
+            )
+        }
+
+        return dataSummaryResult
+    }
+
+    private fun processHistogramCategory(
+        source: Map<String, Int>?,
+        target: MutableMap<String, Int>
+    ) {
+        source?.forEach { (feature, value) ->
+            val normalizedKey = feature.toDoubleOrNull()?.toInt()?.toString() ?: feature
+            target.merge(normalizedKey, value, Int::plus)
+        }
+    }
 
 
 
@@ -402,10 +334,6 @@ class AWSService {
 
         return inputStream
     }
-
-
-
-
 
     fun readLocalFile()  : Map<String, List<Double>> {
         val featureStatisticsMap = mutableMapOf<String, MutableList<Double>>()
