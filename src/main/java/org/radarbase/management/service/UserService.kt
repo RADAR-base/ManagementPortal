@@ -298,6 +298,7 @@ class UserService @Autowired constructor(
             user.email = userDto.email
             user.activated = userDto.isActivated
             user.langKey = userDto.langKey
+            user.identity = userDto.identity
             val managedRoles = user.roles
             val oldRoles = java.util.Set.copyOf(managedRoles)
             managedRoles.clear()
@@ -346,7 +347,7 @@ class UserService @Autowired constructor(
      * Change the password of the user with the given login.
      * @param password the new password
      */
-    fun changePassword(password: String) {
+    suspend fun changePassword(password: String) {
         val currentUser = SecurityUtils.currentUserLogin
             ?: throw InvalidRequestException(
                 "Cannot change password of unknown user", "", ErrorConstants.ERR_ENTITY_NOT_FOUND
@@ -359,12 +360,15 @@ class UserService @Autowired constructor(
      * @param password the new password
      * @param login of the user to change password
      */
-    fun changePassword(login: String, password: String) {
+    suspend fun changePassword(login: String, password: String) {
         val user = userRepository.findOneByLogin(login)
 
         if (user != null) {
-            val encryptedPassword = passwordService.encode(password)
-            user.password = encryptedPassword
+            if (identityService != null) {
+                // update the password in the IDP
+                identityService?.updatePassword(user, password)
+            }
+            user.password = passwordService.encode(password)
             log.debug("Changed password for User: {}", user)
         }
     }
@@ -384,10 +388,8 @@ class UserService @Autowired constructor(
         log.debug("Set admin email to: {}", email)
 
         identityService?.let {
-            // there is no identity for this user, so we create it and save it to the IDP
-            val id = it.saveAsIdentity(user)
-            // then save the identifier and update our database
-            user.identity = id?.id
+            // if there is no identity for this user, we create it and save it to the IDP
+            user.identity = user.identity?: it.saveAsIdentity(user)?.id
         }
 
         return userMapper.userToUserDTO(user)
