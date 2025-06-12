@@ -25,17 +25,26 @@
 
 
 
-    <div class="block">
-        <button class="btn btn-outline-primary mb-2" (click)="addContentGroup()">Add Content Group</button>
-    
-        <div *ngFor="let group of contentGroups; let i = index" class="mb-4 p-3 border rounded">
-            <label>Content Group Name</label>
-            <input type="text" class="form-control mb-2" [(ngModel)]="group.name" placeholder="Enter group name" />
-        
-            <query-content [(items)]="group.items"></query-content>
-        </div>
-        
+<div class="block">
+    <button class="btn btn-outline-primary" (click)="addContentGroup()">
+      Add Content Group
+    </button>
+</div>
+  
+<div *ngFor="let group of contentGroups; let i = index" class="mb-4">
+    <div class="p-3 border rounded shadow-sm">
+        <label class="form-label fw-bold">Content Group Name</label>
+        <input
+        type="text"
+        class="form-control mb-3"
+        [(ngModel)]="group.name"
+        placeholder="Enter group name"
+        />
+
+        <query-content [(items)]="group.items"></query-content>
     </div>
+</div>
+
 
     <button (click)="saveQueryGroupToDB()" class="btn btn-primary saveBtn" [disabled]="isSaveButtonDisabled">Save</button>
 
