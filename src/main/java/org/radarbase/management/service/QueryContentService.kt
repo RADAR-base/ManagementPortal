@@ -104,6 +104,19 @@ public class QueryContentService(
         return result;
     }
 
+    fun findAllGroupContentsByQueryGroupId(queryGroupId: Long): List<QueryGroupContentDTO> {
+        val groupContents = queryGroupContentRepository.findAllByQueryGroupId(queryGroupId)
+
+        return groupContents.map { qgc ->
+            QueryGroupContentDTO(
+                contentGroupName = qgc.contentGroupName.toString(),
+                queryGroupId = qgc.queryGroup?.id!!,
+                queryContentId = qgc.queryContent?.id!!
+            )
+        }
+    }
+
+
     companion object {
         private val log = LoggerFactory.getLogger(QueryContentService::class.java)
     }

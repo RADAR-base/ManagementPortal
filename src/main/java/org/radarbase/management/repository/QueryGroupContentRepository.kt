@@ -7,4 +7,6 @@ import org.springframework.data.repository.RepositoryDefinition
 @Suppress("unused")
 @RepositoryDefinition(domainClass = QueryGroupContent::class, idClass = Long::class)
 interface QueryGroupContentRepository: JpaRepository<QueryGroupContent, Long> {
+    fun findAllByQueryGroupId(queryGroupId: Long): List<QueryGroupContent>
+
 }

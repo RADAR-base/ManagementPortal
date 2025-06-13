@@ -23,7 +23,20 @@
         </query-builder>
     </div>
 
-
+<!-- Content Group list -->
+<div class="row mb-4">
+    <div class="col-md-4" *ngFor="let group of contentGroups; let i = index">
+      <div class="card cursor-pointer h-100" (click)="selectGroup(i)">
+        <div class="card-body">
+          <h5 class="card-title">{{ group.name || 'Untitled Group' }}</h5>
+          <p class="card-text text-muted">
+            {{ group.items?.length || 0 }} content item(s)
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+  
 
 <div class="block">
     <button class="btn btn-outline-primary" (click)="addContentGroup()">
@@ -44,6 +57,22 @@
         <query-content [(items)]="group.items"></query-content>
     </div>
 </div>
+
+<!-- 当前选中的 Content Group -->
+<div *ngIf="selectedGroupIndex !== null" class="mb-4">
+    <div class="p-3 border rounded shadow-sm">
+      <label class="form-label fw-bold">Content Group Name</label>
+      <input
+        type="text"
+        class="form-control mb-3"
+        [(ngModel)]="contentGroups[selectedGroupIndex].name"
+        placeholder="Enter group name"
+      />
+  
+      <query-content [(items)]="contentGroups[selectedGroupIndex].items"></query-content>
+    </div>
+  </div>
+  
 
 
     <button (click)="saveQueryGroupToDB()" class="btn btn-primary saveBtn" [disabled]="isSaveButtonDisabled">Save</button>

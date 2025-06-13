@@ -106,6 +106,12 @@ export class AddQueryComponent {
     public persistValueOnFieldChange: boolean = true;
 
     private canGoBack: boolean = false;
+    selectedGroupIndex: number | null = null;
+
+    selectGroup(index: number): void {
+        this.selectedGroupIndex = index;
+    }
+
 
     constructor(
         private queryService: QueriesService,
@@ -203,7 +209,7 @@ export class AddQueryComponent {
                         this.queryGrouName = response.queryGroupName;
                         this.queryGroupDesc = response.queryGroupDescription;
                     });
-                //load query content
+                //load query contents
                 this.http
                     .get(
                         this.baseUrl +
@@ -218,6 +224,10 @@ export class AddQueryComponent {
                     });
             }
         });
+
+        if (this.contentGroups.length > 0) {
+            this.selectedGroupIndex = 0;
+          }
     }
 
     goBack(): void {
