@@ -24,8 +24,8 @@ const sliderOptions = Array.from({ length: 7 }, (_, i) => {
 });
 
 interface ContentGroup {
-  name: string;
-  items: ContentItem[];
+    name: string;
+    items: ContentItem[];
 }
 
 @Component({
@@ -47,8 +47,6 @@ export class AddQueryComponent {
     public queryGroupDesc: string;
 
     public queryGroupId: number | any | null;
-
-    private baseUrl = 'api/query-builder';
 
     public bootstrapClassNames: QueryBuilderClassNames = {
         removeIcon: 'fa fa-minus',
@@ -206,16 +204,16 @@ export class AddQueryComponent {
             this.queryGroupId = queryId;
 
             if (queryId) {
-                this.http
-                    .get(this.baseUrl + '/querygroups/' + queryId)
+                this.queryService
+                    .getQueryGroup(queryId)
                     .subscribe((response: any) => {
                         this.query = response;
                         this.queryGrouName = response.queryGroupName;
                         this.queryGroupDesc = response.queryGroupDescription;
                     });
 
-                this.http
-                    .get(this.baseUrl + '/querycontent/querygroup/' + queryId)
+                this.queryService
+                    .getAllQueryContentsAndGroups(queryId)
                     .subscribe((response: any) => {
                         this.contentGroups = response.map((group: any) => ({
                             name: group.contentGroupName,
@@ -359,14 +357,15 @@ export class AddQueryComponent {
         const original = this.contentGroups[index];
         this.currentEditingCopy = {
             name: original.name,
-            items: original.items.map(item => ({ ...item })),
+            items: original.items.map((item) => ({ ...item })),
         };
         this.isEditingContent = true;
     }
 
     saveCurrentEditingGroup() {
         if (this.currentEditingIndex !== null && this.currentEditingCopy) {
-            this.contentGroups[this.currentEditingIndex] = this.currentEditingCopy;
+            this.contentGroups[this.currentEditingIndex] =
+                this.currentEditingCopy;
             this.isEditingContent = false;
             this.currentEditingIndex = null;
             this.currentEditingCopy = null;
@@ -380,24 +379,20 @@ export class AddQueryComponent {
     }
 
     saveNewQueryGroup(queryGroup: QueryGroup) {
-        return this.http
-            .post(this.baseUrl + '/querygroups', queryGroup)
-            .toPromise();
+        return this.queryService.saveNewQueryGroup(queryGroup);
     }
     updateQueryGroup(queryGroup: QueryGroup) {
-        return this.http
-            .put(this.baseUrl + '/querygroups/' + this.queryGroupId, queryGroup)
-            .toPromise();
+        return this.queryService.updateQueryGroup(
+            queryGroup,
+            this.queryGroupId
+        );
     }
     saveIndividualQueries() {
         const query_logic = {
             queryGroupId: this.queryGroupId,
             ...this.convertQuery(this.query),
         };
-
-        return this.http
-            .post(this.baseUrl + '/querylogic', query_logic)
-            .toPromise();
+        return this.queryService.saveQueryLogic(query_logic);
     }
 
     updateIndividualQueries() {
@@ -405,10 +400,7 @@ export class AddQueryComponent {
             queryGroupId: this.queryGroupId,
             ...this.convertQuery(this.query),
         };
-
-        return this.http
-            .put(this.baseUrl + '/querylogic', query_logic)
-            .toPromise();
+        return this.queryService.updateQueryLogic(query_logic);
     }
 
     get isSaveButtonDisabled(): boolean {
