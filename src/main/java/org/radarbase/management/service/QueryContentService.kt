@@ -8,6 +8,7 @@ import org.radarbase.management.repository.QueryContentRepository
 import org.radarbase.management.repository.QueryGroupContentRepository
 import org.radarbase.management.repository.QueryGroupRepository
 import org.radarbase.management.service.dto.QueryContentDTO
+import org.radarbase.management.service.dto.QueryContentGroupResponseDTO
 import org.radarbase.management.service.mapper.QueryContentMapper
 import org.slf4j.LoggerFactory
 import org.springframework.data.jpa.domain.AbstractAuditable_.createdDate
@@ -44,52 +45,56 @@ public class QueryContentService(
     }
 
     private fun deleteAnyExistingContent(queryGroupId: Long) {
-        val queryContentList = queryContentRepository.findAllByQueryGroupId(queryGroupId);
-
-        if(!queryContentList.isEmpty()) {
-            queryContentRepository.deleteAll(queryContentList);
-        }
+        queryGroupContentRepository.deleteAllByQueryGroupId(queryGroupId)
+        queryContentRepository.deleteAllByQueryGroupId(queryGroupId)
     }
 
-    fun saveAll(queryGroupId: Long, contentGroupName: String, queryContentDTOList: List<QueryContentDTO>) {
+    @Transactional
+    fun saveAll(
+        queryGroupId: Long,
+        contentGroupName: String,
+        queryContentDTOList: List<QueryContentDTO>
+    ) {
         val decoder = Base64.getDecoder()
-        val partSeparator = ","
+        val queryGroup = queryGroupRepository.findById(queryGroupId)
+            .orElseThrow { Exception("non-existing querygroup $queryGroupId") }
 
-        if (queryContentDTOList.isNotEmpty()) {
-            val queryGroupOptional = queryGroupRepository.findById(queryGroupId)
+        // existing contents
+        val existingContentIds = queryContentRepository.findAllByQueryGroupId(queryGroupId)
+            .map { it.id!! }
+            .toSet()
 
-            if (!queryGroupOptional.isPresent) {
-                throw Exception("non existing querygroup ${queryContentDTOList[0].queryGroupId}: No ID")
-            }
-
-            deleteAnyExistingContent(queryGroupId)
-
-            for (queryContentDTO in queryContentDTOList) {
+        for (queryContentDTO in queryContentDTOList) {
+            // if content not exist
+            if (queryContentDTO.id == null ||
+                !existingContentIds.contains(queryContentDTO.id)
+            ) {
                 val queryContent = QueryContent().apply {
-                    queryGroup = queryGroupOptional.get()
-                    type = queryContentDTO.type
-                    if (type == ContentType.IMAGE) {
-                        imageBlob = convertImgStringToByteArray(queryContentDTO.imageBlob!!)
+                    this.queryGroup = queryGroup
+                    this.type = queryContentDTO.type
+                    if (this.type == ContentType.IMAGE) {
+                        this.imageBlob = decoder.decode(queryContentDTO.imageBlob)
                     } else {
-                        value = queryContentDTO.value
-                        heading = queryContentDTO.heading
+                        this.value = queryContentDTO.value
+                        this.heading = queryContentDTO.heading
                     }
                 }
 
-                queryContentRepository.save(queryContent)
+                val savedContent = queryContentRepository.save(queryContent)
 
-                val queryGroupContent = QueryGroupContent().apply {
-                    this.queryGroup = queryGroupOptional.get()
-                    this.queryContent = queryContent
+                QueryGroupContent().apply {
+                    this.queryGroup = queryGroup
+                    this.queryContent = savedContent
                     this.contentGroupName = contentGroupName
                     this.createdDate = ZonedDateTime.now()
                     this.updatedDate = ZonedDateTime.now()
+                    queryGroupContentRepository.save(this)
                 }
-
-                queryGroupContentRepository.save(queryGroupContent)
             }
         }
     }
+
+
 
     public fun findAllByQueryGroupId(queryGroupId: Long) : List<QueryContentDTO> {
         val queryContentList  = queryContentRepository.findAllByQueryGroupId(queryGroupId);
@@ -115,6 +120,24 @@ public class QueryContentService(
             )
         }
     }
+    //get all query contents by query group id
+    fun getAllContentsQueryGroupId(queryGroupId: Long): List<QueryContentGroupResponseDTO>{
+        val groupContents = queryGroupContentRepository.findAllByQueryGroupId(queryGroupId)
+
+        val grouped = groupContents.groupBy { it.contentGroupName }
+
+        return grouped.map { (groupName, groupItems) ->
+            val queryContents = groupItems.mapNotNull {
+                queryContentMapper.queryContentToQueryContentDTO(it.queryContent)
+            }
+            QueryContentGroupResponseDTO(
+                contentGroupName = groupName,
+                queryGroupId = queryGroupId,
+                queryContentDTOList = queryContents
+            )
+        }
+    }
+
 
 
     companion object {

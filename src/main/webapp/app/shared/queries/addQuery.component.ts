@@ -23,13 +23,18 @@ const sliderOptions = Array.from({ length: 7 }, (_, i) => {
     return { name: val, value: val };
 });
 
+interface ContentGroup {
+  name: string;
+  items: ContentItem[];
+}
+
 @Component({
     selector: 'jhi-queries',
     templateUrl: './addQuery.component.html',
     styleUrls: ['../../../content/scss/queries.scss'],
 })
 export class AddQueryComponent {
-    public contentGroups: { name: string; items: ContentItem[] }[] = [];
+    public contentGroups: ContentGroup[] = [];
 
     @ViewChild(ContentComponent) contentComponent!: ContentComponent;
 
@@ -108,10 +113,9 @@ export class AddQueryComponent {
     private canGoBack: boolean = false;
     selectedGroupIndex: number | null = null;
 
-    selectGroup(index: number): void {
-        this.selectedGroupIndex = index;
-    }
-
+    isEditingContent = false;
+    currentEditingIndex: number | null = null;
+    currentEditingCopy: ContentGroup | null = null;
 
     constructor(
         private queryService: QueriesService,
@@ -134,7 +138,6 @@ export class AddQueryComponent {
     }
 
     private addQuestionnaireItemsToQueryBuilder() {
-        // histogram to include only
         let histogramQuestionsToInclude = [
             'whereabouts_1',
             'sleep_5',
@@ -201,6 +204,7 @@ export class AddQueryComponent {
         this.route.params.subscribe((params) => {
             let queryId = params['query-id'];
             this.queryGroupId = queryId;
+
             if (queryId) {
                 this.http
                     .get(this.baseUrl + '/querygroups/' + queryId)
@@ -209,25 +213,21 @@ export class AddQueryComponent {
                         this.queryGrouName = response.queryGroupName;
                         this.queryGroupDesc = response.queryGroupDescription;
                     });
-                //load query contents
+
                 this.http
-                    .get(
-                        this.baseUrl +
-                            '/querycontent/querygroup/' +
-                            queryId
-                    )
+                    .get(this.baseUrl + '/querycontent/querygroup/' + queryId)
                     .subscribe((response: any) => {
                         this.contentGroups = response.map((group: any) => ({
                             name: group.contentGroupName,
                             items: group.queryContentDTOList || [],
                         }));
+
+                        if (this.contentGroups.length > 0) {
+                            this.selectedGroupIndex = 0;
+                        }
                     });
             }
         });
-
-        if (this.contentGroups.length > 0) {
-            this.selectedGroupIndex = 0;
-          }
     }
 
     goBack(): void {
@@ -332,16 +332,15 @@ export class AddQueryComponent {
             const payload = {
                 queryGroupId: this.queryGroupId,
                 contentGroupName: group.name,
-                queryContentDTOList: group.items
+                queryContentDTOList: group.items,
             };
-            console.log('Payload to saveContentGroup:', JSON.stringify(payload, null, 2));
             await this.queryService.saveContentGroup(payload);
         }
     }
-    
 
     addContentGroup() {
-        this.contentGroups.push({
+        this.currentEditingIndex = this.contentGroups.length;
+        this.currentEditingCopy = {
             name: '',
             items: [
                 {
@@ -349,7 +348,35 @@ export class AddQueryComponent {
                     value: 'this is title',
                 },
             ],
-        });
+        };
+        this.isEditingContent = true;
+    }
+
+    selectGroup(index: number) {
+        this.selectedGroupIndex = index;
+
+        this.currentEditingIndex = index;
+        const original = this.contentGroups[index];
+        this.currentEditingCopy = {
+            name: original.name,
+            items: original.items.map(item => ({ ...item })),
+        };
+        this.isEditingContent = true;
+    }
+
+    saveCurrentEditingGroup() {
+        if (this.currentEditingIndex !== null && this.currentEditingCopy) {
+            this.contentGroups[this.currentEditingIndex] = this.currentEditingCopy;
+            this.isEditingContent = false;
+            this.currentEditingIndex = null;
+            this.currentEditingCopy = null;
+        }
+    }
+
+    cancelEditContent() {
+        this.isEditingContent = false;
+        this.currentEditingIndex = null;
+        this.currentEditingCopy = null;
     }
 
     saveNewQueryGroup(queryGroup: QueryGroup) {

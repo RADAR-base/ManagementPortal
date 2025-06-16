@@ -178,7 +178,7 @@ class QueryResource(
     }
     @GetMapping("querycontent/querygroup/{queryGroupId}")
     fun getQueryContent(@PathVariable queryGroupId: Long): ResponseEntity<*> {
-        val result =  queryContentService.findAllByQueryGroupId(queryGroupId)
+        val result =  queryContentService.getAllContentsQueryGroupId(queryGroupId)
         return ResponseEntity.ok(result)
     }
 
