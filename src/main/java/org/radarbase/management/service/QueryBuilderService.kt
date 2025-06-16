@@ -31,7 +31,9 @@ public class QueryBuilderService(
     private var userRepository: UserRepository,
     private val subjectRepository: SubjectRepository,
     @Autowired private val userService: UserService,
-    private var queryParticipantRepository: QueryParticipantRepository
+    private var queryParticipantRepository: QueryParticipantRepository,
+    private val queryGroupContentRepository: QueryGroupContentRepository,
+    private val queryContentRepository: QueryContentRepository
 ) {
 
     @Transactional
@@ -136,11 +138,16 @@ public class QueryBuilderService(
 
     @Transactional
     fun deleteAllRelatedByQueryGroupId(queryGroupId: Long) {
+        // delete the related records from QueryGroupContent
+        queryGroupContentRepository.deleteAllByQueryGroupId(queryGroupId)
+
+        // delete the related records from QueryContent（
+        queryContentRepository.deleteAllByQueryGroupId(queryGroupId)
 
         val group = queryGroupRepository.findById(queryGroupId)
             .orElseThrow { EntityNotFoundException("QueryGroup with id=$queryGroupId not found") }
-
         queryGroupRepository.delete(group)
+
     }
 
 

@@ -51,6 +51,9 @@ class QueryGroup : AbstractEntity(), Serializable {
     @OneToMany(mappedBy = "queryGroup", cascade = [CascadeType.ALL], orphanRemoval = true)
     var queryLogics: MutableList<QueryLogic> = mutableListOf()
 
+    @OneToMany(mappedBy = "queryGroup", cascade = [CascadeType.ALL], orphanRemoval = true)
+    var queryGroupContents: MutableList<QueryGroupContent> = mutableListOf()
+
     override fun toString(): String {
         return ("QueryGroup{"
                 + "id='" + id + '\''
