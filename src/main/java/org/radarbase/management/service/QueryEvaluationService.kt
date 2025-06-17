@@ -90,10 +90,11 @@ public class QueryEValuationService(
         return aggregatedData
     }
 
-    private fun getRelevantDataForAveragedEvaluation(entity: String, metric:String, summary: DataSummaryCategory ) : MutableList<Double> {
+    private fun getRelevantDataForAveragedEvaluation(entity: String, metric:String, summary: DataSummaryCategory ) : Double? {
         val physicalData = summary.physical
         val sliderData = summary.questionnaire_slider
-        val avgEvalData = mutableListOf<Double>()
+
+        log.info("[EVAL] physical data {}", physicalData)
 
         val value = when (entity.lowercase()) {
             "physical" -> physicalData[metric.lowercase()]
@@ -101,11 +102,8 @@ public class QueryEValuationService(
             else -> null
         }
 
-        if (value != null) {
-            avgEvalData += value
-        }
 
-        return avgEvalData
+        return value
     }
 
     fun evaluateSingleCondition(
@@ -115,12 +113,17 @@ public class QueryEValuationService(
     ): Boolean {
         val query = queryLogic.query ?: return false
 
-        val comparisonOperator = query.operator?.symbol ?: return false
-        val entity = query.entity ?: return false
-        val metric = query.field ?: return false
-        val expectedValue = query.value ?: return false
-        val timeFrame = query.timeFrame ?: return false
+        val comparisonOperator = query.operator?.symbol ?: throw IllegalArgumentException("Comparsion operator is missing.")
+        val entity = query.entity ?: throw IllegalArgumentException("Entity field is missing")
+        val metric = query.field ?: throw IllegalArgumentException("Metric field is missing.")
+        val expectedValue = query.value ?: throw IllegalArgumentException("Expected value is missing")
+        val timeFrame = query.timeFrame ?: throw IllegalArgumentException("Timeframe is missing")
         val timeframeMonths = extractTimeframeMonths(timeFrame, currentMonth)
+
+        log.info("[EVAL] timeframe months {}", timeframeMonths)
+
+        log.info("[EVAL] user data {}", userData)
+
 
         var avgEvalData = mutableListOf<Double>()
         var histogramEvalData = mutableMapOf<String, Int>()
@@ -130,7 +133,7 @@ public class QueryEValuationService(
             if (comparisonOperator == "IS") {
                 histogramEvalData = aggregateDataForHistogramEvaluation(metric, month, userData)
             } else {
-                avgEvalData = getRelevantDataForAveragedEvaluation(entity, metric, summary)
+                avgEvalData += getRelevantDataForAveragedEvaluation(entity, metric, summary) ?: continue
 
             }
         }
@@ -138,6 +141,7 @@ public class QueryEValuationService(
         return if (comparisonOperator == "IS") {
             evaluateAgainstHistogramData(histogramEvalData, expectedValue)
         } else {
+            log.info("[EVAL] avgEvalData {}", avgEvalData)
             evaluateAgainstAveragedData(avgEvalData, expectedValue, comparisonOperator)
         }
     }
@@ -226,7 +230,7 @@ public class QueryEValuationService(
         val subjectLogin = subject.user?.login!!
         val subjectId = subject.id!!;
 
-        val processedData = awsService.startProcessing(project, subjectLogin, DataSource.CLASSPATH)?.data ?: return mutableMapOf()
+        val processedData = awsService.startProcessing(project, subjectLogin, DataSource.CLASSPATH)?.data ?: throw IllegalArgumentException("There is no data for the user")
 
         val subjectOpt = subjectRepository.findById(subjectId)
         val queryParticipant = queryParticipantRepository.findBySubjectId(subjectId);

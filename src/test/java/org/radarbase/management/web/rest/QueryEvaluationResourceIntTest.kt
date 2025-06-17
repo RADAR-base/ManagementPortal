@@ -130,6 +130,7 @@ internal class QueryEvaluationResourceIntTest(
         query.operator = queryOperator
         query.value = value
         query.timeFrame = timeframe
+        query.entity = "physical"
 
         return queryRepository.saveAndFlush(query);
     }
@@ -145,7 +146,7 @@ internal class QueryEvaluationResourceIntTest(
         return queryLogicRepository.saveAndFlush(queryLogic)
     }
 
-    fun createQueryParticipantAssignment(queryGroup: QueryGroup) {
+    fun createQueryParticipantAssignment(queryGroup: QueryGroup) : QueryParticipant{
         val user = userRepository.findAll()[0];
         val subject = subjectRepository.findAll()[0];
 
@@ -155,7 +156,7 @@ internal class QueryEvaluationResourceIntTest(
         queryParticipant.subject = subject;
         queryParticipant.createdDate = ZonedDateTime.now();
 
-        queryParticipantRepository.saveAndFlush(queryParticipant);
+        return queryParticipantRepository.saveAndFlush(queryParticipant);
     }
 
     fun convertStringToBoolean(content: String, queryGroupName: String) : kotlin.Boolean {
@@ -293,24 +294,19 @@ internal class QueryEvaluationResourceIntTest(
 
         val queryGroup = createQueryGroup();
 
-        val query = createQuery(queryGroup, QueryMetric.HEART_RATE, ComparisonOperator.EQUALS, QueryTimeFrame.PAST_6_MONTH, "55");
-        val query1 = createQuery(queryGroup, QueryMetric.SLEEP_LENGTH, ComparisonOperator.EQUALS, QueryTimeFrame.PAST_6_MONTH, "8");
+        val query = createQuery(queryGroup, QueryMetric.HEART_RATE, ComparisonOperator.EQUALS, QueryTimeFrame.PAST_YEAR, "55");
+       // val query1 = createQuery(queryGroup, QueryMetric.SLEEP_LENGTH, ComparisonOperator.EQUALS, QueryTimeFrame.PAST_6_MONTH, "8");
 
         val parentQueryLogic = createQueryLogic(queryGroup,QueryLogicType.LOGIC, QueryLogicOperator.AND, null,null);
         createQueryLogic(queryGroup,QueryLogicType.CONDITION, null, query,parentQueryLogic);
-        createQueryLogic(queryGroup,QueryLogicType.CONDITION, null, query1,parentQueryLogic);
+      //  createQueryLogic(queryGroup,QueryLogicType.CONDITION, null, query1,parentQueryLogic);
 
 
-        // create participant assignemnt
-
-        createQueryParticipantAssignment(queryGroup);
-
-        var userData = generateUserData(55, 7);
+        val queryParticipantAssignment = createQueryParticipantAssignment(queryGroup);
 
         val returnValue = restQueryMockMvc.perform(
             MockMvcRequestBuilders.post("/api/query-builder/evaluate/" + subject.id)
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(userData))
         )
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andReturn()
@@ -321,37 +317,32 @@ internal class QueryEvaluationResourceIntTest(
 
         assertFalse(result)
 
+        queryParticipantRepository.delete(queryParticipantAssignment);
+
         var queryEvaluationNewSize = queryEvaluationRepository.findAll().size;
        assertEquals(queryEvaluationSize + 1, queryEvaluationNewSize)
-
 
        var queryEvaluation =   queryEvaluationRepository.findAll()[0]
         assertEquals(false, queryEvaluation.result)
 
-        userData = generateUserData(55, 8)
+        val queryGroup1 = createQueryGroup();
+        val query1 = createQuery(queryGroup1, QueryMetric.HEART_RATE, ComparisonOperator.GREATER_THAN, QueryTimeFrame.PAST_YEAR, "55");
+
+        val parentQueryLogic1 = createQueryLogic(queryGroup1,QueryLogicType.LOGIC, QueryLogicOperator.AND, null,null);
+        createQueryLogic(queryGroup1,QueryLogicType.CONDITION, null, query1 ,parentQueryLogic1);
+
+        val queryParticipantAssignment1 = createQueryParticipantAssignment(queryGroup1);
 
         val returnValue1 = restQueryMockMvc.perform(
             MockMvcRequestBuilders.post("/api/query-builder/evaluate/" + subject.id)
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(userData))
         )
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andReturn()
 
         val content1: String = returnValue1.getResponse().getContentAsString()
-
         val result1 = convertStringToBoolean(content1, queryGroup.name!!)
-
-//        assertTrue(result1)
-//
-//         queryEvaluationNewSize = queryEvaluationRepository.findAll().size;
-//        assertEquals(queryEvaluationSize + 1, queryEvaluationNewSize)
-//
-//
-//         queryEvaluation =   queryEvaluationRepository.findAll()[0]
-//        assertEquals(true, queryEvaluation.result)
-
-
+        assertTrue(result1)
     }
 
 }
