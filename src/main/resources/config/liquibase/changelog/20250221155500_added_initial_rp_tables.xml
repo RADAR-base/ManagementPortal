@@ -46,7 +46,7 @@
 			<column name="updated_by" type="varchar(250)"/>
 		</createTable>
 	</changeSet>
-	<changeSet id="fk-query_group-created_by" author="auto">
+	<changeSet id="fk-query_group-created_by" author="Gwen">
 		<preConditions onFail="MARK_RAN">
 			<not>
 				<foreignKeyConstraintExists foreignKeyName="fk_query_group_created_by"/>
@@ -264,14 +264,14 @@
                                  referencedColumnNames="id"
                                  referencedTableName="query_group"/>
 	</changeSet>
-	<!--query group content table-->
-	<changeSet id="create-query_group_content" author="Gwen">
+	<!--query content group table-->
+	<changeSet id="create-query_content_group" author="Gwen">
 		<preConditions onFail="MARK_RAN">
 			<not>
-				<tableExists tableName="query_group_content"/>
+				<tableExists tableName="query_content_group"/>
 			</not>
 		</preConditions>
-		<createTable tableName="query_group_content">
+		<createTable tableName="query_content_group">
 			<column name="id" type="bigint" autoIncrement="${autoIncrement}">
 				<constraints primaryKey="true" nullable="false"/>
 			</column>
@@ -292,13 +292,13 @@
 			</column>
 		</createTable>
 		<addForeignKeyConstraint baseColumnNames="query_group_id"
-                         baseTableName="query_group_content"
-                         constraintName="fk_query_group_content_query_group_id"
+                         baseTableName="query_content_group"
+                         constraintName="fk_query_content_group_query_group_id"
                          referencedColumnNames="id"
                          referencedTableName="query_group"/>
 		<addForeignKeyConstraint baseColumnNames="query_content_id"
-                         baseTableName="query_group_content"
-                         constraintName="fk_query_group_content_query_content_id"
+                         baseTableName="query_content_group"
+                         constraintName="fk_query_content_group_query_content_id"
                          referencedColumnNames="id"
                          referencedTableName="query_content"/>
 	</changeSet>

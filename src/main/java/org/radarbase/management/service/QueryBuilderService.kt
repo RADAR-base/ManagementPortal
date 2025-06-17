@@ -32,7 +32,7 @@ public class QueryBuilderService(
     private val subjectRepository: SubjectRepository,
     @Autowired private val userService: UserService,
     private var queryParticipantRepository: QueryParticipantRepository,
-    private val queryGroupContentRepository: QueryGroupContentRepository,
+    private val queryContentGroupRepository: QueryContentGroupRepository,
     private val queryContentRepository: QueryContentRepository
 ) {
 
@@ -138,8 +138,8 @@ public class QueryBuilderService(
 
     @Transactional
     fun deleteAllRelatedByQueryGroupId(queryGroupId: Long) {
-        // delete the related records from QueryGroupContent
-        queryGroupContentRepository.deleteAllByQueryGroupId(queryGroupId)
+        // delete the related records from QueryContentGroup
+        queryContentGroupRepository.deleteAllByQueryGroupId(queryGroupId)
 
         // delete the related records from QueryContent（
         queryContentRepository.deleteAllByQueryGroupId(queryGroupId)

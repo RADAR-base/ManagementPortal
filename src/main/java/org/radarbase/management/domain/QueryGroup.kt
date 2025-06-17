@@ -52,7 +52,7 @@ class QueryGroup : AbstractEntity(), Serializable {
     var queryLogics: MutableList<QueryLogic> = mutableListOf()
 
     @OneToMany(mappedBy = "queryGroup", cascade = [CascadeType.ALL], orphanRemoval = true)
-    var queryGroupContents: MutableList<QueryGroupContent> = mutableListOf()
+    var queryContentGroups: MutableList<QueryContentGroup> = mutableListOf()
 
     override fun toString(): String {
         return ("QueryGroup{"

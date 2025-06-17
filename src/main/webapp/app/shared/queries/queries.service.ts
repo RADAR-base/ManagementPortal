@@ -15,7 +15,7 @@ export class QueriesService {
         queryContentDTOList: ContentItem[];
     }) {
         return this.http
-            .post(this.baseURL + '/querygroupcontent', contentGroupData)
+            .post(this.baseURL + '/querycontentgroup', contentGroupData)
             .toPromise();
     }
 

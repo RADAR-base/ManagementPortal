@@ -7,9 +7,9 @@ import javax.persistence.*
 
 
 @Entity
-@Table(name = "query_group_content")
+@Table(name = "query_content_group")
 @EntityListeners(AbstractEntityListener::class)
-class QueryGroupContent : AbstractEntity(), Serializable {
+class QueryContentGroup : AbstractEntity(), Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
     @SequenceGenerator(name = "sequenceGenerator", initialValue = 1000, sequenceName = "hibernate_sequence")
@@ -33,8 +33,8 @@ class QueryGroupContent : AbstractEntity(), Serializable {
     var updatedDate: ZonedDateTime? = null
 
     override fun toString(): String {
-        return ("QueryGroupContent{"
-                + "contentGroupName='" + contentGroupName + '\''
+        return ("QueryContentGroup{"
+                + "ContentGroupName='" + contentGroupName + '\''
                 + ", queryGroup='" + queryGroup?.name + '\''
                 + ", createdDate=" + createdDate
                 + ", updatedDate=" + updatedDate

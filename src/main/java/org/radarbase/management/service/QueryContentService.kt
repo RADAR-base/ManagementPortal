@@ -1,23 +1,21 @@
 package org.radarbase.management.service
 
-import QueryGroupContentDTO
+import QueryContentGroupDTO
 import org.radarbase.management.domain.QueryContent
-import org.radarbase.management.domain.QueryGroupContent
+import org.radarbase.management.domain.QueryContentGroup
 import org.radarbase.management.domain.enumeration.ContentType
 import org.radarbase.management.repository.QueryContentRepository
-import org.radarbase.management.repository.QueryGroupContentRepository
+import org.radarbase.management.repository.QueryContentGroupRepository
 import org.radarbase.management.repository.QueryGroupRepository
 import org.radarbase.management.service.dto.QueryContentDTO
 import org.radarbase.management.service.dto.QueryContentGroupResponseDTO
 import org.radarbase.management.service.mapper.QueryContentMapper
 import org.slf4j.LoggerFactory
-import org.springframework.data.jpa.domain.AbstractAuditable_.createdDate
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.nio.charset.StandardCharsets
 import java.time.ZonedDateTime
 import java.util.*
-import javax.persistence.EntityNotFoundException
 
 @Service
 @Transactional
@@ -25,7 +23,7 @@ public class QueryContentService(
     private val queryContentRepository: QueryContentRepository,
     private val queryGroupRepository: QueryGroupRepository,
     private val queryContentMapper: QueryContentMapper,
-    private val queryGroupContentRepository: QueryGroupContentRepository
+    private val queryContentGroupRepository: QueryContentGroupRepository
 
 ) {
 
@@ -45,7 +43,7 @@ public class QueryContentService(
     }
 
     private fun deleteAnyExistingContent(queryGroupId: Long) {
-        queryGroupContentRepository.deleteAllByQueryGroupId(queryGroupId)
+        queryContentGroupRepository.deleteAllByQueryGroupId(queryGroupId)
         queryContentRepository.deleteAllByQueryGroupId(queryGroupId)
     }
 
@@ -82,13 +80,13 @@ public class QueryContentService(
 
                 val savedContent = queryContentRepository.save(queryContent)
 
-                QueryGroupContent().apply {
+                QueryContentGroup().apply {
                     this.queryGroup = queryGroup
                     this.queryContent = savedContent
                     this.contentGroupName = contentGroupName
                     this.createdDate = ZonedDateTime.now()
                     this.updatedDate = ZonedDateTime.now()
-                    queryGroupContentRepository.save(this)
+                    queryContentGroupRepository.save(this)
                 }
             }
         }
@@ -109,11 +107,11 @@ public class QueryContentService(
         return result;
     }
 
-    fun findAllGroupContentsByQueryGroupId(queryGroupId: Long): List<QueryGroupContentDTO> {
-        val groupContents = queryGroupContentRepository.findAllByQueryGroupId(queryGroupId)
+    fun findAllContentGroupsByQueryGroupId(queryGroupId: Long): List<QueryContentGroupDTO> {
+        val contentGroups = queryContentGroupRepository.findAllByQueryGroupId(queryGroupId)
 
-        return groupContents.map { qgc ->
-            QueryGroupContentDTO(
+        return contentGroups.map { qgc ->
+            QueryContentGroupDTO(
                 contentGroupName = qgc.contentGroupName.toString(),
                 queryGroupId = qgc.queryGroup?.id!!,
                 queryContentId = qgc.queryContent?.id!!
@@ -122,18 +120,18 @@ public class QueryContentService(
     }
     //get all query contents by query group id
     fun getAllContentsQueryGroupId(queryGroupId: Long): List<QueryContentGroupResponseDTO>{
-        val groupContents = queryGroupContentRepository.findAllByQueryGroupId(queryGroupId)
+        val contentGroups = queryContentGroupRepository.findAllByQueryGroupId(queryGroupId)
 
-        val grouped = groupContents.groupBy { it.contentGroupName }
+        val grouped = contentGroups.groupBy { it.contentGroupName }
 
         return grouped.map { (groupName, groupItems) ->
-            val queryContents = groupItems.mapNotNull {
+            val contentGroups = groupItems.mapNotNull {
                 queryContentMapper.queryContentToQueryContentDTO(it.queryContent)
             }
             QueryContentGroupResponseDTO(
                 contentGroupName = groupName,
                 queryGroupId = queryGroupId,
-                queryContentDTOList = queryContents
+                queryContentDTOList = contentGroups
             )
         }
     }
