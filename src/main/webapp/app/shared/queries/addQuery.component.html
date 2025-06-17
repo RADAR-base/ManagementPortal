@@ -33,7 +33,7 @@
     </div>
 
     <!-- Content Group list cards -->
-    <div class="row mb-4" *ngIf="!isEditingContent">
+    <div class="row mb-4">
       <div class="col-md-4" *ngFor="let group of contentGroups; let i = index">
         <div class="card cursor-pointer h-100" (click)="selectGroup(i)">
           <div class="card-body">

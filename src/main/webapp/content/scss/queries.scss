@@ -9,31 +9,34 @@ html {
     align-items: center;
     justify-content: center;
     align-items: center;
-    display:flex;
+    display: flex;
 }
+
 .page {
     width: 90%;
 
 }
 
 .block {
-  display: block;
-  background-color: #f7f7f7; /* light grey */
-  padding: 2rem;
-  margin-bottom: 50px;
-  justify-items: center;
+    display: block;
+    background-color: #f7f7f7;
+    /* light grey */
+    padding: 2rem;
+    margin-bottom: 50px;
+    justify-items: center;
 }
 
 .content-block {
-    width:70%;
+    width: 70%;
 }
 
 .button-row {
-  padding-bottom: 2%;
-  padding-top: 2%;
-  justify-content: center;
-  gap: 10px;;
-  display: flex;
+    padding-bottom: 2%;
+    padding-top: 2%;
+    justify-content: center;
+    gap: 10px;
+    ;
+    display: flex;
 }
 
 .mat-icon-button {
@@ -92,7 +95,11 @@ mat-label {
     flex-direction: column;
 }
 
-.saveBtn{
+.saveBtn {
     margin-top: 30px;
     float: right;
+}
+
+.cursor-pointer {
+    cursor: pointer;
 }
