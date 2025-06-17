@@ -13,6 +13,7 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.*
+import org.springframework.beans.factory.annotation.Value
 
 data class DataPoint(
     val month: String,
@@ -32,7 +33,10 @@ public class QueryEValuationService(
     private val queryEvaluationRepository: QueryEvaluationRepository,
     private val subjectRepository: SubjectRepository,
     private val queryParticipantRepository: QueryParticipantRepository,
-    private val awsService: AWSService
+    private val awsService: AWSService,
+    @Value("\${test.fixedYear:}") private val fixedYearStr: String,
+    @Value("\${test.fixedMonth:}") private val fixedMonthStr: String
+
 
 ) {
     fun evaluteQueryCondition(queryLogic: QueryLogic, userData: MutableMap<String, DataSummaryCategory>, currentMonth: String) : Boolean {
@@ -120,10 +124,6 @@ public class QueryEValuationService(
         val timeFrame = query.timeFrame ?: throw IllegalArgumentException("Timeframe is missing")
         val timeframeMonths = extractTimeframeMonths(timeFrame, currentMonth)
 
-        log.info("[EVAL] timeframe months {}", timeframeMonths)
-
-        log.info("[EVAL] user data {}", userData)
-
 
         var avgEvalData = mutableListOf<Double>()
         var histogramEvalData = mutableMapOf<String, Int>()
@@ -160,11 +160,12 @@ public class QueryEValuationService(
     }
 
     fun extractTimeframeMonths(timeframe: QueryTimeFrame, currentMonth: String): List<String> {
+        val testYear = fixedYearStr.toIntOrNull()
+        val month = if (fixedMonthStr.isEmpty()) currentMonth else fixedMonthStr
+
         val currentDateFormatter = DateTimeFormatter.ofPattern("MMMM-yyyy-dd")
-
-        val currentYear = LocalDate.now().year
-
-       val currentDate = LocalDate.parse("$currentMonth-$currentYear-01", currentDateFormatter)
+        val currentYear = testYear ?: LocalDate.now().year
+        val currentDate = LocalDate.parse("$month-$currentYear-01", currentDateFormatter)
 
         var monthsBack = 0;
         when (timeframe.name) {
