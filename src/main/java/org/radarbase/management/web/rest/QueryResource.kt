@@ -173,6 +173,12 @@ class QueryResource(
         )
         return ResponseEntity.ok().build()
     }
+
+    @DeleteMapping("querycontentgroup/{contentGroupName}/{queryGroupId}")
+    fun deleteContentGroup(@PathVariable contentGroupName: String, @PathVariable queryGroupId: Long){
+        queryContentService.deleteQueryContentGroupByNameAndQueryGroup(contentGroupName, queryGroupId)
+    }
+
     @GetMapping("querycontent/querygroup/{queryGroupId}")
     fun getQueryContent(@PathVariable queryGroupId: Long): ResponseEntity<*> {
         val result =  queryContentService.getAllContentsQueryGroupId(queryGroupId)

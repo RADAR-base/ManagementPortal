@@ -1,87 +1,116 @@
 <div class="top-page">
+    <div class="page">
+        <div class="block" style="align-items: center">
+            <h1>Query Builder</h1>
+            <div class="inputs">
+                <div class="query_group">
+                    <mat-label>Query Group Name</mat-label>
+                    <input
+                        matInput
+                        [(ngModel)]="queryGrouName"
+                        class="form-control"
+                    />
+                </div>
+                <div class="query_group">
+                    <mat-label>Query Group Description</mat-label>
+                    <input
+                        matInput
+                        [(ngModel)]="queryGroupDesc"
+                        class="form-control"
+                    />
+                </div>
+            </div>
 
-  <div class="page">
-    <div class="block" style="align-items: center;">
-      <h1>Query Builder</h1>
-      <div class="inputs">
-        <div class="query_group">
-          <mat-label>Query Group Name</mat-label>
-          <input matInput [(ngModel)]="queryGrouName" class="form-control" />
+            <query-builder
+                [(ngModel)]="query"
+                [classNames]="bootstrapClassNames"
+                [config]="currentConfig"
+                [allowRuleset]="allowRuleset"
+                [allowCollapse]="allowCollapse"
+                [persistValueOnFieldChange]="persistValueOnFieldChange"
+            >
+                <div class="col-auto" *queryInput="let rule; type: 'textarea'">
+                    <textarea
+                        class="form-control"
+                        [(ngModel)]="rule.value"
+                        placeholder="Custom Textarea"
+                    ></textarea>
+                </div>
+            </query-builder>
         </div>
-        <div class="query_group">
-          <mat-label>Query Group Description</mat-label>
-          <input matInput [(ngModel)]="queryGroupDesc" class="form-control" />
+        <!-- Content Group list cards -->
+        <div class="row mb-4">
+            <div
+                class="col-md-4"
+                *ngFor="let group of contentGroups; let i = index"
+            >
+                <div class="card position-relative cursor-pointer h-100">
+                    <button
+                        class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2"
+                        queryGroupId
+                        (click)="
+                            deleteQueryGroup(group.name, group.queryGroupId)
+                        "
+                    >
+                        delete
+                    </button>
+
+                    <div class="card-body" (click)="selectGroup(i)">
+                        <h5 class="card-title">
+                            {{ group.name || "Untitled Group" }}
+                        </h5>
+                        <p class="card-text text-muted">
+                            {{ group.items?.length || 0 }} content item(s)
+                        </p>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
 
-      <query-builder
-        [(ngModel)]="query"
-        [classNames]="bootstrapClassNames"
-        [config]="currentConfig"
-        [allowRuleset]="allowRuleset"
-        [allowCollapse]="allowCollapse"
-        [persistValueOnFieldChange]="persistValueOnFieldChange"
-      >
-        <div class="col-auto" *queryInput="let rule; type: 'textarea'">
-          <textarea
-            class="form-control"
-            [(ngModel)]="rule.value"
-            placeholder="Custom Textarea"
-          ></textarea>
+        <!-- Add Content Group Button -->
+        <div class="block" *ngIf="!isEditingContent">
+            <button class="btn btn-outline-primary" (click)="addContentGroup()">
+                Add Content Group
+            </button>
         </div>
-      </query-builder>
-    </div>
 
-    <!-- Content Group list cards -->
-    <div class="row mb-4">
-      <div class="col-md-4" *ngFor="let group of contentGroups; let i = index">
-        <div class="card cursor-pointer h-100" (click)="selectGroup(i)">
-          <div class="card-body">
-            <h5 class="card-title">{{ group.name || 'Untitled Group' }}</h5>
-            <p class="card-text text-muted">
-              {{ group.items?.length || 0 }} content item(s)
-            </p>
-          </div>
+        <div *ngIf="isEditingContent" class="mb-4">
+            <div class="p-3 border rounded shadow-sm">
+                <label class="form-label fw-bold">Content Group Name</label>
+                <input
+                    type="text"
+                    class="form-control mb-3"
+                    [(ngModel)]="currentEditingCopy.name"
+                    placeholder="Enter group name"
+                />
+
+                <query-content
+                    [(items)]="currentEditingCopy.items"
+                ></query-content>
+
+                <div class="mt-3 d-flex gap-2">
+                    <button
+                        class="btn btn-primary"
+                        (click)="saveCurrentEditingGroup()"
+                    >
+                        Save
+                    </button>
+                    <button
+                        class="btn btn-secondary"
+                        (click)="cancelEditContent()"
+                    >
+                        Cancel
+                    </button>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
 
-    <!-- Add Content Group Button -->
-    <div class="block" *ngIf="!isEditingContent">
-      <button class="btn btn-outline-primary" (click)="addContentGroup()">
-        Add Content Group
-      </button>
-    </div>
-
-    <div *ngIf="isEditingContent" class="mb-4">
-      <div class="p-3 border rounded shadow-sm">
-        <label class="form-label fw-bold">Content Group Name</label>
-        <input
-          type="text"
-          class="form-control mb-3"
-          [(ngModel)]="currentEditingCopy.name"
-          placeholder="Enter group name"
-        />
-
-        <query-content [(items)]="currentEditingCopy.items"></query-content>
-
-        <div class="mt-3 d-flex gap-2">
-          <button class="btn btn-primary" (click)="saveCurrentEditingGroup()">
+        <button
+            (click)="saveQueryGroupToDB()"
+            class="btn btn-primary saveBtn"
+            [disabled]="isSaveButtonDisabled"
+        >
             Save
-          </button>
-          <button class="btn btn-secondary" (click)="cancelEditContent()">
-            Cancel
-          </button>
-        </div>
-      </div>
+        </button>
     </div>
-
-    <button
-      (click)="saveQueryGroupToDB()"
-      class="btn btn-primary saveBtn"
-      [disabled]="isSaveButtonDisabled"
-    >
-      Save
-    </button>
-  </div>
 </div>

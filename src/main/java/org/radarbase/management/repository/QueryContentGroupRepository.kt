@@ -22,4 +22,11 @@ interface QueryContentGroupRepository: JpaRepository<QueryContentGroup, Long> {
     @Query("DELETE FROM QueryContentGroup q WHERE q.queryGroup.id = :queryGroupId")
     fun deleteAllByQueryGroupId(@Param("queryGroupId") queryGroupId: Long)
 
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM QueryContentGroup cg WHERE cg.contentGroupName = :contentGroupName AND cg.queryGroup.id = :queryGroupId")
+    fun deleteQueryContentGroupByNameAndQueryGroup(
+        @Param("contentGroupName") contentGroupName: String,
+        @Param("queryGroupId") queryGroupId: Long
+    )
 }

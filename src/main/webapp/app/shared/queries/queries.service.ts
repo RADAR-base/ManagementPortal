@@ -52,4 +52,19 @@ export class QueriesService {
             .put(this.baseURL + '/querylogic', query_logic)
             .toPromise();
     }
+
+    deleteQueryGroup(groupId: number) {
+        return this.http.delete(this.baseURL + `/querygroups/${groupId}`);
+    }
+
+    getQueryGroupList() {
+        return this.http.get(this.baseURL + '/querygroups');
+    }
+
+    deleteContentGroup(contentGroupName: string, queryGroupId: Number) {
+        return this.http.delete(
+            this.baseURL +
+                `/querycontentgroup/${contentGroupName}/${queryGroupId}`
+        );
+    }
 }

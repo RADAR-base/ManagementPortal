@@ -26,6 +26,7 @@ const sliderOptions = Array.from({ length: 7 }, (_, i) => {
 interface ContentGroup {
     name: string;
     items: ContentItem[];
+    queryGroupId: number; // to find the relevent records to delete
 }
 
 @Component({
@@ -115,6 +116,8 @@ export class AddQueryComponent {
     currentEditingIndex: number | null = null;
     currentEditingCopy: ContentGroup | null = null;
 
+    queryId = null;
+
     constructor(
         private queryService: QueriesService,
         private formBuilder: FormBuilder,
@@ -200,32 +203,37 @@ export class AddQueryComponent {
 
     async ngOnInit() {
         this.route.params.subscribe((params) => {
-            let queryId = params['query-id'];
-            this.queryGroupId = queryId;
+            this.queryId = params['query-id'];
+            this.queryGroupId = this.queryId;
 
-            if (queryId) {
+            if (this.queryId) {
                 this.queryService
-                    .getQueryGroup(queryId)
+                    .getQueryGroup(this.queryId)
                     .subscribe((response: any) => {
                         this.query = response;
                         this.queryGrouName = response.queryGroupName;
                         this.queryGroupDesc = response.queryGroupDescription;
                     });
 
-                this.queryService
-                    .getAllQueryContentsAndGroups(queryId)
-                    .subscribe((response: any) => {
-                        this.contentGroups = response.map((group: any) => ({
-                            name: group.contentGroupName,
-                            items: group.queryContentDTOList || [],
-                        }));
-
-                        if (this.contentGroups.length > 0) {
-                            this.selectedGroupIndex = 0;
-                        }
-                    });
+                this.refreshContentGroups();
             }
         });
+    }
+
+    refreshContentGroups() {
+        this.queryService
+            .getAllQueryContentsAndGroups(this.queryId)
+            .subscribe((response: any) => {
+                this.contentGroups = response.map((group: any) => ({
+                    name: group.contentGroupName,
+                    items: group.queryContentDTOList || [],
+                    queryGroupId: group.queryGroupId,
+                }));
+
+                if (this.contentGroups.length > 0) {
+                    this.selectedGroupIndex = 0;
+                }
+            });
     }
 
     goBack(): void {
@@ -346,8 +354,17 @@ export class AddQueryComponent {
                     value: 'this is title',
                 },
             ],
+            queryGroupId: null,
         };
         this.isEditingContent = true;
+    }
+
+    deleteQueryGroup(name: string, queryGroupId: number) {
+        this.queryService
+            .deleteContentGroup(name, queryGroupId)
+            .subscribe((result: any) => {
+                this.refreshContentGroups();
+            });
     }
 
     selectGroup(index: number) {
@@ -358,6 +375,7 @@ export class AddQueryComponent {
         this.currentEditingCopy = {
             name: original.name,
             items: original.items.map((item) => ({ ...item })),
+            queryGroupId: original.queryGroupId,
         };
         this.isEditingContent = true;
     }

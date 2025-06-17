@@ -42,11 +42,6 @@ public class QueryContentService(
 
     }
 
-    private fun deleteAnyExistingContent(queryGroupId: Long) {
-        queryContentGroupRepository.deleteAllByQueryGroupId(queryGroupId)
-        queryContentRepository.deleteAllByQueryGroupId(queryGroupId)
-    }
-
     @Transactional
     fun saveAll(
         queryGroupId: Long,
@@ -107,19 +102,8 @@ public class QueryContentService(
         return result;
     }
 
-    fun findAllContentGroupsByQueryGroupId(queryGroupId: Long): List<QueryContentGroupDTO> {
-        val contentGroups = queryContentGroupRepository.findAllByQueryGroupId(queryGroupId)
-
-        return contentGroups.map { qgc ->
-            QueryContentGroupDTO(
-                contentGroupName = qgc.contentGroupName.toString(),
-                queryGroupId = qgc.queryGroup?.id!!,
-                queryContentId = qgc.queryContent?.id!!
-            )
-        }
-    }
-    //get all query contents by query group id
-    fun getAllContentsQueryGroupId(queryGroupId: Long): List<QueryContentGroupResponseDTO>{
+    //get all query content groups by query group id
+    fun getAllContentsQueryGroupId(queryGroupId: Long): List<QueryContentGroupResponseDTO> {
         val contentGroups = queryContentGroupRepository.findAllByQueryGroupId(queryGroupId)
 
         val grouped = contentGroups.groupBy { it.contentGroupName }
@@ -131,12 +115,15 @@ public class QueryContentService(
             QueryContentGroupResponseDTO(
                 contentGroupName = groupName,
                 queryGroupId = queryGroupId,
-                queryContentDTOList = contentGroups
+                queryContentDTOList = contentGroups,
             )
         }
     }
 
 
+    fun deleteQueryContentGroupByNameAndQueryGroup(contentGroupName: String, queryGroupId: Long){
+        queryContentGroupRepository.deleteQueryContentGroupByNameAndQueryGroup(contentGroupName, queryGroupId)
+    }
 
     companion object {
         private val log = LoggerFactory.getLogger(QueryContentService::class.java)
