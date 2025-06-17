@@ -31,10 +31,11 @@ public class QueryEValuationService(
     private val queryGroupRepository: QueryGroupRepository,
     private val queryEvaluationRepository: QueryEvaluationRepository,
     private val subjectRepository: SubjectRepository,
-    private val queryParticipantRepository: QueryParticipantRepository
+    private val queryParticipantRepository: QueryParticipantRepository,
+    private val awsService: AWSService
 
 ) {
-    fun evaluteQueryCondition(queryLogic: QueryLogic, userData: UserData, currentMonth: String) : Boolean {
+    fun evaluteQueryCondition(queryLogic: QueryLogic, userData: MutableMap<String, DataSummaryCategory>, currentMonth: String) : Boolean {
         return when(queryLogic.type) {
                QueryLogicType.CONDITION -> evaluateSingleCondition(queryLogic, userData, currentMonth)
                QueryLogicType.LOGIC -> evaluateLogicalCondition(queryLogic, userData, currentMonth)
@@ -59,9 +60,9 @@ public class QueryEValuationService(
     }
 
 
-    private fun evaluateAgainstAveragedData(relevantData: List<DataPoint>, expectedValue: String, comparsionOperator: String ): Boolean {
-        val average = relevantData.map { it.value!! }.average();
-        val sum = relevantData.map { it.value!! }.sum();
+    private fun evaluateAgainstAveragedData(relevantData: List<Double>, expectedValue: String, comparsionOperator: String ): Boolean {
+        val average = relevantData.average();
+
         return when (comparsionOperator){
             ">" -> average  > expectedValue.toDouble()
             "<" -> average < expectedValue.toDouble()
@@ -73,30 +74,71 @@ public class QueryEValuationService(
         }
     }
 
-    fun evaluateSingleCondition(queryLogic: QueryLogic, userData: UserData, currentMonth: String): Boolean {
+    fun evaluateSingleCondition(queryLogic: QueryLogic, userData:  MutableMap<String, DataSummaryCategory>, currentMonth: String): Boolean {
+        val query = queryLogic.query ?: return false
 
-           val metricValuesData = userData.metrics[queryLogic.query?.field]  ?: return false
-           val timeFrame  = queryLogic.query?.timeFrame ?: return false
-           val timeframeMonths = extractTimeframeMonths(timeFrame, currentMonth);
-           val relevantData = metricValuesData.filter { it.month in timeframeMonths};
+        val comparisonOperator = queryLogic.query?.operator?.symbol ?: return false ;
+        val entity = query.entity ?: return false
+        val metric = query.field ?: return false
+
+        val timeFrame  = queryLogic.query?.timeFrame ?: return false
+        val timeframeMonths = extractTimeframeMonths(timeFrame, currentMonth);
+
+        // data to work with
+        val aggregatedData = mutableMapOf<String, Int>()
+        val relevantData : MutableList<Double> = mutableListOf();
+
+        //TODO: maybe move this into its own method for evaluating average data
+        //TODO: put into its own method
+        for (currentTimeFrame in timeframeMonths) {
+            val physicalData = userData[currentTimeFrame]?.physical ?: continue
+            val questionnaireSliderData = userData[currentTimeFrame]?.questionnaire_slider  ?: continue
+            var questionnaireHistogramData :  MutableMap<String, Int>?  = mutableMapOf()
 
 
-        if (relevantData.isEmpty()  || relevantData.size != timeframeMonths.size) {
-                return false
+            if(comparisonOperator == "IS") {
+                when(metric.lowercase()) {
+                    "social" -> questionnaireHistogramData = userData[currentTimeFrame]?.questionnaire_histogram?.social
+                    "whereabouts"  -> questionnaireHistogramData = userData[currentTimeFrame]?.questionnaire_histogram?.whereabouts
+                    "sleep" -> questionnaireHistogramData = userData[currentTimeFrame]?.questionnaire_histogram?.sleep
+                }
+
+                if(questionnaireHistogramData != null) {
+                    for((range, count) in questionnaireHistogramData!!){
+                        aggregatedData[range] = aggregatedData.getOrDefault(range, 0) + count
+                    }
+                }
+            } else {
+                var value : Double? = null
+
+                when(entity) {
+                    "physical" -> value = physicalData[metric.lowercase()]
+                    "questionnaire_slider" -> value = questionnaireSliderData[metric.lowercase()]
+                }
+
+                if(value != null) {
+                    relevantData += value;
+                }
             }
+        }
 
-           val comparisonOperator = queryLogic.query?.operator?.symbol ?: return false ;
-           val expectedValue = queryLogic.query?.value ?: return false;
+
+        if (relevantData.isEmpty() && aggregatedData == null) {
+                return false
+        }
+
+        val expectedValue = queryLogic.query?.value ?: return false;
 
         if(comparisonOperator == "IS") {
-            return evaluateAgainstHistogramData(relevantData,expectedValue)
+            val maxRange = aggregatedData.maxByOrNull { it.value }
+            val result = maxRange != null && maxRange.key == expectedValue
+            return result // evaluateAgainstHistogramData(relevantData,expectedValue)
          } else {
-            return evaluateAgainstAveragedData(relevantData, expectedValue, comparisonOperator)
+            return  evaluateAgainstAveragedData(relevantData, expectedValue, comparisonOperator)
          }
-
     }
 
-    fun evaluateLogicalCondition(queryLogic: QueryLogic, userData: UserData, currentMonth: String) : Boolean {
+    fun evaluateLogicalCondition(queryLogic: QueryLogic, userData:  MutableMap<String, DataSummaryCategory>, currentMonth: String) : Boolean {
         val children = queryLogic.children ?: return false;
 
         val results = children.map {
@@ -177,7 +219,12 @@ public class QueryEValuationService(
         )
     }
     //TODO: this will be replaced by a real data and automatic worker
-    fun testLogicEvaluation(subjectId: Long, customUserData: UserData?) : MutableMap<String, Boolean>  {
+    fun testLogicEvaluation(subject: Subject, project: String,  customUserData: UserData?) : MutableMap<String, Boolean>?  {
+        val subjectLogin = subject.user?.login!!
+        val subjectId = subject.id!!;
+
+        val processedData = awsService.startProcessing(project, subjectLogin, DataSource.CLASSPATH)?.data ?: return mutableMapOf()
+
         val subjectOpt = subjectRepository.findById(subjectId)
         val queryParticipant = queryParticipantRepository.findBySubjectId(subjectId);
         val results: MutableMap<String, Boolean> = mutableMapOf()
@@ -185,12 +232,6 @@ public class QueryEValuationService(
 
         if(subjectOpt.isPresent && queryParticipant.isNotEmpty()) {
             val subject = subjectOpt.get();
-
-            var userData = generateUserData(87.0,8, 55)
-
-            if(customUserData != null) {
-                userData = customUserData;
-            }
 
             for (queryParticipant: QueryParticipant in queryParticipant) {
                 val queryGroup = queryParticipant.queryGroup ?: continue
@@ -204,7 +245,7 @@ public class QueryEValuationService(
                 val month = currentDate.month
                 val monthName = month.getDisplayName(TextStyle.FULL, Locale.ENGLISH)
 
-                val result =   evaluteQueryCondition(root, userData, monthName);
+                val result =  evaluteQueryCondition(root, processedData, monthName);
 
                 saveQueryEvaluationResult(result, subject, queryGroup)
 

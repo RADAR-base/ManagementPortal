@@ -627,21 +627,21 @@ export class DataSummaryComponent implements OnInit {
                 this.processHistogramData(
                     'social',
                     Object.keys(this.socialMap),
-                    data.histogram.social,
+                    data.questionnaire_histogram.social,
                     month
                 );
 
                 this.processHistogramData(
                     'wherearebout',
                     Object.keys(this.whereaboutsMap),
-                    data.histogram.whereabouts,
+                    data.questionnaire_histogram.whereabouts,
                     month
                 );
 
                 this.processHistogramData(
                     'sleep',
                     Object.keys(this.sleepMap),
-                    data.histogram.sleep,
+                    data.questionnaire_histogram.sleep,
                     month
                 );
             } else {

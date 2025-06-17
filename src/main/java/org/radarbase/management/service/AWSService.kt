@@ -76,7 +76,7 @@ data class DataSummaryCategory(
     var physical:  MutableMap<String, Double>,
     var questionnaire_total:  Double,
     var questionnaire_slider: MutableMap<String,  Double>,
-    var histogram: HistogramResponse,
+    var questionnaire_histogram: HistogramResponse,
 
 
 )
@@ -137,7 +137,7 @@ class AWSService(
         } else {
             listClasspathJsonFiles(resourceFolderPath)
         }
-    log.info("[PDF-EXPORT] file size ${files.size}")
+
 
             if(files.size == 0) {
                 return null;
@@ -222,7 +222,7 @@ class AWSService(
                     physical = mutableMapOf(),
                     questionnaire_total = 0.0,
                     questionnaire_slider = mutableMapOf(),
-                    histogram = HistogramResponse(
+                    questionnaire_histogram = HistogramResponse(
                         social = mutableMapOf(),
                         whereabouts = mutableMapOf(),
                         sleep = mutableMapOf()
@@ -255,17 +255,17 @@ class AWSService(
             // Histogram items
             processHistogramCategory(
                 jsonData.questionnaire_responses.histogram.social["social_1"],
-                dataSummaryCategory.histogram.social
+                dataSummaryCategory.questionnaire_histogram.social
             )
 
             processHistogramCategory(
                 jsonData.questionnaire_responses.histogram.whereabouts["whereabouts_1"],
-                dataSummaryCategory.histogram.whereabouts
+                dataSummaryCategory.questionnaire_histogram.whereabouts
             )
 
             processHistogramCategory(
                 jsonData.questionnaire_responses.histogram.sleep["sleep_5"],
-                dataSummaryCategory.histogram.sleep
+                dataSummaryCategory.questionnaire_histogram.sleep
             )
         }
 
