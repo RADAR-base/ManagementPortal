@@ -43,24 +43,21 @@ public class QueryEValuationService(
         }
     }
 
-    private fun evaluateAgainstHistogramData(relevantData: List<DataPoint>, expectedValue: String) : Boolean {
-        val aggregated = mutableMapOf<String, Int>()
-
-        relevantData.forEach {
-            for((range, count) in it.histogramDataPoints){
-                aggregated[range] = aggregated.getOrDefault(range, 0) + count
-            }
+    private fun evaluateAgainstHistogramData(aggregatedData: MutableMap<String, Int>, expectedValue: String) : Boolean {
+        if(aggregatedData.isEmpty()) {
+            return false
         }
-
-        val maxRange = aggregated.maxByOrNull { it.value }
-
+        val maxRange = aggregatedData.maxByOrNull { it.value }
         val result = maxRange != null && maxRange.key == expectedValue
-
         return result
     }
 
 
     private fun evaluateAgainstAveragedData(relevantData: List<Double>, expectedValue: String, comparsionOperator: String ): Boolean {
+        if(relevantData.isEmpty()) {
+            return false
+        }
+
         val average = relevantData.average();
 
         return when (comparsionOperator){
@@ -74,70 +71,76 @@ public class QueryEValuationService(
         }
     }
 
-    fun evaluateSingleCondition(queryLogic: QueryLogic, userData:  MutableMap<String, DataSummaryCategory>, currentMonth: String): Boolean {
-        val query = queryLogic.query ?: return false
+    private fun aggregateDataForHistogramEvaluation(metric: String, currentTimeFrame: String, userData: MutableMap<String, DataSummaryCategory>) : MutableMap<String, Int>  {
+        var questionnaireHistogramData :  MutableMap<String, Int>?  = mutableMapOf()
+         val aggregatedData = mutableMapOf<String, Int>()
 
-        val comparisonOperator = queryLogic.query?.operator?.symbol ?: return false ;
-        val entity = query.entity ?: return false
-        val metric = query.field ?: return false
+        when(metric.lowercase()) {
+            "social" -> questionnaireHistogramData = userData[currentTimeFrame]?.questionnaire_histogram?.social
+            "whereabouts"  -> questionnaireHistogramData = userData[currentTimeFrame]?.questionnaire_histogram?.whereabouts
+            "sleep" -> questionnaireHistogramData = userData[currentTimeFrame]?.questionnaire_histogram?.sleep
+        }
 
-        val timeFrame  = queryLogic.query?.timeFrame ?: return false
-        val timeframeMonths = extractTimeframeMonths(timeFrame, currentMonth);
-
-        // data to work with
-        val aggregatedData = mutableMapOf<String, Int>()
-        val relevantData : MutableList<Double> = mutableListOf();
-
-        //TODO: maybe move this into its own method for evaluating average data
-        //TODO: put into its own method
-        for (currentTimeFrame in timeframeMonths) {
-            val physicalData = userData[currentTimeFrame]?.physical ?: continue
-            val questionnaireSliderData = userData[currentTimeFrame]?.questionnaire_slider  ?: continue
-            var questionnaireHistogramData :  MutableMap<String, Int>?  = mutableMapOf()
-
-
-            if(comparisonOperator == "IS") {
-                when(metric.lowercase()) {
-                    "social" -> questionnaireHistogramData = userData[currentTimeFrame]?.questionnaire_histogram?.social
-                    "whereabouts"  -> questionnaireHistogramData = userData[currentTimeFrame]?.questionnaire_histogram?.whereabouts
-                    "sleep" -> questionnaireHistogramData = userData[currentTimeFrame]?.questionnaire_histogram?.sleep
-                }
-
-                if(questionnaireHistogramData != null) {
-                    for((range, count) in questionnaireHistogramData!!){
-                        aggregatedData[range] = aggregatedData.getOrDefault(range, 0) + count
-                    }
-                }
-            } else {
-                var value : Double? = null
-
-                when(entity) {
-                    "physical" -> value = physicalData[metric.lowercase()]
-                    "questionnaire_slider" -> value = questionnaireSliderData[metric.lowercase()]
-                }
-
-                if(value != null) {
-                    relevantData += value;
-                }
+        if(questionnaireHistogramData != null) {
+            for((range, count) in questionnaireHistogramData){
+                aggregatedData[range] = aggregatedData.getOrDefault(range, 0) + count
             }
         }
 
-
-        if (relevantData.isEmpty() && aggregatedData == null) {
-                return false
-        }
-
-        val expectedValue = queryLogic.query?.value ?: return false;
-
-        if(comparisonOperator == "IS") {
-            val maxRange = aggregatedData.maxByOrNull { it.value }
-            val result = maxRange != null && maxRange.key == expectedValue
-            return result // evaluateAgainstHistogramData(relevantData,expectedValue)
-         } else {
-            return  evaluateAgainstAveragedData(relevantData, expectedValue, comparisonOperator)
-         }
+        return aggregatedData
     }
 
+    private fun getRelevantDataForAveragedEvaluation(entity: String, metric:String, summary: DataSummaryCategory ) : MutableList<Double> {
+        val physicalData = summary.physical
+        val sliderData = summary.questionnaire_slider
+        val avgEvalData = mutableListOf<Double>()
+
+        val value = when (entity.lowercase()) {
+            "physical" -> physicalData[metric.lowercase()]
+            "questionnaire_slider" -> sliderData[metric.lowercase()]
+            else -> null
+        }
+
+        if (value != null) {
+            avgEvalData += value
+        }
+
+        return avgEvalData
+    }
+
+    fun evaluateSingleCondition(
+        queryLogic: QueryLogic,
+        userData: MutableMap<String, DataSummaryCategory>,
+        currentMonth: String
+    ): Boolean {
+        val query = queryLogic.query ?: return false
+
+        val comparisonOperator = query.operator?.symbol ?: return false
+        val entity = query.entity ?: return false
+        val metric = query.field ?: return false
+        val expectedValue = query.value ?: return false
+        val timeFrame = query.timeFrame ?: return false
+        val timeframeMonths = extractTimeframeMonths(timeFrame, currentMonth)
+
+        var avgEvalData = mutableListOf<Double>()
+        var histogramEvalData = mutableMapOf<String, Int>()
+
+        for (month in timeframeMonths) {
+            val summary = userData[month] ?: continue
+            if (comparisonOperator == "IS") {
+                histogramEvalData = aggregateDataForHistogramEvaluation(metric, month, userData)
+            } else {
+                avgEvalData = getRelevantDataForAveragedEvaluation(entity, metric, summary)
+
+            }
+        }
+
+        return if (comparisonOperator == "IS") {
+            evaluateAgainstHistogramData(histogramEvalData, expectedValue)
+        } else {
+            evaluateAgainstAveragedData(avgEvalData, expectedValue, comparisonOperator)
+        }
+    }
     fun evaluateLogicalCondition(queryLogic: QueryLogic, userData:  MutableMap<String, DataSummaryCategory>, currentMonth: String) : Boolean {
         val children = queryLogic.children ?: return false;
 
