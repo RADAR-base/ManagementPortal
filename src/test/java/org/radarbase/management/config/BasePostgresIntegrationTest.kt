@@ -15,24 +15,17 @@ import org.testcontainers.junit.jupiter.Testcontainers
 abstract class BasePostgresIntegrationTest {
 
     companion object {
-        @Container
-        val postgres = PostgreSQLContainer("postgres:15")
-            .withDatabaseName("testdb")
-            .withUsername("test")
-            .withPassword("test")
-            .withReuse(true)
 
-        init {
-            postgres.start()
-        }
+        private val container = PostgresTestContainer.container
+
 
         @JvmStatic
         @DynamicPropertySource
         fun registerPgProperties(registry: DynamicPropertyRegistry) {
-            registry.add("spring.datasource.url", postgres::getJdbcUrl)
-            registry.add("spring.datasource.username", postgres::getUsername)
-            registry.add("spring.datasource.password", postgres::getPassword)
-            registry.add("spring.datasource.driver-class-name", postgres::getDriverClassName)
+            registry.add("spring.datasource.url") { container.jdbcUrl }
+            registry.add("spring.datasource.username") { container.username }
+            registry.add("spring.datasource.password") { container.password }
+            registry.add("spring.datasource.driver-class-name") { container.driverClassName }
             registry.add("spring.jpa.database-platform") { "org.hibernate.dialect.PostgreSQLDialect" }
         }
     }

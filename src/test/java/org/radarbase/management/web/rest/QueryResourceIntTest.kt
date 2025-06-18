@@ -38,6 +38,8 @@ import org.springframework.test.web.servlet.setup.StandaloneMockMvcBuilder
 import org.springframework.transaction.annotation.Transactional
 import java.time.ZonedDateTime
 import javax.servlet.ServletException
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 
 
 internal class QueryResourceTest(
@@ -117,6 +119,7 @@ internal class QueryResourceTest(
         query.queryGroup = queryGroup
         query.operator = ComparisonOperator.LESS_THAN_OR_EQUALS
         query.timeFrame = QueryTimeFrame.LAST_7_DAYS
+        query.entity = "physical"
         query.value = "80"
 
         return query;
@@ -221,37 +224,25 @@ internal class QueryResourceTest(
 
         createAndAddQueryToDB();
 
-        mockMvc.perform(get("/api/query-builder/queries"))
+        val returnValue = mockMvc.perform(get("/api/query-builder/queries"))
             .andExpect(status().isOk)
             .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(
-                MockMvcResultMatchers.jsonPath("$.[*].value").value<Iterable<String?>>(
-                    Matchers.hasItem(
-                        "80"
-                    )
-                )
-            )
-            .andExpect(
-                MockMvcResultMatchers.jsonPath("$.[*].queryMetric").value<Iterable<String?>>(
-                    Matchers.hasItem(
-                        "SLEEP_LENGTH"
-                    )
-                )
-            )
-            .andExpect(
-                MockMvcResultMatchers.jsonPath("$.[*].comparisonOperator").value<Iterable<String?>>(
-                    Matchers.hasItem(
-                        "LESS_THAN_OR_EQUALS"
-                    )
-                )
-            )
-            .andExpect(
-                MockMvcResultMatchers.jsonPath("$.[*].timeFrame").value<Iterable<String?>>(
-                    Matchers.hasItem(
-                        "LAST_7_DAYS"
-                    )
-                )
-            )
+            .andExpect(jsonPath("$.length()").value(1)).andReturn()
+
+        val content: String = returnValue.getResponse().getContentAsString()
+
+
+        val objectMapper = jacksonObjectMapper()
+
+        val queryList: MutableList<Query> = objectMapper.readValue(content)
+
+        val query = queryList[0]
+
+        Assertions.assertThat(query.field).isEqualTo("SLEEP_LENGTH")
+        Assertions.assertThat(query.value).isEqualTo("80")
+        Assertions.assertThat(query.timeFrame).isEqualTo(QueryTimeFrame.LAST_7_DAYS)
+        Assertions.assertThat(query.operator).isEqualTo(ComparisonOperator.LESS_THAN_OR_EQUALS)
+
     }
 
 
