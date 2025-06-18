@@ -99,7 +99,6 @@ class QueryResource(
         @RequestBody userData: UserData?
     ): ResponseEntity<*> {
         return if(subjectId != null) {
-            //TODO: get queryGroup based on assigned query once the PR for that is completed
             val subject = subjectRepository.findById(subjectId).get();
             val project = subject!!.activeProject!!.projectName!!;
             val result = queryEValuationService.testLogicEvaluation(subject, project,  userData  );

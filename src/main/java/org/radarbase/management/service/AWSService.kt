@@ -230,7 +230,7 @@ class AWSService(
                 )
             }
 
-            // Process physical features
+
             jsonData.feature_statistics.forEach { (feature, stats) ->
                 val mean = stats.mean ?: stats.total_responses ?: 0.0
                 dataSummaryCategory.physical[feature] = mean
@@ -240,10 +240,10 @@ class AWSService(
                 }
             }
 
-            // Questionnaire summary
+
             dataSummaryCategory.questionnaire_total = jsonData.questionnaire_responses.days_with_responses.toDouble()
 
-            // Questionnaire items
+
             jsonData.questionnaire_responses.slider.forEach { (feature, stats) ->
                 dataSummaryCategory.questionnaire_slider[feature] = stats.mean
 
@@ -252,7 +252,7 @@ class AWSService(
                 }
             }
 
-            // Histogram items
+
             processHistogramCategory(
                 jsonData.questionnaire_responses.histogram.social["social_1"],
                 dataSummaryCategory.questionnaire_histogram.social

@@ -608,7 +608,7 @@ class SubjectResource(
         val subject = subjectService.findOneByLogin(login);
 
         val roles  =  roleRepository.findAllRolesByProjectName(subject.activeProject!!.projectName!!);
-        log.info("after getting roles")
+
         var usersToEmail : List<User> = listOf();
 
         for (role in roles) {
@@ -621,8 +621,6 @@ class SubjectResource(
                 }
             }
         }
-
-        log.info("users in list ${usersToEmail}")
 
         return ResponseEntity.ok(null);
     }

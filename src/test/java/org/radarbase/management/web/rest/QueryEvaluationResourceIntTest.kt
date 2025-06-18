@@ -295,11 +295,9 @@ internal class QueryEvaluationResourceIntTest(
         val queryGroup = createQueryGroup();
 
         val query = createQuery(queryGroup, QueryMetric.HEART_RATE, ComparisonOperator.EQUALS, QueryTimeFrame.PAST_YEAR, "55");
-       // val query1 = createQuery(queryGroup, QueryMetric.SLEEP_LENGTH, ComparisonOperator.EQUALS, QueryTimeFrame.PAST_6_MONTH, "8");
 
         val parentQueryLogic = createQueryLogic(queryGroup,QueryLogicType.LOGIC, QueryLogicOperator.AND, null,null);
         createQueryLogic(queryGroup,QueryLogicType.CONDITION, null, query,parentQueryLogic);
-      //  createQueryLogic(queryGroup,QueryLogicType.CONDITION, null, query1,parentQueryLogic);
 
 
         val queryParticipantAssignment = createQueryParticipantAssignment(queryGroup);
