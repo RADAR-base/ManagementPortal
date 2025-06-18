@@ -19,10 +19,6 @@ class QueryContentGroup : AbstractEntity(), Serializable {
     var contentGroupName: String? = null
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "query_content_id", nullable = false)
-    var queryContent: QueryContent? = null
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "query_group_id", nullable = false)
     var queryGroup: QueryGroup? = null
 

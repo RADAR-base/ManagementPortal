@@ -263,6 +263,11 @@
                                  constraintName="fk_query_content_query_group_id"
                                  referencedColumnNames="id"
                                  referencedTableName="query_group"/>
+		<addForeignKeyConstraint baseColumnNames="query_content_group_id"
+                                 baseTableName="query_content"
+                                 constraintName="fk_query_content_query_content_group_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="query_content_group"/>
 	</changeSet>
 	<!--query content group table-->
 	<changeSet id="create-query_content_group" author="Gwen">
@@ -296,10 +301,5 @@
                          constraintName="fk_query_content_group_query_group_id"
                          referencedColumnNames="id"
                          referencedTableName="query_group"/>
-		<addForeignKeyConstraint baseColumnNames="query_content_id"
-                         baseTableName="query_content_group"
-                         constraintName="fk_query_content_group_query_content_id"
-                         referencedColumnNames="id"
-                         referencedTableName="query_content"/>
 	</changeSet>
 </databaseChangeLog>

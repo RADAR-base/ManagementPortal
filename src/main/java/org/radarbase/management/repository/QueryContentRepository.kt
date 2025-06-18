@@ -21,4 +21,8 @@ interface QueryContentRepository : JpaRepository<QueryContent, Long> {
     @Query("DELETE FROM QueryContent q WHERE q.queryGroup.id = :queryGroupId")
     fun deleteAllByQueryGroupId(@Param("queryGroupId") queryGroupId: Long)
 
+    fun findAllByQueryContentGroupId(groupId: Long): List<QueryContent>
+
+    fun deleteAllByQueryContentGroupId(groupId: Long)
+
 }

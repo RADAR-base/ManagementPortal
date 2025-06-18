@@ -29,4 +29,6 @@ interface QueryContentGroupRepository: JpaRepository<QueryContentGroup, Long> {
         @Param("contentGroupName") contentGroupName: String,
         @Param("queryGroupId") queryGroupId: Long
     )
+
+    fun findByQueryGroupIdAndContentGroupName(queryGroupId: Long, contentGroupName: String): QueryContentGroup?
 }
