@@ -42,7 +42,8 @@
                 "revisions": "Revisions",
                 "jhipster-needle-menu-add-admin-element": "JHipster will add additional menu entries here (do not translate!)"
             },
-            "language": "Language"
+            "language": "Language",
+            "queries": "Queries"
         },
         "form": {
             "opt": "Enter the OTP code that was sent to your email.",
