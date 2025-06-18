@@ -12,10 +12,6 @@ import org.springframework.transaction.annotation.Transactional
 @RepositoryDefinition(domainClass = QueryContentGroup::class, idClass = Long::class)
 interface QueryContentGroupRepository: JpaRepository<QueryContentGroup, Long> {
     fun findAllByQueryGroupId(queryGroupId: Long): List<QueryContentGroup>
-    fun findAllByQueryGroupIdAndQueryContentIdNotIn(
-        queryGroupId: Long,
-        contentIds: Set<Long>
-    ): List<QueryContentGroup>
 
     @Transactional
     @Modifying

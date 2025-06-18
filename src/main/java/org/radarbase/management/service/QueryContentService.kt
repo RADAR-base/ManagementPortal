@@ -50,12 +50,12 @@ class QueryContentService(
         val contentGroup = queryContentGroupRepository
             .findByQueryGroupIdAndContentGroupName(queryGroupId, contentGroupName)
             ?: queryContentGroupRepository.save(
-                QueryContentGroup(
-                    queryGroup = queryGroup,
-                    contentGroupName = contentGroupName,
-                    createdDate = ZonedDateTime.now(),
-                    updatedDate = ZonedDateTime.now()
-                )
+                QueryContentGroup().apply {
+                    this.queryGroup = queryGroup
+                    this.contentGroupName = contentGroupName
+                    this.createdDate = ZonedDateTime.now()
+                    this.updatedDate = ZonedDateTime.now()
+                }
             )
 
         val existingContentIds = queryContentRepository.findAllByQueryGroupId(queryGroupId)

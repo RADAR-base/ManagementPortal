@@ -228,6 +228,36 @@
                                  referencedColumnNames="id"
                                  referencedTableName="subject"/>
 	</changeSet>
+	<!--query content group table-->
+	<changeSet id="create-query_content_group" author="Gwen">
+		<preConditions onFail="MARK_RAN">
+			<not>
+				<tableExists tableName="query_content_group"/>
+			</not>
+		</preConditions>
+		<createTable tableName="query_content_group">
+			<column name="id" type="bigint" autoIncrement="${autoIncrement}">
+				<constraints primaryKey="true" nullable="false"/>
+			</column>
+			<column name="content_group_name" type="varchar(255)">
+				<constraints nullable="false"/>
+			</column>
+			<column name="query_group_id" type="bigint">
+				<constraints nullable="false" />
+			</column>
+			<column name="created_date" type="timestamp" defaultValueDate="${now}">
+				<constraints nullable="false"/>
+			</column>
+			<column name="updated_date" type="timestamp">
+				<constraints nullable="true"/>
+			</column>
+		</createTable>
+		<addForeignKeyConstraint baseColumnNames="query_group_id"
+								baseTableName="query_content_group"
+								constraintName="fk_query_content_group_query_group_id"
+								referencedColumnNames="id"
+								referencedTableName="query_group"/>
+	</changeSet>
 	<!--query content-->
 	<changeSet id="create-query_content" author="Henry">
 		<preConditions onFail="MARK_RAN">
@@ -254,52 +284,24 @@
 			<column name="query_group_id" type="bigint">
 				<constraints nullable="false" />
 			</column>
+			<column name="query_content_group_id" type="bigint">
+				<constraints nullable="false" />
+			</column>
 			<column name="image_alternative_text" type="varchar(255)">
 				<constraints nullable="true" />
 			</column>
 		</createTable>
 		<addForeignKeyConstraint baseColumnNames="query_group_id"
-                                 baseTableName="query_content"
-                                 constraintName="fk_query_content_query_group_id"
-                                 referencedColumnNames="id"
-                                 referencedTableName="query_group"/>
+								baseTableName="query_content"
+								constraintName="fk_query_content_query_group_id"
+								referencedColumnNames="id"
+								referencedTableName="query_group"/>
 		<addForeignKeyConstraint baseColumnNames="query_content_group_id"
-                                 baseTableName="query_content"
-                                 constraintName="fk_query_content_query_content_group_id"
-                                 referencedColumnNames="id"
-                                 referencedTableName="query_content_group"/>
+								baseTableName="query_content"
+								constraintName="fk_query_content_query_content_group_id"
+								referencedColumnNames="id"
+								referencedTableName="query_content_group"/>
 	</changeSet>
-	<!--query content group table-->
-	<changeSet id="create-query_content_group" author="Gwen">
-		<preConditions onFail="MARK_RAN">
-			<not>
-				<tableExists tableName="query_content_group"/>
-			</not>
-		</preConditions>
-		<createTable tableName="query_content_group">
-			<column name="id" type="bigint" autoIncrement="${autoIncrement}">
-				<constraints primaryKey="true" nullable="false"/>
-			</column>
-			<column name="content_group_name" type="varchar(255)">
-				<constraints nullable="false"/>
-			</column>
-			<column name="query_content_id" type="bigint">
-				<constraints nullable="false" />
-			</column>
-			<column name="query_group_id" type="bigint">
-				<constraints nullable="false" />
-			</column>
-			<column name="created_date" type="timestamp" defaultValueDate="${now}">
-				<constraints nullable="false"/>
-			</column>
-			<column name="updated_date" type="timestamp">
-				<constraints nullable="true"/>
-			</column>
-		</createTable>
-		<addForeignKeyConstraint baseColumnNames="query_group_id"
-                         baseTableName="query_content_group"
-                         constraintName="fk_query_content_group_query_group_id"
-                         referencedColumnNames="id"
-                         referencedTableName="query_group"/>
-	</changeSet>
+
+	
 </databaseChangeLog>
