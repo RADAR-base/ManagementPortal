@@ -171,7 +171,6 @@ class QueryContentService(
 
         val uniqueContent = allContentGroups.filter { it.id !in assignedContentGroupIds }
 
-        // if already all the content has been assigned, and there is no other content to assign, we can just pick some older content to redistribute to the participant
         if(uniqueContent.isEmpty())  {
             return allContentGroups.random();
         } else {
