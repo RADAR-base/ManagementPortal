@@ -338,6 +338,7 @@ export class AddQueryComponent {
     async saveContent() {
         for (const group of this.contentGroups) {
             const payload = {
+                id: group.id,  
                 queryGroupId: this.queryGroupId,
                 contentGroupName: group.name,
                 queryContentDTOList: group.items,
@@ -345,6 +346,7 @@ export class AddQueryComponent {
             await this.queryService.saveContentGroup(payload);
         }
     }
+    
 
     addContentGroup() {
         this.currentEditingIndex = this.contentGroups.length;

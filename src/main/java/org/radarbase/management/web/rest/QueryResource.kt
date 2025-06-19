@@ -1,5 +1,6 @@
 package org.radarbase.management.web.rest
 
+import QueryContentGroupDTO
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.micrometer.core.annotation.Timed
@@ -165,11 +166,9 @@ class QueryResource(
     }
 
     @PostMapping("querycontentgroup")
-    fun saveAll(@RequestBody request: QueryContentGroupSaveRequest): ResponseEntity<Void> {
-        queryContentService.saveAll(
-            request.queryGroupId,
-            request.contentGroupName,
-            request.queryContentDTOList
+    fun saveOrUpdate(@RequestBody request: QueryContentGroupDTO): ResponseEntity<Void> {
+        queryContentService.saveAllOrUpdate(
+            request
         )
         return ResponseEntity.ok().build()
     }
@@ -194,12 +193,6 @@ class QueryResource(
         queryEValuationService.removeQueryEvaluationByQueryGroupAndSubject(querygroupid, subjectid)
         return ResponseEntity.ok().build()
     }
-
-    data class QueryContentGroupSaveRequest(
-        val queryGroupId: Long,
-        val contentGroupName: String,
-        val queryContentDTOList: List<QueryContentDTO>
-    )
 
     companion object {
         private val log = LoggerFactory.getLogger(QueryResource::class.java)
