@@ -1,15 +1,16 @@
 package org.radarbase.management.service
 
-import QueryContentGroupDTO
-import org.radarbase.management.domain.QueryContent
-import org.radarbase.management.domain.QueryContentGroup
+
+import org.radarbase.management.domain.*
 import org.radarbase.management.domain.enumeration.ContentType
-import org.radarbase.management.repository.QueryContentRepository
-import org.radarbase.management.repository.QueryContentGroupRepository
-import org.radarbase.management.repository.QueryGroupRepository
+import org.radarbase.management.repository.*
 import org.radarbase.management.service.dto.QueryContentDTO
+import org.radarbase.management.service.dto.QueryContentGroupDTO
 import org.radarbase.management.service.dto.QueryContentGroupResponseDTO
+import org.radarbase.management.service.dto.QueryGroupContentDTO
+import org.radarbase.management.service.mapper.QueryContentGroupMapper
 import org.radarbase.management.service.mapper.QueryContentMapper
+import org.radarbase.management.service.mapper.QueryGroupContentMapper
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -17,13 +18,23 @@ import java.nio.charset.StandardCharsets
 import java.time.ZonedDateTime
 import java.util.*
 
+
 @Service
 @Transactional
 class QueryContentService(
     private val queryContentRepository: QueryContentRepository,
     private val queryGroupRepository: QueryGroupRepository,
     private val queryContentMapper: QueryContentMapper,
-    private val queryContentGroupRepository: QueryContentGroupRepository
+    private val queryContentGroupRepository: QueryContentGroupRepository,
+    private val queryParticipantRepository: QueryParticipantRepository,
+    private val subjectRepository: SubjectRepository,
+    private val queryEvaluationRepository: QueryEvaluationRepository,
+    private val queryContentGroup: QueryContentGroupRepository,
+    private val queryParticipantContentRepository: QueryParticipantContentRepository,
+    private val queryGroupContentMapper: QueryGroupContentMapper,
+    private val queryContentGroupMapper: QueryContentGroupMapper
+
+
 ) {
 
     fun convertImgStringToByteArray(imgString: String): ByteArray {
@@ -86,6 +97,15 @@ class QueryContentService(
         return queryContentList.mapNotNull { queryContentMapper.queryContentToQueryContentDTO(it) }
     }
 
+
+    fun findAllByContentGroupId(contentGroupId: Long) : List<QueryContentDTO> {
+        val queryContentList = queryContentRepository.findAllByQueryContentGroupId(contentGroupId);
+        return queryContentList.mapNotNull { queryContentMapper.queryContentToQueryContentDTO(it) }
+    }
+
+
+
+
     fun getAllContentsQueryGroupId(queryGroupId: Long): List<QueryContentGroupResponseDTO> {
         val contentGroups = queryContentGroupRepository.findAllByQueryGroupId(queryGroupId)
 
@@ -110,6 +130,138 @@ class QueryContentService(
             // 删除分组本身
             queryContentGroupRepository.delete(group)
         }
+    }
+
+
+    fun sendNotification(contentGroup: QueryContentGroup) {
+        //TODO: implement this once the notification capability was added
+    }
+
+    private fun shouldSendNotification(evaluations : List<QueryEvaluation>): Boolean {
+        return when(evaluations.size) {
+            1 -> evaluations[0].result ?: false
+            2 -> {
+                val (latestEvaluation, previousEvaluations) = evaluations
+                latestEvaluation.result == true && previousEvaluations.result == false
+            }
+            else -> false
+        }
+    }
+
+    private fun saveParticipantContentGroup(queryGroup: QueryGroup, queryContentGroup: QueryContentGroup, subject: Subject) {
+        val participantContentGroup = QueryParticipantContent()
+        participantContentGroup.queryContentGroup = queryContentGroup
+        participantContentGroup.queryGroup = queryGroup
+        participantContentGroup.subject = subject
+        participantContentGroup.createdDate = ZonedDateTime.now();
+        participantContentGroup.isArchived = false;
+
+        queryParticipantContentRepository.save(participantContentGroup);
+    }
+
+    fun assignNewContentToParticipant(evaluation: QueryEvaluation, subject: Subject) : QueryContentGroup? {
+        val queryGroup = evaluation.queryGroup ?: return null ;
+        val queryGroupId = queryGroup.id ?: return null
+
+
+        val allContentGroups = queryContentGroupRepository.findAllByQueryGroupId(queryGroupId);
+        val assignedContentGroups = queryParticipantContentRepository.findBySubjectAndQueryGroup(subject, queryGroup).map { it.queryContentGroup }
+        val assignedContentGroupIds = assignedContentGroups.map { it?.id }.toSet()
+
+
+        val uniqueContent = allContentGroups.filter { it.id !in assignedContentGroupIds }
+
+        // if already all the content has been assigned, and there is no other content to assign, we can just pick some older content to redistribute to the participant
+        if(uniqueContent.isEmpty())  {
+            return allContentGroups.random();
+        } else {
+            val newContent = uniqueContent.random();
+            saveParticipantContentGroup(queryGroup, newContent, subject);
+            return newContent;
+        }
+    }
+
+
+
+    fun getContentItemsForSubjectAndContentGroup(subjectId: Long, contentGroupId: Long) : List<QueryContentDTO> {
+        var result : List<QueryContentDTO> = emptyList()
+
+
+        val contentGroupOpt = queryContentGroupRepository.findById(contentGroupId)
+        val subjectOpt = subjectRepository.findById(subjectId)
+
+
+        if(contentGroupOpt.isPresent && subjectOpt.isPresent) {
+            val contentGroup = contentGroupOpt.get()
+            val subject = subjectOpt.get()
+
+            val participantContentGroupList = queryParticipantContentRepository.findByQueryContentGroupAndSubject(contentGroup, subject);
+
+            if(participantContentGroupList.isNotEmpty()) {
+                result = findAllByContentGroupId(contentGroup.id!!)
+            }
+
+        }
+
+        return result;
+    }
+    fun getAllContentGroupsForParticipant(subjectId: Long): Map<String, List<QueryContentGroupDTO>>  {
+        val result = mutableMapOf<String, List<QueryContentGroupDTO>>()
+
+        val subjectOpt = subjectRepository.findById(subjectId)
+
+        if(subjectOpt.isPresent) {
+            val subject = subjectOpt.get();
+            val allAssignedParticipantContent = queryParticipantContentRepository.findBySubject(subject)
+
+
+            for(participantContent in allAssignedParticipantContent) {
+                val queryGroup = participantContent.queryGroup ?: continue
+                val queryContentGroupDTO = queryContentGroupMapper.queryContentGroupToQueryContentGroupDTO(participantContent.queryContentGroup)
+                val key = queryGroup.name ?: continue
+
+                if(queryContentGroupDTO != null) {
+                    result[key] = result.getOrDefault(key, mutableListOf()) + queryContentGroupDTO
+                }
+            }
+        }
+        return result
+    }
+
+
+    fun processCompletedQueriesForParticipant(participantId: Long): Boolean {
+
+        val queryParticipantList = queryParticipantRepository.findBySubjectId(participantId)
+        if (queryParticipantList.isEmpty()) return false
+
+        val subjectOpt = subjectRepository.findById(participantId)
+        if (!subjectOpt.isPresent) return false
+
+        val subject = subjectOpt.get()
+
+        for (queryParticipant in queryParticipantList) {
+            if(queryParticipant.queryGroup != null) {
+                val evaluations = queryEvaluationRepository.findTop2BySubjectAndQueryGroupOrderByCreatedDateDesc(
+                    subject,
+                    queryParticipant.queryGroup!!
+                )
+
+                if(evaluations.isEmpty()) {
+                    continue
+                }
+
+                val latestEvaluation = evaluations[0]
+
+                if(shouldSendNotification(evaluations)) {
+                    val content = assignNewContentToParticipant(latestEvaluation, subject)
+                    sendNotification(content!!);
+                }
+            }
+        }
+
+        return true;
+
+
     }
 
     companion object {

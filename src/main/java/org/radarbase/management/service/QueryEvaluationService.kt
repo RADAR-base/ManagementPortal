@@ -215,27 +215,15 @@ public class QueryEValuationService(
     }
 
     fun saveQueryEvaluationResult(result: Boolean, subject: Subject, queryGroup: QueryGroup) {
-        val queryEvaluationList = queryEvaluationRepository.findBySubjectAndQueryGroup(subject, queryGroup) ;
+        val newQueryEvaluation = QueryEvaluation();
 
-        if(queryEvaluationList.isNotEmpty()) {
-            val existingQueryEvaluation = queryEvaluationList[0]
+        newQueryEvaluation.queryGroup = queryGroup
+        newQueryEvaluation.subject = subject
+        newQueryEvaluation.createdDate = ZonedDateTime.now()
+        newQueryEvaluation.result = result
 
-            if(existingQueryEvaluation.result == false && result) {
-                existingQueryEvaluation.updatedDate = ZonedDateTime.now()
-                existingQueryEvaluation.result = true
-                queryEvaluationRepository.save(existingQueryEvaluation)
-            }
+        queryEvaluationRepository.save(newQueryEvaluation);
 
-        } else {
-            val newQueryEvaluation = QueryEvaluation();
-
-            newQueryEvaluation.queryGroup = queryGroup
-            newQueryEvaluation.subject = subject
-            newQueryEvaluation.createdDate = ZonedDateTime.now()
-            newQueryEvaluation.result = result
-
-            queryEvaluationRepository.save(newQueryEvaluation);
-        }
         queryEvaluationRepository.flush();
     }
     fun buildLogicTree(conditions: List<QueryLogic>): QueryLogic? {
@@ -257,32 +245,6 @@ public class QueryEValuationService(
         return root;
     }
 
-    fun getActiveQueryContentForParticipant(participantId: Long): Map<Long, List<QueryContentDTO>> {
-        val result = mutableMapOf<Long, List<QueryContentDTO>>()
-
-        val queryParticipantList = queryParticipantRepository.findBySubjectId(participantId)
-        if (queryParticipantList.isEmpty()) return result
-
-        val subjectOpt = subjectRepository.findById(participantId)
-        if (!subjectOpt.isPresent) return result
-
-        val subject = subjectOpt.get()
-
-        // Fetch all successful evaluations for the subject
-        val evaluations = queryEvaluationRepository.findBySubject(subject)
-            .filter { it.result == true }
-
-        for (evaluation in evaluations) {
-            val queryGroup = evaluation.queryGroup ?: continue
-            val queryGroupId = queryGroup.id ?: continue
-
-            val content = queryContentService.findAllByQueryGroupId(queryGroupId)
-
-            result[queryGroupId] = content;
-        }
-
-        return result
-    }
 
     @Transactional
     fun  removeQueryEvaluationByQueryGroupAndSubject(queryGroupId: Long, subjectId: Long) {

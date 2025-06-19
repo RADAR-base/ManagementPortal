@@ -100,6 +100,9 @@ class QueryResource(
         return if(subjectId != null) {
             //TODO: get queryGroup based on assigned query once the PR for that is completed
             val result = queryEValuationService.testLogicEvaluation(subjectId, userData  );
+
+            queryContentService.processCompletedQueriesForParticipant(subjectId);
+
             ResponseEntity.ok(result)
         } else {
             ResponseEntity.badRequest()
@@ -158,11 +161,21 @@ class QueryResource(
             queryBuilderService.deleteQueryParticipantByQueryGroup(subjectId, queryGroupId)
     }
 
+
+    //TODO: renmae to querycontentgroup/participantid
     @GetMapping("querycontent/active/{participantId}")
     fun getActiveQueryContentForParticipant(@PathVariable participantId: Long): ResponseEntity<*> {
-        val result = queryEValuationService.getActiveQueryContentForParticipant(participantId)
+        val result = queryContentService.getAllContentGroupsForParticipant(participantId)
         return ResponseEntity.ok(result)
     }
+
+    @GetMapping("querycontentgroup/{queryContentGroupId}/participant/{participantId}/content")
+    fun getContentForParticipantAndContentGroup(@PathVariable queryContentGroupId: Long, @PathVariable participantId: Long): ResponseEntity<*> {
+        val result = queryContentService.getContentItemsForSubjectAndContentGroup(participantId, queryContentGroupId)
+        return ResponseEntity.ok(result)
+    }
+
+
 
     @PostMapping("querycontentgroup")
     fun saveAll(@RequestBody request: QueryContentGroupSaveRequest): ResponseEntity<Void> {
