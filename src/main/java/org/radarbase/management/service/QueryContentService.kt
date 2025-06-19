@@ -31,7 +31,7 @@ class QueryContentService(
         val partSeparator = ","
         var encodedImg = imgString
         if (encodedImg.contains(partSeparator)) {
-            encodedImg = encodedImg.split(partSeparator)[1]
+            encodedImg = encodedImg.split(partSeparator)[10]
         }
         return decoder.decode(encodedImg.toByteArray(StandardCharsets.UTF_8))
     }
@@ -105,9 +105,7 @@ class QueryContentService(
     fun deleteQueryContentGroupByNameAndQueryGroup(contentGroupName: String, queryGroupId: Long) {
         val group = queryContentGroupRepository.findByQueryGroupIdAndContentGroupName(queryGroupId, contentGroupName)
         if (group != null) {
-            // 删除所有属于该分组的 content
             queryContentRepository.deleteAllByQueryContentGroupId(group.id!!)
-            // 删除分组本身
             queryContentGroupRepository.delete(group)
         }
     }

@@ -26,7 +26,7 @@ const sliderOptions = Array.from({ length: 7 }, (_, i) => {
 interface ContentGroup {
     name: string;
     items: ContentItem[];
-    queryGroupId: number; // to find the relevent records to delete
+    queryGroupId: number; 
 }
 
 @Component({
