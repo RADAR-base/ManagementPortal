@@ -26,7 +26,8 @@ const sliderOptions = Array.from({ length: 7 }, (_, i) => {
 interface ContentGroup {
     name: string;
     items: ContentItem[];
-    queryGroupId: number; 
+    queryGroupId: number;
+    id: number;
 }
 
 @Component({
@@ -228,6 +229,7 @@ export class AddQueryComponent {
                     name: group.contentGroupName,
                     items: group.queryContentDTOList || [],
                     queryGroupId: group.queryGroupId,
+                    id: group.id,
                 }));
 
                 if (this.contentGroups.length > 0) {
@@ -355,13 +357,15 @@ export class AddQueryComponent {
                 },
             ],
             queryGroupId: null,
+            id: null,
         };
         this.isEditingContent = true;
     }
 
-    deleteQueryGroup(name: string, queryGroupId: number) {
+    deleteContentGroup(id: number) {
+        console.log(id)
         this.queryService
-            .deleteContentGroup(name, queryGroupId)
+            .deleteContentGroupByID(id)
             .subscribe((result: any) => {
                 this.refreshContentGroups();
             });
@@ -376,6 +380,7 @@ export class AddQueryComponent {
             name: original.name,
             items: original.items.map((item) => ({ ...item })),
             queryGroupId: original.queryGroupId,
+            id: original.id,
         };
         this.isEditingContent = true;
     }

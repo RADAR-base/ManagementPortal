@@ -174,9 +174,9 @@ class QueryResource(
         return ResponseEntity.ok().build()
     }
 
-    @DeleteMapping("querycontentgroup/{contentGroupName}/{queryGroupId}")
-    fun deleteContentGroup(@PathVariable contentGroupName: String, @PathVariable queryGroupId: Long){
-        queryContentService.deleteQueryContentGroupByNameAndQueryGroup(contentGroupName, queryGroupId)
+    @DeleteMapping("querycontentgroup/{queryContentGroupId}")
+    fun deleteContentGroup(@PathVariable queryContentGroupId: Long){
+        queryContentService.deleteQueryContentGroup(queryContentGroupId)
     }
 
     @GetMapping("querycontent/querygroup/{queryGroupId}")

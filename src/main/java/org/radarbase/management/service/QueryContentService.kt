@@ -8,7 +8,6 @@ import org.radarbase.management.repository.QueryContentRepository
 import org.radarbase.management.repository.QueryContentGroupRepository
 import org.radarbase.management.repository.QueryGroupRepository
 import org.radarbase.management.service.dto.QueryContentDTO
-import org.radarbase.management.service.dto.QueryContentGroupResponseDTO
 import org.radarbase.management.service.mapper.QueryContentMapper
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -86,7 +85,7 @@ class QueryContentService(
         return queryContentList.mapNotNull { queryContentMapper.queryContentToQueryContentDTO(it) }
     }
 
-    fun getAllContentsQueryGroupId(queryGroupId: Long): List<QueryContentGroupResponseDTO> {
+    fun getAllContentsQueryGroupId(queryGroupId: Long): List<QueryContentGroupDTO> {
         val contentGroups = queryContentGroupRepository.findAllByQueryGroupId(queryGroupId)
 
         return contentGroups.map { group ->
@@ -94,20 +93,19 @@ class QueryContentService(
             val contentDTOs = queryContents.mapNotNull {
                 queryContentMapper.queryContentToQueryContentDTO(it)
             }
-            QueryContentGroupResponseDTO(
+            QueryContentGroupDTO(
                 contentGroupName = group.contentGroupName,
                 queryGroupId = queryGroupId,
-                queryContentDTOList = contentDTOs
+                queryContentDTOList = contentDTOs,
+                id= group.id
             )
         }
     }
 
-    fun deleteQueryContentGroupByNameAndQueryGroup(contentGroupName: String, queryGroupId: Long) {
-        val group = queryContentGroupRepository.findByQueryGroupIdAndContentGroupName(queryGroupId, contentGroupName)
-        if (group != null) {
-            queryContentRepository.deleteAllByQueryContentGroupId(group.id!!)
-            queryContentGroupRepository.delete(group)
-        }
+    fun deleteQueryContentGroup(queryContentGroupId: Long) {
+        //delete query contents first
+        queryContentRepository.deleteAllByQueryContentGroupId(queryContentGroupId)
+        queryContentGroupRepository.deleteById(queryContentGroupId)
     }
 
     companion object {

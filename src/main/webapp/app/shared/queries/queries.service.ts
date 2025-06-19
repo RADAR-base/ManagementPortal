@@ -61,10 +61,10 @@ export class QueriesService {
         return this.http.get(this.baseURL + '/querygroups');
     }
 
-    deleteContentGroup(contentGroupName: string, queryGroupId: Number) {
+    deleteContentGroupByID(queryContentGroupId: any) {
         return this.http.delete(
             this.baseURL +
-                `/querycontentgroup/${contentGroupName}/${queryGroupId}`
+                `/querycontentgroup/${queryContentGroupId}`
         );
     }
 }
