@@ -432,7 +432,9 @@ export class AddQueryComponent {
         const hasName = !!this.queryGrouName;
         const hasDesc = !!this.queryGroupDesc;
         const hasQuery = this.query && this.query.rules.length > 0;
-
-        return !(hasName && hasDesc && hasQuery);
-    }
+    
+        const isEditing = this.isEditingContent;
+    
+        return !(hasName && hasDesc && hasQuery) || isEditing;
+    }    
 }
