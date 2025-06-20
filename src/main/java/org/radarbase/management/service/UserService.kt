@@ -297,6 +297,7 @@ class UserService @Autowired constructor(
         val userOpt = userDto.id?.let { userRepository.findById(it) }
         return if (userOpt?.isPresent == true) {
             var user = userOpt.get()
+
             user.firstName = userDto.firstName
             user.lastName = userDto.lastName
             user.email = userDto.email
@@ -380,6 +381,7 @@ class UserService @Autowired constructor(
 
         // add the email
         user.email = email
+
         log.debug("Set admin email to: {}", email)
 
         // there is no identity for this user, so we create it and save it to the IDP

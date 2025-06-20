@@ -1,5 +1,4 @@
 @media print {
-
     * {
         -webkit-print-color-adjust: exact;
     }
@@ -10,14 +9,15 @@
 
     .print {
         position: static;
-        height: 100%;
+        height: auto !important;
     }
 
     .modal-backdrop {
         display: none !important;
     }
 
-    html, body {
-        height:100%
+    html,
+    body {
+        height: auto !important;
     }
 }
