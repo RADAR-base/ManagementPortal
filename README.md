@@ -301,15 +301,34 @@ Unit tests are run by [Karma][] and written with [Jasmine][]. They're located in
 
 UI end-to-end tests are powered by [Cypress][], which is built on top of WebDriverJS. They're located in [src/test/javascript/e2e](src/test/javascript/e2e)
 and can be run by starting Spring Boot in one terminal (`./gradlew bootRun`) and running the tests (`yarn run e2e`) in a second one.
+
 ### Other tests
 
-Performance tests are run by [Gatling][] and written in Scala. They're located in `src/test/gatling` and can be run with:
+Performance tests are run by [Gatling][] and written in Scala. They're located in `src/test/gatling`. To run the Gatling tests:
 
-    ./gradlew gatlingRunAll
+1. Start postgreSQL database in a docker container, if you haven't done so already:
+
+```shell
+docker-compose -f src/main/docker/postgresql.yml up -d
+```
+
+2. Start ManagementPortal in production mode:
+
+```shell
+./gradlew bootRun -Pprod
+```
+ 
+4. Run the Gatling tests:
+
+```shell
+./gradlew gatlingRunAll
+```
 
 or
 
-    ./gradlew gatlingRun<SIMULATION_CLASS_NAME> # E.g., gatlingRunProjectGatlingTest
+```shell
+./gradlew gatlingRun<SIMULATION_CLASS_NAME> # E.g., gatlingRunProjectGatlingTest
+```
 
 For more information, refer to the [Running tests page][].
 
