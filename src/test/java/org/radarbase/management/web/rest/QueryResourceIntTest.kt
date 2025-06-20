@@ -1,6 +1,7 @@
 package org.radarbase.management.web.rest
 
 
+import QueryContentGroupDTO
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import kotlinx.coroutines.runBlocking
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.Test
 import org.mockito.MockitoAnnotations
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.radarbase.auth.authentication.OAuthHelper
 import org.radarbase.auth.token.RadarToken
@@ -55,7 +57,8 @@ internal class QueryResourceIntTest(
     @Autowired private val queryLogicRepository: QueryLogicRepository,
     @Autowired private val queryEvaluationRepository: QueryEvaluationRepository,
     @Autowired private val queryContentRepository: QueryContentRepository,
-    @Autowired private val queryContentService: QueryContentService
+    @Autowired private val queryContentService: QueryContentService,
+    @Autowired private val queryContentGroupRepository: QueryContentGroupRepository
 
     ) : BasePostgresIntegrationTest() {
 
@@ -66,7 +69,7 @@ internal class QueryResourceIntTest(
 
     private val imageBlob = "/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAoHBwgHBgoICAgLCgoLDhgQDg0NDh0VFhEYIx8lJCIfIiEmKzcvJik0KSEiMEExNDk7Pj4+JS5ESUM8SDc9Pjv/2wBDAQoLCw4NDhwQEBw7KCIoOzs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozv/wAARCAAUABQDASIAAhEBAxEB/8QAGgABAAIDAQAAAAAAAAAAAAAAAAMEAQIFB//EACQQAAICAgEDBAMAAAAAAAAAAAECAwQAIRESMUEFExQiUVJh/8QAFwEAAwEAAAAAAAAAAAAAAAAAAAECA//EABkRAQEBAAMAAAAAAAAAAAAAAAABESExQf/aAAwDAQACEQMRAD8A9hsCc15BWZFm6foZASoP94ytV9Qa1ZWOONXi9kO8wfjhidAL3IOzz21klupWlb5EyMWSNkBVyD0nuNHzlCG6ayWbl1pBHS5id2hKAKACXH7D8ka1oDfNeM7cvNx2cZpFIk0SSxsGR1DKw8g9sZLRHap17qIliISLHIsigk6ZTyDkxAIII5B8YxgWTtnGMYG//9k="
 
-
+    private val baseURL = "/api/query-builder/"
 
     private lateinit var user: User
 
@@ -185,7 +188,7 @@ internal class QueryResourceIntTest(
 
         val json = objectMapper.writeValueAsString(queryLogicParentDTO)
 
-        mockMvc.perform(post("/api/query-builder/querylogic")
+        mockMvc.perform(post(baseURL + "querylogic")
             .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(json)))
             .andExpect(status().isOk)
@@ -208,7 +211,7 @@ internal class QueryResourceIntTest(
         queryGroupDTO.description = "desc"
         val json = objectMapper.writeValueAsString(queryGroupDTO)
 
-        mockMvc.perform(post("/api/query-builder/querygroups")
+        mockMvc.perform(post(baseURL + "querygroups")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(json)))
             .andExpect(status().isOk)
@@ -221,7 +224,7 @@ internal class QueryResourceIntTest(
 
         createAndAddQueryToDB();
 
-        mockMvc.perform(get("/api/query-builder/queries"))
+        mockMvc.perform(get(baseURL + "queries"))
             .andExpect(status().isOk)
             .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(
@@ -269,7 +272,7 @@ internal class QueryResourceIntTest(
 
 
 
-    mockMvc.perform(get("/api/query-builder/querygroups"))
+    mockMvc.perform(get(baseURL + "querygroups"))
         .andExpect(status().isOk)
         .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(
@@ -287,7 +290,7 @@ internal class QueryResourceIntTest(
     fun shouldDeleteQueryGroupAndAllRelatedEntities() {
         val query = createAndAddQueryToDB();
 
-        mockMvc.perform(delete("/api/query-builder/querygroups/" + query.queryGroup?.id))
+        mockMvc.perform(delete(baseURL + "querygroups/" + query.queryGroup?.id))
             .andExpect(status().isOk)
 
     }
@@ -305,7 +308,7 @@ internal class QueryResourceIntTest(
 
         val json = objectMapper.writeValueAsString(dto)
 
-        mockMvc.perform(post("/api/query-builder/queryparticipant")
+        mockMvc.perform(post(baseURL + "queryparticipant")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(json)))
             .andExpect(status().isOk)
@@ -325,7 +328,7 @@ internal class QueryResourceIntTest(
     fun shouldGetAssignedQueriesBySubject() {
         val queryParticipant = createAndAddQueryParticipantToDB();
 
-        mockMvc.perform(get("/api/query-builder/querygroups/subject/" + queryParticipant.subject?.id))
+        mockMvc.perform(get(baseURL + "querygroups/subject/" + queryParticipant.subject?.id))
             .andExpect(status().isOk)
             .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(
@@ -348,7 +351,7 @@ internal class QueryResourceIntTest(
         val subjectId = queryParticipant.subject?.id
 
 
-        mockMvc.perform(delete("/api/query-builder/querygroups/" + queryGroupId + "/subject/" + subjectId))
+        mockMvc.perform(delete(baseURL + "querygroups/" + queryGroupId + "/subject/" + subjectId))
             .andExpect(status().isOk)
 
         Assertions.assertThat(queryParticipantRepository.findAll().size).isEqualTo(0)
@@ -369,86 +372,59 @@ internal class QueryResourceIntTest(
         }
         queryEvaluationRepository.saveAndFlush(evaluation)
 
-        mockMvc.perform(get("/api/query-builder/querycontent/active/${subject.id}"))
+        mockMvc.perform(get(baseURL + "querycontent/active/${subject.id}"))
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.${queryGroup.id}").exists())
     }
 
-    @Test
-    @Transactional
-    fun shouldSaveQueryContent() {
-        val heading = "heading";
-        val paragraph = "this is a paragraph"
-        val videoLink = "video-link"
-        val title = "this is a title"
-
-        val sizeBefore = queryContentRepository.findAll().size
-
-        val queryParticipant = createAndAddQueryParticipantToDB()
-        val subject = queryParticipant.subject!!
-        val queryGroup = queryParticipant.queryGroup!!
-
-        var queryContentList : List<QueryContentDTO> = mutableListOf();
-
-        val paragraphContent = QueryContentDTO();
-        paragraphContent.queryGroupId = queryGroup.id
-        paragraphContent.type = ContentType.PARAGRAPH;
-        paragraphContent.heading = heading
-        paragraphContent.value = paragraph
-        queryContentList += paragraphContent;
-
-
-        val videoContent = QueryContentDTO();
-        videoContent.type = ContentType.VIDEO
-        videoContent.value = videoLink;
-        queryContentList += videoContent;
-
-
-        val imageContent = QueryContentDTO();
-        imageContent.type = ContentType.IMAGE;
-        imageContent.imageBlob = imageBlob;
-        queryContentList += imageContent;
-
-
-
-        val titleContent = QueryContentDTO();
-        imageContent.type = ContentType.TITLE;
-        imageContent.value = title;
-        queryContentList += titleContent;
-
-        mockMvc.perform(post("/api/query-builder/querycontent/querygroup/${queryGroup.id}")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(queryContentList)))
-            .andExpect(status().isOk)
-
-
-        val sizeAfter = queryContentRepository.findAll().size
-        Assertions.assertThat(sizeAfter).isEqualTo(sizeBefore + 4)
-
-        val newContentList = queryContentRepository.findAll();
-
-        for(content in newContentList) {
-            if(content.type == ContentType.PARAGRAPH) {
-                Assertions.assertThat(content.heading).isEqualTo(heading)
-                Assertions.assertThat(content.value).isEqualTo(paragraph)
-            }
-
-            if(content.type == ContentType.IMAGE) {
-                Assertions.assertThat(content.value).isNull()
-                Assertions.assertThat(content.imageBlob).isNotNull();
-
-            }
-
-            if(content.type == ContentType.VIDEO) {
-                Assertions.assertThat(content.value).isEqualTo(videoLink)
-            }
-
-            if(content.type == ContentType.TITLE) {
-                Assertions.assertThat(content.value).isEqualTo(title)
-            }
+    fun createContentGroup(name: String, queryGroup: QueryGroup): QueryContentGroup {
+        return QueryContentGroup().apply {
+            contentGroupName = name
+            this.queryGroup = queryGroup
+            createdDate = ZonedDateTime.now()
+            updatedDate = ZonedDateTime.now()
+        }.also {
+            queryContentGroupRepository.save(it)
         }
-
     }
+
+    fun createQueryContentGroupDTO(queryGroup: QueryGroup, heading: String, paragraph: String,videoLink: String,title: String): QueryContentGroupDTO{
+        var blob = imageBlob
+        var mockContentGroup = createContentGroup("Test Content Group", queryGroup)
+        val mockDTO = QueryContentGroupDTO(
+            contentGroupName = mockContentGroup.contentGroupName,
+            queryGroupId = queryGroup.id,
+            id = mockContentGroup.id,
+            queryContentDTOList = listOf(
+                QueryContentDTO().apply {
+                    type = ContentType.TITLE
+                    value = title
+                    queryGroupId = queryGroup.id
+                    queryContentGroupId = mockContentGroup.id
+                },
+                QueryContentDTO().apply {
+                    type = ContentType.PARAGRAPH
+                    value = paragraph
+                    queryGroupId = queryGroup.id
+                    queryContentGroupId = mockContentGroup.id
+                },
+                QueryContentDTO().apply {
+                    type = ContentType.IMAGE
+                    imageBlob = blob
+                    queryGroupId = queryGroup.id
+                    queryContentGroupId = mockContentGroup.id
+                },
+                QueryContentDTO().apply {
+                    type = ContentType.HEADING
+                    value= heading
+                    queryGroupId = queryGroup.id
+                    queryContentGroupId = mockContentGroup.id
+                }
+            )
+        )
+        return mockDTO;
+    }
+
     @Test
     @Transactional
     fun shouldRetrieveQueryContent() {
@@ -457,11 +433,11 @@ internal class QueryResourceIntTest(
         val videoLink = "video-link"
         val title = "this is a title"
 
-        val sizeBefore = queryContentRepository.findAll().size
 
         val queryParticipant = createAndAddQueryParticipantToDB()
-        val subject = queryParticipant.subject!!
         val queryGroup = queryParticipant.queryGroup!!
+
+        val contentGroup = createContentGroup("Test content group", queryGroup)
 
         var queryContentList : List<QueryContent> = mutableListOf();
 
@@ -470,12 +446,15 @@ internal class QueryResourceIntTest(
         paragraphContent.type = ContentType.PARAGRAPH;
         paragraphContent.heading = heading
         paragraphContent.value = paragraph
+        paragraphContent.queryContentGroup = contentGroup
+
         queryContentRepository.save(paragraphContent);
 
         val videoContent = QueryContent();
         videoContent.queryGroup = queryGroup
         videoContent.type = ContentType.VIDEO
         videoContent.value = videoLink;
+        videoContent.queryContentGroup = contentGroup
         queryContentRepository.save(videoContent);
 
 
@@ -483,16 +462,18 @@ internal class QueryResourceIntTest(
         imageContent.queryGroup = queryGroup
         imageContent.type = ContentType.IMAGE;
         imageContent.imageBlob = queryContentService.convertImgStringToByteArray(imageBlob);
+        imageContent.queryContentGroup = contentGroup
         queryContentRepository.save(imageContent);
 
         val titleContent = QueryContent();
         titleContent.queryGroup = queryGroup
         titleContent.type = ContentType.TITLE;
         titleContent.value = title;
+        titleContent.queryContentGroup = contentGroup
         queryContentRepository.save(titleContent);
 
 
-        val returnedValue = mockMvc.perform(get("/api/query-builder/querycontent/querygroup/${queryGroup.id}")
+        val returnedValue = mockMvc.perform(get(baseURL + "querycontent/querygroup/${queryGroup.id}")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(queryContentList)))
             .andExpect(status().isOk)
@@ -551,7 +532,7 @@ internal class QueryResourceIntTest(
         Assertions.assertThat(queryEvaluationRepository.findAll().size).isEqualTo(1)
 
         mockMvc.perform(
-            delete("/api/query-builder/queryevaluation/querygroup/${queryGroup.id}/subject/${subject.id}")
+            delete(baseURL + "queryevaluation/querygroup/${queryGroup.id}/subject/${subject.id}")
         )
             .andExpect(status().isOk)
 
@@ -562,6 +543,81 @@ internal class QueryResourceIntTest(
         ).isFalse()
     }
 
+    @Test
+    @Transactional
+    fun shouldSaveOrUpdateContentGroup() {
+        val heading = "heading"
+        val paragraph = "this is a paragraph"
+        val videoLink = "video-link"
+        val title = "this is a title"
+
+        val sizeBefore = queryContentRepository.findAll().size
+
+        val queryParticipant = createAndAddQueryParticipantToDB()
+        val queryGroup = queryParticipant.queryGroup!!
+
+        val contentGroupRequest = QueryContentGroupDTO(
+            contentGroupName = "Test Group",
+            queryGroupId = queryGroup.id!!,
+            queryContentDTOList = listOf(),
+            id = null
+        )
+
+        val contentGroupResult = mockMvc.perform(
+            post("$baseURL/querycontentgroup")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(contentGroupRequest))
+        )
+            .andExpect(status().isOk)
+            .andReturn()
+
+
+        var mockQueryContentGroupDTO = createQueryContentGroupDTO(queryGroup, heading, paragraph,videoLink,title);
+
+
+        mockMvc.perform(
+            post("$baseURL/querycontentgroup/")
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(mockQueryContentGroupDTO))
+        )
+            .andExpect(status().isOk)
+
+        val sizeAfter = queryContentRepository.findAll().size
+        Assertions.assertThat(sizeAfter).isEqualTo(sizeBefore + 4)
+
+        val newContentList = queryContentRepository.findAll()
+
+        for (content in newContentList) {
+            when (content.type) {
+                ContentType.HEADING -> {
+                    Assertions.assertThat(content.value).isEqualTo(heading)
+                }
+                ContentType.PARAGRAPH -> {
+                    Assertions.assertThat(content.value).isEqualTo(paragraph)
+                }
+                ContentType.IMAGE -> {
+                    Assertions.assertThat(content.imageBlob).isNotNull()
+                }
+                ContentType.VIDEO -> {
+                    Assertions.assertThat(content.value).isEqualTo(videoLink)
+                }
+                ContentType.TITLE -> {
+                    Assertions.assertThat(content.value).isEqualTo(title)
+                }
+                else -> {}
+            }
+        }
+    }
+
+    @Test
+    @Transactional
+    fun shouldDeleteContentGroup() {
+        var mockContentGroup = createContentGroup("test", createAndAddQueryGroupToDB())
+        var contentGroupID = mockContentGroup.id
+        mockMvc.perform(delete(baseURL+"querycontentgroup/"+ contentGroupID))
+            .andExpect(status().isOk)
+        Assertions.assertThat(queryContentGroupRepository.findAll().size).isEqualTo(0)
+    }
 
 
 }

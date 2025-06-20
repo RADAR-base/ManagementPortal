@@ -165,6 +165,15 @@ class QueryResource(
         return ResponseEntity.ok(result)
     }
 
+    @DeleteMapping("queryevaluation/querygroup/{querygroupid}/subject/{subjectid}")
+    fun deleteQueryEvaluationContent(
+        @PathVariable querygroupid: Long,
+        @PathVariable subjectid: Long
+    ): ResponseEntity<Void> {
+        queryEValuationService.removeQueryEvaluationByQueryGroupAndSubject(querygroupid, subjectid)
+        return ResponseEntity.ok().build()
+    }
+
     @PostMapping("querycontentgroup")
     fun saveOrUpdate(@RequestBody request: QueryContentGroupDTO): ResponseEntity<Void> {
         queryContentService.saveAllOrUpdate(
@@ -180,19 +189,10 @@ class QueryResource(
 
     @GetMapping("querycontent/querygroup/{queryGroupId}")
     fun getQueryContent(@PathVariable queryGroupId: Long): ResponseEntity<*> {
-        val result =  queryContentService.getAllContentsQueryGroupId(queryGroupId)
+        val result =  queryContentService.findAllContentsByQueryGroupId(queryGroupId)
         return ResponseEntity.ok(result)
     }
 
-
-    @DeleteMapping("queryevaluation/querygroup/{querygroupid}/subject/{subjectid}")
-    fun deleteQueryEvaluationContent(
-        @PathVariable querygroupid: Long,
-        @PathVariable subjectid: Long
-    ): ResponseEntity<Void> {
-        queryEValuationService.removeQueryEvaluationByQueryGroupAndSubject(querygroupid, subjectid)
-        return ResponseEntity.ok().build()
-    }
 
     companion object {
         private val log = LoggerFactory.getLogger(QueryResource::class.java)

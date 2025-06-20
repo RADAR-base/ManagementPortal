@@ -52,7 +52,7 @@ class QueryContentService(
                 existingGroup.updatedDate = ZonedDateTime.now()
                 queryContentGroupRepository.save(existingGroup)
             }
-            
+
             val oldContents = queryContentRepository.findAllByQueryContentGroupId(existingGroup.id!!)
             queryContentRepository.deleteAll(oldContents)
 
@@ -86,27 +86,11 @@ class QueryContentService(
 
 
 
-    fun findAllByQueryGroupId(queryGroupId: Long): List<QueryContentDTO> {
+    fun findAllContentsByQueryGroupId(queryGroupId: Long): List<QueryContentDTO> {
         val queryContentList = queryContentRepository.findAllByQueryGroupId(queryGroupId)
         return queryContentList.mapNotNull { queryContentMapper.queryContentToQueryContentDTO(it) }
     }
 
-    fun getAllContentsQueryGroupId(queryGroupId: Long): List<QueryContentGroupDTO> {
-        val contentGroups = queryContentGroupRepository.findAllByQueryGroupId(queryGroupId)
-
-        return contentGroups.map { group ->
-            val queryContents = queryContentRepository.findAllByQueryContentGroupId(group.id!!)
-            val contentDTOs = queryContents.mapNotNull {
-                queryContentMapper.queryContentToQueryContentDTO(it)
-            }
-            QueryContentGroupDTO(
-                contentGroupName = group.contentGroupName,
-                queryGroupId = queryGroupId,
-                queryContentDTOList = contentDTOs,
-                id= group.id
-            )
-        }
-    }
 
     fun deleteQueryContentGroup(queryContentGroupId: Long) {
         queryContentRepository.deleteAllByQueryContentGroupId(queryContentGroupId)

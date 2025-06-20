@@ -1,6 +1,6 @@
 import org.radarbase.management.service.dto.QueryContentDTO
 
-data class QueryContentGroupDTO(
+class QueryContentGroupDTO(
     val contentGroupName: String?,
     val queryGroupId: Long?,
     val queryContentDTOList: List<QueryContentDTO>?,
