@@ -9,7 +9,7 @@ import { ManagementPortalSourceTypeModule } from './source-type/source-type.modu
 import { ManagementPortalSourceModule } from './source/general-source.module';
 import { ManagementPortalSubjectModule } from './subject/general.subject.module';
 import {ManagementPortalOrganizationModule} from "./organization/organization.module";
-
+import { ManagementPortalRadarDataModule } from './radar-data';
 /* jhipster-needle-add-entity-module-import - JHipster will add entity modules imports here */
 
 @NgModule({
@@ -23,6 +23,7 @@ import {ManagementPortalOrganizationModule} from "./organization/organization.mo
         ManagementPortalSubjectModule,
         ManagementPortalOAuthClientModule,
         ManagementPortalRevisionModule,
+        ManagementPortalRadarDataModule
         /* jhipster-needle-add-entity-module - JHipster will add entity modules here */
     ],
     declarations: [],

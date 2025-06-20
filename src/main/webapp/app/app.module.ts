@@ -15,7 +15,6 @@ import { ManagementPortalAdminModule } from './admin/admin.module';
 import { PaginationConfig } from './blocks/config/uib-pagination.config';
 import { ManagementPortalEntityModule } from './entities/entity.module';
 import { ManagementPortalHomeModule } from './home';
-import { ManagementPortalQueriesModule } from './shared';
 
 import {
     ActiveMenuDirective,
@@ -32,6 +31,7 @@ import { LANGUAGES, ManagementPortalSharedModule} from './shared';
 import { ErrorHandlerInterceptor } from './blocks/interceptor/errorhandler.interceptor';
 import { NotificationInterceptor } from './blocks/interceptor/notification.interceptor';
 import { APP_BASE_HREF, PlatformLocation } from "@angular/common";
+import { ManagementPortalQueriesModule } from './shared/queries';
 
 export function getBaseHref(platformLocation: PlatformLocation): string {
     return platformLocation.getBaseHrefFromDOM();

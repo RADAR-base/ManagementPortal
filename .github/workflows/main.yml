@@ -79,7 +79,7 @@ jobs:
 
       - name: Upload screenshots of failed e2e tests
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           path: src/test/javascript/e2e/cypress/screenshots
           if-no-files-found: ignore
@@ -210,9 +210,9 @@ jobs:
 #        run: |
 #          cp src/test/resources/config/keystore.p12 src/main/docker/etc/config
 #          ./gradlew -Pprod buildDocker -x test -x javadocJar
-#          docker-compose -f src/main/docker/app.yml up -d
+#          docker compose -f src/main/docker/app.yml up -d
 #          yarn run e2e-prod
-#          docker-compose -f src/main/docker/app.yml down -v
+#          docker compose -f src/main/docker/app.yml down -v
 
       # Temp fix
       # https://github.com/docker/build-push-action/issues/252

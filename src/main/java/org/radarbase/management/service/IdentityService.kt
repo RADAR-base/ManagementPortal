@@ -1,5 +1,6 @@
 package org.radarbase.management.service
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
@@ -23,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Duration
+
 
 /**
  * Service class for managing identities.
@@ -65,6 +67,8 @@ class IdentityService(
 
         withContext(Dispatchers.IO) {
             val identity = createIdentity(user)
+
+
 
             val postRequestBuilder = HttpRequestBuilder().apply {
                 url("${adminUrl}/admin/identities")

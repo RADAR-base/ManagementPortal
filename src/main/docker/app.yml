@@ -28,7 +28,7 @@ services:
 
     managementportal-postgresql:
         extends:
-            file: postgresql.yml
+            file: postgres.yml
             service: managementportal-postgresql
         networks:
             - mp-net
@@ -41,8 +41,8 @@ services:
             oryd/kratos-selfservice-ui-node
         environment:
             - LOG_LEAK_SENSITIVE_VALUES=true
-            - KRATOS_PUBLIC_URL=http://kratos:4433
-            - KRATOS_ADMIN_URL=http://kratos:4434
+            - KRATOS_PUBLIC_URL=http://127.0.0.1:4433
+            - KRATOS_ADMIN_URL=http://127.0.0.1:4434
             - SECURITY_MODE=standalone
             - KRATOS_BROWSER_URL=http://127.0.0.1:4433
             - COOKIE_SECRET=unsafe_cookie_secret

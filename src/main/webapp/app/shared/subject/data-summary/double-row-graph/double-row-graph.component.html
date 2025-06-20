@@ -1,0 +1,90 @@
+<div class="new-section graph">
+    <div class="left-chart" *ngIf="chartGraph1Data">
+        <div
+            class="flex fixed-height padding-bottom space-between padding-sides"
+        >
+            <div class="label-picture">
+                <div>
+                    <span
+                        [ngClass]="[css1]"
+                        class="image-size"
+                        [style.background-color]="color"
+                    ></span>
+                </div>
+                <div class="column-flex main-graph-label">
+                    <label
+                        class="bold main-graph-label break-text"
+                        style="width: 50px"
+                        >{{ title1 }} </label
+                    >
+
+                    <p class="smallsubtitle">{{subtitle1}}</p>
+                </div>
+            </div>
+
+            <div class="data-point" *ngIf="dataPoint1Title">
+                <p class="bold no-bottom-margin sub-label">
+                    {{ dataPoint1Title }}
+                </p>
+                <span
+                    ><span
+                        [ngStyle]="{ color: color }"
+                        class="bold"
+                        style="font-size: 30px"
+                        >{{ dataPoint1Data }}
+                    </span>
+                    <span [ngStyle]="{ color: color }" class="sub-text">
+                        {{ dataPoint1SubTitle }}</span
+                    >
+                </span>
+            </div>
+        </div>
+        <canvas height="300" class="chart-width" [id]="chartId1">{{
+            chartGraph1
+        }}</canvas>
+    </div>
+
+    <div *ngIf="chartGraph2Data" class="right-chart">
+        <div
+            class="flex fixed-height padding-bottom space-between padding-sides"
+        >
+            <div class="label-picture">
+                <div>
+                    <span
+                        [ngClass]="[css2]"
+                        class="image-size"
+                        [style.background-color]="color"
+                    >
+                    </span>
+                </div>
+                <div class="column-flex main-graph-label">
+                    <label class="bold main-graph-label break-text">{{
+                        title2
+                    }}</label>
+                </div>
+            </div>
+
+            <div class="data-point" *ngIf="dataPoint2Title">
+                <p class="bold no-bottom-margin sub-label">
+                    {{ dataPoint2Title }}
+                </p>
+                <span
+                    ><span
+                        class="bold"
+                        [ngStyle]="{ color: color }"
+                        style="font-size: 30px"
+                        >{{ dataPoint2Data }}
+                    </span>
+                    <span class="sub-text" [ngStyle]="{ color: color }">{{
+                        dataPoint2SubTitle
+                    }}</span>
+                </span>
+            </div>
+        </div>
+        <canvas height="300" class="chart-width" [id]="chartId2">{{
+            chartGraph2
+        }}</canvas>
+    </div>
+
+    <div class="border"></div>
+</div>

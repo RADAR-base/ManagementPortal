@@ -92,8 +92,8 @@ server:
 # ===================================================================
 managementportal:
     common:
-        baseUrl: http://localhost:8080 # Modify according to your server's URL
-        managementPortalBaseUrl: http://localhost:8080/managementportal
+        baseUrl: http://127.0.0.1:8080 # Modify according to your server's URL
+        managementPortalBaseUrl: http://127.0.0.1:8080/managementportal
         privacyPolicyUrl: http://info.thehyve.nl/radar-cns-privacy-policy
         adminPassword: admin
         activationKeyTimeoutInSeconds: 86400 # 1 day
@@ -116,9 +116,9 @@ managementportal:
         # The line below can be uncommented to add some hidden fields for UI testing
         #hiddenSubjectFields: [person_name, date_of_birth, group]
     identityServer:
-        serverUrl: http://localhost:4433
-        serverAdminUrl: http://localhost:4434
-        loginUrl: http://localhost:3000
+        serverUrl: http://127.0.0.1:4433
+        serverAdminUrl: http://127.0.0.1:4434
+        loginUrl: http://127.0.0.1:3000
 
 # ===================================================================
 # JHipster specific properties
