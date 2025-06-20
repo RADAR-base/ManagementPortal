@@ -5,7 +5,8 @@ import { QrCodeModule } from 'ng-qrcode';
 import { ManagementPortalSharedModule } from '../../shared';
 import {
     FilterBadgeComponent,
-    LoadMoreComponent, NgbDatePipe,
+    LoadMoreComponent,
+    NgbDatePipe,
     SubjectComponent,
     SubjectDeleteDialogComponent,
     SubjectDeletePopupComponent,
@@ -19,19 +20,15 @@ import {
     SubjectRevisionListComponent,
     subjectRoute,
 } from './';
-import {
-    AddSubjectsToGroupDialogComponent
-} from "./add-subjects-to-group-dialog.component";
+import { AddSubjectsToGroupDialogComponent } from './add-subjects-to-group-dialog.component';
 import {
     SubjectSourceAssignerDialogComponent,
     SubjectSourceAssignerPopupComponent,
 } from './source-assigner/source-assigner.component';
 
-
-
 import {
-          SubjectDataViewerPopupComponent,
-            SubjectDataViewerDialogComponent
+    SubjectDataViewerPopupComponent,
+    SubjectDataViewerDialogComponent,
 } from './data-viewer/data-viewer.component';
 import { QueryViewerComponent } from './query-viewer/query-viewer.component';
 import { DataSummaryComponent } from './data-summary/data-summary.component';
@@ -39,26 +36,19 @@ import { SingleRowGraphComponent } from './data-summary/single-row-graph/single-
 import { YOURCOMPONENTNAMEComponent } from './data-summary/yourcomponentname/yourcomponentname.component';
 import { DoubleRowGraphComponent } from './data-summary/double-row-graph/double-row-graph.component';
 
-
-
-
 import {
-          QueryEvaluationPopupComponent,
-            QueryEvaluationDialogComponent
+    QueryEvaluationPopupComponent,
+    QueryEvaluationDialogComponent,
 } from './query-evaluation/query-evaluation.component';
 
+import { DeleteQueryConfirmDialogComponent } from './query-viewer/delete-query-confirm-dialog.component';
 
-
-
-const ENTITY_STATES = [
-    ...subjectRoute,
-    ...subjectPopupRoute,
-];
+const ENTITY_STATES = [...subjectRoute, ...subjectPopupRoute];
 
 @NgModule({
     imports: [
         ManagementPortalSharedModule,
-        RouterModule.forRoot(ENTITY_STATES, {useHash: true}),
+        RouterModule.forRoot(ENTITY_STATES, { useHash: true }),
         QrCodeModule,
     ],
     declarations: [
@@ -78,8 +68,8 @@ const ENTITY_STATES = [
         SubjectPairPopupComponent,
         SubjectSourceAssignerDialogComponent,
         SubjectSourceAssignerPopupComponent,
-   QueryEvaluationPopupComponent,
-            QueryEvaluationDialogComponent,
+        QueryEvaluationPopupComponent,
+        QueryEvaluationDialogComponent,
         SubjectDataViewerPopupComponent,
         SubjectDataViewerDialogComponent,
         QueryViewerComponent,
@@ -87,7 +77,7 @@ const ENTITY_STATES = [
         SingleRowGraphComponent,
         YOURCOMPONENTNAMEComponent,
         DoubleRowGraphComponent,
-
+        DeleteQueryConfirmDialogComponent
     ],
     entryComponents: [
         SubjectComponent,
@@ -99,16 +89,13 @@ const ENTITY_STATES = [
         SubjectPairPopupComponent,
         SubjectSourceAssignerDialogComponent,
         SubjectSourceAssignerPopupComponent,
-   QueryEvaluationPopupComponent,
-            QueryEvaluationDialogComponent,
-              SubjectDataViewerPopupComponent,
-                SubjectDataViewerDialogComponent
+        QueryEvaluationPopupComponent,
+        QueryEvaluationDialogComponent,
+        SubjectDataViewerPopupComponent,
+        SubjectDataViewerDialogComponent,
+        DeleteQueryConfirmDialogComponent,
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
-    exports: [
-        SubjectComponent,
-        LoadMoreComponent,
-    ],
+    exports: [SubjectComponent, LoadMoreComponent],
 })
-export class ManagementPortalSharedSubjectModule {
-}
+export class ManagementPortalSharedSubjectModule { }

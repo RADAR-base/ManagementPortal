@@ -284,7 +284,10 @@ public class QueryEValuationService(
         return result
     }
 
-
+    @Transactional
+    fun  removeQueryEvaluationByQueryGroupAndSubject(queryGroupId: Long, subjectId: Long) {
+        queryEvaluationRepository.deleteByQueryGroupIdAndSubjectId(queryGroupId, subjectId)
+    }
 
     companion object {
         private val log = LoggerFactory.getLogger(QueryBuilderService::class.java)
