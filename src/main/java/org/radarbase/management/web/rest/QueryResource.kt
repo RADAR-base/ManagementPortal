@@ -162,19 +162,17 @@ class QueryResource(
     }
 
 
-    //TODO: renmae to querycontentgroup/participantid
-    @GetMapping("querycontent/active/{participantId}")
-    fun getActiveQueryContentForParticipant(@PathVariable participantId: Long): ResponseEntity<*> {
+    @GetMapping("participants/{participantId}/content-groups")
+    fun getContentGroupsForParticipant(@PathVariable participantId: Long): ResponseEntity<*> {
         val result = queryContentService.getAllContentGroupsForParticipant(participantId)
         return ResponseEntity.ok(result)
     }
 
-    @GetMapping("querycontentgroup/{queryContentGroupId}/participant/{participantId}/content")
+    @GetMapping("content-groups/{queryContentGroupId}/participants/{participantId}/content")
     fun getContentForParticipantAndContentGroup(@PathVariable queryContentGroupId: Long, @PathVariable participantId: Long): ResponseEntity<*> {
         val result = queryContentService.getContentItemsForSubjectAndContentGroup(participantId, queryContentGroupId)
         return ResponseEntity.ok(result)
     }
-
 
 
     @PostMapping("querycontentgroup")
