@@ -178,17 +178,17 @@ export class AddQueryComponent {
 
 
     private addDelusionsToQueryBuilder() {
+
         for (const delusion of delusions) {
             const field = {
-                name: `${delusion.field_label} ${
-                    delusion.field_sublabel ? delusion.field_sublabel : ''
-                }`,
-                type: 'category',
-                entity: 'delusions',
-                options: sliderOptions,
-            };
+                name: `${delusion.field_label} ${delusion.field_sublabel ? delusion.field_sublabel : ""}`,
+                type: "category",
+                entity: "delusions",
+                options: sliderOptions
 
-            this.config.fields[delusion.field_name] = field;
+            }
+
+            this.config.fields[delusion.field_name] = field
         }
     }
 
