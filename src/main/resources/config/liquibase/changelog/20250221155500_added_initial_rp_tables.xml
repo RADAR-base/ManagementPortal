@@ -303,10 +303,6 @@
 								referencedTableName="query_content_group"/>
 	</changeSet>
 
-	
-
-    </changeSet>
-
 
     <changeSet id="create-query_content" author="generated">
         <createTable tableName="query_content">

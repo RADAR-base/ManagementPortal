@@ -132,11 +132,8 @@ export class AddQueryComponent {
     }
 
     private addQuestionnaireItemsToQueryBuilder() {
-        let histogramQuestionsToInclude = [
-            'whereabouts_1',
-            'sleep_5',
-            'social_1',
-        ];
+        // histogram to include only
+        let histogramQuestionsToInclude = ["whereabouts_1", "sleep_5", "social_1"];
 
         for (const question of questionnaire) {
             let fieldName = question.field_name
@@ -159,8 +156,9 @@ export class AddQueryComponent {
                         name: item.label,
                         value: item.code
                     }
-                );
-                field['options'] = mappedOptions;
+
+                })
+                field["options"] = mappedOptions
             }
 
             if (!this.config.fields[question.group_name]) {
@@ -175,7 +173,9 @@ export class AddQueryComponent {
             }
             this.config.fields[fieldName] = field
         }
+
     }
+
 
     private addDelusionsToQueryBuilder() {
         for (const delusion of delusions) {
