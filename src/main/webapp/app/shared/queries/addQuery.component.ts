@@ -236,6 +236,8 @@ export class AddQueryComponent {
                     this.selectedGroupIndex = 0;
                 }
             });
+        //when refreshing, hide add content section
+        this.isEditingContent = false;
     }
 
     goBack(): void {
@@ -338,7 +340,7 @@ export class AddQueryComponent {
     async saveContent() {
         for (const group of this.contentGroups) {
             const payload = {
-                id: group.id,  
+                id: group.id,
                 queryGroupId: this.queryGroupId,
                 contentGroupName: group.name,
                 queryContentDTOList: group.items,
@@ -346,7 +348,6 @@ export class AddQueryComponent {
             await this.queryService.saveContentGroup(payload);
         }
     }
-    
 
     addContentGroup() {
         this.currentEditingIndex = this.contentGroups.length;
@@ -365,7 +366,6 @@ export class AddQueryComponent {
     }
 
     deleteContentGroup(id: number) {
-        console.log(id)
         this.queryService
             .deleteContentGroupByID(id)
             .subscribe((result: any) => {
@@ -432,9 +432,9 @@ export class AddQueryComponent {
         const hasName = !!this.queryGrouName;
         const hasDesc = !!this.queryGroupDesc;
         const hasQuery = this.query && this.query.rules.length > 0;
-    
+
         const isEditing = this.isEditingContent;
-    
+
         return !(hasName && hasDesc && hasQuery) || isEditing;
-    }    
+    }
 }
