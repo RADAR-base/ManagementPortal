@@ -86,6 +86,7 @@ class ManagementPortalTestApp(private val env: Environment) {
             val app = SpringApplication(ManagementPortalTestApp::class.java)
             val env: Environment = app.run(*args).environment
             var protocol = "http"
+
             if (env.getProperty("server.ssl.key-store") != null) {
                 protocol = "https"
             }

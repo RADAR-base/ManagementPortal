@@ -77,16 +77,16 @@ export class AddQueryComponent {
 
     public config: QueryBuilderConfig = {
         entities: {
-            passive_data: { name: "Passive data" },
+            physical: { name: "Passive data" },
             questionnaire: { name: "Questionnaire Slider" },
-            questionnaire_radio: { name: "Questionnaire Multichoice" },
-            questionnaire_group: { name: "Questionnaire Group" },
+            questionnaire_histogram: { name: "Questionnaire Multichoice" },
+            questionnaire_slider: { name: "Questionnaire Group" },
             delusions: { name: "Delusions" }
         },
         fields: {
-            heart_rate: { name: 'Heart Rate', type: 'number', entity: "passive_data" },
-            sleep_length: { name: 'Sleep', type: 'number', entity: "passive_data" },
-            hrv: { name: 'HRV', type: 'number', entity: "passive_data" },
+            heart_rate: { name: 'Heart Rate', type: 'number', entity: "physical" },
+            sleep_length: { name: 'Sleep', type: 'number', entity: "physical" },
+            hrv: { name: 'HRV', type: 'number', entity: "physical" },
         },
     };
 
@@ -124,17 +124,20 @@ export class AddQueryComponent {
         let histogramQuestionsToInclude = ["whereabouts_1", "sleep_5", "social_1"];
 
         for (const question of questionnaire) {
+            let fieldName = question.field_name
+
             const field = {
                 name: `${question.field_label} ${question.field_sublabel ? question.field_sublabel : ""}`,
                 type: "category",
                 entity: "questionnaire",
-                operators: null
+                operators:  ["=", "!=", "<", ">", "<=", ">="]
             }
             if (question.field_type == "slider") {
                 field["options"] = sliderOptions
-            } else if(histogramQuestionsToInclude.includes(question.field_name)) {
+            } else if (histogramQuestionsToInclude.includes(question.field_name)) {
+                fieldName = question.field_name.split("_")[0]
                 field.name = `${question.field_label}`
-                field.entity = "questionnaire_radio"
+                field.entity = "questionnaire_histogram"
                 field.operators = ["IS"]
                 let mappedOptions = question.select_choices_or_calculations.map((item) => {
                     return {
@@ -150,12 +153,13 @@ export class AddQueryComponent {
                 const group = {
                     name: `${question.group_name}`,
                     type: "category",
-                    entity: "questionnaire_group",
+                    entity: "questionnaire_slider",
+                    operators:  ["=", "!=", "<", ">", "<=", ">="],
                     options: sliderOptions
                 }
                 this.config.fields[question.group_name] = group
             }
-            this.config.fields[question.field_name] = field
+            this.config.fields[fieldName] = field
         }
 
     }
