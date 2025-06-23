@@ -283,58 +283,7 @@ class QueryEvaluationServiceTest(
 
     }
 
-    @Test
-    @Transactional
-    fun testGetActiveQueries() {
-        val user = User().apply {
-            setLogin("test_user")
-            password = "123456789012345678901234567890123456789012345678901234567890"  // 60 chars
-            activated = true
-            email = "test@example.com"
-        }
-        userRepository.saveAndFlush(user)
 
-        val subject = Subject().apply {
-            removed = false
-            this.user = user
-        }
-        subjectRepository.saveAndFlush(subject)
-
-
-        val queryGroup = createQueryGroup();
-        queryGroupRepository.saveAndFlush(queryGroup)
-
-        val participant = QueryParticipant().apply {
-            this.subject = subject
-            this.queryGroup = queryGroup
-            this.createdBy = user
-            this.createdDate = ZonedDateTime.now()
-        }
-        queryParticipantRepository.saveAndFlush(participant)
-
-        val evaluation = QueryEvaluation().apply {
-            this.subject = subject
-            this.queryGroup = queryGroup
-            this.result = true
-            this.createdDate = ZonedDateTime.now()
-        }
-        try {
-            queryEvaluationRepository.saveAndFlush(evaluation)
-        } catch (ex: Exception) {
-            println("Failed entity: $evaluation")
-            ex.printStackTrace()
-            throw ex
-        }
-
-        val query  = createQuery(queryGroup, QueryMetric.HEART_RATE, ComparisonOperator.EQUALS, QueryTimeFrame.PAST_6_MONTH, "64.2");
-
-        queryRepository.saveAndFlush(query)
-
-        val result = queryEValuationService.getActiveQueryContentForParticipant(subject.id!!)
-
-        Assertions.assertTrue(result.isNotEmpty())
-        Assertions.assertNotNull(result[queryGroup.id!!])
-    }
 
 
 

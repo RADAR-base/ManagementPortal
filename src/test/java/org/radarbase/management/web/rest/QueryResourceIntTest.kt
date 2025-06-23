@@ -38,6 +38,8 @@ import org.springframework.test.web.servlet.setup.StandaloneMockMvcBuilder
 import org.springframework.transaction.annotation.Transactional
 import java.time.ZonedDateTime
 import javax.servlet.ServletException
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 
 
 internal class QueryResourceIntTest(
@@ -55,7 +57,9 @@ internal class QueryResourceIntTest(
     @Autowired private val queryLogicRepository: QueryLogicRepository,
     @Autowired private val queryEvaluationRepository: QueryEvaluationRepository,
     @Autowired private val queryContentRepository: QueryContentRepository,
-    @Autowired private val queryContentService: QueryContentService
+    @Autowired private val queryContentService: QueryContentService,
+    @Autowired private val  queryContentGroupRepository: QueryContentGroupRepository,
+    @Autowired private val queryParticipantContentRepository: QueryParticipantContentRepository
 
     ) : BasePostgresIntegrationTest() {
 
@@ -153,6 +157,38 @@ internal class QueryResourceIntTest(
 
         return queryParticipantRepository.saveAndFlush(queryParticipant);
     }
+
+
+    private fun addContent(queryGroup: QueryGroup, subject: Subject) : QueryContentGroup  {
+        var contentGroup = QueryContentGroup()
+
+        contentGroup.queryGroup = queryGroup
+        contentGroup.contentGroupName = "Content Group Name"
+        contentGroup.createdDate = ZonedDateTime.now()
+        contentGroup.updatedDate = ZonedDateTime.now()
+        contentGroup = queryContentGroupRepository.saveAndFlush(contentGroup);
+
+        var content =  QueryContent()
+        content.queryGroup = queryGroup
+        content.queryContentGroup = contentGroup
+        content.value = "value"
+        content.type = ContentType.PARAGRAPH
+        content.heading = "heading1"
+        content = queryContentRepository.saveAndFlush(content)
+
+        val participantContent = QueryParticipantContent()
+        participantContent.queryGroup = queryGroup
+        participantContent.queryContentGroup = contentGroup
+        participantContent.subject = subject
+        participantContent.createdDate = ZonedDateTime.now()
+        participantContent.isArchived = false;
+
+        queryParticipantContentRepository.saveAndFlush(participantContent)
+
+        return contentGroup
+    }
+
+
 
     @BeforeEach
     fun initTest() {
@@ -356,7 +392,7 @@ internal class QueryResourceIntTest(
 
     @Test
     @Transactional
-    fun shouldReturnActiveQueries() {
+    fun shouldReturnContentItems() {
         val queryParticipant = createAndAddQueryParticipantToDB()
         val subject = queryParticipant.subject!!
         val queryGroup = queryParticipant.queryGroup!!
@@ -369,9 +405,67 @@ internal class QueryResourceIntTest(
         }
         queryEvaluationRepository.saveAndFlush(evaluation)
 
-        mockMvc.perform(get("/api/query-builder/querycontent/active/${subject.id}"))
+        val contentGroup = addContent(queryGroup, subject)
+
+        mockMvc.perform(get("/api/query-builder/content-groups/${contentGroup.id}/participants/${subject.id}/content"))
             .andExpect(status().isOk)
-            .andExpect(jsonPath("$.${queryGroup.id}").exists())
+            .andExpect(jsonPath("$.length()").value(1))
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$.[*].value").value<Iterable<String?>>(
+                    Matchers.hasItem(
+                        "value"
+                    )
+                )
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$.[*].value").value<Iterable<String?>>(
+                    Matchers.hasItem(
+                        "value"
+                    )
+                )
+            )
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$.[*].heading").value<Iterable<String?>>(
+                    Matchers.hasItem(
+                        "heading1"
+                    )
+                )
+            )
+
+    }
+
+
+    @Test
+    @Transactional
+    fun shouldReturnContentGroupsMappedByQueryGroups() {
+        val queryParticipant = createAndAddQueryParticipantToDB()
+        val subject = queryParticipant.subject!!
+        val queryGroup = queryParticipant.queryGroup!!
+
+        val evaluation = QueryEvaluation().apply {
+            this.subject = subject
+            this.queryGroup = queryGroup
+            this.result = true
+            this.createdDate = ZonedDateTime.now()
+        }
+        queryEvaluationRepository.saveAndFlush(evaluation)
+
+        val contentGroup = addContent(queryGroup, subject)
+        addContent(queryGroup, subject)
+
+        val returnValue = mockMvc.perform(get("/api/query-builder/participants/${subject.id}/content-groups"))
+            .andExpect(status().isOk).andReturn()
+
+        val content: String = returnValue.getResponse().getContentAsString()
+        val objectMapper = jacksonObjectMapper()
+        val queryList: Map<String, List<QueryContentGroupDTO>>  = objectMapper.readValue(content)
+
+        Assertions.assertThat(queryList.keys.size).isEqualTo(1)
+        Assertions.assertThat(queryList[queryGroup.name]!!.size).isEqualTo(2)
+
+
+        val item1 = queryList[queryGroup.name]!![0]
+        Assertions.assertThat(item1.contentGroupName).isEqualTo(contentGroup.contentGroupName)
     }
 
     @Test

@@ -137,7 +137,7 @@ class QueryContentService(
         //TODO: implement this once the notification capability was added
     }
 
-    private fun shouldSendNotification(evaluations : List<QueryEvaluation>): Boolean {
+     fun shouldSendNotification(evaluations : List<QueryEvaluation>): Boolean {
         return when(evaluations.size) {
             1 -> evaluations[0].result ?: false
             2 -> {
@@ -159,8 +159,19 @@ class QueryContentService(
         queryParticipantContentRepository.save(participantContentGroup);
     }
 
-    fun assignNewContentToParticipant(evaluation: QueryEvaluation, subject: Subject) : QueryContentGroup? {
-        val queryGroup = evaluation.queryGroup ?: return null ;
+
+
+
+    fun getRandomAlreadyAssignedContent(queryGroup: QueryGroup, subject: Subject): QueryContentGroup? {
+        val queryGroupId = queryGroup.id ?: return null
+
+        val assignedContentGroups = queryParticipantContentRepository.findBySubjectAndQueryGroup(subject, queryGroup).map { it.queryContentGroup }
+
+        return assignedContentGroups.randomOrNull()
+    }
+
+
+    fun tryAssignNewContent(queryGroup: QueryGroup, subject: Subject) : QueryContentGroup? {
         val queryGroupId = queryGroup.id ?: return null
 
 
@@ -171,13 +182,13 @@ class QueryContentService(
 
         val uniqueContent = allContentGroups.filter { it.id !in assignedContentGroupIds }
 
-        if(uniqueContent.isEmpty())  {
-            return allContentGroups.random();
-        } else {
+        if(uniqueContent.isNotEmpty()){
             val newContent = uniqueContent.random();
-            saveParticipantContentGroup(queryGroup, newContent, subject);
-            return newContent;
+            saveParticipantContentGroup(queryGroup, newContent, subject)
+            return newContent
         }
+
+        return null
     }
 
 
@@ -251,9 +262,18 @@ class QueryContentService(
 
                 val latestEvaluation = evaluations[0]
 
+
+
+                val queryGroup = latestEvaluation.queryGroup ?: continue
+
                 if(shouldSendNotification(evaluations)) {
-                    val content = assignNewContentToParticipant(latestEvaluation, subject)
-                    sendNotification(content!!);
+                    var content = tryAssignNewContent(queryGroup, subject)
+
+                    if(content == null) {
+                        content = getRandomAlreadyAssignedContent(queryGroup, subject)
+                    }
+
+                    sendNotification(content!!)
                 }
             }
         }
