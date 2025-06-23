@@ -304,4 +304,102 @@
 	</changeSet>
 
 	
+
+    </changeSet>
+
+
+    <changeSet id="create-query_content" author="generated">
+        <createTable tableName="query_content">
+            <column name="id" type="bigint" autoIncrement="${autoIncrement}">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="type" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+
+            <column name="heading" type="TEXT">
+                <constraints nullable="true" />
+            </column>
+
+            <column name="text_value" type="TEXT">
+                <constraints nullable="true" />
+            </column>
+            <column name="image" type="BYTEA">
+                <constraints nullable="true" />
+            </column>
+            <column name="query_group_id" type="bigint">
+                <constraints nullable="false" />
+            </column>
+            <column name="image_alternative_text" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+        </createTable>
+
+
+        <addForeignKeyConstraint baseColumnNames="query_group_id"
+                                 baseTableName="query_content"
+                                 constraintName="fk_query_content_query_group_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="query_group"/>
+    </changeSet>
+
+
+    <changeSet id="create-metric-averages" author="generated">
+        <createTable tableName="metric_averages">
+            <column name="id" type="bigint" autoIncrement="${autoIncrement}">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="subject_id" type="bigint">
+                <constraints nullable="false" />
+            </column>
+            <column name="metric_name" type="varchar(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="value" type="DECIMAL(10, 2)">
+                <constraints nullable="true" />
+            </column>
+            <column name="text_value" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="aggregation_type" type="varchar(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="aggregation_period" type="varchar(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="period_start_date" type="timestamp">
+                <constraints nullable="false" />
+            </column>
+            <column name="period_end_date" type="timestamp">
+                <constraints nullable="false" />
+            </column>
+            <column name="created_at" type="timestamp">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+
+
+        <!-- KEEPING THIS HERE AS LATER ON WE WILL PROBABLY NEED TO DECIDE WHAT INDEXES TO ADD -->
+<!--       <createIndex tableName="metric_averages" indexName="idx_user_metric" unique="true">-->
+<!--            <column name="subject_id" type="bigint"/>-->
+<!--            <column name="metric_name" type="varchar(255)"/>-->
+<!--        </createIndex>-->
+
+
+<!--        <createIndex tableName="metric_averages" indexName="idx_period" unique="true">-->
+<!--            <column name="period_start_date" type="timestamp"/>-->
+<!--            <column name="aggregation_period" type="varchar(255)"/>-->
+<!--        </createIndex>-->
+
+
+
+        <addForeignKeyConstraint baseColumnNames="subject_id"
+                                 baseTableName="metric_averages"
+                                 constraintName="fk_metric_averages_subject_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="subject"/>
+    </changeSet>
+
+
 </databaseChangeLog>

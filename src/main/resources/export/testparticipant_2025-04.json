@@ -1,0 +1,38 @@
+{
+    "patient_id": "test_participant",
+    "site": "unknown",
+    "data_summary":
+    {
+        "start_date": "2025-04-01",
+        "end_date": "2025-04-30",
+        "total_days_with_data": 30,
+        "missing_days": null,
+        "features_available":
+        [
+            "steps"
+        ]
+    },
+    "feature_statistics":
+    {
+        "steps":
+        {
+            "total_entries": 86400,
+            "days_with_data": 0,
+            "mean": null,
+            "median": null,
+            "std_dev": null,
+            "min": null,
+            "max": null,
+            "unit": "count"
+        }
+    },
+    "questionnaire_responses":
+    {
+        "total_responses": 0,
+        "slider":
+        {},
+        "histogram":
+        {},
+        "days_with_responses": 0
+    }
+}

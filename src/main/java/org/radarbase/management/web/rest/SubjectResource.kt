@@ -62,7 +62,8 @@ class SubjectResource(
     @Autowired private val sourceService: SourceService,
     @Autowired private val authService: AuthService,
     @Autowired private val connectDataLogRepository: ConnectDataLogRepository,
-    @Autowired private val roleRepository: RoleRepository
+    @Autowired private val roleRepository: RoleRepository,
+    @Autowired private val awsService: AWSService
 ) {
 
     /**
@@ -607,7 +608,7 @@ class SubjectResource(
         val subject = subjectService.findOneByLogin(login);
 
         val roles  =  roleRepository.findAllRolesByProjectName(subject.activeProject!!.projectName!!);
-        log.info("after getting roles")
+
         var usersToEmail : List<User> = listOf();
 
         for (role in roles) {
@@ -620,8 +621,6 @@ class SubjectResource(
                 }
             }
         }
-
-        log.info("users in list ${usersToEmail}")
 
         return ResponseEntity.ok(null);
     }
@@ -670,12 +669,11 @@ class SubjectResource(
     )
     fun getDataSummary(@PathVariable login: String) : ResponseEntity<DataSummaryResult> {
         authService.checkScope(Permission.SUBJECT_READ)
-        val awsService =   AWSService();
 
         val subject = subjectRepository.findOneWithEagerBySubjectLogin(login);
         val project = subject!!.activeProject!!.projectName!!;
-        
-        val monthlyStatistics =   awsService.startProcessing(project, login, DataSource.S3)
+
+        val monthlyStatistics =   awsService.startProcessing(project, login, DataSource.CLASSPATH)
         return ResponseEntity.ok(monthlyStatistics);
     }
 

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import io.micrometer.core.annotation.Timed
 import org.radarbase.management.domain.Query
 import org.radarbase.management.domain.QueryGroup
+import org.radarbase.management.repository.SubjectRepository
 import org.radarbase.management.repository.UserRepository
 import org.radarbase.management.service.*
 import org.radarbase.management.service.dto.*
@@ -26,7 +27,8 @@ class QueryResource(
     @Autowired private var userRepository: UserRepository,
     @Autowired private val userService: UserService,
     @Autowired private val queryEValuationService: QueryEValuationService,
-    @Autowired private val queryContentService: QueryContentService
+    @Autowired private val queryContentService: QueryContentService,
+    @Autowired private val subjectRepository: SubjectRepository
 
 ) {
     @PostMapping("querylogic")
@@ -99,8 +101,9 @@ class QueryResource(
         @RequestBody userData: UserData?
     ): ResponseEntity<*> {
         return if(subjectId != null) {
-            //TODO: get queryGroup based on assigned query once the PR for that is completed
-            val result = queryEValuationService.testLogicEvaluation(subjectId, userData  );
+            val subject = subjectRepository.findById(subjectId).get();
+            val project = subject!!.activeProject!!.projectName!!;
+            val result = queryEValuationService.testLogicEvaluation(subject, project,  userData  );
             ResponseEntity.ok(result)
         } else {
             ResponseEntity.badRequest()
