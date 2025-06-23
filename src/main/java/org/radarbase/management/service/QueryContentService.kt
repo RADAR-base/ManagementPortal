@@ -261,18 +261,13 @@ class QueryContentService(
                 }
 
                 val latestEvaluation = evaluations[0]
-
-
-
                 val queryGroup = latestEvaluation.queryGroup ?: continue
-
                 if(shouldSendNotification(evaluations)) {
                     var content = tryAssignNewContent(queryGroup, subject)
 
                     if(content == null) {
                         content = getRandomAlreadyAssignedContent(queryGroup, subject)
                     }
-
                     sendNotification(content!!)
                 }
             }
