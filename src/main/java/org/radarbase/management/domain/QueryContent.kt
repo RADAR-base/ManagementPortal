@@ -30,8 +30,6 @@ class QueryContent : AbstractEntity(), Serializable {
     @Column(name = "heading")
     public var heading: String? = null
 
-
-
     @Column(name = "text_value")
     public var value: String? = null
 
@@ -46,6 +44,10 @@ class QueryContent : AbstractEntity(), Serializable {
     @ManyToOne
     @JoinColumn(unique = true, name = "query_group_id")
     var queryGroup: QueryGroup? = null
+
+    @ManyToOne
+    @JoinColumn(unique = true, name = "query_content_group_id")
+    var queryContentGroup: QueryContentGroup? = null
 
 
     override fun toString(): String {

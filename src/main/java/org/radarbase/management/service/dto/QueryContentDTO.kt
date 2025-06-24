@@ -11,4 +11,5 @@ class QueryContentDTO {
     var imageBlob: String? = null
     var imageAltText: String? = null
     var queryGroupId: Long? = null
+    var queryContentGroupId: Long? = null
 }

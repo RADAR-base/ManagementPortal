@@ -325,7 +325,7 @@ public class QueryEValuationService(
             val queryGroup = evaluation.queryGroup ?: continue
             val queryGroupId = queryGroup.id ?: continue
 
-            val content = queryContentService.findAllByQueryGroupId(queryGroupId)
+            val content = queryContentService.findAllContentsByQueryGroupId(queryGroupId)
 
             result[queryGroupId] = content;
         }
