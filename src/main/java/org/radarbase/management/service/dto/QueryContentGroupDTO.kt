@@ -1,8 +1,8 @@
+import org.radarbase.management.service.dto.QueryContentDTO
 
-package org.radarbase.management.service.dto
-
-class QueryContentGroupDTO {
-     var id: Long? = null
-     var contentGroupName: String? = null
-     var queryGroupId: Long? = null
- }
+class QueryContentGroupDTO(
+    val contentGroupName: String?,
+    val queryGroupId: Long?,
+    val queryContentDTOList: List<QueryContentDTO>?,
+    val id: Long?
+)

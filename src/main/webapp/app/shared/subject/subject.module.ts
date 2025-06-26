@@ -31,6 +31,10 @@ import {
     SubjectDataViewerDialogComponent,
 } from './data-viewer/data-viewer.component';
 import { QueryViewerComponent } from './query-viewer/query-viewer.component';
+import { DataSummaryComponent } from './data-summary/data-summary.component';
+import { SingleRowGraphComponent } from './data-summary/single-row-graph/single-row-graph.component';
+import { YOURCOMPONENTNAMEComponent } from './data-summary/yourcomponentname/yourcomponentname.component';
+import { DoubleRowGraphComponent } from './data-summary/double-row-graph/double-row-graph.component';
 
 import {
     QueryEvaluationPopupComponent,
@@ -69,7 +73,11 @@ const ENTITY_STATES = [...subjectRoute, ...subjectPopupRoute];
         SubjectDataViewerPopupComponent,
         SubjectDataViewerDialogComponent,
         QueryViewerComponent,
-        DeleteQueryConfirmDialogComponent,
+        DataSummaryComponent,
+        SingleRowGraphComponent,
+        YOURCOMPONENTNAMEComponent,
+        DoubleRowGraphComponent,
+        DeleteQueryConfirmDialogComponent
     ],
     entryComponents: [
         SubjectComponent,
@@ -90,4 +98,4 @@ const ENTITY_STATES = [...subjectRoute, ...subjectPopupRoute];
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
     exports: [SubjectComponent, LoadMoreComponent],
 })
-export class ManagementPortalSharedSubjectModule {}
+export class ManagementPortalSharedSubjectModule { }

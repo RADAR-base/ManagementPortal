@@ -26,7 +26,8 @@ const sliderOptions = Array.from({ length: 7 }, (_, i) => {
 interface ContentGroup {
     name: string;
     items: ContentItem[];
-    queryGroupId: number; // to find the relevent records to delete
+    queryGroupId: number;
+    id: number;
 }
 
 @Component({
@@ -83,24 +84,16 @@ export class AddQueryComponent {
 
     public config: QueryBuilderConfig = {
         entities: {
-            passive_data: { name: 'Passive data' },
-            questionnaire: { name: 'Questionnaire Slider' },
-            questionnaire_radio: { name: 'Questionnaire Multichoice' },
-            questionnaire_group: { name: 'Questionnaire Group' },
-            delusions: { name: 'Delusions' },
+            physical: { name: "Passive data" },
+            questionnaire: { name: "Questionnaire Slider" },
+            questionnaire_histogram: { name: "Questionnaire Multichoice" },
+            questionnaire_slider: { name: "Questionnaire Group" },
+            delusions: { name: "Delusions" }
         },
         fields: {
-            heart_rate: {
-                name: 'Heart Rate',
-                type: 'number',
-                entity: 'passive_data',
-            },
-            sleep_length: {
-                name: 'Sleep',
-                type: 'number',
-                entity: 'passive_data',
-            },
-            hrv: { name: 'HRV', type: 'number', entity: 'passive_data' },
+            heart_rate: { name: 'Heart Rate', type: 'number', entity: "physical" },
+            sleep_length: { name: 'Sleep', type: 'number', entity: "physical" },
+            hrv: { name: 'HRV', type: 'number', entity: "physical" },
         },
     };
 
@@ -139,65 +132,63 @@ export class AddQueryComponent {
     }
 
     private addQuestionnaireItemsToQueryBuilder() {
-        let histogramQuestionsToInclude = [
-            'whereabouts_1',
-            'sleep_5',
-            'social_1',
-        ];
+        // histogram to include only
+        let histogramQuestionsToInclude = ["whereabouts_1", "sleep_5", "social_1"];
 
         for (const question of questionnaire) {
+            let fieldName = question.field_name
+
             const field = {
-                name: `${question.field_label} ${
-                    question.field_sublabel ? question.field_sublabel : ''
-                }`,
-                type: 'category',
-                entity: 'questionnaire',
-                operators: null,
-            };
-            if (question.field_type == 'slider') {
-                field['options'] = sliderOptions;
-            } else if (
-                histogramQuestionsToInclude.includes(question.field_name)
-            ) {
-                field.name = `${question.field_label}`;
-                field.entity = 'questionnaire_radio';
-                field.operators = ['IS'];
-                let mappedOptions = question.select_choices_or_calculations.map(
-                    (item) => {
-                        return {
-                            name: item.label,
-                            value: item.code,
-                        };
+                name: `${question.field_label} ${question.field_sublabel ? question.field_sublabel : ""}`,
+                type: "category",
+                entity: "questionnaire",
+                operators:  ["=", "!=", "<", ">", "<=", ">="]
+            }
+            if (question.field_type == "slider") {
+                field["options"] = sliderOptions
+            } else if (histogramQuestionsToInclude.includes(question.field_name)) {
+                fieldName = question.field_name.split("_")[0]
+                field.name = `${question.field_label}`
+                field.entity = "questionnaire_histogram"
+                field.operators = ["IS"]
+                let mappedOptions = question.select_choices_or_calculations.map((item) => {
+                    return {
+                        name: item.label,
+                        value: item.code
                     }
-                );
-                field['options'] = mappedOptions;
+
+                })
+                field["options"] = mappedOptions
             }
 
             if (!this.config.fields[question.group_name]) {
                 const group = {
                     name: `${question.group_name}`,
-                    type: 'category',
-                    entity: 'questionnaire_group',
-                    options: sliderOptions,
-                };
-                this.config.fields[question.group_name] = group;
+                    type: "category",
+                    entity: "questionnaire_slider",
+                    operators:  ["=", "!=", "<", ">", "<=", ">="],
+                    options: sliderOptions
+                }
+                this.config.fields[question.group_name] = group
             }
-            this.config.fields[question.field_name] = field;
+            this.config.fields[fieldName] = field
         }
+
     }
 
+
     private addDelusionsToQueryBuilder() {
+
         for (const delusion of delusions) {
             const field = {
-                name: `${delusion.field_label} ${
-                    delusion.field_sublabel ? delusion.field_sublabel : ''
-                }`,
-                type: 'category',
-                entity: 'delusions',
-                options: sliderOptions,
-            };
+                name: `${delusion.field_label} ${delusion.field_sublabel ? delusion.field_sublabel : ""}`,
+                type: "category",
+                entity: "delusions",
+                options: sliderOptions
 
-            this.config.fields[delusion.field_name] = field;
+            }
+
+            this.config.fields[delusion.field_name] = field
         }
     }
 
@@ -228,12 +219,15 @@ export class AddQueryComponent {
                     name: group.contentGroupName,
                     items: group.queryContentDTOList || [],
                     queryGroupId: group.queryGroupId,
+                    id: group.id,
                 }));
 
                 if (this.contentGroups.length > 0) {
                     this.selectedGroupIndex = 0;
                 }
             });
+        //when refreshing, hide add content section
+        this.isEditingContent = false;
     }
 
     goBack(): void {
@@ -336,6 +330,7 @@ export class AddQueryComponent {
     async saveContent() {
         for (const group of this.contentGroups) {
             const payload = {
+                id: group.id,
                 queryGroupId: this.queryGroupId,
                 contentGroupName: group.name,
                 queryContentDTOList: group.items,
@@ -355,13 +350,14 @@ export class AddQueryComponent {
                 },
             ],
             queryGroupId: null,
+            id: null,
         };
         this.isEditingContent = true;
     }
 
-    deleteQueryGroup(name: string, queryGroupId: number) {
+    deleteContentGroup(id: number) {
         this.queryService
-            .deleteContentGroup(name, queryGroupId)
+            .deleteContentGroupByID(id)
             .subscribe((result: any) => {
                 this.refreshContentGroups();
             });
@@ -376,6 +372,7 @@ export class AddQueryComponent {
             name: original.name,
             items: original.items.map((item) => ({ ...item })),
             queryGroupId: original.queryGroupId,
+            id: original.id,
         };
         this.isEditingContent = true;
     }
@@ -426,6 +423,8 @@ export class AddQueryComponent {
         const hasDesc = !!this.queryGroupDesc;
         const hasQuery = this.query && this.query.rules.length > 0;
 
-        return !(hasName && hasDesc && hasQuery);
+        const isEditing = this.isEditingContent;
+
+        return !(hasName && hasDesc && hasQuery) || isEditing;
     }
 }

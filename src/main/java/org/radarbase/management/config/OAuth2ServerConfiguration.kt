@@ -147,6 +147,11 @@ class OAuth2ServerConfiguration(
                 .exceptionHandling()
                 .authenticationEntryPoint(http401UnauthorizedEntryPoint)
                 .and()
+                .logout()
+                .invalidateHttpSession(true)
+                .logoutUrl("/api/logout")
+                .logoutSuccessHandler(logoutSuccessHandler)
+                .and()
                 .addFilterBefore(
                     jwtAuthenticationFilter(),
                     UsernamePasswordAuthenticationFilter::class.java
@@ -178,6 +183,7 @@ class OAuth2ServerConfiguration(
                 .antMatchers("/api/public/projects").permitAll()
                 .antMatchers("/api/public/**").permitAll()
                 .antMatchers("/api/logout-url").permitAll()
+
                 .antMatchers("/api/**")
                 .authenticated() // Allow management/health endpoint to all to allow kubernetes to be able to
                 // detect the health of the service

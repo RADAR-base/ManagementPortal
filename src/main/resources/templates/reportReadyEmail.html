@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title th:text="#{email.reset.title}">JHipster password reset</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    </head>
+    <body>
+        <p th:text="#{email.reset.greeting(${user.login})}">
+            Dear
+        </p>
+        <p th:text="#{email.reset.text1}">
+           The PDF summary report is ready for the following user: <span th:text="#{(${participantName})}"></span>
+        </p>
+
+        <p>
+            <span th:text="#{email.reset.text2}">Regards, </span>
+            <br/>
+            <em th:text="#{email.signature}">DHS Team</em>
+        </p>
+    </body>
+</html>

@@ -13,6 +13,7 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.*
+import org.springframework.beans.factory.annotation.Value
 
 data class DataPoint(
     val month: String,
@@ -31,10 +32,14 @@ public class QueryEValuationService(
     private val queryGroupRepository: QueryGroupRepository,
     private val queryEvaluationRepository: QueryEvaluationRepository,
     private val subjectRepository: SubjectRepository,
-    private val queryParticipantRepository: QueryParticipantRepository
+    private val queryParticipantRepository: QueryParticipantRepository,
+    private val awsService: AWSService,
+    @Value("\${test.fixedYear:}") private val fixedYearStr: String,
+    @Value("\${test.fixedMonth:}") private val fixedMonthStr: String
+
 
 ) {
-    fun evaluteQueryCondition(queryLogic: QueryLogic, userData: UserData, currentMonth: String) : Boolean {
+    fun evaluteQueryCondition(queryLogic: QueryLogic, userData: MutableMap<String, DataSummaryCategory>, currentMonth: String) : Boolean {
         return when(queryLogic.type) {
                QueryLogicType.CONDITION -> evaluateSingleCondition(queryLogic, userData, currentMonth)
                QueryLogicType.LOGIC -> evaluateLogicalCondition(queryLogic, userData, currentMonth)
@@ -42,26 +47,23 @@ public class QueryEValuationService(
         }
     }
 
-    private fun evaluateAgainstHistogramData(relevantData: List<DataPoint>, expectedValue: String) : Boolean {
-        val aggregated = mutableMapOf<String, Int>()
-
-        relevantData.forEach {
-            for((range, count) in it.histogramDataPoints){
-                aggregated[range] = aggregated.getOrDefault(range, 0) + count
-            }
+    private fun evaluateAgainstHistogramData(aggregatedData: MutableMap<String, Int>, expectedValue: String) : Boolean {
+        if(aggregatedData.isEmpty()) {
+            return false
         }
-
-        val maxRange = aggregated.maxByOrNull { it.value }
-
+        val maxRange = aggregatedData.maxByOrNull { it.value }
         val result = maxRange != null && maxRange.key == expectedValue
-
         return result
     }
 
 
-    private fun evaluateAgainstAveragedData(relevantData: List<DataPoint>, expectedValue: String, comparsionOperator: String ): Boolean {
-        val average = relevantData.map { it.value!! }.average();
-        val sum = relevantData.map { it.value!! }.sum();
+    private fun evaluateAgainstAveragedData(relevantData: List<Double>, expectedValue: String, comparsionOperator: String ): Boolean {
+        if(relevantData.isEmpty()) {
+            return false
+        }
+
+        val average = relevantData.average();
+
         return when (comparsionOperator){
             ">" -> average  > expectedValue.toDouble()
             "<" -> average < expectedValue.toDouble()
@@ -73,30 +75,77 @@ public class QueryEValuationService(
         }
     }
 
-    fun evaluateSingleCondition(queryLogic: QueryLogic, userData: UserData, currentMonth: String): Boolean {
+    private fun aggregateDataForHistogramEvaluation(metric: String, currentTimeFrame: String, userData: MutableMap<String, DataSummaryCategory>) : MutableMap<String, Int>  {
+        var questionnaireHistogramData :  MutableMap<String, Int>?  = mutableMapOf()
+         val aggregatedData = mutableMapOf<String, Int>()
 
-           val metricValuesData = userData.metrics[queryLogic.query?.field]  ?: return false
-           val timeFrame  = queryLogic.query?.timeFrame ?: return false
-           val timeframeMonths = extractTimeframeMonths(timeFrame, currentMonth);
-           val relevantData = metricValuesData.filter { it.month in timeframeMonths};
+        when(metric.lowercase()) {
+            "social" -> questionnaireHistogramData = userData[currentTimeFrame]?.questionnaire_histogram?.social
+            "whereabouts"  -> questionnaireHistogramData = userData[currentTimeFrame]?.questionnaire_histogram?.whereabouts
+            "sleep" -> questionnaireHistogramData = userData[currentTimeFrame]?.questionnaire_histogram?.sleep
+        }
 
-
-        if (relevantData.isEmpty()  || relevantData.size != timeframeMonths.size) {
-                return false
+        if(questionnaireHistogramData != null) {
+            for((range, count) in questionnaireHistogramData){
+                aggregatedData[range] = aggregatedData.getOrDefault(range, 0) + count
             }
+        }
 
-           val comparisonOperator = queryLogic.query?.operator?.symbol ?: return false ;
-           val expectedValue = queryLogic.query?.value ?: return false;
-
-        if(comparisonOperator == "IS") {
-            return evaluateAgainstHistogramData(relevantData,expectedValue)
-         } else {
-            return evaluateAgainstAveragedData(relevantData, expectedValue, comparisonOperator)
-         }
-
+        return aggregatedData
     }
 
-    fun evaluateLogicalCondition(queryLogic: QueryLogic, userData: UserData, currentMonth: String) : Boolean {
+    private fun getRelevantDataForAveragedEvaluation(entity: String, metric:String, summary: DataSummaryCategory ) : Double? {
+        val physicalData = summary.physical
+        val sliderData = summary.questionnaire_slider
+
+        log.info("[EVAL] physical data {}", physicalData)
+
+        val value = when (entity.lowercase()) {
+            "physical" -> physicalData[metric.lowercase()]
+            "questionnaire_slider" -> sliderData[metric.lowercase()]
+            else -> null
+        }
+
+
+        return value
+    }
+
+    fun evaluateSingleCondition(
+        queryLogic: QueryLogic,
+        userData: MutableMap<String, DataSummaryCategory>,
+        currentMonth: String
+    ): Boolean {
+        val query = queryLogic.query ?: return false
+
+        val comparisonOperator = query.operator?.symbol ?: throw IllegalArgumentException("Comparsion operator is missing.")
+        val entity = query.entity ?: throw IllegalArgumentException("Entity field is missing")
+        val metric = query.field ?: throw IllegalArgumentException("Metric field is missing.")
+        val expectedValue = query.value ?: throw IllegalArgumentException("Expected value is missing")
+        val timeFrame = query.timeFrame ?: throw IllegalArgumentException("Timeframe is missing")
+        val timeframeMonths = extractTimeframeMonths(timeFrame, currentMonth)
+
+
+        var avgEvalData = mutableListOf<Double>()
+        var histogramEvalData = mutableMapOf<String, Int>()
+
+        for (month in timeframeMonths) {
+            val summary = userData[month] ?: continue
+            if (comparisonOperator == "IS") {
+                histogramEvalData = aggregateDataForHistogramEvaluation(metric, month, userData)
+            } else {
+                avgEvalData += getRelevantDataForAveragedEvaluation(entity, metric, summary) ?: continue
+
+            }
+        }
+
+        return if (comparisonOperator == "IS") {
+            evaluateAgainstHistogramData(histogramEvalData, expectedValue)
+        } else {
+            log.info("[EVAL] avgEvalData {}", avgEvalData)
+            evaluateAgainstAveragedData(avgEvalData, expectedValue, comparisonOperator)
+        }
+    }
+    fun evaluateLogicalCondition(queryLogic: QueryLogic, userData:  MutableMap<String, DataSummaryCategory>, currentMonth: String) : Boolean {
         val children = queryLogic.children ?: return false;
 
         val results = children.map {
@@ -111,11 +160,12 @@ public class QueryEValuationService(
     }
 
     fun extractTimeframeMonths(timeframe: QueryTimeFrame, currentMonth: String): List<String> {
+        val testYear = fixedYearStr.toIntOrNull()
+        val month = if (fixedMonthStr.isEmpty()) currentMonth else fixedMonthStr
+
         val currentDateFormatter = DateTimeFormatter.ofPattern("MMMM-yyyy-dd")
-
-        val currentYear = LocalDate.now().year
-
-       val currentDate = LocalDate.parse("$currentMonth-$currentYear-01", currentDateFormatter)
+        val currentYear = testYear ?: LocalDate.now().year
+        val currentDate = LocalDate.parse("$month-$currentYear-01", currentDateFormatter)
 
         var monthsBack = 0;
         when (timeframe.name) {
@@ -177,7 +227,12 @@ public class QueryEValuationService(
         )
     }
     //TODO: this will be replaced by a real data and automatic worker
-    fun testLogicEvaluation(subjectId: Long, customUserData: UserData?) : MutableMap<String, Boolean>  {
+    fun testLogicEvaluation(subject: Subject, project: String,  customUserData: UserData?) : MutableMap<String, Boolean>?  {
+        val subjectLogin = subject.user?.login!!
+        val subjectId = subject.id!!;
+
+        val processedData = awsService.startProcessing(project, subjectLogin, DataSource.CLASSPATH)?.data ?: throw IllegalArgumentException("There is no data for the user")
+
         val subjectOpt = subjectRepository.findById(subjectId)
         val queryParticipant = queryParticipantRepository.findBySubjectId(subjectId);
         val results: MutableMap<String, Boolean> = mutableMapOf()
@@ -185,12 +240,6 @@ public class QueryEValuationService(
 
         if(subjectOpt.isPresent && queryParticipant.isNotEmpty()) {
             val subject = subjectOpt.get();
-
-            var userData = generateUserData(87.0,8, 55)
-
-            if(customUserData != null) {
-                userData = customUserData;
-            }
 
             for (queryParticipant: QueryParticipant in queryParticipant) {
                 val queryGroup = queryParticipant.queryGroup ?: continue
@@ -204,7 +253,7 @@ public class QueryEValuationService(
                 val month = currentDate.month
                 val monthName = month.getDisplayName(TextStyle.FULL, Locale.ENGLISH)
 
-                val result =   evaluteQueryCondition(root, userData, monthName);
+                val result =  evaluteQueryCondition(root, processedData, monthName);
 
                 saveQueryEvaluationResult(result, subject, queryGroup)
 

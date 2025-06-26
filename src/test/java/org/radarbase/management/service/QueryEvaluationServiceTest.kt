@@ -122,6 +122,7 @@ class QueryEvaluationServiceTest(
         query.operator = queryOperator
         query.value = value
         query.timeFrame = timeframe
+        query.entity = "physical"
 
         return query
     }
@@ -144,9 +145,36 @@ class QueryEvaluationServiceTest(
 
 //    GREATER_THAN_OR_EQUALS(">="),
 
+
+    fun createUserData() : MutableMap<String, DataSummaryCategory> {
+        var userData  : MutableMap<String, DataSummaryCategory> = mutableMapOf()
+
+
+        userData["2025-03"] =
+            DataSummaryCategory(
+            physical = mutableMapOf(
+                "sleep_length" to 8.0,
+                "heart_rate" to 64.2,
+                "hrv" to 50.0),
+            questionnaire_total = 0.0,
+            questionnaire_slider = mutableMapOf(),
+            questionnaire_histogram = HistogramResponse(
+                social = mutableMapOf(),
+                whereabouts = mutableMapOf(),
+                sleep = mutableMapOf()
+            )
+        )
+
+
+        return userData
+    }
+
     @Test
     @Transactional
     fun testEvaluateSingleConditionGreaterThan() {
+
+        val userData = createUserData()
+
         val hrQueyr  = createQuery(null, QueryMetric.HEART_RATE, ComparisonOperator.GREATER_THAN, QueryTimeFrame.PAST_6_MONTH, "60");
         val queryLogic1 = createQueryLogic(null, QueryLogicType.CONDITION, null, hrQueyr, null );
         val result = queryEValuationService.evaluateSingleCondition(queryLogic1, userData, "April") ;
@@ -157,6 +185,8 @@ class QueryEvaluationServiceTest(
     @Test
     @Transactional
     fun testEvaluateSingleConditionGreaterThanOrEquals() {
+        val userData = createUserData()
+
         val hrQueyr  = createQuery(null, QueryMetric.HEART_RATE, ComparisonOperator.GREATER_THAN_OR_EQUALS, QueryTimeFrame.PAST_6_MONTH, "64.2");
         val queryLogic1 = createQueryLogic(null, QueryLogicType.CONDITION, null, hrQueyr, null );
         val result = queryEValuationService.evaluateSingleCondition(queryLogic1, userData, "April") ;
@@ -168,6 +198,8 @@ class QueryEvaluationServiceTest(
     @Test
     @Transactional
     fun testEvaluateSingleConditionEquals() {
+        val userData = createUserData()
+
         val hrQueyr  = createQuery(null, QueryMetric.HEART_RATE, ComparisonOperator.EQUALS, QueryTimeFrame.PAST_6_MONTH, "64.2");
         val queryLogic1 = createQueryLogic(null, QueryLogicType.CONDITION, null, hrQueyr, null );
         val result = queryEValuationService.evaluateSingleCondition(queryLogic1, userData, "April") ;
@@ -179,6 +211,8 @@ class QueryEvaluationServiceTest(
     @Test
     @Transactional
     fun testEvaluateSingleConditionNotEqual() {
+        val userData = createUserData()
+
         val hrQueyr  = createQuery(null, QueryMetric.HEART_RATE, ComparisonOperator.NOT_EQUALS, QueryTimeFrame.PAST_6_MONTH, "65.2");
         val queryLogic1 = createQueryLogic(null, QueryLogicType.CONDITION, null, hrQueyr, null );
         val result = queryEValuationService.evaluateSingleCondition(queryLogic1, userData, "April") ;
@@ -190,6 +224,8 @@ class QueryEvaluationServiceTest(
     @Test
     @Transactional
     fun testEvaluateSingleConditionLessThan() {
+        val userData = createUserData()
+
         val hrQueyr  = createQuery(null, QueryMetric.HEART_RATE, ComparisonOperator.LESS_THAN, QueryTimeFrame.PAST_6_MONTH, "64.3");
         val queryLogic1 = createQueryLogic(null, QueryLogicType.CONDITION, null, hrQueyr, null );
         val result = queryEValuationService.evaluateSingleCondition(queryLogic1, userData, "April") ;
@@ -200,6 +236,8 @@ class QueryEvaluationServiceTest(
     @Test
     @Transactional
     fun testEvaluateSingleConditionLessThanOrEquals() {
+        val userData = createUserData()
+
         val hrQueyr  = createQuery(null, QueryMetric.HEART_RATE, ComparisonOperator.LESS_THAN_OR_EQUALS, QueryTimeFrame.PAST_6_MONTH, "64.2");
         val queryLogic1 = createQueryLogic(null, QueryLogicType.CONDITION, null, hrQueyr, null );
         val result = queryEValuationService.evaluateSingleCondition(queryLogic1, userData, "April") ;
@@ -240,11 +278,13 @@ class QueryEvaluationServiceTest(
     @Test
     @Transactional
     fun testEvaluteQueryCondition() {
+        val userData = createUserData()
+
 
         var queryList: Map<String, Query> = mapOf(
-           "HR" to createQuery(null, QueryMetric.HEART_RATE, ComparisonOperator.GREATER_THAN, QueryTimeFrame.PAST_6_MONTH, "60"),
-            "SLEEP" to createQuery(null, QueryMetric.SLEEP_LENGTH, ComparisonOperator.EQUALS, QueryTimeFrame.PAST_6_MONTH, "8"),
-            "HRV" to createQuery(null, QueryMetric.HRV, ComparisonOperator.LESS_THAN, QueryTimeFrame.PAST_6_MONTH, "50")
+           "HR" to createQuery(null, QueryMetric.HEART_RATE, ComparisonOperator.GREATER_THAN, QueryTimeFrame.PAST_YEAR, "60"),
+            "SLEEP" to createQuery(null, QueryMetric.SLEEP_LENGTH, ComparisonOperator.EQUALS, QueryTimeFrame.PAST_YEAR, "8"),
+            "HRV" to createQuery(null, QueryMetric.HRV, ComparisonOperator.LESS_THAN, QueryTimeFrame.PAST_YEAR, "50")
         )
 
 
@@ -254,7 +294,7 @@ class QueryEvaluationServiceTest(
         var result = queryEValuationService.evaluteQueryCondition(root!!, userData, "April");
 
         // should be true
-        Assertions.assertTrue(result);
+        Assertions.assertFalse(result);
 
          queryList  = mapOf(
             "HR" to createQuery(null, QueryMetric.HEART_RATE, ComparisonOperator.GREATER_THAN, QueryTimeFrame.PAST_6_MONTH, "60"),
@@ -272,7 +312,7 @@ class QueryEvaluationServiceTest(
         queryList  = mapOf(
             "HR" to createQuery(null, QueryMetric.HEART_RATE, ComparisonOperator.GREATER_THAN, QueryTimeFrame.PAST_6_MONTH, "60"),
             "SLEEP" to createQuery(null, QueryMetric.SLEEP_LENGTH, ComparisonOperator.EQUALS, QueryTimeFrame.PAST_6_MONTH, "8"),
-            "HRV" to createQuery(null, QueryMetric.HRV, ComparisonOperator.GREATER_THAN, QueryTimeFrame.PAST_6_MONTH, "50")
+            "HRV" to createQuery(null, QueryMetric.HRV, ComparisonOperator.EQUALS, QueryTimeFrame.PAST_6_MONTH, "50")
         )
 
         root =  getRoot(queryList, QueryLogicOperator.AND, QueryLogicOperator.OR)

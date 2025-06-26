@@ -138,16 +138,9 @@ public class QueryBuilderService(
 
     @Transactional
     fun deleteAllRelatedByQueryGroupId(queryGroupId: Long) {
-        // delete the related records from QueryContentGroup
-        queryContentGroupRepository.deleteAllByQueryGroupId(queryGroupId)
-
-        // delete the related records from QueryContent（
-        queryContentRepository.deleteAllByQueryGroupId(queryGroupId)
-
         val group = queryGroupRepository.findById(queryGroupId)
             .orElseThrow { EntityNotFoundException("QueryGroup with id=$queryGroupId not found") }
         queryGroupRepository.delete(group)
-
     }
 
 

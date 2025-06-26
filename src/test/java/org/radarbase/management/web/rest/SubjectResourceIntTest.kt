@@ -49,7 +49,7 @@ import javax.servlet.ServletException
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(classes = [ManagementPortalTestApp::class])
 @WithMockUser
-internal class SubjectResourceIntTest(
+public class SubjectResourceIntTest(
     @Autowired private val subjectResource: SubjectResource,
     @Autowired private val subjectRepository: SubjectRepository,
     @Autowired private val subjectMapper: SubjectMapper,
