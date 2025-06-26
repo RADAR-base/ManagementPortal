@@ -471,10 +471,10 @@ internal class QueryResourceIntTest(
     fun createQueryContentGroupDTO(queryGroup: QueryGroup, heading: String, paragraph: String,videoLink: String,title: String): QueryContentGroupDTO{
         var blob = imageBlob
         var mockContentGroup = createContentGroup("Test Content Group", queryGroup)
-        val mockDTO = QueryContentGroupDTO(
-            contentGroupName = mockContentGroup.contentGroupName,
-            queryGroupId = queryGroup.id,
-            id = mockContentGroup.id,
+        val mockDTO = QueryContentGroupDTO().apply {
+            contentGroupName = mockContentGroup.contentGroupName
+            queryGroupId = queryGroup.id
+            id = mockContentGroup.id
             queryContentDTOList = listOf(
                 QueryContentDTO().apply {
                     type = ContentType.TITLE
@@ -496,12 +496,12 @@ internal class QueryResourceIntTest(
                 },
                 QueryContentDTO().apply {
                     type = ContentType.HEADING
-                    value= heading
+                    value = heading
                     queryGroupId = queryGroup.id
                     queryContentGroupId = mockContentGroup.id
                 }
             )
-        )
+        }
         return mockDTO;
     }
 
@@ -554,24 +554,23 @@ internal class QueryResourceIntTest(
 
 
         val returnedValue = mockMvc.perform(get(baseURL + "querycontent/querygroup/${queryGroup.id}")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(queryContentList)))
+            .contentType(TestUtil.APPLICATION_JSON_UTF8))
             .andExpect(status().isOk)
-            .andExpect(jsonPath("$.length()").value(4))
+            .andExpect(jsonPath("$.length()").value(1))
             .andReturn()
 
         val mapper = ObjectMapper()
 
 
-        val queryContentDTOList: List<QueryContentDTO> = mapper.readValue(
+        val queryContentGroupDTOList: List<QueryContentGroupDTO> = mapper.readValue(
             returnedValue.getResponse().getContentAsByteArray(),
-            object : TypeReference<List<QueryContentDTO>>() {}
+            object : TypeReference<List<QueryContentGroupDTO>>() {}
         )
+//
+       Assertions.assertThat(queryContentGroupDTOList[0].queryContentDTOList!!.size).isEqualTo(4)
 
-        Assertions.assertThat(queryContentDTOList.size).isEqualTo(4)
 
-
-        for(queryContentDTO in queryContentDTOList) {
+        for(queryContentDTO in queryContentGroupDTOList[0].queryContentDTOList!!) {
 
             if(queryContentDTO.type == ContentType.PARAGRAPH) {
                 queryContentDTO.value = paragraph
@@ -636,12 +635,12 @@ internal class QueryResourceIntTest(
         val queryParticipant = createAndAddQueryParticipantToDB()
         val queryGroup = queryParticipant.queryGroup!!
 
-        val contentGroupRequest = QueryContentGroupDTO(
-            contentGroupName = "Test Group",
-            queryGroupId = queryGroup.id!!,
-            queryContentDTOList = listOf(),
+        val contentGroupRequest = QueryContentGroupDTO().apply {
+            contentGroupName = "Test Group"
+            queryGroupId = queryGroup.id!!
+            queryContentDTOList = listOf()
             id = null
-        )
+        }
 
         val contentGroupResult = mockMvc.perform(
             post("$baseURL/querycontentgroup")

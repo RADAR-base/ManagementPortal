@@ -108,12 +108,12 @@ class QueryContentService(
             val contentDTOs = queryContents.mapNotNull {
                 queryContentMapper.queryContentToQueryContentDTO(it)
             }
-            QueryContentGroupDTO(
-                contentGroupName = group.contentGroupName,
-                queryGroupId = queryGroupId,
-                queryContentDTOList = contentDTOs,
-                id= group.id
-            )
+            QueryContentGroupDTO().apply {
+                contentGroupName = group.contentGroupName
+                this.queryGroupId = queryGroupId
+                queryContentDTOList = contentDTOs
+                id = group.id
+            }
         }
     }
 
@@ -124,7 +124,7 @@ class QueryContentService(
     }
 
 
-    fun sendNotification(contentGroup: QueryContentGroup) {
+    fun sendNotification(contentGroup: QueryContentGroup?) {
         //TODO: implement this once the notification capability was added
     }
 
@@ -265,7 +265,9 @@ class QueryContentService(
                     if(content == null) {
                         content = getRandomAlreadyAssignedContent(queryGroup, subject)
                     }
-                    sendNotification(content!!)
+
+                    log.info("content {}", content)
+                    sendNotification(content)
                 }
             }
         }
