@@ -1,7 +1,6 @@
 package org.radarbase.management.web.rest
 
 
-import QueryContentGroupDTO
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import kotlinx.coroutines.runBlocking
@@ -12,7 +11,6 @@ import org.junit.jupiter.api.Test
 import org.mockito.MockitoAnnotations
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
-import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.radarbase.auth.authentication.OAuthHelper
 import org.radarbase.auth.token.RadarToken
@@ -60,8 +58,7 @@ internal class QueryResourceIntTest(
     @Autowired private val queryEvaluationRepository: QueryEvaluationRepository,
     @Autowired private val queryContentRepository: QueryContentRepository,
     @Autowired private val queryContentService: QueryContentService,
-    @Autowired private val  queryContentGroupRepository: QueryContentGroupRepository,
-    @Autowired private val queryParticipantContentRepository: QueryParticipantContentRepository
+    @Autowired private val queryParticipantContentRepository: QueryParticipantContentRepository,
     @Autowired private val queryContentGroupRepository: QueryContentGroupRepository
 
     ) : BasePostgresIntegrationTest() {

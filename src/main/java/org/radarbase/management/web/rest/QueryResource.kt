@@ -1,6 +1,6 @@
 package org.radarbase.management.web.rest
 
-import QueryContentGroupDTO
+
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.micrometer.core.annotation.Timed
@@ -101,8 +101,11 @@ class QueryResource(
         @RequestBody userData: UserData?
     ): ResponseEntity<*> {
         return if(subjectId != null) {
+
+            val subject = subjectRepository.findById(subjectId).get();
+            val project = subject!!.activeProject!!.projectName!!;
             //TODO: get queryGroup based on assigned query once the PR for that is completed
-            val result = queryEValuationService.testLogicEvaluation(subjectId, userData  );
+            val result = queryEValuationService.testLogicEvaluation(subject, project, userData);
 
             queryContentService.processCompletedQueriesForParticipant(subjectId);
 
@@ -178,26 +181,7 @@ class QueryResource(
     }
 
 
-    @PostMapping("querycontentgroup")
-    fun saveAll(@RequestBody request: QueryContentGroupSaveRequest): ResponseEntity<Void> {
-        queryContentService.saveAll(
-            request.queryGroupId,
-            request.contentGroupName,
-            request.queryContentDTOList
-        )
-        return ResponseEntity.ok().build()
-    }
 
-    @DeleteMapping("querycontentgroup/{contentGroupName}/{queryGroupId}")
-    fun deleteContentGroup(@PathVariable contentGroupName: String, @PathVariable queryGroupId: Long){
-        queryContentService.deleteQueryContentGroupByNameAndQueryGroup(contentGroupName, queryGroupId)
-    }
-
-    @GetMapping("querycontent/querygroup/{queryGroupId}")
-    fun getQueryContent(@PathVariable queryGroupId: Long): ResponseEntity<*> {
-        val result =  queryContentService.getAllContentsQueryGroupId(queryGroupId)
-        return ResponseEntity.ok(result)
-    }
 
 
     @DeleteMapping("queryevaluation/querygroup/{querygroupid}/subject/{subjectid}")
@@ -225,6 +209,8 @@ class QueryResource(
     @GetMapping("querycontent/querygroup/{queryGroupId}")
     fun getQueryContent(@PathVariable queryGroupId: Long): ResponseEntity<*> {
         val result =  queryContentService.getAllContentGroupsWithContentsQueryGroupId(queryGroupId)
+
+        log.info("result {}", result)
         return ResponseEntity.ok(result)
     }
 

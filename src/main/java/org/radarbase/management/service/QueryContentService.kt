@@ -6,8 +6,7 @@ import org.radarbase.management.domain.enumeration.ContentType
 import org.radarbase.management.repository.*
 import org.radarbase.management.service.dto.QueryContentDTO
 import org.radarbase.management.service.dto.QueryContentGroupDTO
-import org.radarbase.management.service.dto.QueryContentGroupResponseDTO
-import org.radarbase.management.service.dto.QueryGroupContentDTO
+
 import org.radarbase.management.service.mapper.QueryContentGroupMapper
 import org.radarbase.management.service.mapper.QueryContentMapper
 import org.radarbase.management.service.mapper.QueryGroupContentMapper
@@ -205,8 +204,14 @@ class QueryContentService(
 
         }
 
-        return result;
+        return result
     }
+
+    fun findAllByContentGroupId(contentGroupId: Long) : List<QueryContentDTO> {
+        val queryContentList = queryContentRepository.findAllByQueryContentGroupId(contentGroupId);
+        return queryContentList.mapNotNull { queryContentMapper.queryContentToQueryContentDTO(it) }
+    }
+
     fun getAllContentGroupsForParticipant(subjectId: Long): Map<String, List<QueryContentGroupDTO>>  {
         val result = mutableMapOf<String, List<QueryContentGroupDTO>>()
 

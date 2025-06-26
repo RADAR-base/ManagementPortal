@@ -304,6 +304,7 @@
 	</changeSet>
 
     <changeSet id="create-query_content_participant" author="Henry">
+
         <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="query_participant_content"/>
@@ -347,7 +348,11 @@
 
         <addForeignKeyConstraint baseColumnNames="subject_id"
                                  baseTableName="query_participant_content"
-                                 constraintName="fk_query_participant_content_subject_id"/>
+                                 constraintName="fk_query_participant_content_subject_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="subject"/>
+
+    </changeSet>
 
     <changeSet id="create-metric-averages" author="generated">
         <createTable tableName="metric_averages">

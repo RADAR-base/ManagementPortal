@@ -1,3 +1,5 @@
+package org.radarbase.management.service.dto
+
 import org.radarbase.management.service.dto.QueryContentDTO
 
 class QueryContentGroupDTO(
