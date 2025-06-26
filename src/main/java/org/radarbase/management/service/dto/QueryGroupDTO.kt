@@ -6,3 +6,5 @@ class QueryGroupDTO {
     lateinit var name : String
     lateinit var description : String
 }
+
+

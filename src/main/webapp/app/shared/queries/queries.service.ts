@@ -1,15 +1,70 @@
 import { Injectable } from '@angular/core';
-import { Observable, throwError } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import { Account } from "../user/account.model";
 import { ContentItem } from './queries.model';
+import { QueryGroup } from './queries.model';
 
 @Injectable({ providedIn: 'root' })
 export class QueriesService {
-    constructor(private http: HttpClient) {
+    private baseURL = 'api/query-builder';
+
+    constructor(private http: HttpClient) {}
+
+    saveContentGroup(contentGroupData: {
+        queryGroupId: number;
+        contentGroupName: string;
+        queryContentDTOList: ContentItem[];
+    }) {
+        return this.http
+            .post(this.baseURL + '/querycontentgroup', contentGroupData)
+            .toPromise();
     }
 
-    saveContent(queryGroupId: number, contentList: ContentItem[]) {
-        return this.http.post('api/query-builder/querycontent/querygroup/' + queryGroupId, contentList).toPromise();
+    getQueryGroup(queryId: number) {
+        return this.http.get(this.baseURL + '/querygroups/' + queryId);
+    }
+
+    getAllQueryContentsAndGroups(queryId: number) {
+        return this.http.get(
+            this.baseURL + '/querycontent/querygroup/' + queryId
+        );
+    }
+
+    saveNewQueryGroup(queryGroup: QueryGroup) {
+        return this.http
+            .post(this.baseURL + '/querygroups', queryGroup)
+            .toPromise();
+    }
+
+    updateQueryGroup(queryGroup: QueryGroup, queryGroupId: number) {
+        return this.http
+            .put(this.baseURL + '/querygroups/' + queryGroupId, queryGroup)
+            .toPromise();
+    }
+
+    saveQueryLogic(query_logic: any) {
+        return this.http
+            .post(this.baseURL + '/querylogic', query_logic)
+            .toPromise();
+    }
+
+    updateQueryLogic(query_logic: any) {
+        return this.http
+            .put(this.baseURL + '/querylogic', query_logic)
+            .toPromise();
+    }
+
+    deleteQueryGroup(groupId: number) {
+        return this.http.delete(this.baseURL + `/querygroups/${groupId}`);
+    }
+
+    getQueryGroupList() {
+        return this.http.get(this.baseURL + '/querygroups');
+    }
+
+    deleteContentGroupByID(queryContentGroupId: any) {
+        return this.http.delete(
+            this.baseURL +
+                `/querycontentgroup/${queryContentGroupId}`
+        );
     }
 }

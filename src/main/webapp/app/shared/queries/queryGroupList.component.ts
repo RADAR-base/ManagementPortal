@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { QueriesService } from './queries.service';
 
 @Component({
     selector: 'jhi-queries',
@@ -7,13 +7,11 @@ import { HttpClient, HttpParams } from '@angular/common/http';
     styleUrls: ['./queryGroupList.component.scss'],
 })
 export class QueryGroupListComponent implements OnInit, OnDestroy {
-    constructor(private httpclient: HttpClient) {}
+    constructor(private queriesService: QueriesService) {}
     public queryGroupList: any;
 
-    private baseUrl = 'api/query-builder';
-
     getQueryGroupList() {
-        this.httpclient.get(this.baseUrl + '/querygroups').subscribe((result) => {
+        this.queriesService.getQueryGroupList().subscribe((result) => {
             this.queryGroupList = result;
         });
     }
@@ -23,11 +21,9 @@ export class QueryGroupListComponent implements OnInit, OnDestroy {
     }
 
     deleteQueryGroup(id) {
-        this.httpclient
-            .delete(this.baseUrl + `/querygroups/${id}`)
-            .subscribe((result) => {
-                this.getQueryGroupList();
-            });
+        this.queriesService.deleteQueryGroup(id).subscribe(() => {
+            this.getQueryGroupList();
+        });
     }
 
     ngOnDestroy() {}

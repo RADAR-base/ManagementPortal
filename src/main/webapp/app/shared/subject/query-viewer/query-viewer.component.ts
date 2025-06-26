@@ -7,7 +7,9 @@ import { AlertService } from '../../util/alert.service';
 import { Subject } from '../subject.model';
 import { QueryParticipantService } from '../query-participant.service';
 import { SubjectPopupService } from '../subject-popup.service';
-import { QueryGroup, QueryParticipant } from 'app/shared/queries/query.model';
+import { QueryGroup, QueryParticipant } from 'app/shared/queries/queries.model';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { DeleteQueryConfirmDialogComponent } from './delete-query-confirm-dialog.component'; 
 
 @Component({
     selector: 'app-query-viewer',
@@ -32,12 +34,12 @@ export class QueryViewerComponent implements OnInit, OnDestroy {
     constructor(
         public activeModal: NgbActiveModal,
         private alertService: AlertService,
-        private queryParticipantService: QueryParticipantService
+        private queryParticipantService: QueryParticipantService,
+        private modalService: NgbModal
     ) {}
 
     ngOnInit() {
         if (this.subject.id !== null) {
-
             this.queryParticipantService
                 .getAllQueryGroups()
                 .subscribe((res) => {
@@ -60,9 +62,9 @@ export class QueryViewerComponent implements OnInit, OnDestroy {
                         !this.assignedQueryGroups.some(
                             (o2) => o1.name === o2.name
                         )
-                )
+                );
 
-                this.queryGroupList = fileteredQueryGroupList.slice()
+                this.queryGroupList = fileteredQueryGroupList.slice();
             });
     }
 
@@ -88,13 +90,39 @@ export class QueryViewerComponent implements OnInit, OnDestroy {
     }
 
     deleteAssignedGroup(queryGroup: QueryGroup) {
-        this.queryParticipantService
-            .deleteAssignedQueryGroup(queryGroup.id, this.subject.id)
-            .subscribe(() => {
-                this.getAllAssignedGroups();
-                this.queryGroupList.push(queryGroup);
-                this.selectedGroup = null;
-            });
+        const modalRef = this.modalService.open(
+            DeleteQueryConfirmDialogComponent
+        );
+        modalRef.result.then((removeContent: boolean) => {
+            if (removeContent) {
+                //also remove any related content/participant link from the query_evaluation table
+
+                this.queryParticipantService
+                    .deleteAssignedQueryGroup(queryGroup.id, this.subject.id)
+                    .subscribe(() => {
+                        this.queryParticipantService
+                            .deleteQueryEvaluationContent(
+                                queryGroup.id,
+                                this.subject.id
+                            )
+                            .subscribe(() => {
+                                this.afterGroupDeleted(queryGroup);
+                            });
+                    });
+            } else {
+                this.queryParticipantService
+                    .deleteAssignedQueryGroup(queryGroup.id, this.subject.id)
+                    .subscribe(() => {
+                        this.afterGroupDeleted(queryGroup);
+                    });
+            }
+        });
+    }
+
+    afterGroupDeleted(queryGroup: QueryGroup) {
+        this.getAllAssignedGroups();
+        this.queryGroupList.push(queryGroup);
+        this.selectedGroup = null;
     }
 
     ngOnDestroy() {
@@ -106,10 +134,10 @@ export class QueryViewerComponent implements OnInit, OnDestroy {
     }
 
     onGroupChange($event: any) {
-        console.log("even", $event)
-        if ($event)
-        { this.ifDisable = false }
-        else {
+        console.log('even', $event);
+        if ($event) {
+            this.ifDisable = false;
+        } else {
             this.ifDisable = true;
         }
     }

@@ -1,5 +1,6 @@
 package org.radarbase.management.web.rest
 
+import QueryContentGroupDTO
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.micrometer.core.annotation.Timed
@@ -17,6 +18,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.web.bind.annotation.*
+
 
 @RestController
 @RequestMapping("/api/query-builder")
@@ -166,17 +168,34 @@ class QueryResource(
         return ResponseEntity.ok(result)
     }
 
-    @PostMapping("querycontent/querygroup/{queryGroupId}")
-    fun saveQueryContent(@PathVariable queryGroupId: Long, @RequestBody queryContentDTO: List<QueryContentDTO>): ResponseEntity<*> {
-        queryContentService.saveAll(queryGroupId, queryContentDTO);
-        return ResponseEntity.ok(null);
+    @DeleteMapping("queryevaluation/querygroup/{querygroupid}/subject/{subjectid}")
+    fun deleteQueryEvaluationContent(
+        @PathVariable querygroupid: Long,
+        @PathVariable subjectid: Long
+    ): ResponseEntity<Void> {
+        queryEValuationService.removeQueryEvaluationByQueryGroupAndSubject(querygroupid, subjectid)
+        return ResponseEntity.ok().build()
+    }
+
+    @PostMapping("querycontentgroup")
+    fun saveOrUpdate(@RequestBody request: QueryContentGroupDTO): ResponseEntity<Void> {
+        queryContentService.saveAllOrUpdate(
+            request
+        )
+        return ResponseEntity.ok().build()
+    }
+
+    @DeleteMapping("querycontentgroup/{queryContentGroupId}")
+    fun deleteContentGroup(@PathVariable queryContentGroupId: Long){
+        queryContentService.deleteQueryContentGroup(queryContentGroupId)
     }
 
     @GetMapping("querycontent/querygroup/{queryGroupId}")
     fun getQueryContent(@PathVariable queryGroupId: Long): ResponseEntity<*> {
-        val result =  queryContentService.findAllByQueryGroupId(queryGroupId)
+        val result =  queryContentService.getAllContentGroupsWithContentsQueryGroupId(queryGroupId)
         return ResponseEntity.ok(result)
     }
+
 
     companion object {
         private val log = LoggerFactory.getLogger(QueryResource::class.java)

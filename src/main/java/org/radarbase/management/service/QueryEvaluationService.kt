@@ -325,7 +325,7 @@ public class QueryEValuationService(
             val queryGroup = evaluation.queryGroup ?: continue
             val queryGroupId = queryGroup.id ?: continue
 
-            val content = queryContentService.findAllByQueryGroupId(queryGroupId)
+            val content = queryContentService.findAllContentsByQueryGroupId(queryGroupId)
 
             result[queryGroupId] = content;
         }
@@ -333,7 +333,10 @@ public class QueryEValuationService(
         return result
     }
 
-
+    @Transactional
+    fun  removeQueryEvaluationByQueryGroupAndSubject(queryGroupId: Long, subjectId: Long) {
+        queryEvaluationRepository.deleteByQueryGroupIdAndSubjectId(queryGroupId, subjectId)
+    }
 
     companion object {
         private val log = LoggerFactory.getLogger(QueryBuilderService::class.java)

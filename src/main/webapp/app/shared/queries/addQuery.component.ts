@@ -10,16 +10,25 @@ import { QueryDTO, QueryNode, QueryString } from './queries.model';
 import { Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
-import { QueryGroup } from './query.model';
+import { QueryGroup } from './queries.model';
 import { QueriesService } from './queries.service';
 import { ContentComponent } from './content/content.component';
 
 import { delusions, questionnaire } from './questionnaire';
 
+import { ContentItem, ContentType } from './queries.model';
+
 const sliderOptions = Array.from({ length: 7 }, (_, i) => {
     const val = String(i + 1);
     return { name: val, value: val };
 });
+
+interface ContentGroup {
+    name: string;
+    items: ContentItem[];
+    queryGroupId: number;
+    id: number;
+}
 
 @Component({
     selector: 'jhi-queries',
@@ -27,7 +36,7 @@ const sliderOptions = Array.from({ length: 7 }, (_, i) => {
     styleUrls: ['../../../content/scss/queries.scss'],
 })
 export class AddQueryComponent {
-
+    public contentGroups: ContentGroup[] = [];
 
     @ViewChild(ContentComponent) contentComponent!: ContentComponent;
 
@@ -40,8 +49,6 @@ export class AddQueryComponent {
     public queryGroupDesc: string;
 
     public queryGroupId: number | any | null;
-
-    private baseUrl = 'api/query-builder';
 
     public bootstrapClassNames: QueryBuilderClassNames = {
         removeIcon: 'fa fa-minus',
@@ -95,9 +102,14 @@ export class AddQueryComponent {
     public allowCollapse: boolean;
     public persistValueOnFieldChange: boolean = true;
 
-
-
     private canGoBack: boolean = false;
+    selectedGroupIndex: number | null = null;
+
+    isEditingContent = false;
+    currentEditingIndex: number | null = null;
+    currentEditingCopy: ContentGroup | null = null;
+
+    queryId = null;
 
     constructor(
         private queryService: QueriesService,
@@ -105,7 +117,7 @@ export class AddQueryComponent {
         private http: HttpClient,
         private router: Router,
         private readonly location: Location,
-        private route: ActivatedRoute,
+        private route: ActivatedRoute
     ) {
         this.queryCtrl = this.formBuilder.control(this.query);
         this.currentConfig = this.config;
@@ -164,6 +176,7 @@ export class AddQueryComponent {
 
     }
 
+
     private addDelusionsToQueryBuilder() {
 
         for (const delusion of delusions) {
@@ -181,26 +194,40 @@ export class AddQueryComponent {
 
     async ngOnInit() {
         this.route.params.subscribe((params) => {
-            let queryId = params["query-id"];
-            this.queryGroupId = queryId;
-            if (queryId) {
+            this.queryId = params['query-id'];
+            this.queryGroupId = this.queryId;
 
-                this.http
-                    .get(this.baseUrl + '/querygroups/' + queryId)
+            if (this.queryId) {
+                this.queryService
+                    .getQueryGroup(this.queryId)
                     .subscribe((response: any) => {
-                        this.query = response
+                        this.query = response;
                         this.queryGrouName = response.queryGroupName;
                         this.queryGroupDesc = response.queryGroupDescription;
                     });
 
-                this.http
-                    .get('api/query-builder/querycontent/querygroup/' + queryId)
-                    .subscribe((response: any) => {
-
-                        this.contentComponent.items = response;
-                    });
+                this.refreshContentGroups();
             }
         });
+    }
+
+    refreshContentGroups() {
+        this.queryService
+            .getAllQueryContentsAndGroups(this.queryId)
+            .subscribe((response: any) => {
+                this.contentGroups = response.map((group: any) => ({
+                    name: group.contentGroupName,
+                    items: group.queryContentDTOList || [],
+                    queryGroupId: group.queryGroupId,
+                    id: group.id,
+                }));
+
+                if (this.contentGroups.length > 0) {
+                    this.selectedGroupIndex = 0;
+                }
+            });
+        //when refreshing, hide add content section
+        this.isEditingContent = false;
     }
 
     goBack(): void {
@@ -213,8 +240,6 @@ export class AddQueryComponent {
             ? this.queryCtrl.disable()
             : this.queryCtrl.enable();
     }
-
-
 
     private _counter = 0;
     formRuleWeakMap = new WeakMap();
@@ -242,7 +267,7 @@ export class AddQueryComponent {
             case '<=':
                 return 'LESS_THAN_OR_EQUALS';
             case 'IS':
-                return "IS"
+                return 'IS';
 
             default:
                 return null;
@@ -250,13 +275,12 @@ export class AddQueryComponent {
     }
 
     convertTimeFrame(value: string) {
-
         switch (value) {
-            case "6_months":
+            case '6_months':
                 return 'PAST_6_MONTH';
-            case "1_months":
+            case '1_months':
                 return 'PAST_MONTH';
-            case "1_years":
+            case '1_years':
                 return 'PAST_YEAR';
             default:
                 return null;
@@ -275,7 +299,7 @@ export class AddQueryComponent {
                 operator: this.convertComparisonOperator(query.operator),
                 timeFrame: this.convertTimeFrame(query.timeFame),
                 value: query.value,
-                entity: query.entity
+                entity: query.entity,
             };
 
             return {
@@ -290,12 +314,11 @@ export class AddQueryComponent {
             description: this.queryGroupDesc,
         };
 
-
         if (this.queryGroupId) {
             this.queryGroupId = await this.updateQueryGroup(query_group);
             await this.updateIndividualQueries();
         } else {
-            this.queryGroupId = await this.saveNewQueryGroup(query_group)
+            this.queryGroupId = await this.saveNewQueryGroup(query_group);
             await this.saveIndividualQueries();
         }
 
@@ -305,31 +328,86 @@ export class AddQueryComponent {
     }
 
     async saveContent() {
-        let content = this.contentComponent.items;
+        for (const group of this.contentGroups) {
+            const payload = {
+                id: group.id,
+                queryGroupId: this.queryGroupId,
+                contentGroupName: group.name,
+                queryContentDTOList: group.items,
+            };
+            await this.queryService.saveContentGroup(payload);
+        }
+    }
 
-        await this.queryService.saveContent(this.queryGroupId, content);
+    addContentGroup() {
+        this.currentEditingIndex = this.contentGroups.length;
+        this.currentEditingCopy = {
+            name: '',
+            items: [
+                {
+                    type: ContentType.TITLE,
+                    value: 'this is title',
+                },
+            ],
+            queryGroupId: null,
+            id: null,
+        };
+        this.isEditingContent = true;
+    }
+
+    deleteContentGroup(id: number) {
+        this.queryService
+            .deleteContentGroupByID(id)
+            .subscribe((result: any) => {
+                this.refreshContentGroups();
+            });
+    }
+
+    selectGroup(index: number) {
+        this.selectedGroupIndex = index;
+
+        this.currentEditingIndex = index;
+        const original = this.contentGroups[index];
+        this.currentEditingCopy = {
+            name: original.name,
+            items: original.items.map((item) => ({ ...item })),
+            queryGroupId: original.queryGroupId,
+            id: original.id,
+        };
+        this.isEditingContent = true;
+    }
+
+    saveCurrentEditingGroup() {
+        if (this.currentEditingIndex !== null && this.currentEditingCopy) {
+            this.contentGroups[this.currentEditingIndex] =
+                this.currentEditingCopy;
+            this.isEditingContent = false;
+            this.currentEditingIndex = null;
+            this.currentEditingCopy = null;
+        }
+    }
+
+    cancelEditContent() {
+        this.isEditingContent = false;
+        this.currentEditingIndex = null;
+        this.currentEditingCopy = null;
     }
 
     saveNewQueryGroup(queryGroup: QueryGroup) {
-        return this.http
-            .post(this.baseUrl + '/querygroups', queryGroup).toPromise()
-
-
+        return this.queryService.saveNewQueryGroup(queryGroup);
     }
     updateQueryGroup(queryGroup: QueryGroup) {
-        return this.http
-            .put(this.baseUrl + '/querygroups/' + this.queryGroupId, queryGroup).toPromise()
-
+        return this.queryService.updateQueryGroup(
+            queryGroup,
+            this.queryGroupId
+        );
     }
     saveIndividualQueries() {
         const query_logic = {
             queryGroupId: this.queryGroupId,
             ...this.convertQuery(this.query),
         };
-
-        return this.http
-            .post(this.baseUrl + '/querylogic', query_logic).toPromise()
-
+        return this.queryService.saveQueryLogic(query_logic);
     }
 
     updateIndividualQueries() {
@@ -337,10 +415,7 @@ export class AddQueryComponent {
             queryGroupId: this.queryGroupId,
             ...this.convertQuery(this.query),
         };
-
-        return this.http
-            .put(this.baseUrl + '/querylogic', query_logic).toPromise();
-
+        return this.queryService.updateQueryLogic(query_logic);
     }
 
     get isSaveButtonDisabled(): boolean {
@@ -348,6 +423,8 @@ export class AddQueryComponent {
         const hasDesc = !!this.queryGroupDesc;
         const hasQuery = this.query && this.query.rules.length > 0;
 
-        return !(hasName && hasDesc && hasQuery);
+        const isEditing = this.isEditingContent;
+
+        return !(hasName && hasDesc && hasQuery) || isEditing;
     }
 }
