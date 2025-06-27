@@ -43,30 +43,31 @@ export class QueryViewerComponent implements OnInit, OnDestroy {
             this.queryParticipantService
                 .getAllQueryGroups()
                 .subscribe((res) => {
-                    this.queryGroupList = res;
+                    this.queryGroupList = res.filter(group => !group.isArchived);
                     this.getAllAssignedGroups();
                     this.selectedGroup = undefined;
                 });
         }
     }
+    
 
     getAllAssignedGroups() {
-        //also need to remove already assigned group
-
         this.queryParticipantService
             .getAllAssignedQueries(this.subject.id)
             .subscribe((res: QueryGroup[]) => {
                 this.assignedQueryGroups = res;
+    
                 let fileteredQueryGroupList = this.queryGroupList.filter(
                     (o1) =>
                         !this.assignedQueryGroups.some(
-                            (o2) => o1.name === o2.name
-                        )
+                            (o2) => o1.id === o2.id
+                        ) && !o1.isArchived 
                 );
-
+    
                 this.queryGroupList = fileteredQueryGroupList.slice();
             });
     }
+    
 
     async assignQueryGroup() {
         if (this.selectedGroup) {
@@ -121,9 +122,12 @@ export class QueryViewerComponent implements OnInit, OnDestroy {
 
     afterGroupDeleted(queryGroup: QueryGroup) {
         this.getAllAssignedGroups();
-        this.queryGroupList.push(queryGroup);
+        if (!queryGroup.isArchived) {
+            this.queryGroupList.push(queryGroup);
+        }
         this.selectedGroup = null;
     }
+    
 
     ngOnDestroy() {
         this.subscriptions.unsubscribe();
@@ -134,7 +138,6 @@ export class QueryViewerComponent implements OnInit, OnDestroy {
     }
 
     onGroupChange($event: any) {
-        console.log('even', $event);
         if ($event) {
             this.ifDisable = false;
         } else {
