@@ -39,6 +39,9 @@ class QueryGroup : AbstractEntity(), Serializable {
     @Column(name = "updated_date")
     var updatedDate: ZonedDateTime? = null
 
+    @Column(name = "is_archived")
+    var isArchived: Boolean? = false
+
     @OneToMany(mappedBy = "queryGroup", cascade = [CascadeType.ALL], orphanRemoval = true)
     var queries: MutableList<Query> = mutableListOf()
 

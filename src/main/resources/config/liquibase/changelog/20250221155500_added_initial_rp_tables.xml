@@ -44,6 +44,10 @@
 				<constraints nullable="false"/>
 			</column>
 			<column name="updated_by" type="varchar(250)"/>
+			<column name="is_archived" type="boolean" defaultValueDate="false">
+				<constraints nullable="false"/>
+			</column>
+
 		</createTable>
 	</changeSet>
 	<changeSet id="fk-query_group-created_by" author="Gwen">

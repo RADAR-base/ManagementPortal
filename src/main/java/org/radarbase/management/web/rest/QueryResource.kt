@@ -214,6 +214,18 @@ class QueryResource(
         return ResponseEntity.ok(result)
     }
 
+    @GetMapping("/querygroups/{id}/can-archive")
+    fun canArchive(@PathVariable id: Long): ResponseEntity<Boolean> {
+        val isAssigned = queryBuilderService.isQueryGroupAssignedToParticipant(id)
+        return ResponseEntity.ok(!isAssigned)
+    }
+
+    @PatchMapping("/querygroups/{id}/archive")
+    fun archiveQueryGroup(@PathVariable id: Long): ResponseEntity<Void> {
+        queryBuilderService.archiveQueryGroup(id)
+        return ResponseEntity.ok().build()
+    }
+
 
     companion object {
         private val log = LoggerFactory.getLogger(QueryResource::class.java)

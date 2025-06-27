@@ -12,6 +12,7 @@ export interface QueryGroup {
     updatedDate?: Date;
     createdBy?: Subject;
     updatedBy?: Subject;
+    isArchived?: Boolean;
 }
 
 export interface QueryParticipant {

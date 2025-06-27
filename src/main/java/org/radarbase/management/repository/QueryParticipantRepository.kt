@@ -13,5 +13,6 @@ interface QueryParticipantRepository : JpaRepository<QueryParticipant, Long>  {
     fun findBySubjectId(subjectId: Long): List<QueryParticipant>
 
     fun findBySubjectIdAndQueryGroupId(subjectId: Long, queryGroupId: Long) : QueryParticipant
-    
+
+    fun existsByQueryGroupId(queryGroupId: Long): Boolean
 }
