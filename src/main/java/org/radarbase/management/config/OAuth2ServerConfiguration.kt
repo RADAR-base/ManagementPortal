@@ -67,9 +67,14 @@ class OAuth2ServerConfiguration(
                         request.requestURI + if (request.queryString != null) "?${request.queryString}" else ""
                     }
 
-                    val safeRedirectUrl = if (redirectUrl.startsWith("/") || redirectUrl.startsWith(request.contextPath)) {
-                        redirectUrl
-                    } else {
+                    val safeRedirectUrl = try {
+                        val uri = URI(redirectUrl)
+                        if (!uri.isAbsolute && (uri.path.startsWith("/") || uri.path.startsWith(request.contextPath))) {
+                            redirectUrl
+                        } else {
+                            "/"
+                        }
+                    } catch (e: URISyntaxException) {
                         "/"
                     }
 
