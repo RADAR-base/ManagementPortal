@@ -32,6 +32,8 @@ import org.springframework.security.web.authentication.logout.LogoutSuccessHandl
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.web.savedrequest.SavedRequest
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler
+import java.net.URI
+import java.net.URISyntaxException
 
 @AuthServerEnabled
 @Configuration
