@@ -50,14 +50,13 @@ class ManagementPortalSecurityConfigLoader {
     @Transactional
     fun createAdminIdentity() {
         try {
-            if (!isAdminIdCreated && managementPortalProperties?.identityServer?.serverUrl != null && managementPortalProperties.identityServer.adminEmail != null) {
-                logger.info("Overriding admin email to ${managementPortalProperties.identityServer.adminEmail}")
-                val dto: UserDTO =
-                    runBlocking { userService!!.addAdminEmail(managementPortalProperties.identityServer.adminEmail) }
-
-                runBlocking {
-                    userService?.updateUser(dto)
-                    overrideAdminPassword()
+            if (!isAdminIdCreated) {
+                logger.info("Overriding admin email to ${managementPortalProperties?.identityServer?.adminEmail}")
+                runBlocking { 
+                    userService!!.addAdminEmail(managementPortalProperties?.identityServer?.adminEmail!!).let {
+                        userService.updateUser(it)
+                    }
+                    userService.addAdminPassword(managementPortalProperties?.common?.adminPassword!!)
                 }
 
                 isAdminIdCreated = true
@@ -67,16 +66,6 @@ class ManagementPortalSecurityConfigLoader {
         }
         catch (e: Throwable){
             logger.error("could not update/create admin identity. This may result in an unstable state", e)
-        }
-    }
-
-    private suspend fun overrideAdminPassword() {
-        val adminPassword = managementPortalProperties?.common?.adminPassword
-        if (!adminPassword.isNullOrEmpty()) {
-            logger.info("Overriding admin password to configured password")
-            userService?.changePassword("admin", adminPassword)
-        } else {
-            logger.info("AdminPassword property is empty. Using default password...")
         }
     }
 

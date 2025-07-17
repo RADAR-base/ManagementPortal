@@ -71,12 +71,23 @@ class OAuth2ServerConfiguration(
 
                     val safeRedirectUrl = try {
                         val uri = URI(redirectUrl)
-                        if (!uri.isAbsolute && (uri.path.startsWith("/") || uri.path.startsWith(request.contextPath))) {
-                            redirectUrl
-                        } else {
-                            "/"
+                        when {
+                            // Allow relative URLs
+                            !uri.isAbsolute && (uri.path.startsWith("/") || uri.path.startsWith(request.contextPath)) -> {
+                                redirectUrl
+                            }
+                            // Allow absolute URLs from same host (fixes your issue)
+                            uri.isAbsolute && uri.host == request.serverName && uri.scheme == request.scheme -> {
+                                redirectUrl
+                            }
+                            // Default fallback
+                            else -> {
+                                logger.warn("Unsafe redirect URL blocked: $redirectUrl")
+                                "/"
+                            }
                         }
                     } catch (e: URISyntaxException) {
+                        logger.warn("Invalid redirect URL: $redirectUrl", e)
                         "/"
                     }
 

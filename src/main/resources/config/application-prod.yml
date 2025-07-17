@@ -147,6 +147,7 @@ managementportal:
   catalogueServer:
     enableAutoImport: false
   identityServer:
+    internal: true
     adminEmail: bdegraaf1234@gmail.com
     serverUrl: http://localhost:4433
     serverAdminUrl: http://kratos-admin
