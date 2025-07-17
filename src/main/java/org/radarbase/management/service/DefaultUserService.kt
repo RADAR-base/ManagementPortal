@@ -419,7 +419,7 @@ class DefaultUserService @Autowired constructor(
      * users with *PARTICIPANT role and perform the action.
      */
     @Scheduled(cron = "0 0 1 * * ?")
-    fun removeNotActivatedUsers() {
+    override fun removeNotActivatedUsers() {
         log.info("Scheduled scan for expired user accounts starting now")
         val cutoff = ZonedDateTime.now().minus(Period.ofDays(3))
         val authorities = Arrays.asList(

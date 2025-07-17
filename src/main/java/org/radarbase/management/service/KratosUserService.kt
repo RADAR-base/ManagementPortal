@@ -628,22 +628,8 @@ class KratosUserService @Autowired constructor(
 
     // Scheduled method for cleanup (from DefaultUserService)
     @Scheduled(cron = "0 0 1 * * ?")
-    fun removeNotActivatedUsers() {
-        log.info("Scheduled scan for expired user accounts starting now")
-        val cutoff = ZonedDateTime.now().minus(Period.ofDays(3))
-        val authorities = Arrays.asList(
-            RoleAuthority.PARTICIPANT.authority, RoleAuthority.INACTIVE_PARTICIPANT.authority
-        )
-        userRepository.findAllByActivatedAndAuthoritiesNot(false, authorities).stream()
-            .filter { user: User? -> user?.let { revisionService.getAuditInfo(it).createdAt }!!.isBefore(cutoff) }
-            .forEach { user: User ->
-                try {
-                    userRepository.delete(user)
-                    log.info("Deleted not activated user after 3 days: {}", user.login)
-                } catch (ex: DataIntegrityViolationException) {
-                    log.error("Could not delete user with login " + user.login, ex)
-                }
-            }
+    override fun removeNotActivatedUsers() {
+        log.info("Remove not activated users not supported for Kratos") 
     }
 
     // Helper methods (from DefaultUserService)

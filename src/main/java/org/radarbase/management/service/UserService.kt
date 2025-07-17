@@ -178,4 +178,9 @@ interface UserService {
      */
     @Throws(IdpException::class)
     suspend fun sendActivationEmail(user: User)
+
+    /**
+     * Remove not activated users.
+     */
+    fun removeNotActivatedUsers()
 } 
