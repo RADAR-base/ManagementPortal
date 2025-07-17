@@ -19,14 +19,14 @@ import org.springframework.web.bind.annotation.*
 import java.net.URISyntaxException
 
 @RestController
-@RequestMapping("/api/kratos")
-private class KratosEndpoint
+@RequestMapping("/api/webhook/kratos")
+private class WebhookResource
 @Autowired
 constructor(
         @Autowired private val subjectService: SubjectService,
         @Autowired private val subjectRepository: SubjectRepository,
         @Autowired private val projectService: ProjectService,
-        @Autowired private val identityService: IdentityService,
+        @Autowired private val userService: UserService,
         @Autowired private val managementPortalProperties: ManagementPortalProperties,
 ) {
     private var sessionService: SessionService =
@@ -52,9 +52,9 @@ constructor(
         val id = kratosIdentity.id ?: throw IllegalArgumentException("Identity ID is required")
 
         // Verify kratos identity exists
-        val existingIdentity = identityService.getExistingIdentity(id)
-        if (!existingIdentity.equals(kratosIdentity))
-                throw IllegalArgumentException("Kratos identity does not match")
+        // val existingIdentity = identityService.getExistingIdentity(id)
+        // if (!existingIdentity.equals(kratosIdentity))
+        //         throw IllegalArgumentException("Kratos identity does not match")
 
         if (!kratosIdentity.schema_id.equals(KRATOS_SUBJECT_SCHEMA))
                 throw IllegalArgumentException("Cannot create non-subject users")
@@ -80,6 +80,15 @@ constructor(
                         mapOf(EMAIL_ATTRIBUTE_KEY to email)
                 )
                         ?: throw IllegalStateException("Failed to create subject for ID: $id")
+        
+        userService.getUserWithAuthoritiesByLogin(login = subjectDto.login!!)?.let { user ->
+                try {
+                        userService.updateUser(user.login!!, user.firstName, user.lastName, user.email, user.langKey)
+                } catch (ex: Exception) {
+                        logger.error("Failed to update associated identity for user {}: {}", user.login, ex.message)
+                }
+        }
+                        
 
         return ResponseEntity.created(ResourceUriService.getUri(subjectDto))
                 .headers(HeaderUtil.createEntityCreationAlert(EntityName.SUBJECT, id))
@@ -120,7 +129,7 @@ constructor(
     ): Boolean = kratosIdentity.id == identityId
 
     companion object {
-        private val logger = LoggerFactory.getLogger(KratosEndpoint::class.java)
+        private val logger = LoggerFactory.getLogger(WebhookResource::class.java)
         private val KRATOS_SUBJECT_SCHEMA = "subject"
         private val EMAIL_ATTRIBUTE_KEY = "email"
     }
