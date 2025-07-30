@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.*
 import org.springframework.boot.autoconfigure.orm.jpa.JpaProperties
 import org.springframework.context.annotation.*
 import org.springframework.core.annotation.Order
-import org.springframework.http.HttpMethod
 import org.springframework.orm.jpa.vendor.Database
 import org.springframework.security.authentication.*
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
@@ -31,17 +30,17 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.web.savedrequest.SavedRequest
-import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler
 import java.net.URI
 import java.net.URISyntaxException
 
-@AuthServerEnabled
+
 @Configuration
 class OAuth2ServerConfiguration(
     @Autowired private val dataSource: DataSource,
     @Autowired private val passwordEncoder: PasswordEncoder
 ) {
 
+    @AuthServerEnabled
     @Configuration
     @Order(-20)
     protected class LoginConfig(
