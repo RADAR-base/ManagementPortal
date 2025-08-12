@@ -23,25 +23,26 @@ class SessionService(private val serverUrl: String) {
 
     /** Get a [KratosSessionDTO] for a given session token. Returns the generated [KratosSessionDTO] */
     @Throws(IdpException::class)
-    suspend fun getSession(token: String): KratosSessionDTO {
+    suspend fun getSession(token: String, withSessionCookie: Boolean = true): KratosSessionDTO {
         val kratosSession: KratosSessionDTO
 
-        val cookie = "ory_kratos_session=" + token
+        val cookie = "ory_kratos_session=$token"
 
         val address = "$serverUrl/sessions/whoami"
         log.debug("requesting session at $address")
 
         withContext(Dispatchers.IO) {
             val response = httpClient.get {
-                header("Cookie", cookie)
+                if (withSessionCookie) header("Cookie", cookie) else header("Authorization", "Bearer $token")
                 url(address)
                 accept(ContentType.Application.Json)
             }
 
             if (response.status.isSuccess()) {
                 kratosSession = response.body<KratosSessionDTO>()
-                log.debug("session retrieved: {}", kratosSession)
+                log.debug("Session retrieved: {}", kratosSession)
             } else {
+                log.error("Session could not be retrieved: {}", response.status)
                 throw IdpException("couldn't get kratos session $token at $address", token = token)
             }
         }
