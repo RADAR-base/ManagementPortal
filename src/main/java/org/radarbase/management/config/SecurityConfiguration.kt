@@ -110,6 +110,7 @@ class SecurityConfiguration
                 .skipUrlPattern(HttpMethod.GET, "/api/profile-info")
                 .skipUrlPattern(HttpMethod.GET, "/api/logout-url")
                 .skipUrlPattern(HttpMethod.POST, "/api/kratos/**")
+                .skipUrlPattern(HttpMethod.POST, "/api/token-exchange")
                 .skipUrlPattern(HttpMethod.GET, "/oauth2/authorize")
                 .skipUrlPattern(HttpMethod.GET, "/images/**")
                 .skipUrlPattern(HttpMethod.GET, "/css/**")

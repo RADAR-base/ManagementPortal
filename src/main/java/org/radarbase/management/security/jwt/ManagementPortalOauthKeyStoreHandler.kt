@@ -7,7 +7,6 @@ import org.radarbase.auth.authentication.TokenValidator
 import org.radarbase.auth.jwks.JsonWebKeySet
 import org.radarbase.auth.jwks.JwkAlgorithmParser
 import org.radarbase.auth.jwks.JwksTokenVerifierLoader
-import org.radarbase.management.config.AuthServerEnabled
 import org.radarbase.management.config.ManagementPortalProperties
 import org.radarbase.management.config.ManagementPortalProperties.Oauth
 import org.radarbase.management.security.jwt.algorithm.EcdsaJwtAlgorithm
@@ -19,6 +18,7 @@ import org.springframework.core.env.Environment
 import org.springframework.core.io.ClassPathResource
 import org.springframework.core.io.Resource
 import org.springframework.stereotype.Component
+import kotlinx.serialization.json.Json
 import java.io.IOException
 import java.lang.IllegalArgumentException
 import java.security.KeyPair
@@ -42,7 +42,6 @@ import kotlin.collections.Map.Entry
  * this class does not assume a specific key type, while the Spring factory assumes RSA keys.
  */
 
-@AuthServerEnabled
 @Component
 class ManagementPortalOauthKeyStoreHandler @Autowired constructor(
     environment: Environment, servletContext: ServletContext, managementPortalProperties: ManagementPortalProperties
@@ -126,8 +125,32 @@ class ManagementPortalOauthKeyStoreHandler @Autowired constructor(
      * @return List of public keys for token verification.
      */
     fun loadJwks(): JsonWebKeySet {
-        return JsonWebKeySet(verifierPublicKeyAliasList.map { alias: String -> this.getKeyPair(alias) }
-            .map { keyPair: KeyPair? -> getJwtAlgorithm(keyPair) }.mapNotNull { obj: JwtAlgorithm? -> obj?.jwk })
+        val keystoreKeys = verifierPublicKeyAliasList.map { alias: String -> this.getKeyPair(alias) }
+            .map { keyPair: KeyPair? -> getJwtAlgorithm(keyPair) }.mapNotNull { obj: JwtAlgorithm? -> obj?.jwk }
+        val jsonKeys = loadKeysFromJsonFile()
+        return JsonWebKeySet(keystoreKeys + jsonKeys)
+    }
+
+    /**
+     * Load keys from the public-jwks.json file.
+     * @return List of JsonWebKey objects from the JSON file.
+     */
+    private fun loadKeysFromJsonFile(): List<org.radarbase.auth.jwks.JsonWebKey> {
+        return try {
+            val resource = ClassPathResource("/config/public-jwks.json")
+            if (!resource.exists()) {
+                logger.warn("Public JWKS file not found: {}", resource.path)
+                return emptyList()
+            }
+
+            val jsonContent = resource.inputStream.bufferedReader().use { it.readText() }
+            val jwks = Json.decodeFromString<JsonWebKeySet>(jsonContent)
+            logger.info("Loaded {} keys from public-jwks.json", jwks.keys.size)
+            jwks.keys
+        } catch (ex: Exception) {
+            logger.error("Failed to load keys from public-jwks.json: {}", ex.message, ex)
+            emptyList()
+        }
     }
 
     /**

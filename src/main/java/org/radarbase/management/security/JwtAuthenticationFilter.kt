@@ -75,7 +75,7 @@ class JwtAuthenticationFilter(
                 token = validator.validateBlocking(stringToken)
             } catch (ex: TokenValidationException) {
                 exMessage = ex.message ?: exMessage
-                logger.info("Token validation failed: $exMessage")
+                logger.error("Token validation failed: $exMessage")
             }
         }
 
