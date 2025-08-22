@@ -55,7 +55,7 @@ class HydraOAuthClientService(
         private val hydraClient: HydraOAuthClientDTO
     ) : ClientDetails {
         override fun getClientId(): String = hydraClient.clientId
-        override fun getResourceIds(): Set<String> = emptySet()
+        override fun getResourceIds(): Set<String> = hydraClient.audience?.toSet() ?: emptySet()
         override fun isSecretRequired(): Boolean = !hydraClient.clientSecret.isNullOrEmpty()
         override fun getClientSecret(): String? = hydraClient.clientSecret
         override fun isScoped(): Boolean = !hydraClient.scope.isNullOrEmpty()
