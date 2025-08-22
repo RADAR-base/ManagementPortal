@@ -54,7 +54,7 @@ class OAuthClientsResource(
      * @return the list of registered clients as a list of [ClientDetailsDTO]
      */
     fun oAuthClients(): ResponseEntity<List<ClientDetailsDTO>> {
-        authService.checkScope(Permission.OAUTHCLIENTS_READ)
+        authService.checkPermission(Permission.OAUTHCLIENTS_READ)
         val clients = clientDetailsMapper.clientDetailsToClientDetailsDTO(oAuthClientService.findAllOAuthClients())
         return ResponseEntity.ok().body(clients)
     }

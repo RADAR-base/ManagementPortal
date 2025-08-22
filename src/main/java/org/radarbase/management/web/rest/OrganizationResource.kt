@@ -86,7 +86,7 @@ class OrganizationResource(
     @GetMapping("/organizations")
     fun allOrganizations(): ResponseEntity<*> {
         log.debug("REST request to get Organizations")
-        authService.checkScope(Permission.ORGANIZATION_READ)
+        authService.checkPermission(Permission.ORGANIZATION_READ)
         val orgs = organizationService.findAll()
         return ResponseEntity(orgs, HttpStatus.OK)
     }
