@@ -184,7 +184,7 @@ class ProjectResource(
         @RequestParam(name = "minimized", required = false, defaultValue = "false") minimized: Boolean
     ): ResponseEntity<*> {
         log.debug("REST request to get Projects")
-        authService.checkScope(Permission.PROJECT_READ)
+        authService.checkPermission(Permission.PROJECT_READ)
         val page = projectService.findAll(minimized, pageable)
         val headers = PaginationUtil
             .generatePaginationHttpHeaders(page, "/api/projects")
