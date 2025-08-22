@@ -72,8 +72,12 @@ class ManagementPortalSecurityConfigLoader {
     /**
      * Build the ClientDetails for the ManagementPortal frontend and load it to the database.
      */
+    // Only load front end client is auth server is enabled
     @EventListener(ContextRefreshedEvent::class)
     fun loadFrontendOauthClient() {
+        if (managementPortalProperties?.authServer?.internal != true) {
+            return
+        }
         logger.info("Loading ManagementPortal frontend client")
         val frontend = managementPortalProperties!!.frontend
         val details = BaseClientDetails()
@@ -112,6 +116,9 @@ class ManagementPortalSecurityConfigLoader {
      */
     @EventListener(ContextRefreshedEvent::class)
     fun loadOAuthClientsFromFile() {
+        if (managementPortalProperties?.authServer?.internal != true) {
+            return
+        }
         val path = managementPortalProperties?.oauth?.clientsFile
         if (Objects.isNull(path) || path == "") {
             logger.info("No OAuth clients file specified, not loading additional clients")
