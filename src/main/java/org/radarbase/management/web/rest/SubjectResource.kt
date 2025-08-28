@@ -20,6 +20,7 @@ import org.radarbase.management.service.RevisionService
 import org.radarbase.management.service.SourceService
 import org.radarbase.management.service.SourceTypeService
 import org.radarbase.management.service.SubjectService
+import org.radarbase.management.service.UserService
 import org.radarbase.management.service.dto.MinimalSourceDetailsDTO
 import org.radarbase.management.service.dto.RevisionDTO
 import org.radarbase.management.service.dto.SubjectDTO
@@ -70,7 +71,8 @@ class SubjectResource(
     @Autowired private val eventRepository: AuditEventRepository,
     @Autowired private val revisionService: RevisionService,
     @Autowired private val sourceService: SourceService,
-    @Autowired private val authService: AuthService
+    @Autowired private val authService: AuthService,
+    @Autowired private val userService: UserService
 ) {
 
     /**
@@ -448,6 +450,8 @@ class SubjectResource(
         val sourceRegistered = subjectService
             .assignOrUpdateSource(sub, sourceType, currentProject, sourceDto)
 
+        userService.updateUserWithSources(sub.user?.login!!, subjectService.getSources(sub))
+        
         // Return the correct response type, either created if a new source was created, or ok if
         // an existing source was provided. If an existing source was given but not found, the
         // assignOrUpdateSource would throw an error, and we would not reach this point.

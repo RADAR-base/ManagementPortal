@@ -46,30 +46,19 @@ class ManagementPortalSecurityConfigLoader {
      * Resets the admin password to the value of managementportal.common.adminPassword value if
      * exists.
      */
-    @EventListener(ContextRefreshedEvent::class)
-    fun overrideAdminPassword() {
-        val adminPassword = managementPortalProperties!!.common.adminPassword
-        if (adminPassword != null && !adminPassword.isEmpty()) {
-            logger.info("Overriding admin password to configured password")
-            userService!!.changePassword("admin", adminPassword)
-        } else {
-            logger.info("AdminPassword property is empty. Using default password...")
-        }
-    }
-
-    /**
-     * Resets the admin password to the value of managementportal.common.adminPassword value if
-     * exists.
-     */
     @EventListener(ApplicationReadyEvent::class)
     @Transactional
     fun createAdminIdentity() {
         try {
-            if (!isAdminIdCreated && managementPortalProperties?.identityServer?.serverUrl != null && managementPortalProperties.identityServer.adminEmail != null) {
-                logger.info("Overriding admin email to ${managementPortalProperties.identityServer.adminEmail}")
-                val dto: UserDTO =
-                    runBlocking { userService!!.addAdminEmail(managementPortalProperties.identityServer.adminEmail) }
-                runBlocking { userService?.updateUser(dto) }
+            if (!isAdminIdCreated) {
+                logger.info("Overriding admin email to ${managementPortalProperties?.identityServer?.adminEmail}")
+                runBlocking { 
+                    userService!!.addAdminEmail(managementPortalProperties?.identityServer?.adminEmail!!).let {
+                        userService.updateUser(it)
+                    }
+                    userService.addAdminPassword(managementPortalProperties?.common?.adminPassword!!)
+                }
+
                 isAdminIdCreated = true
             } else if (!isAdminIdCreated) {
                 logger.warn("AdminEmail property is left empty, thus no admin identity could be created.")
@@ -83,8 +72,12 @@ class ManagementPortalSecurityConfigLoader {
     /**
      * Build the ClientDetails for the ManagementPortal frontend and load it to the database.
      */
+    // Only load front end client is auth server is enabled
     @EventListener(ContextRefreshedEvent::class)
     fun loadFrontendOauthClient() {
+        if (managementPortalProperties?.authServer?.internal != true) {
+            return
+        }
         logger.info("Loading ManagementPortal frontend client")
         val frontend = managementPortalProperties!!.frontend
         val details = BaseClientDetails()
@@ -123,6 +116,9 @@ class ManagementPortalSecurityConfigLoader {
      */
     @EventListener(ContextRefreshedEvent::class)
     fun loadOAuthClientsFromFile() {
+        if (managementPortalProperties?.authServer?.internal != true) {
+            return
+        }
         val path = managementPortalProperties?.oauth?.clientsFile
         if (Objects.isNull(path) || path == "") {
             logger.info("No OAuth clients file specified, not loading additional clients")
