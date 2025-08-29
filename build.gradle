@@ -165,6 +165,7 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:${logback_version}")
     implementation("ch.qos.logback:logback-core:${logback_version}")
     implementation('org.springframework.security:spring-security-web:5.7.13')
+    implementation("org.apache.commons:commons-lang3:3.18.0")
 
     implementation("org.jetbrains.kotlin:kotlin-reflect:${kotlin_version}")
     implementation("tech.jhipster:jhipster-framework:${jhipster_server_version}")
