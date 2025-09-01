@@ -6,11 +6,14 @@ on:
   workflow_dispatch:
 
 env:
-  DOCKER_IMAGE: radarbase/management-portal
+  DOCKER_IMAGE: ghcr.io/${{ github.repository }}/management-portal
 
 jobs:
   security:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
 
     steps:
       - uses: actions/checkout@v3
