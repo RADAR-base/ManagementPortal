@@ -8,13 +8,18 @@ on:
   pull_request: {}
 
 env:
-  DOCKER_IMAGE: radarbase/management-portal
+  REGISTRY: ghcr.io
+  REPOSITORY: ${{ github.repository }}
+  IMAGE_NAME: management-portal
 
 jobs:
   # Build and test the code
   test:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -104,12 +109,12 @@ jobs:
 
   # Check that the docker image builds correctly
   docker:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
 
       - name: Check whether unity activation requests should be done
@@ -118,12 +123,12 @@ jobs:
           echo "IS_DOCKER_SECRET_SET: ${{ secrets.DOCKERHUB_USERNAME != '' && secrets.DOCKERHUB_TOKEN != '' }}"
           echo "IS_DOCKER_SECRET_SET=${{ secrets.DOCKERHUB_USERNAME != ''  && secrets.DOCKERHUB_TOKEN != '' }}" >> $GITHUB_OUTPUT
 
-      - name: Login to Docker Hub
-        if: steps.docker_check_secret.outputs.IS_DOCKER_SECRET_SET == 'true'
+      - name: Login to Container Registry
         uses: docker/login-action@v2
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
@@ -156,6 +161,10 @@ jobs:
 
       - name: Prime yarn cache
         run: yarn install --mode=skip-build
+
+      - name: Lowercase image name
+        run: |
+          echo "DOCKER_IMAGE=${REGISTRY}/${REPOSITORY,,}/${IMAGE_NAME}" >>${GITHUB_ENV}
 
       # Add Docker labels and tags
       - name: Docker meta
@@ -198,8 +207,8 @@ jobs:
           # Use runtime labels from docker_meta as well as fixed labels
           labels: |
             ${{ steps.docker_meta.outputs.labels }}
-            maintainer=Joris Borgdorff <joris@thehyve.nl>
-            org.opencontainers.image.authors=Joris Borgdorff <joris@thehyve.nl>
+            maintainer=Pim van Nierop <pim@thehyve.nl>
+            org.opencontainers.image.authors=Pim van Nierop <pim@thehyve.nl>
             org.opencontainers.image.vendor=RADAR-base
             org.opencontainers.image.licenses=Apache-2.0
 
