@@ -12,12 +12,9 @@ env:
 
 jobs:
   upload:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
 
       - name: Use Node.js 16
@@ -40,7 +37,7 @@ jobs:
 
       # Upload it to GitHub
       - name: Upload to GitHub
-        uses: AButler/upload-release-assets@v2.0.2
+        uses: AButler/upload-release-assets@v3.0
         with:
           files: '*/build/libs/*'
           repo-token: ${{ secrets.GITHUB_TOKEN }}
@@ -52,19 +49,17 @@ jobs:
 
       - name: Publish to Maven Central
         env:
-          OSSRH_USER: ${{ secrets.OSSRH_USER }}
-          OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
+          OSSRH_USER: ${{ secrets.OSSRH_USER_TOKEN_ID }}
+          OSSRH_PASSWORD: ${{ secrets.OSSRH_USER_TOKEN_SECRET }}
         run: ./gradlew -Psigning.gnupg.keyName=${{ secrets.OSSRH_GPG_SECRET_KEY_NAME }} -Psigning.gnupg.executable=gpg -Psigning.gnupg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} publish closeAndReleaseSonatypeStagingRepository
 
   # Build and push tagged release docker image
   docker:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - uses: actions/checkout@v3
 
