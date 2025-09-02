@@ -276,7 +276,9 @@ will generate few files:
 To optimize the ManagementPortal application for production, run:
 
     ./gradlew -Pprod clean bootWar
+
 ### Hosting in production
+
 The latest Meta-QR code implementation requires REST resources on `api/meta-token/*` should definitely be rate-limited by upstream servers.
 
 This will concatenate and minify the client CSS and JavaScript files. It will also modify `index.html` so it references these new files.
@@ -301,9 +303,20 @@ Unit tests are run by [Karma][] and written with [Jasmine][]. They're located in
 
 UI end-to-end tests are powered by [Cypress][], which is built on top of WebDriverJS. They're located in [src/test/javascript/e2e](src/test/javascript/e2e)
 and can be run by starting Spring Boot in one terminal (`./gradlew bootRun`) and running the tests (`yarn run e2e`) in a second one.
+
 ### Other tests
 
-Performance tests are run by [Gatling][] and written in Scala. They're located in `src/test/gatling` and can be run with:
+Performance tests are run by [Gatling][] and written in Scala. They're located in `src/test/gatling`. To run the Gatling tests:
+
+1. Start postgresql database. For instance:
+
+```
+docker-compose -f src/main/docker/postgresql.yml up -d
+```
+
+2. Start the Management Portal under test on `localhost:8080`.
+
+3. Run the gatling tests: 
 
     ./gradlew gatlingRunAll
 

@@ -34,7 +34,7 @@ apply plugin: 'io.spring.dependency-management'
 
 allprojects {
     group 'org.radarbase'
-    version '2.1.9' // project version
+    version '2.1.10' // project version
 
     // The comment on the previous line is only there to identify the project version line easily
     // with a sed command, to auto-update the version number with the prepare-release-branch.sh
@@ -165,6 +165,7 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:${logback_version}")
     implementation("ch.qos.logback:logback-core:${logback_version}")
     implementation('org.springframework.security:spring-security-web:5.7.13')
+    implementation("org.apache.commons:commons-lang3:3.18.0")
 
     implementation("org.jetbrains.kotlin:kotlin-reflect:${kotlin_version}")
     implementation("tech.jhipster:jhipster-framework:${jhipster_server_version}")
