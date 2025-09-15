@@ -39,7 +39,10 @@ FROM eclipse-temurin:17-jre
 
 ENV SPRING_OUTPUT_ANSI_ENABLED=ALWAYS \
     JHIPSTER_SLEEP=0 \
-    JAVA_OPTS=""
+    JAVA_OPTS="" \
+    # Globally disables liquibase analytics.
+    # (see: https://docs.liquibase.com/pro/user-guide/what-data-does-liquibase-collect-and-how-is-it-used)
+    LIQUIBASE_ANALYTICS_ENABLED=false
 
 # Add the war and changelogs files from build stage
 COPY --from=builder /code/build/libs/*.war /app.war
