@@ -38,7 +38,6 @@ import org.radarbase.management.web.rest.errors.InvalidRequestException
 import org.radarbase.management.web.rest.errors.NotFoundException
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.scheduling.annotation.Scheduled
@@ -46,7 +45,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Duration
-import java.time.Period
 import java.time.ZonedDateTime
 import java.util.*
 import java.util.function.Function
@@ -84,7 +82,7 @@ class KratosUserService @Autowired constructor(
             })
         }
     }
-    
+
     private val json = Json { ignoreUnknownKeys = true }
     private val adminUrl = managementPortalProperties.identityServer.serverAdminUrl
     private val publicUrl = managementPortalProperties.identityServer.serverUrl
@@ -259,14 +257,14 @@ class KratosUserService @Autowired constructor(
         val user = userRepository.findOneByLogin(login)
         if (user != null) {
             userRepository.delete(user)
-            
+
             // Delete identity from Kratos
             try {
                 deleteAssociatedIdentity(user.identity)
             } catch (e: Throwable) {
                 log.warn(e.message, e)
             }
-            
+
             log.debug("Deleted User: {}", user)
         } else {
             log.warn("could not delete User with login: {}", login)
@@ -291,7 +289,7 @@ class KratosUserService @Autowired constructor(
             } catch (e: Throwable) {
                 log.warn("Failed to update password in Kratos for user ${user.login}", e)
             }
-            
+
             user.password = passwordService.encode(password)
             log.debug("Changed password for User: {}", user)
         }
@@ -391,7 +389,7 @@ class KratosUserService @Autowired constructor(
     }
 
     // Kratos-specific methods (from IdentityService)
-    
+
     /**
      * Builds metadata for a user based on roles, authorities, and sources.
      */
@@ -506,7 +504,7 @@ class KratosUserService @Autowired constructor(
                 throw IdpException("Couldn't update identity on server at $adminUrl")
             }
         }
-    
+
     suspend fun updateAssociatedIdentityWithSources(user: User, sources: List<MinimalSourceDetailsDTO>): KratosSessionDTO.Identity =
         withContext(Dispatchers.IO) {
             val identityId = user.identity ?: throw IdpException("User has no identity")
@@ -600,25 +598,27 @@ class KratosUserService @Autowired constructor(
     @Throws(IdpException::class)
     suspend fun sendKratosActivationEmail(user: User): String =
         withContext(Dispatchers.IO) {
+            val flowType = managementPortalProperties.identityServer.userActivationFlowType
+            val method = managementPortalProperties.identityServer.userActivationMethod
             val flowResponse = httpClient
                 .get {
-                    url("$publicUrl/self-service/verification/api")
+                    url("$publicUrl/self-service/$flowType/api")
                     contentType(ContentType.Application.Json)
                     accept(ContentType.Application.Json)
                 }.body<KratosSessionDTO.Verification>()
 
             val flowId = flowResponse.id
-                ?: throw IdpException("Failed to initiate verification flow for ${user.email}")
+                ?: throw IdpException("Failed to initiate $flowType flow for ${user.email}")
 
             val activationResponse = httpClient.post {
-                url("$publicUrl/self-service/verification?flow=$flowId")
+                url("$publicUrl/self-service/$flowType?flow=$flowId")
                 contentType(ContentType.Application.Json)
                 accept(ContentType.Application.Json)
-                setBody(mapOf("email" to user.email, "method" to "code"))
+                setBody(mapOf("email" to user.email, "method" to method))
             }
 
             if (!activationResponse.status.isSuccess()) {
-                throw IdpException("Failed to trigger verification email for ${user.email}")
+                throw IdpException("Failed to trigger $flowType email for ${user.email}")
             }
 
             flowId.also {
@@ -629,7 +629,7 @@ class KratosUserService @Autowired constructor(
     // Scheduled method for cleanup (from DefaultUserService)
     @Scheduled(cron = "0 0 1 * * ?")
     override fun removeNotActivatedUsers() {
-        log.info("Remove not activated users not supported for Kratos") 
+        log.info("Remove not activated users not supported for Kratos")
     }
 
     // Helper methods (from DefaultUserService)
