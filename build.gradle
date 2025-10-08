@@ -171,6 +171,7 @@ dependencies {
     implementation("tech.jhipster:jhipster-framework:${jhipster_server_version}")
     implementation("tech.jhipster:jhipster-dependencies:${jhipster_server_version}")
     implementation("io.micrometer:micrometer-core:${micrometer_version}")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:$coroutines_version")
     implementation "com.hazelcast:hazelcast:${hazelcast_version}"
     implementation "com.hazelcast:hazelcast-spring:${hazelcast_version}"
     runtimeOnly "com.hazelcast:hazelcast-hibernate53:${hazelcast_hibernate_version}"
