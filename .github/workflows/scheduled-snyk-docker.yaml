@@ -17,6 +17,8 @@ jobs:
       packages: read
 
     steps:
+      - uses: actions/checkout@v4
+
       - name: Lowercase image name
         run: echo "DOCKER_IMAGE=ghcr.io/${GITHUB_REPOSITORY,,}/management-portal" >> ${GITHUB_ENV}
 
