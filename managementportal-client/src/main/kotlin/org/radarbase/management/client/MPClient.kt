@@ -103,7 +103,8 @@ class MPClient(config: Config) {
         page: Int = 0,
         size: Int = Int.MAX_VALUE,
     ): List<MPSubject> = request<List<MPSubject>> {
-        url("api/projects/$projectId/subjects")
+        // Encode the URL because projectId may contain whitespaces.
+        url { path("api", "projects", projectId, "subjects") }
         with(url.parameters) {
             append("page", page.toString())
             append("size", size.toString())
