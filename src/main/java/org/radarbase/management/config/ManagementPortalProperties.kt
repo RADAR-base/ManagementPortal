@@ -20,6 +20,8 @@ data class ManagementPortalProperties @ConstructorBinding constructor(
         val serverUrl: String,
         val serverAdminUrl: String,
         val adminEmail: String,
+        val userActivationFlowType: String = "verification",
+        val userActivationMethod: String = "code",
     )
 
     data class AuthServer @ConstructorBinding constructor(

@@ -30,7 +30,6 @@ import javax.validation.Valid
 /**
  * Created by dverbeec on 5/09/2017.
  */
-@AuthServerEnabled
 @RestController
 @RequestMapping("/api")
 class OAuthClientsResource(
@@ -99,7 +98,7 @@ class OAuthClientsResource(
     fun updateOAuthClient(@RequestBody @Valid clientDetailsDto: ClientDetailsDTO?): ResponseEntity<ClientDetailsDTO> {
         authService.checkPermission(Permission.OAUTHCLIENTS_UPDATE)
         // getOAuthClient checks if the id exists
-        OAuthClientService.checkProtected(oAuthClientService.findOneByClientId(clientDetailsDto!!.clientId))
+        OAuthClientUtils.checkProtected(oAuthClientService.findOneByClientId(clientDetailsDto!!.clientId))
         val updated = oAuthClientService.updateOauthClient(clientDetailsDto)
         return ResponseEntity.ok()
             .headers(
@@ -128,7 +127,7 @@ class OAuthClientsResource(
     fun deleteOAuthClient(@PathVariable id: String?): ResponseEntity<Void> {
         authService.checkPermission(Permission.OAUTHCLIENTS_DELETE)
         // getOAuthClient checks if the id exists
-        OAuthClientService.checkProtected(oAuthClientService.findOneByClientId(id))
+        OAuthClientUtils.checkProtected(oAuthClientService.findOneByClientId(id))
         oAuthClientService.deleteClientDetails(id)
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(EntityName.OAUTH_CLIENT, id))
             .build()

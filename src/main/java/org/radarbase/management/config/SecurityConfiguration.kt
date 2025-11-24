@@ -46,20 +46,25 @@ class SecurityConfiguration
         val tokenValidator: TokenValidator
             /** Get the default token validator. */
             get() {
-                val loaderList =
-                    listOf(
+                val loaderList = mutableListOf(
+                    JwksTokenVerifierLoader(
+                        managementPortalProperties.authServer.serverAdminUrl +
+                            "/admin/keys/hydra.jwt.access-token",
+                        RES_MANAGEMENT_PORTAL,
+                        JwkAlgorithmParser(),
+                    )
+                )
+
+                // Only load ManagementPortal's own token_key endpoint if the internal auth server is enabled.
+                if (managementPortalProperties.authServer.internal) {
+                    loaderList.add(
                         JwksTokenVerifierLoader(
-                            managementPortalProperties.authServer.serverAdminUrl +
-                                "/admin/keys/hydra.jwt.access-token",
-                            RES_MANAGEMENT_PORTAL,
-                            JwkAlgorithmParser(),
-                        ),
-                        JwksTokenVerifierLoader(
-                            managementPortalProperties.common.managementPortalBaseUrl +"/oauth/token_key",
+                            managementPortalProperties.common.managementPortalBaseUrl + "/oauth/token_key",
                             RES_MANAGEMENT_PORTAL,
                             JwkAlgorithmParser()
                         )
                     )
+                }
                 return TokenValidator(loaderList)
             }
 

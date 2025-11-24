@@ -152,6 +152,9 @@ managementportal:
             - ORGANIZATION.CREATE
             - ORGANIZATION.UPDATE
             - SOURCEDATA.READ
+            - OAUTHCLIENTS.READ
+            - OAUTHCLIENTS.CREATE
+            - OAUTHCLIENTS.UPDATE
     oauth:
         clientsFile: src/main/docker/etc/config/oauth_client_details.csv
         metaTokenTimeout: PT1H #timeout should be specified as the ISO-8601 duration format {@code PnDTnHnMn.nS}.
