@@ -146,6 +146,7 @@ class SecurityConfiguration
                 .antMatchers("/api/register")
                 .antMatchers("/api/account/reset_password/init")
                 .antMatchers("/api/account/reset_password/finish")
+                .antMatchers("/api/public/projects")
                 .antMatchers("/test/**")
                 .antMatchers("/management/health")
                 .antMatchers(HttpMethod.GET, "/api/meta-token/**")
