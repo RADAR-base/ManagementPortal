@@ -190,14 +190,32 @@ class SubjectService(
             return createSubject(newSubjectDto)
         }
         val subjectFromDb = ensureSubject(newSubjectDto)
-        val sourcesToUpdate = subjectFromDb.sources
+        val existingSources = subjectFromDb.sources.toMutableSet()
         // set only the devices assigned to a subject as assigned
         subjectMapper.safeUpdateSubjectFromDTO(newSubjectDto, subjectFromDb)
-        sourcesToUpdate.addAll(subjectFromDb.sources)
+
+        val updatedSources = subjectFromDb.sources
+        val updatedSourceIds = updatedSources.mapNotNull { it.id }.toSet()
+        val removedSources = existingSources
+            .filter { it.id != null && it.id !in updatedSourceIds }
+            .onEach { source ->
+                // Unlink device from subject but keep history so it can be reused later.
+                source.assigned = false
+                source.subject = null
+            }
+        val removedSourceIds = removedSources.mapNotNull { it.id }.toSet()
+
+        if (removedSources.isNotEmpty()) {
+            sourceRepository.saveAll(removedSources)
+            subjectFromDb.sources.removeIf { source -> source.id != null && source.id in removedSourceIds }
+        }
+
         subjectFromDb.sources.forEach(
             Consumer { s: Source -> s.subject(subjectFromDb).assigned = true },
         )
-        sourceRepository.saveAll(sourcesToUpdate)
+        if (subjectFromDb.sources.isNotEmpty()) {
+            sourceRepository.saveAll(subjectFromDb.sources)
+        }
         // update participant role
         subjectFromDb.user!!.roles = updateParticipantRoles(subjectFromDb, newSubjectDto)
         // Set group
