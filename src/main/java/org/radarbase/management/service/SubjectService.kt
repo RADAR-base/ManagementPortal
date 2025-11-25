@@ -65,8 +65,6 @@ class SubjectService(
     @Autowired private val passwordService: PasswordService,
     @Autowired private val authorityRepository: AuthorityRepository,
     @Autowired private val authService: AuthService,
-    @Autowired private val userService: UserService,
-    @Autowired private val identityService: IdentityService,
 ) {
     /**
      * Create a new subject.
@@ -98,6 +96,8 @@ class SubjectService(
         user.resetDate = ZonedDateTime.now()
         // default subject is activated.
         user.activated = activated!!
+        // default identity is externalId
+        user.identity = subject.externalId
         // set if any devices are set as assigned
         if (subject.sources.isNotEmpty()) {
             subject.sources.forEach(
@@ -113,15 +113,7 @@ class SubjectService(
         sourceRepository.saveAll(subject.sources)
 
         val savedSubject = subjectRepository.save(subject)
-        return subjectMapper.subjectToSubjectReducedProjectDTO(savedSubject).also {
-                userService.getUserWithAuthoritiesByLogin(login = subjectDto.login!!)?.let { user ->
-                    try {
-                        identityService.updateAssociatedIdentity(user, savedSubject)
-                    } catch (ex: Exception) {
-                        log.error("Failed to update associated identity for user {}: {}", user.login, ex.message)
-                    }
-                }
-        }
+        return subjectMapper.subjectToSubjectReducedProjectDTO(savedSubject)
     }
 
     suspend fun createSubject(
@@ -198,14 +190,32 @@ class SubjectService(
             return createSubject(newSubjectDto)
         }
         val subjectFromDb = ensureSubject(newSubjectDto)
-        val sourcesToUpdate = subjectFromDb.sources
+        val existingSources = subjectFromDb.sources.toMutableSet()
         // set only the devices assigned to a subject as assigned
         subjectMapper.safeUpdateSubjectFromDTO(newSubjectDto, subjectFromDb)
-        sourcesToUpdate.addAll(subjectFromDb.sources)
+
+        val updatedSources = subjectFromDb.sources
+        val updatedSourceIds = updatedSources.mapNotNull { it.id }.toSet()
+        val removedSources = existingSources
+            .filter { it.id != null && it.id !in updatedSourceIds }
+            .onEach { source ->
+                // Unlink device from subject but keep history so it can be reused later.
+                source.assigned = false
+                source.subject = null
+            }
+        val removedSourceIds = removedSources.mapNotNull { it.id }.toSet()
+
+        if (removedSources.isNotEmpty()) {
+            sourceRepository.saveAll(removedSources)
+            subjectFromDb.sources.removeIf { source -> source.id != null && source.id in removedSourceIds }
+        }
+
         subjectFromDb.sources.forEach(
             Consumer { s: Source -> s.subject(subjectFromDb).assigned = true },
         )
-        sourceRepository.saveAll(sourcesToUpdate)
+        if (subjectFromDb.sources.isNotEmpty()) {
+            sourceRepository.saveAll(subjectFromDb.sources)
+        }
         // update participant role
         subjectFromDb.user!!.roles = updateParticipantRoles(subjectFromDb, newSubjectDto)
         // Set group
@@ -380,15 +390,7 @@ class SubjectService(
         }
         subjectRepository.save(subject)
 
-        return sourceMapper.sourceToMinimalSourceDetailsDTO(assignedSource).also {
-            userService.getUserWithAuthoritiesByLogin(login = subject.user?.login!!)?.let { user ->
-                    try {
-                        identityService.updateAssociatedIdentity(user, subject)
-                    } catch (ex: Exception) {
-                        log.error("Failed to update associated identity for user {}: {}", user.login, ex.message)
-                    }
-            }
-        }
+        return sourceMapper.sourceToMinimalSourceDetailsDTO(assignedSource)
     }
 
     /**

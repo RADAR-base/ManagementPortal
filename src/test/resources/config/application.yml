@@ -131,6 +131,7 @@ managementportal:
     mail: # specific ManagementPortal mail property, for standard properties see MailProperties
         from: ManagementPortal@localhost
     identityServer:
+      internal: true
       serverUrl: http://127.0.0.1:4433
       serverAdminUrl: http://127.0.0.1:4434
       admin-email: admin@localhost

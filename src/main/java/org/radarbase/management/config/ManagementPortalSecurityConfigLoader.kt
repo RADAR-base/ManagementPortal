@@ -8,9 +8,7 @@ import com.fasterxml.jackson.dataformat.csv.CsvMapper
 import kotlinx.coroutines.runBlocking
 import org.radarbase.auth.authorization.Permission.Companion.scopes
 import org.radarbase.management.service.UserService
-import org.radarbase.management.service.dto.UserDTO
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.event.ContextRefreshedEvent
 import org.springframework.context.event.EventListener
@@ -30,32 +28,13 @@ import javax.transaction.Transactional
  * Created by dverbeec on 20/11/2017.
  */
 @Component
-class ManagementPortalSecurityConfigLoader {
-    @Autowired
-    private val clientDetailsService: JdbcClientDetailsService? = null
-
-    @Autowired
-    private val managementPortalProperties: ManagementPortalProperties? = null
-
-    @Autowired
+class ManagementPortalSecurityConfigLoader(
+    private val jdbcClientDetailsService: JdbcClientDetailsService? = null,
+    private val managementPortalProperties: ManagementPortalProperties? = null,
     private val userService: UserService? = null
+) {
 
     private var isAdminIdCreated: Boolean = false
-
-    /**
-     * Resets the admin password to the value of managementportal.common.adminPassword value if
-     * exists.
-     */
-    @EventListener(ContextRefreshedEvent::class)
-    fun overrideAdminPassword() {
-        val adminPassword = managementPortalProperties!!.common.adminPassword
-        if (adminPassword != null && !adminPassword.isEmpty()) {
-            logger.info("Overriding admin password to configured password")
-            userService!!.changePassword("admin", adminPassword)
-        } else {
-            logger.info("AdminPassword property is empty. Using default password...")
-        }
-    }
 
     /**
      * Resets the admin password to the value of managementportal.common.adminPassword value if
@@ -65,14 +44,38 @@ class ManagementPortalSecurityConfigLoader {
     @Transactional
     fun createAdminIdentity() {
         try {
-            if (!isAdminIdCreated && managementPortalProperties?.identityServer?.serverUrl != null && managementPortalProperties.identityServer.adminEmail != null) {
-                logger.info("Overriding admin email to ${managementPortalProperties.identityServer.adminEmail}")
-                val dto: UserDTO =
-                    runBlocking { userService!!.addAdminEmail(managementPortalProperties.identityServer.adminEmail) }
-                runBlocking { userService?.updateUser(dto) }
+            if (!isAdminIdCreated) {
+                if (managementPortalProperties == null) {
+                    logger.warn("ManagementPortalProperties is null, cannot create admin identity")
+                    return
+                }
+
+                if (userService == null) {
+                    logger.warn("UserService is null, cannot create admin identity")
+                    return
+                }
+
+                val adminEmail = managementPortalProperties.identityServer?.adminEmail
+                if (adminEmail.isNullOrBlank()) {
+                    logger.warn("AdminEmail property is empty, cannot create admin identity")
+                    return
+                }
+
+                val adminPassword = managementPortalProperties.common?.adminPassword
+                if (adminPassword.isNullOrBlank()) {
+                    logger.warn("AdminPassword property is empty, cannot create admin identity")
+                    return
+                }
+
+                logger.info("Overriding admin email to $adminEmail")
+                runBlocking {
+                    userService.addAdminEmail(adminEmail).let {
+                        userService.updateUser(it)
+                    }
+                    userService.addAdminPassword(adminPassword)
+                }
+
                 isAdminIdCreated = true
-            } else if (!isAdminIdCreated) {
-                logger.warn("AdminEmail property is left empty, thus no admin identity could be created.")
             }
         }
         catch (e: Throwable){
@@ -83,10 +86,19 @@ class ManagementPortalSecurityConfigLoader {
     /**
      * Build the ClientDetails for the ManagementPortal frontend and load it to the database.
      */
+    // Only load front end client is auth server is enabled
     @EventListener(ContextRefreshedEvent::class)
     fun loadFrontendOauthClient() {
+        if (managementPortalProperties?.authServer?.internal != true) {
+            return
+        }
         logger.info("Loading ManagementPortal frontend client")
-        val frontend = managementPortalProperties!!.frontend
+        if (managementPortalProperties == null) {
+            logger.warn("Unable to load frontend OAuth client: managementPortalProperties is null")
+            return
+        }
+
+        val frontend = managementPortalProperties.frontend
         val details = BaseClientDetails()
         details.clientId = frontend.clientId
         details.clientSecret = frontend.clientSecret
@@ -123,9 +135,13 @@ class ManagementPortalSecurityConfigLoader {
      */
     @EventListener(ContextRefreshedEvent::class)
     fun loadOAuthClientsFromFile() {
-        val path = managementPortalProperties?.oauth?.clientsFile
+        if (managementPortalProperties?.authServer?.internal != true) {
+            return
+        }
+        logger.info("Loading additional ManagementPortal clients...")
+        val path = managementPortalProperties.oauth?.clientsFile
         if (Objects.isNull(path) || path == "") {
-            logger.info("No OAuth clients file specified, not loading additional clients")
+            logger.info("No OAuth clients file specified, additional clients loading aborted.")
             return
         }
         val file = Paths.get(path)
@@ -157,10 +173,15 @@ class ManagementPortalSecurityConfigLoader {
     }
 
     private fun loadOAuthClient(details: ClientDetails) {
+        logger.info("Loading ManagementPortal OAuth client")
+        if (jdbcClientDetailsService == null) {
+            logger.warn("JdbcClientDetailsService is null, not loading OAuth client")
+            return
+        }
         try {
-            val client = clientDetailsService!!.loadClientByClientId(details.clientId)
+            val client = jdbcClientDetailsService.loadClientByClientId(details.clientId)
             // we delete the existing client and reload it in the next try block
-            clientDetailsService.removeClientDetails(client.clientId)
+            jdbcClientDetailsService.removeClientDetails(client.clientId)
             logger.info("Removed existing OAuth client: " + details.clientId)
         } catch (ex: NoSuchClientException) {
             // the client is not in the databse yet, this is ok
@@ -169,7 +190,7 @@ class ManagementPortalSecurityConfigLoader {
             logger.error(ex.message, ex)
         }
         try {
-            clientDetailsService!!.addClientDetails(details)
+            jdbcClientDetailsService.addClientDetails(details)
             logger.info("OAuth client loaded: " + details.clientId)
         } catch (ex: Exception) {
             logger.error(

@@ -6,14 +6,21 @@ on:
   workflow_dispatch:
 
 env:
-  DOCKER_IMAGE: radarbase/management-portal
+  DOCKER_IMAGE: ghcr.io/${{ github.repository }}/management-portal
 
 jobs:
   security:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+      packages: read
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+
+      - name: Lowercase image name
+        run: echo "DOCKER_IMAGE=ghcr.io/${GITHUB_REPOSITORY,,}/management-portal" >> ${GITHUB_ENV}
 
       - name: Run Snyk to check for vulnerabilities
         continue-on-error: true # To make sure that SARIF upload gets called

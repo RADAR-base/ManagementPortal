@@ -46,20 +46,25 @@ class SecurityConfiguration
         val tokenValidator: TokenValidator
             /** Get the default token validator. */
             get() {
-                val loaderList =
-                    listOf(
+                val loaderList = mutableListOf(
+                    JwksTokenVerifierLoader(
+                        managementPortalProperties.authServer.serverAdminUrl +
+                            "/admin/keys/hydra.jwt.access-token",
+                        RES_MANAGEMENT_PORTAL,
+                        JwkAlgorithmParser(),
+                    )
+                )
+
+                // Only load ManagementPortal's own token_key endpoint if the internal auth server is enabled.
+                if (managementPortalProperties.authServer.internal) {
+                    loaderList.add(
                         JwksTokenVerifierLoader(
-                            managementPortalProperties.authServer.serverAdminUrl +
-                                "/admin/keys/hydra.jwt.access-token",
-                            RES_MANAGEMENT_PORTAL,
-                            JwkAlgorithmParser(),
-                        ),
-                        JwksTokenVerifierLoader(
-                            managementPortalProperties.common.managementPortalBaseUrl +"/oauth/token_key",
+                            managementPortalProperties.common.managementPortalBaseUrl + "/oauth/token_key",
                             RES_MANAGEMENT_PORTAL,
                             JwkAlgorithmParser()
                         )
                     )
+                }
                 return TokenValidator(loaderList)
             }
 
@@ -99,13 +104,17 @@ class SecurityConfiguration
                 .skipUrlPattern(HttpMethod.GET, "/management/health")
                 .skipUrlPattern(HttpMethod.POST, "/oauth/token")
                 .skipUrlPattern(HttpMethod.GET, "/oauth/token_key")
+                .skipUrlPattern(HttpMethod.GET, "/oauth/authorize")
+                .skipUrlPattern(HttpMethod.POST, "/oauth/authorize")
+                .skipUrlPattern(HttpMethod.GET, "/oauth/confirm_access")
+                .skipUrlPattern(HttpMethod.POST, "/oauth/confirm_access")
                 .skipUrlPattern(HttpMethod.GET, "/api/meta-token/*")
                 .skipUrlPattern(HttpMethod.GET, "/api/public/projects")
                 .skipUrlPattern(HttpMethod.GET, "/api/sitesettings")
                 .skipUrlPattern(HttpMethod.GET, "/api/redirect/**")
                 .skipUrlPattern(HttpMethod.GET, "/api/profile-info")
                 .skipUrlPattern(HttpMethod.GET, "/api/logout-url")
-                .skipUrlPattern(HttpMethod.POST, "/api/kratos/**")
+                .skipUrlPattern(HttpMethod.POST, "/api/webhook/**")
                 .skipUrlPattern(HttpMethod.GET, "/oauth2/authorize")
                 .skipUrlPattern(HttpMethod.GET, "/images/**")
                 .skipUrlPattern(HttpMethod.GET, "/css/**")
@@ -133,7 +142,7 @@ class SecurityConfiguration
                 .antMatchers("/api/activate")
                 .antMatchers("/api/sitesettings")
                 .antMatchers("/api/redirect/**")
-                .antMatchers("/api/kratos/**")
+                .antMatchers("/api/webhook/**")
                 .antMatchers("/api/register")
                 .antMatchers("/api/account/reset_password/init")
                 .antMatchers("/api/account/reset_password/finish")

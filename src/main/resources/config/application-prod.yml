@@ -140,6 +140,9 @@ managementportal:
         - ORGANIZATION.CREATE
         - ORGANIZATION.UPDATE
         - SOURCEDATA.READ
+        - OAUTHCLIENTS.READ
+        - OAUTHCLIENTS.CREATE
+        - OAUTHCLIENTS.UPDATE
   oauth:
     clientsFile: /mp-includes/config/oauth_client_details.csv
     metaTokenTimeout: PT1H #timeout should be specified as the ISO-8601 duration format {@code PnDTnHnMn.nS}.
@@ -147,6 +150,7 @@ managementportal:
   catalogueServer:
     enableAutoImport: false
   identityServer:
+    internal: true
     adminEmail: bdegraaf1234@gmail.com
     serverUrl: http://localhost:4433
     serverAdminUrl: http://kratos-admin

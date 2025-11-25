@@ -152,6 +152,9 @@ managementportal:
             - ORGANIZATION.CREATE
             - ORGANIZATION.UPDATE
             - SOURCEDATA.READ
+            - OAUTHCLIENTS.READ
+            - OAUTHCLIENTS.CREATE
+            - OAUTHCLIENTS.UPDATE
     oauth:
         clientsFile: src/main/docker/etc/config/oauth_client_details.csv
         metaTokenTimeout: PT1H #timeout should be specified as the ISO-8601 duration format {@code PnDTnHnMn.nS}.
@@ -163,6 +166,7 @@ managementportal:
         # The line below can be uncommented to add some hidden fields for UI testing
         #hiddenSubjectFields: [person_name, date_of_birth, group]
     identityServer:
+        internal: true
         adminEmail: admin-email-here@gmail.com
         serverUrl: http://localhost:4433
         serverAdminUrl: http://localhost:4434

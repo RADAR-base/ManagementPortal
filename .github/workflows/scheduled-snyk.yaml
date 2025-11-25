@@ -5,9 +5,41 @@ on:
     - cron: '0 2 * * 1'
   workflow_dispatch:
 
+env:
+  MODULES: >-
+    [{
+    'module': 'management-portal',
+    'build_file': 'build.gradle'
+    },{
+    'module': 'managementportal-client',
+    'build_file': 'managementportal-client/build.gradle'
+    },{
+    'module': 'radar-auth',
+    'build_file': 'radar-auth/build.gradle'
+    }]
+
 jobs:
-  security:
+
+  prepare-matrix:
+    name: Prepare Matrix Output
     runs-on: ubuntu-latest
+    permissions: {}
+    outputs:
+      modules: ${{ steps.step1.outputs.matrix }}
+    steps:
+      - name: Create Matrix Variable
+        id: step1
+        run: echo "matrix=${{env.MODULES}}" >> $GITHUB_OUTPUT
+
+  security:
+    needs: prepare-matrix
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    strategy:
+      matrix:
+        module: ${{ fromJson(needs.prepare-matrix.outputs.modules ) }}
 
     steps:
       - uses: actions/checkout@v3
@@ -17,22 +49,23 @@ jobs:
           cache: npm
 
       - name: Run Snyk to check for vulnerabilities
-        uses: snyk/actions/gradle-jdk17@master
+        uses: snyk/actions/gradle-8-jdk17@master
         continue-on-error: true # To make sure that SARIF upload gets called
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
           args: >-
-            --all-projects
+            --file=${{ matrix.module.build_file }}
             --configuration-matching='^runtimeClasspath$'
             --fail-on=upgradable
             --severity-threshold=high
             --policy-path=.snyk
             --org=radar-base
-            --sarif-file-output=snyk.sarif
+            --sarif-file-output=${{ matrix.module.module }}.sarif
 
       # Detected vulnerabilities will appear on Github in Security->Code_scanning_alerts tab
       - name: Upload result to GitHub Code Scanning
         uses: github/codeql-action/upload-sarif@v3
         with:
-          sarif_file: snyk.sarif
+          sarif_file: ${{ matrix.module.module }}.sarif
+          category: ${{ matrix.module.module }}

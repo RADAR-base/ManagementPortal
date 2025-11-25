@@ -16,9 +16,12 @@ data class ManagementPortalProperties @ConstructorBinding constructor(
     val siteSettings: SiteSettings,
 ) {
     data class IdentityServer @ConstructorBinding constructor(
+        val internal: Boolean = true,
         val serverUrl: String,
         val serverAdminUrl: String,
         val adminEmail: String,
+        val userActivationFlowType: String = "verification",
+        val userActivationMethod: String = "code",
     )
 
     data class AuthServer @ConstructorBinding constructor(

@@ -3,18 +3,12 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 import { map } from 'rxjs/operators';
-import { SessionService } from '../session/session.service';
 
 @Injectable({ providedIn: 'root' })
 export class AuthServerProvider {
-    logoutUrl;
-
     constructor(
         private http: HttpClient,
-        private sessionService: SessionService
-    ) {
-        sessionService.logoutUrl$.subscribe((url) => (this.logoutUrl = url));
-    }
+    ) { }
 
     login(accessToken: string): Observable<any> {
         const authHeaders = new HttpHeaders().append(
@@ -31,7 +25,7 @@ export class AuthServerProvider {
     logout() {
         return this.http
             .post('api/logout', { observe: 'body' })
-            .pipe(map(() => {}));
+            .pipe(map(() => { }));
     }
 }
 
