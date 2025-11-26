@@ -315,23 +315,22 @@ users to the portal is as follows:
 
 ```mermaid
 sequenceDiagram
-    participant kratosUi as Kratos self-service node
+    participant selfEnrolUi as Self-enrolment UI (Hydra/Kratos)
     actor user as User
     actor researcher as Admin
     participant managementPortal as ManagementPortal
     participant kratos as Kratos
 
-
     #== User Registration ==
     user -->> researcher: Request account (email required)
     researcher -->> managementPortal: Create user
     managementPortal -->> kratos: Create kratos identity
-    kratos -->> user: Send password reset email
-    user -->> kratosUi: Reset password
-    kratosUi -->> kratos: 
-    user -->> kratosUi: Activate 2-FA
-    kratosUi -->> kratos: 
-    user -->> managementPortal: Login (2-FA required)
+    kratos -->> user: Send activation / recovery email
+    user -->> selfEnrolUi: Set password
+    selfEnrolUi -->> kratos: Update identity
+    user -->> selfEnrolUi: Configure 2-FA
+    selfEnrolUi -->> kratos: Update identity
+    user -->> managementPortal: Login (2-FA enforced via Hydra)
 ```
 
 ### UI Customization
@@ -422,9 +421,6 @@ To optimize the ManagementPortal application for production, run:
 
     ./gradlew -Pprod clean bootWar
 
-### Hosting in production
-
-The latest Meta-QR code implementation requires REST resources on `api/meta-token/*` should definitely be rate-limited by upstream servers.
 
 ### Hosting in production
 
