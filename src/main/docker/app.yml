@@ -4,17 +4,25 @@ services:
     ## MP
 
     managementportal-app:
-        image: managementportal
-#        image: radarbase/management-portal
+        image: ghcr.io/radar-base/managementportal/management-portal:dev
         environment:
             - SPRING_PROFILES_ACTIVE=prod,api-docs
             - SPRING_DATASOURCE_URL=jdbc:postgresql://managementportal-postgresql:5432/managementportal
             - SPRING_DATASOURCE_USERNAME=radarbase
             - SPRING_DATASOURCE_PASSWORD=radarbase
-            - SPRING_LIQUIBASE_CONTEXTS=dev #includes testing_data, remove for production builds
+            - MANAGEMENTPORTAL_COMMON_ADMINPASSWORD=admin
             - MANAGEMENTPORTAL_FRONTEND_CLIENT_SECRET=secret
-            - MANAGEMENTPORTAL_IDENTITYSERVER_SERVERURL=http://kratos
+            - MANAGEMENTPORTAL_IDENTITYSERVER_INTERNAL=false # IF using external identity like ORY Kratos
+            - MANAGEMENTPORTAL_IDENTITYSERVER_ADMINEMAIL=admin-email-here@radar-base.net
+            - MANAGEMENTPORTAL_IDENTITYSERVER_SERVERURL=http://kratos:4433
+            - MANAGEMENTPORTAL_IDENTITYSERVER_LOGINURL=http://localhost:3000
+            - MANAGEMENTPORTAL_IDENTITYSERVER_SERVERADMINURL=http://kratos:4434
+            - MANAGEMENTPORTAL_AUTHSERVER_INTERNAL=false # IF using external auth server like ORY Hydra
+            - MANAGEMENTPORTAL_AUTHSERVER_SERVERURL=http://hydra:4444
+            - MANAGEMENTPORTAL_AUTHSERVER_LOGINURL=http://localhost:4444
+            - MANAGEMENTPORTAL_AUTHSERVER_SERVERADMINURL=http://hydra:4445
             - MANAGEMENTPORTAL_OAUTH_CLIENTS_FILE=/mp-includes/config/oauth_client_details.csv
+            - MANAGEMENTPORTAL_CATALOGUESERVER_SERVERURL=http://catalogue-server:8080
             - JHIPSTER_SLEEP=10 # gives time for the database to boot before the application
             - JAVA_OPTS=-Xmx512m  # maximum heap size for the JVM running ManagementPortal, increase this as necessary
         ports:
@@ -22,88 +30,17 @@ services:
         networks:
             - all-net
             - mp-net
+            - default
         volumes:
             - ./etc:/mp-includes
 
 
     managementportal-postgresql:
         extends:
-            file: postgresql.yml
+            file: postgres.yml
             service: managementportal-postgresql
         networks:
             - mp-net
-
-    ## ORY
-
-    # Kratos
-    kratos-selfservice-ui-node:
-        image:
-            oryd/kratos-selfservice-ui-node
-        environment:
-            - LOG_LEAK_SENSITIVE_VALUES=true
-            - KRATOS_PUBLIC_URL=http://kratos:4433
-            - KRATOS_ADMIN_URL=http://kratos:4434
-            - SECURITY_MODE=standalone
-            - KRATOS_BROWSER_URL=http://127.0.0.1:4433
-            - COOKIE_SECRET=unsafe_cookie_secret
-            - CSRF_COOKIE_NAME=radar
-            - CSRF_COOKIE_SECRET=unsafe_csrf_cookie_secret
-        ports:
-            - "3000:3000"
-        networks:
-            - all-net
-        volumes:
-            - /tmp/ui-node/logs:/root/.npm/_logs
-
-    kratos:
-      depends_on:
-        - kratos-migrate
-      image: oryd/kratos:v1.0.0
-      ports:
-        - "4433:4433" # public
-        - "4434:4434" # admin, should be closed in production
-      restart: unless-stopped
-      environment:
-        - DSN=postgres://kratos:secret@postgresd-kratos/kratos?sslmode=disable&max_conns=20&max_idle_conns=4
-      command: serve -c /etc/config/kratos/kratos.yml --dev --watch-courier
-      volumes:
-        - type: bind
-          source: ./etc/config/kratos
-          target: /etc/config/kratos
-      networks:
-        - all-net
-        - kratos-net
-
-    kratos-migrate:
-        image:
-            oryd/kratos:v1.0.0
-        environment:
-            - DSN=postgres://kratos:secret@postgresd-kratos/kratos?sslmode=disable&max_conns=20&max_idle_conns=4
-        volumes:
-            - type: bind
-              source: ./etc/config/kratos
-              target: /etc/config/kratos
-        command: -c /etc/config/kratos/kratos.yml migrate sql -e --yes
-        restart: on-failure
-        networks:
-            - kratos-net
-
-    postgresd-kratos:
-        image: postgres:11.8
-        environment:
-            - POSTGRES_USER=kratos
-            - POSTGRES_PASSWORD=secret
-            - POSTGRES_DB=kratos
-        networks:
-            - kratos-net
-
-    mailslurper:
-        image: oryd/mailslurper:latest-smtps
-        ports:
-            - "4436:4436"
-            - "4437:4437"
-        networks:
-            - kratos-net
 
 networks:
     all-net:

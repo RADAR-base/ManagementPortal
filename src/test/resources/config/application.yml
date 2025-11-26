@@ -121,7 +121,7 @@ managementportal:
         enablePublicKeyVerifiers: false
     catalogueServer:
         enableAutoImport: false
-        serverUrl:
+        serverUrl: http://cataologue-server:8080
     common:
         baseUrl: http://localhost:8080
         managementPortalBaseUrl: http://localhost:8080/managementportal
