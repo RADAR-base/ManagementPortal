@@ -161,7 +161,7 @@ managementportal:
         persistentMetaTokenTimeout: P31D #timeout should be specified as the ISO-8601 duration format {@code PnDTnHnMn.nS}.
     catalogueServer:
         enableAutoImport: false
-        serverUrl:
+        serverUrl: http://cataologue-server:8080
     siteSettings:
         # The line below can be uncommented to add some hidden fields for UI testing
         #hiddenSubjectFields: [person_name, date_of_birth, group]

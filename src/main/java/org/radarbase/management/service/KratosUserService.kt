@@ -49,6 +49,7 @@ import java.time.ZonedDateTime
 import java.util.*
 import java.util.function.Function
 import org.radarbase.management.service.dto.MinimalSourceDetailsDTO
+import io.ktor.http.HttpStatusCode
 
 /**
  * Service class for managing users with Kratos identity provider integration.
@@ -303,8 +304,24 @@ class KratosUserService @Autowired constructor(
         user.email = email
         log.debug("Set admin email to: {}", email)
 
-        // Create identity in Kratos if not exists
-        user.identity = user.identity ?: saveAsIdentity(user).id
+        // Ensure the Kratos identity exists (creates it if missing)
+        try {
+            val response = httpClient.get {
+                url("$adminUrl/admin/identities/${user.identity}")
+                accept(ContentType.Application.Json)
+            }
+
+            if (response.status == HttpStatusCode.NotFound) {
+                user.identity = saveAsIdentity(user).id
+            }
+        } catch (e: ResponseException) {
+            when (e.response.status) {
+                HttpStatusCode.NotFound -> {
+                    user.identity = saveAsIdentity(user).id
+                }
+                else -> throw e
+            }
+        }
 
         return userMapper.userToUserDTO(user)
             ?: throw Exception("Admin user could not be converted to DTO")

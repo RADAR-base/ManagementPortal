@@ -57,13 +57,22 @@ docker-compose files.
    ```shell
    keytool -genkeypair -alias radarbase-managementportal-ec -keyalg EC -validity 3650 -keysize 256 -sigalg SHA256withECDSA -storetype PKCS12 -keystore src/main/docker/etc/config/keystore.p12 -storepass radarbase -keypass radarbase
    ```
-3. Now, we can start the stack with `docker-compose -f src/main/docker/management-portal.yml up -d`.
+3. Now, we can start ManagementPortal and its database with `docker-compose -f src/main/docker/managementportal.yml up -d`.
 
-This will start a Postgres database, ManagementPortal and
-the [kratos identity provider stack](https://www.ory.sh/docs/kratos/ory-kratos-intro). The default password for the
-`admin`
-account is `admin`. An angular live development server to access the managementportal can be started using the
+This will start a Postgres database and ManagementPortal. The default password for the `admin`
+account is `admin`. An Angular live development server to access the managementportal can be started using the
 `yarn start` command (see [Development](#development)).
+4. (Optional, recommended) Start the external identity and authentication stack based on
+   [Ory Kratos](https://www.ory.sh/docs/kratos/ory-kratos-intro) and
+   [Ory Hydra](https://www.ory.sh/docs/hydra/):
+
+   ```bash
+   docker-compose -f src/main/docker/ory_stack.yml up -d
+   ```
+
+   This will start Kratos, Hydra and the `radar-self-enrolment-ui` service that provides the login/registration pages.
+   **Ensure that `radar-self-enrolment-ui` is running**: ManagementPortal’s login flow redirects the browser to this UI
+   (via Hydra), so if it is not available the login page will not work.
 
 ### Build from source
 
@@ -90,8 +99,15 @@ You must install and configure the following dependencies on your machine to run
    started using the `yarn start` command (see [Development](#development)).
 6. You can log in to the application using `admin:admin`. Please don't forgot to change the password of `admin`, if you
    are using the application on production environment.
-7. The identity server stack can be started in docker by using the docker compose command
-   `docker-compose -f .\src\main\docker\app.yml up -d kratos kratos-selfservice-ui-node kratos-migrate postgresd-kratos mailslurper`
+7. The identity and authentication server stack (Kratos, Hydra and self-enrolment UI) can be started in Docker by using
+   the docker compose command:
+
+   ```bash
+   docker-compose -f src/main/docker/ory_stack.yml up -d
+   ```
+
+   Make sure that the `radar-self-enrolment-ui` service from this stack is running for the login and self-service pages
+   to be available.
 
 |                  | Development | Production |
 |------------------|-------------|------------|
@@ -133,11 +149,16 @@ for other options on overriding the default configuration.
 | `MANAGEMENTPORTAL_OAUTH_ENABLE_PUBLIC_KEY_VERIFIERS`        | `false`                                             | Whether to use additional verifiers using public-keys and deprecated verifier implementation. If you set this to `true`, also set `RADAR_IS_CONFIG_LOCATION` and provide yaml file with public keys. Read more at radar-auth documentation. |
 | `MANAGEMENTPORTAL_CATALOGUE_SERVER_ENABLE_AUTO_IMPORT`      | `false`                                             | Whether to enable or disable auto import of sources from the catalogue server                                                                                                                                                               |
 | `MANAGEMENTPORTAL_CATALOGUE_SERVER_SERVER_URL`              | None                                                | URL to the catalogue server                                                                                                                                                                                                                 |
-| `MANAGEMENTPORTAL_IDENTITYSERVER_SERVERURL`                 | None                                                | URL to the identity server.                                                                                                                                                                                                                 |
-| `MANAGEMENTPORTAL_IDENTITYSERVER_SERVERADMINURL`            | None                                                | Admin URL to the identity server.                                                                                                                                                                                                           |
+| `MANAGEMENTPORTAL_IDENTITYSERVER_INTERNAL`                  | `true`                                              | Whether to use ManagementPortal’s internal identity management (`true`) or an external identity server such as Ory Kratos (`false`).                                                                                                       |
+| `MANAGEMENTPORTAL_IDENTITYSERVER_SERVERURL`                 | None                                                | URL to the identity server. When using Ory Kratos externally, set this to the Kratos public URL as seen from ManagementPortal (for example `http://kratos:4433` when using Docker).                                                        |
+| `MANAGEMENTPORTAL_IDENTITYSERVER_SERVERADMINURL`            | None                                                | Admin URL to the identity server. When using Ory Kratos externally, set this to the Kratos admin URL as seen from ManagementPortal (for example `http://kratos:4434`).                                                                     |
 | `MANAGEMENTPORTAL_IDENTITYSERVER_ADMINEMAIL`                | None                                                | Email-address to be linked to the admin account.                                                                                                                                                                                            |
-| `MANAGEMENTPORTAL_IDENTITYSERVER_USER_ACTIVATION_FLOW_TYPE` | `verification`                                      | Kratos self-service flow used to send activation emails. Allowed: `verification` or `recovery`.                                                                                                                                             |
-| `MANAGEMENTPORTAL_IDENTITYSERVER_USER_ACTIVATION_METHOD`    | `code`                                              | Kratos method used in the activation flow request payload. Allowed: `code` or `link` (depending on flow and Kratos configuration).                                                                                                          |
+| `MANAGEMENTPORTAL_IDENTITYSERVER_USER_ACTIVATION_FLOW_TYPE` | `verification`                                      | Kratos self-service flow used to send activation emails. Allowed: `verification` or `recovery`.                                                                                                                                            |
+| `MANAGEMENTPORTAL_IDENTITYSERVER_USER_ACTIVATION_METHOD`    | `code`                                              | Kratos method used in the activation flow request payload. Allowed: `code` or `link` (depending on flow and Kratos configuration).                                                                                                         |
+| `MANAGEMENTPORTAL_AUTHSERVER_INTERNAL`                      | `true`                                              | Whether to use ManagementPortal’s internal OAuth2 authorization server (`true`) or an external server such as Ory Hydra (`false`).                                                                                                         |
+| `MANAGEMENTPORTAL_AUTHSERVER_SERVERURL`                     | None                                                | Base URL of the external auth server’s public endpoints, used for the token endpoint. When using Ory Hydra in Docker, this is typically `http://hydra:4444`.                                                                               |
+| `MANAGEMENTPORTAL_AUTHSERVER_LOGINURL`                      | None                                                | Base URL of the external auth server as seen from the browser, used to construct the `/oauth2/auth` redirect URL (for example `http://localhost:4444` for Hydra’s public endpoint).                                                        |
+| `MANAGEMENTPORTAL_AUTHSERVER_SERVERADMINURL`                | None                                                | Admin URL of the external auth server (for example `http://hydra:4445` for the Hydra admin API), used for managing OAuth clients.                                                                                                          |
 | `MANAGEMENTPORTAL_COMMON_BASE_URL`                          | None                                                | Resolvable baseUrl of the hosted platform                                                                                                                                                                                                   |
 | `MANAGEMENTPORTAL_COMMON_MANAGEMENT_PORTAL_BASE_URL`        | None                                                | Resolvable baseUrl of this managementportal  instance                                                                                                                                                                                       |
 | `MANAGEMENTPORTAL_COMMON_PRIVACY_POLICY_URL`                | None                                                | Resolvable URL to the common privacy policy url                                                                                                                                                                                             |
@@ -258,10 +279,33 @@ The code grant flow for OAuth2 clients can also be the following:
     ```
    Now the app can use the access token flow.
 
+### Identity and authentication configuration
+
+ManagementPortal can be run either with its **internal identity and auth server** or with **external Ory services**:
+
+- **Internal identity and auth server (legacy mode)**:
+  - Enabled by default when `MANAGEMENTPORTAL_IDENTITYSERVER_INTERNAL=true` and `MANAGEMENTPORTAL_AUTHSERVER_INTERNAL=true`
+    (or when these variables are not set).
+  - ManagementPortal handles user accounts and OAuth2 tokens itself; no external Kratos or Hydra stack is required.
+- **External Ory identity and auth (Kratos + Hydra)**:
+  - Set `MANAGEMENTPORTAL_IDENTITYSERVER_INTERNAL=false` and `MANAGEMENTPORTAL_AUTHSERVER_INTERNAL=false`.
+  - Configure the external identity server (typically Ory Kratos):
+    - `MANAGEMENTPORTAL_IDENTITYSERVER_SERVERURL` (e.g. `http://kratos:4433`)
+    - `MANAGEMENTPORTAL_IDENTITYSERVER_SERVERADMINURL` (e.g. `http://kratos:4434`)
+    - `MANAGEMENTPORTAL_IDENTITYSERVER_ADMINEMAIL`
+  - Configure the external auth server (typically Ory Hydra):
+    - `MANAGEMENTPORTAL_AUTHSERVER_SERVERURL` (e.g. `http://hydra:4444`, reachable from ManagementPortal)
+    - `MANAGEMENTPORTAL_AUTHSERVER_LOGINURL` (e.g. `http://localhost:4444`, reachable from the browser)
+    - `MANAGEMENTPORTAL_AUTHSERVER_SERVERADMINURL` (e.g. `http://hydra:4445`)
+  - Start the Ory stack using `docker-compose -f src/main/docker/ory_stack.yml up -d` and ensure the
+    `radar-self-enrolment-ui` service is running. The ManagementPortal login flow redirects the user to Hydra, which in
+    turn uses the self-enrolment UI for login and consent screens.
+
 ### User management
 
-Organizational user management and authorization for the managementportal is performed
-by [Ory Kratos](https://www.ory.sh/docs/kratos/ory-kratos-intro). The flow for adding users to the portal is as follows:
+When `MANAGEMENTPORTAL_IDENTITYSERVER_INTERNAL=false`, organizational user management and authentication for the
+managementportal is performed by [Ory Kratos](https://www.ory.sh/docs/kratos/ory-kratos-intro). The flow for adding
+users to the portal is as follows:
 
 1. Navigate to the [User management view](http://127.0.0.1:8081/#/user-management) and create a user.
 2. The new user then [resets their password](http://127.0.0.1:3000/recovery) at the kratos self-service node using the
@@ -271,23 +315,22 @@ by [Ory Kratos](https://www.ory.sh/docs/kratos/ory-kratos-intro). The flow for a
 
 ```mermaid
 sequenceDiagram
-    participant kratosUi as Kratos self-service node
+    participant selfEnrolUi as Self-enrolment UI (Hydra/Kratos)
     actor user as User
     actor researcher as Admin
     participant managementPortal as ManagementPortal
     participant kratos as Kratos
 
-
     #== User Registration ==
     user -->> researcher: Request account (email required)
     researcher -->> managementPortal: Create user
     managementPortal -->> kratos: Create kratos identity
-    kratos -->> user: Send password reset email
-    user -->> kratosUi: Reset password
-    kratosUi -->> kratos: 
-    user -->> kratosUi: Activate 2-FA
-    kratosUi -->> kratos: 
-    user -->> managementPortal: Login (2-FA required)
+    kratos -->> user: Send activation / recovery email
+    user -->> selfEnrolUi: Set password
+    selfEnrolUi -->> kratos: Update identity
+    user -->> selfEnrolUi: Configure 2-FA
+    selfEnrolUi -->> kratos: Update identity
+    user -->> managementPortal: Login (2-FA enforced via Hydra)
 ```
 
 ### UI Customization
@@ -378,9 +421,6 @@ To optimize the ManagementPortal application for production, run:
 
     ./gradlew -Pprod clean bootWar
 
-### Hosting in production
-
-The latest Meta-QR code implementation requires REST resources on `api/meta-token/*` should definitely be rate-limited by upstream servers.
 
 ### Hosting in production
 
