@@ -22,11 +22,10 @@ export class ErrorHandlerInterceptor implements HttpInterceptor {
           tap(
             () => {},
             (err: HttpErrorResponse) => {
-              if (err.status === 401) {
-                  this.injector.get(AuthService).resetAuthentication(
-                    // no redirect needed when just checking whether authentication is present.
-                    request.url !== 'api/account'
-                  );
+              if (err.status === 401 && request.url === 'api/account') {
+                  // If the account endpoint says 401, the user is no longer authenticated:
+                  // clear authentication and redirect to login/access denied.
+                  this.injector.get(AuthService).resetAuthentication(true);
                   return;
               }
               if (err.status === 409 && request.method === 'DELETE') {
