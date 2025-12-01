@@ -16,7 +16,7 @@ import {
 import { EventManager } from '../../shared/util/event-manager.service';
 
 import { ProfileService } from '../profiles/profile.service';
-import {environment} from "../../../environments/environment";
+import { environment } from "../../../environments/environment";
 
 @Component({
     selector: 'jhi-navbar',
@@ -34,7 +34,6 @@ export class NavbarComponent {
     organizations: Organization[];
 
     private loginUrl = 'api/redirect/login';
-    private settingsUrl = 'api/redirect/account';
 
     constructor(
         private loginService: LoginService,
@@ -68,7 +67,7 @@ export class NavbarComponent {
     }
 
     login() {
-        window.location.href =  this.loginUrl;
+        window.location.href = this.loginUrl;
     }
 
     logout() {
@@ -82,6 +81,6 @@ export class NavbarComponent {
     }
 
     redirectToProfile() {
-        window.location.href =  this.settingsUrl;
+        this.router.navigate(['settings']);
     }
 }

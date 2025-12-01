@@ -1,11 +1,17 @@
 import { login } from '../util/login';
 
 describe('Group e2e test', () => {
-    beforeEach(() => {
+    before(() => {
         login();
-        cy.contains('jhi-home .card-title', 'main').click();
-        cy.contains('jhi-projects table tbody td a', 'radar').click();
-        cy.contains('jhi-project-detail ul.nav-tabs .nav-item', 'Groups').click();
+        cy.wait(2000);
+    });
+
+    beforeEach(() => {
+        cy.visit('/');
+        cy.wait(1000);
+        cy.contains('jhi-home .card-title', 'main', { timeout: 10000 }).click();
+        cy.contains('jhi-projects table tbody td a', 'radar', { timeout: 10000 }).click();
+        cy.contains('jhi-project-detail ul.nav-tabs .nav-item', 'Groups', { timeout: 10000 }).click();
     });
 
     it('should load Groups', () => {
