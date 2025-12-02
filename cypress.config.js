@@ -12,7 +12,7 @@ module.exports = defineConfig({
   viewportWidth: 1920,
   viewportHeight: 1080,
   e2e: {
-    baseUrl: 'http://localhost:8081',
+    baseUrl: 'http://localhost:8080/managementportal',
     specPattern: 'src/test/javascript/e2e/cypress/integration/**/*.ts',
     screenshotsFolder: 'src/test/javascript/e2e/cypress/screenshots',
     supportFile: '',

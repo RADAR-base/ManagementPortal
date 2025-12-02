@@ -34,6 +34,7 @@ export class NavbarComponent {
     organizations: Organization[];
 
     private loginUrl = 'api/redirect/login';
+    private settingsUrl = 'api/redirect/account'
 
     constructor(
         private loginService: LoginService,
@@ -81,6 +82,6 @@ export class NavbarComponent {
     }
 
     redirectToProfile() {
-        this.router.navigate(['settings']);
+        window.location.href = this.settingsUrl;
     }
 }

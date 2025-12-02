@@ -38,7 +38,7 @@ class LoginEndpoint @Autowired constructor(
     fun settingsRedirect(): RedirectView {
         val redirectView = RedirectView()
         val baseUrl = managementPortalProperties.common.managementPortalBaseUrl
-        redirectView.url = "$baseUrl/settings"
+        redirectView.url = "$baseUrl/#/settings"
         return redirectView
     }
 }

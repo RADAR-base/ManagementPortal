@@ -3,12 +3,12 @@ import * as navBarPage from '../util/nav-bar';
 
 describe('SourceData e2e test', () => {
     before(() => {
-        login();
-        cy.wait(2000);
+        cy.wait(1000);
     });
 
     beforeEach(() => {
         cy.visit('/');
+        login();
         cy.wait(1000);
         navBarPage.clickOnEntityMenu();
         navBarPage.clickOnEntity('source-data');

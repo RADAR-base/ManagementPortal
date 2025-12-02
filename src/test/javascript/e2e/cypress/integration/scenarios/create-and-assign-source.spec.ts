@@ -5,12 +5,12 @@ describe('Project View: Create, assign, unassign and delete source', () => {
     const sourceName = 'test-source-1';
 
     before(() => {
-        login();
-        cy.wait(2000);
+        cy.wait(1000);
     });
 
     beforeEach(() => {
         cy.visit('/');
+        login();
         cy.wait(1000);
         navBarPage.loadProjectView();
     });

@@ -3,12 +3,12 @@ import { clickOnAdminMenu, clickOnEntity } from "../util/nav-bar";
 
 describe('Create, edit, and delete user', () => {
     before(() => {
-        login();
-        cy.wait(2000);
+        cy.wait(1000);
     });
 
     beforeEach(() => {
         cy.visit('/');
+        login();
         cy.wait(1000);
         clickOnAdminMenu();
         clickOnEntity('user-management');

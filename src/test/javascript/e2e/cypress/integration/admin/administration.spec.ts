@@ -3,12 +3,11 @@ import * as navBarPage from '../util/nav-bar';
 
 describe('administration', () => {
     before(() => {
-        // Login once before all tests
-        login();
-        cy.wait(2000);
+        cy.wait(1000);
     });
 
     beforeEach(() => {
+        login();
         // Just navigate to home and click admin menu before each test
         navBarPage.clickOnAdminMenu();
     });
@@ -19,7 +18,6 @@ describe('administration', () => {
     });
 
     it('should load metrics', () => {
-        cy.visit('/');
         navBarPage.clickOnEntity('jhi-metrics');
         cy.get('h2 span', { timeout: 10000 }).first().should('have.text', 'Application Metrics');
     });

@@ -2,12 +2,12 @@ import { login } from '../util/login';
 
 describe('Group e2e test', () => {
     before(() => {
-        login();
-        cy.wait(2000);
+        cy.wait(1000);
     });
 
     beforeEach(() => {
         cy.visit('/');
+        login();
         cy.wait(1000);
         cy.contains('jhi-home .card-title', 'main', { timeout: 10000 }).click();
         cy.contains('jhi-projects table tbody td a', 'radar', { timeout: 10000 }).click();
