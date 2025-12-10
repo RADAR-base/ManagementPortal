@@ -4,9 +4,15 @@ import * as navBarPage from '../util/nav-bar';
 describe('Project View: Create, assign, unassign and delete source', () => {
     const sourceName = 'test-source-1';
 
+    before(() => {
+        cy.wait(1000);
+    });
+
     beforeEach(() => {
+        cy.visit('/');
         login();
-        navBarPage.loadProjectView()
+        cy.wait(1000);
+        navBarPage.loadProjectView();
     });
 
     // TODO:

@@ -2,8 +2,13 @@ import { login } from '../util/login';
 import * as navBarPage from '../util/nav-bar';
 
 describe('SourceType e2e test', () => {
+    before(() => {
+    });
+
     beforeEach(() => {
+        cy.visit('/');
         login();
+        cy.wait(1000);
         navBarPage.clickOnEntityMenu();
         navBarPage.clickOnEntity('source-type');
     });

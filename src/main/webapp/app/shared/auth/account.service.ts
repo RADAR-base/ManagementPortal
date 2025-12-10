@@ -9,7 +9,7 @@ export class AccountService {
     }
 
     get(): Observable<Account> {
-        return this.http.get<Account>('api/account');
+        return this.http.get<Account>('api/account', { withCredentials: true });
     }
 
     save(account?: Account): Observable<Account> {

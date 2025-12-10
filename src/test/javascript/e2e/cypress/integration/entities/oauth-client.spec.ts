@@ -2,8 +2,14 @@ import { login } from '../util/login';
 import { clickOnAdminMenu, clickOnEntity } from "../util/nav-bar";
 
 describe('OAuth Clients e2e test', () => {
+    before(() => {
+        cy.wait(1000);
+    });
+
     beforeEach(() => {
+        cy.visit('/');
         login();
+        cy.wait(1000);
         clickOnAdminMenu();
         clickOnEntity('oauth-client');
     });

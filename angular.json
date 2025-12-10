@@ -88,7 +88,9 @@
           "defaultConfiguration": "development",
           "options": {
             "proxyConfig": "proxy.conf.json",
-            "port": 8081
+            "port": 8081,
+            "host": "0.0.0.0",
+            "disableHostCheck": true
           }
         },
         "test": {

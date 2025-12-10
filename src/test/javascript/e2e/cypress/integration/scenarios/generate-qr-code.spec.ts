@@ -1,10 +1,16 @@
 import { login } from '../util/login';
 
 describe('Project view: Generate QR code', () => {
+    before(() => {
+        cy.wait(1000);
+    });
+
     beforeEach(() => {
+        cy.visit('/');
         login();
-        cy.contains('jhi-home .card-title', 'main').click();
-        cy.contains('jhi-projects table tbody td a', 'radar').click();
+        cy.wait(1000);
+        cy.contains('jhi-home .card-title', 'main', { timeout: 10000 }).click();
+        cy.contains('jhi-projects table tbody td a', 'radar', { timeout: 10000 }).click();
     });
 
     it('should open pair app dialog', () => {

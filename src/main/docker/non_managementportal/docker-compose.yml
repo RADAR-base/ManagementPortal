@@ -19,7 +19,7 @@ volumes:
 services:
   managementportal-postgresql:
     extends:
-      file: ../postgres.yml
+      file: ../postgresql.yml
       service: managementportal-postgresql
     networks:
       - db

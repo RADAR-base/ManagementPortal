@@ -1,9 +1,15 @@
 import { login } from '../util/login';
 
 describe('Project e2e test', () => {
+    before(() => {
+        cy.wait(1000);
+    });
+
     beforeEach(() => {
+        cy.visit('/');
         login();
-        cy.contains('jhi-home .card-title', 'main').click();
+        cy.wait(1000);
+        cy.contains('jhi-home .card-title', 'main', { timeout: 10000 }).click();
     });
 
     it('should load Projects', () => {
