@@ -35,26 +35,19 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
-        // Check for access_token in query params (for new logins)
         this.subscriptions.add(this.route.queryParams.subscribe((params) => {
-            const token = params['access_token'];
-            if (token) {
-                this.loginService.login(token).pipe(first()).toPromise();
-            } else {
-                // No access token, try to restore session from backend
-                // This will check if there's a valid session cookie
-                this.subscriptions.add(
-                    this.principal.identity().pipe(first()).subscribe(
-                        (account) => {
-                            // Session restored successfully or no session exists
-                            // The template will react to the account$ observable
-                        },
-                        (error) => {
-                            // Error restoring session, but don't redirect (handled by interceptor)
-                        }
-                    )
-                );
-            }
+            // This will check if there's a valid session cookie
+            this.subscriptions.add(
+                this.principal.identity().pipe(first()).subscribe(
+                    (account) => {
+                        // Session restored successfully or no session exists
+                        // The template will react to the account$ observable
+                    },
+                    (error) => {
+                        // Error restoring session, but don't redirect (handled by interceptor)
+                    }
+                )
+            );
         }));
     }
 

@@ -26,13 +26,6 @@ export function login(username = "admin", password = "admin") {
         }
     });
 
-    // Wait for redirect back to the app with access_token
-    cy.url({ timeout: 20000 }).should('include', 'access_token');
-
-    // Wait for the app to process the token and fully load
-    cy.wait(100);
-    cy.get('body', { timeout: 10000 }).should('be.visible');
-
     // Verify session is established
     cy.getCookie('SESSION').should('exist');
 }
