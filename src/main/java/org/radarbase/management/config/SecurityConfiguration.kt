@@ -89,6 +89,9 @@ class SecurityConfiguration
         fun http401UnauthorizedEntryPoint(): Http401UnauthorizedEntryPoint = Http401UnauthorizedEntryPoint()
 
         @Bean
+        fun tokenValidatorBean(): TokenValidator = tokenValidator
+
+        @Bean
         fun jwtAuthenticationFilter(): JwtAuthenticationFilter {
             val useInternalAuth = managementPortalProperties.authServer.internal
 
