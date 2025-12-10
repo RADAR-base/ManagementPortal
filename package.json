@@ -18,7 +18,7 @@
     "@ng-bootstrap/ng-bootstrap": "^10.0.0",
     "@ngx-translate/core": "13.0.0",
     "@ngx-translate/http-loader": "6.0.0",
-    "bootstrap": "^4.6.1",
+    "bootstrap": "^5.0.0",
     "font-awesome": "4.7.0",
     "jquery": "3.5.0",
     "material-design-icons": "^3.0.1",
