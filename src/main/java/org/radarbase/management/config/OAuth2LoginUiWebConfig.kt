@@ -51,22 +51,6 @@ class OAuth2LoginUiWebConfig(
     @Autowired
     private val clientDetailsService: ClientDetailsService? = null
 
-    @RequestMapping("/oauth2/authorize")
-    fun redirect_authorize(request: HttpServletRequest): String {
-        val returnString = URLEncoder.encode(request.requestURL.toString().replace("oauth2", "oauth") + "?" + request.parameterMap.map{ param -> param.key + "=" + param.value.first()}.joinToString("&"), "UTF-8")
-        val mpUrl = managementPortalProperties.common.baseUrl
-        return "redirect:$mpUrl/kratos-ui/login?return_to=$returnString"
-    }
-
-    @PostMapping(
-        "/oauth2/token",
-        consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE],
-        produces = [MediaType.APPLICATION_FORM_URLENCODED_VALUE]
-    )
-    fun redirect_token(@RequestParam parameters: Map<String, String>, request: HttpServletRequest, response: HttpServletResponse) {
-        var dispatcher: RequestDispatcher =  request.servletContext.getRequestDispatcher("/oauth/token/")
-        dispatcher.forward(request, response)
-    }
 
     @PostMapping(value = ["/oauth/token"],
         consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE]

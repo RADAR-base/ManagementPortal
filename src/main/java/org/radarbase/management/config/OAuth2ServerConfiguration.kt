@@ -152,7 +152,6 @@ class OAuth2ServerConfiguration(
                 .antMatchers("/api/profile-info").permitAll()
                 .antMatchers("/api/sitesettings").permitAll()
                 .antMatchers("/api/public/projects").permitAll()
-                .antMatchers("/api/logout-url").permitAll()
                 .antMatchers("/api/**").authenticated()
                 .antMatchers("/management/health").permitAll()
                 .antMatchers("/management/**").hasAuthority(RoleAuthority.SYS_ADMIN_AUTHORITY)
