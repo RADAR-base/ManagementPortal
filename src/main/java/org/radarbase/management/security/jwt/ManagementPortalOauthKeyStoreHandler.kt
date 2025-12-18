@@ -7,7 +7,7 @@ import org.radarbase.auth.authentication.TokenValidator
 import org.radarbase.auth.jwks.JsonWebKeySet
 import org.radarbase.auth.jwks.JwkAlgorithmParser
 import org.radarbase.auth.jwks.JwksTokenVerifierLoader
-import org.radarbase.management.config.AuthServerEnabled
+import org.radarbase.management.config.annotations.AuthServerEnabled
 import org.radarbase.management.config.ManagementPortalProperties
 import org.radarbase.management.config.ManagementPortalProperties.Oauth
 import org.radarbase.management.security.jwt.algorithm.EcdsaJwtAlgorithm

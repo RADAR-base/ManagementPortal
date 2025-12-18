@@ -2,6 +2,7 @@ package org.radarbase.management.config
 
 import javax.sql.DataSource
 import org.radarbase.auth.authorization.RoleAuthority
+import org.radarbase.management.config.annotations.AuthServerEnabled
 import org.radarbase.management.repository.UserRepository
 import org.radarbase.management.security.*
 import org.radarbase.management.security.jwt.*

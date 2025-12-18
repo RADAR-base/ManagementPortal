@@ -1,6 +1,6 @@
 package org.radarbase.management.service
 
-import org.radarbase.management.config.AuthServerEnabled
+import org.radarbase.management.config.annotations.AuthServerEnabled
 import org.radarbase.management.domain.User
 import org.radarbase.management.service.dto.ClientDetailsDTO
 import org.radarbase.management.service.mapper.ClientDetailsMapper

@@ -3,7 +3,7 @@ package org.radarbase.management.web.rest
 import io.micrometer.core.annotation.Timed
 import org.radarbase.auth.authorization.EntityDetails
 import org.radarbase.auth.authorization.Permission
-import org.radarbase.management.config.AuthServerEnabled
+import org.radarbase.management.config.annotations.AuthServerEnabled
 import org.radarbase.management.security.Constants
 import org.radarbase.management.security.NotAuthorizedException
 import org.radarbase.management.service.*

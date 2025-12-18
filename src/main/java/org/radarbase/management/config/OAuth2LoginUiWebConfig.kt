@@ -1,5 +1,6 @@
 package org.radarbase.management.config
 
+import org.radarbase.management.config.annotations.AuthServerEnabled
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpHeaders
