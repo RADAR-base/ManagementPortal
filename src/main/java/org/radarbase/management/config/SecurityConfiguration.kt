@@ -49,7 +49,7 @@ class SecurityConfiguration
                 val loaderList = mutableListOf(
                     JwksTokenVerifierLoader(
                         managementPortalProperties.authServer.serverAdminUrl +
-                            "/admin/keys/hydra.jwt.access-token",
+                            managementPortalProperties.authServer.keysPath,
                         RES_MANAGEMENT_PORTAL,
                         JwkAlgorithmParser(),
                     )

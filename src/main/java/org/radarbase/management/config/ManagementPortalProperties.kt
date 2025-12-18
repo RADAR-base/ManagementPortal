@@ -29,6 +29,7 @@ data class ManagementPortalProperties @ConstructorBinding constructor(
         val serverUrl: String,
         val serverAdminUrl: String,
         val loginUrl: String,
+        val keysPath: String = "/admin/keys/hydra.jwt.access-token",
     )
 
     data class Mail @ConstructorBinding constructor(

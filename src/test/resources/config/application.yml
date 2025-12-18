@@ -140,5 +140,6 @@ managementportal:
       serverUrl: http://hydra:4444
       serverAdminUrl: http://hydra:4445
       loginUrl:  http://localhost:4444
+      keysPath: /admin/keys/hydra.jwt.access-token
     siteSettings:
       hiddenSubjectFields: []
