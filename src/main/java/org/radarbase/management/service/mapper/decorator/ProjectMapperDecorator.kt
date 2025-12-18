@@ -26,16 +26,14 @@ abstract class ProjectMapperDecorator : ProjectMapper {
     @Autowired(required = false) lateinit var metaTokenService: MetaTokenService
 
     override fun projectToProjectDTO(project: Project?): ProjectDTO? {
-        val dto = delegate.projectToProjectDTO(project)
-        dto?.humanReadableProjectName = project?.attributes?.get(ProjectDTO.HUMAN_READABLE_PROJECT_NAME)
-        if (metaTokenService != null) {
-            try {
-                dto?.persistentTokenTimeout = metaTokenService.getMetaTokenTimeout(true, project).toMillis()
+        return delegate.projectToProjectDTO(project)?.apply {
+            this.humanReadableProjectName = project?.attributes?.get(ProjectDTO.HUMAN_READABLE_PROJECT_NAME)
+            this.persistentTokenTimeout = try {
+                metaTokenService?.getMetaTokenTimeout(true, project)?.toMillis()
             } catch (ex: BadRequestException) {
-                dto?.persistentTokenTimeout = null
+                null
             }
         }
-        return dto
     }
 
     override fun projectToProjectDTOReduced(project: Project?): ProjectDTO? {
