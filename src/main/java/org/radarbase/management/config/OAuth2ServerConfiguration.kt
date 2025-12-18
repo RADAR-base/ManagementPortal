@@ -62,11 +62,8 @@ class OAuth2ServerConfiguration(
                 .successHandler { request, response, authentication ->
                     request.session.setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext())
                     val savedRequest = request.session.getAttribute("SPRING_SECURITY_SAVED_REQUEST") as? SavedRequest
-                    val redirectUrl = if (savedRequest != null) {
-                        savedRequest.redirectUrl
-                    } else {
-                        request.requestURI + if (request.queryString != null) "?${request.queryString}" else ""
-                    }
+                    val queryString = request.queryString?.let { "?$it" } ?: ""
+                    val redirectUrl = savedRequest?.redirectUrl ?: request.requestURI + queryString
 
                     val safeRedirectUrl = try {
                         val uri = URI(redirectUrl)

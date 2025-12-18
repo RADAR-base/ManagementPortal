@@ -72,11 +72,11 @@ class OAuth2LoginUiWebConfig(
         val clientId: String = parameters.get("client_id") ?: principal.name
         var radarPrincipal = RadarPrincipal(clientId, principal)
 
-        val token2 = this.tokenEndPoint.postAccessToken(radarPrincipal, parameters)
-        return getResponse(token2.body)
+        val tokenResponse = this.tokenEndPoint.postAccessToken(radarPrincipal, parameters)
+        return buildTokenResponse(tokenResponse.body)
     }
 
-    fun getResponse(accessToken: OAuth2AccessToken): ResponseEntity<OAuth2AccessToken> {
+    fun buildTokenResponse(accessToken: OAuth2AccessToken): ResponseEntity<OAuth2AccessToken> {
         val headers = HttpHeaders()
         headers["Cache-Control"] = "no-store"
         headers["Pragma"] = "no-cache"
