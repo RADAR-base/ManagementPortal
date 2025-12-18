@@ -1,4 +1,4 @@
-package org.radarbase.management.config
+package org.radarbase.management.config.annotations
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Configuration
@@ -7,8 +7,9 @@ import org.springframework.context.annotation.Configuration
 @Retention(AnnotationRetention.RUNTIME)
 @Configuration
 @ConditionalOnProperty(
-    name = ["managementportal.authServer.internal"],
-    havingValue = "true",
-    matchIfMissing = true
+    name = ["managementportal.identityServer.internal"],
+    havingValue = "false",
+    matchIfMissing = false
 )
-annotation class AuthServerEnabled
+annotation class IdentityServerDisabled
+
