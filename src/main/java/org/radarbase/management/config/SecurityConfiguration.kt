@@ -43,30 +43,32 @@ class SecurityConfiguration
         private val managementPortalProperties: ManagementPortalProperties,
         private val userRepository: UserRepository
     ) : WebSecurityConfigurerAdapter() {
-        val tokenValidator: TokenValidator
-            /** Get the default token validator. */
-            get() {
-                val loaderList = mutableListOf(
+        /**
+         * Create the token validator instance.
+         * This is a private method to avoid creating multiple instances.
+         */
+        private fun createTokenValidator(): TokenValidator {
+            val loaderList = mutableListOf(
+                JwksTokenVerifierLoader(
+                    managementPortalProperties.authServer.serverAdminUrl +
+                        managementPortalProperties.authServer.keysPath,
+                    RES_MANAGEMENT_PORTAL,
+                    JwkAlgorithmParser(),
+                )
+            )
+
+            // Only load ManagementPortal's own token_key endpoint if the internal auth server is enabled.
+            if (managementPortalProperties.authServer.internal) {
+                loaderList.add(
                     JwksTokenVerifierLoader(
-                        managementPortalProperties.authServer.serverAdminUrl +
-                            managementPortalProperties.authServer.keysPath,
+                        managementPortalProperties.common.managementPortalBaseUrl + "/oauth/token_key",
                         RES_MANAGEMENT_PORTAL,
-                        JwkAlgorithmParser(),
+                        JwkAlgorithmParser()
                     )
                 )
-
-                // Only load ManagementPortal's own token_key endpoint if the internal auth server is enabled.
-                if (managementPortalProperties.authServer.internal) {
-                    loaderList.add(
-                        JwksTokenVerifierLoader(
-                            managementPortalProperties.common.managementPortalBaseUrl + "/oauth/token_key",
-                            RES_MANAGEMENT_PORTAL,
-                            JwkAlgorithmParser()
-                        )
-                    )
-                }
-                return TokenValidator(loaderList)
             }
+            return TokenValidator(loaderList)
+        }
 
         @PostConstruct
         fun init() {
@@ -89,10 +91,10 @@ class SecurityConfiguration
         fun http401UnauthorizedEntryPoint(): Http401UnauthorizedEntryPoint = Http401UnauthorizedEntryPoint()
 
         @Bean
-        fun tokenValidatorBean(): TokenValidator = tokenValidator
+        fun tokenValidatorBean(): TokenValidator = createTokenValidator()
 
         @Bean
-        fun jwtAuthenticationFilter(): JwtAuthenticationFilter {
+        fun jwtAuthenticationFilter(tokenValidator: TokenValidator): JwtAuthenticationFilter {
             val useInternalAuth = managementPortalProperties.authServer.internal
 
             return JwtAuthenticationFilter(
@@ -164,7 +166,7 @@ class SecurityConfiguration
                 .authenticationEntryPoint(http401UnauthorizedEntryPoint())
                 .and()
                 .addFilterBefore(
-                    jwtAuthenticationFilter(),
+                    jwtAuthenticationFilter(tokenValidatorBean()),
                     UsernamePasswordAuthenticationFilter::class.java,
                 )
                 .authorizeRequests()
