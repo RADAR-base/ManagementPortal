@@ -18,15 +18,12 @@ import org.springframework.security.oauth2.provider.NoSuchClientException
 import org.springframework.security.oauth2.provider.OAuth2Authentication
 import org.springframework.security.oauth2.provider.OAuth2Request
 import org.springframework.security.oauth2.provider.client.JdbcClientDetailsService
-import org.springframework.stereotype.Service
 import java.util.*
 
 /**
  * Default implementation of OAuthClientService using Spring OAuth2 and JDBC.
  * This service handles OAuth client and token related functions using the internal OAuth server.
  */
-@AuthServerEnabled
-@Service
 class DefaultOAuthClientService(
     @Autowired private val clientDetailsService: JdbcClientDetailsService,
     @Autowired private val clientDetailsMapper: ClientDetailsMapper,

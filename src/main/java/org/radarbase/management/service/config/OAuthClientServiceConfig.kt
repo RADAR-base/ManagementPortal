@@ -10,6 +10,7 @@ import org.radarbase.management.service.mapper.ClientDetailsMapper
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerEndpointsConfiguration
 import org.springframework.security.oauth2.provider.client.JdbcClientDetailsService
 
@@ -20,6 +21,7 @@ class OAuthClientServiceConfiguration {
     @Configuration
     class DefaultOAuthClientServiceConfiguration {
         @Bean
+        @ConditionalOnMissingBean(OAuthClientService::class)
         fun defaultOAuthClientService(
             jdbcClientDetailsService: JdbcClientDetailsService,
             clientDetailsMapper: ClientDetailsMapper,
@@ -38,6 +40,7 @@ class OAuthClientServiceConfiguration {
     @Configuration
     class HydraOAuthClientServiceConfiguration {
         @Bean
+        @ConditionalOnMissingBean(OAuthClientService::class)
         fun hydraOAuthClientService(
             managementPortalProperties: ManagementPortalProperties
         ): OAuthClientService {
