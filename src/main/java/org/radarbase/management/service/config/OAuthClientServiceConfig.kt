@@ -10,7 +10,6 @@ import org.radarbase.management.service.mapper.ClientDetailsMapper
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.context.annotation.Primary
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerEndpointsConfiguration
 import org.springframework.security.oauth2.provider.client.JdbcClientDetailsService
 
@@ -21,7 +20,6 @@ class OAuthClientServiceConfiguration {
     @Configuration
     class DefaultOAuthClientServiceConfiguration {
         @Bean
-        @Primary
         fun defaultOAuthClientService(
             jdbcClientDetailsService: JdbcClientDetailsService,
             clientDetailsMapper: ClientDetailsMapper,
@@ -40,7 +38,6 @@ class OAuthClientServiceConfiguration {
     @Configuration
     class HydraOAuthClientServiceConfiguration {
         @Bean
-        @Primary
         fun hydraOAuthClientService(
             managementPortalProperties: ManagementPortalProperties
         ): OAuthClientService {
