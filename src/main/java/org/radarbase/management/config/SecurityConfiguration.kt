@@ -3,6 +3,8 @@ package org.radarbase.management.config
 import org.radarbase.auth.authentication.TokenValidator
 import org.radarbase.auth.jwks.JwkAlgorithmParser
 import org.radarbase.auth.jwks.JwksTokenVerifierLoader
+import org.radarbase.management.config.annotations.AuthServerDisabled
+import org.radarbase.management.config.annotations.AuthServerEnabled
 import org.radarbase.management.repository.UserRepository
 import org.radarbase.management.security.Http401UnauthorizedEntryPoint
 import org.radarbase.management.security.JwtAuthenticationFilter
@@ -41,35 +43,9 @@ class SecurityConfiguration
         private val applicationEventPublisher: ApplicationEventPublisher,
         private val passwordEncoder: PasswordEncoder,
         private val managementPortalProperties: ManagementPortalProperties,
-        private val userRepository: UserRepository
+        private val userRepository: UserRepository,
+        private val tokenValidator: TokenValidator,
     ) : WebSecurityConfigurerAdapter() {
-        /**
-         * Create the token validator instance.
-         * This is a private method to avoid creating multiple instances.
-         */
-        private fun createTokenValidator(): TokenValidator {
-            val loaderList = mutableListOf(
-                JwksTokenVerifierLoader(
-                    managementPortalProperties.authServer.serverAdminUrl +
-                        managementPortalProperties.authServer.keysPath,
-                    RES_MANAGEMENT_PORTAL,
-                    JwkAlgorithmParser(),
-                )
-            )
-
-            // Only load ManagementPortal's own token_key endpoint if the internal auth server is enabled.
-            if (managementPortalProperties.authServer.internal) {
-                loaderList.add(
-                    JwksTokenVerifierLoader(
-                        managementPortalProperties.common.managementPortalBaseUrl + "/oauth/token_key",
-                        RES_MANAGEMENT_PORTAL,
-                        JwkAlgorithmParser()
-                    )
-                )
-            }
-            return TokenValidator(loaderList)
-        }
-
         @PostConstruct
         fun init() {
             try {
@@ -91,10 +67,7 @@ class SecurityConfiguration
         fun http401UnauthorizedEntryPoint(): Http401UnauthorizedEntryPoint = Http401UnauthorizedEntryPoint()
 
         @Bean
-        fun tokenValidatorBean(): TokenValidator = createTokenValidator()
-
-        @Bean
-        fun jwtAuthenticationFilter(tokenValidator: TokenValidator): JwtAuthenticationFilter {
+        fun jwtAuthenticationFilter(): JwtAuthenticationFilter {
             val useInternalAuth = managementPortalProperties.authServer.internal
 
             return JwtAuthenticationFilter(
@@ -166,7 +139,7 @@ class SecurityConfiguration
                 .authenticationEntryPoint(http401UnauthorizedEntryPoint())
                 .and()
                 .addFilterBefore(
-                    jwtAuthenticationFilter(tokenValidatorBean()),
+                    jwtAuthenticationFilter(),
                     UsernamePasswordAuthenticationFilter::class.java,
                 )
                 .authorizeRequests()
@@ -191,3 +164,63 @@ class SecurityConfiguration
             const val RES_MANAGEMENT_PORTAL = "res_ManagementPortal"
         }
 }
+
+/**
+ * TokenValidator configuration for internal auth server.
+ * Active when managementportal.authServer.internal=true (or missing).
+ */
+@AuthServerEnabled
+@Configuration
+class InternalTokenValidatorConfiguration(
+    private val managementPortalProperties: ManagementPortalProperties,
+) {
+
+    @Bean
+    fun internalTokenValidator(): TokenValidator {
+        val loaderList = mutableListOf(
+            JwksTokenVerifierLoader(
+                managementPortalProperties.authServer.serverAdminUrl +
+                    managementPortalProperties.authServer.keysPath,
+                SecurityConfiguration.RES_MANAGEMENT_PORTAL,
+                JwkAlgorithmParser(),
+            )
+        )
+
+        // Also load ManagementPortal's own token_key endpoint for internal auth.
+        loaderList.add(
+            JwksTokenVerifierLoader(
+                managementPortalProperties.common.managementPortalBaseUrl + "/oauth/token_key",
+                SecurityConfiguration.RES_MANAGEMENT_PORTAL,
+                JwkAlgorithmParser()
+            )
+        )
+
+        return TokenValidator(loaderList)
+    }
+}
+
+/**
+ * TokenValidator configuration for external auth server (e.g. Hydra).
+ * Active when managementportal.authServer.internal=false.
+ */
+@AuthServerDisabled
+@Configuration
+class ExternalTokenValidatorConfiguration(
+    private val managementPortalProperties: ManagementPortalProperties,
+) {
+
+    @Bean
+    fun externalTokenValidator(): TokenValidator {
+        val loaderList = listOf(
+            JwksTokenVerifierLoader(
+                managementPortalProperties.authServer.serverAdminUrl +
+                    managementPortalProperties.authServer.keysPath,
+                SecurityConfiguration.RES_MANAGEMENT_PORTAL,
+                JwkAlgorithmParser(),
+            )
+        )
+
+        return TokenValidator(loaderList)
+    }
+}
+
