@@ -24,6 +24,7 @@ import java.util.*
  * Default implementation of OAuthClientService using Spring OAuth2 and JDBC.
  * This service handles OAuth client and token related functions using the internal OAuth server.
  */
+@Service
 class DefaultOAuthClientService(
     @Autowired private val clientDetailsService: JdbcClientDetailsService,
     @Autowired private val clientDetailsMapper: ClientDetailsMapper,
