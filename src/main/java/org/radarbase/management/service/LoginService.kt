@@ -31,7 +31,7 @@ class LoginService(
 
     fun buildAuthUrl(): String {
         val state = UUID.randomUUID().toString()
-        
+
         val commonParams = mapOf(
             "client_id" to managementPortalProperties.frontend.clientId,
             "response_type" to "code",
@@ -44,7 +44,7 @@ class LoginService(
                 emptyMap()
             )
             false -> Pair(
-                "${managementPortalProperties.authServer.loginUrl}/oauth2/auth",
+                managementPortalProperties.authServer.loginUrl,
                 mapOf(
                     "state" to state,
                     "audience" to managementPortalProperties.frontend.audience,
@@ -69,7 +69,7 @@ class LoginService(
             }.formUrlEncode()
 
             val response = httpClient.post(config.tokenUrl) {
-                headers { 
+                headers {
                     append(HttpHeaders.Authorization, authHeader)
                     append(HttpHeaders.Accept, ContentType.Application.Json.toString())
                 }
@@ -101,7 +101,7 @@ class LoginService(
         val tokenUrl = if (managementPortalProperties.authServer.internal) {
             "${managementPortalProperties.common.managementPortalBaseUrl}/oauth/token"
         } else {
-            "${managementPortalProperties.authServer.serverUrl}/oauth2/token"
+            managementPortalProperties.authServer.serverUrl
         }
 
         return TokenRequestConfig(
@@ -111,4 +111,4 @@ class LoginService(
             redirectUri = "${managementPortalProperties.common.managementPortalBaseUrl}/api/redirect/login"
         )
     }
-} 
+}
