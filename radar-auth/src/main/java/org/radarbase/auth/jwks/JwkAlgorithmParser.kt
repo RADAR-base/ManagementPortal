@@ -45,14 +45,17 @@ class JwkAlgorithmParser(
                     BigInteger(1, Base64.getUrlDecoder().decode(key.n)),
                     BigInteger(1, Base64.getUrlDecoder().decode(key.e))
                 )
+                val keySize = key.keySize()
+                    ?: throw TokenValidationException("Unsupported RSA algorithm ${key.alg}")
                 (keyFactory.generatePublic(publicKeySpec) as RSAPublicKey)
-                    .toAlgorithm(hashSize = key.keySize())
+                    .toAlgorithm(hashSize = keySize)
             } catch (e: GeneralSecurityException) {
                 throw InvalidPublicKeyException("Invalid public key", e)
             }
             is ECDSAJsonWebKey -> try {
                 val keyFactory = KeyFactory.getInstance(ALGORITHM_EC)
                 val keySize = key.curve()
+                    ?: throw TokenValidationException("Unsupported ECDSA algorithm ${key.alg} with curve ${key.crv}")
                 val ecPublicKeySpec = ECPublicKeySpec(
                     ECPoint(
                         BigInteger(1, Base64.getUrlDecoder().decode(key.x)),
@@ -64,7 +67,7 @@ class JwkAlgorithmParser(
                     }
                 )
                 (keyFactory.generatePublic(ecPublicKeySpec) as ECPublicKey)
-                    .toAlgorithm(keySize = key.curve())
+                    .toAlgorithm(keySize = keySize)
             } catch (e: NoSuchAlgorithmException) {
                 throw InvalidPublicKeyException("Invalid algorithm to generate key", e)
             } catch (e: GeneralSecurityException) {

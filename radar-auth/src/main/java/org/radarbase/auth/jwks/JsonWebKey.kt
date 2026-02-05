@@ -53,7 +53,11 @@ data class RSAJsonWebKey(
     /** X.509 Certificate SHA-1 thumbprint. */
     override val x5t: String? = null,
 ) : JsonWebKey {
-    fun keySize(): HashSize = HashSize.valueOf(alg.uppercase())
+    fun keySize(): HashSize? = try {
+        HashSize.valueOf(alg.uppercase())
+    } catch (ex: IllegalArgumentException) {
+        null
+    }
 
     enum class HashSize {
         RS256,
@@ -79,16 +83,19 @@ data class ECDSAJsonWebKey(
     /** X.509 Certificate SHA-1 thumbprint. */
     override val x5t: String? = null,
 ) : JsonWebKey {
-    fun curve(): Curve {
+    fun curve(): Curve? = try {
         if (alg != null) {
-            return Curve.valueOf(alg.uppercase())
+            Curve.valueOf(alg.uppercase())
+        } else {
+            when (crv) {
+                "P-256" -> Curve.ES256
+                "P-384" -> Curve.ES384
+                "P-521", "P-512" -> Curve.ES512
+                else -> throw InvalidPublicKeyException("Unknown EC crv $crv")
+            }
         }
-        return when (crv) {
-            "P-256" -> Curve.ES256
-            "P-384" -> Curve.ES384
-            "P-521", "P-512" -> Curve.ES512
-            else -> throw InvalidPublicKeyException("Unknown EC crv $crv")
-        }
+    } catch (ex: Exception) {
+        null
     }
 
     enum class Curve(val ecStdName: String) {

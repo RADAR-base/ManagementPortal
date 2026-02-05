@@ -38,6 +38,14 @@ class JwksTokenVerifierLoader(
         }
         return buildList(keySet.keys.size) {
             keySet.keys.forEach { key ->
+                if (key is RSAJsonWebKey && key.use != "sig") {
+                    logger.debug("Skipping non-signature key {} from {}", key.kid, url)
+                    return@forEach
+                }
+                if (key is ECDSAJsonWebKey && key.use != "sig") {
+                    logger.debug("Skipping non-signature key {} from {}", key.kid, url)
+                    return@forEach
+                }
                 try {
                     add(
                         algorithmParser.parse(key)
