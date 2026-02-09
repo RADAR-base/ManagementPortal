@@ -61,7 +61,7 @@ class UserServiceConfiguration {
             authService: AuthService
         ): UserService {
             log.info("Using Kratos external user management")
-            require(managementPortalProperties.identityServer.serverUrl.isNotBlank()) {
+            require(managementPortalProperties.identityServer.publicUrl.isNotBlank()) {
                 "Kratos server URL must be configured when using external identity management"
             }
             return KratosUserService(

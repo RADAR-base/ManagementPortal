@@ -153,14 +153,14 @@ managementportal:
   identityServer:
     internal: true
     adminEmail: bdegraaf1234@gmail.com
-    serverUrl: http://localhost:4433
-    serverAdminUrl: http://kratos-admin
+    publicUrl: http://localhost:4433
+    adminUrl: http://kratos-admin
   authServer:
     internal: true
-    serverUrl: http://hydra:4444
-    serverAdminUrl: http://hydra:4445
-    loginUrl:  http://localhost:4444
-    keysPath: /admin/keys/hydra.jwt.access-token
+    adminUrl: http://localhost:4445
+    authUrl: http://localhost:4444/hydra/oauth2/auth
+    tokenUrl:  http://localhost:4444/hydra/oauth2/token
+    jwksUrl: http://localhost:4445/admin/keys/hydra.jwt.access-token
 
 # ===================================================================
 # JHipster specific properties

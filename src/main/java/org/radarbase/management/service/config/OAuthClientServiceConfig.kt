@@ -46,11 +46,11 @@ class OAuthClientServiceConfiguration {
         ): OAuthClientService {
             log.info("Using Hydra external OAuth client management")
             // Validate Hydra configuration
-            require(managementPortalProperties.authServer.serverUrl.isNotBlank()) {
-                "Hydra server URL must be configured when using external OAuth management"
+            require(managementPortalProperties.authServer.tokenUrl.isNotBlank()) {
+                "Hydra token URL must be configured when using external OAuth management"
             }
-            require(managementPortalProperties.authServer.serverAdminUrl.isNotBlank()) {
-                "Hydra admin server URL must be configured when using external OAuth management"
+            require(managementPortalProperties.authServer.adminUrl.isNotBlank()) {
+                "Hydra admin URL must be configured when using external OAuth management"
             }
             return HydraOAuthClientService(managementPortalProperties)
         }

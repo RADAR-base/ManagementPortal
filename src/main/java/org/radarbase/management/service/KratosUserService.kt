@@ -85,8 +85,8 @@ class KratosUserService @Autowired constructor(
     }
 
     private val json = Json { ignoreUnknownKeys = true }
-    private val adminUrl = managementPortalProperties.identityServer.serverAdminUrl
-    private val publicUrl = managementPortalProperties.identityServer.serverUrl
+    private val adminUrl = managementPortalProperties.identityServer.adminUrl
+    private val publicUrl = managementPortalProperties.identityServer.publicUrl
 
     init {
         log.debug("Kratos serverUrl set to $publicUrl")

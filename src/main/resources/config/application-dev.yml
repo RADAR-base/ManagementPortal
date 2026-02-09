@@ -168,14 +168,14 @@ managementportal:
     identityServer:
         internal: true
         adminEmail: admin-email-here@gmail.com
-        serverUrl: http://localhost:4433
-        serverAdminUrl: http://localhost:4434
+        publicUrl: http://localhost:4433
+        adminUrl: http://localhost:4434
     authServer:
         internal: true
-        serverUrl: http://localhost:4444
-        serverAdminUrl: http://localhost:4445
-        loginUrl:  http://localhost:4444
-        keysPath: /admin/keys/hydra.jwt.access-token
+        adminUrl: http://localhost:4445
+        authUrl: http://localhost:4444/oauth2/auth
+        tokenUrl:  http://localhost:4444/hydra/oauth2/token
+        jwksUrl: http://localhost:4445/admin/keys/hydra.jwt.access-token
 
 
 # ===================================================================
