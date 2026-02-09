@@ -29,7 +29,7 @@ import java.time.Duration
  * This service handles OAuth client operations through Ory Hydra's admin API.
  */
 @Service
-class HydraOAuthClientService(
+open class HydraOAuthClientService(
     @Autowired private val managementPortalProperties: ManagementPortalProperties
 ) : OAuthClientService {
 
