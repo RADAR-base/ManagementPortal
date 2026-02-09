@@ -179,8 +179,7 @@ class InternalTokenValidatorConfiguration(
     fun internalTokenValidator(): TokenValidator {
         val loaderList = mutableListOf(
             JwksTokenVerifierLoader(
-                managementPortalProperties.authServer.serverAdminUrl +
-                    managementPortalProperties.authServer.keysPath,
+                managementPortalProperties.authServer.jwksUrl,
                 SecurityConfiguration.RES_MANAGEMENT_PORTAL,
                 JwkAlgorithmParser(),
             )
@@ -213,8 +212,7 @@ class ExternalTokenValidatorConfiguration(
     fun externalTokenValidator(): TokenValidator {
         val loaderList = listOf(
             JwksTokenVerifierLoader(
-                managementPortalProperties.authServer.serverAdminUrl +
-                    managementPortalProperties.authServer.keysPath,
+                managementPortalProperties.authServer.jwksUrl,
                 SecurityConfiguration.RES_MANAGEMENT_PORTAL,
                 JwkAlgorithmParser(),
             )
