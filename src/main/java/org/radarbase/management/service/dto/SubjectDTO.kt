@@ -11,7 +11,7 @@ import java.util.*
 /**
  * A DTO for the Subject entity.
  */
-class SubjectDTO : Serializable {
+open class SubjectDTO : Serializable {
     enum class SubjectStatus {
         DEACTIVATED,
 

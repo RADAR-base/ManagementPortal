@@ -9,7 +9,6 @@ import org.radarbase.management.security.NotAuthorizedException
 import org.radarbase.management.service.*
 import org.radarbase.management.service.dto.KratosSubjectWebhookDTO
 import org.radarbase.management.web.rest.errors.EntityName
-import org.radarbase.management.web.rest.errors.NotFoundException
 import org.radarbase.management.web.rest.util.HeaderUtil
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -17,10 +16,11 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import java.net.URISyntaxException
 import org.radarbase.management.config.annotations.IdentityServerDisabled
+import org.radarbase.management.service.dto.SubjectWebhookDTO
 
 @IdentityServerDisabled
 @RestController
-@RequestMapping("/api/webhook/kratos")
+@RequestMapping("/api/webhook")
 private class WebhookResource
 @Autowired
 constructor(
@@ -41,7 +41,7 @@ constructor(
      * with status 400 (Bad Request) if the subject has already an ID
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
-    @PostMapping("/subjects")
+    @PostMapping("/kratos/subjects")
     @Timed
     @Throws(URISyntaxException::class, NotAuthorizedException::class)
     suspend fun createSubject(
@@ -65,13 +65,7 @@ constructor(
                         ?: throw NotAuthorizedException("Cannot create subject without project")
         val projectUserId =
                 project.userId ?: throw IllegalArgumentException("Project user ID is required")
-        val projectDto =
-                projectService.findOneByName(project.id!!)
-                        ?: throw NotFoundException(
-                                "Project not found: ${project.id!!}",
-                                EntityName.PROJECT,
-                                "projectNotFound"
-                        )
+        val projectDto = projectService.findOneByName(project.id!!)
         val email = kratosIdentity.traits?.email.orEmpty()
         val subjectDto =
                 subjectService.createSubject(
@@ -81,7 +75,7 @@ constructor(
                         mapOf(EMAIL_ATTRIBUTE_KEY to email)
                 )
                         ?: throw IllegalStateException("Failed to create subject for ID: $id")
-        
+
         userService.getUserWithAuthoritiesByLogin(login = subjectDto.login!!)?.let { user ->
                 try {
                         userService.updateUser(user.login!!, user.firstName, user.lastName, user.email, user.langKey)
@@ -89,14 +83,14 @@ constructor(
                         logger.error("Failed to update associated identity for user {}: {}", user.login, ex.message)
                 }
         }
-                        
+
 
         return ResponseEntity.created(ResourceUriService.getUri(subjectDto))
                 .headers(HeaderUtil.createEntityCreationAlert(EntityName.SUBJECT, id))
                 .build()
     }
 
-    @PostMapping("/subjects/activate")
+    @PostMapping("/kratos/subjects/activate")
     @Timed
     @Throws(URISyntaxException::class, NotAuthorizedException::class)
     suspend fun activateSubject(
@@ -124,7 +118,51 @@ constructor(
                 .build()
     }
 
-    private fun hasPermission(
+    /* POST /subjects : Create a new subject.
+    *
+    * @param subjectDto the subjectDto to create
+    * @return the ResponseEntity with status 201 (Created) and with body the new subjectDto, or
+    * with status 400 (Bad Request) if the subject has already an ID
+    * @throws URISyntaxException if the Location URI syntax is incorrect
+    */
+    @PostMapping("/subjects")
+    @Timed
+    @Throws(URISyntaxException::class, NotAuthorizedException::class)
+    suspend fun createSubject(
+        @RequestBody webhookDTO: SubjectWebhookDTO,
+    ): ResponseEntity<Void> {
+        logger.debug("REST request to create subject : {}", webhookDTO)
+        val projectId = webhookDTO.projectId ?: throw IllegalArgumentException("Project ID is required")
+        val userLogin = webhookDTO.login ?: throw IllegalArgumentException("Subject ID is required")
+        val projectDto = projectService.findOneByName(projectId)
+        val email = webhookDTO.emailAddress.orEmpty()
+        val subjectDto =
+            subjectService.createSubject(
+                userLogin,
+                projectDto,
+                userLogin,
+                mapOf(EMAIL_ATTRIBUTE_KEY to email)
+            ) ?: throw IllegalStateException("Failed to create subject for ID: $userLogin")
+        // TODO Here some logic is missing that updates 'Users'. I do not understand why this
+        //  is needed at the moment of this writing. I need to revisit and reconsider this.
+        return ResponseEntity.created(ResourceUriService.getUri(subjectDto))
+            .headers(HeaderUtil.createEntityCreationAlert(EntityName.SUBJECT, userLogin))
+            .build()
+    }
+
+    @PostMapping("/subjects/activate")
+    @Timed
+    @Throws(URISyntaxException::class, NotAuthorizedException::class)
+    suspend fun activateSubject(
+        @RequestBody subjectLogin: String,
+    ): ResponseEntity<Void> {
+        subjectService.activateSubject(subjectLogin)
+        return ResponseEntity.ok()
+            .headers(HeaderUtil.createEntityUpdateAlert(EntityName.SUBJECT, subjectLogin))
+            .build()
+    }
+
+   private fun hasPermission(
             kratosIdentity: KratosSessionDTO.Identity,
             identityId: String?,
     ): Boolean = kratosIdentity.id == identityId
