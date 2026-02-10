@@ -170,6 +170,10 @@ managementportal:
         adminEmail: admin-email-here@gmail.com
         serverUrl: http://localhost:4433
         serverAdminUrl: http://localhost:4434
+        realm: radar-base
+        userCreationService:
+            clientId: secret
+            clientSecret: secret
     authServer:
         internal: true
         serverUrl: http://localhost:4444

@@ -135,6 +135,10 @@ managementportal:
       serverUrl: http://127.0.0.1:4433
       serverAdminUrl: http://127.0.0.1:4434
       admin-email: admin@localhost
+      realm: radar-base
+      userCreationService:
+        clientId: secret
+        clientSecret: secret
     authServer:
       internal: true
       serverUrl: http://hydra:4444

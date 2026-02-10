@@ -155,6 +155,10 @@ managementportal:
     adminEmail: bdegraaf1234@gmail.com
     serverUrl: http://localhost:4433
     serverAdminUrl: http://kratos-admin
+    realm: radar-base
+    userCreationService:
+      clientId: secret
+      clientSecret: secret
   authServer:
     internal: true
     serverUrl: http://hydra:4444

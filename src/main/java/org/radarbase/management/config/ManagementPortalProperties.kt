@@ -24,7 +24,8 @@ data class ManagementPortalProperties @ConstructorBinding constructor(
         val userActivationFlowType: String = "verification",
         val userActivationMethod: String = "code",
         // TODO replace by enum
-        val type: String = "kratos"
+        val type: String = "kratos",
+        val userCreationService: UserCreationServiceClient,
     )
 
     data class AuthServer @ConstructorBinding constructor(
@@ -79,5 +80,10 @@ data class ManagementPortalProperties @ConstructorBinding constructor(
 
     data class SiteSettings @ConstructorBinding constructor(
         val hiddenSubjectFields: List<String>,
+    )
+
+    data class UserCreationServiceClient @ConstructorBinding constructor(
+        val clientId: String,
+        val clientSecret: String,
     )
 }

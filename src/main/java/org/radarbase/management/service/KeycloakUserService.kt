@@ -16,7 +16,6 @@ import org.radarbase.auth.authorization.EntityDetails
 import org.radarbase.auth.authorization.Permission
 import org.radarbase.auth.authorization.RoleAuthority
 import org.radarbase.auth.exception.IdpException
-import org.radarbase.auth.kratos.KratosSessionDTO
 import org.radarbase.management.config.ManagementPortalProperties
 import org.radarbase.management.domain.Role
 import org.radarbase.management.domain.User
@@ -87,6 +86,78 @@ class KeycloakUserService @Autowired constructor(
     private val realm = managementPortalProperties.identityServer.realm
     private val requiredUserActions = "[\"VERIFY_EMAIL\", \"UPDATE_PROFILE\",\"CHANGE_PASSWORD\"]"
     private val keycloakUserUrl = "$adminUrl/admin/realms/$realm/users/"
+
+    // Access token management for user-creation-service client (client credentials)
+    @Serializable
+    private data class TokenResponse(
+        @SerialName("access_token") val accessToken: String,
+        @SerialName("expires_in") val expiresIn: Long,
+        @SerialName("token_type") val tokenType: String? = null,
+        val scope: String? = null
+    )
+
+    // TODO replace the token request logic with some Spring managed mechanism.
+
+    @Volatile
+    private var serviceAccessToken: String? = null
+    @Volatile
+    private var serviceTokenExpiryEpochSeconds: Long = 0L
+
+    private fun tokenEndpoint(): String =
+        "$publicUrl/realms/$realm/protocol/openid-connect/token"
+
+    private fun isTokenExpiringSoon(nowEpochSeconds: Long = System.currentTimeMillis() / 1000): Boolean {
+        // Refresh 30 seconds before expiry as buffer
+        return serviceAccessToken == null || nowEpochSeconds >= (serviceTokenExpiryEpochSeconds - 30)
+    }
+
+    private suspend fun requestNewClientCredentialsToken(): TokenResponse = withContext(Dispatchers.IO) {
+        val clientId = managementPortalProperties.identityServer.userCreationService.clientId
+        val clientSecret = managementPortalProperties.identityServer.userCreationService.clientSecret
+        val response = httpClient.post(tokenEndpoint()) {
+            contentType(ContentType.Application.FormUrlEncoded)
+            setBody(Parameters.build {
+                append("grant_type", "client_credentials")
+                append("client_id", clientId)
+                append("client_secret", clientSecret)
+            }.formUrlEncode())
+        }
+        if (!response.status.isSuccess()) {
+            val body = response.body<String>()
+            log.error("Failed to obtain client credentials token: status={} body={}", response.status, body)
+            throw IdpException("Failed to obtain access token from Keycloak: ${response.status}")
+        }
+        response.body()
+    }
+
+    suspend fun getUserCreationServiceAccessToken(): String {
+        if (isTokenExpiringSoon()) {
+            val token = requestNewClientCredentialsToken()
+            serviceAccessToken = token.accessToken
+            // compute expiry epoch seconds
+            serviceTokenExpiryEpochSeconds = (System.currentTimeMillis() / 1000) + token.expiresIn
+        }
+        return serviceAccessToken!!
+    }
+
+    // Periodic refresh to keep token warm for services that call frequently
+    @Scheduled(fixedDelay = 60_000)
+    fun refreshServiceAccessTokenScheduled() {
+        // Run best-effort; ignore failures
+        try {
+            if (isTokenExpiringSoon()) {
+                // Launch a blocking call in a separate coroutine context
+                kotlinx.coroutines.runBlocking {
+                    val token = requestNewClientCredentialsToken()
+                    serviceAccessToken = token.accessToken
+                    serviceTokenExpiryEpochSeconds = (System.currentTimeMillis() / 1000) + token.expiresIn
+                    log.debug("Refreshed user-creation-service token, expiresIn={}s", token.expiresIn)
+                }
+            }
+        } catch (ex: Exception) {
+            log.warn("Could not refresh user-creation-service access token: {}", ex.message)
+        }
+    }
 
     init {
         log.debug("Keycloak serverUrl set to $publicUrl")
@@ -283,6 +354,7 @@ class KeycloakUserService @Autowired constructor(
         withContext(Dispatchers.IO) {
             val response = httpClient.put {
                 url("$keycloakUserUrl/$externalId/reset-password")
+                bearerAuth(getUserCreationServiceAccessToken())
                 contentType(ContentType.Application.Json)
                 accept(ContentType.Application.Json)
                 setBody(mapOf(
@@ -310,6 +382,7 @@ class KeycloakUserService @Autowired constructor(
 
             val response = httpClient.get {
                 url(keycloakUserUrl)
+                bearerAuth(getUserCreationServiceAccessToken())
                 parameter("username", user.login)
                 accept(ContentType.Application.Json)
             }
@@ -404,6 +477,7 @@ class KeycloakUserService @Autowired constructor(
                     url("$keycloakUserUrl/${user.identity}/execute-actions-email,")
                     contentType(ContentType.Application.Json)
                     accept(ContentType.Application.Json)
+                    bearerAuth(getUserCreationServiceAccessToken())
                     setBody(requiredUserActions)
                 }
 
@@ -438,6 +512,7 @@ class KeycloakUserService @Autowired constructor(
                 url(keycloakUserUrl)
                 contentType(ContentType.Application.Json)
                 accept(ContentType.Application.Json)
+                bearerAuth(getUserCreationServiceAccessToken())
                 setBody(identity)
             }
 
@@ -463,6 +538,7 @@ class KeycloakUserService @Autowired constructor(
                 url("$keycloakUserUrl/$externalId")
                 contentType(ContentType.Application.Json)
                 accept(ContentType.Application.Json)
+                bearerAuth(getUserCreationServiceAccessToken())
                 setBody(json.encodeToString(identity))
             }
 
@@ -484,6 +560,7 @@ class KeycloakUserService @Autowired constructor(
                 url("$keycloakUserUrl/$externalId")
                 contentType(ContentType.Application.Json)
                 accept(ContentType.Application.Json)
+                bearerAuth(getUserCreationServiceAccessToken())
             }
 
             if (response.status.isSuccess()) {
