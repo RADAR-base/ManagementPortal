@@ -85,7 +85,7 @@ class KeycloakUserService @Autowired constructor(
     private val publicUrl = managementPortalProperties.identityServer.serverUrl
     private val realm = managementPortalProperties.identityServer.realm
     private val requiredUserActions = "[\"VERIFY_EMAIL\", \"UPDATE_PROFILE\",\"CHANGE_PASSWORD\"]"
-    private val keycloakUserUrl = "$adminUrl/admin/realms/$realm/users/"
+    private val keycloakUserUrl = "$adminUrl/admin/realms/$realm/users"
 
     // Access token management for user-creation-service client (client credentials)
     @Serializable
@@ -356,11 +356,8 @@ class KeycloakUserService @Autowired constructor(
                 url("$keycloakUserUrl/$externalId/reset-password")
                 bearerAuth(getUserCreationServiceAccessToken())
                 contentType(ContentType.Application.Json)
-                accept(ContentType.Application.Json)
-                setBody(mapOf(
-                    "type" to "password",
-                    "value" to password,
-                    "temporary" to false
+                setBody(PasswordResetPayload(
+                    value = password
                 ))
             }
 
@@ -380,16 +377,11 @@ class KeycloakUserService @Autowired constructor(
         user.email = email
         log.debug("Set admin email to: {}", email)
 
-            val response = httpClient.get {
-                url(keycloakUserUrl)
-                bearerAuth(getUserCreationServiceAccessToken())
-                parameter("username", user.login)
-                accept(ContentType.Application.Json)
-            }
-
-            if (response.status == HttpStatusCode.NotFound) {
-                user.identity = saveAsIdentity(user).id
-            }
+        if (user.identity == null) {
+            user.identity = saveAsIdentity(user).id
+        } else {
+            updateAssociatedIdentity(user)
+        }
 
         return userMapper.userToUserDTO(user)
             ?: throw Exception("Admin user could not be converted to DTO")
@@ -474,7 +466,7 @@ class KeycloakUserService @Autowired constructor(
         saveAsIdentity(user)
         withContext(Dispatchers.IO) {
             val response = httpClient.put {
-                    url("$keycloakUserUrl/${user.identity}/execute-actions-email,")
+                    url("$keycloakUserUrl/${user.identity}/execute-actions-email")
                     contentType(ContentType.Application.Json)
                     accept(ContentType.Application.Json)
                     bearerAuth(getUserCreationServiceAccessToken())
@@ -521,6 +513,7 @@ class KeycloakUserService @Autowired constructor(
                     log.debug("Saved identity for user ${user.login} Keycloak")
                 }
             } else if (response.status.value == 409) {
+                val body = response.body<String>()
                 response.body<KeycloakUserDTO>().also {
                     log.debug("Identity for user ${user.login} already exists at the IDP. Continuing...")
                 }
@@ -530,7 +523,7 @@ class KeycloakUserService @Autowired constructor(
         }
 
     @Throws(IdpException::class)
-    suspend fun updateAssociatedIdentity(user: User): KeycloakUserDTO =
+    suspend fun updateAssociatedIdentity(user: User): Unit =
         withContext(Dispatchers.IO) {
             val externalId = user.identity ?: throw IdpException("User has no Keycloak ID")
             val identity = createIdentity(user)
@@ -543,9 +536,7 @@ class KeycloakUserService @Autowired constructor(
             }
 
             if (response.status.isSuccess()) {
-                response.body<KeycloakUserDTO>().also {
-                    log.debug("Updated identity for user ${user.login} on IDP as ${it.id}")
-                }
+                log.debug("Updated identity for user {} on IDP as {}", user.login, identity)
             } else {
                 throw IdpException("Couldn't update identity on server at $adminUrl")
             }
@@ -634,3 +625,10 @@ class KeycloakUserService @Autowired constructor(
         private val log = LoggerFactory.getLogger(KeycloakUserService::class.java)
     }
 }
+
+@Serializable
+data class PasswordResetPayload(
+    val type: String = "password",
+    val value: String,
+    val temporary: Boolean = false
+)
