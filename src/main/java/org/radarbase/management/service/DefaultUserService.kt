@@ -342,7 +342,7 @@ class DefaultUserService @Autowired constructor(
      * @param email the new admin email
      */
     @Transactional
-    override suspend fun addAdminEmail(email: String): UserDTO {
+    override suspend fun setAdminEmail(email: String): UserDTO {
         // find the admin user
         val user = userRepository.findOneByLogin("admin")
             ?: throw Exception("No admin user found")
@@ -359,7 +359,7 @@ class DefaultUserService @Autowired constructor(
      * Change the admin user's password. Should only be called in application startup
      * @param password the new admin password
      */
-    override suspend fun addAdminPassword(password: String) {
+    override suspend fun updateAdminPassword(password: String) {
         if (!password.isNullOrEmpty()) {
             log.info("Overriding admin password to configured password")
             changePassword("admin", password)

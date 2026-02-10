@@ -3,8 +3,10 @@ package org.radarbase.management.service.config
 import org.radarbase.management.config.annotations.IdentityServerEnabled
 import org.radarbase.management.config.annotations.IdentityServerDisabled
 import org.radarbase.management.config.ManagementPortalProperties
+import org.radarbase.management.config.annotations.AuthServerDisabled
 import org.radarbase.management.service.DefaultUserService
 import org.radarbase.management.service.KratosUserService
+import org.radarbase.management.service.KeycloakUserService
 import org.radarbase.management.service.UserService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -16,6 +18,7 @@ import org.radarbase.management.service.RevisionService
 import org.radarbase.management.service.AuthService
 import org.slf4j.LoggerFactory
 import org.radarbase.management.service.MailService
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression
 
 @Configuration
 class UserServiceConfiguration {
@@ -49,10 +52,10 @@ class UserServiceConfiguration {
 
     @IdentityServerDisabled
     @Configuration
-    class KratosUserServiceConfiguration {
+    class KeycloakUserServiceConfiguration {
         @Bean
         @Primary
-        fun kratosUserService(
+        fun keycloakUserService(
             userRepository: UserRepository,
             passwordService: PasswordService,
             userMapper: UserMapper,
@@ -60,11 +63,11 @@ class UserServiceConfiguration {
             managementPortalProperties: ManagementPortalProperties,
             authService: AuthService
         ): UserService {
-            log.info("Using Kratos external user management")
+            log.info("Using Keycloak external user management")
             require(managementPortalProperties.identityServer.serverUrl.isNotBlank()) {
-                "Kratos server URL must be configured when using external identity management"
+                "Keycloak server URL must be configured when using external identity management"
             }
-            return KratosUserService(
+            return KeycloakUserService(
                 userRepository,
                 passwordService,
                 userMapper,
@@ -74,7 +77,6 @@ class UserServiceConfiguration {
             )
         }
     }
-
     companion object {
         private val log = LoggerFactory.getLogger(UserServiceConfiguration::class.java)
     }

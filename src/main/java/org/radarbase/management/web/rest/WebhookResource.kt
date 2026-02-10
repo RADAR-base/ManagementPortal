@@ -132,9 +132,9 @@ constructor(
         @RequestBody webhookDTO: SubjectWebhookDTO,
     ): ResponseEntity<Void> {
         logger.debug("REST request to create subject : {}", webhookDTO)
-        val projectId = webhookDTO.projectId ?: throw IllegalArgumentException("Project ID is required")
+        val projectName = webhookDTO.projectName ?: throw IllegalArgumentException("Project ID is required")
         val userLogin = webhookDTO.login ?: throw IllegalArgumentException("Subject ID is required")
-        val projectDto = projectService.findOneByName(projectId)
+        val projectDto = projectService.findOneByName(projectName)
         val email = webhookDTO.emailAddress.orEmpty()
         val subjectDto =
             subjectService.createSubject(

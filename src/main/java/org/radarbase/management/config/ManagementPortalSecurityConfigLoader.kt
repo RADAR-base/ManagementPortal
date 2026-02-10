@@ -69,10 +69,10 @@ class ManagementPortalSecurityConfigLoader(
 
                 logger.info("Overriding admin email to $adminEmail")
                 runBlocking {
-                    userService.addAdminEmail(adminEmail).let {
+                    userService.setAdminEmail(adminEmail).let {
                         userService.updateUser(it)
                     }
-                    userService.addAdminPassword(adminPassword)
+                    userService.updateAdminPassword(adminPassword)
                 }
 
                 isAdminIdCreated = true

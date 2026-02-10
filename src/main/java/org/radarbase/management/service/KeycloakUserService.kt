@@ -17,8 +17,6 @@ import org.radarbase.auth.authorization.Permission
 import org.radarbase.auth.authorization.RoleAuthority
 import org.radarbase.auth.exception.IdpException
 import org.radarbase.auth.kratos.KratosSessionDTO
-import org.radarbase.auth.kratos.KratosSessionDTO.JsonMetadataPatchOperation
-import org.radarbase.auth.kratos.KratosSessionDTO.JsonStringPatchOperation
 import org.radarbase.management.config.ManagementPortalProperties
 import org.radarbase.management.domain.Role
 import org.radarbase.management.domain.User
@@ -34,14 +32,12 @@ import org.radarbase.management.service.mapper.UserMapper
 import org.radarbase.management.web.rest.errors.ConflictException
 import org.radarbase.management.web.rest.errors.EntityName
 import org.radarbase.management.web.rest.errors.ErrorConstants
-import org.radarbase.management.web.rest.errors.InvalidRequestException
 import org.radarbase.management.web.rest.errors.NotFoundException
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.scheduling.annotation.Scheduled
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Duration
@@ -50,6 +46,7 @@ import java.util.*
 import java.util.function.Function
 import org.radarbase.management.service.dto.MinimalSourceDetailsDTO
 import io.ktor.http.HttpStatusCode
+import org.radarbase.management.service.dto.KeycloakUserDTO
 
 /**
  * Service class for managing users with Kratos identity provider integration.
@@ -57,7 +54,7 @@ import io.ktor.http.HttpStatusCode
  */
 @Service
 @Transactional
-class KratosUserService @Autowired constructor(
+class KeycloakUserService @Autowired constructor(
     private val userRepository: UserRepository,
     private val passwordService: PasswordService,
     private val userMapper: UserMapper,
@@ -87,10 +84,13 @@ class KratosUserService @Autowired constructor(
     private val json = Json { ignoreUnknownKeys = true }
     private val adminUrl = managementPortalProperties.identityServer.serverAdminUrl
     private val publicUrl = managementPortalProperties.identityServer.serverUrl
+    private val realm = managementPortalProperties.identityServer.realm
+    private val requiredUserActions = "[\"VERIFY_EMAIL\", \"UPDATE_PROFILE\",\"CHANGE_PASSWORD\"]"
+    private val keycloakUserUrl = "$adminUrl/admin/realms/$realm/users/"
 
     init {
-        log.debug("Kratos serverUrl set to $publicUrl")
-        log.debug("Kratos serverAdminUrl set to $adminUrl")
+        log.debug("Keycloak serverUrl set to $publicUrl")
+        log.debug("Keycloak serverAdminUrl set to $adminUrl")
     }
 
     // UserService interface implementation
@@ -161,7 +161,7 @@ class KratosUserService @Autowired constructor(
         user.roles = getUserRoles(userDto.roles, mutableSetOf())
 
         try {
-            // Create identity in Kratos
+            // Create identity in Keycloak
             user.identity = saveAsIdentity(user).id
         } catch (e: Throwable) {
             log.warn("could not save user ${user.login} as identity", e)
@@ -246,11 +246,11 @@ class KratosUserService @Autowired constructor(
     }
 
     override suspend fun updateUserWithSources(login: String, sources: List<MinimalSourceDetailsDTO>): UserDTO? {
-        log.info("Kratos UserService does not support updating user with sources")
         val user = userRepository.findOneByLogin(login)
-        if (user != null) {
-            updateAssociatedIdentityWithSources(user, sources)
-        }
+        // TODO Keycloak does not support storing source atm.
+//        if (user != null) {
+//            updateAssociatedIdentityWithSources(user, sources)
+//        }
         return userMapper.userToUserDTO(user)
     }
 
@@ -258,41 +258,45 @@ class KratosUserService @Autowired constructor(
         val user = userRepository.findOneByLogin(login)
         if (user != null) {
             userRepository.delete(user)
-
-            // Delete identity from Kratos
             try {
-                deleteAssociatedIdentity(user.identity)
+                if (user.identity != null)
+                    deleteAssociatedIdentity(user.identity!!)
+                else
+                    log.warn("User ${user.login} has no identity set. Cannot delete from IDP.")
             } catch (e: Throwable) {
                 log.warn(e.message, e)
             }
-
             log.debug("Deleted User: {}", user)
         } else {
             log.warn("could not delete User with login: {}", login)
         }
     }
 
+    // TODO setting the password via MP API is not supported. It should be handled with a redirect to IDP.
     override suspend fun changePassword(password: String) {
-        val currentUser = SecurityUtils.currentUserLogin
-            ?: throw InvalidRequestException(
-                "Cannot change password of unknown user", "", ErrorConstants.ERR_ENTITY_NOT_FOUND
-            )
-        changePassword(currentUser, password)
+        throw UnsupportedOperationException("Setting the password via MP API is not supported.")
     }
 
     override suspend fun changePassword(login: String, password: String) {
-        val user = userRepository.findOneByLogin(login)
-
-        if (user != null) {
-            // Update password in Kratos
-            try {
-                updatePassword(user, password)
-            } catch (e: Throwable) {
-                log.warn("Failed to update password in Kratos for user ${user.login}", e)
+        val user = userRepository.findOneByLogin(login) ?: throw Exception("No user found with login $login")
+        val externalId = user.identity ?: throw Exception("User $login has no identity set")
+        withContext(Dispatchers.IO) {
+            val response = httpClient.put {
+                url("$keycloakUserUrl/$externalId/reset-password")
+                contentType(ContentType.Application.Json)
+                accept(ContentType.Application.Json)
+                setBody(mapOf(
+                    "type" to "password",
+                    "value" to password,
+                    "temporary" to false
+                ))
             }
 
-            user.password = passwordService.encode(password)
-            log.debug("Changed password for User: {}", user)
+            if (!response.status.isSuccess()) {
+                throw IdpException("Failed to update user password for $login")
+            }
+
+            log.debug("Updated password for user $login.")
         }
     }
 
@@ -304,24 +308,15 @@ class KratosUserService @Autowired constructor(
         user.email = email
         log.debug("Set admin email to: {}", email)
 
-        // Ensure the Kratos identity exists (creates it if missing)
-        try {
             val response = httpClient.get {
-                url("$adminUrl/admin/identities/${user.identity}")
+                url(keycloakUserUrl)
+                parameter("username", user.login)
                 accept(ContentType.Application.Json)
             }
 
             if (response.status == HttpStatusCode.NotFound) {
                 user.identity = saveAsIdentity(user).id
             }
-        } catch (e: ResponseException) {
-            when (e.response.status) {
-                HttpStatusCode.NotFound -> {
-                    user.identity = saveAsIdentity(user).id
-                }
-                else -> throw e
-            }
-        }
 
         return userMapper.userToUserDTO(user)
             ?: throw Exception("Admin user could not be converted to DTO")
@@ -332,7 +327,7 @@ class KratosUserService @Autowired constructor(
      * @param password the new admin password
      */
     override suspend fun updateAdminPassword(password: String) {
-        if (!password.isNullOrEmpty()) {
+        if (password.isNotEmpty()) {
             log.info("Overriding admin password to configured password")
             changePassword("admin", password)
         } else {
@@ -402,119 +397,77 @@ class KratosUserService @Autowired constructor(
 
     @Throws(IdpException::class)
     override suspend fun sendActivationEmail(user: User) {
-        sendKratosActivationEmail(user)
+        // With Keycloak, we need to create the identity first before inviting the user via email.
+        saveAsIdentity(user)
+        withContext(Dispatchers.IO) {
+            val response = httpClient.put {
+                    url("$keycloakUserUrl/${user.identity}/execute-actions-email,")
+                    contentType(ContentType.Application.Json)
+                    accept(ContentType.Application.Json)
+                    setBody(requiredUserActions)
+                }
+
+            if (!response.status.isSuccess()) {
+                throw IdpException("Failed to trigger activation email for ${user.email}")
+            }
+            log.debug("Activation email sent for user ${user.login}.")
+        }
     }
 
-    // Kratos-specific methods (from IdentityService)
-
-    /**
-     * Builds metadata for a user based on roles, authorities, and sources.
-     */
-    private fun buildMetadata(
-        roles: Set<Role>,
-        authorities: Set<String>,
-        login: String,
-        sources: List<String> = emptyList(),
-    ): KratosSessionDTO.Metadata =
-        try {
-            KratosSessionDTO.Metadata(
-                aud = emptyList(),
-                sources = sources,
-                roles = roles.mapNotNull { role ->
-                    role.authority?.name?.let { auth ->
-                        when (role.role?.scope) {
-                            RoleAuthority.Scope.GLOBAL -> auth
-                            RoleAuthority.Scope.ORGANIZATION ->
-                                "${role.organization!!.name}:$auth"
-                            RoleAuthority.Scope.PROJECT ->
-                                "${role.project!!.projectName}:$auth"
-                            null -> null
-                        }
-                    }
-                },
-                authorities = authorities,
-                scope = Permission.scopes().filter { scope ->
-                    roles.mapNotNull { it.role }.any { roleAuthority ->
-                        authService.mayBeGranted(roleAuthority, Permission.ofScope(scope))
-                    }
-                },
-                mp_login = login,
-            )
-        } catch (e: Throwable) {
-            val message = "Could not build metadata for user $login"
-            log.error(message)
-            throw IdpException(message, e)
-        }
-
-    private fun createIdentity(user: User): KratosSessionDTO.Identity =
-        KratosSessionDTO.Identity(
-            schema_id = getSchemaIdFromUserRoles(user),
-            traits = KratosSessionDTO.Traits(email = user.email),
-            metadata_public = buildMetadata(
-                roles = user.roles,
-                authorities = user.authorities,
-                login = user.login!!,
-            ),
+    // DONE
+    private fun createIdentity(user: User): KeycloakUserDTO =
+        KeycloakUserDTO(
+            // We enforce the id of the user record so that we can keep reference to it in the
+            // Radarbase user record.
+            id = UUID.randomUUID().toString(),
+            username = user.login!!,
+            firstName = user.firstName ?: "",
+            lastName = user.lastName ?: "",
+            email = user.email ?: "",
+            enabled = user.activated,
+            emailVerified = false,
+            realmRoles = user.roles.map(Role::toString).toList(),
         )
 
-    private fun getSchemaIdFromUserRoles(user: User): String {
-        val roles = user.roles.map { it.role?.scope }.distinct()
-        return when {
-            roles.contains(RoleAuthority.Scope.GLOBAL) -> "admin"
-            roles.contains(RoleAuthority.Scope.ORGANIZATION) -> "researcher"
-            roles.contains(RoleAuthority.Scope.PROJECT) -> "researcher"
-            else -> "researcher"
-        }
-    }
-
+    // DONE
     @Throws(IdpException::class)
-    suspend fun saveAsIdentity(user: User): KratosSessionDTO.Identity =
+    suspend fun saveAsIdentity(user: User): KeycloakUserDTO =
         withContext(Dispatchers.IO) {
             val identity = createIdentity(user)
             val response = httpClient.post {
-                url("$adminUrl/admin/identities")
+                url(keycloakUserUrl)
                 contentType(ContentType.Application.Json)
                 accept(ContentType.Application.Json)
                 setBody(identity)
             }
 
             if (response.status.isSuccess()) {
-                response.body<KratosSessionDTO.Identity>().also {
-                    log.debug("Saved identity for user ${user.login} to IDP as ${it.id}")
+                response.body<KeycloakUserDTO>().also {
+                    log.debug("Saved identity for user ${user.login} Keycloak")
                 }
             } else if (response.status.value == 409) {
-                response.body<KratosSessionDTO.Identity>().also {
+                response.body<KeycloakUserDTO>().also {
                     log.debug("Identity for user ${user.login} already exists at the IDP. Continuing...")
                 }
             } else {
-                throw IdpException("Couldn't save Kratos ID to server at $adminUrl")
+                throw IdpException("Couldn't save Keycloak ID to server at $adminUrl")
             }
         }
 
     @Throws(IdpException::class)
-    suspend fun updateAssociatedIdentity(user: User): KratosSessionDTO.Identity =
+    suspend fun updateAssociatedIdentity(user: User): KeycloakUserDTO =
         withContext(Dispatchers.IO) {
-            val identityId = user.identity ?: throw IdpException("User has no identity")
-            val jsonPatchPayload = listOf(
-                JsonMetadataPatchOperation(
-                    op = "replace",
-                    path = "/metadata_public",
-                    value = buildMetadata(
-                        roles = user.roles,
-                        authorities = user.authorities,
-                        login = user.login!!,
-                    )
-                )
-            )
-            val response = httpClient.patch {
-                url("$adminUrl/admin/identities/$identityId")
+            val externalId = user.identity ?: throw IdpException("User has no Keycloak ID")
+            val identity = createIdentity(user)
+            val response = httpClient.put {
+                url("$keycloakUserUrl/$externalId")
                 contentType(ContentType.Application.Json)
                 accept(ContentType.Application.Json)
-                setBody(json.encodeToString(jsonPatchPayload))
+                setBody(json.encodeToString(identity))
             }
 
             if (response.status.isSuccess()) {
-                response.body<KratosSessionDTO.Identity>().also {
+                response.body<KeycloakUserDTO>().also {
                     log.debug("Updated identity for user ${user.login} on IDP as ${it.id}")
                 }
             } else {
@@ -522,126 +475,24 @@ class KratosUserService @Autowired constructor(
             }
         }
 
-    suspend fun updateAssociatedIdentityWithSources(user: User, sources: List<MinimalSourceDetailsDTO>): KratosSessionDTO.Identity =
-        withContext(Dispatchers.IO) {
-            val identityId = user.identity ?: throw IdpException("User has no identity")
-            val jsonPatchPayload = listOf(
-                JsonMetadataPatchOperation(
-                    op = "replace",
-                    path = "/metadata_public",
-                    value = getIdentityMetadataWithRoles(user, sources)
-                )
-            )
-            val response =
-                httpClient.patch {
-                    url("$adminUrl/admin/identities/$identityId")
-                    contentType(ContentType.Application.Json)
-                    accept(ContentType.Application.Json)
-                    setBody(json.encodeToString(jsonPatchPayload))
-                }
-
-            if (response.status.isSuccess()) {
-                response.body<KratosSessionDTO.Identity>().also {
-                    log.debug("Updated identity for user ${user.login} on IDP as ${it.id}")
-                }
-            } else {
-                throw IdpException("Couldn't update identity on server at $adminUrl")
-            }
-        }
-
-        @Throws(IdpException::class)
-        suspend fun getIdentityMetadataWithRoles(
-            user: User,
-            sources: List<MinimalSourceDetailsDTO>,
-        ): KratosSessionDTO.Metadata =
-            withContext(Dispatchers.IO) {
-                buildMetadata(
-                    roles = user.roles,
-                    authorities = user.authorities,
-                    login = user.login!!,
-                    sources = sources.map { it.sourceId.toString() },
-                )
-            }
-
-
     @Throws(IdpException::class)
-    suspend fun updatePassword(user: User, newPassword: String): KratosSessionDTO.Identity =
+    suspend fun deleteAssociatedIdentity(externalId: String) =
         withContext(Dispatchers.IO) {
-            val identityId = user.identity ?: throw IdpException("User has no identity to update password")
-            val encodedPassword = BCryptPasswordEncoder().encode(newPassword)
-            log.debug("Updating password for user ${user.login}")
-            val jsonPatchPayload = listOf(
-                JsonStringPatchOperation(
-                    op = "replace",
-                    path = "/credentials/password/config/hashed_password",
-                    value = encodedPassword,
-                ),
-            )
-            val response = httpClient.patch {
-                url("$adminUrl/admin/identities/$identityId")
-                contentType(ContentType.Application.Json)
-                accept(ContentType.Application.Json)
-                setBody(json.encodeToString(jsonPatchPayload))
-            }
-
-            if (response.status.isSuccess()) {
-                response.body<KratosSessionDTO.Identity>().also {
-                    log.debug("Updated password for user ${user.login} on IDP as ${it.id}")
-                }
-            } else {
-                throw IdpException("Couldn't update password on server at $adminUrl")
-            }
-        }
-
-    @Throws(IdpException::class)
-    suspend fun deleteAssociatedIdentity(userIdentity: String?) =
-        withContext(Dispatchers.IO) {
-            val identityId = userIdentity
-                ?: throw IdpException("User identity could not be deleted from the IDP. No identity was set")
+            assert(externalId.isNotBlank()) { "User identity could not be deleted from the IDP. No identity was set" }
 
             val response = httpClient.delete {
-                url("$adminUrl/admin/identities/$identityId")
+                url("$keycloakUserUrl/$externalId")
                 contentType(ContentType.Application.Json)
                 accept(ContentType.Application.Json)
             }
 
             if (response.status.isSuccess()) {
-                log.debug("Deleted identity for user $identityId")
+                log.debug("Deleted identity for user $externalId from IDP.")
             } else {
                 throw IdpException("Couldn't delete identity from server at $adminUrl")
             }
         }
 
-    @Throws(IdpException::class)
-    suspend fun sendKratosActivationEmail(user: User): String =
-        withContext(Dispatchers.IO) {
-            val flowType = managementPortalProperties.identityServer.userActivationFlowType
-            val method = managementPortalProperties.identityServer.userActivationMethod
-            val flowResponse = httpClient
-                .get {
-                    url("$publicUrl/self-service/$flowType/api")
-                    contentType(ContentType.Application.Json)
-                    accept(ContentType.Application.Json)
-                }.body<KratosSessionDTO.Verification>()
-
-            val flowId = flowResponse.id
-                ?: throw IdpException("Failed to initiate $flowType flow for ${user.email}")
-
-            val activationResponse = httpClient.post {
-                url("$publicUrl/self-service/$flowType?flow=$flowId")
-                contentType(ContentType.Application.Json)
-                accept(ContentType.Application.Json)
-                setBody(mapOf("email" to user.email, "method" to method))
-            }
-
-            if (!activationResponse.status.isSuccess()) {
-                throw IdpException("Failed to trigger $flowType email for ${user.email}")
-            }
-
-            flowId.also {
-                log.debug("Activation email sent for user ${user.login} with flow ID $it")
-            }
-        }
 
     // Scheduled method for cleanup (from DefaultUserService)
     @Scheduled(cron = "0 0 1 * * ?")
@@ -703,6 +554,6 @@ class KratosUserService @Autowired constructor(
     }
 
     companion object {
-        private val log = LoggerFactory.getLogger(KratosUserService::class.java)
+        private val log = LoggerFactory.getLogger(KeycloakUserService::class.java)
     }
 }

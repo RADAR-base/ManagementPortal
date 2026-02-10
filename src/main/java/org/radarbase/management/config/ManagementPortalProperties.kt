@@ -19,9 +19,12 @@ data class ManagementPortalProperties @ConstructorBinding constructor(
         val internal: Boolean = true,
         val serverUrl: String,
         val serverAdminUrl: String,
+        val realm: String?,
         val adminEmail: String,
         val userActivationFlowType: String = "verification",
         val userActivationMethod: String = "code",
+        // TODO replace by enum
+        val type: String = "kratos"
     )
 
     data class AuthServer @ConstructorBinding constructor(

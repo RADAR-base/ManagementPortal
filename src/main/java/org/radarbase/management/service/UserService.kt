@@ -113,13 +113,13 @@ interface UserService {
      * @return the updated admin user DTO
      * @throws Exception if no admin user found or conversion to DTO fails
      */
-    suspend fun addAdminEmail(email: String): UserDTO
+    suspend fun setAdminEmail(email: String): UserDTO
 
     /**
      * Change the admin user's password. Should only be called in application startup.
      * @param password the new admin password
      */
-    suspend fun addAdminPassword(password: String)
+    suspend fun updateAdminPassword(password: String)
 
     /**
      * Get a page of users.
@@ -183,4 +183,4 @@ interface UserService {
      * Remove not activated users.
      */
     fun removeNotActivatedUsers()
-} 
+}
