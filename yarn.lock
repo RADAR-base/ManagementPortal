@@ -486,12 +486,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@angular/compiler@npm:^12.2.12":
-  version: 12.2.12
-  resolution: "@angular/compiler@npm:12.2.12"
+"@angular/compiler@npm:^18.2.12":
+  version: 18.2.12
+  resolution: "@angular/compiler@npm:18.2.12"
   dependencies:
-    tslib: ^2.2.0
-  checksum: e8949664b65672969e3c97af2fb9e5f7ec28a0019ffb266d4ed5d79dec06d870e1bdb293932d450463d26481b1a0b874866c7f2ba2bb76fbf5a31f6047f2b4d5
+    tslib: ^2.3.0
+  peerDependencies:
+    "@angular/core": 18.2.12
+  peerDependenciesMeta:
+    "@angular/core":
+      optional: true
+  checksum: 73dc8731617e5de23617f878ab7ad8a4ae48cdf0c3f78f31d958a5024ef89aa44780def0adf4225b06a658d2738dc50b4dde7706a5a14f718fb1b837b957be4b
   languageName: node
   linkType: hard
 
@@ -7616,7 +7621,7 @@ __metadata:
     "@angular/animations": ^12.2.12
     "@angular/cli": ^12.2.12
     "@angular/common": ^12.2.12
-    "@angular/compiler": ^12.2.12
+    "@angular/compiler": ^18.2.12
     "@angular/compiler-cli": ^12.2.12
     "@angular/core": ^12.2.12
     "@angular/forms": ^12.2.12
