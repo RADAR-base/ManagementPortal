@@ -112,6 +112,24 @@ class KeycloakUserService @Autowired constructor(
         return serviceAccessToken == null || nowEpochSeconds >= (serviceTokenExpiryEpochSeconds - 30)
     }
 
+    private fun decodeJwtExpiryEpochSeconds(jwt: String): Long? {
+        return try {
+            val parts = jwt.split('.')
+            if (parts.size < 2) return null
+            val payload = parts[1]
+            val padded = when (payload.length % 4) {
+                2 -> payload + "=="
+                3 -> payload + "="
+                else -> payload
+            }
+            val jsonStr = String(java.util.Base64.getUrlDecoder().decode(padded), Charsets.UTF_8)
+            val node = json.parseToJsonElement(jsonStr).jsonObject
+            node["exp"]?.jsonPrimitive?.longOrNull
+        } catch (_: Exception) {
+            null
+        }
+    }
+
     private suspend fun requestNewClientCredentialsToken(): TokenResponse = withContext(Dispatchers.IO) {
         val clientId = managementPortalProperties.identityServer.userCreationService.clientId
         val clientSecret = managementPortalProperties.identityServer.userCreationService.clientSecret
@@ -135,8 +153,9 @@ class KeycloakUserService @Autowired constructor(
         if (isTokenExpiringSoon()) {
             val token = requestNewClientCredentialsToken()
             serviceAccessToken = token.accessToken
-            // compute expiry epoch seconds
-            serviceTokenExpiryEpochSeconds = (System.currentTimeMillis() / 1000) + token.expiresIn
+            // Prefer JWT exp claim if present; fallback to expires_in
+            val exp = decodeJwtExpiryEpochSeconds(token.accessToken)
+            serviceTokenExpiryEpochSeconds = exp ?: ((System.currentTimeMillis() / 1000) + token.expiresIn)
         }
         return serviceAccessToken!!
     }
@@ -151,8 +170,9 @@ class KeycloakUserService @Autowired constructor(
                 kotlinx.coroutines.runBlocking {
                     val token = requestNewClientCredentialsToken()
                     serviceAccessToken = token.accessToken
-                    serviceTokenExpiryEpochSeconds = (System.currentTimeMillis() / 1000) + token.expiresIn
-                    log.debug("Refreshed user-creation-service token, expiresIn={}s", token.expiresIn)
+                    val exp = decodeJwtExpiryEpochSeconds(token.accessToken)
+                    serviceTokenExpiryEpochSeconds = exp ?: ((System.currentTimeMillis() / 1000) + token.expiresIn)
+                    log.debug("Refreshed user-creation-service token, expEpoch={} (fallback expiresIn={}s)", serviceTokenExpiryEpochSeconds, token.expiresIn)
                 }
             }
         } catch (ex: Exception) {
