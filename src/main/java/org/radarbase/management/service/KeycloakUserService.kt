@@ -44,7 +44,6 @@ import java.time.ZonedDateTime
 import java.util.*
 import java.util.function.Function
 import org.radarbase.management.service.dto.MinimalSourceDetailsDTO
-import io.ktor.http.HttpStatusCode
 import org.radarbase.management.service.dto.KeycloakUserDTO
 
 /**
@@ -85,7 +84,8 @@ class KeycloakUserService @Autowired constructor(
     private val publicUrl = managementPortalProperties.identityServer.serverUrl
     private val realm = managementPortalProperties.identityServer.realm
     private val requiredUserActions = "[\"VERIFY_EMAIL\", \"UPDATE_PROFILE\",\"CHANGE_PASSWORD\"]"
-    private val keycloakUserUrl = "$adminUrl/admin/realms/$realm/users"
+    private val keycloakUsersUrl = "$adminUrl/admin/realms/$realm/users"
+    private val keycloakRolesUrl = "$adminUrl/admin/realms/$realm/roles"
 
     // Access token management for user-creation-service client (client credentials)
     @Serializable
@@ -232,8 +232,7 @@ class KeycloakUserService @Autowired constructor(
         user.roles = getUserRoles(userDto.roles, mutableSetOf())
 
         try {
-            // Create identity in Keycloak
-            user.identity = saveAsIdentity(user).id
+            user.identity = ensureExternalIdentity(user)
         } catch (e: Throwable) {
             log.warn("could not save user ${user.login} as identity", e)
         }
@@ -278,7 +277,7 @@ class KeycloakUserService @Autowired constructor(
 
         // Update identity in Kratos
         try {
-            updateAssociatedIdentity(user)
+            updateExternalIdentity(user)
         } catch (e: Throwable) {
             log.warn(e.message, e)
         }
@@ -303,9 +302,8 @@ class KeycloakUserService @Autowired constructor(
             user = userRepository.save(user)
             log.debug("Changed Information for User: {}", user)
 
-            // Update identity in Kratos
             try {
-                updateAssociatedIdentity(user)
+                updateExternalIdentity(user)
             } catch (e: Throwable) {
                 log.warn("could not update user ${user.login} with identity ${user.identity} from IDP", e)
             }
@@ -343,7 +341,6 @@ class KeycloakUserService @Autowired constructor(
         }
     }
 
-    // TODO setting the password via MP API is not supported. It should be handled with a redirect to IDP.
     override suspend fun changePassword(password: String) {
         throw UnsupportedOperationException("Setting the password via MP API is not supported.")
     }
@@ -353,7 +350,7 @@ class KeycloakUserService @Autowired constructor(
         val externalId = user.identity ?: throw Exception("User $login has no identity set")
         withContext(Dispatchers.IO) {
             val response = httpClient.put {
-                url("$keycloakUserUrl/$externalId/reset-password")
+                url("$keycloakUsersUrl/$externalId/reset-password")
                 bearerAuth(getUserCreationServiceAccessToken())
                 contentType(ContentType.Application.Json)
                 setBody(PasswordResetPayload(
@@ -378,9 +375,9 @@ class KeycloakUserService @Autowired constructor(
         log.debug("Set admin email to: {}", email)
 
         if (user.identity == null) {
-            user.identity = saveAsIdentity(user).id
+            user.identity = ensureExternalIdentity(user)
         } else {
-            updateAssociatedIdentity(user)
+            updateExternalIdentity(user)
         }
 
         return userMapper.userToUserDTO(user)
@@ -452,9 +449,8 @@ class KeycloakUserService @Autowired constructor(
             ?: throw Exception("could not add roles for user: $user")
         userRepository.save(user)
 
-        // Update identity in Kratos
         try {
-            updateAssociatedIdentity(user)
+            updateExternalIdentity(user)
         } catch (e: Throwable) {
             log.warn(e.message, e)
         }
@@ -463,10 +459,10 @@ class KeycloakUserService @Autowired constructor(
     @Throws(IdpException::class)
     override suspend fun sendActivationEmail(user: User) {
         // With Keycloak, we need to create the identity first before inviting the user via email.
-        saveAsIdentity(user)
+        ensureExternalIdentity(user)
         withContext(Dispatchers.IO) {
             val response = httpClient.put {
-                    url("$keycloakUserUrl/${user.identity}/execute-actions-email")
+                    url("$keycloakUsersUrl/${user.identity}/execute-actions-email")
                     contentType(ContentType.Application.Json)
                     accept(ContentType.Application.Json)
                     bearerAuth(getUserCreationServiceAccessToken())
@@ -481,7 +477,7 @@ class KeycloakUserService @Autowired constructor(
     }
 
     // DONE
-    private fun createIdentity(user: User): KeycloakUserDTO =
+    private suspend fun createIdentity(user: User): KeycloakUserDTO =
         KeycloakUserDTO(
             // We enforce the id of the user record so that we can keep reference to it in the
             // Radarbase user record.
@@ -492,43 +488,69 @@ class KeycloakUserService @Autowired constructor(
             email = user.email ?: "",
             enabled = user.activated,
             emailVerified = false,
-            realmRoles = user.roles.map(Role::toString).toList(),
+            realmRoles = ensureRealmRoles(user.roles),
         )
 
-    // DONE
-    @Throws(IdpException::class)
-    suspend fun saveAsIdentity(user: User): KeycloakUserDTO =
+    private suspend fun ensureRealmRoles(roles: Set<Role>): Set<String> {
+        val roleNames = roles.filter {
+            it.authority != null
+        }.mapNotNull {
+            role: Role -> when (role.authority!!.name) {
+                "ROLE_SYS_ADMIN" -> role.authority!!.name
+                "ROLE_ORGANIZATION_ADMIN" -> "${role.organization}:${role.authority!!.name}"
+                "ROLE_PROJECT_ADMIN", "ROLE_PARTICIPANT" -> "${role.project}:${role.authority!!.name}"
+                else -> throw IllegalArgumentException("Unsupported role authority: ${role.authority!!.name}")
+            }
+        }.toSet()
+        log.debug("Ensuring realm roles in external IDP: {}", roleNames)
         withContext(Dispatchers.IO) {
+            roleNames.forEach {
+                val response = httpClient.post {
+                    url(keycloakRolesUrl)
+                    contentType(ContentType.Application.Json)
+                    bearerAuth(getUserCreationServiceAccessToken())
+                    setBody(RoleRepresentation(it))
+                }
+                when (response.status) {
+                    HttpStatusCode.Created -> log.debug("Created realm role $it in IDP")
+                    HttpStatusCode.Conflict -> log.debug("Realm role $it already present in IDP. Skipping creation.")
+                    HttpStatusCode.Forbidden -> throw IdpException("Forbidden to create realm role $it in IDP. Make sure the token has 'manage-realm' role.")
+                    else -> throw IdpException("Failed to create realm role $it in IDP.")
+                }
+            }
+        }
+        log.debug("Realm roles are present in external IDP.")
+        return roleNames
+    }
+
+    @Throws(IdpException::class)
+    suspend fun ensureExternalIdentity(user: User): String =
+        withContext(Dispatchers.IO) {
+            assert(user.login != null) { "User login not set. Cannot create identity in IDP."}
+            if (user.identity != null) return@withContext user.identity!!
             val identity = createIdentity(user)
             val response = httpClient.post {
-                url(keycloakUserUrl)
+                url(keycloakUsersUrl)
                 contentType(ContentType.Application.Json)
                 accept(ContentType.Application.Json)
                 bearerAuth(getUserCreationServiceAccessToken())
                 setBody(identity)
             }
-
-            if (response.status.isSuccess()) {
-                response.body<KeycloakUserDTO>().also {
-                    log.debug("Saved identity for user ${user.login} Keycloak")
-                }
-            } else if (response.status.value == 409) {
-                val body = response.body<String>()
-                response.body<KeycloakUserDTO>().also {
-                    log.debug("Identity for user ${user.login} already exists at the IDP. Continuing...")
-                }
-            } else {
-                throw IdpException("Couldn't save Keycloak ID to server at $adminUrl")
+            when (response.status) {
+                HttpStatusCode.Created -> log.debug("Created identity for user {} on IDP as {}", user.login, identity)
+                HttpStatusCode.Conflict -> log.debug("Identity for user {} already exists at the IDP. Continuing...", user.login)
+                else -> throw IdpException("Couldn't create identity on server at $adminUrl")
             }
+            getIdentityByUsername(user.login!!)?.id ?: throw IdpException("Identity not found after creation")
         }
 
     @Throws(IdpException::class)
-    suspend fun updateAssociatedIdentity(user: User): Unit =
+    suspend fun updateExternalIdentity(user: User): Unit =
         withContext(Dispatchers.IO) {
             val externalId = user.identity ?: throw IdpException("User has no Keycloak ID")
             val identity = createIdentity(user)
             val response = httpClient.put {
-                url("$keycloakUserUrl/$externalId")
+                url("$keycloakUsersUrl/$externalId")
                 contentType(ContentType.Application.Json)
                 accept(ContentType.Application.Json)
                 bearerAuth(getUserCreationServiceAccessToken())
@@ -543,12 +565,27 @@ class KeycloakUserService @Autowired constructor(
         }
 
     @Throws(IdpException::class)
+    suspend fun getIdentityByUsername(login: String): KeycloakUserDTO? =
+        withContext(Dispatchers.IO) {
+            val response = httpClient.get {
+                url("$keycloakUsersUrl?username=$login&exact=true&first")
+                contentType(ContentType.Application.Json)
+                bearerAuth(getUserCreationServiceAccessToken())
+            }
+            when (response.status) {
+                HttpStatusCode.OK -> response.body<List<KeycloakUserDTO>>().firstOrNull()
+                HttpStatusCode.Forbidden -> throw IdpException("Forbidden to get identity from IDP. Make sure the token has 'view-users' role.")
+                else -> throw IdpException("Couldn't get identity from server at $adminUrl")
+            }
+        }
+
+    @Throws(IdpException::class)
     suspend fun deleteAssociatedIdentity(externalId: String) =
         withContext(Dispatchers.IO) {
             assert(externalId.isNotBlank()) { "User identity could not be deleted from the IDP. No identity was set" }
 
             val response = httpClient.delete {
-                url("$keycloakUserUrl/$externalId")
+                url("$keycloakUsersUrl/$externalId")
                 contentType(ContentType.Application.Json)
                 accept(ContentType.Application.Json)
                 bearerAuth(getUserCreationServiceAccessToken())
@@ -631,4 +668,9 @@ data class PasswordResetPayload(
     val type: String = "password",
     val value: String,
     val temporary: Boolean = false
+)
+
+@Serializable
+data class RoleRepresentation(
+    val name: String
 )

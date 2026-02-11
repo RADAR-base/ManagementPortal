@@ -162,7 +162,7 @@ class KratosUserService @Autowired constructor(
 
         try {
             // Create identity in Kratos
-            user.identity = saveAsIdentity(user).id
+            user.identity = createExternalIdentity(user).id
         } catch (e: Throwable) {
             log.warn("could not save user ${user.login} as identity", e)
         }
@@ -207,7 +207,7 @@ class KratosUserService @Autowired constructor(
 
         // Update identity in Kratos
         try {
-            updateAssociatedIdentity(user)
+            updateExternalIdentity(user)
         } catch (e: Throwable) {
             log.warn(e.message, e)
         }
@@ -234,7 +234,7 @@ class KratosUserService @Autowired constructor(
 
             // Update identity in Kratos
             try {
-                updateAssociatedIdentity(user)
+                updateExternalIdentity(user)
             } catch (e: Throwable) {
                 log.warn("could not update user ${user.login} with identity ${user.identity} from IDP", e)
             }
@@ -312,12 +312,12 @@ class KratosUserService @Autowired constructor(
             }
 
             if (response.status == HttpStatusCode.NotFound) {
-                user.identity = saveAsIdentity(user).id
+                user.identity = createExternalIdentity(user).id
             }
         } catch (e: ResponseException) {
             when (e.response.status) {
                 HttpStatusCode.NotFound -> {
-                    user.identity = saveAsIdentity(user).id
+                    user.identity = createExternalIdentity(user).id
                 }
                 else -> throw e
             }
@@ -394,7 +394,7 @@ class KratosUserService @Autowired constructor(
 
         // Update identity in Kratos
         try {
-            updateAssociatedIdentity(user)
+            updateExternalIdentity(user)
         } catch (e: Throwable) {
             log.warn(e.message, e)
         }
@@ -468,7 +468,7 @@ class KratosUserService @Autowired constructor(
     }
 
     @Throws(IdpException::class)
-    suspend fun saveAsIdentity(user: User): KratosSessionDTO.Identity =
+    suspend fun createExternalIdentity(user: User): KratosSessionDTO.Identity =
         withContext(Dispatchers.IO) {
             val identity = createIdentity(user)
             val response = httpClient.post {
@@ -492,7 +492,7 @@ class KratosUserService @Autowired constructor(
         }
 
     @Throws(IdpException::class)
-    suspend fun updateAssociatedIdentity(user: User): KratosSessionDTO.Identity =
+    suspend fun updateExternalIdentity(user: User): KratosSessionDTO.Identity =
         withContext(Dispatchers.IO) {
             val identityId = user.identity ?: throw IdpException("User has no identity")
             val jsonPatchPayload = listOf(
