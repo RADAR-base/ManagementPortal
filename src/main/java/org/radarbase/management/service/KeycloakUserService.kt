@@ -100,6 +100,7 @@ class KeycloakUserService @Autowired constructor(
 
     @Volatile
     private var serviceAccessToken: String? = null
+
     @Volatile
     private var serviceTokenExpiryEpochSeconds: Long = 0L
 
@@ -353,9 +354,11 @@ class KeycloakUserService @Autowired constructor(
                 url("$keycloakUsersUrl/$externalId/reset-password")
                 bearerAuth(getUserCreationServiceAccessToken())
                 contentType(ContentType.Application.Json)
-                setBody(PasswordResetPayload(
-                    value = password
-                ))
+                setBody(
+                    PasswordResetPayload(
+                        value = password
+                    )
+                )
             }
 
             if (!response.status.isSuccess()) {
@@ -462,12 +465,12 @@ class KeycloakUserService @Autowired constructor(
         ensureExternalIdentity(user)
         withContext(Dispatchers.IO) {
             val response = httpClient.put {
-                    url("$keycloakUsersUrl/${user.identity}/execute-actions-email")
-                    contentType(ContentType.Application.Json)
-                    accept(ContentType.Application.Json)
-                    bearerAuth(getUserCreationServiceAccessToken())
-                    setBody(requiredUserActions)
-                }
+                url("$keycloakUsersUrl/${user.identity}/execute-actions-email")
+                contentType(ContentType.Application.Json)
+                accept(ContentType.Application.Json)
+                bearerAuth(getUserCreationServiceAccessToken())
+                setBody(requiredUserActions)
+            }
 
             if (!response.status.isSuccess()) {
                 throw IdpException("Failed to trigger activation email for ${user.email}")
@@ -476,7 +479,6 @@ class KeycloakUserService @Autowired constructor(
         }
     }
 
-    // DONE
     private suspend fun createIdentity(user: User): KeycloakUserDTO =
         KeycloakUserDTO(
             // We enforce the id of the user record so that we can keep reference to it in the
@@ -486,22 +488,11 @@ class KeycloakUserService @Autowired constructor(
             firstName = user.firstName ?: "",
             lastName = user.lastName ?: "",
             email = user.email ?: "",
-            enabled = user.activated,
             emailVerified = false,
-            realmRoles = ensureRealmRoles(user.roles),
         )
 
-    private suspend fun ensureRealmRoles(roles: Set<Role>): Set<String> {
-        val roleNames = roles.filter {
-            it.authority != null
-        }.mapNotNull {
-            role: Role -> when (role.authority!!.name) {
-                "ROLE_SYS_ADMIN" -> role.authority!!.name
-                "ROLE_ORGANIZATION_ADMIN" -> "${role.organization}:${role.authority!!.name}"
-                "ROLE_PROJECT_ADMIN", "ROLE_PARTICIPANT" -> "${role.project}:${role.authority!!.name}"
-                else -> throw IllegalArgumentException("Unsupported role authority: ${role.authority!!.name}")
-            }
-        }.toSet()
+    private suspend fun ensureRealmRoles(roles: Set<Role>): Set<RoleRepresentation> {
+        val roleNames = rolesToStringSet(roles)
         log.debug("Ensuring realm roles in external IDP: {}", roleNames)
         withContext(Dispatchers.IO) {
             roleNames.forEach {
@@ -509,7 +500,7 @@ class KeycloakUserService @Autowired constructor(
                     url(keycloakRolesUrl)
                     contentType(ContentType.Application.Json)
                     bearerAuth(getUserCreationServiceAccessToken())
-                    setBody(RoleRepresentation(it))
+                    setBody(RoleRepresentation(id = null, name = it))
                 }
                 when (response.status) {
                     HttpStatusCode.Created -> log.debug("Created realm role $it in IDP")
@@ -520,13 +511,58 @@ class KeycloakUserService @Autowired constructor(
             }
         }
         log.debug("Realm roles are present in external IDP.")
-        return roleNames
+        return getRealmRoles()
     }
+
+    @Throws(IdpException::class)
+    suspend fun getRealmRoles(): Set<RoleRepresentation> =
+        withContext(Dispatchers.IO) {
+            val response = httpClient.get {
+                url(keycloakRolesUrl)
+                accept(ContentType.Application.Json)
+                bearerAuth(getUserCreationServiceAccessToken())
+            }
+            when (response.status) {
+                HttpStatusCode.OK -> json.decodeFromString<List<RoleRepresentation>>(response.body()!!)
+                HttpStatusCode.Forbidden -> throw IdpException("Forbidden to get realm roles from IDP. Make sure the token has 'view-realm' role.")
+                else -> throw IdpException("Failed to get realm roles from IDP.")
+            }
+            response.body()
+        }
+
+    private fun rolesToStringSet(roles: Collection<Role>): Set<String> =
+        roles.filter {
+            it.authority != null
+        }.mapNotNull {
+            when (it.authority!!.name) {
+                "ROLE_SYS_ADMIN" -> it.authority!!.name
+                "ROLE_ORGANIZATION_ADMIN" -> "${it.organization}:${it.authority!!.name}"
+                "ROLE_PROJECT_ADMIN", "ROLE_PARTICIPANT" -> "${it.project}:${it.authority!!.name}"
+                else -> throw IllegalArgumentException("Unsupported role authority: ${it.authority!!.name}")
+            }
+        }.toSet()
+
+    @Throws(IdpException::class)
+    suspend fun addRealmRolesToUser(externalId: String, roles: Collection<Role>) =
+        withContext(Dispatchers.IO) {
+            val roleRepresentations = ensureRealmRoles(roles.toSet())
+            val response = httpClient.post {
+                url("$keycloakUsersUrl/$externalId/role-mappings/realm")
+                contentType(ContentType.Application.Json)
+                bearerAuth(getUserCreationServiceAccessToken())
+                setBody(roleRepresentations)
+            }
+            when (response.status) {
+                HttpStatusCode.NoContent -> log.debug("Added realm roles to user $externalId")
+                HttpStatusCode.Forbidden -> throw IdpException("Forbidden to add realm roles to user $externalId. Make sure the token has 'manage-realm' role.")
+                else -> throw IdpException("Failed to add realm roles to user $externalId.")
+            }
+        }
 
     @Throws(IdpException::class)
     suspend fun ensureExternalIdentity(user: User): String =
         withContext(Dispatchers.IO) {
-            assert(user.login != null) { "User login not set. Cannot create identity in IDP."}
+            assert(user.login != null) { "User login not set. Cannot create identity in IDP." }
             if (user.identity != null) return@withContext user.identity!!
             val identity = createIdentity(user)
             val response = httpClient.post {
@@ -538,10 +574,17 @@ class KeycloakUserService @Autowired constructor(
             }
             when (response.status) {
                 HttpStatusCode.Created -> log.debug("Created identity for user {} on IDP as {}", user.login, identity)
-                HttpStatusCode.Conflict -> log.debug("Identity for user {} already exists at the IDP. Continuing...", user.login)
+                HttpStatusCode.Conflict -> log.debug(
+                    "Identity for user {} already exists at the IDP. Continuing...",
+                    user.login
+                )
+
                 else -> throw IdpException("Couldn't create identity on server at $adminUrl")
             }
-            getIdentityByUsername(user.login!!)?.id ?: throw IdpException("Identity not found after creation")
+            val externalId =
+                getIdentityByUsername(user.login!!)?.id ?: throw IdpException("Identity not found after creation")
+            addRealmRolesToUser(externalId, user.roles)
+            externalId
         }
 
     @Throws(IdpException::class)
@@ -556,12 +599,11 @@ class KeycloakUserService @Autowired constructor(
                 bearerAuth(getUserCreationServiceAccessToken())
                 setBody(json.encodeToString(identity))
             }
-
-            if (response.status.isSuccess()) {
-                log.debug("Updated identity for user {} on IDP as {}", user.login, identity)
-            } else {
-                throw IdpException("Couldn't update identity on server at $adminUrl")
+            when (response.status) {
+                HttpStatusCode.NoContent -> log.debug("Updated identity for user {} on IDP as {}", user.login, identity)
+                else -> throw IdpException("Couldn't update identity on server at $adminUrl")
             }
+            addRealmRolesToUser(externalId, user.roles)
         }
 
     @Throws(IdpException::class)
@@ -618,6 +660,7 @@ class KeycloakUserService @Autowired constructor(
                 RoleAuthority.Scope.ORGANIZATION -> roleService.getOrganizationRole(
                     authority, roleDto.organizationId!!
                 )
+
                 RoleAuthority.Scope.PROJECT -> roleService.getProjectRole(
                     authority, roleDto.projectId!!
                 )
@@ -653,6 +696,7 @@ class KeycloakUserService @Autowired constructor(
                     }
                     e.project(role.project?.projectName)
                 }
+
                 else -> throw IllegalStateException("Unknown authority scope.")
             }
         })
@@ -672,5 +716,13 @@ data class PasswordResetPayload(
 
 @Serializable
 data class RoleRepresentation(
-    val name: String
+    val id: String?,
+    val name: String?,
+    val composite: Boolean? = false,
+    val composites: List<RoleRepresentation>? = null,
+    val clientRole: Boolean? = false,
+    val containerId: String? = null,
+    val attributes: Map<String, List<String>>? = null,
+    val scopeParamRequired: Boolean? = false,
+    val description: String? = null,
 )
