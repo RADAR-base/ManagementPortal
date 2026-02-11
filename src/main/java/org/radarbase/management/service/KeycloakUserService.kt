@@ -276,7 +276,6 @@ class KeycloakUserService @Autowired constructor(
         log.debug("Changed Information for User: {}", user)
         userRepository.save(user)
 
-        // Update identity in Kratos
         try {
             updateExternalIdentity(user)
         } catch (e: Throwable) {
@@ -448,12 +447,15 @@ class KeycloakUserService @Autowired constructor(
         val oldRoles = managedRoles.toMutableSet()
 
         managedRoles.clear()
+
         roleDtos?.let { getUserRoles(it, oldRoles) }?.let { managedRoles.addAll(it) }
             ?: throw Exception("could not add roles for user: $user")
         userRepository.save(user)
 
         try {
-            updateExternalIdentity(user)
+            if (user.identity != null) {
+                updateExternalIdentity(user)
+            }
         } catch (e: Throwable) {
             log.warn(e.message, e)
         }
@@ -560,6 +562,31 @@ class KeycloakUserService @Autowired constructor(
         }
 
     @Throws(IdpException::class)
+    suspend fun removeRolesFromUser(externalId: String, roles: Collection<Role>?) =
+        withContext(Dispatchers.IO) {
+            var allRoleRepresentations = getRealmRoles()
+            if (!roles.isNullOrEmpty()) {
+                allRoleRepresentations = allRoleRepresentations.filter {
+                    rolesToStringSet(roles).contains(it.name)
+                }.toSet()
+            }
+            val response = httpClient.delete {
+                url("$keycloakUsersUrl/$externalId/role-mappings/realm")
+                contentType(ContentType.Application.Json)
+                bearerAuth(getUserCreationServiceAccessToken())
+                setBody(allRoleRepresentations)
+            }
+            when (response.status) {
+                HttpStatusCode.NoContent -> log.debug("Removed realm roles from user $externalId")
+                HttpStatusCode.Forbidden -> throw IdpException("Forbidden to remove realm roles from user $externalId. Make sure the token has 'manage-realm' role.")
+                else -> throw IdpException("Failed to remove realm roles from user $externalId.")
+            }
+        }
+
+    @Throws(IdpException::class)
+    suspend fun removeAllRolesFromUser(externalId: String) = removeRolesFromUser(externalId, emptySet())
+
+    @Throws(IdpException::class)
     suspend fun ensureExternalIdentity(user: User): String =
         withContext(Dispatchers.IO) {
             assert(user.login != null) { "User login not set. Cannot create identity in IDP." }
@@ -589,6 +616,7 @@ class KeycloakUserService @Autowired constructor(
 
     @Throws(IdpException::class)
     suspend fun updateExternalIdentity(user: User): Unit =
+        // TODO A bit ugly, but I now resort to removing and readding all realm roles when update is triggered.
         withContext(Dispatchers.IO) {
             val externalId = user.identity ?: throw IdpException("User has no Keycloak ID")
             val identity = createIdentity(user)
@@ -603,6 +631,7 @@ class KeycloakUserService @Autowired constructor(
                 HttpStatusCode.NoContent -> log.debug("Updated identity for user {} on IDP as {}", user.login, identity)
                 else -> throw IdpException("Couldn't update identity on server at $adminUrl")
             }
+            removeAllRolesFromUser(externalId)
             addRealmRolesToUser(externalId, user.roles)
         }
 
