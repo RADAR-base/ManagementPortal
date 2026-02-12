@@ -84,7 +84,6 @@ class KeycloakUserService @Autowired constructor(
     private val adminUrl = managementPortalProperties.identityServer.serverAdminUrl
     private val publicUrl = managementPortalProperties.identityServer.serverUrl
     private val realm = managementPortalProperties.identityServer.realm
-    private val requiredUserActions = listOf("VERIFY_EMAIL", "UPDATE_PROFILE", "UPDATE_PASSWORD")
     private val keycloakUsersUrl = "$adminUrl/admin/realms/$realm/users"
     private val keycloakRolesUrl = "$adminUrl/admin/realms/$realm/roles"
 
@@ -485,16 +484,15 @@ class KeycloakUserService @Autowired constructor(
 
     @Throws(IdpException::class)
     override suspend fun sendActivationEmail(user: User) {
-        // With Keycloak, we need to create the identity first before inviting the user via email.
-        ensureExternalIdentity(user)
+        assert(user.identity != null) { throw IdpException("External identity must be set before sending activation email. Create the user record in Keycloak fir") }
+        assert(user.email != null) { throw IdpException("User email must be set before sending activation email.") }
         withContext(Dispatchers.IO) {
             val response = httpClient.put {
                 url("$keycloakUsersUrl/${user.identity}/execute-actions-email")
                 contentType(ContentType.Application.Json)
                 bearerAuth(getUserCreationServiceAccessToken())
-                setBody(requiredUserActions)
+                setBody(listOf("VERIFY_EMAIL", "UPDATE_PROFILE", "UPDATE_PASSWORD", "CONFIGURE_OTP"))
             }
-
             if (!response.status.isSuccess()) {
                 throw IdpException("Failed to trigger activation email for ${user.email} [${response.bodyAsText()}]")
             }
@@ -628,7 +626,6 @@ class KeycloakUserService @Autowired constructor(
                 val response = httpClient.post {
                     url(keycloakUsersUrl)
                     contentType(ContentType.Application.Json)
-                    accept(ContentType.Application.Json)
                     bearerAuth(getUserCreationServiceAccessToken())
                     setBody(identity)
                 }
@@ -639,6 +636,12 @@ class KeycloakUserService @Autowired constructor(
                 }
                 externalId = getIdentityByUsername(user.login!!)?.id ?:
                     throw IdpException("Identity not found after creation")
+                httpClient.put {
+                    url(keycloakUsersUrl)
+                    contentType(ContentType.Application.Json)
+                    bearerAuth(getUserCreationServiceAccessToken())
+                    setBody(identity)
+                }
             }
             addRealmRolesToUser(externalId, user.roles)
             externalId
