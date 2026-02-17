@@ -159,7 +159,7 @@ class DefaultUserService @Autowired constructor(
         user.password = passwordService.generateEncodedPassword()
         user.resetKey = passwordService.generateResetKey()
         user.resetDate = ZonedDateTime.now()
-        user.activated = true
+        user.activated = false
         user.roles = getUserRoles(userDto.roles, mutableSetOf())
         user = withContext(Dispatchers.IO) {
             userRepository.save(user)
