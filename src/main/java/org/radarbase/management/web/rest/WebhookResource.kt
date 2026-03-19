@@ -99,39 +99,84 @@ constructor(
     @PostMapping("/subjects/activate")
     @Timed
     @Throws(URISyntaxException::class, NotAuthorizedException::class)
-    suspend fun activateSubject(
+    suspend fun activateUser(
             @RequestBody webhookDTO: KratosSubjectWebhookDTO,
     ): ResponseEntity<Void> {
-        val id = webhookDTO.identity?.id ?: throw IllegalArgumentException("Subject ID is required")
-        val token =
-                webhookDTO.cookies?.get("ory_kratos_session")
-                        ?: throw IllegalArgumentException("Session token is required")
-        val kratosIdentity = sessionService.getSession(token).identity
-        val project =
-                kratosIdentity.traits?.projects?.firstOrNull()
-                        ?: throw NotAuthorizedException("Cannot create subject without project")
-        val projectUserId =
-                project.userId ?: throw IllegalArgumentException("Project user ID is required")
+        val identityId = webhookDTO.identity?.id 
+                ?: throw IllegalArgumentException("Identity ID is required")
+        val sessionToken = webhookDTO.cookies?.get("ory_kratos_session")
+                ?: throw IllegalArgumentException("Session token is required")
+        
+        val kratosIdentity = sessionService.getSession(sessionToken).identity
+        val schemaId = kratosIdentity.schema_id 
+                ?: throw IllegalArgumentException("Schema ID is required")
 
-        if (!hasPermission(kratosIdentity, id)) {
-            throw NotAuthorizedException("Not authorized to activate subject")
+        validatePermission(kratosIdentity, identityId)
+
+        return when (schemaId) {
+            KRATOS_SUBJECT_SCHEMA -> activateSubjectIdentity(webhookDTO, kratosIdentity, identityId)
+            KRATOS_RESEARCHER_SCHEMA -> activateResearcherIdentity(kratosIdentity, identityId)
+            else -> throw IllegalArgumentException("Unsupported schema type: $schemaId")
         }
+    }
 
-        val subject = subjectService.findOneByLogin(projectUserId) ?: createSubject(webhookDTO)
+    private suspend fun activateSubjectIdentity(
+            webhookDTO: KratosSubjectWebhookDTO,
+            kratosIdentity: KratosSessionDTO.Identity,
+            identityId: String
+    ): ResponseEntity<Void> {
+        val project = kratosIdentity.traits?.projects?.firstOrNull()
+                ?: throw NotAuthorizedException("Cannot create subject without project")
+        val projectUserId = project.userId 
+                ?: throw IllegalArgumentException("Project user ID is required")
+        
+        // Ensure subject exists before activating
+        try {
+            subjectService.findOneByLogin(projectUserId)
+        } catch (e: NotFoundException) {
+            createSubject(webhookDTO)
+        }
         subjectService.activateSubject(projectUserId)
+        
         return ResponseEntity.ok()
-                .headers(HeaderUtil.createEntityUpdateAlert(EntityName.SUBJECT, id))
+                .headers(HeaderUtil.createEntityUpdateAlert(EntityName.SUBJECT, identityId))
                 .build()
     }
 
-    private fun hasPermission(
+    private suspend fun activateResearcherIdentity(
             kratosIdentity: KratosSessionDTO.Identity,
-            identityId: String?,
-    ): Boolean = kratosIdentity.id == identityId
+            identityId: String
+    ): ResponseEntity<Void> {
+        val mpLogin = kratosIdentity.metadata_public?.mp_login
+                ?: throw IllegalArgumentException("Management Portal login is required for researcher activation")
+        
+        val userDto = userService.getUserDtoWithAuthoritiesByLogin(mpLogin)
+                ?: throw NotFoundException(
+                        "User not found: $mpLogin",
+                        EntityName.USER,
+                        "userNotFound"
+                )
+        
+        if (!userDto.isActivated) {
+            userDto.isActivated = true
+            userService.updateUser(userDto)
+        }
+        
+        return ResponseEntity.ok()
+                .headers(HeaderUtil.createEntityUpdateAlert(EntityName.USER, identityId))
+                .build()
+    }
+
+    private fun validatePermission(kratosIdentity: KratosSessionDTO.Identity, identityId: String) {
+        if (kratosIdentity.id != identityId) {
+            throw NotAuthorizedException("Not authorized to activate user")
+        }
+    }
 
     companion object {
         private val logger = LoggerFactory.getLogger(WebhookResource::class.java)
         private val KRATOS_SUBJECT_SCHEMA = "subject"
+        private val KRATOS_RESEARCHER_SCHEMA = "researcher"
         private val EMAIL_ATTRIBUTE_KEY = "email"
     }
 }

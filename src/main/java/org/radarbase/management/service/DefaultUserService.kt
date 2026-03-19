@@ -108,11 +108,18 @@ class DefaultUserService @Autowired constructor(
      * @return an [Optional] which holds the user if an deactivated user was found with the
      * given login, and is empty otherwise
      */
-    override fun requestActivationReset(login: String): User? {
+    override suspend fun requestActivationReset(login: String): User? {
         val user = userRepository.findOneByLogin(login)
         if (user?.activated != true) {
             user?.resetKey = passwordService.generateResetKey()
             user?.resetDate = ZonedDateTime.now()
+        }
+
+        if (user != null) { // send activation email if user is deactivated
+        mailService.sendCreationEmail(
+                user, managementPortalProperties.common
+                    .activationKeyTimeoutInSeconds.toLong()
+            )
         }
 
         return user
@@ -129,6 +136,7 @@ class DefaultUserService @Autowired constructor(
         return if (user?.activated == true) {
             user.resetKey = passwordService.generateResetKey()
             user.resetDate = ZonedDateTime.now()
+            mailService.sendPasswordResetMail(user)
             user
         } else
             null

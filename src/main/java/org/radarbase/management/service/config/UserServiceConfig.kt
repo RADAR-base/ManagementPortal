@@ -58,7 +58,8 @@ class UserServiceConfiguration {
             userMapper: UserMapper,
             revisionService: RevisionService,
             managementPortalProperties: ManagementPortalProperties,
-            authService: AuthService
+            authService: AuthService,
+            mailService: MailService
         ): UserService {
             log.info("Using Kratos external user management")
             require(managementPortalProperties.identityServer.publicUrl.isNotBlank()) {
@@ -70,7 +71,8 @@ class UserServiceConfiguration {
                 userMapper,
                 revisionService,
                 managementPortalProperties,
-                authService
+                authService,
+                mailService
             )
         }
     }
