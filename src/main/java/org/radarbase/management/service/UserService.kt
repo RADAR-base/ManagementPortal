@@ -39,7 +39,7 @@ interface UserService {
      * @param login the login of the user
      * @return the user if a deactivated user was found with the given login, null otherwise
      */
-    fun requestActivationReset(login: String): User?
+    suspend fun requestActivationReset(login: String): User?
 
     /**
      * Set a user's reset key to a new random value and set their reset date to now.

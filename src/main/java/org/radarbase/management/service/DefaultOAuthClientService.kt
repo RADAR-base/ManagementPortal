@@ -1,13 +1,12 @@
 package org.radarbase.management.service
 
-import org.radarbase.management.config.AuthServerEnabled
+import org.radarbase.management.config.annotations.AuthServerEnabled
 import org.radarbase.management.domain.User
 import org.radarbase.management.service.dto.ClientDetailsDTO
 import org.radarbase.management.service.mapper.ClientDetailsMapper
 import org.radarbase.management.web.rest.errors.*
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.authority.SimpleGrantedAuthority
@@ -19,16 +18,13 @@ import org.springframework.security.oauth2.provider.NoSuchClientException
 import org.springframework.security.oauth2.provider.OAuth2Authentication
 import org.springframework.security.oauth2.provider.OAuth2Request
 import org.springframework.security.oauth2.provider.client.JdbcClientDetailsService
-import org.springframework.stereotype.Service
 import java.util.*
 
 /**
  * Default implementation of OAuthClientService using Spring OAuth2 and JDBC.
  * This service handles OAuth client and token related functions using the internal OAuth server.
  */
-@AuthServerEnabled
-@Service
-class DefaultOAuthClientService(
+open class DefaultOAuthClientService(
     @Autowired private val clientDetailsService: JdbcClientDetailsService,
     @Autowired private val clientDetailsMapper: ClientDetailsMapper,
     @Autowired private val authorizationServerEndpointsConfiguration: AuthorizationServerEndpointsConfiguration

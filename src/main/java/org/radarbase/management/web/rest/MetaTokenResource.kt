@@ -10,7 +10,6 @@ import org.radarbase.management.service.MetaTokenService
 import org.radarbase.management.service.dto.TokenDTO
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import java.net.MalformedURLException

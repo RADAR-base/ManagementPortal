@@ -75,7 +75,7 @@ class SubjectService(
     @Transactional
     suspend fun createSubject(
         subjectDto: SubjectDTO,
-        activated: Boolean? = true,
+        activated: Boolean = true,
     ): SubjectDTO? {
         val subject = subjectMapper.subjectDTOToSubject(subjectDto) ?: throw NullPointerException()
         // assign roles
@@ -83,7 +83,7 @@ class SubjectService(
         val project = projectMapper.projectDTOToProject(subjectDto.project)
         val projectParticipantRole = getProjectParticipantRole(project, RoleAuthority.PARTICIPANT)
         val roles = user!!.roles
-        roles?.add(projectParticipantRole)
+        roles.add(projectParticipantRole)
 
         // Set group
         subject.group = getSubjectGroup(project, subjectDto.group)
@@ -95,18 +95,16 @@ class SubjectService(
         user.langKey = "en"
         user.resetDate = ZonedDateTime.now()
         // default subject is activated.
-        user.activated = activated!!
+        user.activated = activated
         // default identity is externalId
         user.identity = subject.externalId
         // set if any devices are set as assigned
-        if (subject.sources.isNotEmpty()) {
-            subject.sources.forEach(
-                Consumer { s: Source ->
-                    s.assigned = true
-                    s.subject(subject)
-                },
-            )
-        }
+        subject.sources.forEach(
+            Consumer { s: Source ->
+                s.assigned = true
+                s.subject(subject)
+            },
+        )
         if (subject.enrollmentDate == null) {
             subject.enrollmentDate = ZonedDateTime.now()
         }
@@ -161,9 +159,9 @@ class SubjectService(
         project: Project?,
         authority: RoleAuthority,
     ): Role {
-        val ans: Role? =
+        val existingRole: Role? =
             roleRepository.findOneByProjectIdAndAuthorityName(project?.id, authority.authority)
-        return if (ans == null) {
+        return if (existingRole == null) {
             val subjectRole = Role()
             val auth: Authority =
                 authorityRepository.findByAuthorityName(authority.authority)
@@ -174,7 +172,7 @@ class SubjectService(
             roleRepository.save(subjectRole)
             subjectRole
         } else {
-            ans
+            existingRole
         }
     }
 

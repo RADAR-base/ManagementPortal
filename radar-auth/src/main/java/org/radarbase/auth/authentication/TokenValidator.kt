@@ -28,7 +28,7 @@ constructor(
     /** Maximum time that the token verifier does not need to be fetched. */
     maxAge: Duration = Duration.ofDays(1),
 ) {
-    private val algorithmLoaders: List<TokenVerifierCache>?
+    private val algorithmLoaders: List<TokenVerifierCache>
 
     init {
         val config = CacheConfig(
@@ -38,7 +38,7 @@ constructor(
         )
         algorithmLoaders = verifierLoaders?.map { loader ->
             CachedValue(config, supplier = loader::fetch)
-        }
+        } ?: emptyList()
     }
 
     /**
@@ -77,13 +77,13 @@ constructor(
     suspend fun validate(token: String): RadarToken {
         val result: Result<RadarToken> = consumeFirst { emit ->
             val causes = algorithmLoaders
-                ?.forkJoin { cache ->
+                .forkJoin { cache ->
                     val result = cache.verify(token)
                     // short-circuit to return the first successful result
                     if (result.isSuccess) emit(result)
                     result
                 }
-                ?.flatMap {
+                .flatMap {
                     it.exceptionOrNull()
                         ?.suppressedExceptions
                         ?: emptyList()
@@ -103,7 +103,7 @@ constructor(
 
     /** Refresh the token verifiers from cache on the next validation. */
     fun refresh() {
-        algorithmLoaders?.forEach { it.clear() }
+        algorithmLoaders.forEach { it.clear() }
     }
 
     companion object {

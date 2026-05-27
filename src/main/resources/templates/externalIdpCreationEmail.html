@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title th:text="#{email.external.creation.title}">Account created</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+
+<body>
+    <p th:text="#{email.external.creation.greeting} + ' ' + ${#strings.capitalize(user.login)}">
+        Dear
+    </p>
+    <p th:text="#{email.external.creation.text1}">
+        Your ManagementPortal account has been created.
+    </p>
+    <p th:text="#{email.external.creation.loginIntro(${user.email})}">
+        Your user name is
+    </p>
+
+    <p th:text="#{email.external.creation.text2}">
+        To get started, please follow the steps below:
+    </p>
+
+    <p th:text="#{email.external.creation.step1}">
+        Step 1: Set your password
+    </p>
+    <p th:text="#{email.external.creation.step1detail}">
+        Click the link below to set your password through our identity provider:
+    </p>
+    <p>
+        <a th:href="${recoveryLink}" th:text="#{email.external.creation.recoveryLinkText}">Set Password</a>
+    </p>
+
+    <p th:text="#{email.external.creation.step2}">
+        Step 2: Log in to ManagementPortal
+    </p>
+    <p th:text="#{email.external.creation.step2detail}">
+        Once your password is set, go to the ManagementPortal to log in:
+    </p>
+    <p>
+        <a th:href="${baseUrl}" th:text="${baseUrl}">ManagementPortal</a>
+    </p>
+
+    <p>
+        <span th:text="#{email.external.creation.regards}">Regards, </span>
+        <br />
+        <em th:text="#{email.signature}">ManagementPortal Team.</em>
+    </p>
+</body>
+
+</html>

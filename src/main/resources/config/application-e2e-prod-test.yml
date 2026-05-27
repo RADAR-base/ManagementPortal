@@ -35,5 +35,5 @@ managementportal:
     require-aal2: false
   identityServer:
     adminEmail: bastiaan@thehyve.nl
-    serverUrl: http://127.0.0.1:4433
-    serverAdminUrl: http://127.0.0.1:4434
+    publicUrl: http://127.0.0.1:4433
+    adminUrl: http://127.0.0.1:4434

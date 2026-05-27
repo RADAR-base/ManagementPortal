@@ -1,5 +1,7 @@
 package org.radarbase.management.service.config
 
+import org.radarbase.management.config.annotations.AuthServerEnabled
+import org.radarbase.management.config.annotations.AuthServerDisabled
 import org.radarbase.management.config.ManagementPortalProperties
 import org.radarbase.management.service.DefaultOAuthClientService
 import org.radarbase.management.service.OAuthClientService
@@ -15,40 +17,42 @@ import org.springframework.security.oauth2.provider.client.JdbcClientDetailsServ
 @Configuration
 class OAuthClientServiceConfiguration {
 
-    @Bean
-    @Primary
-    fun oAuthClientService(
-        managementPortalProperties: ManagementPortalProperties,
-        jdbcClientDetailsService: JdbcClientDetailsService?,
-        clientDetailsMapper: ClientDetailsMapper?,
-        authorizationServerEndpointsConfiguration: AuthorizationServerEndpointsConfiguration?
-    ): OAuthClientService {
-        return if (managementPortalProperties.authServer.internal) {
+    @AuthServerEnabled
+    @Configuration
+    class DefaultOAuthClientServiceConfiguration {
+        @Bean
+        @Primary
+        fun defaultOAuthClientService(
+            jdbcClientDetailsService: JdbcClientDetailsService,
+            clientDetailsMapper: ClientDetailsMapper,
+            authorizationServerEndpointsConfiguration: AuthorizationServerEndpointsConfiguration
+        ): OAuthClientService {
             log.info("Using internal OAuth client management")
-            require(jdbcClientDetailsService != null) {
-                "JdbcClientDetailsService must be available when using internal OAuth server"
-            }
-            require(clientDetailsMapper != null) {
-                "ClientDetailsMapper must be available when using internal OAuth server"
-            }
-            require(authorizationServerEndpointsConfiguration != null) {
-                "AuthorizationServerEndpointsConfiguration must be available when using internal OAuth server"
-            }
-            DefaultOAuthClientService(
+            return DefaultOAuthClientService(
                 jdbcClientDetailsService,
                 clientDetailsMapper,
                 authorizationServerEndpointsConfiguration
             )
-        } else {
+        }
+    }
+
+    @AuthServerDisabled
+    @Configuration
+    class HydraOAuthClientServiceConfiguration {
+        @Bean
+        @Primary
+        fun hydraOAuthClientService(
+            managementPortalProperties: ManagementPortalProperties
+        ): OAuthClientService {
             log.info("Using Hydra external OAuth client management")
             // Validate Hydra configuration
-            require(managementPortalProperties.authServer.serverUrl.isNotBlank()) {
-                "Hydra server URL must be configured when using external OAuth management"
+            require(managementPortalProperties.authServer.tokenUrl.isNotBlank()) {
+                "Hydra token URL must be configured when using external OAuth management"
             }
-            require(managementPortalProperties.authServer.serverAdminUrl.isNotBlank()) {
-                "Hydra admin server URL must be configured when using external OAuth management"
+            require(managementPortalProperties.authServer.adminUrl.isNotBlank()) {
+                "Hydra admin URL must be configured when using external OAuth management"
             }
-            HydraOAuthClientService(managementPortalProperties)
+            return HydraOAuthClientService(managementPortalProperties)
         }
     }
 

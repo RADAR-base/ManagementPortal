@@ -63,7 +63,8 @@ class KratosUserService @Autowired constructor(
     private val userMapper: UserMapper,
     private val revisionService: RevisionService,
     private val managementPortalProperties: ManagementPortalProperties,
-    private val authService: AuthService
+    private val authService: AuthService,
+    private val mailService: MailService
 ) : UserService {
 
     @Autowired
@@ -85,8 +86,8 @@ class KratosUserService @Autowired constructor(
     }
 
     private val json = Json { ignoreUnknownKeys = true }
-    private val adminUrl = managementPortalProperties.identityServer.serverAdminUrl
-    private val publicUrl = managementPortalProperties.identityServer.serverUrl
+    private val adminUrl = managementPortalProperties.identityServer.adminUrl
+    private val publicUrl = managementPortalProperties.identityServer.publicUrl
 
     init {
         log.debug("Kratos serverUrl set to $publicUrl")
@@ -124,11 +125,14 @@ class KratosUserService @Autowired constructor(
         } else null
     }
 
-    override fun requestActivationReset(login: String): User? {
+    override suspend fun requestActivationReset(login: String): User? {
         val user = userRepository.findOneByLogin(login)
         if (user?.activated != true) {
             user?.resetKey = passwordService.generateResetKey()
             user?.resetDate = ZonedDateTime.now()
+        }
+        if (user != null) { // send activation email if user is deactivated
+            sendActivationEmail(user)
         }
         return user
     }
@@ -138,6 +142,7 @@ class KratosUserService @Autowired constructor(
         return if (user?.activated == true) {
             user.resetKey = passwordService.generateResetKey()
             user.resetDate = ZonedDateTime.now()
+            mailService.sendPasswordResetMail(user)
             user
         } else null
     }
@@ -157,7 +162,7 @@ class KratosUserService @Autowired constructor(
         user.password = passwordService.generateEncodedPassword()
         user.resetKey = passwordService.generateResetKey()
         user.resetDate = ZonedDateTime.now()
-        user.activated = true
+        user.activated = false
         user.roles = getUserRoles(userDto.roles, mutableSetOf())
 
         try {
@@ -402,7 +407,8 @@ class KratosUserService @Autowired constructor(
 
     @Throws(IdpException::class)
     override suspend fun sendActivationEmail(user: User) {
-        sendKratosActivationEmail(user)
+        val recoveryLink = createKratosRecoveryLink(user)
+        mailService.sendExternalIdpCreationEmail(user, recoveryLink)
     }
 
     // Kratos-specific methods (from IdentityService)
@@ -613,33 +619,25 @@ class KratosUserService @Autowired constructor(
         }
 
     @Throws(IdpException::class)
-    suspend fun sendKratosActivationEmail(user: User): String =
+    suspend fun createKratosRecoveryLink(user: User): String =
         withContext(Dispatchers.IO) {
-            val flowType = managementPortalProperties.identityServer.userActivationFlowType
-            val method = managementPortalProperties.identityServer.userActivationMethod
-            val flowResponse = httpClient
-                .get {
-                    url("$publicUrl/self-service/$flowType/api")
-                    contentType(ContentType.Application.Json)
-                    accept(ContentType.Application.Json)
-                }.body<KratosSessionDTO.Verification>()
+            val identityId = user.identity
+                ?: throw IdpException("User ${user.login} has no identity to create recovery link for")
 
-            val flowId = flowResponse.id
-                ?: throw IdpException("Failed to initiate $flowType flow for ${user.email}")
-
-            val activationResponse = httpClient.post {
-                url("$publicUrl/self-service/$flowType?flow=$flowId")
+            val response = httpClient.post {
+                url("$adminUrl/admin/recovery/link")
                 contentType(ContentType.Application.Json)
                 accept(ContentType.Application.Json)
-                setBody(mapOf("email" to user.email, "method" to method))
+                setBody(mapOf("identity_id" to identityId))
             }
 
-            if (!activationResponse.status.isSuccess()) {
-                throw IdpException("Failed to trigger $flowType email for ${user.email}")
-            }
-
-            flowId.also {
-                log.debug("Activation email sent for user ${user.login} with flow ID $it")
+            if (response.status.isSuccess()) {
+                val recoveryResponse = response.body<KratosSessionDTO.RecoveryLinkResponse>()
+                recoveryResponse.recovery_link.also {
+                    log.debug("Created recovery link for user ${user.login}")
+                }
+            } else {
+                throw IdpException("Failed to create recovery link for user ${user.login}")
             }
         }
 

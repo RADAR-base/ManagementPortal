@@ -132,13 +132,14 @@ managementportal:
         from: ManagementPortal@localhost
     identityServer:
       internal: true
-      serverUrl: http://127.0.0.1:4433
-      serverAdminUrl: http://127.0.0.1:4434
-      admin-email: admin@localhost
+      publicUrl: http://127.0.0.1:4433
+      adminUrl: http://127.0.0.1:4434
+      adminEmail: admin@localhost
     authServer:
       internal: true
-      serverUrl: http://hydra:4444
-      serverAdminUrl: http://hydra:4445
-      loginUrl:  http://localhost:4444
+      tokenUrl: http://hydra:4444/hydra/oauth2/token
+      adminUrl: http://hydra:4445
+      authUrl: http://localhost:4444/hydra/oauth2/auth
+      jwksUrl: http://hydra:4445/admin/keys/hydra.jwt.access-token
     siteSettings:
       hiddenSubjectFields: []
