@@ -1,0 +1,30 @@
+version: '2'
+services:
+    managementportal-app:
+        build:
+            context: ../../../
+            dockerfile: ./Dockerfile
+        environment:
+            - SPRING_PROFILES_ACTIVE=prod,api-docs
+            - SPRING_DATASOURCE_URL=jdbc:postgresql://managementportal-postgresql:5432/managementportal
+            - SPRING_DATASOURCE_USERNAME=radarbase
+            - SPRING_DATASOURCE_PASSWORD=radarbase
+            - MANAGEMENTPORTAL_COMMON_ADMINPASSWORD=admin
+            - MANAGEMENTPORTAL_FRONTEND_CLIENT_SECRET=secret
+            - MANAGEMENTPORTAL_OAUTH_CLIENTS_FILE=/mp-includes/config/oauth_client_details.csv
+            - MANAGEMENTPORTAL_IDENTITYSERVER_INTERNAL=false # IF using external identity like ORY Kratos
+            - MANAGEMENTPORTAL_IDENTITYSERVER_ADMINEMAIL=admin-email-here@radar-base.net
+            - MANAGEMENTPORTAL_IDENTITYSERVER_PUBLICURL=http://kratos:4433
+            - MANAGEMENTPORTAL_IDENTITYSERVER_ADMINURL=http://kratos-admin:4434
+            - MANAGEMENTPORTAL_AUTHSERVER_INTERNAL=false # IF using external auth server like ORY Hydra
+            - MANAGEMENTPORTAL_AUTHSERVER_TOKENURL=http://hydra:4444/hydra/oauth2/token
+            - MANAGEMENTPORTAL_AUTHSERVER_ADMINURL=http://hydra:4445
+            - MANAGEMENTPORTAL_AUTHSERVER_AUTHURL=http://localhost:4444/hydra/oauth2/auth
+            - MANAGEMENTPORTAL_AUTHSERVER_JWKSURL=http://hydra:4445/admin/keys/hydra.jwt.access-token
+            - MANAGEMENTPORTAL_CATALOGUESERVER_SERVERURL=http://catalogue-server:8080
+            - JHIPSTER_SLEEP=10 # gives time for the database to boot before the application
+            - JAVA_OPTS=-Xmx512m -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 #enables remote debugging
+        ports:
+            - "8080:8080"
+        volumes:
+            - ./etc:/mp-includes

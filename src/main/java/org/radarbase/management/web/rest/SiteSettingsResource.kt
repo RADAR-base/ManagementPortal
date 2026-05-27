@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/api")
 class SiteSettingsResource(
-    @param:Autowired private val siteSettingsService: SiteSettingsService
+    @Autowired private val siteSettingsService: SiteSettingsService
 ) {
     @get:Timed
     @get:GetMapping("/sitesettings")

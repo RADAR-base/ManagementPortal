@@ -9,12 +9,7 @@ import org.radarbase.management.security.NotAuthorizedException
 import org.radarbase.management.service.dto.ClientPairInfoDTO
 import org.radarbase.management.service.dto.TokenDTO
 import org.radarbase.management.web.rest.MetaTokenResource
-import org.radarbase.management.web.rest.errors.BadRequestException
-import org.radarbase.management.web.rest.errors.EntityName
-import org.radarbase.management.web.rest.errors.ErrorConstants
-import org.radarbase.management.web.rest.errors.InvalidStateException
-import org.radarbase.management.web.rest.errors.NotFoundException
-import org.radarbase.management.web.rest.errors.RequestGoneException
+import org.radarbase.management.web.rest.errors.*
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.scheduling.annotation.Scheduled

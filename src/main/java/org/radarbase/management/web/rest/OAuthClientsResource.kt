@@ -3,14 +3,10 @@ package org.radarbase.management.web.rest
 import io.micrometer.core.annotation.Timed
 import org.radarbase.auth.authorization.EntityDetails
 import org.radarbase.auth.authorization.Permission
+import org.radarbase.management.config.annotations.AuthServerEnabled
 import org.radarbase.management.security.Constants
 import org.radarbase.management.security.NotAuthorizedException
-import org.radarbase.management.service.AuthService
-import org.radarbase.management.service.MetaTokenService
-import org.radarbase.management.service.OAuthClientService
-import org.radarbase.management.service.ResourceUriService
-import org.radarbase.management.service.SubjectService
-import org.radarbase.management.service.UserService
+import org.radarbase.management.service.*
 import org.radarbase.management.service.dto.ClientDetailsDTO
 import org.radarbase.management.service.dto.ClientPairInfoDTO
 import org.radarbase.management.service.mapper.ClientDetailsMapper
@@ -25,15 +21,7 @@ import org.springframework.boot.actuate.audit.AuditEventRepository
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.AccessDeniedException
-import org.springframework.web.bind.annotation.DeleteMapping
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import java.net.MalformedURLException
 import java.net.URISyntaxException
 import javax.validation.Valid
@@ -109,7 +97,7 @@ class OAuthClientsResource(
     fun updateOAuthClient(@RequestBody @Valid clientDetailsDto: ClientDetailsDTO?): ResponseEntity<ClientDetailsDTO> {
         authService.checkPermission(Permission.OAUTHCLIENTS_UPDATE)
         // getOAuthClient checks if the id exists
-        OAuthClientService.checkProtected(oAuthClientService.findOneByClientId(clientDetailsDto!!.clientId))
+        OAuthClientUtils.checkProtected(oAuthClientService.findOneByClientId(clientDetailsDto!!.clientId))
         val updated = oAuthClientService.updateOauthClient(clientDetailsDto)
         return ResponseEntity.ok()
             .headers(
@@ -138,7 +126,7 @@ class OAuthClientsResource(
     fun deleteOAuthClient(@PathVariable id: String?): ResponseEntity<Void> {
         authService.checkPermission(Permission.OAUTHCLIENTS_DELETE)
         // getOAuthClient checks if the id exists
-        OAuthClientService.checkProtected(oAuthClientService.findOneByClientId(id))
+        OAuthClientUtils.checkProtected(oAuthClientService.findOneByClientId(id))
         oAuthClientService.deleteClientDetails(id)
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(EntityName.OAUTH_CLIENT, id))
             .build()
@@ -187,7 +175,7 @@ class OAuthClientsResource(
     ): ResponseEntity<ClientPairInfoDTO> {
         authService.checkScope(Permission.SUBJECT_UPDATE)
         val currentUser =
-            userService.userWithAuthorities // We only allow this for actual logged in users for now, not for client_credentials
+            userService.getUserWithAuthorities() // We only allow this for actual logged in users for now, not for client_credentials
                 ?: throw AccessDeniedException(
                         "You must be a logged in user to access this resource"
                     )

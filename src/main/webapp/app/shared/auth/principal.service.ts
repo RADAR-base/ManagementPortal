@@ -17,7 +17,6 @@ export class Principal {
             // do not emit multiple duplicate values
             distinctUntilChanged((a, b) => a === b),
         );
-        this.reset().subscribe();
     }
 
     /**

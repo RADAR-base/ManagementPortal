@@ -23,7 +23,6 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter
 import org.springframework.mock.web.MockFilterConfig
-import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
@@ -40,7 +39,6 @@ import javax.servlet.ServletException
  */
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(classes = [ManagementPortalTestApp::class])
-@WithMockUser
 internal class SourceTypeResourceIntTest(
     @Autowired private val sourceTypeRepository: SourceTypeRepository,
     @Autowired private val sourceTypeMapper: SourceTypeMapper,

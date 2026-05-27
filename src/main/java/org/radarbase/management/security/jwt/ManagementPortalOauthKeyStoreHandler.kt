@@ -7,6 +7,7 @@ import org.radarbase.auth.authentication.TokenValidator
 import org.radarbase.auth.jwks.JsonWebKeySet
 import org.radarbase.auth.jwks.JwkAlgorithmParser
 import org.radarbase.auth.jwks.JwksTokenVerifierLoader
+import org.radarbase.management.config.annotations.AuthServerEnabled
 import org.radarbase.management.config.ManagementPortalProperties
 import org.radarbase.management.config.ManagementPortalProperties.Oauth
 import org.radarbase.management.security.jwt.algorithm.EcdsaJwtAlgorithm
@@ -40,6 +41,8 @@ import kotlin.collections.Map.Entry
  * [org.springframework.security.oauth2.provider.token.store.KeyStoreKeyFactory]. However,
  * this class does not assume a specific key type, while the Spring factory assumes RSA keys.
  */
+
+@AuthServerEnabled
 @Component
 class ManagementPortalOauthKeyStoreHandler @Autowired constructor(
     environment: Environment, servletContext: ServletContext, managementPortalProperties: ManagementPortalProperties
@@ -223,7 +226,7 @@ class ManagementPortalOauthKeyStoreHandler @Autowired constructor(
             val jwksLoader = JwksTokenVerifierLoader(
                 "$managementPortalBaseUrl/oauth/token_key", "res_ManagementPortal", JwkAlgorithmParser()
             )
-            return TokenValidator(java.util.List.of(jwksLoader))
+            return TokenValidator(listOf(jwksLoader))
         }
 
     companion object {

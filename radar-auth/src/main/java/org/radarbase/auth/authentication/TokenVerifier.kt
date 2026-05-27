@@ -12,5 +12,5 @@ interface TokenVerifier {
      * @throws TokenValidationException if the token cannot be verified by this verifier.
      */
     @Throws(TokenValidationException::class)
-    fun verify(token: String): RadarToken
+    suspend fun verify(token: String): RadarToken
 }

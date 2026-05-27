@@ -88,10 +88,14 @@ class User : AbstractEntity(), Serializable {
     @Column(name = "reset_date")
     var resetDate: ZonedDateTime? = null
 
+    /** Identifier for association with the identity service provider.
+     * Null if not linked to an external identity. */
+    var identity: String? = null
+
     /** Authorities that a user has.  */
-    val authorities: Set<String>?
+    val authorities: Set<String>
         get() {
-            return roles?.mapNotNull { obj: Role? -> obj?.authority?.name }?.toSet()
+            return roles.mapNotNull { obj: Role? -> obj?.authority?.name }.toSet()
         }
 
     @JvmField

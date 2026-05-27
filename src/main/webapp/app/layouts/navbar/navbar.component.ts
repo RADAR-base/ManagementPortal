@@ -16,6 +16,7 @@ import {
 import { EventManager } from '../../shared/util/event-manager.service';
 
 import { ProfileService } from '../profiles/profile.service';
+import { environment } from "../../../environments/environment";
 
 @Component({
     selector: 'jhi-navbar',
@@ -31,6 +32,9 @@ export class NavbarComponent {
 
     projects: Project[];
     organizations: Organization[];
+
+    private loginUrl = 'api/redirect/login';
+    private settingsUrl = 'api/redirect/account'
 
     constructor(
         private loginService: LoginService,
@@ -64,7 +68,7 @@ export class NavbarComponent {
     }
 
     login() {
-        this.modalRef = this.loginModalService.open();
+        window.location.href = this.loginUrl;
     }
 
     logout() {
@@ -75,5 +79,9 @@ export class NavbarComponent {
 
     toggleNavbar() {
         this.isNavbarCollapsed = !this.isNavbarCollapsed;
+    }
+
+    redirectToProfile() {
+        window.location.href = this.settingsUrl;
     }
 }

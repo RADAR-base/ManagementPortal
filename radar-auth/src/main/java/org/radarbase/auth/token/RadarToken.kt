@@ -1,6 +1,8 @@
 package org.radarbase.auth.token
 
 import org.radarbase.auth.authorization.AuthorityReference
+import org.radarbase.auth.token.RadarToken.AuthenticatorAssuranceLevel.aal1
+import org.radarbase.auth.token.RadarToken.AuthenticatorAssuranceLevel.aal2
 import java.time.Instant
 
 /**
@@ -85,6 +87,12 @@ interface RadarToken {
     val clientId: String?
 
     /**
+     * the authenticator assurance level of the token
+     * @return default.
+     */
+    val authenticatorAssuranceLevel: AuthenticatorAssuranceLevel
+
+    /**
      * Whether the current credentials were obtained with a OAuth 2.0 client credentials flow.
      *
      * @return true if the client credentials flow was certainly used, false otherwise.
@@ -96,5 +104,16 @@ interface RadarToken {
 
     companion object {
         const val CLIENT_CREDENTIALS = "client_credentials"
+    }
+
+    /**
+     * Authenticator assurance level, commonly referred to as MFA. AAL1 means no MFA, AAL2 means MFA
+     *
+     * @property aal1 Represents the first level of authenticator assurance (e.g. password based).
+     * @property aal2 Represents the second level of authenticator assurance (i.e. MFA).
+     */
+    enum class AuthenticatorAssuranceLevel {
+        aal1,
+        aal2
     }
 }

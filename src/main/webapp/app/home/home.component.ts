@@ -1,15 +1,15 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { ActivatedRoute, Router } from '@angular/router';
+import { first } from 'rxjs/operators';
 
 import {
-    LoginModalService,
     ProjectService,
     Principal,
     Project, OrganizationService,
+    LoginService,
 } from '../shared';
-import { of, Subscription } from "rxjs";
-import { EventManager } from "../shared/util/event-manager.service";
-import { switchMap } from "rxjs/operators";
+import { Subscription } from "rxjs";
 
 @Component({
     selector: 'jhi-home',
@@ -19,51 +19,47 @@ import { switchMap } from "rxjs/operators";
     ],
 
 })
-export class HomeComponent {
-    // implements OnInit, OnDestroy {
+export class HomeComponent implements OnInit, OnDestroy {
     modalRef: NgbModalRef;
-    // projects: Project[];
     subscriptions: Subscription;
+    private loginUrl = 'api/redirect/login';
 
     constructor(
-            public principal: Principal,
-            private loginModalService: LoginModalService,
-            public projectService: ProjectService,
-            public organizationService: OrganizationService,
-
-            // private eventManager: EventManager,
-            // private userService: UserService,
+        public principal: Principal,
+        public projectService: ProjectService,
+        public organizationService: OrganizationService,
+        private route: ActivatedRoute,
+        private loginService: LoginService,
     ) {
         this.subscriptions = new Subscription();
     }
 
-    // ngOnInit() {
-    //     this.loadRelevantProjects();
-    // }
-    //
-    // ngOnDestroy() {
-    //     this.subscriptions.unsubscribe();
-    // }
-    //
-    // private loadRelevantProjects() {
-    //     this.subscriptions.add(this.principal.account$
-    //         .pipe(
-    //           switchMap(account => {
-    //             if (account) {
-    //                 return this.userService.findProject(account.login);
-    //             } else {
-    //               return of([]);
-    //             }
-    //           })
-    //         )
-    //         .subscribe(projects => this.projects = projects));
-    // }
+    ngOnInit() {
+        this.subscriptions.add(this.route.queryParams.subscribe((params) => {
+            // This will check if there's a valid session cookie
+            this.subscriptions.add(
+                this.principal.identity().pipe(first()).subscribe(
+                    (account) => {
+                        // Session restored successfully or no session exists
+                        // The template will react to the account$ observable
+                    },
+                    (error) => {
+                        // Error restoring session, but don't redirect (handled by interceptor)
+                    }
+                )
+            );
+        }));
+    }
+
+    ngOnDestroy() {
+        this.subscriptions.unsubscribe();
+    }
 
     trackId(index: number, item: Project) {
         return item.projectName;
     }
 
     login() {
-        this.modalRef = this.loginModalService.open();
+        window.location.href = this.loginUrl
     }
 }

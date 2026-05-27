@@ -1,85 +1,100 @@
 package org.radarbase.management.config
 
+import javax.sql.DataSource
 import org.radarbase.auth.authorization.RoleAuthority
+import org.radarbase.management.config.annotations.AuthServerEnabled
 import org.radarbase.management.repository.UserRepository
-import org.radarbase.management.security.ClaimsTokenEnhancer
-import org.radarbase.management.security.Http401UnauthorizedEntryPoint
-import org.radarbase.management.security.JwtAuthenticationFilter
-import org.radarbase.management.security.PostgresApprovalStore
-import org.radarbase.management.security.jwt.ManagementPortalJwtAccessTokenConverter
-import org.radarbase.management.security.jwt.ManagementPortalJwtTokenStore
-import org.radarbase.management.security.jwt.ManagementPortalOauthKeyStoreHandler
+import org.radarbase.management.security.*
+import org.radarbase.management.security.jwt.*
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.beans.factory.annotation.*
 import org.springframework.boot.autoconfigure.orm.jpa.JpaProperties
-import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Configuration
-import org.springframework.context.annotation.Primary
+import org.springframework.context.annotation.*
 import org.springframework.core.annotation.Order
-import org.springframework.http.HttpMethod
 import org.springframework.orm.jpa.vendor.Database
-import org.springframework.security.authentication.AuthenticationManager
-import org.springframework.security.authentication.DefaultAuthenticationEventPublisher
+import org.springframework.security.authentication.*
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
+import org.springframework.security.config.annotation.web.configuration.*
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.core.Authentication
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer
-import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter
-import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer
-import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer
-import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter
-import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer
-import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer
-import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer
-import org.springframework.security.oauth2.provider.approval.ApprovalStore
-import org.springframework.security.oauth2.provider.approval.JdbcApprovalStore
+import org.springframework.security.oauth2.config.annotation.web.configuration.*
+import org.springframework.security.oauth2.config.annotation.web.configurers.*
+import org.springframework.security.oauth2.provider.approval.*
 import org.springframework.security.oauth2.provider.client.JdbcClientDetailsService
-import org.springframework.security.oauth2.provider.code.AuthorizationCodeServices
-import org.springframework.security.oauth2.provider.code.JdbcAuthorizationCodeServices
-import org.springframework.security.oauth2.provider.token.DefaultTokenServices
-import org.springframework.security.oauth2.provider.token.TokenEnhancer
-import org.springframework.security.oauth2.provider.token.TokenEnhancerChain
-import org.springframework.security.oauth2.provider.token.TokenStore
+import org.springframework.security.oauth2.provider.code.*
+import org.springframework.security.oauth2.provider.token.*
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler
-import java.util.*
-import javax.sql.DataSource
+import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.security.web.savedrequest.SavedRequest
+import java.net.URI
+import java.net.URISyntaxException
+
 
 @Configuration
-class OAuth2ServerConfiguration {
-    @Autowired
-    private val dataSource: DataSource? = null
+class OAuth2ServerConfiguration(
+    @Autowired private val dataSource: DataSource,
+    @Autowired private val passwordEncoder: PasswordEncoder
+) {
 
-    @Autowired
-    private val passwordEncoder: PasswordEncoder? = null
-
+    @AuthServerEnabled
     @Configuration
     @Order(-20)
-    protected class LoginConfig : WebSecurityConfigurerAdapter() {
-        @Autowired
-        private val authenticationManager: AuthenticationManager? = null
-
-        @Autowired
-        private val jwtAuthenticationFilter: JwtAuthenticationFilter? = null
+    protected class LoginConfig(
+        @Autowired private val authenticationManager: AuthenticationManager,
+    ) : WebSecurityConfigurerAdapter() {
 
         @Throws(Exception::class)
         override fun configure(http: HttpSecurity) {
             http
-                .formLogin().loginPage("/login").permitAll()
-                .and()
-                .addFilterAfter(
-                    jwtAuthenticationFilter,
-                    UsernamePasswordAuthenticationFilter::class.java
-                )
                 .requestMatchers()
-                .antMatchers("/login", "/oauth/authorize", "/oauth/confirm_access")
+                .antMatchers("/login", "/oauth/authorize", "/oauth/confirm_access", "/css/**", "/images/**", "/js/**")
                 .and()
-                .authorizeRequests().anyRequest().authenticated()
+                .authorizeRequests()
+                .antMatchers("/login", "/css/**", "/images/**", "/js/**").permitAll()
+                .antMatchers("/oauth/authorize", "/oauth/confirm_access").authenticated()
+                .and()
+                .formLogin()
+                .loginPage("/login")
+                .successHandler { request, response, authentication ->
+                    request.session.setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext())
+                    val savedRequest = request.session.getAttribute("SPRING_SECURITY_SAVED_REQUEST") as? SavedRequest
+                    val queryString = request.queryString?.let { "?$it" } ?: ""
+                    val redirectUrl = savedRequest?.redirectUrl ?: request.requestURI + queryString
+
+                    val safeRedirectUrl = try {
+                        val uri = URI(redirectUrl)
+                        when {
+                            // Allow relative URLs
+                            !uri.isAbsolute && (uri.path.startsWith("/") || uri.path.startsWith(request.contextPath)) -> {
+                                redirectUrl
+                            }
+                            // Allow absolute URLs from same host (fixes your issue)
+                            uri.isAbsolute && uri.host == request.serverName && uri.scheme == request.scheme -> {
+                                redirectUrl
+                            }
+                            // Default fallback
+                            else -> {
+                                logger.warn("Unsafe redirect URL blocked: $redirectUrl")
+                                "/"
+                            }
+                        }
+                    } catch (e: URISyntaxException) {
+                        logger.warn("Invalid redirect URL: $redirectUrl", e)
+                        "/"
+                    }
+
+                    response.sendRedirect(safeRedirectUrl)
+                }
+                .permitAll()
+                .and()
+                .csrf().disable()  // Disable CSRF for OAuth endpoints
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
         }
 
         @Throws(Exception::class)
@@ -88,23 +103,20 @@ class OAuth2ServerConfiguration {
         }
     }
 
+    @AuthServerEnabled
     @Configuration
-    class JwtAuthenticationFilterConfiguration {
-        @Autowired
-        private val authenticationManager: AuthenticationManager? = null
-
-        @Autowired
-        private val userRepository: UserRepository? = null
-
-        @Autowired
-        private val keyStoreHandler: ManagementPortalOauthKeyStoreHandler? = null
-
+    class JwtAuthenticationFilterConfiguration(
+        @Autowired private val authenticationManager: AuthenticationManager,
+        @Autowired private val userRepository: UserRepository,
+        @Autowired private val keyStoreHandler: ManagementPortalOauthKeyStoreHandler
+    ) {
         @Bean
         fun jwtAuthenticationFilter(): JwtAuthenticationFilter {
             return JwtAuthenticationFilter(
-                keyStoreHandler!!.tokenValidator,
-                authenticationManager!!,
-                userRepository!!,
+                keyStoreHandler.tokenValidator,
+                authenticationManager,
+                true,
+                userRepository,
                 true
             )
         }
@@ -117,72 +129,46 @@ class OAuth2ServerConfiguration {
         return clientDetailsService
     }
 
+    @AuthServerEnabled
     @Configuration
     @EnableResourceServer
     protected class ResourceServerConfiguration(
-        @Autowired private val keyStoreHandler: ManagementPortalOauthKeyStoreHandler,
         @Autowired private val tokenStore: TokenStore,
         @Autowired private val http401UnauthorizedEntryPoint: Http401UnauthorizedEntryPoint,
         @Autowired private val logoutSuccessHandler: LogoutSuccessHandler,
-        @Autowired private val authenticationManager: AuthenticationManager,
-        @Autowired private val userRepository: UserRepository
+        @Autowired private val jwtAuthenticationFilter: JwtAuthenticationFilter
     ) : ResourceServerConfigurerAdapter() {
-
-        fun jwtAuthenticationFilter(): JwtAuthenticationFilter {
-            return JwtAuthenticationFilter(
-                keyStoreHandler.tokenValidator, authenticationManager, userRepository
-            )
-                .skipUrlPattern(HttpMethod.GET, "/management/health")
-                .skipUrlPattern(HttpMethod.GET, "/api/meta-token/*")
-                .skipUrlPattern(HttpMethod.GET, "/api/public/projects")
-                .skipUrlPattern(HttpMethod.GET, "/api/sitesettings")
-                .skipUrlPattern(HttpMethod.GET, "/images/**")
-                .skipUrlPattern(HttpMethod.GET, "/css/**")
-                .skipUrlPattern(HttpMethod.GET, "/js/**")
-                .skipUrlPattern(HttpMethod.GET, "/radar-baseRR.png")
-        }
 
         @Throws(Exception::class)
         override fun configure(http: HttpSecurity) {
             http
+                .requestMatchers()
+                .antMatchers("/api/**", "/management/**")
+                .and()
+                .authorizeRequests()
+                .antMatchers("/api/register").hasAuthority(RoleAuthority.SYS_ADMIN_AUTHORITY)
+                .antMatchers("/api/profile-info").permitAll()
+                .antMatchers("/api/sitesettings").permitAll()
+                .antMatchers("/api/public/projects").permitAll()
+                .antMatchers("/api/**").authenticated()
+                .antMatchers("/management/health").permitAll()
+                .antMatchers("/management/**").hasAuthority(RoleAuthority.SYS_ADMIN_AUTHORITY)
+                .and()
                 .exceptionHandling()
                 .authenticationEntryPoint(http401UnauthorizedEntryPoint)
+                .and()
+                .addFilterBefore(
+                    jwtAuthenticationFilter,
+                    UsernamePasswordAuthenticationFilter::class.java
+                )
+                .csrf().disable()
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                 .and()
                 .logout()
                 .invalidateHttpSession(true)
                 .logoutUrl("/api/logout")
                 .logoutSuccessHandler(logoutSuccessHandler)
-                .and()
-                .addFilterBefore(
-                    jwtAuthenticationFilter(),
-                    UsernamePasswordAuthenticationFilter::class.java
-                )
-                .headers()
-                .frameOptions()
-                .disable()
-                .and()
-                .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
-                .and()
-                .authorizeRequests()
-                .antMatchers("/oauth/**").permitAll()
-                .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                .antMatchers("/api/register")
-                .hasAnyAuthority(RoleAuthority.SYS_ADMIN_AUTHORITY)
-                .antMatchers("/api/profile-info").permitAll()
-                .antMatchers("/api/sitesettings").permitAll()
-                .antMatchers("/api/public/projects").permitAll()
-                .antMatchers("/api/logout-url").permitAll()
-                .antMatchers("/api/**")
-                .authenticated() // Allow management/health endpoint to all to allow kubernetes to be able to
-                // detect the health of the service
-                .antMatchers("/management/health").permitAll()
-                .antMatchers("/management/**")
-                .hasAnyAuthority(RoleAuthority.SYS_ADMIN_AUTHORITY)
-                .antMatchers("/v2/api-docs/**").permitAll()
-                .antMatchers("/swagger-resources/configuration/ui").permitAll()
-                .antMatchers("/swagger-ui/index.html")
-                .hasAnyAuthority(RoleAuthority.SYS_ADMIN_AUTHORITY)
         }
 
         @Throws(Exception::class)
@@ -194,13 +180,12 @@ class OAuth2ServerConfiguration {
 
         protected class CustomEventPublisher : DefaultAuthenticationEventPublisher() {
             override fun publishAuthenticationSuccess(authentication: Authentication) {
-                // OAuth2AuthenticationProcessingFilter publishes an authentication success audit
-                // event for EVERY successful OAuth request to our API resources, this is way too
-                // much so we override the event publisher to not publish these events.
+                // Suppress OAuth2 audit spam
             }
         }
     }
 
+    @AuthServerEnabled
     @Configuration
     @EnableAuthorizationServer
     protected class AuthorizationServerConfiguration(
@@ -212,29 +197,22 @@ class OAuth2ServerConfiguration {
     ) : AuthorizationServerConfigurerAdapter() {
 
         @Bean
-        protected fun authorizationCodeServices(): AuthorizationCodeServices {
-            return JdbcAuthorizationCodeServices(dataSource)
-        }
+        protected fun authorizationCodeServices(): AuthorizationCodeServices =
+            JdbcAuthorizationCodeServices(dataSource)
 
         @Bean
-        fun approvalStore(): ApprovalStore {
-            return if (jpaProperties.database == Database.POSTGRESQL) {
+        fun approvalStore(): ApprovalStore =
+            if (jpaProperties.database == Database.POSTGRESQL)
                 PostgresApprovalStore(dataSource)
-            } else {
-                // to have compatibility for other databases including H2
+            else
                 JdbcApprovalStore(dataSource)
-            }
-        }
 
         @Bean
-        fun tokenEnhancer(): TokenEnhancer {
-            return ClaimsTokenEnhancer()
-        }
+        fun tokenEnhancer(): TokenEnhancer = ClaimsTokenEnhancer()
 
         @Bean
-        fun tokenStore(): TokenStore {
-            return ManagementPortalJwtTokenStore(accessTokenConverter())
-        }
+        fun tokenStore(): TokenStore =
+            ManagementPortalJwtTokenStore(accessTokenConverter())
 
         @Bean
         fun accessTokenConverter(): ManagementPortalJwtAccessTokenConverter {
@@ -249,18 +227,17 @@ class OAuth2ServerConfiguration {
         @Bean
         @Primary
         fun tokenServices(tokenStore: TokenStore?): DefaultTokenServices {
-            val defaultTokenServices = DefaultTokenServices()
-            defaultTokenServices.setTokenStore(tokenStore)
-            defaultTokenServices.setSupportRefreshToken(true)
-            defaultTokenServices.setReuseRefreshToken(false)
-            return defaultTokenServices
+            return DefaultTokenServices().apply {
+                setTokenStore(tokenStore)
+                setSupportRefreshToken(true)
+                setReuseRefreshToken(false)
+            }
         }
 
         override fun configure(endpoints: AuthorizationServerEndpointsConfigurer) {
-            val tokenEnhancerChain = TokenEnhancerChain()
-            tokenEnhancerChain.setTokenEnhancers(
-                listOf(tokenEnhancer(), accessTokenConverter())
-            )
+            val tokenEnhancerChain = TokenEnhancerChain().apply {
+                setTokenEnhancers(listOf(tokenEnhancer(), accessTokenConverter()))
+            }
             endpoints
                 .authorizationCodeServices(authorizationCodeServices())
                 .approvalStore(approvalStore())
@@ -271,13 +248,13 @@ class OAuth2ServerConfiguration {
         }
 
         override fun configure(oauthServer: AuthorizationServerSecurityConfigurer) {
-            oauthServer.allowFormAuthenticationForClients()
+            oauthServer
+                .allowFormAuthenticationForClients()
                 .checkTokenAccess("isAuthenticated()")
                 .tokenKeyAccess("permitAll()")
                 .passwordEncoder(BCryptPasswordEncoder())
         }
 
-        @Throws(Exception::class)
         override fun configure(clients: ClientDetailsServiceConfigurer) {
             clients.withClientDetails(jdbcClientDetailsService)
         }

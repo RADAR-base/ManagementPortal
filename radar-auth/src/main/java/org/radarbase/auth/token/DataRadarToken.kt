@@ -80,11 +80,18 @@ data class DataRadarToken(
     override val type: String? = null,
 
     /**
+     * the authenticator assurance level of the token
+     * @return default.
+     */
+    override val authenticatorAssuranceLevel: RadarToken.AuthenticatorAssuranceLevel = RadarToken.AuthenticatorAssuranceLevel.aal1,
+
+    /**
      * Client that the token is associated to.
      * @return client ID if set or null if unknown.
      */
     override val clientId: String? = null,
-): RadarToken, Serializable {
+
+    ): RadarToken, Serializable {
     constructor(radarToken: RadarToken) : this(
         roles = radarToken.roles,
         scopes = radarToken.scopes,

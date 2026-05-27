@@ -45,33 +45,7 @@ export class JhiLoginModalComponent implements AfterViewInit {
         this.activeModal.dismiss('cancel');
     }
 
-    login() {
-        this.loginService.login({
-            username: this.username,
-            password: this.password,
-            rememberMe: this.rememberMe,
-        }).pipe(first()).toPromise().then(() => {
-            this.authenticationError = false;
-            this.activeModal.dismiss('login success');
-            if (this.router.url === '/register' || (/activate/.test(this.router.url)) ||
-                    this.router.url === '/finishReset' || this.router.url === '/requestReset') {
-                return this.router.navigate(['']);
-            }
-
-            this.eventManager.broadcast({
-                name: 'authenticationSuccess',
-                content: 'Sending Authentication Success',
-            });
-
-            return this.authService.redirectBeforeUnauthenticated();
-        }).catch(() => {
-            this.authenticationError = true;
-        }).then((isRedirected) => {
-            if (!isRedirected) {
-                return this.router.navigate(['/']);
-            }
-        });
-    }
+    login() {}
 
     register() {
         this.activeModal.dismiss('to state register');

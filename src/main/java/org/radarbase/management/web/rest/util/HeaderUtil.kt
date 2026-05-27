@@ -1,12 +1,13 @@
 package org.radarbase.management.web.rest.util
 
+import io.ktor.http.*
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpHeaders
 import java.io.UnsupportedEncodingException
 import java.net.URLEncoder
 
 /**
- * Utility class for HTTP headers creation.
+ * Utility class for HTTP headers creation and parsing.
  */
 object HeaderUtil {
     private val log = LoggerFactory.getLogger(HeaderUtil::class.java)

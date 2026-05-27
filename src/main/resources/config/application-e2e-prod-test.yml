@@ -17,10 +17,23 @@ spring:
   datasource:
     username: radarbase
     password: radarbase
+    url: jdbc:postgresql://localhost:5432/managementportal
   liquibase:
     contexts: dev
+  main:
+    allow-circular-references: true
+    allow-bean-definition-overriding: true
 
+
+# ===================================================================
+# ManagementPortal specific properties
+#
+# ===================================================================
 managementportal:
   oauth:
     clientsFile: src/main/docker/etc/config/oauth_client_details.csv
-
+    require-aal2: false
+  identityServer:
+    adminEmail: bastiaan@thehyve.nl
+    publicUrl: http://127.0.0.1:4433
+    adminUrl: http://127.0.0.1:4434

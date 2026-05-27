@@ -4,6 +4,7 @@ import { Project } from '../project';
 export interface User {
     id?: number;
     login?: string;
+    identity?: string;
     firstName?: string;
     lastName?: string;
     email?: string;

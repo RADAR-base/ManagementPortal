@@ -1,6 +1,6 @@
 {
   "name": "management-portal",
-  "version": "2.1.13",
+  "version": "3.0.0",
   "description": "Description for ManagementPortal",
   "private": true,
   "cacheDirectories": [
@@ -38,7 +38,7 @@
     "@cypress/schematic": "1.5.0",
     "@types/jasmine": "~3.8.0",
     "@types/node": "^12.11.1",
-    "cypress": "8.3.0",
+    "cypress": "^15.7.0",
     "jasmine-core": "~5.1.2",
     "karma": "~6.3.16",
     "karma-chrome-launcher": "^3.1.0",
@@ -50,13 +50,15 @@
     "merge-json-webpack-plugin": "^6.2.0",
     "rimraf": "2.6.1",
     "typescript": "~4.3.5",
-    "wait-port": "^0.2.9"
+    "wait-port": "^1.1.0"
   },
   "engines": {
     "node": ">=14.14.0"
   },
   "resolutions": {
-    "ansi-regex": "5.0.1"
+    "ansi-regex": "5.0.1",
+    "braces": "3.0.3",
+    "micromatch": "4.0.6"
   },
   "scripts": {
     "lint": "ng lint",
@@ -67,8 +69,9 @@
     "build:dev": "ng build --base-href /managementportal/ --configuration development",
     "test": "ng test --no-watch --no-progress --browsers=ChromeHeadlessCI",
     "test:watch": "ng test --watch --browsers=Chrome",
-    "e2e": "yarn run wait-for-managementportal && ng e2e",
-    "e2e-prod": "yarn run wait-for-managementportal && ng e2e --configuration production",
+    "e2e": "yarn run wait-for-managementportal && cypress run",
+    "e2e-prod": "yarn run wait-for-managementportal && cypress run",
+    "e2e:open": "cypress open",
     "wait-for-managementportal": "wait-port -t 240000 http://localhost:8080/managementportal/management/health"
   },
   "packageManager": "yarn@3.6.4"

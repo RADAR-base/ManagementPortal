@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2021. The Hyve and respective contributors
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~
+  ~ See the file LICENSE in the root of this repository.
+  ~
+  -->
+
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <!--
+        Added the identity field.
+    -->
+    <changeSet id="20231114150000-1" author="bastiaan@thehyve.nl">
+        <addColumn tableName="radar_user">
+            <column name="identity" type="varchar(255)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet id="20231114150000-2" author="bastiaan@thehyve.nl">
+        <addColumn tableName="radar_user_aud">
+            <column name="identity" type="varchar(255)"/>
+            <column name="identity_mod" type="BOOLEAN"/>
+        </addColumn>
+    </changeSet>
+</databaseChangeLog>

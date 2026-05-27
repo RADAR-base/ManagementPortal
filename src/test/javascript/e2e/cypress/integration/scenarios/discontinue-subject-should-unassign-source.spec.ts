@@ -5,8 +5,14 @@ describe.skip('Project view: Create a subject, assign sources, discontinue and d
     const sourceName = 'test-source-2';
     const externalId = 'test-id';
 
+    before(() => {
+        cy.wait(1000);
+    });
+
     beforeEach(() => {
+        cy.visit('/');
         login();
+        cy.wait(1000);
         loadProjectView();
     });
 
