@@ -44,7 +44,7 @@ class LoginService(
                 emptyMap()
             )
             false -> Pair(
-                "${managementPortalProperties.authServer.loginUrl}/oauth2/auth",
+                managementPortalProperties.authServer.authUrl,
                 mapOf(
                     "state" to state,
                     "audience" to managementPortalProperties.frontend.audience,
@@ -101,7 +101,7 @@ class LoginService(
         val tokenUrl = if (managementPortalProperties.authServer.internal) {
             "${managementPortalProperties.common.managementPortalBaseUrl}/oauth/token"
         } else {
-            "${managementPortalProperties.authServer.serverUrl}/oauth2/token"
+            managementPortalProperties.authServer.tokenUrl
         }
 
         return TokenRequestConfig(

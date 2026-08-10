@@ -149,17 +149,18 @@ managementportal:
     persistentMetaTokenTimeout: P31D #timeout should be specified as the ISO-8601 duration format {@code PnDTnHnMn.nS}.
   catalogueServer:
     enableAutoImport: false
-    serverUrl: http://cataologue-server:8080
+    serverUrl: http://catalogue-server:8080
   identityServer:
     internal: true
-    adminEmail: bdegraaf1234@gmail.com
-    serverUrl: http://localhost:4433
-    serverAdminUrl: http://kratos-admin
+    adminEmail: admin@example.com
+    publicUrl: http://localhost:4433
+    adminUrl: http://kratos-admin
   authServer:
     internal: true
-    serverUrl: http://hydra:4444
-    serverAdminUrl: http://hydra:4445
-    loginUrl:  http://localhost:4444
+    adminUrl: http://localhost:4445
+    authUrl: http://localhost:4444/hydra/oauth2/auth
+    tokenUrl:  http://localhost:4444/hydra/oauth2/token
+    jwksUrl: http://localhost:4445/admin/keys/hydra.jwt.access-token
 
 # ===================================================================
 # JHipster specific properties

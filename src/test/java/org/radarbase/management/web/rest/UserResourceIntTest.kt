@@ -119,37 +119,37 @@ internal class UserResourceIntTest(
         }
     }
 
-//    @Test
-//    @Transactional
-//    @Throws(Exception::class)
-//    fun createUser() {
-//        val databaseSizeBeforeCreate = userRepository.findAll().size
-//
-//        // Create the User
-//        val roles: MutableSet<RoleDTO> = HashSet()
-//        val role = RoleDTO()
-//        role.authorityName = RoleAuthority.SYS_ADMIN_AUTHORITY
-//        roles.add(role)
-//        val managedUserVm = createDefaultUser(roles)
-//        val result = restUserMockMvc.perform(
-//            MockMvcRequestBuilders.post("/api/users")
-//                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-//                .content(TestUtil.convertObjectToJsonBytes(managedUserVm))
-//        ).andReturn()
-//
-//        restUserMockMvc.perform(asyncDispatch(result))
-//            .andExpect(MockMvcResultMatchers.status().isCreated())
-//
-//        // Validate the User in the database
-//        val userList = userRepository.findAll()
-//        Assertions.assertThat(userList).hasSize(databaseSizeBeforeCreate + 1)
-//        val testUser = userList[userList.size - 1]
-//        Assertions.assertThat(testUser.login).isEqualTo(UserServiceIntTest.DEFAULT_LOGIN)
-//        Assertions.assertThat(testUser.firstName).isEqualTo(UserServiceIntTest.DEFAULT_FIRSTNAME)
-//        Assertions.assertThat(testUser.lastName).isEqualTo(UserServiceIntTest.DEFAULT_LASTNAME)
-//        Assertions.assertThat(testUser.email).isEqualTo(UserServiceIntTest.DEFAULT_EMAIL)
-//        Assertions.assertThat(testUser.langKey).isEqualTo(UserServiceIntTest.DEFAULT_LANGKEY)
-//    }
+   @Test
+   @Transactional
+   @Throws(Exception::class)
+   fun createUser() {
+       val databaseSizeBeforeCreate = userRepository.findAll().size
+
+       // Create the User
+       val roles: MutableSet<RoleDTO> = HashSet()
+       val role = RoleDTO()
+       role.authorityName = RoleAuthority.SYS_ADMIN_AUTHORITY
+       roles.add(role)
+       val managedUserVm = createDefaultUser(roles)
+       val result = restUserMockMvc.perform(
+           MockMvcRequestBuilders.post("/api/users")
+               .contentType(TestUtil.APPLICATION_JSON_UTF8)
+               .content(TestUtil.convertObjectToJsonBytes(managedUserVm))
+       ).andReturn()
+
+       restUserMockMvc.perform(asyncDispatch(result))
+           .andExpect(MockMvcResultMatchers.status().isCreated())
+
+       // Validate the User in the database
+       val userList = userRepository.findAll()
+       Assertions.assertThat(userList).hasSize(databaseSizeBeforeCreate + 1)
+       val testUser = userList[userList.size - 1]
+       Assertions.assertThat(testUser.login).isEqualTo(UserServiceIntTest.DEFAULT_LOGIN)
+       Assertions.assertThat(testUser.firstName).isEqualTo(UserServiceIntTest.DEFAULT_FIRSTNAME)
+       Assertions.assertThat(testUser.lastName).isEqualTo(UserServiceIntTest.DEFAULT_LASTNAME)
+       Assertions.assertThat(testUser.email).isEqualTo(UserServiceIntTest.DEFAULT_EMAIL)
+       Assertions.assertThat(testUser.langKey).isEqualTo(UserServiceIntTest.DEFAULT_LANGKEY)
+   }
 
     @Test
     @Transactional

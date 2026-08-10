@@ -17,8 +17,8 @@ data class ManagementPortalProperties @ConstructorBinding constructor(
 ) {
     data class IdentityServer @ConstructorBinding constructor(
         val internal: Boolean = true,
-        val serverUrl: String,
-        val serverAdminUrl: String,
+        val publicUrl: String,
+        val adminUrl: String,
         val adminEmail: String,
         val userActivationFlowType: String = "verification",
         val userActivationMethod: String = "code",
@@ -26,9 +26,11 @@ data class ManagementPortalProperties @ConstructorBinding constructor(
 
     data class AuthServer @ConstructorBinding constructor(
         val internal: Boolean = true,
-        val serverUrl: String,
-        val serverAdminUrl: String,
-        val loginUrl: String,
+        val tokenUrl: String,
+        val adminUrl: String,
+        val authUrl: String,
+        /** Full URL to a JWKS endpoint that publishes token verification keys. */
+        val jwksUrl: String,
     )
 
     data class Mail @ConstructorBinding constructor(

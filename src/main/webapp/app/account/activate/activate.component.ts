@@ -16,10 +16,10 @@ export class ActivateComponent implements OnInit, OnDestroy {
     success: string;
     modalRef: NgbModalRef;
     subscription: Subscription;
+    private loginUrl = 'api/redirect/login';
 
     constructor(
             private activate: Activate,
-            private loginModalService: LoginModalService,
             private route: ActivatedRoute,
     ) {
     }
@@ -45,6 +45,6 @@ export class ActivateComponent implements OnInit, OnDestroy {
     }
 
     login() {
-        this.modalRef = this.loginModalService.open();
+        window.location.href = this.loginUrl
     }
 }

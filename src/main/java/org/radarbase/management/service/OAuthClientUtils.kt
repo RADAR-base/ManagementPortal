@@ -20,9 +20,8 @@ object OAuthClientUtils {
      */
     fun checkProtected(details: ClientDetails) {
         val info = details.additionalInformation
-        if (Objects.nonNull(info) && info.containsKey(PROTECTED_KEY) && info[PROTECTED_KEY]
-                .toString().equals("true", ignoreCase = true)
-        ) {
+        val isProtectedClient = info?.get(PROTECTED_KEY)?.toString()?.equals("true", ignoreCase = true) == true
+        if (isProtectedClient) {
             throw InvalidRequestException(
                 "Cannot modify protected client", EntityName.Companion.OAUTH_CLIENT,
                 ErrorConstants.ERR_OAUTH_CLIENT_PROTECTED,

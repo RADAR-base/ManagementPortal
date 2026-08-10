@@ -1,5 +1,6 @@
 package org.radarbase.management.config
 
+import org.radarbase.management.config.annotations.AuthServerEnabled
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpHeaders
@@ -51,22 +52,6 @@ class OAuth2LoginUiWebConfig(
     @Autowired
     private val clientDetailsService: ClientDetailsService? = null
 
-    @RequestMapping("/oauth2/authorize")
-    fun redirect_authorize(request: HttpServletRequest): String {
-        val returnString = URLEncoder.encode(request.requestURL.toString().replace("oauth2", "oauth") + "?" + request.parameterMap.map{ param -> param.key + "=" + param.value.first()}.joinToString("&"), "UTF-8")
-        val mpUrl = managementPortalProperties.common.baseUrl
-        return "redirect:$mpUrl/kratos-ui/login?return_to=$returnString"
-    }
-
-    @PostMapping(
-        "/oauth2/token",
-        consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE],
-        produces = [MediaType.APPLICATION_FORM_URLENCODED_VALUE]
-    )
-    fun redirect_token(@RequestParam parameters: Map<String, String>, request: HttpServletRequest, response: HttpServletResponse) {
-        var dispatcher: RequestDispatcher =  request.servletContext.getRequestDispatcher("/oauth/token/")
-        dispatcher.forward(request, response)
-    }
 
     @PostMapping(value = ["/oauth/token"],
         consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE]
@@ -88,11 +73,11 @@ class OAuth2LoginUiWebConfig(
         val clientId: String = parameters.get("client_id") ?: principal.name
         var radarPrincipal = RadarPrincipal(clientId, principal)
 
-        val token2 = this.tokenEndPoint.postAccessToken(radarPrincipal, parameters)
-        return getResponse(token2.body)
+        val tokenResponse = this.tokenEndPoint.postAccessToken(radarPrincipal, parameters)
+        return buildTokenResponse(tokenResponse.body)
     }
 
-    fun getResponse(accessToken: OAuth2AccessToken): ResponseEntity<OAuth2AccessToken> {
+    fun buildTokenResponse(accessToken: OAuth2AccessToken): ResponseEntity<OAuth2AccessToken> {
         val headers = HttpHeaders()
         headers["Cache-Control"] = "no-store"
         headers["Pragma"] = "no-cache"

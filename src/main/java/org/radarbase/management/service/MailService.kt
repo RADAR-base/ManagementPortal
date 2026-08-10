@@ -4,7 +4,6 @@ import org.radarbase.management.config.ManagementPortalProperties
 import org.radarbase.management.domain.User
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.MessageSource
 import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.mail.javamail.MimeMessageHelper
@@ -125,6 +124,25 @@ class MailService(
     }
 
     /**
+     * Send account creation email for users managed by an external identity provider (e.g. Kratos).
+     * Includes a recovery link for initial password setup and the portal login URL.
+     * @param user the user
+     * @param recoveryLink the external IDP recovery URL for password setup
+     */
+    @Async
+    fun sendExternalIdpCreationEmail(user: User, recoveryLink: String) {
+        log.debug("Sending external IDP creation email to '{}'", user.email)
+        val locale = Locale.forLanguageTag(user.langKey)
+        val context = Context(locale)
+        context.setVariable(USER, user)
+        context.setVariable(BASE_URL, managementPortalProperties.common.managementPortalBaseUrl)
+        context.setVariable(RECOVERY_LINK, recoveryLink)
+        val content = templateEngine.process("externalIdpCreationEmail", context)
+        val subject = messageSource.getMessage("email.external.creation.title", null, locale)
+        sendEmail(user.email, subject, content, isMultipart = false, isHtml = true)
+    }
+
+    /**
      * Send a password reset email to a given user.
      * @param user the user
      */
@@ -148,5 +166,6 @@ class MailService(
         private const val USER = "user"
         private const val BASE_URL = "baseUrl"
         private const val EXPIRY = "expiry"
+        private const val RECOVERY_LINK = "recoveryLink"
     }
 }

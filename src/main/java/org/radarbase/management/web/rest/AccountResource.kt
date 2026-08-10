@@ -173,17 +173,12 @@ class AccountResource(
      */
     @PostMapping(path = ["/account/reset-activation/init"])
     @Timed
-    fun requestActivationReset(@RequestBody login: String): ResponseEntity<Void> {
-        val user = userService.requestActivationReset(login)
+    suspend fun requestActivationReset(@RequestBody login: String): ResponseEntity<Void> {
+        userService.requestActivationReset(login)
             ?: throw BadRequestException(
                     "Cannot find a deactivated user with login $login",
                     EntityName.Companion.USER, ErrorConstants.ERR_EMAIL_NOT_REGISTERED
                 )
-
-        mailService.sendCreationEmail(
-            user, managementPortalProperties.common
-                .activationKeyTimeoutInSeconds.toLong()
-        )
         return ResponseEntity(HttpStatus.NO_CONTENT)
     }
 
@@ -197,12 +192,11 @@ class AccountResource(
     @PostMapping(path = ["/account/reset_password/init"])
     @Timed
     fun requestPasswordReset(@RequestBody mail: String): ResponseEntity<Void> {
-        val user = userService.requestPasswordReset(mail)
+        userService.requestPasswordReset(mail)
             ?: throw BadRequestException(
                     "email address not registered",
                     EntityName.Companion.USER, ErrorConstants.ERR_EMAIL_NOT_REGISTERED
                 )
-        mailService.sendPasswordResetMail(user)
         return ResponseEntity(HttpStatus.NO_CONTENT)
     }
 

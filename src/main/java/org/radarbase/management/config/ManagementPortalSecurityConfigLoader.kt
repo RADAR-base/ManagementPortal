@@ -139,8 +139,8 @@ class ManagementPortalSecurityConfigLoader(
             return
         }
         logger.info("Loading additional ManagementPortal clients...")
-        val path = managementPortalProperties.oauth?.clientsFile
-        if (Objects.isNull(path) || path == "") {
+        val path = managementPortalProperties.oauth.clientsFile
+        if (path.isNullOrBlank()) {
             logger.info("No OAuth clients file specified, additional clients loading aborted.")
             return
         }

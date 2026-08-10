@@ -2,7 +2,7 @@ package org.radarbase.management.web.rest
 
 import io.micrometer.core.annotation.Timed
 import org.radarbase.auth.jwks.JsonWebKeySet
-import org.radarbase.management.config.AuthServerEnabled
+import org.radarbase.management.config.annotations.AuthServerEnabled
 import org.radarbase.management.security.jwt.ManagementPortalOauthKeyStoreHandler
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired

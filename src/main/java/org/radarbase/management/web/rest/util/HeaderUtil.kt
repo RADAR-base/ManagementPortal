@@ -100,26 +100,4 @@ object HeaderUtil {
             }
             .reduce { a: String, b: String -> java.lang.String.join("/", a, b) }
     }
-
-
-
-    /**
-     * Custom cookie parser as the httprequest.cookies method cuts off '='.
-     */
-    fun parseCookies(cookieHeader: String?): List<Cookie> {
-        val result: List<Cookie> = listOf()
-        if (cookieHeader != null) {
-            val cookiesRaw = cookieHeader.split("; ".toRegex()).dropLastWhile { it.isEmpty() }
-                .toTypedArray()
-            return cookiesRaw.map{
-                val parts = it.split("=".toRegex(), limit = 2).toTypedArray()
-                var value = if (parts.size > 1) parts[1] else ""
-                if (value.length >= 2 && value.startsWith("\"") && value.endsWith("\"")) {
-                    value = value.substring(1, value.length - 1)
-                }
-                Cookie(name = parts[0], value = parts[1])
-            }.toList()
-        }
-        return result
-    }
 }

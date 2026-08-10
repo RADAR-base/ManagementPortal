@@ -161,20 +161,21 @@ managementportal:
         persistentMetaTokenTimeout: P31D #timeout should be specified as the ISO-8601 duration format {@code PnDTnHnMn.nS}.
     catalogueServer:
         enableAutoImport: false
-        serverUrl: http://cataologue-server:8080
+        serverUrl: http://catalogue-server:8080
     siteSettings:
         # The line below can be uncommented to add some hidden fields for UI testing
         #hiddenSubjectFields: [person_name, date_of_birth, group]
     identityServer:
         internal: true
-        adminEmail: admin-email-here@gmail.com
-        serverUrl: http://localhost:4433
-        serverAdminUrl: http://localhost:4434
+        adminEmail: admin@example.com
+        publicUrl: http://localhost:4433
+        adminUrl: http://localhost:4434
     authServer:
         internal: true
-        serverUrl: http://localhost:4444
-        serverAdminUrl: http://localhost:4445
-        loginUrl:  http://localhost:4444
+        adminUrl: http://localhost:4445
+        authUrl: http://localhost:4444/oauth2/auth
+        tokenUrl:  http://localhost:4444/hydra/oauth2/token
+        jwksUrl: http://localhost:4445/admin/keys/hydra.jwt.access-token
 
 
 # ===================================================================

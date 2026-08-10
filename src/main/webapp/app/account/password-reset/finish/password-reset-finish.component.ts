@@ -25,11 +25,11 @@ export class PasswordResetFinishComponent implements OnInit, AfterViewInit, OnDe
     modalRef: NgbModalRef;
     key: string;
     private subscriptions = new Subscription();
+    private loginUrl = 'api/redirect/login';
 
     constructor(
             private passwordResetFinish: PasswordResetFinish,
             private passwordService: Password,
-            private loginModalService: LoginModalService,
             private route: ActivatedRoute,
     ) {
     }
@@ -78,6 +78,6 @@ export class PasswordResetFinishComponent implements OnInit, AfterViewInit, OnDe
     }
 
     login() {
-        this.modalRef = this.loginModalService.open();
+        window.location.href = this.loginUrl
     }
 }

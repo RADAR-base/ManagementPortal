@@ -3,9 +3,9 @@ package org.radarbase.management.web.rest
 import org.radarbase.auth.exception.IdpException
 import org.radarbase.auth.exception.TokenValidationException
 import org.radarbase.auth.token.DataRadarToken
+import org.radarbase.auth.authentication.TokenValidator
 import org.radarbase.management.config.ManagementPortalProperties
 import org.radarbase.management.security.JwtAuthenticationFilter.Companion.radarToken
-import org.radarbase.management.security.jwt.ManagementPortalOauthKeyStoreHandler
 import org.radarbase.management.service.LoginService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.GetMapping
@@ -20,7 +20,7 @@ import javax.servlet.http.HttpSession
 class LoginEndpoint @Autowired constructor(
     private val loginService: LoginService,
     private val managementPortalProperties: ManagementPortalProperties,
-    private val keyStoreHandler: ManagementPortalOauthKeyStoreHandler,
+    private val tokenValidator: TokenValidator,
 ) {
     /**
      * OAuth2 login redirect endpoint.
@@ -46,7 +46,7 @@ class LoginEndpoint @Autowired constructor(
                 // Validate the token and store it in the HTTP session so that subsequent
                 // frontend requests can authenticate using the session cookie, without
                 // ever exposing the raw token in the browser URL.
-                val radarToken = keyStoreHandler.tokenValidator.validateBlocking(accessToken)
+                val radarToken = tokenValidator.validateBlocking(accessToken)
                 session.radarToken = DataRadarToken(radarToken)
 
                 val baseUrl = managementPortalProperties.common.managementPortalBaseUrl

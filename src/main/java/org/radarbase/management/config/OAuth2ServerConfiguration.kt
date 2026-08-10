@@ -2,6 +2,7 @@ package org.radarbase.management.config
 
 import javax.sql.DataSource
 import org.radarbase.auth.authorization.RoleAuthority
+import org.radarbase.management.config.annotations.AuthServerEnabled
 import org.radarbase.management.repository.UserRepository
 import org.radarbase.management.security.*
 import org.radarbase.management.security.jwt.*
@@ -62,11 +63,8 @@ class OAuth2ServerConfiguration(
                 .successHandler { request, response, authentication ->
                     request.session.setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext())
                     val savedRequest = request.session.getAttribute("SPRING_SECURITY_SAVED_REQUEST") as? SavedRequest
-                    val redirectUrl = if (savedRequest != null) {
-                        savedRequest.redirectUrl
-                    } else {
-                        request.requestURI + if (request.queryString != null) "?${request.queryString}" else ""
-                    }
+                    val queryString = request.queryString?.let { "?$it" } ?: ""
+                    val redirectUrl = savedRequest?.redirectUrl ?: request.requestURI + queryString
 
                     val safeRedirectUrl = try {
                         val uri = URI(redirectUrl)
@@ -152,7 +150,6 @@ class OAuth2ServerConfiguration(
                 .antMatchers("/api/profile-info").permitAll()
                 .antMatchers("/api/sitesettings").permitAll()
                 .antMatchers("/api/public/projects").permitAll()
-                .antMatchers("/api/logout-url").permitAll()
                 .antMatchers("/api/**").authenticated()
                 .antMatchers("/management/health").permitAll()
                 .antMatchers("/management/**").hasAuthority(RoleAuthority.SYS_ADMIN_AUTHORITY)

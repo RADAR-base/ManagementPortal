@@ -51,6 +51,12 @@ class KratosSessionDTO(
     )
 
     @Serializable
+    data class RecoveryLinkResponse(
+        val recovery_link: String,
+        val expires_at: String? = null
+    )
+
+    @Serializable
     data class Identity(
         var id: String? = null,
         val schema_id: String? = null,
