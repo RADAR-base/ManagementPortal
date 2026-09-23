@@ -25,7 +25,7 @@ description = "Kotlin ManagementPortal client"
 dependencies {
     api("org.jetbrains.kotlin:kotlin-stdlib:2.3.20")
     implementation("org.jetbrains.kotlin:kotlin-reflect:2.3.20")
-    implementation("org.radarbase:radar-commons-kotlin:1.0.0")
+    implementation("org.radarbase:radar-commons-kotlin:$radar_commons_version")
 
     api(platform("org.jetbrains.kotlinx:kotlinx-coroutines-bom:$coroutines_version"))
     api(platform("io.ktor:ktor-bom:$ktor_version"))
