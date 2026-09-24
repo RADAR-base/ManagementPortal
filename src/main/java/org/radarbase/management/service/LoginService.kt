@@ -12,13 +12,15 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.jsonPrimitive
 import org.radarbase.auth.exception.IdpException
+import org.radarbase.management.config.InternalServerUrl
 import org.radarbase.management.config.ManagementPortalProperties
 import org.springframework.stereotype.Service
 import java.util.*
 
 @Service
 class LoginService(
-    private val managementPortalProperties: ManagementPortalProperties
+    private val managementPortalProperties: ManagementPortalProperties,
+    private val internalServerUrl: InternalServerUrl,
 ) {
     private val httpClient = HttpClient(CIO) {
         install(HttpTimeout) {
@@ -99,7 +101,8 @@ class LoginService(
 
     private fun getTokenRequestConfig(): TokenRequestConfig {
         val tokenUrl = if (managementPortalProperties.authServer.internal) {
-            "${managementPortalProperties.common.managementPortalBaseUrl}/oauth/token"
+            // Exchange the code with ManagementPortal itself, not via its public URL.
+            "${internalServerUrl.baseUrl}/oauth/token"
         } else {
             managementPortalProperties.authServer.tokenUrl
         }

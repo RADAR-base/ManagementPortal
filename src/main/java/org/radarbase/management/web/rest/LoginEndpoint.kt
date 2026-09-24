@@ -7,6 +7,7 @@ import org.radarbase.auth.authentication.TokenValidator
 import org.radarbase.management.config.ManagementPortalProperties
 import org.radarbase.management.security.JwtAuthenticationFilter.Companion.radarToken
 import org.radarbase.management.service.LoginService
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
@@ -52,8 +53,10 @@ class LoginEndpoint @Autowired constructor(
                 val baseUrl = managementPortalProperties.common.managementPortalBaseUrl
                 redirectView.url = "$baseUrl/#/"
             } catch (e: IdpException) {
+                logger.error("Failed to log in: {}", e.message, e)
                 redirectView.url = "/error?message=Unable%20to%20authenticate"
             } catch (e: TokenValidationException) {
+                logger.error("Failed to validate login token: {}", e.message, e)
                 redirectView.url = "/error?message=Unable%20to%20authenticate"
             }
         }
@@ -66,5 +69,9 @@ class LoginEndpoint @Autowired constructor(
         val baseUrl = managementPortalProperties.common.managementPortalBaseUrl
         redirectView.url = "$baseUrl/#/settings"
         return redirectView
+    }
+
+    companion object {
+        private val logger = LoggerFactory.getLogger(LoginEndpoint::class.java)
     }
 }
