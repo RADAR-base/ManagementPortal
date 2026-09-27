@@ -173,6 +173,7 @@ class SecurityConfiguration
 @Configuration
 class InternalTokenValidatorConfiguration(
     private val managementPortalProperties: ManagementPortalProperties,
+    private val internalServerUrl: InternalServerUrl,
 ) {
 
     @Bean
@@ -188,7 +189,7 @@ class InternalTokenValidatorConfiguration(
         // Also load ManagementPortal's own token_key endpoint for internal auth.
         loaderList.add(
             JwksTokenVerifierLoader(
-                managementPortalProperties.common.managementPortalBaseUrl + "/oauth/token_key",
+                internalServerUrl.baseUrl + "/oauth/token_key",
                 SecurityConfiguration.RES_MANAGEMENT_PORTAL,
                 JwkAlgorithmParser()
             )
