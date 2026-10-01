@@ -1,0 +1,47 @@
+name: Trivy scheduled Docker base image scan
+
+on:
+  schedule:
+    - cron: '0 3 * * 1'
+  workflow_dispatch:
+
+env:
+  DOCKER_IMAGE: ghcr.io/${{ github.repository }}/management-portal
+
+jobs:
+  security:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+      packages: read
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Lowercase image name
+        run: echo "DOCKER_IMAGE=ghcr.io/${GITHUB_REPOSITORY,,}/management-portal" >> ${GITHUB_ENV}
+
+      - uses: aquasecurity/setup-trivy@81e514348e19b6112ce2a7e3ecbafe19c1e1f567 # v0.3.1
+        with:
+          version: v0.74.0
+          cache: true
+
+      # '--pkg-types os' only tests the base image, like Snyk's --exclude-app-vulns.
+      # Code base vulnerabilities are tested in scheduled-trivy.yaml.
+      - name: Run Trivy to check for vulnerabilities
+        run: >-
+          trivy image
+          --scanners vuln
+          --pkg-types os
+          --ignorefile .trivyignore.yaml
+          --format sarif
+          --output trivy.sarif
+          "${DOCKER_IMAGE}"
+
+      # Detected vulnerabilities will appear on GitHub in Security -> Code scanning alerts
+      - name: Upload result to GitHub Code Scanning
+        uses: github/codeql-action/upload-sarif@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4.38.2
+        with:
+          sarif_file: trivy.sarif
+          category: trivy-image

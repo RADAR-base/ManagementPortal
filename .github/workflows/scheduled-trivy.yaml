@@ -1,0 +1,53 @@
+name: Trivy scheduled code base scan
+
+on:
+  schedule:
+    - cron: '0 2 * * 1'
+  workflow_dispatch:
+
+jobs:
+  security:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+          cache: npm
+
+      - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
+
+      - name: Lock the runtime classpath for Trivy
+        run: ./gradlew -I .github/trivy-lock.init.gradle trivyLock --write-locks
+
+      - uses: aquasecurity/setup-trivy@81e514348e19b6112ce2a7e3ecbafe19c1e1f567 # v0.3.1
+        with:
+          version: v0.74.0
+          cache: true
+
+      # All severities: Code scanning shows the severity, and low-rated findings often hide under-rated issues.
+      - name: Run Trivy to check for vulnerabilities
+        run: >-
+          trivy fs
+          --scanners vuln
+          --ignorefile .trivyignore.yaml
+          --format sarif
+          --output trivy.sarif
+          .
+
+      # Detected vulnerabilities will appear on GitHub in Security -> Code scanning alerts
+      - name: Upload result to GitHub Code Scanning
+        uses: github/codeql-action/upload-sarif@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4.38.2
+        with:
+          sarif_file: trivy.sarif
+          category: trivy-dependencies

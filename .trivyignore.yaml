@@ -1,0 +1,8 @@
+# Trivy ignore file (https://trivy.dev/latest/docs/configuration/filtering/#trivyignoreyaml).
+# Every entry needs a reason and an expiry, for example:
+#
+#   vulnerabilities:
+#     - id: CVE-2024-12345
+#       statement: Not exploitable, because ...
+#       expired_at: 2027-01-01
+vulnerabilities: []
