@@ -15,12 +15,12 @@ ignore:
   SNYK-JAVA-ORGSPRINGFRAMEWORK-8230373:
     - '*':
         reason: Requires major upgrade to Spring Boot v3 and Spring Security V6. For this it is required to drop the Auth Provider functionality from MP. We decided to postpone this rework to a later date.
-        expires: 2025-08-15T18:07:30.793Z
+        expires: 2027-01-01T00:00:00.000Z
         created: 2025-02-13T18:07:30.796Z
   SNYK-JAVA-ORGSPRINGFRAMEWORK-7945490:
     - '*':
         reason: Requires major upgrade to Spring Boot v3 and Spring Security V6. For this it is required to drop the Auth Provider functionality from MP. We decided to postpone this rework to a later date.
-        expires: 2025-08-15T18:07:33.964Z
+        expires: 2027-01-01T00:00:00.000Z
         created: 2025-02-13T18:07:33.969Z
   SNYK-JAVA-ORGSPRINGFRAMEWORK-6444790:
     - '*':
