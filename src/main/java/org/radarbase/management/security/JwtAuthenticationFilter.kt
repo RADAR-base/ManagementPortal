@@ -75,7 +75,7 @@ class JwtAuthenticationFilter(
                 token = validator.validateBlocking(stringToken)
             } catch (ex: TokenValidationException) {
                 exMessage = ex.message ?: exMessage
-                logger.info("Token validation failed: $exMessage")
+                log.info("Token validation failed: $exMessage")
             }
         }
 
@@ -114,10 +114,10 @@ class JwtAuthenticationFilter(
             SecurityContextHolder.getContext().authentication = auth
             true
         } else if (isOptional) {
-            logger.debug("No token, but skipping due to optional auth")
+            log.debug("No token, but skipping due to optional auth")
             true
         } else {
-            logger.error("Unauthorized - $exMessage")
+            log.error("Unauthorized - $exMessage")
             response.returnUnauthorized(request, exMessage)
             false
         }
@@ -143,7 +143,7 @@ class JwtAuthenticationFilter(
     companion object {
         private const val AUTHORIZATION_BEARER_HEADER = "Bearer"
         private const val TOKEN_ATTRIBUTE = "jwt"
-        private val logger = LoggerFactory.getLogger(JwtAuthenticationFilter::class.java)
+        private val log = LoggerFactory.getLogger(JwtAuthenticationFilter::class.java)
 
         private fun HttpServletResponse.returnUnauthorized(
             request: HttpServletRequest,

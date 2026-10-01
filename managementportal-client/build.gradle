@@ -23,9 +23,9 @@ targetCompatibility = JavaVersion.VERSION_17
 description = "Kotlin ManagementPortal client"
 
 dependencies {
-    api("org.jetbrains.kotlin:kotlin-stdlib:1.9.10")
-    implementation("org.jetbrains.kotlin:kotlin-reflect:1.9.10")
-    implementation("org.radarbase:radar-commons-kotlin:1.0.0")
+    api("org.jetbrains.kotlin:kotlin-stdlib:2.3.20")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:2.3.20")
+    implementation("org.radarbase:radar-commons-kotlin:$radar_commons_version")
 
     api(platform("org.jetbrains.kotlinx:kotlinx-coroutines-bom:$coroutines_version"))
     api(platform("io.ktor:ktor-bom:$ktor_version"))
@@ -49,8 +49,8 @@ dependencies {
 tasks.withType(KotlinCompile).configureEach {
     compilerOptions {
         jvmTarget = JvmTarget.JVM_17
-        apiVersion = KotlinVersion.KOTLIN_1_7
-        languageVersion = KotlinVersion.KOTLIN_1_9
+        apiVersion = KotlinVersion.KOTLIN_2_1
+        languageVersion = KotlinVersion.KOTLIN_2_1
     }
 }
 

@@ -15,12 +15,12 @@ ignore:
   SNYK-JAVA-ORGSPRINGFRAMEWORK-8230373:
     - '*':
         reason: Requires major upgrade to Spring Boot v3 and Spring Security V6. For this it is required to drop the Auth Provider functionality from MP. We decided to postpone this rework to a later date.
-        expires: 2025-08-15T18:07:30.793Z
+        expires: 2027-01-01T00:00:00.000Z
         created: 2025-02-13T18:07:30.796Z
   SNYK-JAVA-ORGSPRINGFRAMEWORK-7945490:
     - '*':
         reason: Requires major upgrade to Spring Boot v3 and Spring Security V6. For this it is required to drop the Auth Provider functionality from MP. We decided to postpone this rework to a later date.
-        expires: 2025-08-15T18:07:33.964Z
+        expires: 2027-01-01T00:00:00.000Z
         created: 2025-02-13T18:07:33.969Z
   SNYK-JAVA-ORGSPRINGFRAMEWORK-6444790:
     - '*':
@@ -37,4 +37,486 @@ ignore:
         reason: Requires major upgrade to Spring Boot v3 and Spring Security V6. For this it is required to drop the Auth Provider functionality from MP. We decided to postpone this rework to a later date.
         expires: 2025-08-15T18:07:41.340Z
         created: 2025-02-13T18:07:41.346Z
+  SNYK-JAVA-ORGSPRINGFRAMEWORK-18326606:
+    - '*':
+        reason: >
+          Allocation of Resources Without Limits or Throttling in org.springframework:spring-
+          expression@5.3.34 (through org.springframework.security:spring-security-web@5.7.13). Fixed
+          by upgrading org.springframework.security:spring-security-web@5.7.13 to 7.0.7, which is
+          not part of this change. Ignored while dependency scanning moves from Snyk to Trivy, which
+          will report it from then on.
+        expires: 2027-01-01T00:00:00.000Z
+        created: 2026-10-01T00:00:00.000Z
+  SNYK-JAVA-ORGSPRINGFRAMEWORK-17254116:
+    - '*':
+        reason: >
+          Directory Traversal in org.springframework:spring-webmvc@5.3.34 (through
+          org.springframework.boot:spring-boot-starter-web@2.7.18). Fixed by upgrading
+          org.springframework.boot:spring-boot-starter-web@2.7.18 to 4.0.0, which is not part of
+          this change. Ignored while dependency scanning moves from Snyk to Trivy, which will report
+          it from then on.
+        expires: 2027-01-01T00:00:00.000Z
+        created: 2026-10-01T00:00:00.000Z
+  SNYK-JAVA-ORGSPRINGFRAMEWORK-19267075:
+    - '*':
+        reason: >
+          Allocation of Resources Without Limits or Throttling in org.springframework:spring-
+          expression@5.3.34 (through org.springframework.security:spring-security-web@5.7.13). Fixed
+          by upgrading org.springframework.security:spring-security-web@5.7.13 to 7.0.7, which is
+          not part of this change. Ignored while dependency scanning moves from Snyk to Trivy, which
+          will report it from then on.
+        expires: 2027-01-01T00:00:00.000Z
+        created: 2026-10-01T00:00:00.000Z
+  SNYK-JAVA-CHQOSLOGBACK-17675439:
+    - '*':
+        reason: >
+          Expression Injection in ch.qos.logback:logback-core@1.2.13 (through
+          org.springframework.boot:spring-boot-starter-logging@2.7.18). Fixed by upgrading
+          org.springframework.boot:spring-boot-starter-logging@2.7.18 to 4.0.8, which is not part of
+          this change. Ignored while dependency scanning moves from Snyk to Trivy, which will report
+          it from then on.
+        expires: 2027-01-01T00:00:00.000Z
+        created: 2026-10-01T00:00:00.000Z
+  SNYK-JAVA-ORGSPRINGFRAMEWORK-17260840:
+    - '*':
+        reason: >
+          Integer Overflow or Wraparound in org.springframework:spring-expression@5.3.34 (through
+          org.springframework.security:spring-security-web@5.7.13). Fixed by upgrading
+          org.springframework.security:spring-security-web@5.7.13 to 7.0.7, which is not part of
+          this change. Ignored while dependency scanning moves from Snyk to Trivy, which will report
+          it from then on.
+        expires: 2027-01-01T00:00:00.000Z
+        created: 2026-10-01T00:00:00.000Z
+  SNYK-JAVA-ORGSPRINGFRAMEWORK-12817817:
+    - '*':
+        reason: >
+          Incorrect Authorization in org.springframework:spring-core@5.3.34 (through
+          org.springframework:spring-context-support@5.3.34). Fixed by upgrading
+          org.springframework.boot:spring-boot-starter-actuator@2.7.18 to 4.0.0, which is not part
+          of this change. Ignored while dependency scanning moves from Snyk to Trivy, which will
+          report it from then on.
+        expires: 2027-01-01T00:00:00.000Z
+        created: 2026-10-01T00:00:00.000Z
+  SNYK-JAVA-ORGSPRINGFRAMEWORK-17253311:
+    - '*':
+        reason: >
+          Inefficient Algorithmic Complexity in org.springframework:spring-expression@5.3.34
+          (through org.springframework:spring-context-support@5.3.34). Fixed by upgrading
+          org.springframework.security:spring-security-web@5.7.13 to 7.0.7, which is not part of
+          this change. Ignored while dependency scanning moves from Snyk to Trivy, which will report
+          it from then on.
+        expires: 2027-01-01T00:00:00.000Z
+        created: 2026-10-01T00:00:00.000Z
+  SNYK-JAVA-COMFASTERXMLJACKSONCORE-19778370:
+    - '*':
+        reason: >
+          Allocation of Resources Without Limits or Throttling in
+          com.fasterxml.jackson.core:jackson-databind@2.18.8 (through
+          com.fasterxml.jackson.dataformat:jackson-dataformat-csv@2.18.8). Fixed by upgrading
+          com.auth0:java-jwt@4.5.0 to 4.6.1, which is not part of this change. Ignored while
+          dependency scanning moves from Snyk to Trivy, which will report it from then on.
+        expires: 2027-01-01T00:00:00.000Z
+        created: 2026-10-01T00:00:00.000Z
+  SNYK-JAVA-ORGSPRINGFRAMEWORK-19267072:
+    - '*':
+        reason: >
+          Allocation of Resources Without Limits or Throttling in org.springframework:spring-
+          beans@5.3.34 (through org.springframework:spring-context-support@5.3.34). Fixed by
+          upgrading org.springframework.security:spring-security-data@5.7.12 to 7.0.7, which is not
+          part of this change. Ignored while dependency scanning moves from Snyk to Trivy, which
+          will report it from then on.
+        expires: 2027-01-01T00:00:00.000Z
+        created: 2026-10-01T00:00:00.000Z
+  SNYK-JAVA-ORGSPRINGFRAMEWORKSECURITY-17305998:
+    - '*':
+        reason: >
+          User Impersonation in org.springframework.security:spring-security-web@5.7.13. Fixed by
+          upgrading org.springframework.boot:spring-boot-starter-security@2.7.18 to 4.0.8, which is
+          not part of this change. Ignored while dependency scanning moves from Snyk to Trivy, which
+          will report it from then on.
+        expires: 2027-01-01T00:00:00.000Z
+        created: 2026-10-01T00:00:00.000Z
+  SNYK-JAVA-ORGSPRINGFRAMEWORK-16109615:
+    - '*':
+        reason: >
+          Incomplete Cleanup in org.springframework:spring-web@5.3.34 (through
+          org.springframework.security:spring-security-web@5.7.13). Fixed by upgrading
+          org.springframework.security:spring-security-web@5.7.13 to 7.0.7, which is not part of
+          this change. Ignored while dependency scanning moves from Snyk to Trivy, which will report
+          it from then on.
+        expires: 2027-01-01T00:00:00.000Z
+        created: 2026-10-01T00:00:00.000Z
+  SNYK-JAVA-IOPROJECTREACTOR-19267101:
+    - '*':
+        reason: >
+          Allocation of Resources Without Limits or Throttling in io.projectreactor:reactor-
+          core@3.4.34 (through org.jetbrains.kotlinx:kotlinx-coroutines-reactor@1.8.0). No upgrade
+          that fixes it is available to this project yet. Ignored while dependency scanning moves
+          from Snyk to Trivy, which will report it from then on.
+        expires: 2027-01-01T00:00:00.000Z
+        created: 2026-10-01T00:00:00.000Z
+  SNYK-JAVA-ORGSPRINGFRAMEWORK-19267073:
+    - '*':
+        reason: >
+          Allocation of Resources Without Limits or Throttling in org.springframework:spring-
+          expression@5.3.34 (through org.springframework.security:spring-security-web@5.7.13). Fixed
+          by upgrading org.springframework.security:spring-security-web@5.7.13 to 7.0.7, which is
+          not part of this change. Ignored while dependency scanning moves from Snyk to Trivy, which
+          will report it from then on.
+        expires: 2027-01-01T00:00:00.000Z
+        created: 2026-10-01T00:00:00.000Z
+  SNYK-JAVA-ORGSPRINGFRAMEWORKDATA-17279540:
+    - '*':
+        reason: >
+          Denial of Service (DoS) in org.springframework.data:spring-data-commons@2.7.5 (through
+          org.springframework.security:spring-security-data@5.7.12). Fixed by upgrading
+          org.springframework.security:spring-security-data@5.7.12 to 7.0.7, which is not part of
+          this change. Ignored while dependency scanning moves from Snyk to Trivy, which will report
+          it from then on.
+        expires: 2027-01-01T00:00:00.000Z
+        created: 2026-10-01T00:00:00.000Z
+  SNYK-JAVA-ORGSPRINGFRAMEWORK-12008931:
+    - '*':
+        reason: >
+          Relative Path Traversal in org.springframework:spring-beans@5.3.34 (through
+          org.springframework:spring-context-support@5.3.34). Fixed by upgrading
+          org.springframework.security:spring-security-data@5.7.12 to 7.0.7, which is not part of
+          this change. Ignored while dependency scanning moves from Snyk to Trivy, which will report
+          it from then on.
+        expires: 2027-01-01T00:00:00.000Z
+        created: 2026-10-01T00:00:00.000Z
+  SNYK-JAVA-ORGSPRINGFRAMEWORKDATA-17308778:
+    - '*':
+        reason: >
+          Allocation of Resources Without Limits or Throttling in org.springframework.data:spring-
+          data-commons@2.7.5 (through org.springframework.security:spring-security-data@5.7.12).
+          Fixed by upgrading org.springframework.security:spring-security-data@5.7.12 to 7.0.7,
+          which is not part of this change. Ignored while dependency scanning moves from Snyk to
+          Trivy, which will report it from then on.
+        expires: 2027-01-01T00:00:00.000Z
+        created: 2026-10-01T00:00:00.000Z
+  SNYK-JAVA-ORGSPRINGFRAMEWORKBOOT-16191381:
+    - '*':
+        reason: >
+          Timing Attack in org.springframework.boot:spring-boot-devtools@2.7.18. Fixed by upgrading
+          org.springframework.boot:spring-boot-devtools@2.7.18 to 3.5.14, which is not part of this
+          change. Ignored while dependency scanning moves from Snyk to Trivy, which will report it
+          from then on.
+        expires: 2027-01-01T00:00:00.000Z
+        created: 2026-10-01T00:00:00.000Z
+  SNYK-JAVA-IOUNDERTOW-15967938:
+    - '*':
+        reason: >
+          HTTP Request Smuggling in io.undertow:undertow-core@2.2.39.Final. Fixed by upgrading
+          io.undertow:undertow-core@2.2.39.Final to 2.3.25.Final, which is not part of this change.
+          Ignored while dependency scanning moves from Snyk to Trivy, which will report it from then
+          on.
+        expires: 2027-01-01T00:00:00.000Z
+        created: 2026-10-01T00:00:00.000Z
+  SNYK-JAVA-IOPROJECTREACTOR-19267102:
+    - '*':
+        reason: >
+          Race Condition in io.projectreactor:reactor-core@3.4.34 (through
+          org.jetbrains.kotlinx:kotlinx-coroutines-reactor@1.8.0). No upgrade that fixes it is
+          available to this project yet. Ignored while dependency scanning moves from Snyk to Trivy,
+          which will report it from then on.
+        expires: 2027-01-01T00:00:00.000Z
+        created: 2026-10-01T00:00:00.000Z
+  SNYK-JAVA-ORGSPRINGFRAMEWORK-15701845:
+    - '*':
+        reason: >
+          Directory Traversal in org.springframework:spring-webmvc@5.3.34 (through
+          org.springframework.boot:spring-boot-starter-web@2.7.18). Fixed by upgrading
+          org.springframework.boot:spring-boot-starter-web@2.7.18 to 4.0.0, which is not part of
+          this change. Ignored while dependency scanning moves from Snyk to Trivy, which will report
+          it from then on.
+        expires: 2027-01-01T00:00:00.000Z
+        created: 2026-10-01T00:00:00.000Z
+  SNYK-JAVA-ORGSPRINGFRAMEWORKSECURITY-19267391:
+    - '*':
+        reason: >
+          Generation of Predictable IV with CBC Mode in org.springframework.security:spring-
+          security-crypto@5.7.12 (through org.springframework.security:spring-security-web@5.7.13).
+          Fixed by upgrading org.springframework.security:spring-security-web@5.7.13 to 7.0.7, which
+          is not part of this change. Ignored while dependency scanning moves from Snyk to Trivy,
+          which will report it from then on.
+        expires: 2027-01-01T00:00:00.000Z
+        created: 2026-10-01T00:00:00.000Z
+  SNYK-JAVA-ORGSPRINGFRAMEWORKDATA-17304742:
+    - '*':
+        reason: >
+          Denial of Service (DoS) in org.springframework.data:spring-data-commons@2.7.5 (through
+          org.springframework.boot:spring-boot-starter-data-jpa@2.7.18). Fixed by upgrading
+          org.springframework.security:spring-security-data@5.7.12 to 7.0.7, which is not part of
+          this change. Ignored while dependency scanning moves from Snyk to Trivy, which will report
+          it from then on.
+        expires: 2027-01-01T00:00:00.000Z
+        created: 2026-10-01T00:00:00.000Z
+  SNYK-JAVA-ORGSPRINGFRAMEWORKBOOT-16191649:
+    - '*':
+        reason: >
+          Use of Cryptographically Weak Pseudo-Random Number Generator (PRNG) in
+          org.springframework.boot:spring-boot@2.7.18 (through org.springframework.boot:spring-boot-
+          autoconfigure@2.7.18). Fixed by upgrading org.springframework.boot:spring-boot-starter-
+          actuator@2.7.18 to 4.0.0, which is not part of this change. Ignored while dependency
+          scanning moves from Snyk to Trivy, which will report it from then on.
+        expires: 2027-01-01T00:00:00.000Z
+        created: 2026-10-01T00:00:00.000Z
+  SNYK-JAVA-IOUNDERTOW-15968277:
+    - '*':
+        reason: >
+          HTTP Request Smuggling in io.undertow:undertow-core@2.2.39.Final. Fixed by upgrading
+          io.undertow:undertow-core@2.2.39.Final to 2.3.25.Final, which is not part of this change.
+          Ignored while dependency scanning moves from Snyk to Trivy, which will report it from then
+          on.
+        expires: 2027-01-01T00:00:00.000Z
+        created: 2026-10-01T00:00:00.000Z
+  SNYK-JAVA-ORGSPRINGFRAMEWORK-17254544:
+    - '*':
+        reason: >
+          Allocation of Resources Without Limits or Throttling in org.springframework:spring-
+          webmvc@5.3.34 (through org.springframework.boot:spring-boot-starter-web@2.7.18). Fixed by
+          upgrading org.springframework.boot:spring-boot-starter-web@2.7.18 to 4.0.0, which is not
+          part of this change. Ignored while dependency scanning moves from Snyk to Trivy, which
+          will report it from then on.
+        expires: 2027-01-01T00:00:00.000Z
+        created: 2026-10-01T00:00:00.000Z
+  SNYK-JAVA-ORGSPRINGFRAMEWORK-19267438:
+    - '*':
+        reason: >
+          Directory Traversal in org.springframework:spring-context-support@5.3.34. Fixed by
+          upgrading tech.jhipster:jhipster-framework@7.9.3 to 8.3.0, which is not part of this
+          change. Ignored while dependency scanning moves from Snyk to Trivy, which will report it
+          from then on.
+        expires: 2027-01-01T00:00:00.000Z
+        created: 2026-10-01T00:00:00.000Z
+  SNYK-JAVA-COMFASTERXMLJACKSONCORE-20059179:
+    - '*':
+        reason: >
+          Allocation of Resources Without Limits or Throttling in
+          com.fasterxml.jackson.core:jackson-core@2.18.8. Fixed by upgrading
+          com.fasterxml.jackson.core:jackson-databind@2.18.8 to 2.18.11, which is not part of this
+          change. Ignored while dependency scanning moves from Snyk to Trivy, which will report it
+          from then on.
+        expires: 2027-01-01T00:00:00.000Z
+        created: 2026-10-01T00:00:00.000Z
+  SNYK-JAVA-ORGSPRINGFRAMEWORK-17254527:
+    - '*':
+        reason: >
+          Direct Request ('Forced Browsing') in org.springframework:spring-webmvc@5.3.34 (through
+          org.springframework.boot:spring-boot-starter-web@2.7.18). Fixed by upgrading
+          org.springframework.boot:spring-boot-starter-web@2.7.18 to 4.0.0, which is not part of
+          this change. Ignored while dependency scanning moves from Snyk to Trivy, which will report
+          it from then on.
+        expires: 2027-01-01T00:00:00.000Z
+        created: 2026-10-01T00:00:00.000Z
+  SNYK-JAVA-IOMICROMETER-19233327:
+    - '*':
+        reason: >
+          CRLF Injection in io.micrometer:micrometer-core@1.15.12. Fixed by upgrading
+          org.springframework.boot:spring-boot-starter-actuator@2.7.18 to 4.0.0, which is not part
+          of this change. Ignored while dependency scanning moves from Snyk to Trivy, which will
+          report it from then on.
+        expires: 2027-01-01T00:00:00.000Z
+        created: 2026-10-01T00:00:00.000Z
+  SNYK-JAVA-COMFASTERXMLJACKSONCORE-17972608:
+    - '*':
+        reason: >
+          Incorrect Authorization in com.fasterxml.jackson.core:jackson-databind@2.18.8 (through
+          com.fasterxml.jackson.dataformat:jackson-dataformat-csv@2.18.8). Fixed by upgrading
+          com.auth0:java-jwt@4.5.0 to 4.6.1, which is not part of this change. Ignored while
+          dependency scanning moves from Snyk to Trivy, which will report it from then on.
+        expires: 2027-01-01T00:00:00.000Z
+        created: 2026-10-01T00:00:00.000Z
+  SNYK-JAVA-IOMICROMETER-19256585:
+    - '*':
+        reason: >
+          Missing Release of Memory after Effective Lifetime in io.micrometer:micrometer-
+          core@1.15.12. Fixed by upgrading org.springframework.boot:spring-boot-starter-
+          actuator@2.7.18 to 4.0.0, which is not part of this change. Ignored while dependency
+          scanning moves from Snyk to Trivy, which will report it from then on.
+        expires: 2027-01-01T00:00:00.000Z
+        created: 2026-10-01T00:00:00.000Z
+  SNYK-JAVA-COMFASTERXMLJACKSONCORE-20059683:
+    - '*':
+        reason: >
+          Allocation of Resources Without Limits or Throttling in
+          com.fasterxml.jackson.core:jackson-databind@2.18.8. Fixed by upgrading
+          com.fasterxml.jackson.core:jackson-databind@2.18.8 to 2.18.11, which is not part of this
+          change. Ignored while dependency scanning moves from Snyk to Trivy, which will report it
+          from then on.
+        expires: 2027-01-01T00:00:00.000Z
+        created: 2026-10-01T00:00:00.000Z
+  SNYK-JAVA-ORGSPRINGFRAMEWORKBOOT-16198880:
+    - '*':
+        reason: >
+          Insecure Temporary File in org.springframework.boot:spring-boot@2.7.18 (through
+          org.springframework.boot:spring-boot-autoconfigure@2.7.18). Fixed by upgrading
+          org.springframework.boot:spring-boot-starter-actuator@2.7.18 to 4.0.0, which is not part
+          of this change. Ignored while dependency scanning moves from Snyk to Trivy, which will
+          report it from then on.
+        expires: 2027-01-01T00:00:00.000Z
+        created: 2026-10-01T00:00:00.000Z
+  SNYK-JAVA-ORGSPRINGFRAMEWORK-19267078:
+    - '*':
+        reason: >
+          Cross-site Scripting (XSS) in org.springframework:spring-web@5.3.34 (through
+          org.springframework.security:spring-security-web@5.7.13). Fixed by upgrading
+          org.springframework.security:spring-security-web@5.7.13 to 7.0.7, which is not part of
+          this change. Ignored while dependency scanning moves from Snyk to Trivy, which will report
+          it from then on.
+        expires: 2027-01-01T00:00:00.000Z
+        created: 2026-10-01T00:00:00.000Z
+  SNYK-JAVA-ORGSPRINGFRAMEWORKSECURITY-19267441:
+    - '*':
+        reason: >
+          Timing Attack in org.springframework.security:spring-security-core@5.7.12 (through
+          org.springframework.security:spring-security-web@5.7.13). Fixed by upgrading
+          org.springframework.security:spring-security-data@5.7.12 to 7.0.7, which is not part of
+          this change. Ignored while dependency scanning moves from Snyk to Trivy, which will report
+          it from then on.
+        expires: 2027-01-01T00:00:00.000Z
+        created: 2026-10-01T00:00:00.000Z
+  SNYK-JAVA-IOUNDERTOW-16009217:
+    - '*':
+        reason: >
+          HTTP Request Smuggling in io.undertow:undertow-core@2.2.39.Final. Fixed by upgrading
+          io.undertow:undertow-core@2.2.39.Final to 2.3.25.Final, which is not part of this change.
+          Ignored while dependency scanning moves from Snyk to Trivy, which will report it from then
+          on.
+        expires: 2027-01-01T00:00:00.000Z
+        created: 2026-10-01T00:00:00.000Z
+  SNYK-JAVA-ORGSPRINGFRAMEWORKBOOT-15701836:
+    - '*':
+        reason: >
+          Authentication Bypass Using an Alternate Path or Channel in
+          org.springframework.boot:spring-boot-actuator@2.7.18 (through
+          org.springframework.boot:spring-boot-starter-actuator@2.7.18). Fixed by upgrading
+          org.springframework.boot:spring-boot-starter-actuator@2.7.18 to 4.0.0, which is not part
+          of this change. Ignored while dependency scanning moves from Snyk to Trivy, which will
+          report it from then on.
+        expires: 2027-01-01T00:00:00.000Z
+        created: 2026-10-01T00:00:00.000Z
+  SNYK-JAVA-ORGSPRINGFRAMEWORKSECURITY-15701796:
+    - '*':
+        reason: >
+          Use of Cache Containing Sensitive Information in org.springframework.security:spring-
+          security-web@5.7.13. Fixed by upgrading org.springframework.boot:spring-boot-starter-
+          security@2.7.18 to 4.0.8, which is not part of this change. Ignored while dependency
+          scanning moves from Snyk to Trivy, which will report it from then on.
+        expires: 2027-01-01T00:00:00.000Z
+        created: 2026-10-01T00:00:00.000Z
+  SNYK-JAVA-ORGSPRINGFRAMEWORKBOOT-15701835:
+    - '*':
+        reason: >
+          Authentication Bypass Using an Alternate Path or Channel in
+          org.springframework.boot:spring-boot-actuator-autoconfigure@2.7.18 (through
+          org.springframework.boot:spring-boot-starter-actuator@2.7.18). Fixed by upgrading
+          org.springframework.boot:spring-boot-starter-actuator@2.7.18 to 4.0.0, which is not part
+          of this change. Ignored while dependency scanning moves from Snyk to Trivy, which will
+          report it from then on.
+        expires: 2027-01-01T00:00:00.000Z
+        created: 2026-10-01T00:00:00.000Z
+  SNYK-JAVA-ORGSPRINGFRAMEWORKBOOT-16191022:
+    - '*':
+        reason: >
+          Improper Validation of Certificate with Host Mismatch in org.springframework.boot:spring-
+          boot-autoconfigure@2.7.18. Fixed by upgrading org.springframework.boot:spring-boot-
+          starter-actuator@2.7.18 to 4.0.0, which is not part of this change. Ignored while
+          dependency scanning moves from Snyk to Trivy, which will report it from then on.
+        expires: 2027-01-01T00:00:00.000Z
+        created: 2026-10-01T00:00:00.000Z
+  SNYK-JAVA-ORGSPRINGFRAMEWORKSECURITY-9486467:
+    - '*':
+        reason: >
+          Authentication Bypass by Primary Weakness in org.springframework.security:spring-security-
+          crypto@5.7.12 (through org.springframework.security:spring-security-web@5.7.13). Fixed by
+          upgrading org.springframework.security:spring-security-web@5.7.13 to 7.0.7, which is not
+          part of this change. Ignored while dependency scanning moves from Snyk to Trivy, which
+          will report it from then on.
+        expires: 2027-01-01T00:00:00.000Z
+        created: 2026-10-01T00:00:00.000Z
+  SNYK-JAVA-ORGSPRINGFRAMEWORK-19267098:
+    - '*':
+        reason: >
+          Arbitrary Code Injection in org.springframework:spring-webmvc@5.3.34 (through
+          org.springframework.boot:spring-boot-starter-web@2.7.18). Fixed by upgrading
+          org.springframework.boot:spring-boot-starter-web@2.7.18 to 4.0.0, which is not part of
+          this change. Ignored while dependency scanning moves from Snyk to Trivy, which will report
+          it from then on.
+        expires: 2027-01-01T00:00:00.000Z
+        created: 2026-10-01T00:00:00.000Z
+  SNYK-JS-ANGULARCORE-17353317:
+    - '*':
+        reason: >
+          Modification of Assumed-Immutable Data in @angular/core@12.2.12. Fixed by upgrading
+          @angular/core@12.2.12 to 20.3.25, which is not part of this change. Ignored while
+          dependency scanning moves from Snyk to Trivy, which will report it from then on.
+        expires: 2027-01-01T00:00:00.000Z
+        created: 2026-10-01T00:00:00.000Z
+  SNYK-JS-ANGULARCOMMON-17353316:
+    - '*':
+        reason: >
+          Allocation of Resources Without Limits or Throttling in @angular/common@12.2.12. Fixed by
+          upgrading @angular/common@12.2.12 to 20.3.27, which is not part of this change. Ignored
+          while dependency scanning moves from Snyk to Trivy, which will report it from then on.
+        expires: 2027-01-01T00:00:00.000Z
+        created: 2026-10-01T00:00:00.000Z
+  SNYK-JS-ANGULARCOMMON-18550632:
+    - '*':
+        reason: >
+          Insufficient Verification of Data Authenticity in @angular/common@12.2.12. Fixed by
+          upgrading @angular/common@12.2.12 to 20.3.27, which is not part of this change. Ignored
+          while dependency scanning moves from Snyk to Trivy, which will report it from then on.
+        expires: 2027-01-01T00:00:00.000Z
+        created: 2026-10-01T00:00:00.000Z
+  SNYK-JS-BRACES-19963945:
+    - '*':
+        reason: >
+          Uncontrolled Recursion in braces@3.0.3 (through @angular/localize@16.2.12). Fixed by
+          upgrading @angular/localize@16.2.12 to 20.0.0, which is not part of this change. Ignored
+          while dependency scanning moves from Snyk to Trivy, which will report it from then on.
+        expires: 2027-01-01T00:00:00.000Z
+        created: 2026-10-01T00:00:00.000Z
+  SNYK-JS-PICOMATCH-15765511:
+    - '*':
+        reason: >
+          Regular Expression Denial of Service (ReDoS) in picomatch@4.0.2 (through
+          @angular/localize@16.2.12). Fixed by upgrading @angular/localize@16.2.12 to 20.0.0, which
+          is not part of this change. Ignored while dependency scanning moves from Snyk to Trivy,
+          which will report it from then on.
+        expires: 2027-01-01T00:00:00.000Z
+        created: 2026-10-01T00:00:00.000Z
+  SNYK-JS-ANGULARCOMMON-14135651:
+    - '*':
+        reason: >
+          Insertion of Sensitive Information Into Sent Data in @angular/common@12.2.12. Fixed by
+          upgrading @angular/common@12.2.12 to 20.3.27, which is not part of this change. Ignored
+          while dependency scanning moves from Snyk to Trivy, which will report it from then on.
+        expires: 2027-01-01T00:00:00.000Z
+        created: 2026-10-01T00:00:00.000Z
+  SNYK-JS-ANGULARCOMMON-17356486:
+    - '*':
+        reason: >
+          Regular Expression Denial of Service (ReDoS) in @angular/common@12.2.12. Fixed by
+          upgrading @angular/common@12.2.12 to 20.3.27, which is not part of this change. Ignored
+          while dependency scanning moves from Snyk to Trivy, which will report it from then on.
+        expires: 2027-01-01T00:00:00.000Z
+        created: 2026-10-01T00:00:00.000Z
+  SNYK-JS-ANGULARCORE-15353393:
+    - '*':
+        reason: >
+          Cross-site Scripting (XSS) in @angular/core@12.2.12. Fixed by upgrading
+          @angular/core@12.2.12 to 20.3.25, which is not part of this change. Ignored while
+          dependency scanning moves from Snyk to Trivy, which will report it from then on.
+        expires: 2027-01-01T00:00:00.000Z
+        created: 2026-10-01T00:00:00.000Z
+  SNYK-JS-ANGULARCOMMON-17356555:
+    - '*':
+        reason: >
+          Use of Weak Hash in @angular/common@12.2.12. Fixed by upgrading @angular/common@12.2.12 to
+          20.3.27, which is not part of this change. Ignored while dependency scanning moves from
+          Snyk to Trivy, which will report it from then on.
+        expires: 2027-01-01T00:00:00.000Z
+        created: 2026-10-01T00:00:00.000Z
 patch: {}
