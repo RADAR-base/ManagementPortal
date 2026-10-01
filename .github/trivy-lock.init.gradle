@@ -13,7 +13,11 @@ allprojects {
             if (!gradle.startParameter.writeDependencyLocks) {
                 throw new GradleException('Run trivyLock with --write-locks')
             }
-            project.configurations.matching { it.name in lockedNames && it.canBeResolved }.each { it.resolve() }
+            // Resolve only the dependency graph, which is all that locking needs. Resolving files (resolve())
+            // fails in multi-module Android builds, where project dependencies offer several artifact variants.
+            project.configurations.matching { it.name in lockedNames && it.canBeResolved }.each {
+                it.incoming.resolutionResult.allComponents
+            }
         }
     }
 }
