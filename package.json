@@ -1,6 +1,6 @@
 {
   "name": "management-portal",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "Description for ManagementPortal",
   "private": true,
   "cacheDirectories": [
@@ -58,7 +58,7 @@
   "resolutions": {
     "ansi-regex": "5.0.1",
     "braces": "3.0.3",
-    "micromatch": "4.0.6"
+    "micromatch": "4.0.8"
   },
   "scripts": {
     "lint": "ng lint",

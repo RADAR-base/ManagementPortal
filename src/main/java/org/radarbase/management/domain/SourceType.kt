@@ -51,7 +51,7 @@ class SourceType : AbstractEntity(), Serializable {
     var name: String? = null
 
     @JvmField
-    @Column(name = "description")
+    @Column(name = "description", length = 2048)
     var description: String? = null
 
     @JvmField

@@ -144,6 +144,7 @@ open class HydraOAuthClientService(
                 grantTypes = clientDetailsDto.authorizedGrantTypes?.toList(),
                 responseTypes = listOf("code"), // Default response type
                 scope = clientDetailsDto.scope?.joinToString(" "),
+                audience = clientDetailsDto.resourceIds?.toList(),
                 tokenEndpointAuthMethod = "client_secret_basic"
             )
 
@@ -189,6 +190,7 @@ open class HydraOAuthClientService(
                 grantTypes = clientDetailsDto.authorizedGrantTypes?.toList(),
                 responseTypes = listOf("code"),
                 scope = clientDetailsDto.scope?.joinToString(" "),
+                audience = clientDetailsDto.resourceIds?.toList(),
                 tokenEndpointAuthMethod = "client_secret_basic"
             )
 

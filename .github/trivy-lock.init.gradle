@@ -1,0 +1,23 @@
+// Writes a gradle.lockfile per project with only the classpath that ships, so Trivy scans what ships.
+// It mirrors the old Snyk gate's --configuration-matching="^runtimeClasspath$".
+// Usage: ./gradlew -I trivy-lock.init.gradle trivyLock --write-locks
+// Android modules have no runtimeClasspath; pass -PtrivyConfigurations=releaseRuntimeClasspath (comma-separated).
+allprojects {
+    def lockedNames = (findProperty('trivyConfigurations') ?: 'runtimeClasspath').toString().split(',')*.trim()
+    configurations.matching { it.name in lockedNames }.configureEach {
+        resolutionStrategy.activateDependencyLocking()
+    }
+    tasks.register('trivyLock') {
+        notCompatibleWithConfigurationCache('resolves configurations at execution time')
+        doLast {
+            if (!gradle.startParameter.writeDependencyLocks) {
+                throw new GradleException('Run trivyLock with --write-locks')
+            }
+            // Resolve only the dependency graph, which is all that locking needs. Resolving files (resolve())
+            // fails in multi-module Android builds, where project dependencies offer several artifact variants.
+            project.configurations.matching { it.name in lockedNames && it.canBeResolved }.each {
+                it.incoming.resolutionResult.allComponents
+            }
+        }
+    }
+}

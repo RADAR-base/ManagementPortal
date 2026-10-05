@@ -53,8 +53,8 @@ class ManagementPortalOauthKeyStoreHandler @Autowired constructor(
     private val oauthConfig: Oauth
     private val verifierPublicKeyAliasList: List<String>
     private val managementPortalBaseUrl: String
-    val verifiers: MutableList<JWTVerifier>
-    val refreshTokenVerifiers: MutableList<JWTVerifier>
+    final val verifiers: MutableList<JWTVerifier>
+    final val refreshTokenVerifiers: MutableList<JWTVerifier>
 
     /**
      * Keystore factory. This tries to load the first valid keystore listed in resources.

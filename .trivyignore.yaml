@@ -1,0 +1,112 @@
+# Trivy ignore file (https://trivy.dev/latest/docs/configuration/filtering/#trivyignoreyaml).
+# Every entry needs a reason and an expiry, for example:
+#
+#   vulnerabilities:
+#     - id: CVE-2024-12345
+#       statement: Not exploitable, because ...
+#       expired_at: 2027-01-01
+vulnerabilities:
+  - id: CVE-2025-22235
+    statement: >-
+      org.springframework.boot:spring-boot 2.7.18 (HIGH): fixed only in 3.3.11, 3.4.5 (Spring 6 / Spring Boot 3 line); no public fix for Spring Boot 2.7 / Spring 5.3. Needs the Spring Boot 3 migration.
+    expired_at: 2027-04-05
+  - id: CVE-2026-40973
+    statement: >-
+      org.springframework.boot:spring-boot 2.7.18 (HIGH): fixed only in 4.0.6, 3.5.14 (Spring 6 / Spring Boot 3 line); no public fix for Spring Boot 2.7 / Spring 5.3. Needs the Spring Boot 3 migration.
+    expired_at: 2027-04-05
+  - id: CVE-2026-40972
+    statement: >-
+      org.springframework.boot:spring-boot-devtools 2.7.18 (HIGH): fixed only in 4.0.6, 3.5.14 (Spring 6 / Spring Boot 3 line); no public fix for Spring Boot 2.7 / Spring 5.3. Needs the Spring Boot 3 migration.
+    expired_at: 2027-04-05
+  - id: CVE-2026-22733
+    statement: >-
+      org.springframework.boot:spring-boot-starter-actuator 2.7.18 (HIGH): fixed only in 4.0.4, 3.5.12 (Spring 6 / Spring Boot 3 line); no public fix for Spring Boot 2.7 / Spring 5.3. Needs the Spring Boot 3 migration.
+    expired_at: 2027-04-05
+  - id: CVE-2026-41716
+    statement: >-
+      org.springframework.data:spring-data-commons 2.7.5 (HIGH): fixed only in 4.0.6, 3.5.12 (Spring 6 / Spring Boot 3 line); no public fix for Spring Boot 2.7 / Spring 5.3. Needs the Spring Boot 3 migration.
+    expired_at: 2027-04-05
+  - id: CVE-2025-22228
+    statement: >-
+      org.springframework.security:spring-security-crypto 5.7.14 (HIGH): fixed only in Spring Security 6.x (or commercial 5.7.16/5.8.18; public 5.8 ends at 5.8.16). Needs the Spring Boot 3 migration.
+    expired_at: 2027-04-05
+  - id: CVE-2026-22732
+    statement: >-
+      org.springframework.security:spring-security-web 5.7.13 (CRITICAL): fixed only in Spring Security 6.x (or commercial 5.7.16/5.8.18; public 5.8 ends at 5.8.16). Needs the Spring Boot 3 migration.
+    expired_at: 2027-04-05
+  - id: CVE-2025-41249
+    statement: >-
+      org.springframework:spring-core 5.3.39 (HIGH): fixed only in 6.2.11 (Spring 6 / Spring Boot 3 line); no public fix for Spring Boot 2.7 / Spring 5.3. Needs the Spring Boot 3 migration.
+    expired_at: 2027-04-05
+  - id: CVE-2026-41850
+    statement: >-
+      org.springframework:spring-expression 5.3.39 (HIGH): fixed only in 7.0.8, 6.2.19 (Spring 6 / Spring Boot 3 line); no public fix for Spring Boot 2.7 / Spring 5.3. Needs the Spring Boot 3 migration.
+    expired_at: 2027-04-05
+  - id: CVE-2016-1000027
+    statement: >-
+      org.springframework:spring-web 5.3.39 (CRITICAL): fixed only in 6.0.0 (Spring 6 / Spring Boot 3 line); no public fix for Spring Boot 2.7 / Spring 5.3. Needs the Spring Boot 3 migration.
+    expired_at: 2027-04-05
+  - id: CVE-2024-38816
+    statement: >-
+      org.springframework:spring-webmvc 5.3.39 (HIGH): fixed only in 6.1.13 (Spring 6 / Spring Boot 3 line); no public fix for Spring Boot 2.7 / Spring 5.3. Needs the Spring Boot 3 migration.
+    expired_at: 2027-04-05
+  - id: CVE-2024-38819
+    statement: >-
+      org.springframework:spring-webmvc 5.3.39 (HIGH): fixed only in 6.1.14 (Spring 6 / Spring Boot 3 line); no public fix for Spring Boot 2.7 / Spring 5.3. Needs the Spring Boot 3 migration.
+    expired_at: 2027-04-05
+  - id: CVE-2026-41842
+    statement: >-
+      org.springframework:spring-webmvc 5.3.39 (HIGH): fixed only in 7.0.8, 6.2.19 (Spring 6 / Spring Boot 3 line); no public fix for Spring Boot 2.7 / Spring 5.3. Needs the Spring Boot 3 migration.
+    expired_at: 2027-04-05
+  - id: CVE-2026-41845
+    statement: >-
+      org.springframework:spring-webmvc 5.3.39 (HIGH): fixed only in 7.0.8, 6.2.19 (Spring 6 / Spring Boot 3 line); no public fix for Spring Boot 2.7 / Spring 5.3. Needs the Spring Boot 3 migration.
+    expired_at: 2027-04-05
+  - id: CVE-2022-1471
+    statement: >-
+      org.yaml:snakeyaml 1.33 (HIGH): fixed only in snakeyaml 2.0, which Spring Boot 2.7 doesn't support. Needs the Spring Boot 3 migration.
+    expired_at: 2027-04-05
+  - id: CVE-2025-66035
+    statement: >-
+      @angular/common 12.2.12 (HIGH): fixed only in Angular 19.2+ / 20+, no fix in the end-of-life Angular 12 line. Needs the Angular major upgrade.
+    expired_at: 2027-04-05
+  - id: CVE-2026-50170
+    statement: >-
+      @angular/common 12.2.12 (HIGH): fixed only in Angular 19.2+ / 20+, no fix in the end-of-life Angular 12 line. Needs the Angular major upgrade.
+    expired_at: 2027-04-05
+  - id: CVE-2026-50171
+    statement: >-
+      @angular/common 12.2.12 (HIGH): fixed only in Angular 19.2+ / 20+, no fix in the end-of-life Angular 12 line. Needs the Angular major upgrade.
+    expired_at: 2027-04-05
+  - id: CVE-2026-54266
+    statement: >-
+      @angular/common 12.2.12 (HIGH): fixed only in Angular 19.2+ / 20+, no fix in the end-of-life Angular 12 line. Needs the Angular major upgrade.
+    expired_at: 2027-04-05
+  - id: CVE-2026-54268
+    statement: >-
+      @angular/common 12.2.12 (HIGH): fixed only in Angular 19.2+ / 20+, no fix in the end-of-life Angular 12 line. Needs the Angular major upgrade.
+    expired_at: 2027-04-05
+  - id: CVE-2026-68945
+    statement: >-
+      @angular/common 12.2.12 (HIGH): fixed only in Angular 19.2+ / 20+, no fix in the end-of-life Angular 12 line. Needs the Angular major upgrade.
+    expired_at: 2027-04-05
+  - id: CVE-2026-22610
+    statement: >-
+      @angular/core 12.2.12 (HIGH): fixed only in Angular 19.2+ / 20+, no fix in the end-of-life Angular 12 line. Needs the Angular major upgrade.
+    expired_at: 2027-04-05
+  - id: CVE-2026-27970
+    statement: >-
+      @angular/core 12.2.12 (HIGH): fixed only in Angular 19.2+ / 20+, no fix in the end-of-life Angular 12 line. Needs the Angular major upgrade.
+    expired_at: 2027-04-05
+  - id: CVE-2026-54267
+    statement: >-
+      @angular/core 12.2.12 (HIGH): fixed only in Angular 19.2+ / 20+, no fix in the end-of-life Angular 12 line. Needs the Angular major upgrade.
+    expired_at: 2027-04-05
+  - id: CVE-2026-69151
+    statement: >-
+      @angular/core 12.2.12 (HIGH): fixed only in Angular 19.2+ / 20+, no fix in the end-of-life Angular 12 line. Needs the Angular major upgrade.
+    expired_at: 2027-04-05
+  - id: CVE-2026-101896
+    statement: >-
+      @angular/router 12.2.12 (HIGH): fixed only in Angular 19.2+ / 20+, no fix in the end-of-life Angular 12 line. Needs the Angular major upgrade.
+    expired_at: 2027-04-05
