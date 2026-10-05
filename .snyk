@@ -519,4 +519,13 @@ ignore:
           Snyk to Trivy, which will report it from then on.
         expires: 2027-01-01T00:00:00.000Z
         created: 2026-10-01T00:00:00.000Z
+  SNYK-JS-ANGULARROUTER-20361514:
+    - '*':
+        reason: >
+          Allocation of Resources Without Limits or Throttling in @angular/router@12.2.12 (CVE-2026-101896,
+          GHSA-ff3f-86qr-9cv3). There is no fix for Angular <= 19.2.25; the first fixed release is 20.3.32, which
+          needs the Angular major upgrade. Ignored while dependency scanning moves from Snyk to Trivy, which will
+          report it from then on.
+        expires: 2027-01-01T00:00:00.000Z
+        created: 2026-10-05T00:00:00.000Z
 patch: {}
