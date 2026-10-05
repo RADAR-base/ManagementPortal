@@ -25,7 +25,7 @@ open class RadarWebApplicationException @JvmOverloads constructor(
     status: HttpStatus?, message: String?, entityName: String,
     errorCode: String?, params: Map<String, String?>? = emptyMap<String, String>()
 ) : ResponseStatusException(status, message, null) {
-    override val message: String?
+    final override val message: String?
     val entityName: String
     val errorCode: String?
     private val paramMap: MutableMap<String, String?> = HashMap()
